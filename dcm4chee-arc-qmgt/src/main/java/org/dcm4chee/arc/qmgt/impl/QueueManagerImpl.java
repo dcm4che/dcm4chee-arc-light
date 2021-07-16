@@ -43,7 +43,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
@@ -90,7 +90,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public boolean cancelTask(Long msgID, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+    public boolean cancelTask(Long msgID, TaskEvent queueEvent) throws IllegalTaskStateException {
         return ejb.cancelTask(msgID, queueEvent);
     }
 
@@ -120,18 +120,18 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public void rescheduleTask(Long msgID, String queueName, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleTask(Long msgID, String queueName, TaskEvent queueEvent, Date scheduledTime) {
         ejb.rescheduleTask(msgID, queueName, queueEvent, scheduledTime);
 //        scheduler.process(queueName, scheduledTime);
     }
 
     @Override
-    public boolean deleteTask(Long msgId, QueueMessageEvent queueEvent) {
+    public boolean deleteTask(Long msgId, TaskEvent queueEvent) {
         return ejb.deleteTask(msgId, queueEvent);
     }
 
     @Override
-    public boolean deleteTask(Long msgId, QueueMessageEvent queueEvent, boolean deleteAssociated) {
+    public boolean deleteTask(Long msgId, TaskEvent queueEvent, boolean deleteAssociated) {
         return ejb.deleteTask(msgId, queueEvent, deleteAssociated);
     }
 

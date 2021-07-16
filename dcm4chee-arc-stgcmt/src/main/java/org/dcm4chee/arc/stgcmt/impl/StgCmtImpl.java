@@ -216,7 +216,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         task.setExporterID(exporterID);
         task.setPayload(actionInfo);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.schedule(task);
+        taskManager.scheduleTask(task);
     }
 
     private void scheduleNEventReport(String localAET, String remoteAET, Attributes eventInfo) {
@@ -229,7 +229,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         task.setRemoteAET(remoteAET);
         task.setPayload(eventInfo);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.schedule(task);
+        taskManager.scheduleTask(task);
     }
 
     @Override

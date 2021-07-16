@@ -44,13 +44,10 @@ package org.dcm4chee.arc.entity;
 import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 
-import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.*;
@@ -99,8 +96,6 @@ import java.util.Date;
                 "and o.status=?5")
 @NamedQuery(name = Task.FIND_DEVICE_BY_BATCH_ID,
         query = "select distinct o.deviceName from QueueMessage o where o.batchID=?1 order by o.deviceName")
-@NamedQuery(name = Task.FIND_BY_PK_AND_TYPE,
-        query = "select o from Task o where o.pk=?1 and o.type=?2")
 @NamedQuery(name = Task.DIFF_ATTRS_BY_PK,
         query = "select attrs.encodedAttributes from Task o join o.diffTaskAttributes attrs where o.pk=?1")
 @NamedQuery(name = Task.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
@@ -124,7 +119,6 @@ public class Task {
             "Task.FindByExporterIDAndStudyIUIDAndSeriesIUID";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID =
             "Task.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
-    public static final String FIND_BY_PK_AND_TYPE = "Task.FindByPkAndType";
     public static final String DIFF_ATTRS_BY_PK = "Task.DiffAttrsByPk";
     public static final String COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS = "Task.CountByDeviceAndQueueNameAndStatus";
     public static final String COUNT_BY_BATCH_ID_AND_TYPE = "Task.CountByBatchIdAndType";
@@ -231,13 +225,24 @@ public class Task {
     };
 
     public enum Status {
-        SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED;
+        SCHEDULED(false),
+        IN_PROCESS(false),
+        COMPLETED(true),
+        WARNING(true),
+        FAILED(true),
+        CANCELED(true);
+
+        public final boolean done;
+
+        Status(boolean done) {
+            this.done = done;
+        }
 
         public static Status fromString(String s) {
             return Status.valueOf(s.replace(' ', '_'));
         }
 
-        @Override
+         @Override
         public String toString() {
             return name().replace('_', ' ');
         }

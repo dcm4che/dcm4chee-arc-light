@@ -46,9 +46,8 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.StgCmtResult;
-import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -59,7 +58,6 @@ import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -87,13 +85,9 @@ public interface StgCmtManager {
     Outcome executeStgVerTask(Task storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
             throws IOException;
 
-    boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
-
-    long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
-
     Tuple findDeviceNameAndMsgPropsByPk(Long pk);
 
-    void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime);
+    void rescheduleStgVerTask(Long pk, TaskEvent queueEvent, Date scheduledTime);
 
     void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, Date scheduledTime);
 
@@ -105,7 +99,7 @@ public interface StgCmtManager {
     List<Tuple> listStgVerTaskPKAndMsgProps(
             TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
 
-    boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent);
+    boolean deleteStgVerTask(Long pk, TaskEvent queueEvent);
 
     int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize);
 

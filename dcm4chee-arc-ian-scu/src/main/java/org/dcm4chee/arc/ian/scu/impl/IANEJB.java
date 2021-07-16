@@ -152,7 +152,7 @@ public class IANEJB {
         task.setSOPInstanceUID(UIDUtils.createUID());
         task.setPayload(attrs);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.schedule(task);
+        taskManager.scheduleTask(task);
     }
 
     public void removeIANTask(IanTask task) {

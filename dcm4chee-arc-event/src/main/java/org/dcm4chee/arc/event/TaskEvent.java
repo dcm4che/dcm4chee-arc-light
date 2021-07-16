@@ -1,39 +1,37 @@
 package org.dcm4chee.arc.event;
 
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @since Jan 2018
  */
 
-public class QueueMessageEvent {
+public class TaskEvent {
     private final HttpServletRequest request;
-    private final QueueMessageOperation operation;
-    private QueueMessage queueMsg;
+    private final TaskOperation operation;
+    private final Task task;
     private Exception exception;
 
-    public QueueMessageEvent(HttpServletRequest request, QueueMessageOperation operation) {
+    public TaskEvent(HttpServletRequest request, TaskOperation operation, Task task) {
         this.request = request;
         this.operation = operation;
+        this.task = task;
     }
 
     public HttpServletRequest getRequest() {
         return request;
     }
 
-    public QueueMessageOperation getOperation() {
+    public TaskOperation getOperation() {
         return operation;
     }
 
-    public QueueMessage getQueueMsg() {
-        return queueMsg;
-    }
-
-    public void setQueueMsg(QueueMessage queueMsg) {
-        this.queueMsg = queueMsg;
+    public Task getTask() {
+        return task;
     }
 
     public Exception getException() {

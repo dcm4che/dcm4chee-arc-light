@@ -56,9 +56,8 @@ import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -207,22 +206,12 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        return ejb.cancelStgVerTask(pk, queueEvent);
-    }
-
-    @Override
-    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return ejb.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
-    }
-
-    @Override
     public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
         return ejb.findDeviceNameAndMsgPropsByPk(pk);
     }
 
     @Override
-    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleStgVerTask(Long pk, TaskEvent queueEvent, Date scheduledTime) {
         ejb.rescheduleStgVerTask(pk, queueEvent, scheduledTime);
     }
 
@@ -249,7 +238,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+    public boolean deleteStgVerTask(Long pk, TaskEvent queueEvent) {
         return ejb.deleteStgVerTask(pk, queueEvent);
     }
 

@@ -51,12 +51,10 @@ import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.MessageCanceled;
+import org.dcm4chee.arc.qmgt.TaskCanceled;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -155,7 +153,7 @@ public class DiffServiceImpl implements DiffService {
         task.setCheckMissing(ctx.isCheckMissing());
         task.setCheckDifferent(ctx.isCheckDifferent());
         task.setCompareFields(ctx.getCompareFields());
-        taskManager.schedule(task);
+        taskManager.scheduleTask(task);
     }
 
     private ScheduledFuture<?> updateDiffTaskAtFixRate(Task diffTask, DiffSCU diffSCU) {
@@ -168,8 +166,8 @@ public class DiffServiceImpl implements DiffService {
                 : null;
     }
 
-    public void cancelDiffTask(@Observes MessageCanceled event) {
-        DiffSCU diffSCU = diffSCUMap.get(event.queueMessage.getPk());
+    public void cancelDiffTask(@Observes TaskCanceled event) {
+        DiffSCU diffSCU = diffSCUMap.get(event.task.getPk());
         if (diffSCU != null)
             diffSCU.cancel();
     }
@@ -181,11 +179,6 @@ public class DiffServiceImpl implements DiffService {
         status = check(", missing: ", diffSCU.missing(), status, sb);
         status = check(", different: ", diffSCU.different(), status, sb);
         return new Outcome(status, sb.toString());
-    }
-
-    @Override
-    public Task getDiffTask(long taskPK) {
-        return ejb.getDiffTask(taskPK);
     }
 
     @Override
@@ -209,17 +202,7 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        return ejb.cancelDiffTask(pk, queueEvent);
-    }
-
-    @Override
-    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return ejb.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
-    }
-
-    @Override
-    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleDiffTask(Long pk, TaskEvent queueEvent, Date scheduledTime) {
         ejb.rescheduleDiffTask(pk, queueEvent, scheduledTime);
     }
 
@@ -249,16 +232,6 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
         return ejb.findDeviceNameAndMsgPropsByPk(pk);
-    }
-
-    @Override
-    public boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.deleteDiffTask(pk, queueEvent);
-    }
-
-    @Override
-    public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(queueTaskQueryParam, diffTaskQueryParam, deleteTasksFetchSize);
     }
 
     private Task.Status check(String prompt, int failures, Task.Status status, StringBuilder sb) {

@@ -41,9 +41,8 @@
 package org.dcm4chee.arc.export.mgt;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -51,7 +50,6 @@ import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.persistence.Tuple;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -77,29 +75,17 @@ public interface ExportManager {
                           String batchID, Date scheduledTime,
                           HttpServletRequestInfo httpServletRequestInfo);
 
-    List<Long> findExportTasksToSchedule(int fetchSize);
-
-    boolean scheduleExportTask(Long pk);
-
     boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID, Date scheduledTime);
-
-    boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent);
-
-    boolean cancelExportTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
-
-    long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
 
     String findDeviceNameByPk(Long pk);
 
-    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
+    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, TaskEvent queueEvent) throws IllegalTaskStateException;
 
     void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                              QueueMessageEvent queueEvent);
+                              TaskEvent queueEvent);
 
     void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                              QueueMessageEvent queueEvent, Date scheduledTime);
-
-    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize);
+                              TaskEvent queueEvent, Date scheduledTime);
 
     List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam);
 

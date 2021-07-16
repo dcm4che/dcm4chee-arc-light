@@ -747,6 +747,6 @@ public class DeletionServiceEJB {
         }
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
-        taskManager.schedule(task);
+        taskManager.scheduleTask(task);
     }
 }

@@ -46,20 +46,26 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.event.BulkTaskEvent;
+import org.dcm4chee.arc.event.TaskEvent;
+import org.dcm4chee.arc.event.TaskOperation;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.ws.rs.WebApplicationException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -67,6 +73,7 @@ import java.util.function.Consumer;
  */
 @ApplicationScoped
 public class TaskManagerImpl implements TaskManager {
+    private static final Logger LOG = LoggerFactory.getLogger(TaskManagerImpl.class);
 
     @Inject
     private Device device;
@@ -77,8 +84,19 @@ public class TaskManagerImpl implements TaskManager {
     @Inject
     private TaskScheduler scheduler;
 
+    @Inject
+    private Event<TaskEvent> taskEventEvent;
+
+    @Inject
+    private Event<BulkTaskEvent> bulkTaskEventEvent;
+
     @Override
-    public void schedule(Task task) {
+    public Task findTask(TaskQueryParam1 taskQueryParam) {
+        return ejb.findTask(taskQueryParam);
+    }
+
+    @Override
+    public void scheduleTask(Task task) {
         ejb.scheduleTask(task);
         if (task.getScheduledTime().getTime() <= System.currentTimeMillis()) {
             processQueue(task.getQueueName());
@@ -92,17 +110,12 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action) {
-        ejb.forEachTask(taskQueryParam, offset, limit, action);
-    }
-
-    @Override
     public StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit) {
         return out -> {
             Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
             try (JsonGenerator gen = Json.createGenerator(w)) {
                 gen.writeStartArray();
-                forEachTask(taskQueryParam, offset, limit, task -> task.writeAsJSON(gen));
+                ejb.forEachTask(taskQueryParam, offset, limit, task -> task.writeAsJSON(gen));
                 gen.writeEnd();
             }
         };
@@ -117,14 +130,127 @@ public class TaskManagerImpl implements TaskManager {
                     .withHeader(headers)
                     .withDelimiter(delimiter)
                     .withQuoteMode(QuoteMode.ALL))) {
-                forEachTask(taskQueryParam, offset, limit, task -> task.writeAsCSV(printer));
+                ejb.forEachTask(taskQueryParam, offset, limit, task -> task.writeAsCSV(printer));
             }
         };
     }
 
     @Override
-    public long countTasks(TaskQueryParam1 taskQueryParam) {
-        return ejb.countTasks(taskQueryParam);
+    public Response countTasks(TaskQueryParam1 taskQueryParam) {
+        try {
+            return count(ejb.countTasks(taskQueryParam));
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public Response cancelTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+        try {
+            Task task = ejb.cancelTask(taskQueryParam);
+            if (task == null)
+                return noSuchTask(taskQueryParam.getTaskPK());
+            return Response.noContent().build();
+        } catch (IllegalTaskStateException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public Response cancelTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+        Task.Status status = taskQueryParam.getStatus();
+        if (status == null)
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
+
+        if (status != Task.Status.SCHEDULED && status != Task.Status.IN_PROCESS)
+            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
+
+        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.CancelTasks);
+        try {
+            LOG.info("Cancel processing of Tasks with Status {}", status);
+            long count = 0;
+            if (status == Task.Status.SCHEDULED) {
+                count = ejb.cancelTasks(taskQueryParam);
+            } else {
+                ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+                int taskFetchSize = arcDev.getTaskFetchSize();
+                int canceled;
+                do {
+                    count += canceled = ejb.cancelTasks(taskQueryParam, taskFetchSize);
+                } while (canceled >= taskFetchSize);
+            }
+            queueEvent.setCount(count);
+            return count(count);
+        } catch (Exception e) {
+            queueEvent.setException(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            bulkTaskEventEvent.fire(queueEvent);
+        }
+    }
+
+    @Override
+    public Response deleteTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+        try {
+            Task task = ejb.deleteTask(taskQueryParam);
+            if (task == null)
+                return noSuchTask(taskQueryParam.getTaskPK());
+            this.taskEventEvent.fire(new TaskEvent(request, TaskOperation.DeleteTasks, task));
+            return Response.noContent().build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+        BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.DeleteTasks);
+        try {
+            long count = 0;
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            int taskFetchSize = arcDev.getTaskFetchSize();
+            int deleted;
+            do {
+                count += deleted = ejb.deleteTasks(taskQueryParam, taskFetchSize);
+            } while (deleted >= taskFetchSize);
+            if (count > 0) {
+                taskEvent.setCount(count);
+                bulkTaskEventEvent.fire(taskEvent);
+            }
+            return Response.ok("{\"deleted\":" + count + '}').build();
+        } catch (Exception e) {
+            taskEvent.setException(e);
+            bulkTaskEventEvent.fire(taskEvent);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response noSuchTask(long taskID) {
+        return errResponse("No such Task : " + taskID, Response.Status.NOT_FOUND);
+    }
+
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
+    private Response count(long count) {
+        return Response.ok("{\"count\":" + count + '}').build();
     }
 
 }

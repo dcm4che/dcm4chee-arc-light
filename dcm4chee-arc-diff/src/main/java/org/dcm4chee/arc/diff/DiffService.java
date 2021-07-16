@@ -41,9 +41,8 @@
 
 package org.dcm4chee.arc.diff;
 
-import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -51,7 +50,6 @@ import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.persistence.Tuple;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -70,8 +68,6 @@ public interface DiffService {
 
     Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
 
-    Task getDiffTask(long taskPK);
-
     List<byte[]> getDiffTaskAttributes(Task diffTask, int offset, int limit);
 
     List<byte[]> getDiffTaskAttributes(TaskQueryParam1 queryParam, int offset, int limit);
@@ -80,19 +76,11 @@ public interface DiffService {
 
     long diffTasksOfBatch(String batchID);
 
-    boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
-
-    long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
-
-    void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime);
+    void rescheduleDiffTask(Long pk, TaskEvent queueEvent, Date scheduledTime);
 
     void rescheduleDiffTaskByMsgID(Long msgId, Date scheduledTime);
 
     Tuple findDeviceNameAndMsgPropsByPk(Long pk);
-
-    boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
-
-    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
 

@@ -197,7 +197,7 @@ public class HL7SenderImpl implements HL7Sender {
         }
         task.setPayload(data);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.schedule(task);
+        taskManager.scheduleTask(task);
     }
 
 }

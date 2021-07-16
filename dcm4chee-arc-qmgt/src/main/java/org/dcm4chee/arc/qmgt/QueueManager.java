@@ -41,7 +41,7 @@
 package org.dcm4chee.arc.qmgt;
 
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.persistence.Tuple;
@@ -60,7 +60,7 @@ public interface QueueManager {
 
     long countScheduledMessagesOnThisDevice(String queueName);
 
-    boolean cancelTask(Long msgID, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
+    boolean cancelTask(Long msgID, TaskEvent queueEvent) throws IllegalTaskStateException;
 
     long cancelTasks(TaskQueryParam queueTaskQueryParam);
 
@@ -72,11 +72,11 @@ public interface QueueManager {
 
     long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
 
-    void rescheduleTask(Long msgID, String queueName, QueueMessageEvent queueEvent, Date scheduledTime);
+    void rescheduleTask(Long msgID, String queueName, TaskEvent queueEvent, Date scheduledTime);
 
-    boolean deleteTask(Long msgID, QueueMessageEvent queueEvent);
+    boolean deleteTask(Long msgID, TaskEvent queueEvent);
 
-    boolean deleteTask(Long msgID, QueueMessageEvent queueEvent, boolean deleteAssociated);
+    boolean deleteTask(Long msgID, TaskEvent queueEvent, boolean deleteAssociated);
 
     int deleteTasks(TaskQueryParam taskQueryParam, int deleteTaskFetchSize);
 

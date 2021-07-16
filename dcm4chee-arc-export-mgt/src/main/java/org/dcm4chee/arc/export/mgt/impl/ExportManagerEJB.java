@@ -42,14 +42,12 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -59,8 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -194,25 +190,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public List<Long> findExportTasksToSchedule(int fetchSize) {
-        return em.createNamedQuery(
-                ExportTask.FIND_SCHEDULED_BY_DEVICE_NAME, Long.class)
-                .setParameter(1, device.getDeviceName())
-                .setMaxResults(fetchSize)
-                .getResultList();
-    }
-
-    @Override
-    public boolean scheduleExportTask(Long pk) {
-        ExportTask exportTask = em.find(ExportTask.class, pk);
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
-        scheduleExportTask(exportTask, exporter, null, null);
-        return true;
-    }
-
-    @Override
     public boolean scheduleStudyExport(
             String studyUID, ExporterDescriptor exporter,
             Date notExportedAfter, String batchID, Date scheduledTime) {
@@ -287,42 +264,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent) {
-        ExportTask task = em.find(ExportTask.class, pk);
-        if (task == null)
-            return false;
-
-        QueueMessage queueMsg = task.getQueueMessage();
-        if (queueMsg == null)
-            em.remove(task);
-        else
-            queueManager.deleteTask(queueMsg.getPk(), queueEvent);
-
-        LOG.info("Delete {}", task);
-        return true;
-    }
-
-    @Override
-    public boolean cancelExportTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        ExportTask task = em.find(ExportTask.class, pk);
-        if (task == null)
-            return false;
-
-        QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage == null)
-            throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
-
-        queueManager.cancelTask(queueMessage.getPk(), queueEvent);
-        LOG.info("Cancel {}", task);
-        return true;
-    }
-
-    @Override
-    public long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        return queueManager.cancelExportTasks(queueTaskQueryParam, exportTaskQueryParam);
-    }
-
-    @Override
     public String findDeviceNameByPk(Long pk) {
         try {
             return em.createNamedQuery(ExportTask.FIND_DEVICE_BY_PK, String.class)
@@ -334,19 +275,19 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
+    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, TaskEvent queueEvent) {
         rescheduleExportTask(pk, exporter, null, queueEvent, null);
     }
 
     @Override
     public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                     QueueMessageEvent queueEvent) {
+                                     TaskEvent queueEvent) {
         rescheduleExportTask(pk, exporter, httpServletRequestInfo, queueEvent, null);
     }
 
     @Override
     public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                     QueueMessageEvent queueEvent, Date scheduledTime) {
+                                     TaskEvent queueEvent, Date scheduledTime) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return;
@@ -358,7 +299,7 @@ public class ExportManagerEJB implements ExportManager {
             rescheduleAtScheduledTime(task, queueEvent, scheduledTime);
     }
 
-    private void rescheduleAtScheduledTime(ExportTask task, QueueMessageEvent queueEvent, Date scheduledTime) {
+    private void rescheduleAtScheduledTime(ExportTask task, TaskEvent queueEvent, Date scheduledTime) {
         task.setScheduledTime(scheduledTime);
         if (task.getQueueMessage() != null) {
             queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
@@ -367,7 +308,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     private void rescheduleImmediately(ExportTask task, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                       QueueMessageEvent queueEvent) {
+                                       TaskEvent queueEvent) {
         if (task.getQueueMessage() == null)
             scheduleExportTask(task, exporter, httpServletRequestInfo, task.getBatchID());
         else {
@@ -545,41 +486,6 @@ public class ExportManagerEJB implements ExportManager {
         }
         return predicates;
     }
-    
-    public int deleteTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize) {
-        QueueMessage.Status status = queueTaskQueryParam.getStatus();
-        if (status == QueueMessage.Status.TO_SCHEDULE)
-            return deleteToSchedule(exportTaskQueryParam);
-
-        if (status == null && queueTaskQueryParam.getBatchID() == null)
-            return deleteReferencedTasks(queueTaskQueryParam, exportTaskQueryParam, deleteTasksFetchSize)
-                    + deleteToSchedule(exportTaskQueryParam);
-
-        return deleteReferencedTasks(queueTaskQueryParam, exportTaskQueryParam, deleteTasksFetchSize);
-    }
-
-    private int deleteToSchedule(TaskQueryParam exportTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaDelete<ExportTask> q = cb.createCriteriaDelete(ExportTask.class);
-        Root<ExportTask> exportTask = q.from(ExportTask.class);
-        List<Predicate> predicates = new ArrayList<>();
-        new MatchTask(cb).matchExportTask(predicates, exportTaskQueryParam, exportTask);
-        predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
-        q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(q).executeUpdate();
-    }
-
-    private int deleteReferencedTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize) {
-        List<Long> referencedQueueMsgIDs = em.createQuery(
-                select(QueueMessage_.pk, queueTaskQueryParam, exportTaskQueryParam))
-                .setMaxResults(deleteTasksFetchSize)
-                .getResultList();
-
-        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
-        return referencedQueueMsgIDs.size();
-    }
 
     private CriteriaQuery<String> select(
             SingularAttribute<ExportTask, String> attribute, TaskQueryParam exportTaskQueryParam) {
@@ -593,16 +499,4 @@ public class ExportManagerEJB implements ExportManager {
         return q.select(exportTask.get(attribute));
     }
 
-    private CriteriaQuery<Long> select(SingularAttribute<QueueMessage, Long> attribute,
-                                       TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        Root<ExportTask> exportTask = q.from(ExportTask.class);
-        From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage);
-        List<Predicate> predicates = new MatchTask(cb).exportPredicates(
-                queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return q.select(queueMsg.get(attribute));
-    }
 }

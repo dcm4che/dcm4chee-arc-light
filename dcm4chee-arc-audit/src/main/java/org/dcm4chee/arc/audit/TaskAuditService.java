@@ -43,12 +43,15 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.event.BulkQueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.event.BulkTaskEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -59,13 +62,13 @@ import java.nio.file.Path;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
-class QueueMessageAuditService {
+class TaskAuditService {
 
-    private final static Logger LOG = LoggerFactory.getLogger(QueueMessageAuditService.class);
+    private final static Logger LOG = LoggerFactory.getLogger(TaskAuditService.class);
 
-    static AuditInfoBuilder queueMsgAuditInfo(QueueMessageEvent queueMsgEvent) {
+    static AuditInfoBuilder queueMsgAuditInfo(TaskEvent queueMsgEvent) {
         HttpServletRequest req = queueMsgEvent.getRequest();
-        QueueMessage queueMsg = queueMsgEvent.getQueueMsg();
+        Task queueMsg = queueMsgEvent.getTask();
         return new AuditInfoBuilder.Builder()
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteHost())
@@ -76,7 +79,7 @@ class QueueMessageAuditService {
                 .build();
     }
 
-    static AuditInfoBuilder bulkQueueMsgAuditInfo(BulkQueueMessageEvent bulkQueueMsgEvent, String callingUser) {
+    static AuditInfoBuilder bulkQueueMsgAuditInfo(BulkTaskEvent bulkQueueMsgEvent, String callingUser) {
         HttpServletRequest req = bulkQueueMsgEvent.getRequest();
         AuditInfoBuilder.Builder builder = new AuditInfoBuilder.Builder()
                 .callingUserID(callingUser)
@@ -134,12 +137,10 @@ class QueueMessageAuditService {
         return e != null ? e.getMessage() : null;
     }
 
-    private static String toString(QueueMessage queueMsg) {
+    private static String toString(Task task) {
         StringWriter w = new StringWriter(256);
-        try {
-            queueMsg.writeAsJSON(w);
-        } catch (IOException e) {
-            LOG.warn(e.getMessage());
+        try (JsonGenerator gen = Json.createGenerator(w)){
+            task.writeAsJSON(gen);
         }
         return w.toString();
     }

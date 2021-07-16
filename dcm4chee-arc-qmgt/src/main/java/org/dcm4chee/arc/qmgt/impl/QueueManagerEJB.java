@@ -44,7 +44,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -81,7 +81,7 @@ public class QueueManagerEJB {
     private Device device;
 
     @Inject
-    private Event<MessageCanceled> messageCanceledEvent;
+    private Event<TaskCanceled> messageCanceledEvent;
 
     public QueueMessage scheduleMessage(String deviceName, String queueName, Date scheduledTime,
                                         String messageProperties, Serializable messageBody, String batchID) {
@@ -182,13 +182,13 @@ public class QueueManagerEJB {
         return entity;
     }
 
-    public boolean cancelTask(Long msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+    public boolean cancelTask(Long msgId, TaskEvent queueEvent) throws IllegalTaskStateException {
         QueueMessage entity = em.find(QueueMessage.class, msgId);
         if (entity == null)
             return false;
 
-        if (queueEvent != null)
-            queueEvent.setQueueMsg(entity);
+//        if (queueEvent != null)
+//            queueEvent.setQueueMsg(entity);
 
         switch (entity.getStatus()) {
             case COMPLETED:
@@ -206,7 +206,7 @@ public class QueueManagerEJB {
         entity.setStatus(QueueMessage.Status.CANCELED);
         setUpdateTime(entity);
         LOG.info("Cancel processing of", entity);
-        messageCanceledEvent.fire(new MessageCanceled(entity));
+//        messageCanceledEvent.fire(new TaskCanceled(entity));
     }
 
     private void setUpdateTime(QueueMessage entity) {
@@ -435,13 +435,13 @@ public class QueueManagerEJB {
         return em.createQuery(tupleQuery).getSingleResult();
     }
 
-    public void rescheduleTask(Long msgId, String queueName, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleTask(Long msgId, String queueName, TaskEvent queueEvent, Date scheduledTime) {
         QueueMessage entity = em.find(QueueMessage.class, msgId);
         if (entity == null)
             return;
 
-        if (queueEvent != null)
-            queueEvent.setQueueMsg(entity);
+//        if (queueEvent != null)
+//            queueEvent.setQueueMsg(entity);
 
         switch (entity.getStatus()) {
             case SCHEDULED:
@@ -474,24 +474,24 @@ public class QueueManagerEJB {
             entity.getRetrieveTask().setDeviceName(entity.getDeviceName());
     }
 
-    public boolean deleteTask(Long msgId, QueueMessageEvent queueEvent) {
+    public boolean deleteTask(Long msgId, TaskEvent queueEvent) {
         return deleteTask(msgId, queueEvent, true);
     }
 
-    public boolean deleteTask(Long msgId, QueueMessageEvent queueEvent, boolean deleteAssociated) {
+    public boolean deleteTask(Long msgId, TaskEvent queueEvent, boolean deleteAssociated) {
         QueueMessage entity = em.find(QueueMessage.class, msgId);
         if (entity == null)
             return false;
 
-        if (queueEvent != null)
-            queueEvent.setQueueMsg(entity);
+//        if (queueEvent != null)
+//            queueEvent.setQueueMsg(entity);
         deleteTask(entity, deleteAssociated);
         return true;
     }
 
     private void deleteTask(QueueMessage entity, boolean deleteAssociated) {
-        if (entity.getStatus() == QueueMessage.Status.IN_PROCESS)
-            messageCanceledEvent.fire(new MessageCanceled(entity));
+//        if (entity.getStatus() == QueueMessage.Status.IN_PROCESS)
+//            messageCanceledEvent.fire(new TaskCanceled(entity));
 
         if (deleteAssociated) {
             if (entity.getExportTask() != null)

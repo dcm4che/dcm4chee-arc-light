@@ -45,8 +45,8 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.event.BulkQueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageOperation;
+import org.dcm4chee.arc.event.BulkTaskEvent;
+import org.dcm4chee.arc.event.TaskOperation;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class PurgeQueueMessageScheduler extends Scheduler {
     private QueueManager mgr;
 
     @Inject
-    private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
+    private Event<BulkTaskEvent> bulkQueueMsgEvent;
 
     protected PurgeQueueMessageScheduler() {
         super(Mode.scheduleWithFixedDelay);
@@ -109,7 +109,7 @@ public class PurgeQueueMessageScheduler extends Scheduler {
         int count;
         int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                     .getQueueTasksFetchSize();
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(queueName, QueueMessageOperation.DeleteTasks);
+        BulkTaskEvent queueEvent = new BulkTaskEvent(queueName, TaskOperation.DeleteTasks);
         do {
             count = mgr.deleteTasks(
                     taskQueryParam(queueName, status, before),

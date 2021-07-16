@@ -40,7 +40,7 @@ package org.dcm4chee.arc.retrieve.mgt;
 
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
@@ -48,7 +48,6 @@ import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
 import javax.persistence.Tuple;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -62,19 +61,9 @@ public interface RetrieveManager {
 
     int scheduleRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter);
 
-    boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent);
+    void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent);
 
-    boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
-
-    long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam);
-
-    void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent);
-
-    void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime);
-
-    void markTaskForRetrieve(Long pk, String devName, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime);
-
-    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize);
+    void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent, Date scheduledTime);
 
     List<RetrieveBatch> listRetrieveBatches(TaskQueryParam1 taskQueryParam, int offset, int limit);
 
@@ -85,8 +74,6 @@ public interface RetrieveManager {
     List<Tuple> listRetrieveTaskPkAndLocalAETs(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit);
 
     Tuple findDeviceNameAndLocalAETByPk(Long pk);
-
-    List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, Set<String> suspendedQueues);
 
     boolean scheduleRetrieveTask(Long pk);
 }

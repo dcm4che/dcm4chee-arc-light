@@ -51,7 +51,7 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -62,8 +62,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
@@ -252,24 +250,6 @@ public class StgCmtEJB {
                 .executeUpdate();
     }
 
-    public boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
-        if (task == null)
-            return false;
-
-        QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage == null)
-            throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
-
-        queueManager.cancelTask(queueMessage.getPk(), queueEvent);
-        LOG.info("Cancel {}", task);
-        return true;
-    }
-
-    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return queueManager.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
-    }
-
     public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
@@ -282,7 +262,7 @@ public class StgCmtEJB {
         return em.createQuery(tupleQuery).getSingleResult();
     }
 
-    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleStgVerTask(Long pk, TaskEvent queueEvent, Date scheduledTime) {
         StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
         if (task == null)
             return;
@@ -291,7 +271,7 @@ public class StgCmtEJB {
         rescheduleStgVerTaskByQueueMsgPK(task.getQueueMessage().getPk(), queueEvent, scheduledTime);
     }
 
-    public void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, TaskEvent queueEvent, Date scheduledTime) {
         queueManager.rescheduleTask(stgVerTaskQueueMsgPK, StgCmtManager.QUEUE_NAME, queueEvent, scheduledTime);
     }
 
@@ -326,7 +306,7 @@ public class StgCmtEJB {
                 .getResultList();
     }
 
-    public boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent) {
+    public boolean deleteStgVerTask(Long pk, TaskEvent queueEvent) {
         StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
         if (task == null)
             return false;

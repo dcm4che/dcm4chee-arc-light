@@ -49,9 +49,9 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.BulkQueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageOperation;
+import org.dcm4chee.arc.event.BulkTaskEvent;
+import org.dcm4chee.arc.event.TaskEvent;
+import org.dcm4chee.arc.event.TaskOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -78,7 +78,6 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -106,15 +105,6 @@ public class ExportTaskRS {
 
     @Inject
     private IDeviceCache deviceCache;
-
-    @Inject
-    private RSClient rsClient;
-
-    @Inject
-    private Event<QueueMessageEvent> queueMsgEvent;
-
-    @Inject
-    private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     @Context
     private HttpHeaders httpHeaders;
@@ -183,7 +173,7 @@ public class ExportTaskRS {
 
         try {
             return Response.ok(
-                    output.entity(taskManager, taskQueryParam1(deviceName), parseInt(offset), parseInt(limit)),
+                    output.entity(taskManager, taskQueryParam(deviceName), parseInt(offset), parseInt(limit)),
                     output.type)
                     .build();
         } catch (Exception e) {
@@ -197,30 +187,14 @@ public class ExportTaskRS {
     @Produces("application/json")
     public Response countExportTasks() {
         logRequest();
-        try {
-            return count(taskManager.countTasks(taskQueryParam1(deviceName)));
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return taskManager.countTasks(taskQueryParam(deviceName));
     }
 
     @POST
-    @Path("{taskPK}/cancel")
-    public Response cancelExportTask(@PathParam("taskPK") long pk) {
+    @Path("{taskID}/cancel")
+    public Response cancelExportTask(@PathParam("taskID") long taskID) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-
-        try {
-            return rsp(mgr.cancelExportTask(pk, queueEvent), pk);
-        } catch (IllegalTaskStateException e) {
-            queueEvent.setException(e);
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.cancelTask(taskQueryParam(taskID), request);
     }
 
     @POST
@@ -228,33 +202,15 @@ public class ExportTaskRS {
     @Produces("application/json")
     public Response cancelExportTasks() {
         logRequest();
-        QueueMessage.Status status = status();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-        if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
-
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        try {
-            LOG.info("Cancel processing of Export Tasks with Status {}", status);
-            TaskQueryParam queueTaskQueryParam = queueTaskQueryParam(status);
-            queueTaskQueryParam.setUpdatedTime(updatedTime);
-            long count = mgr.cancelExportTasks(queueTaskQueryParam, exportTaskQueryParam(deviceName, null));
-            queueEvent.setCount(count);
-            return count(count);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.cancelTasks(taskQueryParam(deviceName), request);
     }
 
+/*
     @POST
     @Path("{taskPK}/reschedule/{ExporterID}")
     public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        TaskEvent queueEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
         try {
             String taskDeviceName;
             if ((taskDeviceName = mgr.findDeviceNameByPk(pk)) == null)
@@ -346,7 +302,7 @@ public class ExportTaskRS {
     }
 
     private int rescheduleTasks(ExporterDescriptor newExporter, String devName, QueueMessage.Status status) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
             int count;
@@ -381,54 +337,20 @@ public class ExportTaskRS {
             bulkQueueMsgEvent.fire(queueEvent);
         }
     }
+*/
 
     @DELETE
     @Path("/{taskPK}")
     public Response deleteTask(@PathParam("taskPK") long pk) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        try {
-            return rsp(mgr.deleteExportTask(pk, queueEvent), pk);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.deleteTask(taskQueryParam(taskID), request);
     }
 
     @DELETE
     @Produces("application/json")
     public Response deleteTasks() {
         logRequest();
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        QueueMessage.Status status = status();
-        int deleted = 0;
-        try {
-            int count;
-            int deleteTasksFetchSize = queueTasksFetchSize();
-            do {
-                count = mgr.deleteTasks(queueTaskQueryParam(status),
-                        exportTaskQueryParam(deviceName, updatedTime),
-                        deleteTasksFetchSize);
-                deleted += count;
-            } while (count >= deleteTasksFetchSize);
-            queueEvent.setCount(deleted);
-            return deleted(deleted);
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    private Response rsp(boolean result, long pk) {
-        return result
-                ? Response.noContent().build()
-                : errResponse("No such Export Task : " + pk, Response.Status.NOT_FOUND);
+        return taskManager.deleteTasks(taskQueryParam(deviceName), request);
     }
 
     private static Response count(long count) {
@@ -569,27 +491,7 @@ public class ExportTaskRS {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
-    private TaskQueryParam queueTaskQueryParam(QueueMessage.Status status) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam exportTaskQueryParam(String deviceName, String updatedTime) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setExporterIDs(exporterIDs.stream()
-                                        .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
-                                        .collect(Collectors.toList()));
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
-        taskQueryParam.setStudyIUID(studyUID);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam1 taskQueryParam1(String deviceName) {
+    private TaskQueryParam1 taskQueryParam(String deviceName) {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setDeviceName(deviceName);
@@ -603,6 +505,13 @@ public class ExportTaskRS {
         taskQueryParam.setExporterIDs(exporterIDs.stream()
                 .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
                 .collect(Collectors.toList()));
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam(Long taskID) {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setTaskPK(taskID);
+        taskQueryParam.setType(Task.Type.EXPORT);
         return taskQueryParam;
     }
 }

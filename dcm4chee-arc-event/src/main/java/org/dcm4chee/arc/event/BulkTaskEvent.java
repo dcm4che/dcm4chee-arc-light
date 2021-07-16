@@ -4,23 +4,24 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @since Feb 2018
  */
 
-public class BulkQueueMessageEvent {
+public class BulkTaskEvent {
     private HttpServletRequest request;
-    private final QueueMessageOperation operation;
+    private final TaskOperation operation;
     private long count;
     private int failed;
     private Exception exception;
     private String queueName;
 
-    public BulkQueueMessageEvent(HttpServletRequest request, QueueMessageOperation operation) {
+    public BulkTaskEvent(HttpServletRequest request, TaskOperation operation) {
         this.request = request;
         this.operation = operation;
     }
 
-    public BulkQueueMessageEvent(String queueName, QueueMessageOperation operation) {
+    public BulkTaskEvent(String queueName, TaskOperation operation) {
         this.queueName = queueName;
         this.operation = operation;
     }
@@ -29,7 +30,7 @@ public class BulkQueueMessageEvent {
         return request;
     }
 
-    public QueueMessageOperation getOperation() {
+    public TaskOperation getOperation() {
         return operation;
     }
 

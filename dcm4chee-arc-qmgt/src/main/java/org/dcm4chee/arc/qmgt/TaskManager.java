@@ -45,21 +45,30 @@ package org.dcm4chee.arc.qmgt;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.util.function.Consumer;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Jun 2021
  */
 public interface TaskManager {
-    void schedule(Task task);
+    Task findTask(TaskQueryParam1 taskQueryParam);
 
-    long countTasks(TaskQueryParam1 taskQueryParam);
+    void scheduleTask(Task task);
+
+    Response countTasks(TaskQueryParam1 taskQueryParam);
+
+    Response cancelTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
+
+    Response cancelTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
+
+    Response deleteTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
+
+    Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
 
     void processQueue(String queueName);
-
-    void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action);
 
     StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit);
 

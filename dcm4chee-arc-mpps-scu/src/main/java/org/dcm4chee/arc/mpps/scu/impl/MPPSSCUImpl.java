@@ -137,7 +137,7 @@ class MPPSSCUImpl implements MPPSSCU {
                 task.setPatientName(patAttrs.getString(Tag.PatientName));
                 task.setPayload(ctx.getAttributes());
                 task.setStatus(Task.Status.SCHEDULED);
-                taskManager.schedule(task);
+                taskManager.scheduleTask(task);
             } catch (Exception e) {
                 LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}",
                         ctx.getDimse(), ctx.getSopInstanceUID(), remoteAET, e);

@@ -44,10 +44,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
@@ -65,7 +63,6 @@ import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -154,39 +151,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.deleteRetrieveTask(pk, queueEvent);
-    }
-
-    @Override
-    public boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        return ejb.cancelRetrieveTask(pk, queueEvent);
-    }
-
-    @Override
-    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam){
-        return ejb.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
-    }
-
-    @Override
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent) {
+    public void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent) {
         ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
     }
 
     @Override
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent, Date scheduledTime) {
         ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent, scheduledTime);
-    }
-
-    @Override
-    public void markTaskForRetrieve(
-            Long pk, String devName, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
-        ejb.markTaskForRetrieve(pk, devName, newQueueName, queueEvent, scheduledTime);
-    }
-
-    @Override
-    public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize);
     }
 
     @Override
@@ -214,11 +185,6 @@ public class RetrieveManagerImpl implements RetrieveManager {
     @Override
     public Tuple findDeviceNameAndLocalAETByPk(Long pk) {
         return ejb.findDeviceNameAndLocalAETByPk(pk);
-    }
-
-    @Override
-    public List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, Set<String> suspendedQueues) {
-        return ejb.findRetrieveTasksToSchedule(fetchSize, suspendedQueues);
     }
 
     @Override

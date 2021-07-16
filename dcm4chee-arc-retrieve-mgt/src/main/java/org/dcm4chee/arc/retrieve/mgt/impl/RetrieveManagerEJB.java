@@ -44,8 +44,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -57,8 +56,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -231,44 +228,11 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    public boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
-        RetrieveTask task = em.find(RetrieveTask.class, pk);
-        if (task == null)
-            return false;
-
-        QueueMessage queueMsg = task.getQueueMessage();
-        if (queueMsg == null)
-            em.remove(task);
-        else
-            queueManager.deleteTask(queueMsg.getPk(), queueEvent);
-
-        LOG.info("Delete {}", task);
-        return true;
-    }
-
-    public boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        RetrieveTask task = em.find(RetrieveTask.class, pk);
-        if (task == null)
-            return false;
-
-        QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage == null)
-            throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
-
-        queueManager.cancelTask(queueMessage.getPk(), queueEvent);
-        LOG.info("Cancel {}", task);
-        return true;
-    }
-
-    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return queueManager.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
-    }
-
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent) {
+    public void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent) {
         rescheduleRetrieveTask(pk, newQueueName, queueEvent, null);
     }
 
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent, Date scheduledTime) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return;
@@ -282,7 +246,7 @@ public class RetrieveManagerEJB {
             rescheduleAtScheduledTime(task, queueEvent, scheduledTime);
     }
 
-    private void rescheduleAtScheduledTime(RetrieveTask task, QueueMessageEvent queueEvent, Date scheduledTime) {
+    private void rescheduleAtScheduledTime(RetrieveTask task, TaskEvent queueEvent, Date scheduledTime) {
         task.setScheduledTime(scheduledTime);
         if (task.getQueueMessage() != null) {
             queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
@@ -290,7 +254,7 @@ public class RetrieveManagerEJB {
         }
     }
 
-    private void rescheduleImmediately(RetrieveTask task, QueueMessageEvent queueEvent) {
+    private void rescheduleImmediately(RetrieveTask task, TaskEvent queueEvent) {
         if (task.getQueueMessage() == null)
             scheduleRetrieveTask(task, queueEvent.getRequest());
         else {
@@ -298,24 +262,6 @@ public class RetrieveManagerEJB {
             task.setScheduledTime(new Date());
             queueManager.rescheduleTask(task.getQueueMessage().getPk(), task.getQueueName(), queueEvent, new Date());
         }
-    }
-
-    public void markTaskForRetrieve(
-            Long pk, String devName, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
-        RetrieveTask task = em.find(RetrieveTask.class, pk);
-        if (task == null)
-            return;
-
-        LOG.info("Mark {} for retrieve on device {}", task, devName);
-        task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
-        task.setDeviceName(devName);
-        if (newQueueName != null)
-            task.setQueueName(newQueueName);
-        if (task.getQueueMessage() == null)
-            return;
-
-        queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
-        task.setQueueMessage(null);
     }
 
     private Attributes toKeys(RetrieveTask task) {
@@ -525,67 +471,6 @@ public class RetrieveManagerEJB {
         private List<String> select(CriteriaQuery<String> query, Path<String> path) {
             return em.createQuery(query.select(path)).getResultList();
         }
-    }
-
-    public int deleteTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
-        QueueMessage.Status status = queueTaskQueryParam.getStatus();
-        if (status == QueueMessage.Status.TO_SCHEDULE)
-            return deleteToSchedule(retrieveTaskQueryParam);
-
-        if (status == null && queueTaskQueryParam.getBatchID() == null)
-            return deleteReferencedTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize)
-                    + deleteToSchedule(retrieveTaskQueryParam);
-
-        return deleteReferencedTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize);
-    }
-
-    private int deleteToSchedule(TaskQueryParam retrieveTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaDelete<RetrieveTask> q = cb.createCriteriaDelete(RetrieveTask.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        List<Predicate> predicates = new ArrayList<>();
-        new MatchTask(cb).matchRetrieveTask(predicates, retrieveTaskQueryParam, retrieveTask);
-        predicates.add(retrieveTask.get(RetrieveTask_.queueMessage).isNull());
-        q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(q).executeUpdate();
-    }
-
-    private int deleteReferencedTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage);
-        List<Predicate> predicates = new MatchTask(cb).retrievePredicates(
-                queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        List<Long> referencedQueueMsgIDs = em.createQuery(
-                q.select(queueMsg.get(QueueMessage_.pk)))
-                .setMaxResults(deleteTasksFetchSize)
-                .getResultList();
-
-        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
-        return referencedQueueMsgIDs.size();
-    }
-
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, Set<String> suspendedQueues) {
-        return queryRetrieveTasksToSchedule(suspendedQueues)
-                .setMaxResults(fetchSize)
-                .getResultList();
-    }
-
-    private TypedQuery<RetrieveTask.PkAndQueueName> queryRetrieveTasksToSchedule(Set<String> suspendedQueues) {
-        return suspendedQueues.isEmpty()
-                ? em.createNamedQuery(RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME,
-                        RetrieveTask.PkAndQueueName.class)
-                    .setParameter(1, device.getDeviceName())
-                : em.createNamedQuery(RetrieveTask.FIND_SCHEDULED_BY_DEVICE_NAME_AND_NOT_IN_QUEUE,
-                        RetrieveTask.PkAndQueueName.class)
-                    .setParameter(1, device.getDeviceName())
-                    .setParameter(2, suspendedQueues);
     }
 
     public boolean scheduleRetrieveTask(Long pk) {

@@ -41,40 +41,29 @@
 
 package org.dcm4chee.arc.diff.rs;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.json.JSONWriter;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
-import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.BulkQueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageOperation;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
-import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
-import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
@@ -82,7 +71,6 @@ import javax.ws.rs.core.*;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -108,17 +96,8 @@ public class DiffTaskRS {
     @Inject
     private IDeviceCache deviceCache;
 
-    @Inject
-    private RSClient rsClient;
-
     @Context
     private HttpHeaders httpHeaders;
-
-    @Inject
-    private Event<QueueMessageEvent> queueMsgEvent;
-
-    @Inject
-    private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     @Context
     private HttpServletRequest request;
@@ -195,7 +174,7 @@ public class DiffTaskRS {
 
         try {
             return Response.ok(
-                    output.entity(taskManager, taskQueryParam1(deviceName), parseInt(offset), parseInt(limit)),
+                    output.entity(taskManager, taskQueryParam(deviceName), parseInt(offset), parseInt(limit)),
                     output.type)
                     .build();
         } catch (Exception e) {
@@ -209,11 +188,7 @@ public class DiffTaskRS {
     @Produces("application/json")
     public Response countDiffTasks() {
         logRequest();
-        try {
-            return count(taskManager.countTasks(taskQueryParam1(deviceName)));
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return taskManager.countTasks(taskQueryParam(deviceName));
     }
 
     @GET
@@ -222,7 +197,7 @@ public class DiffTaskRS {
     @Produces("application/dicom+json,application/json")
     public Response getDiffTaskResult(@PathParam("taskID") long taskID) {
         logRequest();
-        Task diffTask = diffService.getDiffTask(taskID);
+        Task diffTask = taskManager.findTask(taskQueryParam(taskID));
         if (diffTask == null)
             return errResponse("No such Diff Task : " + taskID, Response.Status.NOT_FOUND);
 
@@ -242,18 +217,7 @@ public class DiffTaskRS {
     @Path("{taskID}/cancel")
     public Response cancelDiffTask(@PathParam("taskID") long pk) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        try {
-            return rsp(diffService.cancelDiffTask(pk, queueEvent), pk);
-        } catch (IllegalTaskStateException e) {
-            queueEvent.setException(e);
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.cancelTask(taskQueryParam(taskID), request);
     }
 
     @POST
@@ -261,33 +225,15 @@ public class DiffTaskRS {
     @Produces("application/json")
     public Response cancelDiffTasks() {
         logRequest();
-        QueueMessage.Status status = status();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-        if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
-
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        try {
-            LOG.info("Cancel processing of Diff Tasks with Status {}", status);
-            TaskQueryParam queueTaskQueryParam = queueTaskQueryParam(deviceName, status);
-            queueTaskQueryParam.setUpdatedTime(updatedTime);
-            long count = diffService.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam(null));
-            queueEvent.setCount(count);
-            return count(count);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.cancelTasks(taskQueryParam(deviceName), request);
     }
 
+/*
     @POST
     @Path("{taskID}/reschedule")
     public Response rescheduleTask(@PathParam("taskID") long pk) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        TaskEvent queueEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
         try {
             Tuple tuple = diffService.findDeviceNameAndMsgPropsByPk(pk);
             String taskDeviceName;
@@ -371,7 +317,7 @@ public class DiffTaskRS {
     }
 
     private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, Date scheduledTime) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
             int count;
@@ -397,7 +343,7 @@ public class DiffTaskRS {
     }
 
     private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, Date scheduledTime) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
         int rescheduled = 0;
         int failed = 0;
         try {
@@ -439,48 +385,20 @@ public class DiffTaskRS {
                 ? accepted(rescheduled, failed)
                 : conflict(failed);
     }
+*/
 
     @DELETE
     @Path("/{taskID}")
     public Response deleteTask(@PathParam("taskID") long pk) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        try {
-            return rsp(diffService.deleteDiffTask(pk, queueEvent), pk);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.deleteTask(taskQueryParam(taskID), request);
     }
 
     @DELETE
     @Produces("application/json")
     public Response deleteTasks() {
         logRequest();
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        try {
-            int deleted = 0;
-            int count;
-            int deleteTasksFetchSize = queueTasksFetchSize();
-            do {
-                count = diffService.deleteTasks(
-                        queueTaskQueryParam(deviceName, status()),
-                        diffTaskQueryParam(updatedTime),
-                        deleteTasksFetchSize);
-                deleted += count;
-            } while (count >= deleteTasksFetchSize);
-            queueEvent.setCount(deleted);
-            return Response.ok("{\"deleted\":" + deleted + '}').build();
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.deleteTasks(taskQueryParam(deviceName), request);
     }
 
     private Output selectMediaType(List<String> accept) {
@@ -591,6 +509,10 @@ public class DiffTaskRS {
                 : errResponse("No such Diff Task : " + pk, Response.Status.NOT_FOUND);
     }
 
+    private Response noSuchTask(long taskID) {
+        return errResponse("No such Diff Task : " + taskID, Response.Status.NOT_FOUND);
+    }
+
     private Response notAcceptable() {
         LOG.warn("Response Status : Not Acceptable. Accept Media Type(s) in request : \n{}",
                 httpHeaders.getAcceptableMediaTypes().stream()
@@ -649,7 +571,7 @@ public class DiffTaskRS {
         return taskQueryParam;
     }
 
-    private TaskQueryParam1 taskQueryParam1(String deviceName) {
+    private TaskQueryParam1 taskQueryParam(String deviceName) {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setDeviceName(deviceName);
@@ -665,6 +587,13 @@ public class DiffTaskRS {
         taskQueryParam.setCompareFields(comparefields);
         taskQueryParam.setCheckMissing(checkMissing);
         taskQueryParam.setCheckDifferent(checkDifferent);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam(Long taskID) {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setTaskPK(taskID);
+        taskQueryParam.setType(Task.Type.DIFF);
         return taskQueryParam;
     }
 

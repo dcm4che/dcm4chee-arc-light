@@ -40,26 +40,14 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.QuoteMode;
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.StorageVerificationTask;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.BulkQueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageOperation;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.TaskManager;
-import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
@@ -69,25 +57,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
-import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Iterator;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -110,15 +92,6 @@ public class StgVerTaskRS {
 
     @Inject
     private TaskManager taskManager;
-
-    @Inject
-    private RSClient rsClient;
-
-    @Inject
-    private Event<QueueMessageEvent> queueMsgEvent;
-
-    @Inject
-    private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     @Context
     private HttpServletRequest request;
@@ -183,7 +156,7 @@ public class StgVerTaskRS {
             return notAcceptable();
         try {
             return Response.ok(
-                    output.entity(taskManager, taskQueryParam1(deviceName), parseInt(offset), parseInt(limit)),
+                    output.entity(taskManager, taskQueryParam(deviceName), parseInt(offset), parseInt(limit)),
                     output.type)
                     .build();
         } catch (Exception e) {
@@ -197,29 +170,14 @@ public class StgVerTaskRS {
     @Produces("application/json")
     public Response countStgVerTasks() {
         logRequest();
-        try {
-            return count(taskManager.countTasks(taskQueryParam1(deviceName)));
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return taskManager.countTasks(taskQueryParam(deviceName));
     }
 
     @POST
-    @Path("{taskPK}/cancel")
-    public Response cancelStgVerTask(@PathParam("taskPK") long pk) {
+    @Path("{taskID}/cancel")
+    public Response cancelStgVerTask(@PathParam("taskID") long taskID) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        try {
-            return rsp(stgCmtMgr.cancelStgVerTask(pk, queueEvent), pk);
-        } catch (IllegalTaskStateException e) {
-            queueEvent.setException(e);
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.cancelTask(taskQueryParam(taskID), request);
     }
 
     @POST
@@ -227,33 +185,15 @@ public class StgVerTaskRS {
     @Produces("application/json")
     public Response cancelStgVerTasks() {
         logRequest();
-        QueueMessage.Status status = status();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-        if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
-
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        try {
-            LOG.info("Cancel processing of Storage Verification Tasks with Status {}", status);
-            TaskQueryParam queueTaskQueryParam = queueTaskQueryParam(deviceName, status);
-            queueTaskQueryParam.setUpdatedTime(updatedTime);
-            long count = stgCmtMgr.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam(null));
-            queueEvent.setCount(count);
-            return count(count);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.cancelTasks(taskQueryParam(deviceName), request);
     }
 
+/*
     @POST
     @Path("{taskPK}/reschedule")
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        TaskEvent queueEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
         try {
             Tuple tuple = stgCmtMgr.findDeviceNameAndMsgPropsByPk(pk);
             String taskDeviceName;
@@ -336,7 +276,7 @@ public class StgVerTaskRS {
     }
 
     private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, Date scheduledTime) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
         try {
             int rescheduled = 0;
             int count;
@@ -362,7 +302,7 @@ public class StgVerTaskRS {
     }
 
     private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, Date scheduledTime) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
         int rescheduled = 0;
         int failed = 0;
         try {
@@ -404,50 +344,20 @@ public class StgVerTaskRS {
                 ? accepted(rescheduled, failed)
                 : conflict(failed);
     }
-
-
+*/
 
     @DELETE
-    @Path("/{taskPK}")
-    public Response deleteTask(@PathParam("taskPK") long pk) {
+    @Path("/{taskID}")
+    public Response deleteTask(@PathParam("taskID") long pk) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        try {
-            return rsp(stgCmtMgr.deleteStgVerTask(pk, queueEvent), pk);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.deleteTask(taskQueryParam(taskID), request);
     }
 
     @DELETE
     @Produces("application/json")
     public Response deleteTasks() {
         logRequest();
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        try {
-            int deleted = 0;
-            int count;
-            int deleteTasksFetchSize = queueTasksFetchSize();
-            do {
-                count = stgCmtMgr.deleteTasks(
-                        queueTaskQueryParam(deviceName, status()),
-                        stgVerTaskQueryParam(updatedTime),
-                        deleteTasksFetchSize);
-                deleted += count;
-            } while (count >= deleteTasksFetchSize);
-            queueEvent.setCount(deleted);
-            return Response.ok("{\"deleted\":" + deleted + '}').build();
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.deleteTasks(taskQueryParam(deviceName), request);
     }
 
     private Output selectMediaType(List<String> accept) {
@@ -581,25 +491,7 @@ public class StgVerTaskRS {
                 request.getRemoteHost());
     }
 
-    private TaskQueryParam queueTaskQueryParam(String deviceName, QueueMessage.Status status) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status);
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setBatchID(batchID);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam stgVerTaskQueryParam(String updatedTime) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
-        taskQueryParam.setLocalAET(localAET);
-        taskQueryParam.setStudyIUID(studyIUID);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam1 taskQueryParam1(String deviceName) {
+    private TaskQueryParam1 taskQueryParam(String deviceName) {
         TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setDeviceName(deviceName);
@@ -611,6 +503,13 @@ public class StgVerTaskRS {
         taskQueryParam.setType(Task.Type.STGVER);
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setStudyIUID(studyIUID);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam1 taskQueryParam(Long taskID) {
+        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+        taskQueryParam.setTaskPK(taskID);
+        taskQueryParam.setType(Task.Type.STGVER);
         return taskQueryParam;
     }
 }

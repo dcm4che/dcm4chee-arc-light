@@ -50,7 +50,7 @@ import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
-import org.dcm4chee.arc.event.QueueMessageOperation;
+import org.dcm4chee.arc.event.TaskOperation;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -329,10 +329,10 @@ class AuditUtils {
             return eventType;
         }
 
-        static EventType forQueueEvent(QueueMessageOperation operation) {
-            return operation == QueueMessageOperation.CancelTasks
+        static EventType forQueueEvent(TaskOperation operation) {
+            return operation == TaskOperation.CancelTasks
                     ? CANCEL_TSK
-                    : operation == QueueMessageOperation.RescheduleTasks
+                    : operation == TaskOperation.RescheduleTasks
                         ? RESCHD_TSK : DELETE_TSK;
         }
     }

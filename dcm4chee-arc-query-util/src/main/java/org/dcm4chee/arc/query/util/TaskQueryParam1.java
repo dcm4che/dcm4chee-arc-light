@@ -114,7 +114,7 @@ public class TaskQueryParam1 {
     }
 
     public void setStatus(String status) {
-        this.status = status != null ? Task.Status.valueOf(status) : null;
+        this.status = status != null ? Task.Status.fromString(status) : null;
     }
 
     public void setStatus(Task.Status status) {

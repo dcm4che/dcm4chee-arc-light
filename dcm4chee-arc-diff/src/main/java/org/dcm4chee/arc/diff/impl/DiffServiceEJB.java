@@ -46,7 +46,7 @@ import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -107,34 +107,6 @@ public class DiffServiceEJB {
         }
     }
 
-    public Task getDiffTask(long taskPK) {
-        return em.createNamedQuery(Task.FIND_BY_PK_AND_TYPE, Task.class)
-                .setParameter(1, taskPK)
-                .setParameter(2, Task.Type.DIFF)
-                .getSingleResult();
-    }
-
-    public boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent) {
-        DiffTask task = em.find(DiffTask.class, pk);
-        if (task == null)
-            return false;
-
-        queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent);
-        LOG.info("Delete {}", task);
-        return true;
-    }
-
-    public int deleteTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize) {
-        List<Long> referencedQueueMsgPKs = em.createQuery(
-                select(Long.class, QueueMessage_.pk, queueTaskQueryParam, diffTaskQueryParam))
-                .setMaxResults(deleteTasksFetchSize)
-                .getResultList();
-
-        referencedQueueMsgPKs.forEach(taskPK -> queueManager.deleteTask(taskPK, null));
-        return referencedQueueMsgPKs.size();
-    }
-
     public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
         return em.createQuery(
                 select(String.class, QueueMessage_.deviceName, queueTaskQueryParam, diffTaskQueryParam).distinct(true))
@@ -186,25 +158,7 @@ public class DiffServiceEJB {
                 .getSingleResult();
     }
 
-    public boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        DiffTask task = em.find(DiffTask.class, pk);
-        if (task == null)
-            return false;
-
-        QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage == null)
-            throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
-
-        queueManager.cancelTask(queueMessage.getPk(), queueEvent);
-        LOG.info("Cancel {}", task);
-        return true;
-    }
-
-    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return queueManager.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
-    }
-
-    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleDiffTask(Long pk, TaskEvent queueEvent, Date scheduledTime) {
         DiffTask task = em.find(DiffTask.class, pk);
         if (task == null)
             return;
@@ -213,7 +167,7 @@ public class DiffServiceEJB {
         queueManager.rescheduleTask(task.getQueueMessage().getPk(), DiffService.QUEUE_NAME, queueEvent, scheduledTime);
     }
 
-    public void rescheduleDiffTaskByMsgID(Long msgId, QueueMessageEvent queueEvent, Date scheduledTime) {
+    public void rescheduleDiffTaskByMsgID(Long msgId, TaskEvent queueEvent, Date scheduledTime) {
         queueManager.rescheduleTask(msgId, DiffService.QUEUE_NAME, queueEvent, scheduledTime);
     }
 
