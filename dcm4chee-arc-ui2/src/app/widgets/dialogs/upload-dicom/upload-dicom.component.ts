@@ -209,7 +209,10 @@ export class UploadDicomComponent implements OnInit{
         this._aes = value;
     }
     getWebApps(){
-        this.studyService.getWebApps().subscribe((res)=>{
+        let filters = {
+            dcmWebServiceClass:"STOW_RS"
+        };
+        this.studyService.getWebApps(filters).subscribe((res)=>{
             this.webApps = res;
             this.webApps.forEach((webApp:DcmWebApp)=>{
                if(webApp.dicomAETitle === this._selectedAe || (this.selectedWebApp && this.selectedWebApp.dcmWebAppName === webApp.dcmWebAppName))
