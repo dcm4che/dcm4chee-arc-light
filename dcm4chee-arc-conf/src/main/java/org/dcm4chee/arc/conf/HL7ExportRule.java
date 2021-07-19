@@ -62,6 +62,8 @@ public class HL7ExportRule {
 
     private Duration suppressDuplicateExportInterval;
 
+    private int suppressDuplicateHistoryLength = 100;
+
     private NullifyIssuer ignoreAssigningAuthorityOfPatientID;
 
     private Issuer[] assigningAuthorityOfPatientIDs = {};
@@ -107,6 +109,14 @@ public class HL7ExportRule {
 
     public void setSuppressDuplicateExportInterval(Duration suppressDuplicateExportInterval) {
         this.suppressDuplicateExportInterval = suppressDuplicateExportInterval;
+    }
+
+    public int getSuppressDuplicateHistoryLength() {
+        return suppressDuplicateHistoryLength;
+    }
+
+    public void setSuppressDuplicateHistoryLength(int suppressDuplicateHistoryLength) {
+        this.suppressDuplicateHistoryLength = suppressDuplicateHistoryLength;
     }
 
     public NullifyIssuer getIgnoreAssigningAuthorityOfPatientID() {

@@ -65,6 +65,14 @@ public class Cache<K,V> {
     private int maxSize;
     private long staleTimeout;
 
+    public Cache() {
+    }
+
+    public Cache(int maxSize, long staleTimeout) {
+        this.maxSize = maxSize;
+        this.staleTimeout = staleTimeout;
+    }
+
     private final LinkedHashMap<K,Entry<V>> cache = new LinkedHashMap<K,Entry<V>>(){
         @Override
         protected boolean removeEldestEntry(Map.Entry<K, Cache.Entry<V>> eldest) {

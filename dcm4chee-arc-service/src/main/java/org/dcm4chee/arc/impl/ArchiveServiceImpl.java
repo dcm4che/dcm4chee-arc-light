@@ -78,7 +78,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -118,6 +117,12 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Inject
     private IHL7ApplicationCache hl7AppCache;
+
+    @Inject
+    private HL7ExportHistory hl7ExportHistory;
+
+    @Inject
+    private HL7PrefetchHistory hl7PrefetchHistory;
 
     @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
@@ -262,6 +267,8 @@ public class ArchiveServiceImpl implements ArchiveService {
         aeCache.clear();
         webAppCache.clear();
         hl7AppCache.clear();
+        hl7ExportHistory.clear();
+        hl7PrefetchHistory.clear();
         leadingCFindSCPQueryCache.clear();
         mergeMWLCache.clear();
         storePermissionCache.clear();

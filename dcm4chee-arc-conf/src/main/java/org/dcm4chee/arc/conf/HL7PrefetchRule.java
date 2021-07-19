@@ -76,6 +76,8 @@ public class HL7PrefetchRule {
 
     private Duration suppressDuplicateRetrieveInterval;
 
+    private int suppressDuplicateHistoryLength = 100;
+
     private String prefetchDateTimeField;
 
     private Duration prefetchInAdvance;
@@ -167,6 +169,14 @@ public class HL7PrefetchRule {
 
     public void setSuppressDuplicateRetrieveInterval(Duration suppressDuplicateRetrieveInterval) {
         this.suppressDuplicateRetrieveInterval = suppressDuplicateRetrieveInterval;
+    }
+
+    public int getSuppressDuplicateHistoryLength() {
+        return suppressDuplicateHistoryLength;
+    }
+
+    public void setSuppressDuplicateHistoryLength(int suppressDuplicateHistoryLength) {
+        this.suppressDuplicateHistoryLength = suppressDuplicateHistoryLength;
     }
 
     public String getPrefetchDeviceName() {

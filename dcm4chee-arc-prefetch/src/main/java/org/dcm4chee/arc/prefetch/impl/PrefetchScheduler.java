@@ -53,6 +53,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
+import org.dcm4chee.arc.HL7PrefetchHistory;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -83,6 +84,9 @@ public class PrefetchScheduler {
 
     @Inject
     private RetrieveManager retrieveManager;
+
+    @Inject
+    private HL7PrefetchHistory hl7PrefetchHistory;
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
         if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED || event.getException() != null)
@@ -123,6 +127,11 @@ public class PrefetchScheduler {
                 LOG.info("None of the qualified patient identifier pairs in PID-3 {} match with configured " +
                          "HL7 Prefetch Rule[name={}, PrefetchForAssigningAuthorityOfPatientID={}]",
                         cx, rule.getCommonName(), rule.getPrefetchForAssigningAuthorityOfPatientID());
+                return;
+            }
+            if (hl7PrefetchHistory.suppressDuplicate(rule, idWithIssuer)) {
+                LOG.info("HL7 Prefetch Rule[name={}] already applied on previous received HL7 Message with PID-3 {}",
+                        rule.getCommonName(), cx);
                 return;
             }
             IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(idWithIssuer);
