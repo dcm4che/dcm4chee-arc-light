@@ -1692,7 +1692,8 @@
             "type",
             "LocalAET",
             "RemoteAET",
-            "SOPInstanceUID"
+            "SOPInstanceUID",
+            "DIMSE"
           ],
           "properties": {
             "type": {
@@ -1717,6 +1718,15 @@
               "title": "SOP Instance UID",
               "description": "SOP Instance UID of MPPS",
               "type": "string"
+            },
+            "DIMSE": {
+              "title": "DIMSE",
+              "description": "DIMSE request of MPPS",
+              "type": "string",
+              "enum": [
+                "N_CREATE_RQ",
+                "N_SET_RQ"
+              ]
             }
           }
         }

@@ -188,7 +188,7 @@ public class HL7SenderImpl implements HL7Sender {
         task.setScheduledTime(new Date());
         task.setSendingApplicationWithFacility(msh.getSendingApplicationWithFacility());
         task.setReceivingApplicationWithFacility(msh.getReceivingApplicationWithFacility());
-        task.setMessageType(msh.getField(9, ""));
+        task.setMessageType(msh.getMessageType());
         task.setMessageControlID(msh.getMessageControlID());
         if (httpServletRequestInfo != null) {
             task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
