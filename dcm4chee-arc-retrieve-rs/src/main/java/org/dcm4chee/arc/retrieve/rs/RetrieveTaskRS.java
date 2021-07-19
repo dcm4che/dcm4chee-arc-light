@@ -567,7 +567,7 @@ public class RetrieveTaskRS {
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
-        taskQueryParam.setType(Task.Type.STGVER);
+        taskQueryParam.setType(Task.Type.RETRIEVE);
         taskQueryParam.setQueueNames(dcmQueueName.stream()
                 .flatMap(queueName -> Stream.of(StringUtils.split(queueName, ',')))
                 .collect(Collectors.toList()));
