@@ -393,7 +393,7 @@ public class QueryRetrieveRS {
                 do {
                     status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                     if (Status.isPending(status))
-                        count += scheduleRetrieveTask(createExtRetrieveCtx(destAET, dimseRSP));
+                        count += scheduleRetrieveTask(createExtRetrieveCtx(destAET, queryAET, dimseRSP));
                 } while (dimseRSP.next());
                 warning = warning(status);
             } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
@@ -464,26 +464,27 @@ public class QueryRetrieveRS {
                 request.getRemoteHost());
     }
 
-    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, DimseRSP dimseRSP) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String queryAET, DimseRSP dimseRSP) {
         Attributes keys = new Attributes(dimseRSP.getDataset(),
                 Tag.SOPInstanceUID, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID);
-        return createExtRetrieveCtx(destAET, keys);
+        return createExtRetrieveCtx(destAET, queryAET, keys);
     }
 
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String... studyIUID) {
         Attributes keys = new Attributes(2);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.STUDY.name());
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
-        return createExtRetrieveCtx(destAET, keys);
+        return createExtRetrieveCtx(destAET, null, keys);
     }
 
-    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String queryAET, Attributes keys) {
         return new ExternalRetrieveContext()
                 .setDeviceName(deviceName != null ? deviceName : device.getDeviceName())
                 .setQueueName(queueName)
                 .setBatchID(batchID)
                 .setLocalAET(aet)
                 .setRemoteAET(movescp)
+                .setFindSCP(queryAET)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
                 .setScheduledTime(ParseDateTime.valueOf(scheduledTime))

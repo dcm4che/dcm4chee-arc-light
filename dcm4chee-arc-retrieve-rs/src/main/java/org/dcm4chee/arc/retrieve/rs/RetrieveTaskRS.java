@@ -222,7 +222,7 @@ public class RetrieveTaskRS {
 
     @POST
     @Path("{taskPK}/cancel")
-    public Response cancelRetrieveTask(@PathParam("taskPK") long pk) {
+    public Response cancelRetrieveTask(@PathParam("taskPK") long taskID) {
         logRequest();
         return taskManager.cancelTask(taskQueryParam(taskID), request);
     }
