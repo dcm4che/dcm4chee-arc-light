@@ -574,10 +574,10 @@ export class ExportComponent implements OnInit, OnDestroy {
                     }
                     this.matches.forEach((match, i)=>{
                         if(match.checked){
-                            this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
+                            this.service.reschedule(match.properties.taskID, id || match.properties.ExporterID, filter)
                                 .subscribe(
                                     (res) => {
-                                        this.mainservice.showMsg($localize `:@@task_rescheduled_param:Task ${match.properties.pk}:@@taskid: rescheduled successfully!`);
+                                        this.mainservice.showMsg($localize `:@@task_rescheduled_param:Task ${match.properties.taskID}:@@taskid: rescheduled successfully!`);
                                         if(this.matches.length === i+1){
                                             this.cfpLoadingBar.complete();
                                         }
@@ -615,10 +615,10 @@ export class ExportComponent implements OnInit, OnDestroy {
                     }
                     this.matches.forEach((match, i)=>{
                         if(match.checked){
-                            this.service.mark4export(match.properties.pk, id || match.properties.ExporterID, filter)
+                            this.service.mark4export(match.properties.taskID, id || match.properties.ExporterID, filter)
                                 .subscribe(
                                     (res) => {
-                                        this.mainservice.showMsg($localize `:@@task_marked_for_export_param:Task ${match.properties.pk}:@@taskid: marked for export successfully!`);
+                                        this.mainservice.showMsg($localize `:@@task_marked_for_export_param:Task ${match.properties.taskID}:@@taskid: marked for export successfully!`);
                                         if(this.matches.length === i+1){
                                             this.cfpLoadingBar.complete();
                                         }
@@ -647,7 +647,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     this.cfpLoadingBar.start();
                     this.matches.forEach((match)=>{
                         if(match.checked){
-                            this.service[mode](match.properties.pk)
+                            this.service[mode](match.properties.taskID)
                                 .subscribe((res) => {
                                     console.log("Execute result",res);
                                 },(err)=>{
@@ -707,7 +707,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.delete(match.properties.pk)
+                this.service.delete(match.properties.taskID)
                     .subscribe(
                         (res) => {
                             // match.properties.status = 'CANCELED';
@@ -734,7 +734,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.cancel(match.properties.pk)
+                this.service.cancel(match.properties.taskID)
                     .subscribe(
                         (res) => {
                             match.properties.status = 'CANCELED';
@@ -764,7 +764,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 if(_.hasIn(ok, "schema_model.selectedExporter")){
                     id = ok.schema_model.selectedExporter;
                 }
-                this.service.reschedule(match.properties.pk, id || match.properties.ExporterID, filter)
+                this.service.reschedule(match.properties.taskID, id || match.properties.ExporterID, filter)
                     .subscribe(
                         (res) => {
                             this.cfpLoadingBar.complete();
@@ -804,7 +804,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if(_.hasIn(ok, "schema_model.selectedExporter")){
                         id = ok.schema_model.selectedExporter;
                     }
-                    this.service.mark4export(match.properties.pk, id || match.properties.ExporterID, filter)
+                    this.service.mark4export(match.properties.taskID, id || match.properties.ExporterID, filter)
                         .subscribe(
                             (res) => {
                                 this.cfpLoadingBar.complete();

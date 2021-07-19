@@ -537,7 +537,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.delete(match.properties.pk)
+                this.service.delete(match.properties.taskID)
                     .subscribe(
                         (res) => {
                             // match.properties.status = 'CANCELED';
@@ -560,7 +560,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.cancel(match.properties.pk)
+                this.service.cancel(match.properties.taskID)
                     .subscribe(
                         (res) => {
                             match.properties.status = 'CANCELED';
@@ -603,7 +603,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         filter["newQueueName"] = res.schema_model.newQueueName;
                     }
                     $this.cfpLoadingBar.start();
-                    this.service.reschedule(match.properties.pk, filter)
+                    this.service.reschedule(match.properties.taskID, filter)
                         .subscribe(
                             (res) => {
                                 $this.getTasks(match.offset||0);
@@ -638,7 +638,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         filter["newQueueName"] = res.schema_model.newQueueName;
                     }
                     $this.cfpLoadingBar.start();
-                    this.service.mark4retrieve(match.properties.pk, filter)
+                    this.service.mark4retrieve(match.properties.taskID, filter)
                         .subscribe(
                             (res) => {
                                 $this.getTasks(match.offset||0);
@@ -670,7 +670,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 this.cfpLoadingBar.start();
                 this.externalRetrieveEntries.forEach((match)=>{
                     if(match.checked){
-                        this.service[mode](match.properties.pk)
+                        this.service[mode](match.properties.taskID)
                             .subscribe((res) => {
                             console.log("execute result=",res);
                             },(err)=>{
