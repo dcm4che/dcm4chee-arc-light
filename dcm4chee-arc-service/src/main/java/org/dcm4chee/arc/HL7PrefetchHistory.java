@@ -55,7 +55,7 @@ public class HL7PrefetchHistory extends HL7ExportOrPrefetchHistory {
         return suppressDuplicate(
                 rule.getCommonName(),
                 rule.getSuppressDuplicateRetrieveInterval(),
-                rule.getSuppressDuplicateHistoryLength(),
+                rule.getSuppressDuplicateHistorySize(),
                 idWithIssuer);
     }
 }
