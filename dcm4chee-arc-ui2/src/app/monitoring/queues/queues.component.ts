@@ -143,7 +143,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     if(ok){
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(filter,this.filterObject.queueName).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@tasks_queue_deleted:${res.count} tasks in queue deleted successfully!`)
+                            this.mainservice.showMsg($localize `:@@tasks_queue_canceled:${res.count} tasks in queue canceled successfully!`)
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
