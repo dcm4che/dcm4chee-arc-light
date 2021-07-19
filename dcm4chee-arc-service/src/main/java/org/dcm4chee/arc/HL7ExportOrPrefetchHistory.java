@@ -43,17 +43,24 @@ package org.dcm4chee.arc;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4chee.arc.conf.Duration;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @since Jul 2021
  */
-class HL7ExportOrPrefetchHistory extends ConcurrentHashMap<String, Cache<IDWithIssuer,IDWithIssuer>> {
-     protected boolean suppressDuplicate(String ruleName, Duration suppressInterval, int historyLength,
+class HL7ExportOrPrefetchHistory {
+    private final Map<String, Cache<IDWithIssuer,IDWithIssuer>> map = new ConcurrentHashMap<>();
+
+    public void clear() {
+        map.clear();
+    }
+
+    protected boolean suppressDuplicate(String ruleName, Duration suppressInterval, int historyLength,
                                          IDWithIssuer idWithIssuer) {
          if (suppressInterval == null) return false;
-         Cache<IDWithIssuer, IDWithIssuer> history = computeIfAbsent(ruleName,
+         Cache<IDWithIssuer, IDWithIssuer> history = map.computeIfAbsent(ruleName,
                  name -> new Cache<>(historyLength, suppressInterval.getSeconds() * 1000));
          if (history.getEntry(idWithIssuer) != null) return true;
          history.put(idWithIssuer, idWithIssuer);
