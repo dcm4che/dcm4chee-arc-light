@@ -650,6 +650,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     rule.getPrefetchForAssigningAuthorityOfPatientID(), null);
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateExportInterval(), null);
+            writer.writeNotDef("dcmHistorySize", rule.getSuppressDuplicateHistorySize(), 100);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -675,6 +676,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     rule.getPrefetchForAssigningAuthorityOfPatientID(), null);
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmDuration", rule.getSuppressDuplicateRetrieveInterval(), null);
+            writer.writeNotDef("dcmHistorySize", rule.getSuppressDuplicateHistorySize(), 100);
             writer.writeNotNullOrDef("dcmPrefetchDateTimeField", rule.getPrefetchDateTimeField(), null);
             writer.writeNotNullOrDef("dcmPrefetchInAdvance", rule.getPrefetchInAdvance(), null);
             writer.writeEnd();
@@ -2576,6 +2578,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmDuration":
                         rule.setSuppressDuplicateExportInterval(Duration.valueOf(reader.stringValue()));
                         break;
+                    case "dcmHistorySize":
+                        rule.setSuppressDuplicateHistorySize(reader.intValue());
+                        break;
                     default:
                         reader.skipUnknownProperty();
                 }
@@ -2638,6 +2643,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmDuration":
                         rule.setSuppressDuplicateRetrieveInterval(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmHistorySize":
+                        rule.setSuppressDuplicateHistorySize(reader.intValue());
                         break;
                     case "dcmPrefetchDateTimeField":
                         rule.setPrefetchDateTimeField(reader.stringValue());

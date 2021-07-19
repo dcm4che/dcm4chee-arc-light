@@ -3704,6 +3704,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
                 rule.getSuppressDuplicateExportInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmHistorySize", rule.getSuppressDuplicateHistorySize(), 100);
         return attrs;
     }
 
@@ -3724,6 +3725,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         toIssuer(LdapUtils.stringValue(attrs.get("dcmPrefetchForIssuerOfPatientID"), null)));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
                 rule.setSuppressDuplicateExportInterval(toDuration(attrs.get("dcmDuration"), null));
+                rule.setSuppressDuplicateHistorySize(LdapUtils.intValue(attrs.get("dcmHistorySize"), 100));
                 prefetchRules.add(rule);
             }
         } finally {
@@ -3766,6 +3768,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEntitySelector", rule.getEntitySelectors());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration",
                 rule.getSuppressDuplicateRetrieveInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmHistorySize", rule.getSuppressDuplicateHistorySize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchDateTimeField",
                 rule.getPrefetchDateTimeField(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPrefetchInAdvance",
@@ -3797,6 +3800,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         toIssuer(LdapUtils.stringValue(attrs.get("dcmPrefetchForIssuerOfPatientID"), null)));
                 rule.setEntitySelectors(EntitySelector.valuesOf(LdapUtils.stringArray(attrs.get("dcmEntitySelector"))));
                 rule.setSuppressDuplicateRetrieveInterval(toDuration(attrs.get("dcmDuration"), null));
+                rule.setSuppressDuplicateHistorySize(LdapUtils.intValue(attrs.get("dcmHistorySize"), 100));
                 rule.setPrefetchDateTimeField(LdapUtils.stringValue(attrs.get("dcmPrefetchDateTimeField"), null));
                 rule.setPrefetchInAdvance(toDuration(attrs.get("dcmPrefetchInAdvance"), null));
                 prefetchRules.add(rule);
@@ -4531,6 +4535,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getEntitySelectors(), rule.getEntitySelectors());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
                 prev.getSuppressDuplicateExportInterval(), rule.getSuppressDuplicateExportInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHistorySize",
+                prev.getSuppressDuplicateHistorySize(), rule.getSuppressDuplicateHistorySize(),  100);
         return mods;
     }
 
@@ -4603,6 +4609,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getEntitySelectors(), rule.getEntitySelectors());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
                 prev.getSuppressDuplicateRetrieveInterval(), rule.getSuppressDuplicateRetrieveInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHistorySize",
+                prev.getSuppressDuplicateHistorySize(), rule.getSuppressDuplicateHistorySize(),  100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPrefetchForIssuerOfPatientID",
                 prev.getPrefetchForAssigningAuthorityOfPatientID(),
                 rule.getPrefetchForAssigningAuthorityOfPatientID(),
