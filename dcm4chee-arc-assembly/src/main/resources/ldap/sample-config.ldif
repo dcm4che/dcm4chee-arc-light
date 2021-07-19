@@ -2779,6 +2779,7 @@ dcmTag: 001021C0
 dcmTag: 001021D0
 dcmTag: 00102203
 dcmTag: 0020000D
+dcmTag: 0032000A
 dcmTag: 00321031
 dcmTag: 00321032
 dcmTag: 00321033
@@ -4294,8 +4295,8 @@ dcmTag: 00080050
 dcmTag: 00080051
 dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: accno
-dcmProperty: groupButtons=synchronize,export,reject
-dcmProperty: actions=study-reject-export,study-reject,study-export
+dcmProperty: groupButtons=export,reject,reimport
+dcmProperty: actions=study-reject,study-export,study-reimport
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 3
 
@@ -4318,8 +4319,8 @@ dcmTag: 00201206
 dcmTag: 00201208
 dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: study
-dcmProperty: groupButtons=synchronize,export,reject
-dcmProperty: actions=study-reject-export,study-reject,study-export
+dcmProperty: groupButtons=export,reject,reimport
+dcmProperty: actions=study-reject,study-export,study-reimport
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 1
 

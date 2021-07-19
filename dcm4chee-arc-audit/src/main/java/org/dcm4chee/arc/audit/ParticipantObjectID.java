@@ -89,7 +89,7 @@ class ParticipantObjectID {
                 .name(auditInfo.getField(AuditInfo.P_NAME));
     }
 
-    private static List<ParticipantObjectDetail> hl7ParticipantObjectDetail(SpoolFileReader reader) {
+    static List<ParticipantObjectDetail> hl7ParticipantObjectDetail(SpoolFileReader reader) {
         List<ParticipantObjectDetail> detail = new ArrayList<>();
         hl7ParticipantObjectDetail(detail, reader.getData());
         hl7ParticipantObjectDetail(detail, reader.getAck());

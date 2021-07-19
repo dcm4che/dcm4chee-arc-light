@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2021
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,46 +35,35 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
- *
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.pdq.hl7;
+package org.dcm4chee.arc;
 
-import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.PDQServiceDescriptor;
-import org.dcm4chee.arc.hl7.HL7Sender;
-import org.dcm4chee.arc.pdq.PDQService;
-import org.dcm4chee.arc.pdq.PDQServiceContext;
-import org.dcm4chee.arc.pdq.PDQServiceProvider;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4chee.arc.conf.Duration;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jun 2021
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
+ * @since Jul 2021
  */
-@ApplicationScoped
-@Named("pdq-hl7")
-public class HL7PDQServiceProvider implements PDQServiceProvider {
-    @Inject
-    private Device device;
+class HL7ExportOrPrefetchHistory {
+    private final Map<String, Cache<IDWithIssuer,IDWithIssuer>> map = new ConcurrentHashMap<>();
 
-    @Inject
-    private IHL7ApplicationCache hl7AppCache;
+    public void clear() {
+        map.clear();
+    }
 
-    @Inject
-    private HL7Sender hl7Sender;
-
-    @Inject
-    private Event<PDQServiceContext> pdqEvent;
-
-    @Override
-    public PDQService getPDQService(PDQServiceDescriptor descriptor) {
-        return new HL7PDQService(descriptor, device, hl7AppCache, hl7Sender, pdqEvent);
+    protected boolean suppressDuplicate(String ruleName, Duration suppressInterval, int historyLength,
+                                         IDWithIssuer idWithIssuer) {
+         if (suppressInterval == null) return false;
+         Cache<IDWithIssuer, IDWithIssuer> history = map.computeIfAbsent(ruleName,
+                 name -> new Cache<>(historyLength, suppressInterval.getSeconds() * 1000));
+         if (history.getEntry(idWithIssuer) != null) return true;
+         history.put(idWithIssuer, idWithIssuer);
+         return false;
     }
 }

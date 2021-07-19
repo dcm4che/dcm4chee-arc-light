@@ -266,25 +266,28 @@ export class StudyService {
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
-                        break;
+                    case "series":
+                        return [
+                            ...Globalvar.SERIES_FILTER_SCHEMA([], [],false),
+                            ...Globalvar.SERIES_FILTER_SCHEMA([], [],true)
+                        ].filter(filter => {
+                            return filter.filterKey != "aet";
+                        });
                     case "mwl":
                         return [
                             ...Globalvar.MWL_FILTER_SCHEMA(false),
                             ...Globalvar.MWL_FILTER_SCHEMA(true)
                         ];
-                        break;
                     case "mpps":
                         return [
                             ...Globalvar.MPPS_FILTER_SCHEMA(false),
                             ...Globalvar.MPPS_FILTER_SCHEMA(true)
                         ];
-                       break;
                     case "uwl":
                         return [
                             ...Globalvar.UWL_FILTER_SCHEMA(false),
                             ...Globalvar.UWL_FILTER_SCHEMA(true)
                         ];
-                        break;
                     case "diff":
                         return [
                             ...Globalvar.DIFF_FILTER_SCHEMA([],[],false),
@@ -292,7 +295,6 @@ export class StudyService {
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
-                        break;
                     default:
                         return [
                             ...Globalvar.STUDY_FILTER_SCHEMA([], [], false),
@@ -320,6 +322,12 @@ export class StudyService {
                     return filter.filterKey != "aet";
                 });
                 lineLength = filterMode === "expand" ? 1 : 3;
+                break;
+            case "series":
+                schema = Globalvar.SERIES_FILTER_SCHEMA(aets, storages, filterMode === "expand").filter(filter => {
+                    return filter.filterKey != "aet";
+                });
+                lineLength = 3;
                 break;
             case "mwl":
                 schema = Globalvar.MWL_FILTER_SCHEMA( filterMode === "expand");
@@ -456,6 +464,8 @@ export class StudyService {
                 return $localize `:@@query_studies:Query Studies`;
             case "patient":
                 return $localize `:@@query_patients:Query Patients`;
+            case "series":
+                return $localize `:@@query_studies:Query Series`;
             case "mwl":
                 return $localize `:@@query_mwl:Query MWL`;
             case "mpps":
@@ -723,7 +733,23 @@ export class StudyService {
         );
     }
 
-    getSeries(studyInstanceUID: string, filterModel: any, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+    getSeries(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+        let header: HttpHeaders;
+        if (!responseType || responseType === "object") {
+            header = this.dicomHeader
+        }
+        let params = j4care.objToUrlParams(filterModel);
+        params = params ? `?${params}` : params;
+
+        return this.$http.get(
+            `${this.getDicomURL("series", dcmWebApp, responseType)}${params || ''}`,
+            header,
+            false,
+            dcmWebApp
+        );
+    }
+
+    getSeriesOfStudy(studyInstanceUID: string, filterModel: any, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
         let header;
         if (!responseType || responseType === "object") {
             header = this.dicomHeader
@@ -796,6 +822,9 @@ export class StudyService {
                             break;
                         case "study":
                             url += '/studies';
+                            break;
+                        case "series":
+                            url += '/series';
                             break;
                         case "diff":
                             // url = this.diffUrl(callingAet, externalAet, secondExternalAet, baseUrl);
@@ -877,6 +906,10 @@ export class StudyService {
         .pipe(map(res => {
             if ((!entity || entity === "Patient") && res["dcmTag"]) {
                 let privateAttr = [parseInt('77770010', 16), parseInt('77771010', 16), parseInt('77771011', 16)];
+                res["dcmTag"].push(...privateAttr);
+            }
+            if (entity && entity === "Study" && res["dcmTag"]) {
+                let privateAttr = [parseInt('77770010', 16), parseInt('77771020', 16), parseInt('77771021', 16), parseInt('77771022', 16)];
                 res["dcmTag"].push(...privateAttr);
             }
             return res;

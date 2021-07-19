@@ -250,6 +250,7 @@ public class RejectMatchingRS {
                 null);
     }
 
+    @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/reject/{codeValue}^{codingSchemeDesignator}")
     @Produces("application/json")
     public Response rejectMatchingInstancesOfSeries(

@@ -176,6 +176,7 @@ public class PatientVerificationScheduler extends Scheduler {
             PDQServiceContext pdqServiceCtx = new PDQServiceContext(adjustIssuerOfPatientID
                                                 ? patient.idWithIssuer.withoutIssuer()
                                                 : patient.idWithIssuer);
+            pdqServiceCtx.setSearchMethod(PDQServiceContext.SearchMethod.PatientVerificationScheduler);
             attrs = pdqService.query(pdqServiceCtx);
         } catch (PDQServiceException e) {
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFICATION_FAILED);

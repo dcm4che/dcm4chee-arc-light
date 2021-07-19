@@ -452,7 +452,7 @@ public class ArchiveAttributeCoercion {
                 + ", trimISO2022CharacterSet=" + trimISO2022CharacterSet
                 + ", useCallingAETitleAs=" + useCallingAETitleAs
                 + ", nullifyTags=" + Arrays.toString(nullifyTags)
-                + ", nullifyTags=" + Arrays.toString(mergeAttributes)
+                + ", mergeAttributes=" + Arrays.toString(mergeAttributes)
                 + ", nullifyIssuerOfPatientID=" + nullifyIssuerOfPatientID
                 + ", issuerOfPatientIDs=" + Arrays.toString(issuerOfPatientIDs)
                 + ", issuerOfPatientIDFormat=" + issuerOfPatientIDFormat

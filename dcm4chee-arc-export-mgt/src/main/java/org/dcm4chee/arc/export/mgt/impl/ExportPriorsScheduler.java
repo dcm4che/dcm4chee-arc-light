@@ -54,6 +54,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
+import org.dcm4chee.arc.HL7ExportHistory;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.query.Query;
@@ -92,6 +93,9 @@ public class ExportPriorsScheduler {
 
     @Inject
     private ExportManager exportManager;
+
+    @Inject
+    private HL7ExportHistory hl7ExportHistory;
 
     public void onStore(@Observes StoreContext ctx) {
         if (ctx.getException() != null)
@@ -182,6 +186,11 @@ public class ExportPriorsScheduler {
                 LOG.info("None of the qualified patient identifier pairs in PID-3 {} match with configured " +
                                 "HL7 Export Rule[name={}, PrefetchForAssigningAuthorityOfPatientID={}]",
                         cx, rule.getCommonName(), rule.getPrefetchForAssigningAuthorityOfPatientID());
+                return;
+            }
+            if (hl7ExportHistory.suppressDuplicate(rule, idWithIssuer)) {
+                LOG.info("HL7 Export Rule[name={}] already applied on previous received HL7 Message with PID-3 {}",
+                        rule.getCommonName(), cx);
                 return;
             }
             IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(idWithIssuer);

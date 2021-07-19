@@ -180,7 +180,11 @@ class AuditUtils {
         RESCHD_TSK(EventClass.QUEUE_EVENT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, AuditMessages.EventTypeCode.RescheduleTask),
         DELETE_TSK(EventClass.QUEUE_EVENT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
-                null, null, AuditMessages.EventTypeCode.DeleteTask);
+                null, null, AuditMessages.EventTypeCode.DeleteTask),
+
+        PAT_DEMO_Q(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination,
+                AuditMessages.EventTypeCode.ITI_21_PatientDemographicsQuery);
 
 
         final EventClass eventClass;
