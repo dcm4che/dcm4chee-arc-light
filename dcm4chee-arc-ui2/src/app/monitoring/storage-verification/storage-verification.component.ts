@@ -517,7 +517,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
     action(mode, match){
         console.log("in action",mode,"match",match);
-        if(mode && match && match.pk){
+        if(mode && match && match.taskID){
             this.confirm({
                 content: $localize `:@@action_selected_entries_question:Are you sure you want to ${Globalvar.getActionText(mode)} selected entries?`
             }).subscribe(ok => {
@@ -531,7 +531,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                         if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                             filter["newDeviceName"] = res.schema_model.newDeviceName;
                                         }
-                                        this.service.reschedule(match.pk, filter)
+                                        this.service.reschedule(match.taskID, filter)
                                             .subscribe(
                                                 (res) => {
                                                     this.getTasks(this.filterObject['offset'] || 0);
@@ -548,7 +548,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                             break;
                         case 'delete':
                             this.cfpLoadingBar.start();
-                            this.service.delete(match.pk)
+                            this.service.delete(match.taskID)
                                 .subscribe(
                                     (res) => {
                                         // match.properties.status = 'CANCELED';
@@ -563,7 +563,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                             break;
                         case 'cancel':
                             this.cfpLoadingBar.start();
-                            this.service.cancel(match.pk)
+                            this.service.cancel(match.taskID)
                                 .subscribe(
                                     (res) => {
                                         match.status = 'CANCELED';
