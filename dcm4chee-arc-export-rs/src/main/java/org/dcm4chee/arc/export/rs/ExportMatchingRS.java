@@ -57,7 +57,9 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,6 +177,7 @@ public class ExportMatchingRS {
     private String expirationState;
 
     @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
     private String scheduledTime;
 
     @POST

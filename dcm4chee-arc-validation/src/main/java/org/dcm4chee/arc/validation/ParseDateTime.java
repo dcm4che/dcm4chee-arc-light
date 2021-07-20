@@ -39,7 +39,7 @@
  *
  */
 
-package org.dcm4chee.arc.dimse.rs;
+package org.dcm4chee.arc.validation;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

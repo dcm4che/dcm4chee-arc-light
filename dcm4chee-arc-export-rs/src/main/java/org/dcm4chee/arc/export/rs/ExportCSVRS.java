@@ -48,6 +48,8 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.validation.ParseDateTime;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +97,7 @@ public class ExportCSVRS {
     private String batchID;
 
     @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
     private String scheduledTime;
 
     @QueryParam("csvSeriesUID")

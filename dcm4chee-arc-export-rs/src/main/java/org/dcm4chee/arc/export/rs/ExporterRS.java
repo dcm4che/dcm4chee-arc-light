@@ -57,6 +57,8 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
 import org.dcm4chee.arc.stow.client.StowClient;
+import org.dcm4chee.arc.validation.ParseDateTime;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +112,7 @@ public class ExporterRS {
     private String batchID;
 
     @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
     private String scheduledTime;
 
     @Context

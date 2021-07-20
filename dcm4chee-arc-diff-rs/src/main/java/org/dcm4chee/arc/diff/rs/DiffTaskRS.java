@@ -51,6 +51,8 @@ import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
+import org.dcm4chee.arc.validation.ParseDateTime;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,6 +132,7 @@ public class DiffTaskRS {
     private String updatedTime;
 
     @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
     private String scheduledTime;
 
     @QueryParam("batchID")

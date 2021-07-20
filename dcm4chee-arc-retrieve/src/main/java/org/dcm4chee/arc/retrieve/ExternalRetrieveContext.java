@@ -41,7 +41,6 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.util.Date;
