@@ -466,6 +466,8 @@ public class QueryBuilder {
             predicates.add(cb.equal(task.get(Task_.pk), taskQueryParam.getTaskPK()));
         if (taskQueryParam.getQueueNames() != null && !taskQueryParam.getQueueNames().isEmpty())
             predicates.add(task.get(Task_.queueName).in(taskQueryParam.getQueueNames()));
+        if (taskQueryParam.getNotStatus() != null)
+            predicates.add(cb.notEqual(task.get(Task_.status), taskQueryParam.getNotStatus()));
         if (taskQueryParam.getStatus() != null)
             predicates.add(cb.equal(task.get(Task_.status), taskQueryParam.getStatus()));
         if (taskQueryParam.getDeviceName() != null)

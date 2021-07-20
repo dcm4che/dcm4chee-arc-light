@@ -291,9 +291,6 @@ public class TaskManagerImpl implements TaskManager {
 
     @Override
     public Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
-        if (taskQueryParam.getStatus() == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.DeleteTasks);
         deleteTasks(taskQueryParam, taskEvent);
         return taskEvent.getException() == null
@@ -315,12 +312,15 @@ public class TaskManagerImpl implements TaskManager {
             LOG.info("Delete Tasks with Status {}", status);
             Task.Type type = taskQueryParam.getType();
             if (status != Task.Status.IN_PROCESS && type != Task.Type.DIFF) {
+                if (status == null)
+                    taskQueryParam.setNotStatus(Task.Status.IN_PROCESS);
                 if (type == null)
                     taskQueryParam.setNotType(Task.Type.DIFF);
                 count = ejb.deleteTasks(taskQueryParam);
+                taskQueryParam.setNotStatus(null);
                 taskQueryParam.setNotType(null);
             }
-            if (status == Task.Status.IN_PROCESS || type == null || type == Task.Type.DIFF) {
+            if (status == null || status == Task.Status.IN_PROCESS || type == null || type == Task.Type.DIFF) {
                 ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
                 int taskFetchSize = arcDev.getTaskFetchSize();
                 List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);

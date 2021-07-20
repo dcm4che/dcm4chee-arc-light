@@ -60,6 +60,7 @@ public class TaskQueryParam1 {
     private Task.Type type;
     private Task.Type notType;
     private Task.Status status;
+    private Task.Status notStatus;
     private StgCmtResult.Status stgCmtStatus;
     private String batchID;
     private String createdTime;
@@ -108,6 +109,14 @@ public class TaskQueryParam1 {
 
     public void setNotType(Task.Type notType) {
         this.notType = notType;
+    }
+
+    public Task.Status getNotStatus() {
+        return notStatus;
+    }
+
+    public void setNotStatus(Task.Status notStatus) {
+        this.notStatus = notStatus;
     }
 
     public Task.Type getType() {
