@@ -162,6 +162,7 @@ public class TaskManagerImpl implements TaskManager {
         try {
             if (task.getStatus() == Task.Status.IN_PROCESS)
                 taskCanceledEvent.fire(new TaskCanceled(task));
+            task.setStatus(Task.Status.CANCELED);
             ejb.merge(task);
             return Response.noContent().build();
         } catch (Exception e) {
@@ -196,6 +197,7 @@ public class TaskManagerImpl implements TaskManager {
                 for (Task task : list) {
                     try {
                         taskCanceledEvent.fire(new TaskCanceled(task));
+                        task.setStatus(Task.Status.CANCELED);
                         ejb.merge(task);
                         count++;
                     } catch (Exception e) {
