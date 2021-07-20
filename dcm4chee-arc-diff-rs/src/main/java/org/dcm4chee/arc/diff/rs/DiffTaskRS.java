@@ -215,7 +215,7 @@ public class DiffTaskRS {
 
     @POST
     @Path("{taskID}/cancel")
-    public Response cancelDiffTask(@PathParam("taskID") long pk) {
+    public Response cancelDiffTask(@PathParam("taskID") long taskID) {
         logRequest();
         return taskManager.cancelTask(taskQueryParam(taskID), request);
     }
