@@ -382,6 +382,7 @@ public class StgCmtEJB {
                     completed, failed, warning, canceled, scheduled, inprocess);
             query.groupBy(task.get(Task_.batchID));
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(task.get(Task_.type), queryParam.getType()));
             if (queryParam.getBatchID() != null)
                 predicates.add(cb.equal(task.get(Task_.batchID), queryParam.getBatchID()));
             else
