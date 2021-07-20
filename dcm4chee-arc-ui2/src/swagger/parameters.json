@@ -1130,7 +1130,7 @@
   "newDeviceNames": {
     "name": "newDeviceName",
     "in": "query",
-    "description": "New Device Names on which tasks shall be marked for export",
+    "description": "New Device Names on which tasks shall be rescheduled",
     "schema": {
       "type": "array",
       "items": {

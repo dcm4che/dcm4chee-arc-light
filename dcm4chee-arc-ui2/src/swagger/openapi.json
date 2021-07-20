@@ -624,8 +624,11 @@
     "/monitor/export/cancel": {
       "$ref": "paths/monitor.json#/exportCancel"
     },
-    "/monitor/export/{taskID}/reschedule/{exporterID}": {
+    "/monitor/export/{taskID}/reschedule": {
       "$ref": "paths/monitor.json#/exportTaskReschedule"
+    },
+    "/monitor/export/{taskID}/reschedule/{exporterID}": {
+      "$ref": "paths/monitor.json#/exportTaskRescheduleExporter"
     },
     "/monitor/export/reschedule": {
       "$ref": "paths/monitor.json#/exportReschedule"

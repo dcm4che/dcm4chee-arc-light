@@ -403,8 +403,39 @@
       "tags": [
         "MONITOR-RS"
       ],
-      "summary": "Reschedule Export Task to potential different Exporter",
+      "summary": "Reschedule Export Task",
       "operationId": "rescheduleExportTask",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/taskIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/newDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such task or Exporter configuration not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "exportTaskRescheduleExporter": {
+    "post": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "Reschedule Export Task to potential different Exporter",
+      "operationId": "rescheduleExportTaskToExporter",
       "parameters": [
         {
           "$ref": "../parameters.json#/taskIDPathParam"
@@ -444,7 +475,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/ExporterIDs"
@@ -496,7 +527,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/ExporterIDs"
@@ -928,7 +959,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/StudyInstanceUID"
@@ -1345,7 +1376,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/StudyInstanceUID"
@@ -1783,7 +1814,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/localAET"
