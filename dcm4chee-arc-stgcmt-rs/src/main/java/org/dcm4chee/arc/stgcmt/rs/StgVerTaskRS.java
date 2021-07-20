@@ -59,6 +59,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -180,7 +181,7 @@ public class StgVerTaskRS {
     @Path("{taskID}/reschedule")
     public Response rescheduleStgVerTask(@PathParam("taskID") long taskID) {
         logRequest();
-        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime, newDeviceName, request);
+        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime(), newDeviceName, request);
     }
 
     @POST
@@ -188,7 +189,7 @@ public class StgVerTaskRS {
     @Produces("application/json")
     public Response rescheduleStgVerTasks() {
         logRequest();
-        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime, newDeviceName, request);
+        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime(), newDeviceName, request);
     }
 
     @DELETE
@@ -255,6 +256,10 @@ public class StgVerTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private Date scheduledTime() {
+        return scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : null;
     }
 
     private Response notAcceptable() {

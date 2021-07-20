@@ -61,6 +61,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -226,7 +227,7 @@ public class RetrieveTaskRS {
     public Response rescheduleRetrieveTask(@PathParam("taskID") long taskID) {
         logRequest();
         return taskManager.rescheduleRetrieveTask(taskQueryParam(taskID),
-                scheduledTime, newDeviceName, newQueueName, request);
+                scheduledTime(), newDeviceName, newQueueName, request);
     }
 
     @POST
@@ -235,7 +236,7 @@ public class RetrieveTaskRS {
     public Response rescheduleRetrieveTasks() {
         logRequest();
         return taskManager.rescheduleRetrieveTasks(taskQueryParam(deviceName),
-                scheduledTime, newDeviceName, newQueueName, request);
+                scheduledTime(), newDeviceName, newQueueName, request);
     }
 
     @DELETE
@@ -322,8 +323,8 @@ public class RetrieveTaskRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private Response errResponse(String msg, Response.Status status) {
-        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    private Date scheduledTime() {
+        return scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : null;
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {

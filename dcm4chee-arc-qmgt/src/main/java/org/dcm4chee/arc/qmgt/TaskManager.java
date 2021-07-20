@@ -48,6 +48,7 @@ import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,25 +66,25 @@ public interface TaskManager {
 
     Response cancelTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
 
-    Response rescheduleTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    Response rescheduleTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                             List<String> newDeviceName, HttpServletRequest request);
 
-    Response rescheduleTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
-                                  List<String> newDeviceName, HttpServletRequest request);
+    Response rescheduleTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+                             List<String> newDeviceName, HttpServletRequest request);
 
-    Response rescheduleExportTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    Response rescheduleExportTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                   List<String> newDeviceName, String newExporterID,
                                   HttpServletRequest request);
 
-    Response rescheduleExportTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    Response rescheduleExportTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                    List<String> newDeviceName, String newExporterID,
                                    HttpServletRequest request);
 
-    Response rescheduleRetrieveTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    Response rescheduleRetrieveTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                     List<String> newDeviceName, String newQueueName,
                                     HttpServletRequest request);
 
-    Response rescheduleRetrieveTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    Response rescheduleRetrieveTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                      List<String> newDeviceName, String newQueueName,
                                      HttpServletRequest request);
 

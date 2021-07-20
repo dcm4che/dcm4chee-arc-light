@@ -67,6 +67,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -229,7 +230,7 @@ public class DiffTaskRS {
     @Path("{taskID}/reschedule")
     public Response rescheduleTask(@PathParam("taskID") long taskID) {
         logRequest();
-        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime, newDeviceName, request);
+        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime(), newDeviceName, request);
     }
 
     @POST
@@ -237,7 +238,7 @@ public class DiffTaskRS {
     @Produces("application/json")
     public Response rescheduleTasks() {
         logRequest();
-        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime, newDeviceName, request);
+        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime(), newDeviceName, request);
     }
 
     @DELETE
@@ -321,6 +322,10 @@ public class DiffTaskRS {
                 toString(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private Date scheduledTime() {
+        return scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : null;
     }
 
     private Response errResponse(String msg, Response.Status status) {

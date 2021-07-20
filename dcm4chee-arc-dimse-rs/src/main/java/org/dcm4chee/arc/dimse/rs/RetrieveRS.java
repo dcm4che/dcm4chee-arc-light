@@ -74,6 +74,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -308,7 +309,7 @@ public class RetrieveRS {
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setScheduledTime(ParseDateTime.valueOf(scheduledTime))
+                .setScheduledTime(scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : new Date())
                 .setKeys(keys);
     }
 

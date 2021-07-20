@@ -77,6 +77,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -488,7 +489,7 @@ public class QueryRetrieveRS {
                 .setFindSCP(queryAET)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setScheduledTime(ParseDateTime.valueOf(scheduledTime))
+                .setScheduledTime(scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : new Date())
                 .setKeys(keys);
     }
 

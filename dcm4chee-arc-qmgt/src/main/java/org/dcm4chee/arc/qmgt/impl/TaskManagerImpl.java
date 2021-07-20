@@ -44,8 +44,11 @@ package org.dcm4chee.arc.qmgt.impl;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
+import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.BulkTaskEvent;
 import org.dcm4chee.arc.event.TaskEvent;
@@ -62,10 +65,14 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,6 +91,9 @@ public class TaskManagerImpl implements TaskManager {
 
     @Inject
     private TaskScheduler scheduler;
+
+    @Inject
+    private IDeviceCache deviceCache;
 
     @Inject
     private Event<TaskEvent> taskEventEvent;
@@ -218,31 +228,109 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response rescheduleTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    public Response rescheduleTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                    List<String> newDeviceName, HttpServletRequest request) {
-        return null;
+        List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
+        Task task = ejb.findTask(taskQueryParam);
+        if (task == null)
+            return noSuchTask(taskQueryParam.getTaskPK());
+
+        if (!newDeviceName.isEmpty()) {
+            ArchiveDeviceExtension targetDevice = targetDevices.get(0);
+            if (task.getExporterID() != null) {
+                ExporterDescriptor exporterDescriptor = targetDevice.getExporterDescriptor(task.getExporterID());
+                if (exporterDescriptor == null)
+                    return errResponse("Cannot reschedule Export Task for Exporter: " + task.getExporterID()
+                            + " not configured at device: " + newDeviceName.get(0), Response.Status.CONFLICT);
+
+                task.setQueueName(exporterDescriptor.getQueueName());
+            } else if (targetDevice.getQueueDescriptor(task.getQueueName()) == null)
+                return errResponse("Cannot reschedule Task on queue: " + task.getQueueName()
+                        + " not configured at device: " + newDeviceName.get(0), Response.Status.CONFLICT);
+
+            task.setDeviceName(newDeviceName.get(0));
+        }
+        TaskEvent taskEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
+        taskEvent.setTask(task);
+        try {
+            if (task.getStatus() == Task.Status.IN_PROCESS)
+                taskCanceledEvent.fire(new TaskCanceled(task));
+            task.setStatus(Task.Status.SCHEDULED);
+            task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
+            ejb.merge(task);
+            if (scheduledTime == null && newDeviceName.isEmpty())
+                processQueue(task.getQueueName());
+            return Response.noContent().build();
+        } catch (Exception e) {
+            taskEvent.setException(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            taskEventEvent.fire(taskEvent);
+        }
     }
 
     @Override
-    public Response rescheduleTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    public Response rescheduleTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                     List<String> newDeviceName, HttpServletRequest request) {
         Task.Status status = taskQueryParam.getStatus();
         if (status == null)
             return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
 
-
         return null;
     }
 
     @Override
-    public Response rescheduleExportTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    public Response rescheduleExportTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                          List<String> newDeviceName, String newExporterID,
                                          HttpServletRequest request) {
-        return null;
+        List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
+        ArchiveDeviceExtension targetDevice = targetDevices.get(0);
+        ExporterDescriptor exporterDescriptor = null;
+        if (newExporterID != null) {
+            try {
+                exporterDescriptor = targetDevice.getExporterDescriptorNotNull(newExporterID);
+            } catch (IllegalArgumentException e) {
+                return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
+            }
+        }
+        Task task = ejb.findTask(taskQueryParam);
+        if (task == null)
+            return noSuchTask(taskQueryParam.getTaskPK());
+
+        if (exporterDescriptor != null) {
+            task.setExporterID(newExporterID);
+            task.setQueueName(exporterDescriptor.getQueueName());
+
+        } else if (!newDeviceName.isEmpty()) {
+            exporterDescriptor = targetDevice.getExporterDescriptor(task.getExporterID());
+            if (exporterDescriptor == null)
+                return errResponse("Cannot reschedule Export Task for Exporter: " + task.getExporterID()
+                        + " not configured at device: " + newDeviceName.get(0), Response.Status.CONFLICT);
+
+            task.setQueueName(exporterDescriptor.getQueueName());
+            task.setDeviceName(newDeviceName.get(0));
+        }
+        TaskEvent taskEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
+        taskEvent.setTask(task);
+        try {
+            if (task.getStatus() == Task.Status.IN_PROCESS)
+                taskCanceledEvent.fire(new TaskCanceled(task));
+            task.setStatus(Task.Status.SCHEDULED);
+            task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
+            ejb.merge(task);
+            if (scheduledTime == null && newDeviceName.isEmpty())
+                processQueue(task.getQueueName());
+            return Response.noContent().build();
+        } catch (Exception e) {
+            taskEvent.setException(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            taskEventEvent.fire(taskEvent);
+        }
     }
 
     @Override
-    public Response rescheduleExportTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    public Response rescheduleExportTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                           List<String> newDeviceName, String newExporterID,
                                           HttpServletRequest request) {
         Task.Status status = taskQueryParam.getStatus();
@@ -253,14 +341,52 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response rescheduleRetrieveTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    public Response rescheduleRetrieveTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                            List<String> newDeviceName, String newQueueName,
                                            HttpServletRequest request) {
-        return null;
+        List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
+        ArchiveDeviceExtension targetDevice = targetDevices.get(0);
+        if (newQueueName != null) {
+            try {
+                targetDevice.getQueueDescriptorNotNull(newQueueName);
+            } catch (IllegalArgumentException e) {
+                return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
+            }
+        }
+        Task task = ejb.findTask(taskQueryParam);
+        if (task == null)
+            return noSuchTask(taskQueryParam.getTaskPK());
+
+        if (newQueueName != null) {
+            task.setQueueName(newQueueName);
+        } else if (!newDeviceName.isEmpty()) {
+            if (targetDevice.getQueueDescriptor(task.getQueueName()) == null)
+                return errResponse("Cannot reschedule Retrieve Task to Queue: " + task.getQueueName()
+                        + " not configured at device: " + newDeviceName.get(0), Response.Status.CONFLICT);
+
+            task.setDeviceName(newDeviceName.get(0));
+        }
+        TaskEvent taskEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
+        taskEvent.setTask(task);
+        try {
+            if (task.getStatus() == Task.Status.IN_PROCESS)
+                taskCanceledEvent.fire(new TaskCanceled(task));
+            task.setStatus(Task.Status.SCHEDULED);
+            task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
+            ejb.merge(task);
+            if (scheduledTime == null && newDeviceName.isEmpty())
+                processQueue(task.getQueueName());
+            return Response.noContent().build();
+        } catch (Exception e) {
+            taskEvent.setException(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            taskEventEvent.fire(taskEvent);
+        }
     }
 
     @Override
-    public Response rescheduleRetrieveTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
+    public Response rescheduleRetrieveTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                             List<String> newDeviceName, String newQueueName,
                                             HttpServletRequest request) {
         Task.Status status = taskQueryParam.getStatus();
@@ -348,6 +474,23 @@ public class TaskManagerImpl implements TaskManager {
             taskEvent.setFailed(failed);
             bulkTaskEventEvent.fire(taskEvent);
         }
+    }
+
+    private List<ArchiveDeviceExtension> targetDevices(List<String> deviceNames) {
+        if (deviceNames.isEmpty())
+            return Collections.singletonList(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class));
+        List<ArchiveDeviceExtension> list = new ArrayList<>(deviceNames.size());
+        for (String deviceName : deviceNames) {
+            try {
+                list.add(deviceCache.findDevice(deviceName).getDeviceExtensionNotNull(ArchiveDeviceExtension.class));
+            } catch (ConfigurationNotFoundException|IllegalStateException e) {
+                throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+            } catch (Exception e) {
+                throw new WebApplicationException(
+                        errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            }
+        }
+        return list;
     }
 
     private Response noSuchTask(long taskID) {

@@ -178,7 +178,7 @@ public class QueueManagerRS {
     @Path("{taskID}/reschedule")
     public Response rescheduleTask(@PathParam("taskID") long taskID) {
         logRequest();
-        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime, newDeviceName, request);
+        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime(), newDeviceName, request);
     }
 
     @POST
@@ -186,7 +186,7 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response rescheduleTasks() {
         logRequest();
-        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime, newDeviceName, request);
+        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime(), newDeviceName, request);
     }
 
     @DELETE
@@ -205,6 +205,10 @@ public class QueueManagerRS {
 
     private int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private Date scheduledTime() {
+        return scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : null;
     }
 
     private void logRequest() {
@@ -231,10 +235,6 @@ public class QueueManagerRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    private int queueTasksFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
     }
 
     private TaskQueryParam1 taskQueryParam(String deviceName) {

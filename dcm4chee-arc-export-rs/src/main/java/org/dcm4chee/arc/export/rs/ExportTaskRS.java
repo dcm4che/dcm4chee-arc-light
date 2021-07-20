@@ -59,6 +59,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -188,7 +189,7 @@ public class ExportTaskRS {
     public Response rescheduleExportTask(@PathParam("taskID") long taskID,
                                          @PathParam("ExporterID") String newExporterID) {
         logRequest();
-        return taskManager.rescheduleExportTask(taskQueryParam(taskID), scheduledTime, newDeviceName, newExporterID,
+        return taskManager.rescheduleExportTask(taskQueryParam(taskID), scheduledTime(), newDeviceName, newExporterID,
                 request);
     }
 
@@ -204,7 +205,7 @@ public class ExportTaskRS {
     @Produces("application/json")
     public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) {
         logRequest();
-        return taskManager.rescheduleExportTasks(taskQueryParam(deviceName), scheduledTime, newDeviceName, newExporterID,
+        return taskManager.rescheduleExportTasks(taskQueryParam(deviceName), scheduledTime(), newDeviceName, newExporterID,
                 request);
     }
 
@@ -282,6 +283,10 @@ public class ExportTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private Date scheduledTime() {
+        return scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : null;
     }
 
     private void logRequest() {
