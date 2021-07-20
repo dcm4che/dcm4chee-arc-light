@@ -46,9 +46,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.entity.Task_;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.TaskCanceled;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.hibernate.annotations.QueryHints;
@@ -56,13 +54,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -82,9 +80,6 @@ public class TaskManagerEJB {
 
     @Inject
     private Device device;
-
-    @Inject
-    private Event<TaskCanceled> taskCanceledEvent;
 
     public List<Long> findTasksToProcess(String queueName, int maxResults) {
         return em.createNamedQuery(Task.FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS, Long.class)
@@ -222,18 +217,10 @@ public class TaskManagerEJB {
         }
     }
 
-    public Task cancelTask(TaskQueryParam1 taskQueryParam) throws IllegalTaskStateException {
-        Task task = findTask(taskQueryParam);
-        if (task == null) return null;
-        switch (task.getStatus()) {
-            case IN_PROCESS:
-                taskCanceledEvent.fire(new TaskCanceled(task));
-            case SCHEDULED:
-                task.setStatus(Task.Status.CANCELED);
-                return task;
-            default:
-                throw new IllegalTaskStateException("Cannot cancel Task with status: " + task.getStatus());
-        }
+    public List<Task> findTasks(TaskQueryParam1 taskQueryParam, int limit) {
+        List<Task> resultList = new ArrayList<>();
+        forEachTask(taskQueryParam, 0, limit, resultList::add);
+        return resultList;
     }
 
     public int cancelTasks(TaskQueryParam1 taskQueryParam) {
@@ -245,49 +232,19 @@ public class TaskManagerEJB {
         return em.createQuery(update).executeUpdate();
     }
 
-    public int cancelTasks(TaskQueryParam1 taskQueryParam, int taskFetchSize) {
-        return cancelTasks(taskQueryParam, taskFetchSize, task -> task.setStatus(Task.Status.CANCELED));
+    public int deleteTasks(TaskQueryParam1 taskQueryParam) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaDelete<Task> delete = cb.createCriteriaDelete(Task.class);
+        Root<Task> task = delete.from(Task.class);
+        delete.where(new QueryBuilder(cb).taskPredicates(task, taskQueryParam).toArray(new Predicate[0]));
+        return em.createQuery(delete).executeUpdate();
     }
 
-    public Task deleteTask(TaskQueryParam1 taskQueryParam) {
-        Task task = findTask(taskQueryParam);
-        if (task == null) return null;
-        if (task.getStatus() == Task.Status.IN_PROCESS) {
-            taskCanceledEvent.fire(new TaskCanceled(task));
-        }
-        em.remove(task);
-        return task;
+    public Task merge(Task task) {
+        return em.merge(task);
     }
 
-    public int deleteTasks(TaskQueryParam1 taskQueryParam, int taskFetchSize) {
-        return cancelTasks(taskQueryParam, taskFetchSize, task -> em.remove(task));
+    public void remove(Task task) {
+        em.remove(em.merge(task));
     }
-
-    private int cancelTasks(TaskQueryParam1 taskQueryParam, int taskFetchSize, Consumer<Task> action) {
-        int sum = 0;
-        FireTaskCanceled cancelTask = new FireTaskCanceled(action);
-        do {
-            cancelTask.count = 0;
-            forEachTask(taskQueryParam, 0, taskFetchSize, cancelTask);
-            sum += cancelTask.count;
-        } while (cancelTask.count >= taskFetchSize);
-        return sum;
-    }
-
-    private class FireTaskCanceled implements Consumer<Task> {
-        final Consumer<Task> action;
-        int count;
-
-        private FireTaskCanceled(Consumer<Task> action) {
-            this.action = action;
-        }
-
-        @Override
-        public void accept(Task task) {
-            taskCanceledEvent.fire(new TaskCanceled(task));
-            action.accept(task);
-            count++;
-        }
-    }
-
 }

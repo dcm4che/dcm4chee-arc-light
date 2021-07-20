@@ -41,18 +41,14 @@
 
 package org.dcm4chee.arc.diff.rs;
 
-import org.dcm4che3.conf.api.IDeviceCache;
-import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
-import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -63,13 +59,11 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonParser;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Objects;
@@ -93,9 +87,6 @@ public class DiffTaskRS {
     @Inject
     private Device device;
 
-    @Inject
-    private IDeviceCache deviceCache;
-
     @Context
     private HttpHeaders httpHeaders;
 
@@ -109,7 +100,7 @@ public class DiffTaskRS {
     private String deviceName;
 
     @QueryParam("newDeviceName")
-    private String newDeviceName;
+    private List<String> newDeviceName;
 
     @QueryParam("LocalAET")
     private String localAET;
@@ -137,6 +128,9 @@ public class DiffTaskRS {
 
     @QueryParam("updatedTime")
     private String updatedTime;
+
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
 
     @QueryParam("batchID")
     private String batchID;
@@ -228,164 +222,20 @@ public class DiffTaskRS {
         return taskManager.cancelTasks(taskQueryParam(deviceName), request);
     }
 
-/*
     @POST
     @Path("{taskID}/reschedule")
-    public Response rescheduleTask(@PathParam("taskID") long pk) {
+    public Response rescheduleTask(@PathParam("taskID") long taskID) {
         logRequest();
-        TaskEvent queueEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
-        try {
-            Tuple tuple = diffService.findDeviceNameAndMsgPropsByPk(pk);
-            String taskDeviceName;
-            if ((taskDeviceName = (String) tuple.get(0)) == null)
-                return errResponse("No such Diff Task : " + pk, Response.Status.NOT_FOUND);
-
-            if (newDeviceName != null)
-                validateTaskAssociationInitiator((String) tuple.get(1), deviceCache.findDevice(newDeviceName));
-
-            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
-            if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-            Date scheduledTime = new Date();
-            diffService.rescheduleDiffTask(pk, queueEvent, scheduledTime);
-            return Response.noContent().build();
-        } catch (ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    private boolean validateTaskAssociationInitiator(String messageProperties, Device device) throws ConfigurationException {
-       javax.json.JsonReader reader = Json.createReader(new StringReader('{' + messageProperties + '}'));
-        JsonObject jsonObj = reader.readObject();
-
-        String localAET = jsonObj.getString("LocalAET");
-        ApplicationEntity ae = device.getApplicationEntity(localAET, true);
-        if (ae == null || !ae.isInstalled())
-            throw new ConfigurationException("No such Application Entity " + localAET + " on new device: " + newDeviceName);
-
-        return true;
+        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime, newDeviceName, request);
     }
 
     @POST
     @Path("/reschedule")
     @Produces("application/json")
-    public Response rescheduleDiffTasks() {
+    public Response rescheduleTasks() {
         logRequest();
-        QueueMessage.Status status = status();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-
-        try {
-            String devName = newDeviceName != null ? newDeviceName : deviceName;
-            if (devName != null && !devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-            TaskQueryParam diffTaskQueryParam = diffTaskQueryParam(updatedTime);
-            Date scheduledTime = new Date();
-            return newDeviceName != null
-                    ? rescheduleValidTasks(queueTaskQueryParam(null, status), diffTaskQueryParam, scheduledTime)
-                    : count(devName == null
-                        ? rescheduleOnDistinctDevices(diffTaskQueryParam, status, scheduledTime)
-                        : rescheduleTasks(
-                                queueTaskQueryParam(devName, status),
-                                diffTaskQueryParam, scheduledTime));
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime, newDeviceName, request);
     }
-
-    private int rescheduleOnDistinctDevices(TaskQueryParam diffTaskQueryParam, QueueMessage.Status status, Date scheduledTime) throws Exception {
-        List<String> distinctDeviceNames = diffService.listDistinctDeviceNames(
-                                                        queueTaskQueryParam(null, status), diffTaskQueryParam);
-        int count = 0;
-        for (String devName : distinctDeviceNames)
-            count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(
-                        queueTaskQueryParam(devName, status),
-                        diffTaskQueryParam, scheduledTime)
-                    : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
-
-        return count;
-    }
-
-    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, Date scheduledTime) {
-        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        try {
-            int rescheduled = 0;
-            int count;
-            int rescheduleTasksFetchSize = queueTasksFetchSize();
-            do {
-                List<Long> diffTaskQueueMsgPKs = diffService.listDiffTaskQueueMsgIDs(
-                                                                queueTaskQueryParam,
-                                                                diffTaskQueryParam,
-                                                                rescheduleTasksFetchSize);
-                diffTaskQueueMsgPKs.forEach(pk -> diffService.rescheduleDiffTaskByMsgID(pk, scheduledTime));
-                count = diffTaskQueueMsgPKs.size();
-                rescheduled += count;
-            } while (count >= rescheduleTasksFetchSize);
-            LOG.info("Rescheduled {} Diff tasks on device {}", rescheduled, device.getDeviceName());
-            queueEvent.setCount(rescheduled);
-            return rescheduled;
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            throw e;
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, Date scheduledTime) {
-        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        int rescheduled = 0;
-        int failed = 0;
-        try {
-            int count = 0;
-            int rescheduleTaskFetchSize = queueTasksFetchSize();
-            do {
-                List<Tuple> diffTaskTuples = diffService.listDiffTaskQueueMsgIDAndMsgProps(
-                        queueTaskQueryParam, diffTaskQueryParam, rescheduleTaskFetchSize);
-                for (Tuple tuple : diffTaskTuples) {
-                    Long queueMessagePK = (Long) tuple.get(0);
-                    try {
-                        if (validateTaskAssociationInitiator((String) tuple.get(1), device)) {
-                            diffService.rescheduleDiffTaskByMsgID(queueMessagePK, scheduledTime);
-                            count++;
-                        }
-                    } catch (ConfigurationException e) {
-                        LOG.info("Validation of association initiator failed for Diff Task queue message id {} : {}",
-                                queueMessagePK, e.getMessage());
-                        failed++;
-                    }
-                }
-                rescheduled += count;
-            } while (count >= rescheduleTaskFetchSize);
-            queueEvent.setCount(rescheduled);
-            LOG.info("Rescheduled {} Diff tasks on device {}", rescheduled, device.getDeviceName());
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            throw e;
-        } finally {
-            queueEvent.setFailed(failed);
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-
-        if (failed == 0)
-            return count(rescheduled);
-
-        LOG.info("Failed to reschedule {} Diff tasks on device {}", failed, device.getDeviceName());
-        return rescheduled > 0
-                ? accepted(rescheduled, failed)
-                : conflict(failed);
-    }
-*/
 
     @DELETE
     @Path("/{taskID}")
@@ -470,47 +320,8 @@ public class DiffTaskRS {
                 request.getRemoteHost());
     }
 
-    private Response count(long count) {
-        return Response.ok("{\"count\":" + count + '}').build();
-    }
-
-    private Response accepted(int rescheduled, int failed) {
-        return Response.accepted("{\"count\":" + rescheduled + ", \"failed\":" + failed + '}').build();
-    }
-
-    private Response conflict(int failed) {
-        return Response.status(Response.Status.CONFLICT).entity("{\"failed\":" + failed + '}').build();
-    }
-
-    private int count(Response response, String devName) {
-        int count = 0;
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            JsonParser parser = Json.createParser(new StringReader(response.readEntity(String.class)));
-            JsonReader reader = new JsonReader(parser);
-            reader.next();
-            reader.expect(JsonParser.Event.START_OBJECT);
-            while (reader.next() == JsonParser.Event.KEY_NAME)
-                count = reader.intValue();
-            LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
-        } else {
-            LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
-                    devName, response.getStatus(), response.getEntity());
-        }
-        return count;
-    }
-
     private Response errResponse(String msg, Response.Status status) {
         return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
-    }
-
-    private Response rsp(boolean result, long pk) {
-        return result
-                ? Response.noContent().build()
-                : errResponse("No such Diff Task : " + pk, Response.Status.NOT_FOUND);
-    }
-
-    private Response noSuchTask(long taskID) {
-        return errResponse("No such Diff Task : " + taskID, Response.Status.NOT_FOUND);
     }
 
     private Response notAcceptable() {
@@ -539,32 +350,6 @@ public class DiffTaskRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    private int queueTasksFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
-    }
-
-    private TaskQueryParam queueTaskQueryParam(String deviceName, QueueMessage.Status status) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status);
-        taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setBatchID(batchID);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam diffTaskQueryParam(String updatedTime) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setLocalAET(localAET);
-        taskQueryParam.setPrimaryAET(primaryAET);
-        taskQueryParam.setSecondaryAET(secondaryAET);
-        taskQueryParam.setCompareFields(comparefields);
-        taskQueryParam.setCheckMissing(checkMissing);
-        taskQueryParam.setCheckDifferent(checkDifferent);
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
-        return taskQueryParam;
     }
 
     private TaskQueryParam1 taskQueryParam(String deviceName) {

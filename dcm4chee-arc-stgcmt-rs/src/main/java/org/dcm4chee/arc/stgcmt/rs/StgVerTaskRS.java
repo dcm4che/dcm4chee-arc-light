@@ -40,30 +40,22 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
-import org.dcm4che3.conf.api.IDeviceCache;
-import org.dcm4che3.conf.json.JsonReader;
-import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
-import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonParser;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Objects;
@@ -71,6 +63,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @since Aug 2018
  */
 @RequestScoped
@@ -78,15 +71,6 @@ import java.util.stream.Collectors;
 public class StgVerTaskRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StgVerTaskRS.class);
-
-    @Inject
-    private Device device;
-
-    @Inject
-    private IDeviceCache deviceCache;
-
-    @Inject
-    private StgCmtManager stgCmtMgr;
 
     @Inject
     private TaskManager taskManager;
@@ -104,7 +88,7 @@ public class StgVerTaskRS {
     private String deviceName;
 
     @QueryParam("newDeviceName")
-    private String newDeviceName;
+    private List<String> newDeviceName;
 
     @QueryParam("LocalAET")
     private String localAET;
@@ -121,6 +105,9 @@ public class StgVerTaskRS {
 
     @QueryParam("updatedTime")
     private String updatedTime;
+
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
 
     @QueryParam("batchID")
     private String batchID;
@@ -186,48 +173,11 @@ public class StgVerTaskRS {
         return taskManager.cancelTasks(taskQueryParam(deviceName), request);
     }
 
-/*
     @POST
-    @Path("{taskPK}/reschedule")
-    public Response rescheduleTask(@PathParam("taskPK") long pk) {
+    @Path("{taskID}/reschedule")
+    public Response rescheduleStgVerTask(@PathParam("taskID") long taskID) {
         logRequest();
-        TaskEvent queueEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
-        try {
-            Tuple tuple = stgCmtMgr.findDeviceNameAndMsgPropsByPk(pk);
-            String taskDeviceName;
-            if ((taskDeviceName = (String) tuple.get(0)) == null)
-                return errResponse("No such Storage Verification Task : " + pk, Response.Status.NOT_FOUND);
-
-            if (newDeviceName != null)
-                validateTaskAssociationInitiator((String) tuple.get(1), deviceCache.findDevice(newDeviceName));
-
-            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
-            if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-            Date scheduledTime = new Date();
-            stgCmtMgr.rescheduleStgVerTask(pk, queueEvent, scheduledTime);
-            return Response.noContent().build();
-        } catch (ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    private boolean validateTaskAssociationInitiator(String messageProperties, Device device) throws ConfigurationException {
-        javax.json.JsonReader reader = Json.createReader(new StringReader('{' + messageProperties + '}'));
-        JsonObject jsonObj = reader.readObject();
-
-        String localAET = jsonObj.getString("LocalAET");
-        ApplicationEntity ae = device.getApplicationEntity(localAET, true);
-        if (ae == null || !ae.isInstalled())
-            throw new ConfigurationException("No such Application Entity " + localAET + " on new device: " + newDeviceName);
-
-        return true;
+        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime, newDeviceName, request);
     }
 
     @POST
@@ -235,114 +185,8 @@ public class StgVerTaskRS {
     @Produces("application/json")
     public Response rescheduleStgVerTasks() {
         logRequest();
-        QueueMessage.Status status = status();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-
-        try {
-            String devName = newDeviceName != null ? newDeviceName : deviceName;
-            if (devName != null && !devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-            TaskQueryParam stgVerTaskQueryParam = stgVerTaskQueryParam(updatedTime);
-            Date scheduledTime = new Date();
-            return newDeviceName != null
-                    ? rescheduleValidTasks(queueTaskQueryParam(null, status), stgVerTaskQueryParam, scheduledTime)
-                    : count(devName == null
-                        ? rescheduleOnDistinctDevices(stgVerTaskQueryParam, status, scheduledTime)
-                        : rescheduleTasks(
-                            queueTaskQueryParam(devName, status),
-                            stgVerTaskQueryParam, scheduledTime));
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime, newDeviceName, request);
     }
-
-    private int rescheduleOnDistinctDevices(TaskQueryParam stgVerTaskQueryParam, QueueMessage.Status status, Date scheduledTime) throws Exception {
-        List<String> distinctDeviceNames = stgCmtMgr.listDistinctDeviceNames(
-                                                        queueTaskQueryParam(null, status), stgVerTaskQueryParam);
-        int count = 0;
-        for (String devName : distinctDeviceNames)
-            count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(
-                            queueTaskQueryParam(devName, status),
-                            stgVerTaskQueryParam, scheduledTime)
-                    : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
-        return count;
-    }
-
-    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, Date scheduledTime) {
-        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        try {
-            int rescheduled = 0;
-            int count;
-            int rescheduleTasksFetchSize = queueTasksFetchSize();
-            do {
-                List<Long> stgVerTaskQueueMsgIDs = stgCmtMgr.listStgVerQueueMsgPKs(
-                                                                queueTaskQueryParam,
-                                                                stgVerTaskQueryParam,
-                                                                rescheduleTasksFetchSize);
-                stgVerTaskQueueMsgIDs.forEach(stgVerTaskQueueMsgID -> stgCmtMgr.rescheduleStgVerTaskByQueueMsgPK(stgVerTaskQueueMsgID, scheduledTime));
-                count = stgVerTaskQueueMsgIDs.size();
-                rescheduled += count;
-            } while (count >= rescheduleTasksFetchSize);
-            queueEvent.setCount(rescheduled);
-            LOG.info("Rescheduled {} Storage Verification tasks on device {}", rescheduled, device.getDeviceName());
-            return rescheduled;
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            throw e;
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, Date scheduledTime) {
-        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        int rescheduled = 0;
-        int failed = 0;
-        try {
-            int count = 0;
-            int rescheduleTaskFetchSize = queueTasksFetchSize();
-            do {
-                List<Tuple> stgVerTaskTuples = stgCmtMgr.listStgVerTaskPKAndMsgProps(
-                        queueTaskQueryParam, stgVerTaskQueryParam, rescheduleTaskFetchSize);
-                for (Tuple tuple : stgVerTaskTuples) {
-                    Long stgVerTaskQueueMsgId = (Long) tuple.get(0);
-                    try {
-                        if (validateTaskAssociationInitiator((String) tuple.get(1), device)) {
-                            stgCmtMgr.rescheduleStgVerTaskByQueueMsgPK(stgVerTaskQueueMsgId, scheduledTime);
-                            count++;
-                        }
-                    } catch (ConfigurationException e) {
-                        LOG.info("Validation of association initiator failed for Storage Verification Task queue message id {} : {}",
-                                stgVerTaskQueueMsgId, e.getMessage());
-                        failed++;
-                    }
-                }
-                rescheduled += count;
-            } while (count >= rescheduleTaskFetchSize);
-            queueEvent.setCount(rescheduled);
-            LOG.info("Rescheduled {} Storage Verification tasks on device {}", rescheduled, device.getDeviceName());
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            throw e;
-        } finally {
-            queueEvent.setFailed(failed);
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-
-        if (failed == 0)
-            return count(rescheduled);
-
-        LOG.info("Failed to reschedule {} Storage Verification tasks on device {}", failed, device.getDeviceName());
-        return rescheduled > 0
-                ? accepted(rescheduled, failed)
-                : conflict(failed);
-    }
-*/
 
     @DELETE
     @Path("/{taskID}")
@@ -406,41 +250,6 @@ public class StgVerTaskRS {
         abstract Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit);
     }
 
-    private int count(Response response, String devName) {
-        int count = 0;
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            JsonParser parser = Json.createParser(new StringReader(response.readEntity(String.class)));
-            JsonReader reader = new JsonReader(parser);
-            reader.next();
-            reader.expect(JsonParser.Event.START_OBJECT);
-            while (reader.next() == JsonParser.Event.KEY_NAME)
-                count = reader.intValue();
-            LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
-        } else {
-            LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
-                    devName, response.getStatus(), response.getEntity());
-        }
-        return count;
-    }
-
-    private Response count(long count) {
-        return Response.ok("{\"count\":" + count + '}').build();
-    }
-
-    private Response accepted(int rescheduled, int failed) {
-        return Response.accepted("{\"count\":" + rescheduled + ", \"failed\":" + failed + '}').build();
-    }
-
-    private Response conflict(int failed) {
-        return Response.status(Response.Status.CONFLICT).entity("{\"failed\":" + failed + '}').build();
-    }
-
-    private Response rsp(boolean result, long pk) {
-        return result
-                ? Response.noContent().build()
-                : errResponse("No such Storage Verification Task : " + pk, Response.Status.NOT_FOUND);
-    }
-
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
     }
@@ -455,10 +264,6 @@ public class StgVerTaskRS {
                 .build();
     }
 
-    private Response errResponse(String msg, Response.Status status) {
-        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
-    }
-
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
         LOG.warn("Response {} caused by {}", status, errorMsg);
         return Response.status(status)
@@ -471,10 +276,6 @@ public class StgVerTaskRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
-    }
-
-    private int queueTasksFetchSize() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
     }
 
     private void logRequest() {

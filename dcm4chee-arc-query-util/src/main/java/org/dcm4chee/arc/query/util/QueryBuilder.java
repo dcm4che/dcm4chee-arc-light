@@ -478,6 +478,8 @@ public class QueryBuilder {
             dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
         if (taskQueryParam.getUpdatedBefore() != null)
             predicates.add(cb.lessThan(task.get(Task_.updatedTime), taskQueryParam.getUpdatedBefore()));
+        if (taskQueryParam.getNotType() != null)
+            predicates.add(cb.notEqual(task.get(Task_.type), taskQueryParam.getNotType()));
         if (taskQueryParam.getType() != null) {
             predicates.add(cb.equal(task.get(Task_.type), taskQueryParam.getType()));
             switch (taskQueryParam.getType()) {
@@ -521,6 +523,7 @@ public class QueryBuilder {
                     break;
             }
         }
+
         return predicates;
     }
 

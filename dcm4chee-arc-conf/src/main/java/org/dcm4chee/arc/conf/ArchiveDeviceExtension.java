@@ -157,8 +157,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration aeCacheStaleTimeout;
     private volatile Duration leadingCFindSCPQueryCacheStaleTimeout;
     private volatile int leadingCFindSCPQueryCacheSize = 10;
-    private volatile int hl7PrefetchHistoryLength = 10;
-    private volatile int hl7ExportHistoryLength = 10;
     private volatile String auditSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
     private volatile Duration auditPollingInterval;
     private volatile Duration auditAggregateDuration;

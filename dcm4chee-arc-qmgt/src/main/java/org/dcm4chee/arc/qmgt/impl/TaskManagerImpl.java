@@ -50,7 +50,7 @@ import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.BulkTaskEvent;
 import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.event.TaskOperation;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.TaskCanceled;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.slf4j.Logger;
@@ -66,6 +66,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -89,6 +90,9 @@ public class TaskManagerImpl implements TaskManager {
 
     @Inject
     private Event<BulkTaskEvent> bulkTaskEventEvent;
+
+    @Inject
+    private Event<TaskCanceled> taskCanceledEvent;
 
     @Override
     public Task findTask(TaskQueryParam1 taskQueryParam) {
@@ -146,15 +150,25 @@ public class TaskManagerImpl implements TaskManager {
 
     @Override
     public Response cancelTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+        Task task = ejb.findTask(taskQueryParam);
+        if (task == null)
+            return noSuchTask(taskQueryParam.getTaskPK());
+
+        if (task.getStatus().done)
+            return errResponse("Cannot cancel Task with status: " + task.getStatus(), Response.Status.CONFLICT);
+
+        TaskEvent taskEvent = new TaskEvent(request, TaskOperation.CancelTasks);
+        taskEvent.setTask(task);
         try {
-            Task task = ejb.cancelTask(taskQueryParam);
-            if (task == null)
-                return noSuchTask(taskQueryParam.getTaskPK());
+            if (task.getStatus() == Task.Status.IN_PROCESS)
+                taskCanceledEvent.fire(new TaskCanceled(task));
+            ejb.merge(task);
             return Response.noContent().build();
-        } catch (IllegalTaskStateException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
+            taskEvent.setException(e);
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            taskEventEvent.fire(taskEvent);
         }
     }
 
@@ -164,44 +178,128 @@ public class TaskManagerImpl implements TaskManager {
         if (status == null)
             return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
 
-        if (status != Task.Status.SCHEDULED && status != Task.Status.IN_PROCESS)
+        if (status.done)
             return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
 
-        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.CancelTasks);
+        int count = 0;
+        int failed = 0;
+        BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Tasks with Status {}", status);
-            long count = 0;
             if (status == Task.Status.SCHEDULED) {
-                count = ejb.cancelTasks(taskQueryParam);
-            } else {
-                ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-                int taskFetchSize = arcDev.getTaskFetchSize();
-                int canceled;
-                do {
-                    count += canceled = ejb.cancelTasks(taskQueryParam, taskFetchSize);
-                } while (canceled >= taskFetchSize);
+                return count(count = ejb.cancelTasks(taskQueryParam));
             }
-            queueEvent.setCount(count);
-            return count(count);
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            int taskFetchSize = arcDev.getTaskFetchSize();
+            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            do {
+                for (Task task : list) {
+                    try {
+                        taskCanceledEvent.fire(new TaskCanceled(task));
+                        ejb.merge(task);
+                        count++;
+                    } catch (Exception e) {
+                        LOG.info("Failed to cancel {}", task, e);
+                        failed++;
+                    }
+                }
+            } while (list.size() >= taskFetchSize);
+            return response(count, failed);
         } catch (Exception e) {
-            queueEvent.setException(e);
+            taskEvent.setException(e);
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
-            bulkTaskEventEvent.fire(queueEvent);
+            taskEvent.setCount(count);
+            taskEvent.setFailed(failed);
+            bulkTaskEventEvent.fire(taskEvent);
         }
     }
 
     @Override
+    public Response rescheduleTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+                                   List<String> newDeviceName, HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public Response rescheduleTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
+                                    List<String> newDeviceName, HttpServletRequest request) {
+        Task.Status status = taskQueryParam.getStatus();
+        if (status == null)
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
+
+
+        return null;
+    }
+
+    @Override
+    public Response rescheduleExportTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+                                         List<String> newDeviceName, String newExporterID,
+                                         HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public Response rescheduleExportTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
+                                          List<String> newDeviceName, String newExporterID,
+                                          HttpServletRequest request) {
+        Task.Status status = taskQueryParam.getStatus();
+        if (status == null)
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
+
+        return null;
+    }
+
+    @Override
+    public Response rescheduleRetrieveTask(TaskQueryParam1 taskQueryParam, String scheduledTime,
+                                           List<String> newDeviceName, String newQueueName,
+                                           HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public Response rescheduleRetrieveTasks(TaskQueryParam1 taskQueryParam, String scheduledTime,
+                                            List<String> newDeviceName, String newQueueName,
+                                            HttpServletRequest request) {
+        Task.Status status = taskQueryParam.getStatus();
+        if (status == null)
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
+
+        return null;
+    }
+
+    @Override
     public Response deleteTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+        Task task = ejb.findTask(taskQueryParam);
+        if (task == null)
+            return noSuchTask(taskQueryParam.getTaskPK());
+
+        TaskEvent taskEvent = new TaskEvent(request, TaskOperation.DeleteTasks);
+        taskEvent.setTask(task);
         try {
-            Task task = ejb.deleteTask(taskQueryParam);
-            if (task == null)
-                return noSuchTask(taskQueryParam.getTaskPK());
-            this.taskEventEvent.fire(new TaskEvent(request, TaskOperation.DeleteTasks, task));
+            if (task.getStatus() == Task.Status.IN_PROCESS)
+                taskCanceledEvent.fire(new TaskCanceled(task));
+            ejb.remove(task);
             return Response.noContent().build();
         } catch (Exception e) {
+            taskEvent.setException(e);
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            taskEventEvent.fire(taskEvent);
         }
+    }
+
+    @Override
+    public Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+        if (taskQueryParam.getStatus() == null)
+            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
+
+        BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.DeleteTasks);
+        deleteTasks(taskQueryParam, taskEvent);
+        return taskEvent.getException() == null
+                ? response(taskEvent.getCount(), taskEvent.getFailed())
+                : errResponseAsTextPlain(
+                exceptionAsString(taskEvent.getException()), Response.Status.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -209,30 +307,43 @@ public class TaskManagerImpl implements TaskManager {
         deleteTasks(taskQueryParam, new BulkTaskEvent(queueName, TaskOperation.DeleteTasks));
     }
 
-    @Override
-    public Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
-        BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.DeleteTasks);
-        deleteTasks(taskQueryParam, taskEvent);
-        return (taskEvent.getException() == null)
-                ? Response.ok("{\"deleted\":" + taskEvent.getCount() + '}').build()
-                : errResponseAsTextPlain(exceptionAsString(taskEvent.getException()), Response.Status.INTERNAL_SERVER_ERROR);
-    }
-
     private void deleteTasks(TaskQueryParam1 taskQueryParam, BulkTaskEvent taskEvent) {
+        int count = 0;
+        int failed = 0;
         try {
-            long count = 0;
-            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            int taskFetchSize = arcDev.getTaskFetchSize();
-            int deleted;
-            do {
-                count += deleted = ejb.deleteTasks(taskQueryParam, taskFetchSize);
-            } while (deleted >= taskFetchSize);
-            if (count > 0) {
-                taskEvent.setCount(count);
-                bulkTaskEventEvent.fire(taskEvent);
+            Task.Status status = taskQueryParam.getStatus();
+            LOG.info("Delete Tasks with Status {}", status);
+            Task.Type type = taskQueryParam.getType();
+            if (status != Task.Status.IN_PROCESS && type != Task.Type.DIFF) {
+                if (type == null)
+                    taskQueryParam.setNotType(Task.Type.DIFF);
+                count = ejb.deleteTasks(taskQueryParam);
+                taskQueryParam.setNotType(null);
+            }
+            if (status == Task.Status.IN_PROCESS || type == null || type == Task.Type.DIFF) {
+                ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+                int taskFetchSize = arcDev.getTaskFetchSize();
+                List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+                do {
+                    for (Task task : list) {
+                        try {
+                            if (task.getStatus() == Task.Status.IN_PROCESS) {
+                                taskCanceledEvent.fire(new TaskCanceled(task));
+                            }
+                            ejb.remove(task);
+                            count++;
+                        } catch (Exception e) {
+                            LOG.info("Failed to delete {}", task, e);
+                            failed++;
+                        }
+                    }
+                } while (list.size() >= taskFetchSize);
             }
         } catch (Exception e) {
             taskEvent.setException(e);
+        } finally {
+            taskEvent.setCount(count);
+            taskEvent.setFailed(failed);
             bulkTaskEventEvent.fire(taskEvent);
         }
     }
@@ -259,8 +370,20 @@ public class TaskManagerImpl implements TaskManager {
         return sw.toString();
     }
 
+    private Response response(int count, int failed) {
+        return failed == 0 ? count(count) : count == 0 ? conflict(failed) : accepted(count, failed);
+    }
+
     private Response count(long count) {
         return Response.ok("{\"count\":" + count + '}').build();
+    }
+
+    private Response accepted(int rescheduled, int failed) {
+        return Response.accepted("{\"count\":" + rescheduled + ", \"failed\":" + failed + '}').build();
+    }
+
+    private Response conflict(int failed) {
+        return Response.status(Response.Status.CONFLICT).entity("{\"failed\":" + failed + '}').build();
     }
 
 }

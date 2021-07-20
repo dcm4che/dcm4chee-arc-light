@@ -58,6 +58,7 @@ public class TaskQueryParam1 {
     private List<String> queueNames = new ArrayList<>();
     private String deviceName;
     private Task.Type type;
+    private Task.Type notType;
     private Task.Status status;
     private StgCmtResult.Status stgCmtStatus;
     private String batchID;
@@ -99,6 +100,14 @@ public class TaskQueryParam1 {
 
     public void setDeviceName(String deviceName) {
         this.deviceName = deviceName;
+    }
+
+    public Task.Type getNotType() {
+        return notType;
+    }
+
+    public void setNotType(Task.Type notType) {
+        this.notType = notType;
     }
 
     public Task.Type getType() {

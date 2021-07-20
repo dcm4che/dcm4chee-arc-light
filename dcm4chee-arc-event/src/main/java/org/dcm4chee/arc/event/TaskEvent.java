@@ -13,10 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 public class TaskEvent {
     private final HttpServletRequest request;
     private final TaskOperation operation;
-    private final Task task;
+    private Task task;
     private Exception exception;
 
-    public TaskEvent(HttpServletRequest request, TaskOperation operation, Task task) {
+    public TaskEvent(HttpServletRequest request, TaskOperation operation) {
         this.request = request;
         this.operation = operation;
         this.task = task;
@@ -32,6 +32,10 @@ public class TaskEvent {
 
     public Task getTask() {
         return task;
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
     }
 
     public Exception getException() {

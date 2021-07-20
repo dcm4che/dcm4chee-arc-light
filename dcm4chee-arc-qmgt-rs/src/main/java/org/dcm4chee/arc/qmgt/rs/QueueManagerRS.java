@@ -40,11 +40,9 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
-import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -63,7 +61,10 @@ import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -76,16 +77,10 @@ public class QueueManagerRS {
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerRS.class);
 
     @Inject
-    private QueueManager queueManager;
-
-    @Inject
     private TaskManager taskManager;
 
     @Inject
     private Device device;
-
-    @Inject
-    private IDeviceCache deviceCache;
 
     @Context
     private HttpServletRequest request;
@@ -100,7 +95,7 @@ public class QueueManagerRS {
     private String deviceName;
 
     @QueryParam("newDeviceName")
-    private String newDeviceName;
+    private List<String> newDeviceName;
 
     @QueryParam("status")
     @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
@@ -119,6 +114,9 @@ public class QueueManagerRS {
 
     @QueryParam("updatedTime")
     private String updatedTime;
+
+    @QueryParam("scheduledTime")
+    private String scheduledTime;
 
     @QueryParam("batchID")
     private String batchID;
@@ -160,7 +158,7 @@ public class QueueManagerRS {
 
     @POST
     @Path("{taskID}/cancel")
-    public Response cancel(@PathParam("taskID") long taskID) {
+    public Response cancelTask(@PathParam("taskID") long taskID) {
         logRequest();
         return taskManager.cancelTask(taskQueryParam(taskID), request);
     }
@@ -173,170 +171,20 @@ public class QueueManagerRS {
         return taskManager.cancelTasks(taskQueryParam(deviceName), request);
     }
 
-/*
     @POST
     @Path("{taskID}/reschedule")
-    public Response rescheduleMessage(@PathParam("taskID") long taskID) {
+    public Response rescheduleTask(@PathParam("taskID") long taskID) {
         logRequest();
-        Task task = taskManager.findTask(taskQueryParam(taskID));
-        if (task == null)
-            return errResponse("No such Task: " + taskID, Response.Status.NOT_FOUND);
-
-        TaskEvent queueEvent = new TaskEvent(request, TaskOperation.RescheduleTasks, taskID);
-        try {
-            Tuple tuple = queueManager.findDeviceNameAndMsgPropsByMsgID(taskID);
-            String taskDeviceName;
-            if ((taskDeviceName = (String) tuple.get(0)) == null)
-                return errResponse("No such Queue Message: " + taskID, Response.Status.NOT_FOUND);
-
-            if (rescheduleValidQueueMsg())
-                validateTaskAssociationInitiator((String) tuple.get(1), deviceCache.findDevice(newDeviceName));
-
-            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
-            if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-            queueManager.rescheduleTask(taskID, null, queueEvent, new Date());
-            return Response.noContent().build();
-        } catch (ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            taskEventEvent.fire(queueEvent);
-        }
-    }
-
-    private boolean rescheduleValidQueueMsg() {
-        return newDeviceName != null && !queueName.startsWith("Export") && !queueName.equals("RSClient");
-    }
-
-    private boolean validateTaskAssociationInitiator(String messageProperties, Device device) throws ConfigurationException {
-        javax.json.JsonReader reader = Json.createReader(new StringReader('{' + messageProperties + '}'));
-        JsonObject jsonObj = reader.readObject();
-
-        if (queueName.equals("HL7Send")) {
-            String sender = jsonObj.getString("SendingApplication") + '|' + jsonObj.getString("SendingFacility");
-            HL7Application hl7Application = device.getDeviceExtensionNotNull(HL7DeviceExtension.class)
-                    .getHL7Application(sender, true);
-            if (hl7Application == null || !hl7Application.isInstalled())
-                throw new ConfigurationException("No such HL7 Application " + sender + " on new device: " + newDeviceName);
-        } else {
-            String localAET = jsonObj.getString("LocalAET");
-            ApplicationEntity ae = device.getApplicationEntity(localAET, true);
-            if (ae == null || !ae.isInstalled())
-                throw new ConfigurationException("No such Application Entity " + localAET + " on new device: " + newDeviceName);
-        }
-        return true;
+        return taskManager.rescheduleTask(taskQueryParam(taskID), scheduledTime, newDeviceName, request);
     }
 
     @POST
     @Path("/reschedule")
     @Produces("application/json")
-    public Response rescheduleMessages() {
+    public Response rescheduleTasks() {
         logRequest();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-
-        try {
-            String devName = newDeviceName != null ? newDeviceName : deviceName;
-            if (devName != null && !devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-            Date scheduledTime = new Date();
-            return rescheduleValidQueueMsg()
-                    ? rescheduleValidMessages(taskQueryParam(null), scheduledTime)
-                    : count(devName == null
-                        ? rescheduleOnDistinctDevices(scheduledTime)
-                        : rescheduleMessages(taskQueryParam(newDeviceName != null ? null : devName), scheduledTime));
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return taskManager.rescheduleTasks(taskQueryParam(deviceName), scheduledTime, newDeviceName, request);
     }
-
-    private int rescheduleOnDistinctDevices(Date scheduledTime) throws Exception {
-        List<String> distinctDeviceNames = queueManager.listDistinctDeviceNames(taskQueryParam(null));
-        int count = 0;
-        for (String devName : distinctDeviceNames)
-            count += devName.equals(device.getDeviceName())
-                    ? rescheduleMessages(taskQueryParam(devName), scheduledTime)
-                    : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
-
-        return count;
-    }
-
-    private int rescheduleMessages(TaskQueryParam queueTaskQueryParam, Date scheduledTime) {
-        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        try {
-            int count;
-            int rescheduleTaskFetchSize = queueTasksFetchSize();
-            int rescheduled = 0;
-            do {
-                List<Long> queueMsgPKs = queueManager.listQueueMsgIDs(queueTaskQueryParam, rescheduleTaskFetchSize);
-                queueMsgPKs.forEach(queueMsgID -> queueManager.rescheduleTask(queueMsgID, queueName, null, scheduledTime));
-                count = queueMsgPKs.size();
-                rescheduled += count;
-            } while (count >= rescheduleTaskFetchSize);
-            queueEvent.setCount(rescheduled);
-            LOG.info("Rescheduled {} Queue Messages of queue {} on device {}",
-                    rescheduled, queueName, device.getDeviceName());
-            return rescheduled;
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            throw e;
-        } finally {
-            bulkTaskEventEvent.fire(queueEvent);
-        }
-    }
-
-    private Response rescheduleValidMessages(TaskQueryParam queueTaskQueryParam, Date scheduledTime) {
-        BulkTaskEvent queueEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        int rescheduled = 0;
-        int failed = 0;
-        try {
-            int count = 0;
-            int rescheduleTaskFetchSize = queueTasksFetchSize();
-            do {
-                List<Tuple> queueMsgTuples = queueManager.listQueueMsgIDAndMsgProps(queueTaskQueryParam, rescheduleTaskFetchSize);
-                for (Tuple tuple : queueMsgTuples) {
-                    Long msgPK = (Long) tuple.get(0);
-                    try {
-                        if (validateTaskAssociationInitiator((String) tuple.get(1), device)) {
-                            queueManager.rescheduleTask(msgPK, queueName, null, scheduledTime);
-                            count++;
-                        }
-                    } catch (ConfigurationException e) {
-                        LOG.info("Validation of association initiator failed for Queue Message {} of queue {} : {}",
-                                msgPK, queueName, e.getMessage());
-                        failed++;
-                    }
-                }
-                rescheduled += count;
-            } while (count >= rescheduleTaskFetchSize);
-            queueEvent.setCount(rescheduled);
-            LOG.info("Rescheduled {} Queue Messages of queue {} on device {}",
-                    rescheduled, queueName, device.getDeviceName());
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            throw e;
-        } finally {
-            queueEvent.setFailed(failed);
-            bulkTaskEventEvent.fire(queueEvent);
-        }
-
-        if (failed == 0)
-            return count(rescheduled);
-
-        LOG.info("Failed to reschedule {} Queue Messages of queue {} on device {}",
-                failed, queueName, device.getDeviceName());
-        return rescheduled > 0
-                ? accepted(rescheduled, failed)
-                : conflict(failed);
-    }
-*/
 
     @DELETE
     @Path("{taskID}")
@@ -350,39 +198,6 @@ public class QueueManagerRS {
     public Response deleteTasks() {
         logRequest();
         return taskManager.deleteTasks(taskQueryParam(deviceName), request);
-    }
-
-    private Response noSuchTask(long taskID) {
-        return errResponse("No such Task : " + taskID + " in Queue: " + queueName, Response.Status.NOT_FOUND);
-    }
-
-    private Response count(long count) {
-        return Response.ok("{\"count\":" + count + '}').build();
-    }
-
-    private Response accepted(int rescheduled, int failed) {
-        return Response.accepted("{\"count\":" + rescheduled + ", \"failed\":" + failed + '}').build();
-    }
-
-    private Response conflict(int failed) {
-        return Response.status(Response.Status.CONFLICT).entity("{\"failed\":" + failed + '}').build();
-    }
-
-    private int count(Response response, String devName) {
-        int count = 0;
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            JsonParser parser = Json.createParser(new StringReader(response.readEntity(String.class)));
-            JsonReader reader = new JsonReader(parser);
-            reader.next();
-            reader.expect(JsonParser.Event.START_OBJECT);
-            while (reader.next() == JsonParser.Event.KEY_NAME)
-                count = reader.intValue();
-            LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
-        } else {
-            LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
-                    devName, response.getStatus(), response.getEntity());
-        }
-        return count;
     }
 
     private int parseInt(String s) {
