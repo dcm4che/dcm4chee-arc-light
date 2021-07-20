@@ -172,7 +172,7 @@ public class TaskManagerEJB {
 
     public void scheduleTask(Task task) {
         em.persist(task);
-        LOG.info("Schedule {}", task);
+        LOG.info("Create {}", task);
     }
 
     public void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action) {
