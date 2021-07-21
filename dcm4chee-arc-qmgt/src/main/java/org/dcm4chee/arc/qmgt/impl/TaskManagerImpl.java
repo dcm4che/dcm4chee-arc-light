@@ -234,7 +234,7 @@ public class TaskManagerImpl implements TaskManager {
 
         if (!newDeviceName.isEmpty()) {
             try {
-                adjustDeviceName(task, targetDevices.get(0), null);
+                adjustDeviceName(task, targetDevices.get(0), null, null);
             } catch (IllegalStateException e) {
                 return errResponse(e.getMessage(), Response.Status.CONFLICT);
             }
@@ -275,7 +275,8 @@ public class TaskManagerImpl implements TaskManager {
                 for (Task task : list) {
                     if (!newDeviceName.isEmpty()) {
                         try {
-                            adjustDeviceName(task, targetDevices.get(count % targetDevices.size()), null);
+                            adjustDeviceName(task, targetDevices.get(count % targetDevices.size()),
+                                    null, null);
                         } catch (IllegalStateException e) {
                             LOG.info(e.getMessage());
                             failed++;
@@ -328,7 +329,7 @@ public class TaskManagerImpl implements TaskManager {
 
         if (!newDeviceName.isEmpty() || newExporterID != null) {
             try {
-                adjustDeviceName(task, targetDevices.get(0), newExporterID);
+                adjustDeviceName(task, targetDevices.get(0), newExporterID, null);
             } catch (IllegalStateException e) {
                 return errResponse(e.getMessage(), Response.Status.CONFLICT);
             }
@@ -379,7 +380,8 @@ public class TaskManagerImpl implements TaskManager {
                 for (Task task : list) {
                     if (!newDeviceName.isEmpty()) {
                         try {
-                            adjustDeviceName(task, targetDevices.get(count % targetDevices.size()), newExporterID);
+                            adjustDeviceName(task, targetDevices.get(count % targetDevices.size()),
+                                    newExporterID, null);
                         } catch (IllegalStateException e) {
                             LOG.info(e.getMessage());
                             failed++;
@@ -430,14 +432,12 @@ public class TaskManagerImpl implements TaskManager {
         if (task == null)
             return noSuchTask(taskQueryParam.getTaskPK());
 
-        if (newQueueName != null) {
-            task.setQueueName(newQueueName);
-        } else if (!newDeviceName.isEmpty()) {
-            if (targetDevice.getQueueDescriptor(task.getQueueName()) == null)
-                return errResponse("Cannot reschedule Retrieve Task to Queue: " + task.getQueueName()
-                        + " not configured at device: " + newDeviceName.get(0), Response.Status.CONFLICT);
-
-            task.setDeviceName(newDeviceName.get(0));
+        if (!newDeviceName.isEmpty() || newQueueName != null) {
+            try {
+                adjustDeviceName(task, targetDevices.get(0), null, newQueueName);
+            } catch (IllegalStateException e) {
+                return errResponse(e.getMessage(), Response.Status.CONFLICT);
+            }
         }
         TaskEvent taskEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
         taskEvent.setTask(task);
@@ -462,11 +462,62 @@ public class TaskManagerImpl implements TaskManager {
     public Response rescheduleRetrieveTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
                                             List<String> newDeviceName, String newQueueName,
                                             HttpServletRequest request) {
-        Task.Status status = taskQueryParam.getStatus();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-
-        return null;
+        List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
+        if (newQueueName != null) {
+            try {
+                for (ArchiveDeviceExtension targetDevice : targetDevices) {
+                    targetDevice.getQueueDescriptorNotNull(newQueueName);
+                }
+            } catch (IllegalArgumentException e) {
+                return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
+            }
+        }
+        int count = 0;
+        int failed = 0;
+        Set<String> queueNames = new HashSet<>();
+        BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
+        Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        try {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            int taskFetchSize = arcDev.getTaskFetchSize();
+            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            do {
+                for (Task task : list) {
+                    if (!newDeviceName.isEmpty()) {
+                        try {
+                            adjustDeviceName(task, targetDevices.get(count % targetDevices.size()),
+                                    null, newQueueName);
+                        } catch (IllegalStateException e) {
+                            LOG.info(e.getMessage());
+                            failed++;
+                            continue;
+                        }
+                    }
+                    try {
+                        if (task.getStatus() == Task.Status.IN_PROCESS)
+                            taskCanceledEvent.fire(new TaskCanceled(task));
+                        task.setStatus(Task.Status.SCHEDULED);
+                        task.setScheduledTime(scheduledTime1);
+                        ejb.merge(task);
+                        queueNames.add(task.getQueueName());
+                        count++;
+                    } catch (Exception e) {
+                        LOG.info("Failed to reschedule {}", task, e);
+                        failed++;
+                    }
+                }
+            } while (list.size() >= taskFetchSize);
+            if (scheduledTime == null && newDeviceName.isEmpty())
+                queueNames.forEach(this::processQueue);
+            return response(count, failed);
+        } catch (Exception e) {
+            taskEvent.setException(e);
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            taskEvent.setCount(count);
+            taskEvent.setFailed(failed);
+            bulkTaskEventEvent.fire(taskEvent);
+        }
     }
 
     @Override
@@ -566,7 +617,8 @@ public class TaskManagerImpl implements TaskManager {
         return list;
     }
 
-    private void adjustDeviceName(Task task, ArchiveDeviceExtension targetDevice, String newExporterID) {
+    private void adjustDeviceName(Task task, ArchiveDeviceExtension targetDevice, String newExporterID,
+                                  String newQueueName) {
         String deviceName = targetDevice.getDevice().getDeviceName();
         String exporterID = newExporterID != null ? newExporterID : task.getExporterID();
         if (exporterID != null) {
@@ -577,10 +629,14 @@ public class TaskManagerImpl implements TaskManager {
                         + "} not configured at Device{name=" + deviceName + '}');
 
             task.setQueueName(exporterDescriptor.getQueueName());
-        } else if (targetDevice.getQueueDescriptor(task.getQueueName()) == null)
-            throw new IllegalStateException("Cannot reschedule Taskid=" + task.getPk()
-                    + "} on Queue{name=" + task.getQueueName()
-                    + "} not configured at Device{name=" + deviceName + '}');
+        } else {
+            String queueName = newQueueName != null ? newQueueName : task.getQueueName();
+            if (targetDevice.getQueueDescriptor(queueName) == null)
+                throw new IllegalStateException("Cannot reschedule Taskid=" + task.getPk()
+                        + "} on Queue{name=" + queueName
+                        + "} not configured at Device{name=" + deviceName + '}');
+            task.setQueueName(queueName);
+        }
         task.setDeviceName(deviceName);
     }
 
