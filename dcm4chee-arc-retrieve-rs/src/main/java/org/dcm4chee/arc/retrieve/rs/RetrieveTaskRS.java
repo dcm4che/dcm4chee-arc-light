@@ -44,7 +44,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.ValidList;
@@ -265,13 +265,13 @@ public class RetrieveTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+            Object entity(TaskManager taskManager, TaskQueryParam taskQueryParam, int offset, int limit) {
                 return taskManager.writeAsJSON(taskQueryParam, offset, limit);
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit) {
+            Object entity(TaskManager taskManager, TaskQueryParam taskQueryParam, int offset, int limit) {
                 return taskManager.writeAsCSV(taskQueryParam, offset, limit, Task.RETRIEVE_CSV_HEADERS, delimiter);
             }
         };
@@ -298,7 +298,7 @@ public class RetrieveTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(TaskManager taskManager, TaskQueryParam1 taskQueryParam, int offset, int limit);
+        abstract Object entity(TaskManager taskManager, TaskQueryParam taskQueryParam, int offset, int limit);
     }
 
     private Response notAcceptable() {
@@ -341,8 +341,8 @@ public class RetrieveTaskRS {
         return sw.toString();
     }
 
-    private TaskQueryParam1 taskQueryParam(String deviceName) {
-        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+    private TaskQueryParam taskQueryParam(String deviceName) {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status);
@@ -361,8 +361,8 @@ public class RetrieveTaskRS {
         return taskQueryParam;
     }
 
-    private TaskQueryParam1 taskQueryParam(Long taskID) {
-        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+    private TaskQueryParam taskQueryParam(Long taskID) {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setType(Task.Type.RETRIEVE);
         return taskQueryParam;

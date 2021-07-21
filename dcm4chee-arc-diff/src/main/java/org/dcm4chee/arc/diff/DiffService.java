@@ -42,14 +42,10 @@
 package org.dcm4chee.arc.diff;
 
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
-import javax.persistence.Tuple;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -70,24 +66,10 @@ public interface DiffService {
 
     List<byte[]> getDiffTaskAttributes(Task diffTask, int offset, int limit);
 
-    List<byte[]> getDiffTaskAttributes(TaskQueryParam1 queryParam, int offset, int limit);
+    List<byte[]> getDiffTaskAttributes(TaskQueryParam queryParam, int offset, int limit);
 
-    List<DiffBatch> listDiffBatches(TaskQueryParam1 taskQueryParam, int parseInt, int parseInt1);
+    List<DiffBatch> listDiffBatches(TaskQueryParam taskQueryParam, int parseInt, int parseInt1);
 
     long diffTasksOfBatch(String batchID);
-
-    void rescheduleDiffTask(Long pk, TaskEvent queueEvent, Date scheduledTime);
-
-    void rescheduleDiffTaskByMsgID(Long msgId, Date scheduledTime);
-
-    Tuple findDeviceNameAndMsgPropsByPk(Long pk);
-
-    List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
-
-    List<Long> listDiffTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
-
-    List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
 
 }

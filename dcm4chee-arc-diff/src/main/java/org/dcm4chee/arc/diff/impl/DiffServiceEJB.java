@@ -44,25 +44,21 @@ package org.dcm4chee.arc.diff.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffSCU;
-import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.TaskEvent;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.entity.AttributesBlob;
+import org.dcm4chee.arc.entity.AttributesBlob_;
+import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.entity.Task_;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.SingularAttribute;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -80,9 +76,6 @@ public class DiffServiceEJB {
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
-
-    @Inject
-    private QueueManager queueManager;
 
     public void addDiffTaskAttributes(Task diffTask, Attributes attrs) {
         diffTask = em.find(Task.class, diffTask.getPk());
@@ -106,80 +99,11 @@ public class DiffServiceEJB {
         }
     }
 
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return em.createQuery(
-                select(String.class, QueueMessage_.deviceName, queueTaskQueryParam, diffTaskQueryParam).distinct(true))
-                .getResultList();
-    }
-
-    public List<Long> listDiffTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
-        return em.createQuery(select(Long.class, QueueMessage_.pk, queueTaskQueryParam, diffTaskQueryParam))
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
-    public List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Tuple> q = cb.createTupleQuery();
-        Root<DiffTask> diffTask = q.from(DiffTask.class);
-        From<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
-        List<Predicate> predicates = new MatchTask(cb).diffPredicates(
-                queueMsg, diffTask, queueTaskQueryParam, diffTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(
-                q.multiselect(
-                        queueMsg.get(QueueMessage_.pk),
-                        queueMsg.get(QueueMessage_.messageProperties)))
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
-    private <T> CriteriaQuery<T> select(Class<T> claszz, SingularAttribute<QueueMessage, T> attribute,
-                                        TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T> q = cb.createQuery(claszz);
-        Root<DiffTask> diffTask = q.from(DiffTask.class);
-        From<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
-        List<Predicate> predicates = new MatchTask(cb).diffPredicates(
-                queueMsg, diffTask, queueTaskQueryParam, diffTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return q.select(queueMsg.get(attribute));
-    }
-
     public long diffTasksOfBatch(String batchID) {
         return em.createNamedQuery(Task.COUNT_BY_BATCH_ID_AND_TYPE, Long.class)
                 .setParameter(1, batchID)
                 .setParameter(2, Task.Type.DIFF)
                 .getSingleResult();
-    }
-
-    public void rescheduleDiffTask(Long pk, TaskEvent queueEvent, Date scheduledTime) {
-        DiffTask task = em.find(DiffTask.class, pk);
-        if (task == null)
-            return;
-
-        LOG.info("Reschedule {}", task);
-        queueManager.rescheduleTask(task.getQueueMessage().getPk(), DiffService.QUEUE_NAME, queueEvent, scheduledTime);
-    }
-
-    public void rescheduleDiffTaskByMsgID(Long msgId, TaskEvent queueEvent, Date scheduledTime) {
-        queueManager.rescheduleTask(msgId, DiffService.QUEUE_NAME, queueEvent, scheduledTime);
-    }
-
-    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
-        Root<DiffTask> diffTask = tupleQuery.from(DiffTask.class);
-        Join<DiffTask, QueueMessage> queueMsg = diffTask.join(DiffTask_.queueMessage);
-        tupleQuery.where(cb.equal(diffTask.get(DiffTask_.pk), pk));
-        tupleQuery.multiselect(
-                queueMsg.get(QueueMessage_.deviceName),
-                queueMsg.get(QueueMessage_.messageProperties));
-        return em.createQuery(tupleQuery).getSingleResult();
     }
 
     public List<byte[]> getDiffTaskAttributes(Task task, int offset, int limit) {
@@ -192,7 +116,7 @@ public class DiffServiceEJB {
         return query.getResultList();
     }
 
-    public List<byte[]> getDiffTaskAttributes(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+    public List<byte[]> getDiffTaskAttributes(TaskQueryParam taskQueryParam, int offset, int limit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<byte[]> q = cb.createQuery(byte[].class);
         Root<Task> task = q.from(Task.class);
@@ -207,7 +131,7 @@ public class DiffServiceEJB {
         return query.getResultList();
     }
 
-    public List<DiffBatch> listDiffBatches(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+    public List<DiffBatch> listDiffBatches(TaskQueryParam taskQueryParam, int offset, int limit) {
         ListDiffBatches listDiffBatches = new ListDiffBatches(taskQueryParam);
         TypedQuery<Tuple> query = em.createQuery(listDiffBatches.query);
         if (offset > 0)
@@ -243,9 +167,9 @@ public class DiffServiceEJB {
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
         final Expression<Long> inprocess;
-        final TaskQueryParam1 queryParam;
+        final TaskQueryParam queryParam;
 
-        ListDiffBatches(TaskQueryParam1 queryParam) {
+        ListDiffBatches(TaskQueryParam queryParam) {
             this.queryParam = queryParam;
             this.completed = statusSubquery(Task.Status.COMPLETED).getSelection();
             this.failed = statusSubquery(Task.Status.FAILED).getSelection();

@@ -45,10 +45,8 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -59,7 +57,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -151,44 +148,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent) {
-        ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
-    }
-
-    @Override
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent, Date scheduledTime) {
-        ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent, scheduledTime);
-    }
-
-    @Override
-    public List<RetrieveBatch> listRetrieveBatches(TaskQueryParam1 queryParam, int offset, int limit) {
+    public List<RetrieveBatch> listRetrieveBatches(TaskQueryParam queryParam, int offset, int limit) {
         return ejb.listRetrieveBatches(queryParam, offset, limit);
     }
 
-    @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam retrieveTaskQueryParam) {
-        return ejb.listDistinctDeviceNames(retrieveTaskQueryParam);
-    }
-
-    @Override
-    public List<Long> listRetrieveTaskPks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam,
-                                          int limit) {
-        return ejb.listRetrieveTaskPks(queueTaskQueryParam, retrieveTaskQueryParam, limit);
-    }
-
-    @Override
-    public List<Tuple> listRetrieveTaskPkAndLocalAETs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
-        return ejb.listRetrieveTaskPkAndLocalAETs(queueTaskQueryParam, retrieveTaskQueryParam, limit);
-    }
-
-    @Override
-    public Tuple findDeviceNameAndLocalAETByPk(Long pk) {
-        return ejb.findDeviceNameAndLocalAETByPk(pk);
-    }
-
-    @Override
-    public boolean scheduleRetrieveTask(Long pk) {
-        return ejb.scheduleRetrieveTask(pk);
-    }
 }

@@ -39,10 +39,11 @@
  */
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.ActiveParticipant;
+import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.BulkTaskEvent;
 import org.dcm4chee.arc.event.TaskEvent;
@@ -53,7 +54,6 @@ import org.slf4j.LoggerFactory;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
 

@@ -47,15 +47,11 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
-import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -85,25 +81,7 @@ public interface StgCmtManager {
     Outcome executeStgVerTask(Task storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
             throws IOException;
 
-    Tuple findDeviceNameAndMsgPropsByPk(Long pk);
-
-    void rescheduleStgVerTask(Long pk, TaskEvent queueEvent, Date scheduledTime);
-
-    void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, Date scheduledTime);
-
-    List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
-
-    List<Long> listStgVerQueueMsgPKs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
-
-    List<Tuple> listStgVerTaskPKAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
-
-    boolean deleteStgVerTask(Long pk, TaskEvent queueEvent);
-
-    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize);
-
-    List<StgVerBatch> listStgVerBatches(TaskQueryParam1 taskQueryParam, int offset, int limit);
+    List<StgVerBatch> listStgVerBatches(TaskQueryParam taskQueryParam, int offset, int limit);
 
     boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
                                HttpServletRequestInfo httpServletRequestInfo,

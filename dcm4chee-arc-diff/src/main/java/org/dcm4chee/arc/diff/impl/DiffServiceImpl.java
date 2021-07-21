@@ -52,19 +52,16 @@ import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.TaskCanceled;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.persistence.Tuple;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -187,12 +184,12 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<byte[]> getDiffTaskAttributes(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+    public List<byte[]> getDiffTaskAttributes(TaskQueryParam taskQueryParam, int offset, int limit) {
         return ejb.getDiffTaskAttributes(taskQueryParam, offset, limit);
     }
 
     @Override
-    public List<DiffBatch> listDiffBatches(TaskQueryParam1 taskQueryPara, int offset, int limit) {
+    public List<DiffBatch> listDiffBatches(TaskQueryParam taskQueryPara, int offset, int limit) {
         return ejb.listDiffBatches(taskQueryPara, offset, limit);
     }
 
@@ -201,38 +198,6 @@ public class DiffServiceImpl implements DiffService {
         return ejb.diffTasksOfBatch(batchID);
     }
 
-    @Override
-    public void rescheduleDiffTask(Long pk, TaskEvent queueEvent, Date scheduledTime) {
-        ejb.rescheduleDiffTask(pk, queueEvent, scheduledTime);
-    }
-
-    @Override
-    public void rescheduleDiffTaskByMsgID(Long msgId, Date scheduledTime) {
-        ejb.rescheduleDiffTaskByMsgID(msgId, null, scheduledTime);
-    }
-
-    @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return ejb.listDistinctDeviceNames(queueTaskQueryParam, diffTaskQueryParam);
-    }
-
-    @Override
-    public List<Long> listDiffTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
-        return ejb.listDiffTaskQueueMsgIDs(queueTaskQueryParam, diffTaskQueryParam, limit);
-    }
-
-    @Override
-    public List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
-        return ejb.listDiffTaskQueueMsgIDAndMsgProps(queueTaskQueryParam, diffTaskQueryParam, limit);
-    }
-
-
-    @Override
-    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
-        return ejb.findDeviceNameAndMsgPropsByPk(pk);
-    }
 
     private Task.Status check(String prompt, int failures, Task.Status status, StringBuilder sb) {
         if (failures == 0)

@@ -55,7 +55,7 @@ import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.event.TaskOperation;
 import org.dcm4chee.arc.qmgt.TaskCanceled;
 import org.dcm4chee.arc.qmgt.TaskManager;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +102,7 @@ public class TaskManagerImpl implements TaskManager {
     private Event<TaskCanceled> taskCanceledEvent;
 
     @Override
-    public Task findTask(TaskQueryParam1 taskQueryParam) {
+    public Task findTask(TaskQueryParam taskQueryParam) {
         return ejb.findTask(taskQueryParam);
     }
 
@@ -121,7 +121,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+    public StreamingOutput writeAsJSON(TaskQueryParam taskQueryParam, int offset, int limit) {
         return out -> {
             Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
             try (JsonGenerator gen = Json.createGenerator(w)) {
@@ -133,7 +133,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public StreamingOutput writeAsCSV(TaskQueryParam1 taskQueryParam, int offset, int limit,
+    public StreamingOutput writeAsCSV(TaskQueryParam taskQueryParam, int offset, int limit,
                                       String[] headers, char delimiter) {
         return out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
@@ -147,7 +147,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response countTasks(TaskQueryParam1 taskQueryParam) {
+    public Response countTasks(TaskQueryParam taskQueryParam) {
         try {
             return count(ejb.countTasks(taskQueryParam));
         } catch (Exception e) {
@@ -156,7 +156,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response cancelTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+    public Response cancelTask(TaskQueryParam taskQueryParam, HttpServletRequest request) {
         Task task = ejb.findTask(taskQueryParam);
         if (task == null)
             return noSuchTask(taskQueryParam.getTaskPK());
@@ -181,7 +181,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response cancelTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+    public Response cancelTasks(TaskQueryParam taskQueryParam, HttpServletRequest request) {
         Task.Status status = taskQueryParam.getStatus();
         if (status == null)
             return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
@@ -225,7 +225,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response rescheduleTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    public Response rescheduleTask(TaskQueryParam taskQueryParam, Date scheduledTime,
                                    List<String> newDeviceName, HttpServletRequest request) {
         List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
         Task task = ejb.findTask(taskQueryParam);
@@ -259,7 +259,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response rescheduleTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    public Response rescheduleTasks(TaskQueryParam taskQueryParam, Date scheduledTime,
                                     List<String> newDeviceName, HttpServletRequest request) {
         List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
         int count = 0;
@@ -311,7 +311,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response rescheduleExportTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    public Response rescheduleExportTask(TaskQueryParam taskQueryParam, Date scheduledTime,
                                          List<String> newDeviceName, String newExporterID,
                                          HttpServletRequest request) {
         List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
@@ -354,7 +354,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response rescheduleExportTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    public Response rescheduleExportTasks(TaskQueryParam taskQueryParam, Date scheduledTime,
                                           List<String> newDeviceName, String newExporterID,
                                           HttpServletRequest request) {
         List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
@@ -416,7 +416,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response rescheduleRetrieveTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    public Response rescheduleRetrieveTask(TaskQueryParam taskQueryParam, Date scheduledTime,
                                            List<String> newDeviceName, String newQueueName,
                                            HttpServletRequest request) {
         List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
@@ -459,7 +459,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response rescheduleRetrieveTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    public Response rescheduleRetrieveTasks(TaskQueryParam taskQueryParam, Date scheduledTime,
                                             List<String> newDeviceName, String newQueueName,
                                             HttpServletRequest request) {
         List<ArchiveDeviceExtension> targetDevices = targetDevices(newDeviceName);
@@ -521,7 +521,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response deleteTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+    public Response deleteTask(TaskQueryParam taskQueryParam, HttpServletRequest request) {
         Task task = ejb.findTask(taskQueryParam);
         if (task == null)
             return noSuchTask(taskQueryParam.getTaskPK());
@@ -542,7 +542,7 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request) {
+    public Response deleteTasks(TaskQueryParam taskQueryParam, HttpServletRequest request) {
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.DeleteTasks);
         deleteTasks(taskQueryParam, taskEvent);
         return taskEvent.getException() == null
@@ -552,11 +552,11 @@ public class TaskManagerImpl implements TaskManager {
     }
 
     @Override
-    public void deleteTasks(TaskQueryParam1 taskQueryParam, String queueName) {
+    public void deleteTasks(TaskQueryParam taskQueryParam, String queueName) {
         deleteTasks(taskQueryParam, new BulkTaskEvent(queueName, TaskOperation.DeleteTasks));
     }
 
-    private void deleteTasks(TaskQueryParam1 taskQueryParam, BulkTaskEvent taskEvent) {
+    private void deleteTasks(TaskQueryParam taskQueryParam, BulkTaskEvent taskEvent) {
         int count = 0;
         int failed = 0;
         try {

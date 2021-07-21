@@ -48,7 +48,7 @@ import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -276,8 +276,8 @@ public class DiffBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam1 taskQueryParam(String batchID) {
-        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+    private TaskQueryParam taskQueryParam(String batchID) {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);

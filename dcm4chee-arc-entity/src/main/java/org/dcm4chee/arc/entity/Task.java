@@ -84,18 +84,19 @@ import java.util.Date;
         query = "select o.pk from Task o where o.deviceName=?1 and o.queueName=?2 and o.status=?3 " +
                 "and o.scheduledTime < current_timestamp order by o.scheduledTime")
 @NamedQuery(name = Task.FIND_BY_EXPORTER_ID_AND_STUDY_IUID,
-        query = "select o from Task o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
+        query = "select o from Task o where o.type=?4 and o.exporterID=?1 and o.studyInstanceUID=?2 " +
                 "and o.status=?3")
 @NamedQuery(name = Task.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID,
-        query = "select o from Task o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
+        query = "select o from Task o where o.type=?5 and o.exporterID=?1 and o.studyInstanceUID=?2 " +
                 "and o.seriesInstanceUID in ('*',?3) " +
                 "and o.status=?4")
 @NamedQuery(name = Task.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID,
-        query = "select o from Task o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
+        query = "select o from Task o where o.type=?6 and o.exporterID=?1 and o.studyInstanceUID=?2 " +
                 "and o.seriesInstanceUID in ('*',?3) and o.sopInstanceUID in ('*',?4) " +
                 "and o.status=?5")
-@NamedQuery(name = Task.FIND_DEVICE_BY_BATCH_ID,
-        query = "select distinct o.deviceName from QueueMessage o where o.batchID=?1 order by o.deviceName")
+@NamedQuery(name = Task.FIND_STUDY_EXPORT_AFTER,
+        query = "select o from Task o where o.type=?4 and o.updatedTime > ?1 and o.exporterID=?2 " +
+                "and o.studyInstanceUID=?3 and o.seriesInstanceUID='*'")
 @NamedQuery(name = Task.DIFF_ATTRS_BY_PK,
         query = "select attrs.encodedAttributes from Task o join o.diffTaskAttributes attrs where o.pk=?1")
 @NamedQuery(name = Task.COUNT_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
@@ -112,7 +113,8 @@ import java.util.Date;
 public class Task {
     public static final String FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS =
             "Task.FindScheduledByDeviceAndQueueNameAndStatus";
-    public static final String FIND_DEVICE_BY_BATCH_ID = "Task.FindDeviceByBatchId";
+    public static final String FIND_STUDY_EXPORT_AFTER =
+            "Task.FindStudyExportAfter";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID =
             "Task.FindByExporterIDAndStudyIUID";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID =
@@ -416,7 +418,7 @@ public class Task {
 
     @OneToMany(cascade= CascadeType.ALL, orphanRemoval = true)
     @JoinTable(
-            name = "diff_task_attrs2",
+            name = "diff_task_attrs",
             joinColumns = @JoinColumn(
                     name = "diff_task_fk",
                     referencedColumnName = "pk"),

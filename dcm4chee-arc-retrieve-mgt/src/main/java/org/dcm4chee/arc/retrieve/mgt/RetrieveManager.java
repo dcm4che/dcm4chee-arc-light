@@ -38,18 +38,13 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
-import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.TaskEvent;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
-import javax.persistence.Tuple;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -61,19 +56,6 @@ public interface RetrieveManager {
 
     int scheduleRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter);
 
-    void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent);
+    List<RetrieveBatch> listRetrieveBatches(TaskQueryParam taskQueryParam, int offset, int limit);
 
-    void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent, Date scheduledTime);
-
-    List<RetrieveBatch> listRetrieveBatches(TaskQueryParam1 taskQueryParam, int offset, int limit);
-
-    List<String> listDistinctDeviceNames(TaskQueryParam retrieveTaskQueryParam);
-
-    List<Long> listRetrieveTaskPks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit);
-
-    List<Tuple> listRetrieveTaskPkAndLocalAETs(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit);
-
-    Tuple findDeviceNameAndLocalAETByPk(Long pk);
-
-    boolean scheduleRetrieveTask(Long pk);
 }

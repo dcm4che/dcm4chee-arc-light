@@ -51,11 +51,10 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.query.util.*;
+import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.slf4j.Logger;
@@ -65,7 +64,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,9 +83,6 @@ public class StgCmtEJB {
 
     @Inject
     private Device device;
-
-    @Inject
-    private QueueManager queueManager;
 
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
@@ -250,73 +245,7 @@ public class StgCmtEJB {
                 .executeUpdate();
     }
 
-    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
-        Root<StorageVerificationTask> stgVerTask = tupleQuery.from(StorageVerificationTask.class);
-        Join<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-        tupleQuery.where(cb.equal(stgVerTask.get(StorageVerificationTask_.pk), pk));
-        tupleQuery.multiselect(
-                queueMsg.get(QueueMessage_.deviceName),
-                queueMsg.get(QueueMessage_.messageProperties));
-        return em.createQuery(tupleQuery).getSingleResult();
-    }
-
-    public void rescheduleStgVerTask(Long pk, TaskEvent queueEvent, Date scheduledTime) {
-        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
-        if (task == null)
-            return;
-
-        LOG.info("Reschedule {}", task);
-        rescheduleStgVerTaskByQueueMsgPK(task.getQueueMessage().getPk(), queueEvent, scheduledTime);
-    }
-
-    public void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, TaskEvent queueEvent, Date scheduledTime) {
-        queueManager.rescheduleTask(stgVerTaskQueueMsgPK, StgCmtManager.QUEUE_NAME, queueEvent, scheduledTime);
-    }
-
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return em.createQuery(
-                select(String.class, QueueMessage_.deviceName, queueTaskQueryParam, stgVerTaskQueryParam).distinct(true))
-                .getResultList();
-    }
-
-    public List<Long> listStgVerTaskPKs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return em.createQuery(select(Long.class, QueueMessage_.pk, queueTaskQueryParam, stgVerTaskQueryParam))
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
-    public List<Tuple> listStgVerTaskPKAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Tuple> q = cb.createTupleQuery();
-        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
-        From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-        List<Predicate> predicates = new MatchTask(cb).stgVerPredicates(
-                queueMsg, stgVerTask, queueTaskQueryParam, stgVerTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(
-                q.multiselect(
-                    queueMsg.get(QueueMessage_.pk),
-                    queueMsg.get(QueueMessage_.messageProperties)))
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
-    public boolean deleteStgVerTask(Long pk, TaskEvent queueEvent) {
-        StorageVerificationTask task = em.find(StorageVerificationTask.class, pk);
-        if (task == null)
-            return false;
-
-        queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent);
-        LOG.info("Delete {}", task);
-        return true;
-    }
-
-    public List<StgVerBatch> listStgVerBatches(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+    public List<StgVerBatch> listStgVerBatches(TaskQueryParam taskQueryParam, int offset, int limit) {
         ListStgVerBatches listStgVerBatches = new ListStgVerBatches(taskQueryParam);
         TypedQuery<Tuple> query = em.createQuery(listStgVerBatches.query);
         if (offset > 0)
@@ -363,9 +292,9 @@ public class StgCmtEJB {
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
         final Expression<Long> inprocess;
-        final TaskQueryParam1 queryParam;
+        final TaskQueryParam queryParam;
 
-        ListStgVerBatches(TaskQueryParam1 queryParam) {
+        ListStgVerBatches(TaskQueryParam queryParam) {
             this.queryParam = queryParam;
             this.completed = statusSubquery(Task.Status.COMPLETED).getSelection();
             this.failed = statusSubquery(Task.Status.FAILED).getSelection();
@@ -448,30 +377,6 @@ public class StgCmtEJB {
         private List<String> select(CriteriaQuery<String> query, Path<String> path) {
             return em.createQuery(query.select(path)).getResultList();
         }
-    }
-
-    private <T> CriteriaQuery<T> select(Class<T> clazz, SingularAttribute<QueueMessage, T> attribute,
-                                        TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T> q = cb.createQuery(clazz);
-        Root<StorageVerificationTask> stgVerTask = q.from(StorageVerificationTask.class);
-        From<StorageVerificationTask, QueueMessage> queueMsg = stgVerTask.join(StorageVerificationTask_.queueMessage);
-        List<Predicate> predicates = new MatchTask(cb).stgVerPredicates(
-                queueMsg, stgVerTask, queueTaskQueryParam, stgVerTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return q.select(queueMsg.get(attribute));
-    }
-
-    public int deleteTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize) {
-        List<Long> referencedQueueMsgIDs = em.createQuery(
-                select(Long.class, QueueMessage_.pk, queueTaskQueryParam, stgVerTaskQueryParam))
-                .setMaxResults(deleteTasksFetchSize)
-                .getResultList();
-
-        referencedQueueMsgIDs.forEach(queueMsgID -> queueManager.deleteTask(queueMsgID, null));
-        return referencedQueueMsgIDs.size();
     }
 
     public boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,

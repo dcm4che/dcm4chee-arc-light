@@ -46,7 +46,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.TaskManager;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,8 +102,8 @@ public class PurgeTaskScheduler extends Scheduler {
         mgr.deleteTasks(taskQueryParam(queueName, status, before), queueName);
      }
 
-    private TaskQueryParam1 taskQueryParam(String queueName, Task.Status status, Date updatedBefore) {
-        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+    private TaskQueryParam taskQueryParam(String queueName, Task.Status status, Date updatedBefore) {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setQueueNames(Collections.singletonList(queueName));
         taskQueryParam.setStatus(status);
         taskQueryParam.setUpdatedBefore(updatedBefore);

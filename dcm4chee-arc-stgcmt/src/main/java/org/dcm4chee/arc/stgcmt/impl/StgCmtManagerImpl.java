@@ -56,12 +56,10 @@ import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.TaskEvent;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
@@ -78,7 +76,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.persistence.Tuple;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
@@ -206,50 +203,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
-        return ejb.findDeviceNameAndMsgPropsByPk(pk);
-    }
-
-    @Override
-    public void rescheduleStgVerTask(Long pk, TaskEvent queueEvent, Date scheduledTime) {
-        ejb.rescheduleStgVerTask(pk, queueEvent, scheduledTime);
-    }
-
-    @Override
-    public void rescheduleStgVerTaskByQueueMsgPK(Long stgVerTaskQueueMsgPK, Date scheduledTime) {
-        ejb.rescheduleStgVerTaskByQueueMsgPK(stgVerTaskQueueMsgPK, null, scheduledTime);
-    }
-
-    @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return ejb.listDistinctDeviceNames(queueTaskQueryParam, stgVerTaskQueryParam);
-    }
-
-    @Override
-    public List<Long> listStgVerQueueMsgPKs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return ejb.listStgVerTaskPKs(queueTaskQueryParam, stgVerTaskQueryParam, limit);
-    }
-
-    @Override
-    public List<Tuple> listStgVerTaskPKAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return ejb.listStgVerTaskPKAndMsgProps(queueTaskQueryParam, stgVerTaskQueryParam, limit);
-    }
-
-    @Override
-    public boolean deleteStgVerTask(Long pk, TaskEvent queueEvent) {
-        return ejb.deleteStgVerTask(pk, queueEvent);
-    }
-
-    @Override
-    public int deleteTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(queueTaskQueryParam, stgVerTaskQueryParam, deleteTasksFetchSize);
-    }
-
-    @Override
-    public List<StgVerBatch> listStgVerBatches(TaskQueryParam1 taskQueryParam, int offset, int limit) {
+    public List<StgVerBatch> listStgVerBatches(TaskQueryParam taskQueryParam, int offset, int limit) {
         return ejb.listStgVerBatches(taskQueryParam, offset, limit);
     }
 

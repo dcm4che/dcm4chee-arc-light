@@ -460,7 +460,7 @@ public class QueryBuilder {
         return predicates;
     }
 
-    public List<Predicate> taskPredicates(Root<Task> task, TaskQueryParam1 taskQueryParam) {
+    public List<Predicate> taskPredicates(Root<Task> task, TaskQueryParam taskQueryParam) {
         List<Predicate> predicates = new ArrayList<>();
         if (taskQueryParam.getTaskPK() != null)
             predicates.add(cb.equal(task.get(Task_.pk), taskQueryParam.getTaskPK()));
@@ -1515,7 +1515,7 @@ public class QueryBuilder {
         predicates.add(cb.exists(sq.select(soundexCode).where(y)));
     }
 
-    public void matchExportBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> task) {
+    public void matchExportBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<Task> task) {
         if (!taskQueryParam.getExporterIDs().isEmpty())
             predicates.add(cb.and(task.get(Task_.exporterID).in(taskQueryParam.getExporterIDs())));
         if (taskQueryParam.getDeviceName() != null)
@@ -1526,7 +1526,7 @@ public class QueryBuilder {
             dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
-    public void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> task) {
+    public void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<Task> task) {
         if (!taskQueryParam.getQueueNames().isEmpty())
             predicates.add(cb.and(task.get(Task_.queueName).in(taskQueryParam.getQueueNames())));
         if (taskQueryParam.getDeviceName() != null)
@@ -1543,7 +1543,7 @@ public class QueryBuilder {
             dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
-    public void matchStgVerBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> task) {
+    public void matchStgVerBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<Task> task) {
         if (taskQueryParam.getDeviceName() != null)
             predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
         if (taskQueryParam.getLocalAET() != null)
@@ -1554,7 +1554,7 @@ public class QueryBuilder {
             dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
-    public void matchDiffBatch(List<Predicate> predicates, TaskQueryParam1 taskQueryParam, Path<Task> task) {
+    public void matchDiffBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<Task> task) {
         if (taskQueryParam.getDeviceName() != null)
             predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
         if (taskQueryParam.getLocalAET() != null)

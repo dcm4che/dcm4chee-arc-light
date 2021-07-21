@@ -43,7 +43,7 @@ package org.dcm4chee.arc.retrieve.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.validation.constraints.ValidList;
@@ -239,8 +239,8 @@ public class RetrieveBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam1 taskQueryParam() {
-        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+    private TaskQueryParam taskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);

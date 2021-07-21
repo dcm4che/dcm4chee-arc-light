@@ -49,7 +49,6 @@ import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.json.JsonObject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

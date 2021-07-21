@@ -48,7 +48,7 @@ import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.entity.Task_;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,7 +175,7 @@ public class TaskManagerEJB {
         LOG.info("Create {}", task);
     }
 
-    public void forEachTask(TaskQueryParam1 taskQueryParam, int offset, int limit, Consumer<Task> action) {
+    public void forEachTask(TaskQueryParam taskQueryParam, int offset, int limit, Consumer<Task> action) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         QueryBuilder queryBuilder = new QueryBuilder(cb);
         CriteriaQuery<Task> q = cb.createQuery(Task.class);
@@ -195,7 +195,7 @@ public class TaskManagerEJB {
         }
     }
 
-    public long countTasks(TaskQueryParam1 taskQueryParam) {
+    public long countTasks(TaskQueryParam taskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<Task> task = q.from(Task.class);
@@ -205,7 +205,7 @@ public class TaskManagerEJB {
         return em.createQuery(q.select(cb.count(task))).getSingleResult();
     }
 
-    public Task findTask(TaskQueryParam1 taskQueryParam) {
+    public Task findTask(TaskQueryParam taskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Task> q = cb.createQuery(Task.class);
         Root<Task> task = q.from(Task.class);
@@ -217,13 +217,13 @@ public class TaskManagerEJB {
         }
     }
 
-    public List<Task> findTasks(TaskQueryParam1 taskQueryParam, int limit) {
+    public List<Task> findTasks(TaskQueryParam taskQueryParam, int limit) {
         List<Task> resultList = new ArrayList<>();
         forEachTask(taskQueryParam, 0, limit, resultList::add);
         return resultList;
     }
 
-    public int cancelTasks(TaskQueryParam1 taskQueryParam) {
+    public int cancelTasks(TaskQueryParam taskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaUpdate<Task> update = cb.createCriteriaUpdate(Task.class);
         Root<Task> task = update.from(Task.class);
@@ -232,7 +232,7 @@ public class TaskManagerEJB {
         return em.createQuery(update).executeUpdate();
     }
 
-    public int deleteTasks(TaskQueryParam1 taskQueryParam) {
+    public int deleteTasks(TaskQueryParam taskQueryParam) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaDelete<Task> delete = cb.createCriteriaDelete(Task.class);
         Root<Task> task = delete.from(Task.class);

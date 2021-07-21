@@ -43,7 +43,7 @@ package org.dcm4chee.arc.qmgt;
 
 
 import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -56,47 +56,47 @@ import java.util.List;
  * @since Jun 2021
  */
 public interface TaskManager {
-    Task findTask(TaskQueryParam1 taskQueryParam);
+    Task findTask(TaskQueryParam taskQueryParam);
 
     void scheduleTask(Task task);
 
-    Response countTasks(TaskQueryParam1 taskQueryParam);
+    Response countTasks(TaskQueryParam taskQueryParam);
 
-    Response cancelTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
+    Response cancelTask(TaskQueryParam taskQueryParam, HttpServletRequest request);
 
-    Response cancelTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
+    Response cancelTasks(TaskQueryParam taskQueryParam, HttpServletRequest request);
 
-    Response rescheduleTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    Response rescheduleTask(TaskQueryParam taskQueryParam, Date scheduledTime,
                             List<String> newDeviceName, HttpServletRequest request);
 
-    Response rescheduleTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    Response rescheduleTasks(TaskQueryParam taskQueryParam, Date scheduledTime,
                              List<String> newDeviceName, HttpServletRequest request);
 
-    Response rescheduleExportTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    Response rescheduleExportTask(TaskQueryParam taskQueryParam, Date scheduledTime,
                                   List<String> newDeviceName, String newExporterID,
                                   HttpServletRequest request);
 
-    Response rescheduleExportTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    Response rescheduleExportTasks(TaskQueryParam taskQueryParam, Date scheduledTime,
                                    List<String> newDeviceName, String newExporterID,
                                    HttpServletRequest request);
 
-    Response rescheduleRetrieveTask(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    Response rescheduleRetrieveTask(TaskQueryParam taskQueryParam, Date scheduledTime,
                                     List<String> newDeviceName, String newQueueName,
                                     HttpServletRequest request);
 
-    Response rescheduleRetrieveTasks(TaskQueryParam1 taskQueryParam, Date scheduledTime,
+    Response rescheduleRetrieveTasks(TaskQueryParam taskQueryParam, Date scheduledTime,
                                      List<String> newDeviceName, String newQueueName,
                                      HttpServletRequest request);
 
-    Response deleteTask(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
+    Response deleteTask(TaskQueryParam taskQueryParam, HttpServletRequest request);
 
-    Response deleteTasks(TaskQueryParam1 taskQueryParam, HttpServletRequest request);
+    Response deleteTasks(TaskQueryParam taskQueryParam, HttpServletRequest request);
 
-    void deleteTasks(TaskQueryParam1 taskQueryParam, String queueName);
+    void deleteTasks(TaskQueryParam taskQueryParam, String queueName);
 
     void processQueue(String queueName);
 
-    StreamingOutput writeAsJSON(TaskQueryParam1 taskQueryParam, int offset, int limit);
+    StreamingOutput writeAsJSON(TaskQueryParam taskQueryParam, int offset, int limit);
 
-    StreamingOutput writeAsCSV(TaskQueryParam1 taskQueryParam, int offset, int limit, String[] header, char delimiter);
+    StreamingOutput writeAsCSV(TaskQueryParam taskQueryParam, int offset, int limit, String[] header, char delimiter);
 }

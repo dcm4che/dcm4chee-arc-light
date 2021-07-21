@@ -41,12 +41,10 @@
 package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
-import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,8 +214,8 @@ public class StgVerBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam1 taskQueryParam() {
-        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+    private TaskQueryParam taskQueryParam() {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);

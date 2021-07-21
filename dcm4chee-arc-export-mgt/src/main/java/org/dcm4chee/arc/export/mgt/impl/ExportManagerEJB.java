@@ -40,34 +40,28 @@
 
 package org.dcm4chee.arc.export.mgt.impl;
 
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.TaskEvent;
+import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.entity.Task_;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
-import javax.persistence.metamodel.SingularAttribute;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -85,9 +79,6 @@ public class ExportManagerEJB implements ExportManager {
     @Inject
     private Device device;
 
-    @Inject
-    private QueueManager queueManager;
-
     @Override
     public void createOrUpdateStudyExportTask(String deviceName, ExporterDescriptor exporterDesc,
                                               String studyIUID, Date scheduledTime) {
@@ -101,6 +92,7 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(1, exporterDesc.getExporterID())
                     .setParameter(2, studyIUID)
                     .setParameter(3, Task.Status.SCHEDULED)
+                    .setParameter(4, Task.Type.EXPORT)
                     .getSingleResult();
             updateExportTask(deviceName, task, "*", "*", scheduledTime);
         } catch (NoResultException nre) {
@@ -121,6 +113,7 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(2, studyIUID)
                     .setParameter(3, seriesIUID)
                     .setParameter(4, Task.Status.SCHEDULED)
+                    .setParameter(5, Task.Type.EXPORT)
                     .getSingleResult();
             updateExportTask(deviceName, task, seriesIUID, "*", scheduledTime);
         } catch (NoResultException nre) {
@@ -142,6 +135,7 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(3, seriesIUID)
                     .setParameter(4, sopIUID)
                     .setParameter(5, Task.Status.SCHEDULED)
+                    .setParameter(6, Task.Type.EXPORT)
                     .getSingleResult();
             updateExportTask(deviceName, task, seriesIUID, sopIUID, scheduledTime);
         } catch (NoResultException nre) {
@@ -194,10 +188,11 @@ public class ExportManagerEJB implements ExportManager {
             String studyUID, ExporterDescriptor exporter,
             Date notExportedAfter, String batchID, Date scheduledTime) {
         try {
-            ExportTask prevTask = em.createNamedQuery(ExportTask.FIND_STUDY_EXPORT_AFTER, ExportTask.class)
+            Task prevTask = em.createNamedQuery(Task.FIND_STUDY_EXPORT_AFTER, Task.class)
                     .setParameter(1, notExportedAfter)
                     .setParameter(2, exporter.getExporterID())
                     .setParameter(3, studyUID)
+                    .setParameter(4, Task.Type.EXPORT)
                     .getSingleResult();
             LOG.info("Previous {} found - suppress duplicate Export", prevTask);
             return false;
@@ -216,116 +211,8 @@ public class ExportManagerEJB implements ExportManager {
         return true;
     }
 
-    private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
-                                    HttpServletRequestInfo httpServletRequestInfo, String batchID) {
-        ApplicationEntity ae = device.getApplicationEntity(exporter.getAETitle(), true);
-        if (ae == null) {
-            LOG.warn("Failed to schedule {}: no such Archive AE Title - {}", exportTask, exporter.getAETitle());
-            exportTask.setScheduledTime(null);
-            return;
-        }
-        LOG.info("Schedule {}", exportTask);
-        QueueMessage queueMessage = queueManager.scheduleMessage(
-                device.getDeviceName(),
-                exporter.getQueueName(),
-                new Date(),
-                toJSON(exportTask, httpServletRequestInfo),
-                exportTask.getPk(),
-                batchID);
-        exportTask.setQueueMessage(queueMessage);
-//        Attributes attrs = queryService.queryExportTaskInfo(exportTask, ae);
-//        if (attrs == null) {
-//            LOG.info("No Export Task Info found for {}", exportTask);
-//            return;
-//        }
-//        exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
-//        exportTask.setNumberOfInstances(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1));
-    }
-
-    private String toJSON(ExportTask exportTask, HttpServletRequestInfo httpServletRequestInfo) {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("StudyInstanceUID", exportTask.getStudyInstanceUID());
-            if (!exportTask.getSeriesInstanceUID().equals("*")) {
-                gen.write("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
-                if (!exportTask.getSopInstanceUID().equals("*")) {
-                    gen.write("SOPInstanceUID", exportTask.getSopInstanceUID());
-                }
-            }
-            gen.write("ExporterID", exportTask.getExporterID());
-/*
-            if (httpServletRequestInfo != null)
-                httpServletRequestInfo.writeTo(gen);
-*/
-            gen.writeEnd();
-        }
-        return sw.toString();
-    }
-
     @Override
-    public String findDeviceNameByPk(Long pk) {
-        try {
-            return em.createNamedQuery(ExportTask.FIND_DEVICE_BY_PK, String.class)
-                    .setParameter(1, pk)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, TaskEvent queueEvent) {
-        rescheduleExportTask(pk, exporter, null, queueEvent, null);
-    }
-
-    @Override
-    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                     TaskEvent queueEvent) {
-        rescheduleExportTask(pk, exporter, httpServletRequestInfo, queueEvent, null);
-    }
-
-    @Override
-    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                     TaskEvent queueEvent, Date scheduledTime) {
-        ExportTask task = em.find(ExportTask.class, pk);
-        if (task == null)
-            return;
-
-        task.setExporterID(exporter.getExporterID());
-        if (scheduledTime == null)
-            rescheduleImmediately(task, exporter, httpServletRequestInfo, queueEvent);
-        else
-            rescheduleAtScheduledTime(task, queueEvent, scheduledTime);
-    }
-
-    private void rescheduleAtScheduledTime(ExportTask task, TaskEvent queueEvent, Date scheduledTime) {
-        task.setScheduledTime(scheduledTime);
-        if (task.getQueueMessage() != null) {
-            queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
-            task.setQueueMessage(null);
-        }
-    }
-
-    private void rescheduleImmediately(ExportTask task, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                                       TaskEvent queueEvent) {
-        if (task.getQueueMessage() == null)
-            scheduleExportTask(task, exporter, httpServletRequestInfo, task.getBatchID());
-        else {
-            queueManager.rescheduleTask(task.getQueueMessage().getPk(), exporter.getQueueName(), queueEvent, new Date());
-            LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
-        }
-    }
-
-    @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam) {
-        return em.createQuery(
-                select(ExportTask_.deviceName, exportTaskQueryParam).distinct(true))
-                .getResultList();
-    }
-
-    @Override
-    public List<ExportBatch> listExportBatches(TaskQueryParam1 queryParam, int offset, int limit) {
+    public List<ExportBatch> listExportBatches(TaskQueryParam queryParam, int offset, int limit) {
         ListExportBatches listExportBatches = new ListExportBatches(queryParam);
         TypedQuery<Tuple> query = em.createQuery(listExportBatches.query);
         if (offset > 0)
@@ -363,9 +250,9 @@ public class ExportManagerEJB implements ExportManager {
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
         final Expression<Long> inprocess;
-        final TaskQueryParam1 queryParam;
+        final TaskQueryParam queryParam;
 
-        ListExportBatches(TaskQueryParam1 queryParam) {
+        ListExportBatches(TaskQueryParam queryParam) {
             this.queryParam = queryParam;
             this.minProcessingStartTime = cb.least(task.get(Task_.processingStartTime));
             this.maxProcessingStartTime = cb.greatest(task.get(Task_.processingStartTime));
@@ -452,53 +339,6 @@ public class ExportManagerEJB implements ExportManager {
         private List<String> select(CriteriaQuery<String> query, Path<String> path) {
             return em.createQuery(query.select(path)).getResultList();
         }
-    }
-
-    public List<Tuple> exportTaskPksAndExporterIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<Tuple> q = cb.createTupleQuery();
-        Root<ExportTask> exportTask = q.from(ExportTask.class);
-
-        q.multiselect(exportTask.get(ExportTask_.pk), exportTask.get(ExportTask_.exporterID));
-
-        List<Predicate> predicates = predicates(exportTask, matchTask, queueTaskQueryParam, exportTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-
-        TypedQuery<Tuple> query = em.createQuery(q);
-        if (limit > 0)
-            query.setMaxResults(limit);
-
-        return query.getResultList();
-    }
-
-    private List<Predicate> predicates(Root<ExportTask> exportTask, MatchTask matchTask,
-                                       TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam) {
-        List<Predicate> predicates = new ArrayList<>();
-        QueueMessage.Status status = queueTaskQueryParam.getStatus();
-        if (status == QueueMessage.Status.TO_SCHEDULE) {
-            matchTask.matchExportTask(predicates, exportTaskQueryParam, exportTask);
-            predicates.add(exportTask.get(ExportTask_.queueMessage).isNull());
-        } else {
-            From<ExportTask, QueueMessage> queueMsg = exportTask.join(ExportTask_.queueMessage,
-                    status == null ? JoinType.LEFT : JoinType.INNER);
-            predicates = matchTask.exportPredicates(queueMsg, exportTask, queueTaskQueryParam, exportTaskQueryParam);
-        }
-        return predicates;
-    }
-
-    private CriteriaQuery<String> select(
-            SingularAttribute<ExportTask, String> attribute, TaskQueryParam exportTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        Root<ExportTask> exportTask = q.from(ExportTask.class);
-        List<Predicate> predicates = new ArrayList<>();
-        new MatchTask(cb).matchExportTask(predicates, exportTaskQueryParam, exportTask);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return q.select(exportTask.get(attribute));
     }
 
 }

@@ -41,32 +41,25 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.TaskEvent;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.entity.Task_;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import javax.servlet.http.HttpServletRequest;
-import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -81,12 +74,6 @@ public class RetrieveManagerEJB {
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
-
-    @Inject
-    private QueueManager queueManager;
-
-    @Inject
-    private Device device;
 
     public int scheduleRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter) {
         int count = 0;
@@ -129,29 +116,6 @@ public class RetrieveManagerEJB {
         em.persist(task);
         LOG.info("Create {}", task);
         return true;
-    }
-
-    public void scheduleRetrieveTask(RetrieveTask retrieveTask, HttpServletRequest request) {
-        LOG.info("Schedule {}", retrieveTask);
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
-            gen.writeStartObject();
-            gen.write("LocalAET", retrieveTask.getLocalAET());
-            gen.write("RemoteAET", retrieveTask.getRemoteAET());
-            gen.write("Priority", 0);
-            gen.write("DestinationAET", retrieveTask.getDestinationAET());
-            gen.write("StudyInstanceUID", retrieveTask.getStudyInstanceUID());
-/*
-            if (request != null)
-                HttpServletRequestInfo.valueOf(request).writeTo(gen);
-*/
-            gen.writeEnd();
-        }
-        Date scheduledTime = new Date();
-        QueueMessage queueMessage = queueManager.scheduleMessage(device.getDeviceName(),
-                retrieveTask.getQueueName(), scheduledTime, sw.toString(), toKeys(retrieveTask), retrieveTask.getBatchID());
-        retrieveTask.setQueueMessage(queueMessage);
-        retrieveTask.setScheduledTime(scheduledTime);
     }
 
     private boolean isAlreadyScheduledOrRetrievedAfter(ExternalRetrieveContext ctx, Date retrievedAfter,
@@ -228,102 +192,7 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent) {
-        rescheduleRetrieveTask(pk, newQueueName, queueEvent, null);
-    }
-
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, TaskEvent queueEvent, Date scheduledTime) {
-        RetrieveTask task = em.find(RetrieveTask.class, pk);
-        if (task == null)
-            return;
-
-        if (newQueueName != null)
-            task.setQueueName(newQueueName);
-
-        if (scheduledTime == null)
-            rescheduleImmediately(task, queueEvent);
-        else
-            rescheduleAtScheduledTime(task, queueEvent, scheduledTime);
-    }
-
-    private void rescheduleAtScheduledTime(RetrieveTask task, TaskEvent queueEvent, Date scheduledTime) {
-        task.setScheduledTime(scheduledTime);
-        if (task.getQueueMessage() != null) {
-            queueManager.deleteTask(task.getQueueMessage().getPk(), queueEvent, false);
-            task.setQueueMessage(null);
-        }
-    }
-
-    private void rescheduleImmediately(RetrieveTask task, TaskEvent queueEvent) {
-        if (task.getQueueMessage() == null)
-            scheduleRetrieveTask(task, queueEvent.getRequest());
-        else {
-            LOG.info("Reschedule {}", task);
-            task.setScheduledTime(new Date());
-            queueManager.rescheduleTask(task.getQueueMessage().getPk(), task.getQueueName(), queueEvent, new Date());
-        }
-    }
-
-    private Attributes toKeys(RetrieveTask task) {
-        int n = task.getSOPInstanceUID() != null ? 3 : task.getSeriesInstanceUID() != null ? 2 : 1;
-        Attributes keys = new Attributes(n + 1);
-        keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.values()[n].name());
-        keys.setString(Tag.StudyInstanceUID, VR.UI, task.getStudyInstanceUID());
-        if (n > 1) {
-            keys.setString(Tag.SeriesInstanceUID, VR.UI, task.getSeriesInstanceUID());
-            if (n > 2)
-                keys.setString(Tag.SOPInstanceUID, VR.UI, task.getSOPInstanceUID());
-        }
-        return keys;
-    }
-
-    public List<String> listDistinctDeviceNames(TaskQueryParam retrieveTaskQueryParam) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<String> q = cb.createQuery(String.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        List<Predicate> predicates = new ArrayList<>();
-        new MatchTask(cb).matchRetrieveTask(predicates, retrieveTaskQueryParam, retrieveTask);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(
-                q.select(retrieveTask.get(RetrieveTask_.deviceName)).distinct(true))
-                .getResultList();
-    }
-
-    public List<Long> listRetrieveTaskPks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam,
-                                          int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<Long> q = cb.createQuery(Long.class);
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        List<Predicate> predicates = predicates(retrieveTask, matchTask, queueTaskQueryParam, retrieveTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-
-        TypedQuery<Long> query = em.createQuery(q.select(retrieveTask.get(RetrieveTask_.pk)));
-        if (limit > 0)
-            query.setMaxResults(limit);
-        return query.getResultList();
-    }
-
-    public List<Tuple> listRetrieveTaskPkAndLocalAETs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        MatchTask matchTask = new MatchTask(cb);
-        CriteriaQuery<Tuple> q = cb.createTupleQuery();
-        Root<RetrieveTask> retrieveTask = q.from(RetrieveTask.class);
-        List<Predicate> predicates = predicates(retrieveTask, matchTask, queueTaskQueryParam, retrieveTaskQueryParam);
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        return em.createQuery(
-                q.multiselect(
-                        retrieveTask.get(RetrieveTask_.pk),
-                        retrieveTask.get(RetrieveTask_.localAET)))
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
-    public List<RetrieveBatch> listRetrieveBatches(TaskQueryParam1 queryParam, int offset, int limit) {
+    public List<RetrieveBatch> listRetrieveBatches(TaskQueryParam queryParam, int offset, int limit) {
         ListRetrieveBatches listRetrieveBatches1 = new ListRetrieveBatches(queryParam);
         TypedQuery<Tuple> query = em.createQuery(listRetrieveBatches1.query);
         if (offset > 0)
@@ -331,32 +200,6 @@ public class RetrieveManagerEJB {
         if (limit > 0)
             query.setMaxResults(limit);
         return query.getResultStream().map(listRetrieveBatches1::toRetrieveBatch).collect(Collectors.toList());
-    }
-
-    private List<Predicate> predicates(Root<RetrieveTask> retrieveTask, MatchTask matchTask,
-                                       TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        List<Predicate> predicates = new ArrayList<>();
-        QueueMessage.Status status = queueTaskQueryParam.getStatus();
-        if (status == QueueMessage.Status.TO_SCHEDULE) {
-            matchTask.matchRetrieveTask(predicates, retrieveTaskQueryParam, retrieveTask);
-            predicates.add(retrieveTask.get(RetrieveTask_.queueMessage).isNull());
-        } else {
-            From<RetrieveTask, QueueMessage> queueMsg = retrieveTask.join(RetrieveTask_.queueMessage,
-                    status == null ? JoinType.LEFT : JoinType.INNER);
-            predicates = matchTask.retrievePredicates(queueMsg, retrieveTask, queueTaskQueryParam, retrieveTaskQueryParam);
-        }
-        return predicates;
-    }
-
-    public Tuple findDeviceNameAndLocalAETByPk(Long pk) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Tuple> tupleQuery = cb.createTupleQuery();
-        Root<RetrieveTask> retrieveTask = tupleQuery.from(RetrieveTask.class);
-        tupleQuery.where(cb.equal(retrieveTask.get(RetrieveTask_.pk), pk));
-        tupleQuery.multiselect(
-                retrieveTask.get(RetrieveTask_.deviceName),
-                retrieveTask.get(RetrieveTask_.localAET));
-        return em.createQuery(tupleQuery).getSingleResult();
     }
 
     private class ListRetrieveBatches {
@@ -381,9 +224,9 @@ public class RetrieveManagerEJB {
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
         final Expression<Long> inprocess;
-        final TaskQueryParam1 queryParam;
+        final TaskQueryParam queryParam;
 
-        ListRetrieveBatches(TaskQueryParam1 queryParam) {
+        ListRetrieveBatches(TaskQueryParam queryParam) {
             this.queryParam = queryParam;
             this.minProcessingStartTime = cb.least(task.get(Task_.processingStartTime));
             this.maxProcessingStartTime = cb.greatest(task.get(Task_.processingStartTime));
@@ -475,9 +318,4 @@ public class RetrieveManagerEJB {
         }
     }
 
-    public boolean scheduleRetrieveTask(Long pk) {
-        RetrieveTask retrieveTask = em.find(RetrieveTask.class, pk);
-        scheduleRetrieveTask(retrieveTask, null);
-        return true;
-    }
 }

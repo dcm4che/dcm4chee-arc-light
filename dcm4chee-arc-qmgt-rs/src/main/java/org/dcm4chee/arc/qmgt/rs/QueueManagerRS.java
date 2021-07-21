@@ -40,11 +40,9 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
-import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.qmgt.TaskManager;
-import org.dcm4chee.arc.query.util.TaskQueryParam1;
+import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -53,17 +51,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonParser;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -237,8 +231,8 @@ public class QueueManagerRS {
         return sw.toString();
     }
 
-    private TaskQueryParam1 taskQueryParam(String deviceName) {
-        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+    private TaskQueryParam taskQueryParam(String deviceName) {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setQueueNames(Collections.singletonList(queueName));
         taskQueryParam.setDeviceName(deviceName);
@@ -250,8 +244,8 @@ public class QueueManagerRS {
         return taskQueryParam;
     }
 
-    private TaskQueryParam1 taskQueryParam(Long taskID) {
-        TaskQueryParam1 taskQueryParam = new TaskQueryParam1();
+    private TaskQueryParam taskQueryParam(Long taskID) {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setQueueNames(Collections.singletonList(queueName));
         return taskQueryParam;
