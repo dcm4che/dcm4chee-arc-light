@@ -1,6 +1,6 @@
 package org.dcm4chee.arc.storage;
 
-import org.dcm4chee.arc.conf.NamedQualifier;
+import org.dcm4chee.arc.NamedCDIBeanCache;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.conf.StorageThreshold;
 import org.slf4j.Logger;
@@ -23,11 +23,14 @@ public class StorageFactory {
     private static final Logger LOG = LoggerFactory.getLogger(StorageFactory.class);
 
     @Inject
+    private NamedCDIBeanCache namedCDIBeanCache;
+
+    @Inject
     private Instance<StorageProvider> providers;
 
     public Storage getStorage(StorageDescriptor descriptor) {
         String scheme = descriptor.getStorageURI().getScheme();
-        StorageProvider provider = providers.select(new NamedQualifier(scheme)).get();
+        StorageProvider provider = namedCDIBeanCache.get(providers, scheme);
         return provider.openStorage(descriptor);
     }
 

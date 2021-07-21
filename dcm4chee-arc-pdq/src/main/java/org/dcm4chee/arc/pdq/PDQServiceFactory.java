@@ -41,7 +41,7 @@
 
 package org.dcm4chee.arc.pdq;
 
-import org.dcm4chee.arc.conf.NamedQualifier;
+import org.dcm4chee.arc.NamedCDIBeanCache;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -55,11 +55,14 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class PDQServiceFactory {
     @Inject
+    private NamedCDIBeanCache namedCDIBeanCache;
+
+    @Inject
     private Instance<PDQServiceProvider> providers;
 
     public PDQService getPDQService(PDQServiceDescriptor descriptor) {
         String scheme = descriptor.getPDQServiceURI().getScheme();
-        PDQServiceProvider provider = providers.select(new NamedQualifier(scheme)).get();
+        PDQServiceProvider provider = namedCDIBeanCache.get(providers, scheme);
         return provider.getPDQService(descriptor);
     }
 }

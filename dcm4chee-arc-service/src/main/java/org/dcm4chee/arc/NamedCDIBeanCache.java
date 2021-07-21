@@ -39,30 +39,25 @@
  *
  */
 
-package org.dcm4chee.arc.ups.process;
+package org.dcm4chee.arc;
 
-import org.dcm4chee.arc.NamedCDIBeanCache;
-import org.dcm4chee.arc.conf.UPSProcessingRule;
+import org.dcm4chee.arc.conf.NamedQualifier;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
- * @since Mar 2020
+ * @since Jul 2021
  */
 @ApplicationScoped
-public class UPSProcessorFactory {
-    @Inject
-    private NamedCDIBeanCache namedCDIBeanCache;
+public class NamedCDIBeanCache {
 
-    @Inject
-    private Instance<UPSProcessorProvider> providers;
+    private final Map<String,Object> cache = new ConcurrentHashMap<>();
 
-    public UPSProcessor getUPSProcessor(UPSProcessingRule descriptor) {
-        String scheme = descriptor.getUPSProcessorURI().getScheme();
-        UPSProcessorProvider provider = namedCDIBeanCache.get(providers, scheme);
-        return provider.getUPSProcessor(descriptor);
+    public <T> T get(Instance<T> providers, String name) {
+        return (T) cache.computeIfAbsent(name, key -> providers.select(new NamedQualifier(key)).get());
     }
 }
