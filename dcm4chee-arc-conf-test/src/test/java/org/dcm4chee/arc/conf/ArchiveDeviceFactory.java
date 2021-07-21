@@ -1206,6 +1206,7 @@ class ArchiveDeviceFactory {
     static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
     static final String MERGE_MWL = "${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
     static final String MERGE_MWL_STUDY = "${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl";
+    static final String COERCE_MWL_AGFA2ARC = "${jboss.server.temp.url}/dcm4chee-arc/mwl-agfa2arc.xsl";
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
     static final String AUDIT_LOGGER_SPOOL_DIR_URI = "${jboss.server.temp.url}";
@@ -2134,6 +2135,14 @@ class ArchiveDeviceFactory {
                     .setSendingAETitle("MPPSSCU")
                     .setSOPClasses(UID.ModalityPerformedProcedureStep)
                     .setSupplementFromDevice(mppsscu));
+
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Coerce MWL Agfa to Archive")
+                    .setDIMSE(Dimse.C_FIND_RSP)
+                    .setRole(SCP)
+                    .setSOPClasses(UID.ModalityWorklistInformationModelFind)
+                    .setReceivingAETitle("AGFA_WL")
+                    .setXSLTStylesheetURI(COERCE_MWL_AGFA2ARC));
 
             StoreAccessControlIDRule storeAccessControlIDRule =
                     new StoreAccessControlIDRule("StoreAccessControlIDRule1");
