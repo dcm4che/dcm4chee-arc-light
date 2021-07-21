@@ -159,10 +159,6 @@
       <xsl:with-param name="vr" select="'CS'"/>
       <xsl:with-param name="val" select="'NO'"/>
     </xsl:call-template>
-    <!--Content Date-->
-    <DicomAttribute tag="00080023" vr="DA"/>
-    <!--Content Time-->
-    <DicomAttribute tag="00080033" vr="TM"/>
     <!--Acquisition Date Time-->
     <DicomAttribute tag="0008002A" vr="DT"/>
     <!--Document Title-->
@@ -243,8 +239,8 @@
     <xsl:param name="studyUID"/>
     <!--Content Date/Time-->
     <xsl:call-template name="attrDATM">
-      <xsl:with-param name="datag">00080023</xsl:with-param>
-      <xsl:with-param name="tmtag">00080033</xsl:with-param>
+      <xsl:with-param name="datag" select="'00080023'"/>
+      <xsl:with-param name="tmtag" select="'00080033'"/>
       <xsl:with-param name="val" select="field[7]"/>
     </xsl:call-template>
     <!--Accession Number-->
