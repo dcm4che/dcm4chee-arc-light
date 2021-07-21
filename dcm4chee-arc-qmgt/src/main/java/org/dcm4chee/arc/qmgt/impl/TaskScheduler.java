@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import org.dcm4chee.arc.NamedCDIBeanCache;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Task;
@@ -62,6 +63,9 @@ import java.util.concurrent.Semaphore;
 @ApplicationScoped
 public class TaskScheduler extends Scheduler {
      private static final Logger LOG = LoggerFactory.getLogger(TaskScheduler.class);
+
+    @Inject
+    private NamedCDIBeanCache namedCDIBeanCache;
 
     @Inject
     private TaskManagerEJB ejb;
@@ -184,8 +188,7 @@ public class TaskScheduler extends Scheduler {
 
     private void processTask(Task task) {
         try {
-            TaskProcessor processor = taskProcessors.select(
-                    new NamedQualifier(task.getType().name())).get();
+            TaskProcessor processor = namedCDIBeanCache.get(taskProcessors, task.getType().name());
             Outcome outcome = processor.process(task);
             ejb.onProcessingSuccessful(task.getPk(), outcome);
         } catch (Exception e) {
