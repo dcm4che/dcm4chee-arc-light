@@ -4001,6 +4001,15 @@ dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=De
 dicomAETitle: IOCM_PAT_SAFETY
 dicomAssociationAcceptor: TRUE
 
+dn: cn=Coerce MWL Agfa to Archive,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmSOPClass: 1.2.840.10008.5.1.4.31
+dcmDIMSE: C_FIND_RSP
+dicomTransferRole: SCP
+dcmProperty: ReceivingApplicationEntityTitle=AGFA_WL
+objectClass: dcmArchiveAttributeCoercion
+dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl-agfa2arc.xsl
+cn: Coerce MWL Agfa to Archive
+
 dn: cn=Forward to HL7RCV|DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: MSH-3=FORWARD
 objectClass: hl7ForwardRule
