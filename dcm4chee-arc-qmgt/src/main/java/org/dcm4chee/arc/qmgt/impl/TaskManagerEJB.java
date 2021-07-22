@@ -117,7 +117,7 @@ public class TaskManagerEJB {
         entity.setOutcomeMessage(outcome.getDescription());
         entity.setStatus(status);
         QueueDescriptor descriptor = descriptorOf(queueName);
-        if (status == Task.Status.COMPLETED
+        if (status == Task.Status.COMPLETED || status == Task.Status.CANCELED
                 || status == Task.Status.WARNING && !descriptor.isRetryOnWarning()) {
             LOG.info("Finished processing of {}", entity);
             return entity;
