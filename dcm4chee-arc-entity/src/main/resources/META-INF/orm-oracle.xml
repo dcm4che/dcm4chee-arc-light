@@ -217,7 +217,7 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="task_pk_seq"/>
       </id>
-      <basic name="payload" optional="false">
+      <basic name="payload">
         <column name="payload" updatable="false" column-definition="${blob}"/>
       </basic>
     </attributes>

@@ -63,7 +63,7 @@
 
   <entity class="org.dcm4chee.arc.entity.Task">
     <attributes>
-      <basic name="payload" optional="false">
+      <basic name="payload">
         <column name="payload" updatable="false" column-definition="${blob}"/>
       </basic>
     </attributes>
