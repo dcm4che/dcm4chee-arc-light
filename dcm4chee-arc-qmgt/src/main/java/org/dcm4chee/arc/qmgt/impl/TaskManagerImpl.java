@@ -622,7 +622,8 @@ public class TaskManagerImpl implements TaskManager {
     private void adjustDeviceName(Task task, ArchiveDeviceExtension targetDevice, String newExporterID,
                                   String newQueueName) {
         String deviceName = targetDevice.getDevice().getDeviceName();
-        String exporterID = newExporterID != null ? newExporterID : task.getExporterID();
+        String exporterID = task.getType() != Task.Type.EXPORT ? null
+                : newExporterID != null ? newExporterID : task.getExporterID();
         if (exporterID != null) {
             ExporterDescriptor exporterDescriptor = targetDevice.getExporterDescriptor(exporterID);
             if (exporterDescriptor == null)
