@@ -242,11 +242,7 @@ public class TaskManagerImpl implements TaskManager {
         TaskEvent taskEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
         taskEvent.setTask(task);
         try {
-            if (task.getStatus() == Task.Status.IN_PROCESS)
-                taskCanceledEvent.fire(new TaskCanceled(task));
-            task.setStatus(Task.Status.SCHEDULED);
-            task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
-            ejb.merge(task);
+            rescheduleTask(task, scheduledTime != null ? scheduledTime : new Date());
             if (scheduledTime == null && newDeviceName.isEmpty())
                 processQueue(task.getQueueName());
             return Response.noContent().build();
@@ -284,11 +280,7 @@ public class TaskManagerImpl implements TaskManager {
                         }
                     }
                     try {
-                        if (task.getStatus() == Task.Status.IN_PROCESS)
-                            taskCanceledEvent.fire(new TaskCanceled(task));
-                        task.setStatus(Task.Status.SCHEDULED);
-                        task.setScheduledTime(scheduledTime1);
-                        ejb.merge(task);
+                        rescheduleTask(task, scheduledTime1);
                         queueNames.add(task.getQueueName());
                         count++;
                     } catch (Exception e) {
@@ -337,11 +329,7 @@ public class TaskManagerImpl implements TaskManager {
         TaskEvent taskEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
         taskEvent.setTask(task);
         try {
-            if (task.getStatus() == Task.Status.IN_PROCESS)
-                taskCanceledEvent.fire(new TaskCanceled(task));
-            task.setStatus(Task.Status.SCHEDULED);
-            task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
-            ejb.merge(task);
+            rescheduleTask(task, scheduledTime != null ? scheduledTime : new Date());
             if (scheduledTime == null && newDeviceName.isEmpty())
                 processQueue(task.getQueueName());
             return Response.noContent().build();
@@ -389,13 +377,7 @@ public class TaskManagerImpl implements TaskManager {
                         }
                     }
                     try {
-                        if (task.getStatus() == Task.Status.IN_PROCESS)
-                            taskCanceledEvent.fire(new TaskCanceled(task));
-                        task.setStatus(Task.Status.SCHEDULED);
-                        task.setScheduledTime(scheduledTime1);
-                        if (newExporterID != null)
-                            task.setExporterID(newExporterID);
-                        ejb.merge(task);
+                        rescheduleTask(task, scheduledTime1);
                         queueNames.add(task.getQueueName());
                         count++;
                     } catch (Exception e) {
@@ -444,11 +426,7 @@ public class TaskManagerImpl implements TaskManager {
         TaskEvent taskEvent = new TaskEvent(request, TaskOperation.RescheduleTasks);
         taskEvent.setTask(task);
         try {
-            if (task.getStatus() == Task.Status.IN_PROCESS)
-                taskCanceledEvent.fire(new TaskCanceled(task));
-            task.setStatus(Task.Status.SCHEDULED);
-            task.setScheduledTime(scheduledTime != null ? scheduledTime : new Date());
-            ejb.merge(task);
+            rescheduleTask(task, scheduledTime != null ? scheduledTime : new Date());
             if (scheduledTime == null && newDeviceName.isEmpty())
                 processQueue(task.getQueueName());
             return Response.noContent().build();
@@ -496,11 +474,7 @@ public class TaskManagerImpl implements TaskManager {
                         }
                     }
                     try {
-                        if (task.getStatus() == Task.Status.IN_PROCESS)
-                            taskCanceledEvent.fire(new TaskCanceled(task));
-                        task.setStatus(Task.Status.SCHEDULED);
-                        task.setScheduledTime(scheduledTime1);
-                        ejb.merge(task);
+                        rescheduleTask(task, scheduledTime1);
                         queueNames.add(task.getQueueName());
                         count++;
                     } catch (Exception e) {
@@ -641,6 +615,19 @@ public class TaskManagerImpl implements TaskManager {
             task.setQueueName(queueName);
         }
         task.setDeviceName(deviceName);
+    }
+
+    private void rescheduleTask(Task task, Date scheduledTime) {
+        if (task.getStatus() == Task.Status.IN_PROCESS)
+            taskCanceledEvent.fire(new TaskCanceled(task));
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setScheduledTime(scheduledTime);
+        task.setProcessingStartTime(null);
+        task.setProcessingEndTime(null);
+        task.setNumberOfFailures(0);
+        task.setOutcomeMessage(null);
+        task.setErrorMessage(null);
+        ejb.merge(task);
     }
 
     private Response noSuchTask(long taskID) {
