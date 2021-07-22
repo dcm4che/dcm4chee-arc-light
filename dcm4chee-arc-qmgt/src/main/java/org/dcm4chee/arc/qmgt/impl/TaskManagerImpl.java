@@ -622,9 +622,8 @@ public class TaskManagerImpl implements TaskManager {
     private void adjustDeviceName(Task task, ArchiveDeviceExtension targetDevice, String newExporterID,
                                   String newQueueName) {
         String deviceName = targetDevice.getDevice().getDeviceName();
-        String exporterID = task.getType() != Task.Type.EXPORT ? null
-                : newExporterID != null ? newExporterID : task.getExporterID();
-        if (exporterID != null) {
+        String exporterID = newExporterID != null ? newExporterID : task.getExporterID();
+        if (exporterID != null && task.getType() == Task.Type.EXPORT) {
             ExporterDescriptor exporterDescriptor = targetDevice.getExporterDescriptor(exporterID);
             if (exporterDescriptor == null)
                 throw new IllegalStateException("Cannot reschedule Export Task{id=" + task.getPk()
