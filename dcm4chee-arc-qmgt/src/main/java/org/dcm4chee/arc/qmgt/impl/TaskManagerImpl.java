@@ -378,7 +378,7 @@ public class TaskManagerImpl implements TaskManager {
             List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
             do {
                 for (Task task : list) {
-                    if (!newDeviceName.isEmpty()) {
+                    if (!newDeviceName.isEmpty() || newExporterID != null) {
                         try {
                             adjustDeviceName(task, targetDevices.get(count % targetDevices.size()),
                                     newExporterID, null);
@@ -393,6 +393,8 @@ public class TaskManagerImpl implements TaskManager {
                             taskCanceledEvent.fire(new TaskCanceled(task));
                         task.setStatus(Task.Status.SCHEDULED);
                         task.setScheduledTime(scheduledTime1);
+                        if (newExporterID != null)
+                            task.setExporterID(newExporterID);
                         ejb.merge(task);
                         queueNames.add(task.getQueueName());
                         count++;
@@ -628,6 +630,7 @@ public class TaskManagerImpl implements TaskManager {
                         + "} to Exporter{id=" + exporterID
                         + "} not configured at Device{name=" + deviceName + '}');
 
+            task.setExporterID(exporterID);
             task.setQueueName(exporterDescriptor.getQueueName());
         } else {
             String queueName = newQueueName != null ? newQueueName : task.getQueueName();
