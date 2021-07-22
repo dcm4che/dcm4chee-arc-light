@@ -22,7 +22,7 @@ create table task
     num_failures           int4         not null,
     num_instances          int4,
     outcome_msg            varchar(255),
-    payload                bytea        not null,
+    payload                bytea,
     proc_end_time          timestamp,
     proc_start_time        timestamp,
     query_str              varchar(255),
