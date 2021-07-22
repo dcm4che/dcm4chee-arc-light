@@ -45,6 +45,9 @@ BEGIN { FS = "[ )]" }
             && $6 != "(ups_priority" \
             && $6 != "(input_readiness_state" \
             && $6 != "(ups_state" \
+            && $6 != "(task_status" \
+            && $6 != "(task_type" \
+            && $6 != "(task_fk" \
         ) {
         print $1 " " $2 " " $3 " " $4 " " $5 " " $6 "(64));"
     } else {
