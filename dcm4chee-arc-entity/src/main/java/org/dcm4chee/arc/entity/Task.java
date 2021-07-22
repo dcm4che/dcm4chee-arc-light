@@ -418,7 +418,7 @@ public class Task {
 
     @OneToMany(cascade= CascadeType.ALL, orphanRemoval = true)
     @JoinTable(
-            name = "diff_task_attrs",
+            name = "diff_task_attrs2",
             joinColumns = @JoinColumn(
                     name = "diff_task_fk",
                     referencedColumnName = "pk"),
