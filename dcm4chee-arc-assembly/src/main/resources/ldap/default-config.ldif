@@ -44,7 +44,6 @@ hl7PatientArrivalMessageType: ADT^A10
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmWadoCDA2HtmlTemplateURI: /dcm4chee-arc/xsl/cda.xsl
 dcmAudit2XmlFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl
-dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: PKCS12
 dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.p12
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
@@ -98,6 +97,7 @@ dicomManufacturer: dcm4che.org
 dcmExternalRetrieveAEDestination: DCM4CHEE
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
 dcmTrustStorePin: secret
+dcmTaskPollingInterval: PT1M
 dcmXDSiImagingDocumentSourceAETitle: DCM4CHEE
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
@@ -1686,6 +1686,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Legacy Converted Enhanced MR Image Storage SCP
 
+dn: cn=Microscopy Bulk Simple Annotations Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.91.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Microscopy Bulk Simple Annotations Storage SCP
+
 dn: cn=Multi-channel Respiratory Waveform Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2
 dicomTransferRole: SCP
@@ -2761,17 +2770,17 @@ dcmEntity: Instance
 objectClass: dcmAttributeFilter
 
 dn: dcmQueueName=IANSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: IAN Tasks
 dcmQueueName: IANSCU
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/IANSCU
 
 dn: dcmQueueName=Export1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Export Tasks
 dcmQueueName: Export1
 dcmMaxRetries: 10
@@ -2780,9 +2789,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export1
 
 dn: dcmQueueName=Export2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: WADO Export Tasks
 dcmQueueName: Export2
 dcmMaxRetries: 10
@@ -2791,9 +2800,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export2
 
 dn: dcmQueueName=Export3,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: XDS-I Export Tasks
 dcmQueueName: Export3
 dcmMaxRetries: 10
@@ -2802,9 +2811,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export3
 
 dn: dcmQueueName=Export4,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Export4
 dcmQueueName: Export4
 dcmMaxRetries: 10
@@ -2813,9 +2822,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export4
 
 dn: dcmQueueName=Export5,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Nearline Storage Export Tasks
 dcmQueueName: Export5
 dcmMaxRetries: 10
@@ -2824,9 +2833,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export5
 
 dn: dcmQueueName=Export6,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Export6
 dcmQueueName: Export6
 dcmMaxRetries: 10
@@ -2835,9 +2844,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export6
 
 dn: dcmQueueName=Export7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Export7
 dcmQueueName: Export7
 dcmMaxRetries: 10
@@ -2846,9 +2855,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export7
 
 dn: dcmQueueName=Export8,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Export8
 dcmQueueName: Export8
 dcmMaxRetries: 10
@@ -2857,9 +2866,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export8
 
 dn: dcmQueueName=Export9,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Export9
 dcmQueueName: Export9
 dcmMaxRetries: 10
@@ -2868,29 +2877,26 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export9
 
 dn: dcmQueueName=HL7Send,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: HL7 Forward Tasks
 dcmQueueName: HL7Send
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/HL7Send
 
 dn: dcmQueueName=MPPSSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: MPPS Forward Tasks
 dcmQueueName: MPPSSCU
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/MPPSSCU
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7DefaultCharacterSet: 8859/1
@@ -2928,6 +2934,7 @@ hl7AcceptedMessageType: SIU^S15
 hl7ApplicationName: *
 
 dn: dcmQueueName=Export10,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Export10
 dcmQueueName: Export10
 dcmMaxRetries: 10
@@ -2936,18 +2943,16 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Export10
 
 dn: dcmQueueName=RSClient,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: RESTful Forward Tasks
 dcmQueueName: RSClient
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/RSClient
 
 dn: dcmSPSStatus=CANCELED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: CANCELED
@@ -2968,28 +2973,27 @@ dicomAETitle: DCM4CHEE
 dicomAssociationAcceptor: TRUE
 
 dn: dcmQueueName=DiffTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Diff Tasks
 dcmQueueName: DiffTasks
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/DiffTasks
 
 dn: dcmQueueName=Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Rejection Tasks
 dcmQueueName: Rejection
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Rejection
 
 dn: dcmQueueName=Retrieve1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 1
 dcmQueueName: Retrieve1
 dcmMaxRetries: 10
@@ -2998,9 +3002,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve1
 
 dn: dcmQueueName=Retrieve2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 2
 dcmQueueName: Retrieve2
 dcmMaxRetries: 10
@@ -3009,9 +3013,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve2
 
 dn: dcmQueueName=Retrieve3,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 3
 dcmQueueName: Retrieve3
 dcmMaxRetries: 10
@@ -3020,9 +3024,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve3
 
 dn: dcmQueueName=Retrieve4,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 4
 dcmQueueName: Retrieve4
 dcmMaxRetries: 10
@@ -3031,9 +3035,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve4
 
 dn: dcmQueueName=Retrieve5,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 5
 dcmQueueName: Retrieve5
 dcmMaxRetries: 10
@@ -3042,9 +3046,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve5
 
 dn: dcmQueueName=Retrieve6,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 6
 dcmQueueName: Retrieve6
 dcmMaxRetries: 10
@@ -3053,9 +3057,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve6
 
 dn: dcmQueueName=Retrieve7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 7
 dcmQueueName: Retrieve7
 dcmMaxRetries: 10
@@ -3064,9 +3068,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve7
 
 dn: dcmQueueName=Retrieve8,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 8
 dcmQueueName: Retrieve8
 dcmMaxRetries: 10
@@ -3075,9 +3079,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve8
 
 dn: dcmQueueName=Retrieve9,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 9
 dcmQueueName: Retrieve9
 dcmMaxRetries: 10
@@ -3086,29 +3090,26 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve9
 
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Storage Commitment SCP Tasks
 dcmQueueName: StgCmtSCP
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/StgCmtSCP
 
 dn: dcmQueueName=StgCmtSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Storage Commitment SCU Tasks
 dcmQueueName: StgCmtSCU
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/StgCmtSCU
 
 dn: dcmSPSStatus=COMPLETED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: COMPLETED
@@ -3148,6 +3149,7 @@ objectClass: dcmImageWriterFactory
 cn: Image Writer Factory
 
 dn: dcmQueueName=Retrieve10,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 10
 dcmQueueName: Retrieve10
 dcmMaxRetries: 10
@@ -3156,9 +3158,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve10
 
 dn: dcmQueueName=Retrieve11,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 11
 dcmQueueName: Retrieve11
 dcmMaxRetries: 10
@@ -3167,9 +3169,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve11
 
 dn: dcmQueueName=Retrieve12,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 12
 dcmQueueName: Retrieve12
 dcmMaxRetries: 10
@@ -3178,9 +3180,9 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve12
 
 dn: dcmQueueName=Retrieve13,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: FALSE
 dicomDescription: Dicom Retrieve Tasks 13
 dcmQueueName: Retrieve13
 dcmMaxRetries: 10
@@ -3189,18 +3191,16 @@ dcmRetryDelay: PT30S
 objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/Retrieve13
 
 dn: dcmQueueName=StgVerTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Storage Verification Tasks
 dcmQueueName: StgVerTasks
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-dcmJndiName: jms/queue/StgVerTasks
 
 dn: dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
@@ -7727,6 +7727,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Legacy Converted Enhanced MR Image Storage SCU
 
+dn: cn=Microscopy Bulk Simple Annotations Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.91.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Microscopy Bulk Simple Annotations Storage SCP
+
+dn: cn=Microscopy Bulk Simple Annotations Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.91.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Microscopy Bulk Simple Annotations Storage SCU
+
 dn: cn=Modality Worklist Information Model - FIND SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmFuzzySemanticMatching: TRUE
 dicomSOPClass: 1.2.840.10008.5.1.4.31
@@ -11699,6 +11717,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Legacy Converted Enhanced MR Image Storage SCU
 
+dn: cn=Microscopy Bulk Simple Annotations Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.91.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Microscopy Bulk Simple Annotations Storage SCU
+
 dn: cn=Multi-channel Respiratory Waveform Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2
 dicomTransferRole: SCU
@@ -14795,6 +14822,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Legacy Converted Enhanced MR Image Storage SCU
+
+dn: cn=Microscopy Bulk Simple Annotations Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.91.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Microscopy Bulk Simple Annotations Storage SCU
 
 dn: cn=Multi-channel Respiratory Waveform Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2

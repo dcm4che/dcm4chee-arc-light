@@ -931,6 +931,7 @@ class ArchiveDeviceFactory {
             UID.DetailSRStorageTrial,
             UID.ComprehensiveSRStorageTrial,
             UID.ContentAssessmentResultsStorage,
+            UID.MicroscopyBulkSimpleAnnotationsStorage,
             UID.CTPerformedProcedureProtocolStorage,
             UID.XAPerformedProcedureProtocolStorage,
             UID.RTDoseStorage,
