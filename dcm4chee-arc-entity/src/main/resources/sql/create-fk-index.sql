@@ -1,7 +1,6 @@
 create index FK_gudw6viy7lrf5t5hetw7mbgh5 on content_item (code_fk) ;
 create index FK_pyrd1nhijag5ct0ee9xqq4h78 on content_item (name_fk) ;
 create index FK_9kpe6whsov3ur9rph4ih2vi5a on content_item (instance_fk) ;
-create index FK_bk9t8o31gc5ut37tx9f91sn2f on diff_task_attrs2 (diff_task_fk) ;
 create index FK_f1l196ykcnh7s2pwo6qnmltw7 on global_subscription (matchkeys_fk) ;
 create index FK_pev4urgkk7id2h1ijhv8domjx on hl7psu_task (mpps_fk) ;
 create index FK_1fuh251le2hid2byw90hd1mly on ian_task (mpps_fk) ;
@@ -26,6 +25,7 @@ create index FK_oo232lt89k1b5h8mberi9v152 on patient_id (issuer_fk) ;
 create index FK_iafiq2ugv5rd6fonwd0vd7xdx on rejected_instance (reject_code_fk) ;
 create index FK_fryhnb2ppb6fcop3jrrfwvnfy on rel_study_pcode (pcode_fk) ;
 create index FK_mnahh8fh77d365m6w2x4x3f4q on rel_study_pcode (study_fk) ;
+create index FK_pwaoih2f4ay4c00avvt79de7h on rel_task_dicomattrs (task_fk) ;
 create index FK_6asj28yy5se9mp443b6ryefd2 on rel_ups_perf_code (perf_code_fk) ;
 create index FK_6m06tt8ku376qxkro94xpteus on rel_ups_perf_code (ups_fk) ;
 create index FK_oiq81nulcmtg6p85iu31igtf5 on series (inst_code_fk) ;
