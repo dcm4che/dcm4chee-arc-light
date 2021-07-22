@@ -181,7 +181,7 @@ create index UK_f7c43c242ybnvcn3o50lrcpkh on task (destination_aet(64));
 create index UK_pknlk8ggf8lnq38lq3gacvvpt on task (check_missing);
 create index UK_1lchdfbbwkjbg7a6coy5t8iq7 on task (check_different);
 create index UK_ow0nufrtniev7nkh7d0uv5mxe on task (compare_fields(64));
-create index UK_6a0y0rsssms4mtm9bpkw8vgl6 on task (study_iuid,(64));
+create index UK_6a0y0rsssms4mtm9bpkw8vgl6 on task (study_iuid(64), series_iuid(64), sop_iuid(64));
 alter table ups add constraint UK_3frtpy5cstsoxk5jxw9cutr33  unique (dicomattrs_fk);
 alter table ups add constraint UK_qck03rlxht9myv77sc79a480t  unique (ups_iuid);
 create index UK_1umoxe7ig9n21q885mncxeq9 on ups (updated_time);
