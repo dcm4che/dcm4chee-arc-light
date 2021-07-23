@@ -463,7 +463,7 @@ public class TaskManagerImpl implements TaskManager {
             List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
             do {
                 for (Task task : list) {
-                    if (!newDeviceName.isEmpty()) {
+                    if (!newDeviceName.isEmpty() || newQueueName != null) {
                         try {
                             adjustDeviceName(task, targetDevices.get(count % targetDevices.size()),
                                     null, newQueueName);
@@ -535,9 +535,8 @@ public class TaskManagerImpl implements TaskManager {
     private void deleteTasks(TaskQueryParam taskQueryParam, BulkTaskEvent taskEvent) {
         int count = 0;
         int failed = 0;
+        Task.Status status = taskQueryParam.getStatus();
         try {
-            Task.Status status = taskQueryParam.getStatus();
-            LOG.info("Delete Tasks with Status {}", status);
             Task.Type type = taskQueryParam.getType();
             if (status != Task.Status.IN_PROCESS && type != Task.Type.DIFF) {
                 if (status == null)
@@ -573,6 +572,8 @@ public class TaskManagerImpl implements TaskManager {
             taskEvent.setCount(count);
             taskEvent.setFailed(failed);
             bulkTaskEventEvent.fire(taskEvent);
+            if (count > 0)
+                LOG.info("Deleted {} tasks of {}", count, taskQueryParam);
         }
     }
 

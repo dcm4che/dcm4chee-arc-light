@@ -275,4 +275,12 @@ public class TaskQueryParam {
         this.stgCmtExporterID = stgCmtExporterID;
     }
 
+    @Override
+    public String toString() {
+        return "TaskQueryParam{" +
+                "status=" + status +
+                ", type=" + type +
+                ", queueName=" + String.join(";", queueNames) +
+                "}";
+    }
 }
