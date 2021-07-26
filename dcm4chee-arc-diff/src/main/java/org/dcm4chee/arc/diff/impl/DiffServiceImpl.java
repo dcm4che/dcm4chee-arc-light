@@ -175,7 +175,7 @@ public class DiffServiceImpl implements DiffService {
         sb.append(diffSCU.matches()).append(" studies compared");
         status = check(", missing: ", diffSCU.missing(), status, sb);
         status = check(", different: ", diffSCU.different(), status, sb);
-        return new Outcome(status, sb.toString());
+        return new Outcome(diffSCU.isCancelled() ? Task.Status.CANCELED : status, sb.toString());
     }
 
     @Override

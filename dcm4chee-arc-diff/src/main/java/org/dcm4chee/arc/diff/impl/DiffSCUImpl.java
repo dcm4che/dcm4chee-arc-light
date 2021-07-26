@@ -174,6 +174,11 @@ public class DiffSCUImpl implements DiffSCU {
     }
 
     @Override
+    public boolean isCancelled() {
+        return canceled;
+    }
+
+    @Override
     public void close() {
         safeRelease(as1);
         safeRelease(as2);
