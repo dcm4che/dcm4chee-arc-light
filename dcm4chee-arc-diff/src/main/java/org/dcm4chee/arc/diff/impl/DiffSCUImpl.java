@@ -42,10 +42,7 @@
 package org.dcm4chee.arc.diff.impl;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.DimseRSP;
-import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.Status;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffSCU;
@@ -68,6 +65,7 @@ public class DiffSCUImpl implements DiffSCU {
 
     private final DiffContext ctx;
     private final CFindSCU findSCU;
+    private final Device device;
 
     private Association as1;
     private Association as2;
@@ -78,9 +76,10 @@ public class DiffSCUImpl implements DiffSCU {
     private int matches;
     private volatile boolean canceled;
 
-    public DiffSCUImpl(DiffContext ctx, CFindSCU findSCU) {
+    public DiffSCUImpl(DiffContext ctx, CFindSCU findSCU, Device device) {
         this.ctx = ctx;
         this.findSCU = findSCU;
+        this.device = device;
     }
 
     @Override
@@ -88,9 +87,10 @@ public class DiffSCUImpl implements DiffSCU {
         EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
         if (ctx.isFuzzymatching())
             queryOptions.add(QueryOption.FUZZY);
-        as1 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getPrimaryAE().getAETitle(),
+        ApplicationEntity localAE = device.getApplicationEntity(ctx.getLocalAET(), true);
+        as1 = findSCU.openAssociation(localAE, ctx.getPrimaryAE().getAETitle(),
                 UID.StudyRootQueryRetrieveInformationModelFind, queryOptions);
-        as2 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getSecondaryAE().getAETitle(),
+        as2 = findSCU.openAssociation(localAE, ctx.getSecondaryAE().getAETitle(),
                 UID.StudyRootQueryRetrieveInformationModelFind, queryOptions);
         if (!ctx.isForceQueryByStudyUID() && ctx.supportSorting()) {
             dimseRSP2 = findSCU.query(as2, ctx.priority(),

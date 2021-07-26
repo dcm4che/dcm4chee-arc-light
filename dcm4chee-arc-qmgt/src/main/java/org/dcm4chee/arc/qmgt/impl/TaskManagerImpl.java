@@ -46,7 +46,10 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Task;
@@ -607,6 +610,7 @@ public class TaskManagerImpl implements TaskManager {
 
             task.setExporterID(exporterID);
             task.setQueueName(exporterDescriptor.getQueueName());
+            task.setLocalAET(exporterDescriptor.getAETitle());
         } else {
             String queueName = newQueueName != null ? newQueueName : task.getQueueName();
             if (targetDevice.getQueueDescriptor(queueName) == null)
@@ -615,7 +619,30 @@ public class TaskManagerImpl implements TaskManager {
                         + "} not configured at Device{name=" + deviceName + '}');
             task.setQueueName(queueName);
         }
+        validateTaskAssociationInitiator(task, targetDevice);
         task.setDeviceName(deviceName);
+    }
+
+    private void validateTaskAssociationInitiator(Task task, ArchiveDeviceExtension targetDevice) {
+        switch (task.getType()) {
+            case EXPORT:
+            case REST:
+                break;
+            case HL7:
+                HL7Application hl7Application = targetDevice.getDevice()
+                        .getDeviceExtensionNotNull(HL7DeviceExtension.class)
+                        .getHL7Application(task.getSendingApplicationWithFacility(),
+                                true);
+                if (hl7Application == null || !hl7Application.isInstalled())
+                    throw new IllegalStateException("No such HL7 Application{name=" + task.getSendingApplicationWithFacility()
+                            + "} on new device{name=" + targetDevice.getDevice().getDeviceName() + "}");
+                break;
+            default:
+                ApplicationEntity ae = targetDevice.getDevice().getApplicationEntity(task.getLocalAET(), true);
+                if (ae == null || !ae.isInstalled())
+                    throw new IllegalStateException("No such Application Entity{dicomAETitle=" + task.getLocalAET()
+                            + "} on new device{name=" + device.getDeviceName() + "}");
+        }
     }
 
     private void rescheduleTask(Task task, Date scheduledTime) {

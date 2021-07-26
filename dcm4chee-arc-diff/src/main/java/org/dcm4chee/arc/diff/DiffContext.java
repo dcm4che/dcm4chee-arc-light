@@ -51,10 +51,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 
-import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +61,8 @@ import java.util.Map;
  */
 public class DiffContext {
 
-    private ApplicationEntity localAE;
+    private String localAET;
+    private ArchiveDeviceExtension arcDev;
     private ApplicationEntity primaryAE;
     private ApplicationEntity secondaryAE;
     private String queryString;
@@ -81,12 +79,17 @@ public class DiffContext {
     private String batchID;
     private HttpServletRequestInfo httpServletRequestInfo;
 
-    public ApplicationEntity getLocalAE() {
-        return localAE;
+    public String getLocalAET() {
+        return localAET;
     }
 
-    public DiffContext setLocalAE(ApplicationEntity localAE) {
-        this.localAE = localAE;
+    public DiffContext setLocalAET(String localAET) {
+        this.localAET = localAET;
+        return this;
+    }
+
+    public DiffContext setArcDev(ArchiveDeviceExtension arcDev) {
+        this.arcDev = arcDev;
         return this;
     }
 
@@ -191,9 +194,8 @@ public class DiffContext {
         if (compareKeys != QIDO.STUDY.includetags)
             queryAttributes.addReturnTags(compareKeys);
         if (queryAttributes.isIncludeAll()) {
-            ArchiveDeviceExtension arcdev = arcdev();
-            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection(false));
-            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection(false));
+            queryAttributes.addReturnTags(arcDev.getAttributeFilter(Entity.Patient).getSelection(false));
+            queryAttributes.addReturnTags(arcDev.getAttributeFilter(Entity.Study).getSelection(false));
         }
         Attributes keys = queryAttributes.getQueryKeys();
         returnKeys = keys.tags();
@@ -229,7 +231,7 @@ public class DiffContext {
 
         int size = comparefields.size();
         if (size == 1) {
-            Map<String, AttributeSet> attributeSetMap = arcdev().getAttributeSet(AttributeSet.Type.DIFF_RS);
+            Map<String, AttributeSet> attributeSetMap = arcDev.getAttributeSet(AttributeSet.Type.DIFF_RS);
             AttributeSet attributeSet = attributeSetMap.get(comparefields.get(0));
             if (attributeSet != null) {
                 compareFields = attributeSet.getID();
@@ -245,10 +247,6 @@ public class DiffContext {
             }
         }
         return compareKeys;
-    }
-
-    private ArchiveDeviceExtension arcdev() {
-        return localAE.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
 }

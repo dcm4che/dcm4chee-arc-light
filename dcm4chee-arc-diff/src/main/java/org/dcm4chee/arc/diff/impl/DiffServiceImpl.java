@@ -93,7 +93,7 @@ public class DiffServiceImpl implements DiffService {
 
     @Override
     public DiffSCU createDiffSCU(DiffContext ctx) {
-        return new DiffSCUImpl(ctx, findSCU);
+        return new DiffSCUImpl(ctx, findSCU, device);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class DiffServiceImpl implements DiffService {
         }
         task.setBatchID(ctx.getBatchID());
         task.setStatus(Task.Status.SCHEDULED);
-        task.setLocalAET(ctx.getLocalAE().getAETitle());
+        task.setLocalAET(ctx.getLocalAET());
         task.setPrimaryAET(ctx.getPrimaryAE().getAETitle());
         task.setSecondaryAET(ctx.getSecondaryAE().getAETitle());
         task.setQueryString(queryString);
@@ -210,9 +210,10 @@ public class DiffServiceImpl implements DiffService {
     private DiffContext toDiffContext(Task diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws ConfigurationException {
         return new DiffContext()
-                .setLocalAE(device.getApplicationEntity(diffTask.getLocalAET(), true))
+                .setLocalAET(diffTask.getLocalAET())
                 .setPrimaryAE(aeCache.get(diffTask.getPrimaryAET()))
                 .setSecondaryAE(aeCache.get(diffTask.getSecondaryAET()))
+                .setArcDev(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class))
                 .setQueryString(diffTask.getQueryString())
                 .setHttpServletRequestInfo(httpServletRequestInfo);
     }

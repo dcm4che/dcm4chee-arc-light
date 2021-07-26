@@ -330,11 +330,16 @@ public class DiffRS {
     }
 
     private DiffContext createDiffContext() throws ConfigurationException {
+        ApplicationEntity localAE = device.getApplicationEntity(aet, true);
+        if (localAE == null || !localAE.isInstalled())
+            throw new ConfigurationException("No such Application Entity: " + aet);
+
         return new DiffContext()
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setLocalAE(checkAE(aet, device.getApplicationEntity(aet, true)))
-                .setPrimaryAE(checkAE(externalAET, aeCache.get(externalAET)))
-                .setSecondaryAE(checkAE(originalAET, aeCache.get(originalAET)));
+                .setLocalAET(aet)
+                .setPrimaryAE(aeCache.findApplicationEntity(externalAET))
+                .setSecondaryAE(aeCache.findApplicationEntity(originalAET))
+                .setArcDev(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class));
     }
 
     private static String errorMessage(IOException e) {
@@ -362,13 +367,6 @@ public class DiffRS {
                 : ": Unexpected status code");
     }
 
-    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae;
-    }
-
     private Response errResponse(String msg, Response.Status status) {
         return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
@@ -388,9 +386,9 @@ public class DiffRS {
     private StreamingOutput entity(final Attributes diff1, final DiffSCU diffSCU) {
         return output -> {
             try (JsonGenerator gen = Json.createGenerator(output)) {
-                JSONWriter writer = diffSCU.getDiffCtx().getLocalAE()
-                                        .getAEExtensionNotNull(ArchiveAEExtension.class)
-                                        .encodeAsJSONNumber(new JSONWriter(gen));
+                JSONWriter writer = device.getApplicationEntity(diffSCU.getDiffCtx().getLocalAET(), true)
+                                          .getAEExtensionNotNull(ArchiveAEExtension.class)
+                                          .encodeAsJSONNumber(new JSONWriter(gen));
                 gen.writeStartArray();
                 int remaining = limit();
                 Attributes diff = diff1;
