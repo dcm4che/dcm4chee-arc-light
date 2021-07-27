@@ -264,6 +264,7 @@ public class ImportStorageRS {
             dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
             dis.setBulkDataDescriptor(session.getArchiveAEExtension().getBulkDataDescriptor());
             dis.setURI("java:iis"); // avoid copy of bulkdata to temporary file
+            dis.readFileMetaInformation();
             ctx.setReceiveTransferSyntax(dis.getTransferSyntax());
             return Boolean.parseBoolean(readPixelData) || storage.getStorageDescriptor().getDigestAlgorithm() != null
                     ? dis.readDataset() : dis.readDatasetUntilPixelData();
