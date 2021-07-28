@@ -47,20 +47,23 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
+import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.*;
-import org.dcm4chee.arc.stgcmt.*;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -73,7 +76,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.persistence.Tuple;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
@@ -116,8 +118,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public List<StgCmtResult> listStgCmts(TaskQueryParam stgCmtResultQueryParam, int offset, int limit) {
-        return ejb.listStgCmts(stgCmtResultQueryParam, offset, limit);
+    public List<StgCmtResult> listStgCmts(StgCmtResultQueryParam queryParam, int offset, int limit) {
+        return ejb.listStgCmts(queryParam, offset, limit);
     }
 
     @Override
@@ -201,73 +203,12 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     @Override
-    public boolean scheduleStgVerTask(
-            StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo, String batchID)
-            throws QueueSizeLimitExceededException {
-        return ejb.scheduleStgVerTask(storageVerificationTask, httpServletRequestInfo, batchID);
+    public List<StgVerBatch> listStgVerBatches(TaskQueryParam taskQueryParam, int offset, int limit) {
+        return ejb.listStgVerBatches(taskQueryParam, offset, limit);
     }
 
     @Override
-    public boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        return ejb.cancelStgVerTask(pk, queueEvent);
-    }
-
-    @Override
-    public long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return ejb.cancelStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam);
-    }
-
-    @Override
-    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
-        return ejb.findDeviceNameAndMsgPropsByPk(pk);
-    }
-
-    @Override
-    public void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent) {
-        ejb.rescheduleStgVerTask(pk, queueEvent);
-    }
-
-    @Override
-    public void rescheduleStgVerTask(String stgVerTaskQueueMsgId) {
-        ejb.rescheduleStgVerTask(stgVerTaskQueueMsgId, null);
-    }
-
-    @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return ejb.listDistinctDeviceNames(queueTaskQueryParam, stgVerTaskQueryParam);
-    }
-
-    @Override
-    public List<String> listStgVerTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return ejb.listStgVerTaskQueueMsgIDs(queueTaskQueryParam, stgVerTaskQueryParam, limit);
-    }
-
-    @Override
-    public List<Tuple> listStgVerTaskQueueMsgIDAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit) {
-        return ejb.listStgVerTaskQueueMsgIDAndMsgProps(queueTaskQueryParam, stgVerTaskQueryParam, limit);
-    }
-
-    @Override
-    public boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.deleteStgVerTask(pk, queueEvent);
-    }
-
-    @Override
-    public int deleteTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(queueTaskQueryParam, stgVerTaskQueryParam, deleteTasksFetchSize);
-    }
-
-    @Override
-    public List<StgVerBatch> listStgVerBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, int offset, int limit) {
-        return ejb.listStgVerBatches(queueBatchQueryParam, stgVerBatchQueryParam, offset, limit);
-    }
-
-    @Override
-    public Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo request) throws IOException {
+    public Outcome executeStgVerTask(Task storageVerificationTask, HttpServletRequestInfo request) throws IOException {
         String localAET = storageVerificationTask.getLocalAET();
         StgCmtContext ctx = new StgCmtContext(device.getApplicationEntity(localAET, true), localAET)
                 .setRequest(request);
@@ -297,8 +238,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
         ejb.updateStgVerTask(storageVerificationTask);
         return new Outcome(
                 failed == 0
-                        ? QueueMessage.Status.COMPLETED
-                        : QueueMessage.Status.WARNING,
+                        ? Task.Status.COMPLETED
+                        : Task.Status.WARNING,
                 toOutcomeMessage(storageVerificationTask, ctx));
     }
 
@@ -315,19 +256,26 @@ public class StgCmtManagerImpl implements StgCmtManager {
         }
     }
 
+    @Override
+    public boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
+                                      HttpServletRequestInfo httpServletRequestInfo,
+                                      String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
+                                      String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                                      Boolean updateLocationStatus, String... storageIDs) {
+        return ejb.scheduleStgVerTask(localAET, qrlevel, httpServletRequestInfo,
+                studyInstanceUID, seriesInstanceUID, sopInstanceUID, batchID, storageVerificationPolicy,
+                updateLocationStatus, storageIDs);
+    }
+
     private void scheduleStgVerTask(RetrieveContext ctx, String studyIUID, String seriesIUID) {
-        StorageVerificationTask storageVerificationTask = new StorageVerificationTask();
-        storageVerificationTask.setLocalAET(ctx.getLocalAETitle());
-        storageVerificationTask.setStudyInstanceUID(studyIUID);
-        storageVerificationTask.setSeriesInstanceUID(seriesIUID);
         try {
-            ejb.scheduleStgVerTask(storageVerificationTask, ctx.getHttpServletRequestInfo(), null);
+            ejb.scheduleStgVerTask(ctx.getLocalAETitle(), studyIUID, seriesIUID, null);
         } catch (Exception e) {
-            LOG.warn("Failed to schedule {}\n", storageVerificationTask, e);
+            LOG.warn("Failed to schedule Storage Verification of Series{uid={}} of Study{uid={}}:\n", seriesIUID, studyIUID, e);
         }
     }
 
-    private String toOutcomeMessage(StorageVerificationTask storageVerificationTask, StgCmtContext ctx) {
+    private String toOutcomeMessage(Task storageVerificationTask, StgCmtContext ctx) {
         return (ctx.getStorageIDs().length == 0)
             ? (storageVerificationTask.getSeriesInstanceUID() == null)
                 ? String.format("Commit Storage of Study[uid=%s] for %s: - completed: %d, failed: %d",
@@ -621,17 +569,6 @@ public class StgCmtManagerImpl implements StgCmtManager {
         return (TagUtils.toHexString(contentMD5).equals(digest))
                 ? new CheckResult(Location.Status.OK)
                 : new CheckResult(Location.Status.DIFFERING_S3_MD5SUM);
-    }
-
-    @Override
-    public Iterator<StorageVerificationTask> listStgVerTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int offset, int limit) {
-        return ejb.listStgVerTasks(queueTaskQueryParam, stgVerTaskQueryParam, offset, limit);
-    }
-
-    @Override
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam) {
-        return ejb.countTasks(queueTaskQueryParam, stgVerTaskQueryParam);
     }
 
     private static class SeriesResult {

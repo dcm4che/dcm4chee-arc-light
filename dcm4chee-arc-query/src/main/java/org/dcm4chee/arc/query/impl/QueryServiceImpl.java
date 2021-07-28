@@ -304,7 +304,7 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Attributes queryExportTaskInfo(ExportTask exportTask, ApplicationEntity ae) {
+    public Attributes queryExportTaskInfo(Task exportTask, ApplicationEntity ae) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         ArchiveDeviceExtension arcDev = ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
         int retries = arcDev.getStoreUpdateDBMaxRetries();
@@ -317,7 +317,7 @@ class QueryServiceImpl implements QueryService {
                         exportTask.getStudyInstanceUID(),
                         exportTask.getSeriesInstanceUID(),
                         qrView);
-                if (!exportTask.getSopInstanceUID().equals("*")) {
+                if (!exportTask.getSOPInstanceUID().equals("*")) {
                     attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 1);
                 }
                 return attrs;

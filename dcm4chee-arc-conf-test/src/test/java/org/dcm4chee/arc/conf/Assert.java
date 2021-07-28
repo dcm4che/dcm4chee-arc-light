@@ -71,7 +71,7 @@ class Assert {
         assertNotNull(actual);
         assertArrayEquals(expected.getObjectStorageIDs(), actual.getObjectStorageIDs());
         assertEquals(expected.getStoreAccessControlID(), actual.getStoreAccessControlID());
-//        assertArrayEquals(expected.getAccessControlIDs(), actual.getAccessControlIDs()); //assert failing here
+        assertArrayEquals(expected.getAccessControlIDs(), actual.getAccessControlIDs());
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
         assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
         assertEquals(expected.getBulkDataSpoolDirectory(), actual.getBulkDataSpoolDirectory());
@@ -104,8 +104,6 @@ class Assert {
         assertEquals(expected.getFallbackCMoveSCP(), actual.getFallbackCMoveSCP());
         assertEquals(expected.getFallbackCMoveSCPDestination(), actual.getFallbackCMoveSCPDestination());
         assertEquals(expected.getAlternativeCMoveSCP(), actual.getAlternativeCMoveSCP());
-        assertEquals(expected.getExportTaskPollingInterval(), actual.getExportTaskPollingInterval());
-        assertEquals(expected.getExportTaskFetchSize(), actual.getExportTaskFetchSize());
         assertEquals(expected.getPurgeStoragePollingInterval(), actual.getPurgeStoragePollingInterval());
         assertEquals(expected.getPurgeStorageFetchSize(), actual.getPurgeStorageFetchSize());
         assertEquals(expected.getDeleteStudyBatchSize(), actual.getDeleteStudyBatchSize());
@@ -163,7 +161,6 @@ class Assert {
             QueueDescriptor expectedQD = expected.getQueueDescriptor(qd.getQueueName());
             QueueDescriptor actualQD = actual.getQueueDescriptor(qd.getQueueName());
             assertEquals(expectedQD.getQueueName(), actualQD.getQueueName());
-            assertEquals(expectedQD.getJndiName(), actualQD.getJndiName());
             assertEquals(expectedQD.getDescription(), actualQD.getDescription());
             assertEquals(expectedQD.getMaxRetries(), actualQD.getMaxRetries());
             assertEquals(expectedQD.getRetryDelay(), actualQD.getRetryDelay());

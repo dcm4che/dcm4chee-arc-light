@@ -44,7 +44,7 @@ package org.dcm4chee.arc.export.stow;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
-import org.dcm4chee.arc.qmgt.MessageCanceled;
+import org.dcm4chee.arc.qmgt.TaskCanceled;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.stow.client.StowClient;
 import org.dcm4chee.arc.stow.client.StowTask;
@@ -71,15 +71,15 @@ public class StowExporterProvider implements ExporterProvider {
     @Inject
     private StowClient stowClient;
 
-    private final Map<String, StowTask> stowTaskMap = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Long, StowTask> stowTaskMap = Collections.synchronizedMap(new HashMap<>());
 
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
         return new StowExporter(descriptor, retrieveService, stowClient, stowTaskMap);
     }
 
-    public void cancelStowTask(@Observes MessageCanceled event) {
-        StowTask stowTask = stowTaskMap.get(event.getMessageID());
+    public void cancelStowTask(@Observes TaskCanceled event) {
+        StowTask stowTask = stowTaskMap.get(event.task.getPk());
         if (stowTask != null)
             stowTask.cancel();
     }

@@ -1,6 +1,5 @@
 package org.dcm4chee.arc.conf;
 
-import java.util.Calendar;
 import java.util.Objects;
 
 /**
@@ -12,20 +11,19 @@ public class QueueDescriptor {
     public static final Duration DEFAULT_RETRY_DELAY = Duration.valueOf("PT1M");
 
     private String queueName;
-    private String jndiName;
     private String description;
+    private int maxTasksParallel = 1;
     private int maxRetries = 0;
     private Duration retryDelay = DEFAULT_RETRY_DELAY;
     private Duration maxRetryDelay;
     private int retryDelayMultiplier = 100;
     private boolean retryOnWarning;
-    private boolean retryInProcessOnStartup;
-    private Duration purgeQueueMessageCompletedDelay;
-    private Duration purgeQueueMessageFailedDelay;
-    private Duration purgeQueueMessageWarningDelay;
-    private Duration purgeQueueMessageCanceledDelay;
-    private int maxQueueSize = 0;
+    private Duration purgeTaskCompletedDelay;
+    private Duration purgeTaskFailedDelay;
+    private Duration purgeTaskWarningDelay;
+    private Duration purgeTaskCanceledDelay;
     private ScheduleExpression[] schedules = {};
+    private boolean installed = true;
 
     public QueueDescriptor(String queueName) {
         setQueueName(queueName);
@@ -42,20 +40,20 @@ public class QueueDescriptor {
         this.queueName = queueName;
     }
 
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getMaxTasksParallel() {
+        return maxTasksParallel;
+    }
+
+    public void setMaxTasksParallel(int maxTasksParallel) {
+        this.maxTasksParallel = maxTasksParallel;
     }
 
     public int getMaxRetries() {
@@ -109,52 +107,36 @@ public class QueueDescriptor {
         this.retryOnWarning = retryOnWarning;
     }
 
-    public boolean isRetryInProcessOnStartup() {
-        return retryInProcessOnStartup;
+    public Duration getPurgeTaskCompletedDelay() {
+        return purgeTaskCompletedDelay;
     }
 
-    public void setRetryInProcessOnStartup(boolean retryInProcessOnStartup) {
-        this.retryInProcessOnStartup = retryInProcessOnStartup;
+    public void setPurgeTaskCompletedDelay(Duration purgeTaskCompletedDelay) {
+        this.purgeTaskCompletedDelay = purgeTaskCompletedDelay;
     }
 
-    public Duration getPurgeQueueMessageCompletedDelay() {
-        return purgeQueueMessageCompletedDelay;
+    public Duration getPurgeTaskFailedDelay() {
+        return purgeTaskFailedDelay;
     }
 
-    public void setPurgeQueueMessageCompletedDelay(Duration purgeQueueMessageCompletedDelay) {
-        this.purgeQueueMessageCompletedDelay = purgeQueueMessageCompletedDelay;
+    public void setPurgeTaskFailedDelay(Duration purgeTaskFailedDelay) {
+        this.purgeTaskFailedDelay = purgeTaskFailedDelay;
     }
 
-    public Duration getPurgeQueueMessageFailedDelay() {
-        return purgeQueueMessageFailedDelay;
+    public Duration getPurgeTaskWarningDelay() {
+        return purgeTaskWarningDelay;
     }
 
-    public void setPurgeQueueMessageFailedDelay(Duration purgeQueueMessageFailedDelay) {
-        this.purgeQueueMessageFailedDelay = purgeQueueMessageFailedDelay;
+    public void setPurgeTaskWarningDelay(Duration purgeTaskWarningDelay) {
+        this.purgeTaskWarningDelay = purgeTaskWarningDelay;
     }
 
-    public Duration getPurgeQueueMessageWarningDelay() {
-        return purgeQueueMessageWarningDelay;
+    public Duration getPurgeTaskCanceledDelay() {
+        return purgeTaskCanceledDelay;
     }
 
-    public void setPurgeQueueMessageWarningDelay(Duration purgeQueueMessageWarningDelay) {
-        this.purgeQueueMessageWarningDelay = purgeQueueMessageWarningDelay;
-    }
-
-    public Duration getPurgeQueueMessageCanceledDelay() {
-        return purgeQueueMessageCanceledDelay;
-    }
-
-    public void setPurgeQueueMessageCanceledDelay(Duration purgeQueueMessageCanceledDelay) {
-        this.purgeQueueMessageCanceledDelay = purgeQueueMessageCanceledDelay;
-    }
-
-    public int getMaxQueueSize() {
-        return maxQueueSize;
-    }
-
-    public void setMaxQueueSize(int maxQueueSize) {
-        this.maxQueueSize = maxQueueSize;
+    public void setPurgeTaskCanceledDelay(Duration purgeTaskCanceledDelay) {
+        this.purgeTaskCanceledDelay = purgeTaskCanceledDelay;
     }
 
     public ScheduleExpression[] getSchedules() {
@@ -163,5 +145,18 @@ public class QueueDescriptor {
 
     public void setSchedules(ScheduleExpression[] schedules) {
         this.schedules = schedules;
+    }
+
+    public boolean isInstalled() {
+        return installed;
+    }
+
+    public void setInstalled(boolean installed) {
+        this.installed = installed;
+    }
+
+    @Override
+    public String toString() {
+        return "Queue{" + queueName + '}';
     }
 }

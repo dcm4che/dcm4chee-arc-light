@@ -43,19 +43,17 @@ package org.dcm4chee.arc.stgcmt;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.StgCmtResult;
-import org.dcm4chee.arc.entity.StorageVerificationTask;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
-import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -70,7 +68,7 @@ public interface StgCmtManager {
 
     void persistStgCmtResult(StgCmtResult result);
 
-    List<StgCmtResult> listStgCmts(TaskQueryParam stgCmtResultQueryParam, int offset, int limit);
+    List<StgCmtResult> listStgCmts(StgCmtResultQueryParam queryParam, int offset, int limit);
 
     boolean deleteStgCmt(String transactionUID);
 
@@ -80,40 +78,15 @@ public interface StgCmtManager {
 
     boolean calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) throws IOException;
 
-    boolean scheduleStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo,
-                               String batchID)
-            throws QueueSizeLimitExceededException;
-
-    Outcome executeStgVerTask(StorageVerificationTask storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
+    Outcome executeStgVerTask(Task storageVerificationTask, HttpServletRequestInfo httpServletRequestInfo)
             throws IOException;
 
-    boolean cancelStgVerTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
+    List<StgVerBatch> listStgVerBatches(TaskQueryParam taskQueryParam, int offset, int limit);
 
-    long cancelStgVerTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
+    boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
+                               HttpServletRequestInfo httpServletRequestInfo,
+                               String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
+                               String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                               Boolean updateLocationStatus, String... storageIDs);
 
-    Tuple findDeviceNameAndMsgPropsByPk(Long pk);
-
-    void rescheduleStgVerTask(Long pk, QueueMessageEvent queueEvent);
-
-    void rescheduleStgVerTask(String stgVerTaskQueueMsgId);
-
-    List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
-
-    List<String> listStgVerTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
-
-    List<Tuple> listStgVerTaskQueueMsgIDAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int limit);
-
-    boolean deleteStgVerTask(Long pk, QueueMessageEvent queueEvent);
-
-    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int deleteTasksFetchSize);
-
-    List<StgVerBatch> listStgVerBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam stgVerBatchQueryParam, int offset, int limit);
-
-    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam);
-
-    Iterator<StorageVerificationTask> listStgVerTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam stgVerTaskQueryParam, int offset, int limit);
 }

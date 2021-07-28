@@ -47,7 +47,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.AttributesBlob;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -72,6 +72,7 @@ import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @since Mar 2018
  */
 @RequestScoped
@@ -152,9 +153,7 @@ public class DiffBatchRS {
         logRequest();
         try {
             List<DiffBatch> diffBatches = diffService.listDiffBatches(
-                    queueBatchQueryParam(batchID),
-                    diffBatchQueryParam(),
-                    parseInt(offset), parseInt(limit));
+                    taskQueryParam(batchID), parseInt(offset), parseInt(limit));
             return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -172,8 +171,7 @@ public class DiffBatchRS {
                 return Response.status(Response.Status.NOT_FOUND).build();
 
             return Response.ok(entity(diffService.getDiffTaskAttributes(
-                    queueBatchQueryParam(batchID),
-                    diffBatchQueryParam(),
+                    taskQueryParam(batchID),
                     parseInt(offset),
                     parseInt(limit))))
                     .build();
@@ -264,10 +262,6 @@ public class DiffBatchRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
-    }
-
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
         LOG.warn("Response {} caused by {}", status, errorMsg);
         return Response.status(status)
@@ -282,25 +276,21 @@ public class DiffBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueBatchQueryParam(String batchID) {
+    private TaskQueryParam taskQueryParam(String batchID) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status());
         taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam diffBatchQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setCreatedTime(createdTime);
+        taskQueryParam.setUpdatedTime(updatedTime);
+        taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.DIFF);
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setPrimaryAET(primaryAET);
         taskQueryParam.setSecondaryAET(secondaryAET);
         taskQueryParam.setCompareFields(comparefields);
         taskQueryParam.setCheckMissing(checkMissing);
         taskQueryParam.setCheckDifferent(checkDifferent);
-        taskQueryParam.setCreatedTime(createdTime);
-        taskQueryParam.setUpdatedTime(updatedTime);
-        taskQueryParam.setOrderBy(orderby);
         return taskQueryParam;
     }
 }

@@ -64,5 +64,7 @@ public interface DiffSCU extends Closeable {
 
     void cancel();
 
+    boolean isCancelled();
+
     DiffContext getDiffCtx();
 }

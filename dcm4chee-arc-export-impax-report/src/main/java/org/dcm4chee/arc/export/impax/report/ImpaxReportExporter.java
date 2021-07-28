@@ -49,7 +49,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.impax.report.ImpaxReportConverter;
@@ -87,7 +87,7 @@ public class ImpaxReportExporter extends AbstractExporter {
         String studyUID = ctx.getStudyInstanceUID();
         Attributes studyAttrs = queryService.getStudyAttributes(studyUID);
         if (studyAttrs == null)
-            return new Outcome(QueueMessage.Status.WARNING, "No such Study: " + studyUID);
+            return new Outcome(Task.Status.WARNING, "No such Study: " + studyUID);
 
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
         Map<String, String> props =
@@ -105,17 +105,17 @@ public class ImpaxReportExporter extends AbstractExporter {
             }
         }
         return xmlReports.isEmpty()
-                ? new Outcome(QueueMessage.Status.WARNING, "No Report for Study: " + studyUID + " found")
+                ? new Outcome(Task.Status.WARNING, "No Report for Study: " + studyUID + " found")
                 : new Outcome(statusOf(srReports), messageOf(studyUID, srReports));
     }
 
-    private QueueMessage.Status statusOf(List<Attributes> srReports) {
+    private Task.Status statusOf(List<Attributes> srReports) {
         Attributes sr = srReports.get(srReports.size() - 1);
         String[] flags = StringUtils.split(descriptor.getExportURI().getSchemeSpecificPart(), '/');
         return (flags[0].equals("*") || flags[0].equals(sr.getString(Tag.CompletionFlag)))
                 && (flags.length == 1 || flags[1].equals("*") || flags[1].equals(sr.getString(Tag.VerificationFlag)))
-                ? QueueMessage.Status.COMPLETED
-                : QueueMessage.Status.WARNING;
+                ? Task.Status.COMPLETED
+                : Task.Status.WARNING;
     }
 
     private String messageOf(String studyUID, List<Attributes> srReports) {

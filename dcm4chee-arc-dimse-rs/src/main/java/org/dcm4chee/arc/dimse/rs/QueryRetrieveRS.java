@@ -52,11 +52,12 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
@@ -76,9 +77,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -157,6 +158,9 @@ public class QueryRetrieveRS {
     private RetrieveManager retrieveManager;
 
     @Inject
+    private TaskManager taskManager;
+
+    @Inject
     private IApplicationEntityCache aeCache;
 
     @HeaderParam("Content-Type")
@@ -180,8 +184,7 @@ public class QueryRetrieveRS {
     public Response queryRetrieveMatchingStudies(
             @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET);
     }
 
     @POST
@@ -190,10 +193,8 @@ public class QueryRetrieveRS {
     public Response queryRetrieveMatchingSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
-                this::scheduleRetrieveTask);
+            @PathParam("DestinationAET") String destAET){
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET);
     }
 
     @POST
@@ -203,45 +204,8 @@ public class QueryRetrieveRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID,
             @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
-                this::scheduleRetrieveTask);
-    }
-
-    @POST
-    @Path("/query:{QueryAET}/studies/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingStudiesForQueryRetrieve(
-            @PathParam("QueryAET") String queryAET,
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/query:{QueryAET}/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingSeriesForQueryRetrieve(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/query:{QueryAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingInstancesForQueryRetrieve(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
-                this::createRetrieveTask);
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET);
     }
 
     @POST
@@ -249,8 +213,7 @@ public class QueryRetrieveRS {
     @Produces("application/json")
     public Response retrieveMatchingStudies(
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, destAET,
-                this::scheduleRetrieveTask);
+        return process(QueryRetrieveLevel2.STUDY, null, null, destAET);
     }
 
     @POST
@@ -258,10 +221,8 @@ public class QueryRetrieveRS {
     @Produces("application/json")
     public Response retrieveMatchingSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, destAET,
-                this::scheduleRetrieveTask);
+            @PathParam("DestinationAET") String destAET) {
+        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, destAET);
     }
 
     @POST
@@ -270,125 +231,9 @@ public class QueryRetrieveRS {
     public Response retrieveMatchingInstances(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, destAET,
-                this::scheduleRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingStudiesForRetrieve(
             @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, destAET,
-                this::createRetrieveTask);
+        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, destAET);
     }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingSeriesForRetrieve(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingInstancesForRetrieve(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/query:{QueryAET}/export/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response retrieveMatchingStudiesLegacy(
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
-                this::scheduleRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/query:{QueryAET}/export/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response retrieveMatchingSeriesLegacy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-            {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
-                this::scheduleRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{QueryAET}/export/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response retrieveMatchingInstancesLegacy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-            {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
-                this::scheduleRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingStudiesForRetrieveLegacy(
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET) {
-        return process(QueryRetrieveLevel2.STUDY, null, null, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingSeriesForRetrieveLegacy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.SERIES, studyInstanceUID, null, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{QueryAET}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markMatchingInstancesForRetrieveLegacy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID,
-            @PathParam("QueryAET") String queryAET,
-            @PathParam("DestinationAET") String destAET)
-    {
-        return process(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET,
-                this::createRetrieveTask);
-    }
-
-    @POST
-    @Path("/studies/csv:{field}/mark4retrieve/dicom:{destinationAET}")
-    @Consumes("text/csv")
-    @Produces("application/json")
-    public Response markMatchingStudiesFromCSVForRetrieve(
-            @PathParam("field") int field,
-            @PathParam("destinationAET") String destAET,
-            InputStream in) {
-        return processCSV(field, destAET, in, this::createRetrieveTask);
-    }
-
 
     @POST
     @Path("/studies/csv:{field}/export/dicom:{destinationAET}")
@@ -398,10 +243,10 @@ public class QueryRetrieveRS {
             @PathParam("field") int field,
             @PathParam("destinationAET") String destAET,
             InputStream in) {
-        return processCSV(field, destAET, in, this::scheduleRetrieveTask);
+        return processCSV(field, destAET, in);
     }
 
-    private Response processCSV(int field, String destAET, InputStream in, Function<ExternalRetrieveContext, Integer> action) {
+    private Response processCSV(int field, String destAET, InputStream in) {
         try {
             validate(null);
             Response.Status status = Response.Status.BAD_REQUEST;
@@ -435,25 +280,24 @@ public class QueryRetrieveRS {
                         studyUIDs.add(studyUID);
 
                     if (studyUIDs.size() == csvUploadChunkSize) {
-                        count += action.apply(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
+                        count += scheduleRetrieveTask(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
                         studyUIDs.clear();
                     }
                 }
                 if (!studyUIDs.isEmpty())
-                    count += action.apply(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
+                    count += scheduleRetrieveTask(createExtRetrieveCtx(destAET, studyUIDs.toArray(new String[0])));
 
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs or Duplicate Retrieves suppressed.";
                     status = Response.Status.NO_CONTENT;
                 }
-            } catch (QueueSizeLimitExceededException e) {
-                status = Response.Status.SERVICE_UNAVAILABLE;
-                warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();
                 status = Response.Status.INTERNAL_SERVER_ERROR;
             }
-
+            if (count > 0 && scheduledOnThisDevice() && scheduledTime == null) {
+                taskManager.processQueue(queueName);
+            }
             if (warning == null && count > 0)
                 return Response.accepted(count(count)).build();
 
@@ -511,12 +355,12 @@ public class QueryRetrieveRS {
     }
 
     private Response process(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
-                             String destAET, Function<ExternalRetrieveContext, Integer> action) {
-        return process(level, studyInstanceUID, seriesInstanceUID, movescp, destAET, action);
+                             String destAET) {
+        return process(level, studyInstanceUID, seriesInstanceUID, movescp, destAET);
     }
     
     private Response process(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
-            String queryAET, String destAET, Function<ExternalRetrieveContext, Integer> action) {
+                             String queryAET, String destAET) {
         ApplicationEntity localAE = device.getApplicationEntity(aet, true);
         if (localAE == null || !localAE.isInstalled())
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -531,6 +375,8 @@ public class QueryRetrieveRS {
                 keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
             if (seriesInstanceUID != null)
                 keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
+            if (level == QueryRetrieveLevel2.IMAGE && !keys.contains(Tag.SOPInstanceUID))
+                keys.setNull(Tag.SOPInstanceUID, VR.UI);
             EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
             if (Boolean.parseBoolean(fuzzymatching))
                 queryOptions.add(QueryOption.FUZZY);
@@ -549,14 +395,11 @@ public class QueryRetrieveRS {
                 do {
                     status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                     if (Status.isPending(status))
-                        count += action.apply(createExtRetrieveCtx(destAET, dimseRSP));
+                        count += scheduleRetrieveTask(createExtRetrieveCtx(destAET, queryAET, dimseRSP));
                 } while (dimseRSP.next());
                 warning = warning(status);
             } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
                 errorStatus = Response.Status.NOT_FOUND;
-                warning = e.getMessage();
-            } catch (QueueSizeLimitExceededException e) {
-                errorStatus = Response.Status.SERVICE_UNAVAILABLE;
                 warning = e.getMessage();
             } catch (Exception e) {
                 warning = e.getMessage();
@@ -567,6 +410,9 @@ public class QueryRetrieveRS {
                     } catch (IOException e) {
                         LOG.info("{}: Failed to release association:\\n", as, e);
                     }
+            }
+            if (count > 0 && scheduledOnThisDevice() && scheduledTime == null) {
+                taskManager.processQueue(queueName);
             }
             if (warning == null)
                 return Response.accepted(count(count)).build();
@@ -584,12 +430,16 @@ public class QueryRetrieveRS {
         }
     }
 
+    private boolean scheduledOnThisDevice() {
+        return deviceName == null || deviceName.equals(device.getDeviceName());
+    }
+
     private void validate(String queryAET) throws ConfigurationException {
         if (queryAET != null && !queryAET.equals(movescp))
             aeCache.findApplicationEntity(queryAET);
 
         aeCache.findApplicationEntity(movescp);
-        if (deviceName != null) {
+        if (!scheduledOnThisDevice()) {
             Device device = deviceCache.findDevice(deviceName);
             ApplicationEntity ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())
@@ -605,11 +455,7 @@ public class QueryRetrieveRS {
     }
 
     private int scheduleRetrieveTask(ExternalRetrieveContext ctx) {
-        return retrieveManager.scheduleRetrieveTask(priorityAsInt, ctx, null, 0L);
-    }
-
-    private int createRetrieveTask(ExternalRetrieveContext ctx) {
-        return retrieveManager.createRetrieveTask(ctx, null);
+        return retrieveManager.scheduleRetrieveTask(ctx, null);
     }
 
     private void logRequest() {
@@ -620,29 +466,30 @@ public class QueryRetrieveRS {
                 request.getRemoteHost());
     }
 
-    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, DimseRSP dimseRSP) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String queryAET, DimseRSP dimseRSP) {
         Attributes keys = new Attributes(dimseRSP.getDataset(),
-                Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID, Tag.SOPInstanceUID);
-        return createExtRetrieveCtx(destAET, keys);
+                Tag.SOPInstanceUID, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID);
+        return createExtRetrieveCtx(destAET, queryAET, keys);
     }
 
     private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String... studyIUID) {
         Attributes keys = new Attributes(2);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.STUDY.name());
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
-        return createExtRetrieveCtx(destAET, keys);
+        return createExtRetrieveCtx(destAET, null, keys);
     }
 
-    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String queryAET, Attributes keys) {
         return new ExternalRetrieveContext()
                 .setDeviceName(deviceName != null ? deviceName : device.getDeviceName())
                 .setQueueName(queueName)
                 .setBatchID(batchID)
                 .setLocalAET(aet)
                 .setRemoteAET(movescp)
+                .setFindSCP(queryAET)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setScheduledTime(ParseDateTime.valueOf(scheduledTime))
+                .setScheduledTime(scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : new Date())
                 .setKeys(keys);
     }
 

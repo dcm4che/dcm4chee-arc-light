@@ -49,7 +49,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -221,12 +221,12 @@ public class XDSiExporter extends AbstractExporter {
             ctx.setXDSiRegistryResponse(rsp);
             switch (rsp.getStatus()) {
                 case XDS_STATUS_SUCCESS:
-                    return new Outcome(QueueMessage.Status.COMPLETED,
+                    return new Outcome(Task.Status.COMPLETED,
                             "Provide and Register Study[" + ctx.getStudyInstanceUID()
                                     + "] in SubmissionSet[" + submissionSetUID
                                     + "] @ " + repositoryURL + " successful");
                 case XDS_STATUS_PARTIAL_SUCCESS:
-                    return new Outcome(QueueMessage.Status.WARNING,
+                    return new Outcome(Task.Status.WARNING,
                             "Provide and Register Study[" + ctx.getStudyInstanceUID()
                                     + "] in SubmissionSet[" + submissionSetUID
                                     + "] @ " + repositoryURL + " partial successful - "

@@ -41,15 +41,11 @@
 package org.dcm4chee.arc.export.mgt;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
-import javax.persistence.Tuple;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -58,66 +54,27 @@ import java.util.List;
  * @since Feb 2016
  */
 public interface ExportManager {
-    void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime);
 
-    void createOrUpdateStudyExportTask(String exporterDeviceName, String exporterID, String studyIUID, Date scheduledTime);
+    void createOrUpdateStudyExportTask(String deviceName, ExporterDescriptor exporterDesc,
+                                       String studyIUID, Date scheduledTime);
 
-    void createOrUpdateSeriesExportTask(
-            String exporterID, String studyIUID, String seriesIUID, Date scheduledTime);
-
-    void createOrUpdateSeriesExportTask(String exporterDeviceName, String exporterID, String studyIUID, String seriesIUID,
+    void createOrUpdateSeriesExportTask(String deviceName, ExporterDescriptor exporterDesc,
+                                        String studyIUID, String seriesIUID,
                                         Date scheduledTime);
 
-    void createOrUpdateInstanceExportTask(
-            String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime);
+    void createOrUpdateInstanceExportTask(String deviceName, ExporterDescriptor exporterDesc,
+                                          String studyIUID, String seriesIUID, String sopIUID,
+                                          Date scheduledTime);
 
-    void createOrUpdateInstanceExportTask(String exporterDeviceName, String exporterID, String studyIUID, String seriesIUID,
-                                          String sopIUID, Date scheduledTime);
+    Task createExportTask(String deviceName, ExporterDescriptor exporterDesc,
+                          String studyIUID, String seriesIUID, String sopIUID,
+                          String batchID, Date scheduledTime,
+                          HttpServletRequestInfo httpServletRequestInfo);
 
-    List<Long> findExportTasksToSchedule(int fetchSize);
+    boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID, Date scheduledTime);
 
-    boolean scheduleExportTask(Long pk);
+    List<ExportBatch> listExportBatches(TaskQueryParam queryParam, int offset, int limit);
 
-    void scheduleExportTask(String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo, String batchID, String... studyUID)
-        throws QueueSizeLimitExceededException;
+    void merge(Task task);
 
-    int createExportTask(ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                         String batchID, Date scheduledTime, String... studyUIDs);
-
-    boolean scheduleStudyExport(String suid, ExporterDescriptor exporter, Date notExportedAfter, String batchID);
-
-    boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent);
-
-    boolean cancelExportTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
-
-    long cancelExportTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
-
-    String findDeviceNameByPk(Long pk);
-
-    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
-
-    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                              QueueMessageEvent queueEvent);
-
-    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo,
-                              QueueMessageEvent queueEvent, Date scheduledTime);
-
-    void markForExportTask(Long pk, String deviceName, ExporterDescriptor exporter,
-                         HttpServletRequestInfo httpServletRequestInfo, QueueMessageEvent queueEvent, Date scheduledTime);
-
-    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int deleteTasksFetchSize);
-
-    List<String> listDistinctDeviceNames(TaskQueryParam exportTaskQueryParam);
-
-    List<ExportBatch> listExportBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam exportBatchQueryParam, int offset, int limit);
-
-    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam);
-
-    Iterator<ExportTask> listExportTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int offset, int limit);
-
-    List<Tuple> exportTaskPksAndExporterIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam exportTaskQueryParam, int limit);
 }

@@ -45,7 +45,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.23.3</version>
+    <version>5.24.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -97,12 +97,6 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-event</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-rs-client</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

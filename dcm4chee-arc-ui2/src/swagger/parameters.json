@@ -358,19 +358,10 @@
   "taskIDPathParam": {
     "name": "taskID",
     "in": "path",
-    "description": "JMS Message ID of queue message",
+    "description": "Task ID",
     "required": true,
     "schema": {
-      "type": "string"
-    }
-  },
-  "taskPkPathParam": {
-    "name": "taskPk",
-    "in": "path",
-    "description": "Primary Key of a task",
-    "required": true,
-    "schema": {
-      "type": "string"
+      "type": "integer"
     }
   },
   "newExporterIDPathParam": {
@@ -1139,7 +1130,7 @@
   "newDeviceNames": {
     "name": "newDeviceName",
     "in": "query",
-    "description": "New Device Names on which tasks shall be marked for export",
+    "description": "New Device Names on which tasks shall be rescheduled",
     "schema": {
       "type": "array",
       "items": {
@@ -1481,20 +1472,20 @@
       }
     }
   },
-  "JMSMessageID": {
-    "name": "JMSMessageID",
-    "in": "query",
-    "description": "JMS Message ID to filter by",
-    "schema": {
-      "type": "string"
-    }
-  },
   "batchID": {
     "name": "batchID",
     "in": "query",
     "description": "Batch ID to filter by",
     "schema": {
       "type": "string"
+    }
+  },
+  "taskID": {
+    "name": "taskID",
+    "in": "query",
+    "description": "Task ID to filter by",
+    "schema": {
+      "type": "integer"
     }
   },
   "scheduledTime": {
@@ -1509,6 +1500,14 @@
     "name": "csvPatientID",
     "in": "query",
     "description": "CSV field which contains the Patient ID and Issuer encoded as HL7 CX",
+    "schema": {
+      "type": "integer"
+    }
+  },
+  "csvSeriesUID": {
+    "name": "csvSeriesUID",
+    "in": "query",
+    "description": "CSV field which contains the Series Instance UID",
     "schema": {
       "type": "integer"
     }
@@ -1572,12 +1571,12 @@
       "type": "boolean"
     }
   },
-  "queueMsgStatus": {
+  "taskStatus": {
     "name": "status",
     "in": "query",
     "description": "status of tasks to filter by",
     "schema": {
-      "$ref": "schemas.json#/queueMsgStatus"
+      "$ref": "schemas.json#/taskStatus"
     }
   },
   "cancelTaskStatus": {

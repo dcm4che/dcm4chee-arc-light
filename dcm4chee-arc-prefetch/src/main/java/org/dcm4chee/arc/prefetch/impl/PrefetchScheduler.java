@@ -55,6 +55,7 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.HL7PrefetchHistory;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -86,6 +87,9 @@ public class PrefetchScheduler {
     private RetrieveManager retrieveManager;
 
     @Inject
+    private TaskManager taskManager;
+
+    @Inject
     private HL7PrefetchHistory hl7PrefetchHistory;
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
@@ -115,6 +119,7 @@ public class PrefetchScheduler {
 
     private void prefetch(Socket sock, HL7Fields hl7Fields, HL7PrefetchRule rule, ArchiveDeviceExtension arcdev,
                           Calendar now, UnparsedHL7Message hl7Message) {
+        
         try {
             LOG.info("{}: Apply {}", sock, rule);
             Date notRetrievedAfter = new Date(
@@ -136,18 +141,27 @@ public class PrefetchScheduler {
             }
             IDWithIssuer pid = rule.ignoreAssigningAuthorityOfPatientID(idWithIssuer);
             String batchID = rule.getCommonName() + '[' + pid + ']';
+            int count = 0;
             if (rule.getEntitySelectors().length == 0) {
-                prefetch(pid, batchID, new Attributes(0), -1,
+                count = prefetch(pid, batchID, new Attributes(0), -1,
                         rule, arcdev, scheduledTime, notRetrievedAfter);
             } else {
                 for (EntitySelector selector : rule.getEntitySelectors()) {
-                    prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), selector.getNumberOfPriors(),
+                    count += prefetch(pid, batchID, selector.getQueryKeys(hl7Fields), selector.getNumberOfPriors(),
                             rule, arcdev, scheduledTime, notRetrievedAfter);
                 }
+            }
+            if (count > 0 && scheduledOnThisDevice(rule.getPrefetchDeviceName())
+                    && scheduledTime.getTime() <= now.getTimeInMillis()) {
+                taskManager.processQueue(rule.getQueueName());
             }
         } catch (Exception e) {
             LOG.warn("{}: Failed to apply {}:\n", sock, rule, e);
         }
+    }
+
+    private boolean scheduledOnThisDevice(String deviceName) {
+        return deviceName == null || deviceName.equals(device.getDeviceName());
     }
 
     private IDWithIssuer idWithIssuer(HL7PrefetchRule rule, String cx) {
@@ -163,15 +177,14 @@ public class PrefetchScheduler {
         return null;
     }
 
-    private void prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys, int numberOfPriors,
+    private int prefetch(IDWithIssuer pid, String batchID, Attributes queryKeys, int numberOfPriors,
             HL7PrefetchRule rule, ArchiveDeviceExtension arcdev, Date scheduledDate, Date notRetrievedAfter)
             throws Exception {
         Attributes keys = new Attributes(queryKeys.size() + 4);
         keys.addAll(queryKeys);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         if (keys.containsValue(Tag.StudyInstanceUID)) {
-            createRetrieveTasks(keys, rule, batchID, scheduledDate, notRetrievedAfter);
-            return;
+            return scheduleRetrieveTasks(keys, rule, batchID, scheduledDate, notRetrievedAfter);
         }
         keys.setString(Tag.PatientID, VR.LO, pid.getID());
         Issuer issuer = pid.getIssuer();
@@ -190,11 +203,14 @@ public class PrefetchScheduler {
                 matches.remove(0);
             } while (matches.size() > numberOfPriors);
         }
+        int count = 0;
         for (Attributes match : matches) {
             if (rule.getDestinationCFindSCP() == null
-                    || !isAvailableAt(match, localAE, rule.getDestinationCFindSCP()))
-                createRetrieveTasks(match, rule, batchID, scheduledDate, notRetrievedAfter);
+                    || !isAvailableAt(match, localAE, rule.getDestinationCFindSCP())) {
+                scheduleRetrieveTasks(match, rule, batchID, scheduledDate, notRetrievedAfter);
+            }
         }
+        return count;
     }
 
     private boolean isAvailableAt(Attributes match, ApplicationEntity localAE, String destinationCFindSCP)
@@ -206,15 +222,17 @@ public class PrefetchScheduler {
                     >= match.getInt(Tag.NumberOfStudyRelatedInstances, 0);
     }
 
-    private void createRetrieveTasks(Attributes keys, HL7PrefetchRule rule, String batchID,
-            Date scheduledDate, Date notRetrievedAfter) {
+    private int scheduleRetrieveTasks(Attributes keys, HL7PrefetchRule rule, String batchID,
+                                       Date scheduledDate, Date notRetrievedAfter) {
+        int count = 0;
         for (String destination : rule.getPrefetchCStoreSCPs()) {
-            createRetrieveTask(keys, rule, batchID, scheduledDate, notRetrievedAfter, destination);
+            count += scheduleRetrieveTask(keys, rule, batchID, scheduledDate, notRetrievedAfter, destination);
         }
+        return count;
     }
 
-    private void createRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID,
-            Date scheduledDate, Date notRetrievedAfter, String destination) {
+    private int scheduleRetrieveTask(Attributes keys, HL7PrefetchRule rule, String batchID,
+                                      Date scheduledDate, Date notRetrievedAfter, String destination) {
         ExternalRetrieveContext ctx = new ExternalRetrieveContext()
                 .setDeviceName(rule.getPrefetchDeviceName() == null
                                 ? device.getDeviceName() : rule.getPrefetchDeviceName())
@@ -224,10 +242,9 @@ public class PrefetchScheduler {
                 .setFindSCP(rule.getPrefetchCFindSCP())
                 .setRemoteAET(rule.getPrefetchCMoveSCP())
                 .setDestinationAET(destination)
-                .setPriority(rule.getPriority())
                 .setScheduledTime(scheduledDate)
                 .setKeys(new Attributes(keys, Tag.QueryRetrieveLevel, Tag.StudyInstanceUID));
-        retrieveManager.createRetrieveTask(ctx, notRetrievedAfter);
+        return retrieveManager.scheduleRetrieveTask(ctx, notRetrievedAfter);
     }
 
     private Calendar hl7PrefetchDateTime(

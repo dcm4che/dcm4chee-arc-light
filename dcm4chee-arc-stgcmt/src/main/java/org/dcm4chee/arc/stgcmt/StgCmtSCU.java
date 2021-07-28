@@ -46,7 +46,6 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,18 +54,16 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 public interface StgCmtSCU {
     String QUEUE_NAME = "StgCmtSCU";
 
-    void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor)
-            throws QueueSizeLimitExceededException;
+    void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor);
 
     void scheduleStorageCommit(
-            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel)
-            throws QueueSizeLimitExceededException;
+            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel);
 
     Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
-            String sopInstanceUID, String exporterID, String messageID, String batchID, Attributes actionInfo)
+            String sopInstanceUID, String exporterID, Long taskPK, String batchID, Attributes actionInfo)
             throws Exception;
 
     DimseRSP sendNActionRQ(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
-            String sopInstanceUID, String exporterID, String messageID, String batchID, Attributes actionInfo)
+            String sopInstanceUID, String exporterID, Long taskPK, String batchID, Attributes actionInfo)
             throws Exception;
 }

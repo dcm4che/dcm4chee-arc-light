@@ -50,10 +50,10 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.SeriesQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -131,7 +131,7 @@ public interface QueryService {
 
     Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae);
 
-    Attributes queryExportTaskInfo(ExportTask exportTask, ApplicationEntity ae);
+    Attributes queryExportTaskInfo(Task exportTask, ApplicationEntity ae);
 
     Attributes getStudyAttributes(String studyUID);
 

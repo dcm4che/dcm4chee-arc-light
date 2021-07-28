@@ -40,48 +40,28 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.QuoteMode;
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.IDeviceCache;
-import org.dcm4che3.conf.json.JsonReader;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
-import org.dcm4chee.arc.event.BulkQueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.event.QueueMessageOperation;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.ValidList;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonParser;
-import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -99,22 +79,7 @@ public class RetrieveTaskRS {
     private static final Logger LOG = LoggerFactory.getLogger(RetrieveTaskRS.class);
 
     @Inject
-    private RetrieveManager mgr;
-
-    @Inject
-    private Device device;
-
-    @Inject
-    private IDeviceCache deviceCache;
-
-    @Inject
-    private RSClient rsClient;
-
-    @Inject
-    private Event<QueueMessageEvent> queueMsgEvent;
-
-    @Inject
-    private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
+    private TaskManager taskManager;
 
     @Context
     private HttpServletRequest request;
@@ -122,11 +87,14 @@ public class RetrieveTaskRS {
     @Context
     private HttpHeaders httpHeaders;
 
+    @QueryParam("taskID")
+    private Long taskID;
+
     @QueryParam("dicomDeviceName")
     private String deviceName;
 
     @QueryParam("newDeviceName")
-    private String newDeviceName;
+    private List<String> newDeviceName;
 
     @QueryParam("LocalAET")
     private String localAET;
@@ -141,7 +109,7 @@ public class RetrieveTaskRS {
     private String studyIUID;
 
     @QueryParam("status")
-    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -151,6 +119,7 @@ public class RetrieveTaskRS {
     private String updatedTime;
 
     @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
     private String scheduledTime;
 
     @QueryParam("batchID")
@@ -170,7 +139,8 @@ public class RetrieveTaskRS {
     private String orderby;
 
     @QueryParam("dcmQueueName")
-    @ValidList(allowed = {"Retrieve1",
+    @ValidList(allowed = {
+            "Retrieve1",
             "Retrieve2",
             "Retrieve3",
             "Retrieve4",
@@ -218,12 +188,9 @@ public class RetrieveTaskRS {
             return notAcceptable();
 
         try {
-            return Response.ok(output.entity(mgr.listRetrieveTasks(
-                                    queueTaskQueryParam(status()),
-                                    retrieveTaskQueryParam(deviceName, updatedTime),
-                                    parseInt(offset),
-                                    parseInt(limit))),
-                            output.type)
+            return Response.ok(
+                    output.entity(taskManager, taskQueryParam(deviceName), parseInt(offset), parseInt(limit)),
+                    output.type)
                     .build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -237,31 +204,14 @@ public class RetrieveTaskRS {
     @Produces("application/json")
     public Response countRetrieveTasks() {
         logRequest();
-        try {
-            return count(mgr.countTasks(
-                    queueTaskQueryParam(status()),
-                    retrieveTaskQueryParam(deviceName, updatedTime)));
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return taskManager.countTasks(taskQueryParam(deviceName));
     }
 
     @POST
     @Path("{taskPK}/cancel")
-    public Response cancelRetrieveTask(@PathParam("taskPK") long pk) {
+    public Response cancelRetrieveTask(@PathParam("taskPK") long taskID) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        try {
-            return rsp(mgr.cancelRetrieveTask(pk, queueEvent), pk);
-        } catch (IllegalTaskStateException e) {
-            queueEvent.setException(e);
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.cancelTask(taskQueryParam(taskID), request);
     }
 
     @POST
@@ -269,111 +219,15 @@ public class RetrieveTaskRS {
     @Produces("application/json")
     public Response cancelRetrieveTasks() {
         logRequest();
-        QueueMessage.Status status = status();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-        if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
-            return errResponse("Cannot cancel tasks with status: " + status, Response.Status.BAD_REQUEST);
-
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        try {
-            LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
-            TaskQueryParam queueTaskQueryParam = queueTaskQueryParam(status);
-            queueTaskQueryParam.setUpdatedTime(updatedTime);
-            long count = mgr.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam(deviceName, null));
-            queueEvent.setCount(count);
-            return count(count);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.cancelTasks(taskQueryParam(deviceName), request);
     }
 
     @POST
-    @Path("{taskPK}/reschedule")
-    public Response rescheduleTask(@PathParam("taskPK") long pk) {
+    @Path("{taskID}/reschedule")
+    public Response rescheduleRetrieveTask(@PathParam("taskID") long taskID) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        try {
-            Tuple tuple = mgr.findDeviceNameAndLocalAETByPk(pk);
-            String taskDeviceName;
-            if ((taskDeviceName = (String) tuple.get(0)) == null)
-                return errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
-
-            if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-                return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
-
-            if (newDeviceName != null)
-                validateTaskAssociationInitiator((String) tuple.get(1), deviceCache.findDevice(newDeviceName));
-
-            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
-            if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-            mgr.rescheduleRetrieveTask(pk, newQueueName, queueEvent, scheduledTime());
-            return Response.noContent().build();
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    @POST
-    @Path("{taskPK}/mark4retrieve")
-    public Response markTaskForRetrieve(@PathParam("taskPK") long pk) {
-        logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        try {
-            Tuple tuple = mgr.findDeviceNameAndLocalAETByPk(pk);
-            String taskDeviceName;
-            if ((taskDeviceName = (String) tuple.get(0)) == null)
-                return errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
-
-            if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-                return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
-
-            if (newDeviceName != null)
-                validateTaskAssociationInitiator((String) tuple.get(1), deviceCache.findDevice(newDeviceName));
-
-            String devName = newDeviceName != null ? newDeviceName : taskDeviceName;
-            mgr.markTaskForRetrieve(pk, devName, newQueueName, queueEvent, scheduledTime());
-            return Response.noContent().build();
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    private Date scheduledTime() {
-        if (scheduledTime != null)
-            try {
-                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
-            } catch (Exception e) {
-                LOG.info(e.getMessage());
-            }
-        return null;
-    }
-
-    private boolean validateTaskAssociationInitiator(String localAET, Device device) throws ConfigurationException {
-        ApplicationEntity ae = device.getApplicationEntity(localAET, true);
-        if (ae == null || !ae.isInstalled())
-            throw new ConfigurationException("No such Application Entity " + localAET + " on new device: " + newDeviceName);
-
-        return true;
+        return taskManager.rescheduleRetrieveTask(taskQueryParam(taskID),
+                scheduledTime(), newDeviceName, newQueueName, request);
     }
 
     @POST
@@ -381,318 +235,22 @@ public class RetrieveTaskRS {
     @Produces("application/json")
     public Response rescheduleRetrieveTasks() {
         logRequest();
-        QueueMessage.Status status = status();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-
-        try {
-            if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-                return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
-
-            String devName = newDeviceName != null ? newDeviceName : deviceName;
-            if (devName != null && !devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-
-            return newDeviceName != null
-                    ? rescheduleValidTasks(queueTaskQueryParam(status), retrieveTaskQueryParam(null, updatedTime))
-                    : count(devName == null
-                        ? rescheduleOnDistinctDevices(status)
-                        : rescheduleTasks(
-                            queueTaskQueryParam(status),
-                            retrieveTaskQueryParam(devName, updatedTime)));
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private int rescheduleOnDistinctDevices(QueueMessage.Status status)
-            throws Exception {
-        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(retrieveTaskQueryParam(null, updatedTime));
-        int count = 0;
-        for (String devName : distinctDeviceNames)
-            count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(
-                            queueTaskQueryParam(status),
-                            retrieveTaskQueryParam(devName, updatedTime))
-                    : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
-        return count;
-    }
-
-    private int rescheduleTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        BulkQueueMessageEvent bulkMsgQueueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        try {
-            int rescheduled = 0;
-            int rescheduleTasksFetchSize = queueTasksFetchSize();
-            Date scheduledTime = scheduledTime();
-            do {
-                List<Long> retrieveTaskPks = mgr.listRetrieveTaskPks(
-                        queueTaskQueryParam, retrieveTaskQueryParam, rescheduleTasksFetchSize);
-                retrieveTaskPks.forEach(
-                        pk -> mgr.rescheduleRetrieveTask(
-                                pk,
-                                newQueueName,
-                                new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks),
-                                scheduledTime));
-
-                rescheduled += retrieveTaskPks.size();
-            } while (rescheduled >= rescheduleTasksFetchSize);
-            bulkMsgQueueEvent.setCount(rescheduled);
-            LOG.info("Rescheduled {} tasks on device {}", rescheduled, device.getDeviceName());
-            return rescheduled;
-        } catch (Exception e) {
-            bulkMsgQueueEvent.setException(e);
-            throw e;
-        } finally {
-            bulkQueueMsgEvent.fire(bulkMsgQueueEvent);
-        }
-    }
-
-    private Response rescheduleValidTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        int rescheduled = 0;
-        int failed = 0;
-        try {
-            int count = 0;
-            int rescheduleTaskFetchSize = queueTasksFetchSize();
-            Date scheduledTime = scheduledTime();
-            do {
-                List<Tuple> retrieveTaskTuples = mgr.listRetrieveTaskPkAndLocalAETs(
-                        queueTaskQueryParam, retrieveTaskQueryParam, rescheduleTaskFetchSize);
-                for (Tuple tuple : retrieveTaskTuples) {
-                    Long retrieveTaskPk = (Long) tuple.get(0);
-                    try {
-                        if (validateTaskAssociationInitiator((String) tuple.get(1), device)) {
-                            mgr.rescheduleRetrieveTask(
-                                    retrieveTaskPk,
-                                    newQueueName,
-                                    new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks),
-                                    scheduledTime);
-                            count++;
-                        }
-                    } catch (ConfigurationException e) {
-                        LOG.info("Validation of association initiator failed for Retrieve Task [pk={}] : {}",
-                                retrieveTaskPk, e.getMessage());
-                        failed++;
-                    }
-                }
-                rescheduled += count;
-            } while (count >= rescheduleTaskFetchSize);
-            queueEvent.setCount(rescheduled);
-            LOG.info("Rescheduled {} Retrieve tasks on device {}", rescheduled, device.getDeviceName());
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            throw e;
-        } finally {
-            queueEvent.setFailed(failed);
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-
-        if (failed == 0)
-            return count(rescheduled);
-
-        LOG.info("Failed to reschedule {} Retrieve tasks on device {}", failed, device.getDeviceName());
-        return rescheduled > 0
-                ? accepted(rescheduled, failed)
-                : conflict(failed);
-    }
-
-    @POST
-    @Path("/mark4retrieve")
-    @Produces("application/json")
-    public Response markForRetrieveTasks() {
-        logRequest();
-        QueueMessage.Status status = status();
-        if (status == null)
-            return errResponse("Missing query parameter: status", Response.Status.BAD_REQUEST);
-
-        if (status == QueueMessage.Status.TO_SCHEDULE)
-            return errResponse("Cannot mark tasks for retrieve with status: " + status, Response.Status.FORBIDDEN);
-
-        try {
-            if (newQueueName != null && arcDev().getQueueDescriptor(newQueueName) == null)
-                return errResponse("No such Queue : " + newQueueName, Response.Status.NOT_FOUND);
-
-            String devName = newDeviceName != null ? newDeviceName : deviceName;
-            if (devName != null && !devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, devName, "");
-
-            return newDeviceName != null
-                    ? markValidTasksForRetrieve(
-                            queueTaskQueryParam(status), retrieveTaskQueryParam(null, updatedTime), newDeviceName)
-                    : count(devName == null
-                        ? markForRetrieveOnDistinctDevices(status)
-                        : markTasksForRetrieve(
-                                queueTaskQueryParam(status), retrieveTaskQueryParam(devName, updatedTime), devName));
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private Response markValidTasksForRetrieve(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam,
-                                               String devName) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.MarkTasksForScheduling);
-        int markedForRetrieve = 0;
-        int failed = 0;
-        try {
-            int count = 0;
-            int markForRetrieveTaskFetchSize = queueTasksFetchSize();
-            Date scheduledTime = scheduledTime();
-            do {
-                List<Tuple> retrieveTaskTuples = mgr.listRetrieveTaskPkAndLocalAETs(
-                        queueTaskQueryParam, retrieveTaskQueryParam, markForRetrieveTaskFetchSize);
-                for (Tuple tuple : retrieveTaskTuples) {
-                    Long retrieveTaskPk = (Long) tuple.get(0);
-                    String localAET = (String) tuple.get(1);
-                    try {
-                        if (validateTaskAssociationInitiator(localAET, deviceCache.findDevice(devName))) {
-                            mgr.markTaskForRetrieve(retrieveTaskPk, devName, newQueueName, null, scheduledTime);
-                            count++;
-                        }
-                    } catch (ConfigurationException e) {
-                        LOG.info("Validation of association initiator failed for Retrieve Task [pk={}, localAET={}] on device {} : {}",
-                                retrieveTaskPk, localAET, devName, e.getMessage());
-                        failed++;
-                    }
-                }
-                markedForRetrieve += count;
-            } while (count >= markForRetrieveTaskFetchSize);
-            queueEvent.setCount(markedForRetrieve);
-            LOG.info("Marked {} tasks for retrieve on device {}", markedForRetrieve, devName);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            throw e;
-        } finally {
-            queueEvent.setFailed(failed);
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-
-        if (failed == 0)
-            return count(markedForRetrieve);
-
-        LOG.info("Failed to mark {} tasks for retrieve on device {}", failed, device.getDeviceName());
-        return markedForRetrieve > 0
-                ? accepted(markedForRetrieve, failed)
-                : conflict(failed);
-    }
-
-    private int markForRetrieveOnDistinctDevices(QueueMessage.Status status) {
-        List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(retrieveTaskQueryParam(null, updatedTime));
-        int count = 0;
-        for (String devName : distinctDeviceNames)
-            count += markTasksForRetrieve(
-                        queueTaskQueryParam(status),
-                        retrieveTaskQueryParam(devName, updatedTime),
-                        devName);
-
-        return count;
-    }
-
-    private int markTasksForRetrieve(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, String devName) {
-        BulkQueueMessageEvent bulkMsgQueueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.MarkTasksForScheduling);
-        try {
-            int markedForRetrieve = 0;
-            int markTasksForRetrieveFetchSize = queueTasksFetchSize();
-            Date scheduledTime = scheduledTime();
-            do {
-                List<Long> retrieveTaskPks = mgr.listRetrieveTaskPks(
-                        queueTaskQueryParam, retrieveTaskQueryParam, markTasksForRetrieveFetchSize);
-                retrieveTaskPks.forEach(pk -> mgr.markTaskForRetrieve(pk, devName, newQueueName, null, scheduledTime));
-
-                markedForRetrieve += retrieveTaskPks.size();
-            } while (markedForRetrieve >= markTasksForRetrieveFetchSize);
-            bulkMsgQueueEvent.setCount(markedForRetrieve);
-            LOG.info("Marked {} tasks for retrieve on device {}", markedForRetrieve, devName);
-            return markedForRetrieve;
-        } catch (Exception e) {
-            bulkMsgQueueEvent.setException(e);
-            throw e;
-        } finally {
-            bulkQueueMsgEvent.fire(bulkMsgQueueEvent);
-        }
+        return taskManager.rescheduleRetrieveTasks(taskQueryParam(deviceName),
+                scheduledTime(), newDeviceName, newQueueName, request);
     }
 
     @DELETE
     @Path("/{taskPK}")
-    public Response deleteTask(@PathParam("taskPK") long pk) {
+    public Response deleteTask(@PathParam("taskPK") long taskID) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        try {
-            return rsp(mgr.deleteRetrieveTask(pk, queueEvent), pk);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            queueMsgEvent.fire(queueEvent);
-        }
+        return taskManager.deleteTask(taskQueryParam(taskID), request);
     }
 
     @DELETE
     @Produces("application/json")
     public Response deleteTasks() {
         logRequest();
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        try {
-            int deleted = 0;
-            int count;
-            int deleteTasksFetchSize = queueTasksFetchSize();
-            do {
-                count = mgr.deleteTasks(
-                        queueTaskQueryParam(status()),
-                        retrieveTaskQueryParam(deviceName, updatedTime),
-                        deleteTasksFetchSize);
-                deleted += count;
-            } while (count >= deleteTasksFetchSize);
-            queueEvent.setCount(deleted);
-            return Response.ok("{\"deleted\":" + deleted + '}').build();
-        } catch (IllegalStateException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            queueEvent.setException(e);
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            bulkQueueMsgEvent.fire(queueEvent);
-        }
-    }
-
-    private Response rsp(boolean result, long pk) {
-        return result
-                ? Response.noContent().build()
-                : errResponse("No such Retrieve Task : " + pk, Response.Status.NOT_FOUND);
-    }
-
-    private Response count(long count) {
-        return Response.ok("{\"count\":" + count + '}').build();
-    }
-
-    private Response accepted(int rescheduled, int failed) {
-        return Response.accepted("{\"count\":" + rescheduled + ", \"failed\":" + failed + '}').build();
-    }
-
-    private Response conflict(int failed) {
-        return Response.status(Response.Status.CONFLICT).entity("{\"failed\":" + failed + '}').build();
-    }
-
-    private int count(Response response, String devName) {
-        int count = 0;
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            JsonParser parser = Json.createParser(new StringReader(response.readEntity(String.class)));
-            JsonReader reader = new JsonReader(parser);
-            reader.next();
-            reader.expect(JsonParser.Event.START_OBJECT);
-            while (reader.next() == JsonParser.Event.KEY_NAME)
-                count = reader.intValue();
-            LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
-        } else {
-            LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
-                    devName, response.getStatus(), response.getEntity());
-        }
-        return count;
+        return taskManager.deleteTasks(taskQueryParam(deviceName), request);
     }
 
     private Output selectMediaType(List<String> accept) {
@@ -707,36 +265,14 @@ public class RetrieveTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final Iterator<RetrieveTask> tasks) {
-                return (StreamingOutput) out -> {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    gen.writeStartArray();
-                    tasks.forEachRemaining(task -> task.writeAsJSONTo(gen));
-                    gen.writeEnd();
-                    gen.flush();
-                };
+            Object entity(TaskManager taskManager, TaskQueryParam taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsJSON(taskQueryParam, offset, limit);
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final Iterator<RetrieveTask> tasks) {
-                return (StreamingOutput) out -> {
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
-                            .withHeader(RetrieveTask.header)
-                            .withDelimiter(delimiter)
-                            .withQuoteMode(QuoteMode.ALL));
-                    tasks.forEachRemaining(task -> writeTaskToCSV(printer, task));
-                    writer.flush();
-                };
-            }
-
-            private void writeTaskToCSV(CSVPrinter printer, RetrieveTask task) {
-                try {
-                    task.printRecord(printer);
-                } catch (IOException e) {
-                    LOG.warn("{}", e);
-                }
+            Object entity(TaskManager taskManager, TaskQueryParam taskQueryParam, int offset, int limit) {
+                return taskManager.writeAsCSV(taskQueryParam, offset, limit, Task.RETRIEVE_CSV_HEADERS, delimiter);
             }
         };
 
@@ -756,17 +292,13 @@ public class RetrieveTaskRS {
         private static boolean isCSV(MediaType type) {
             boolean csvCompatible = MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type);
             delimiter = csvCompatible
-                    && type.getParameters().keySet().contains("delimiter")
+                    && type.getParameters().containsKey("delimiter")
                     && type.getParameters().get("delimiter").equals("semicolon")
                     ? ';' : ',';
             return csvCompatible;
         }
 
-        abstract Object entity(final Iterator<RetrieveTask> tasks);
-    }
-
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
+        abstract Object entity(TaskManager taskManager, TaskQueryParam taskQueryParam, int offset, int limit);
     }
 
     private Response notAcceptable() {
@@ -791,8 +323,8 @@ public class RetrieveTaskRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private Response errResponse(String msg, Response.Status status) {
-        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    private Date scheduledTime() {
+        return scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : null;
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
@@ -808,35 +340,31 @@ public class RetrieveTaskRS {
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
-    
-    private int queueTasksFetchSize() {
-        return arcDev().getQueueTasksFetchSize();
-    }
 
-    private ArchiveDeviceExtension arcDev() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-    }
-
-    private TaskQueryParam queueTaskQueryParam(QueueMessage.Status status) {
+    private TaskQueryParam taskQueryParam(String deviceName) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam retrieveTaskQueryParam(String deviceName, String updatedTime) {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setQueueName(dcmQueueName.stream()
-                                    .flatMap(queueName -> Stream.of(StringUtils.split(queueName, ',')))
-                                    .collect(Collectors.toList()));
-        taskQueryParam.setLocalAET(localAET);
-        taskQueryParam.setRemoteAET(remoteAET);
+        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
-        taskQueryParam.setDestinationAET(destinationAET);
-        taskQueryParam.setStudyIUID(studyIUID);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.RETRIEVE);
+        taskQueryParam.setQueueNames(dcmQueueName.stream()
+                .flatMap(queueName -> Stream.of(StringUtils.split(queueName, ',')))
+                .collect(Collectors.toList()));
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setRemoteAET(remoteAET);
+        taskQueryParam.setStudyIUID(studyIUID);
+        taskQueryParam.setDestinationAET(destinationAET);
+        return taskQueryParam;
+    }
+
+    private TaskQueryParam taskQueryParam(Long taskID) {
+        TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setTaskPK(taskID);
+        taskQueryParam.setType(Task.Type.RETRIEVE);
         return taskQueryParam;
     }
 }

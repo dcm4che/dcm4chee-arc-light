@@ -307,7 +307,7 @@ export class DiffMonitorComponent implements OnInit {
     }
     action(mode, match){
         console.log("in action",mode,"match",match);
-        if(mode && match && match.pk){
+        if(mode && match && match.taskID){
             this.confirm({
                 content: $localize `:@@action_task_question:Are you sure you want to ${Globalvar.getActionText(mode)} this task?`
             }).subscribe(ok => {
@@ -321,7 +321,7 @@ export class DiffMonitorComponent implements OnInit {
                                         if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                             filter["newDeviceName"] = res.schema_model.newDeviceName;
                                         }
-                                        this.service.reschedule(match.pk, filter)
+                                        this.service.reschedule(match.taskID, filter)
                                             .subscribe(
                                                 (res) => {
                                                     this.getDiffTasks(this.filterObject['offset'] || 0);
@@ -338,7 +338,7 @@ export class DiffMonitorComponent implements OnInit {
                         break;
                         case 'delete':
                             this.cfpLoadingBar.start();
-                            this.service.delete(match.pk)
+                            this.service.delete(match.taskID)
                                 .subscribe(
                                     (res) => {
                                         // match.properties.status = 'CANCELED';
@@ -353,7 +353,7 @@ export class DiffMonitorComponent implements OnInit {
                         break;
                         case 'cancel':
                             this.cfpLoadingBar.start();
-                            this.service.cancel(match.pk)
+                            this.service.cancel(match.taskID)
                                 .subscribe(
                                     (res) => {
                                         match.status = $localize `:@@CANCELED:CANCELED`;

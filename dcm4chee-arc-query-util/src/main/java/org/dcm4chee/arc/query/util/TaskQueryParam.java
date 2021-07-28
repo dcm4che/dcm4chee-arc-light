@@ -40,8 +40,8 @@
 
 package org.dcm4chee.arc.query.util;
 
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.entity.Task;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,16 +49,20 @@ import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
  * @since Mar 2019
  */
 public class TaskQueryParam {
 
-    private List<String> queueName = new ArrayList<>();
+    private Long taskPK;
+    private List<String> queueNames = new ArrayList<>();
     private String deviceName;
-    private QueueMessage.Status status;
+    private Task.Type type;
+    private Task.Type notType;
+    private Task.Status status;
+    private Task.Status notStatus;
     private StgCmtResult.Status stgCmtStatus;
     private String batchID;
-    private String jmsMessageID;
     private String createdTime;
     private String updatedTime;
     private Date updatedBefore;
@@ -75,12 +79,20 @@ public class TaskQueryParam {
     private List<String> exporterIDs = new ArrayList<>();
     private String stgCmtExporterID;
 
-    public List<String> getQueueName() {
-        return queueName;
+    public Long getTaskPK() {
+        return taskPK;
     }
 
-    public void setQueueName(List<String> queueNames) {
-        this.queueName = queueNames;
+    public void setTaskPK(Long taskPK) {
+        this.taskPK = taskPK;
+    }
+
+    public List<String> getQueueNames() {
+        return queueNames;
+    }
+
+    public void setQueueNames(List<String> queueNames) {
+        this.queueNames = queueNames;
     }
 
     public String getDeviceName() {
@@ -91,11 +103,39 @@ public class TaskQueryParam {
         this.deviceName = deviceName;
     }
 
-    public QueueMessage.Status getStatus() {
+    public Task.Type getNotType() {
+        return notType;
+    }
+
+    public void setNotType(Task.Type notType) {
+        this.notType = notType;
+    }
+
+    public Task.Status getNotStatus() {
+        return notStatus;
+    }
+
+    public void setNotStatus(Task.Status notStatus) {
+        this.notStatus = notStatus;
+    }
+
+    public Task.Type getType() {
+        return type;
+    }
+
+    public void setType(Task.Type type) {
+        this.type = type;
+    }
+
+    public Task.Status getStatus() {
         return status;
     }
 
-    public void setStatus(QueueMessage.Status status) {
+    public void setStatus(String status) {
+        this.status = status != null ? Task.Status.fromString(status) : null;
+    }
+
+    public void setStatus(Task.Status status) {
         this.status = status;
     }
 
@@ -105,14 +145,6 @@ public class TaskQueryParam {
 
     public void setBatchID(String batchID) {
         this.batchID = batchID;
-    }
-
-    public String getJmsMessageID() {
-        return jmsMessageID;
-    }
-
-    public void setJmsMessageID(String jmsMessageID) {
-        this.jmsMessageID = jmsMessageID;
     }
 
     public String getCreatedTime() {
@@ -243,5 +275,12 @@ public class TaskQueryParam {
         this.stgCmtExporterID = stgCmtExporterID;
     }
 
-
+    @Override
+    public String toString() {
+        return "TaskQueryParam{" +
+                "status=" + status +
+                ", type=" + type +
+                ", queueName=" + String.join(";", queueNames) +
+                "}";
+    }
 }

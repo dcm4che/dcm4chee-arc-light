@@ -239,6 +239,7 @@ public class ExportPriorsScheduler {
         queryCtx.setPatientIDs(pid);
         queryCtx.setQueryKeys(queryKeys);
         queryCtx.setOrderByTags(Collections.singletonList(OrderByTag.desc(Tag.StudyDate)));
+        Date scheduledTime = new Date();
         int remaining = numberOfPriors;
         try (Query query = queryService.createStudyQuery(queryCtx)) {
             query.executeQuery(arcdev.getQueryFetchSize());
@@ -246,8 +247,10 @@ public class ExportPriorsScheduler {
                 Attributes match = query.nextMatch();
                 String suid;
                 if (match != null && !(suid = match.getString(Tag.StudyInstanceUID)).equals(receivedStudyUID)) {
-                    exporters.forEach(exporter ->
-                        exportManager.scheduleStudyExport(suid, exporter, notExportedAfter, batchID));
+                    for (ExporterDescriptor exporter : exporters) {
+                        exportManager.scheduleStudyExport(suid, exporter,
+                                notExportedAfter, batchID, scheduledTime);
+                    }
                     --remaining;
                 }
             }

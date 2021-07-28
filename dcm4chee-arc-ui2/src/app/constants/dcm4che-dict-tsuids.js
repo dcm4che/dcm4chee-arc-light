@@ -13,6 +13,7 @@ DCM4CHE.TransferSyntax = (function (dictionary) {
 }({
 "1.2.840.10008.1.2":"Implicit VR Little Endian",
 "1.2.840.10008.1.2.1":"Explicit VR Little Endian",
+"1.2.840.10008.1.2.1.98":"Encapsulated Uncompressed Explicit VR Little Endian",
 "1.2.840.10008.1.2.1.99":"Deflated Explicit VR Little Endian",
 "1.2.840.10008.1.2.2":"Explicit VR Big Endian (Retired)",
 "1.2.840.10008.1.2.4.50":"JPEG Baseline (Process 1)",

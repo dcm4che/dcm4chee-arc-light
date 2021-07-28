@@ -50,16 +50,14 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ExportPriorsRule;
 import org.dcm4chee.arc.conf.MPPSForwardRule;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.mpps.MPPSContext;
+import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.mpps.MPPSContext;
-import org.dcm4chee.arc.mpps.scu.MPPSSCU;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,13 +65,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,7 +83,7 @@ class MPPSSCUImpl implements MPPSSCU {
     private static final Logger LOG = LoggerFactory.getLogger(MPPSSCUImpl.class);
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     @Inject
     private Device device;
@@ -127,16 +122,22 @@ class MPPSSCUImpl implements MPPSSCU {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(patAttrs);
         for (String remoteAET : remoteAETs) {
             try {
-                ObjectMessage msg = queueManager.createObjectMessage(ctx.getAttributes());
-                msg.setStringProperty("LocalAET", ctx.getLocalApplicationEntity().getAETitle());
-                msg.setStringProperty("RemoteAET", remoteAET);
-                msg.setStringProperty("DIMSE", ctx.getDimse().name());
-                msg.setStringProperty("SOPInstanceUID", ctx.getSopInstanceUID());
-                msg.setStringProperty("AccessionNumber", ssAttrs.getString(Tag.AccessionNumber));
-                msg.setStringProperty("StudyInstanceUID", ssAttrs.getString(Tag.StudyInstanceUID));
-                msg.setStringProperty("PatientID", idWithIssuer != null ? idWithIssuer.toString() : null);
-                msg.setStringProperty("PatientName", patAttrs.getString(Tag.PatientName));
-                queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
+                Task task = new Task();
+                task.setDeviceName(device.getDeviceName());
+                task.setQueueName(QUEUE_NAME);
+                task.setScheduledTime(new Date());
+                task.setLocalAET(ctx.getLocalApplicationEntity().getAETitle());
+                task.setType(Task.Type.MPPS);
+                task.setRemoteAET(remoteAET);
+                task.setDIMSE(ctx.getDimse().name());
+                task.setSOPInstanceUID(ctx.getSopInstanceUID());
+                task.setAccessionNumber(ssAttrs.getString(Tag.AccessionNumber));
+                task.setStudyInstanceUID(ssAttrs.getString(Tag.StudyInstanceUID));
+                task.setPatientID(idWithIssuer != null ? idWithIssuer.toString() : null);
+                task.setPatientName(patAttrs.getString(Tag.PatientName));
+                task.setPayload(ctx.getAttributes());
+                task.setStatus(Task.Status.SCHEDULED);
+                taskManager.scheduleTask(task);
             } catch (Exception e) {
                 LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}",
                         ctx.getDimse(), ctx.getSopInstanceUID(), remoteAET, e);
@@ -183,10 +184,10 @@ class MPPSSCUImpl implements MPPSSCU {
             String warning = "Forward " + dimse + " MPPS[uid=" + sopInstanceUID + "] to AE: " + remoteAET
                     + " failed with error status: " + Integer.toHexString(status) + 'H';
             pCtx.setOutcomeMsg(warning);
-            return new Outcome(QueueMessage.Status.WARNING, warning);
+            return new Outcome(Task.Status.WARNING, warning);
         }
 
-        return new Outcome(QueueMessage.Status.COMPLETED,
+        return new Outcome(Task.Status.COMPLETED,
                     "Forward " + dimse +  " MPPS[uid=" + sopInstanceUID + "] to AE: " + remoteAET);
     }
 

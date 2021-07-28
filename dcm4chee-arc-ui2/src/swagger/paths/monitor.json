@@ -159,6 +159,9 @@
           "$ref": "../parameters.json#/accept"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -168,7 +171,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -228,7 +231,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -262,7 +265,7 @@
       "operationId": "deleteExportTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -287,6 +290,9 @@
       "operationId": "countExportTasks",
       "parameters": [
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -296,7 +302,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -330,7 +336,7 @@
       "operationId": "cancelExportTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -397,14 +403,11 @@
       "tags": [
         "MONITOR-RS"
       ],
-      "summary": "Reschedule Export Task to potential different Exporter",
+      "summary": "Reschedule Export Task",
       "operationId": "rescheduleExportTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/newExporterIDPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
@@ -426,16 +429,16 @@
       }
     }
   },
-  "exportTaskMark4Export": {
+  "exportTaskRescheduleExporter": {
     "post": {
       "tags": [
         "MONITOR-RS"
       ],
-      "summary": "Mark Task for Export to potential different Exporter",
-      "operationId": "mark4ExportTask",
+      "summary": "Reschedule Export Task to potential different Exporter",
+      "operationId": "rescheduleExportTaskToExporter",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newExporterIDPathParam"
@@ -472,7 +475,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/ExporterIDs"
@@ -481,7 +484,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -524,7 +527,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/ExporterIDs"
@@ -533,7 +536,7 @@
           "$ref": "../parameters.json#/StudyInstanceUID"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -564,116 +567,6 @@
       }
     }
   },
-  "mark4Export": {
-    "post": {
-      "tags": [
-        "MONITOR-RS"
-      ],
-      "summary": "Mark Tasks for Export to original Exporter",
-      "operationId": "markTasks4Export",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/dicomDeviceName"
-        },
-        {
-          "$ref": "../parameters.json#/newDeviceNames"
-        },
-        {
-          "$ref": "../parameters.json#/ExporterIDs"
-        },
-        {
-          "$ref": "../parameters.json#/StudyInstanceUID"
-        },
-        {
-          "$ref": "../parameters.json#/queueMsgStatus"
-        },
-        {
-          "$ref": "../parameters.json#/createdTime"
-        },
-        {
-          "$ref": "../parameters.json#/updatedTime"
-        },
-        {
-          "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/scheduledTime"
-        }
-      ],
-      "responses": {
-        "200": {
-          "$ref": "../responses.json#/countResults"
-        },
-        "400": {
-          "description": "Missing status or dicom device name or Validation for one of the query parameters failed."
-        },
-        "403": {
-          "description": "Cannot mark tasks for export with status TO SCHEDULE."
-        },
-        "500": {
-          "description": "Internal Server Error"
-        }
-      }
-    }
-  },
-  "mark4ExportOnExporter": {
-    "post": {
-      "tags": [
-        "MONITOR-RS"
-      ],
-      "summary": "Mark Tasks for Export to potential different Exporter",
-      "operationId": "markTasks4ExportToExporter",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/newExporterIDPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/dicomDeviceName"
-        },
-        {
-          "$ref": "../parameters.json#/newDeviceNames"
-        },
-        {
-          "$ref": "../parameters.json#/ExporterIDs"
-        },
-        {
-          "$ref": "../parameters.json#/StudyInstanceUID"
-        },
-        {
-          "$ref": "../parameters.json#/queueMsgStatus"
-        },
-        {
-          "$ref": "../parameters.json#/createdTime"
-        },
-        {
-          "$ref": "../parameters.json#/updatedTime"
-        },
-        {
-          "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/scheduledTime"
-        }
-      ],
-      "responses": {
-        "200": {
-          "$ref": "../responses.json#/countResults"
-        },
-        "400": {
-          "description": "Missing status or dicom device name or Validation for one of the query parameters failed."
-        },
-        "403": {
-          "description": "Cannot mark tasks for export with status TO SCHEDULE."
-        },
-        "404": {
-          "description": "New Exporter configuration not found"
-        },
-        "500": {
-          "description": "Internal Server Error"
-        }
-      }
-    }
-  },
   "exportBatch": {
     "get": {
       "tags": [
@@ -689,7 +582,7 @@
           "$ref": "../parameters.json#/ExporterIDs"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -742,6 +635,9 @@
           "$ref": "../parameters.json#/accept"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -760,7 +656,7 @@
           "$ref": "../parameters.json#/dcmQueueName"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -829,7 +725,7 @@
           "$ref": "../parameters.json#/dcmQueueName"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -863,7 +759,7 @@
       "operationId": "deleteRetrieveTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -888,6 +784,9 @@
       "operationId": "countRetrieveTasks",
       "parameters": [
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -906,7 +805,7 @@
           "$ref": "../parameters.json#/dcmQueueName"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -940,7 +839,7 @@
       "operationId": "cancelRetrieveTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1020,44 +919,7 @@
       "operationId": "rescheduleRetrieveTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/newDeviceName"
-        },
-        {
-          "$ref": "../parameters.json#/scheduledTime"
-        },
-        {
-          "$ref": "../parameters.json#/newQueueName"
-        }
-      ],
-      "responses": {
-        "204": {
-          "description": "successful operation"
-        },
-        "404": {
-          "description": "No such task"
-        },
-        "409": {
-          "description": "Validation of task referring an Archive AE failed. Configuration not available on new device."
-        },
-        "500": {
-          "description": "Internal Server Error"
-        }
-      }
-    }
-  },
-  "retrieveTaskMark4Retrieve": {
-    "post": {
-      "tags": [
-        "MONITOR-RS"
-      ],
-      "summary": "Mark Task for Retrieve",
-      "operationId": "mark4RetrieveTask",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
@@ -1097,7 +959,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/StudyInstanceUID"
@@ -1118,7 +980,7 @@
           "$ref": "../parameters.json#/newQueueName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1142,79 +1004,6 @@
         },
         "400": {
           "description": "Missing status or Validation for one of the query parameters failed."
-        },
-        "404": {
-          "description": "New queue configuration not found"
-        },
-        "409": {
-          "$ref": "../responses.json#/failed"
-        },
-        "500": {
-          "description": "Internal Server Error"
-        }
-      }
-    }
-  },
-  "mark4retrieve": {
-    "post": {
-      "tags": [
-        "MONITOR-RS"
-      ],
-      "summary": "Mark Tasks for Retrieve",
-      "operationId": "markTasksForRetrieve",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/dicomDeviceName"
-        },
-        {
-          "$ref": "../parameters.json#/newDeviceName"
-        },
-        {
-          "$ref": "../parameters.json#/StudyInstanceUID"
-        },
-        {
-          "$ref": "../parameters.json#/localAET"
-        },
-        {
-          "$ref": "../parameters.json#/remoteAET"
-        },
-        {
-          "$ref": "../parameters.json#/destination"
-        },
-        {
-          "$ref": "../parameters.json#/dcmQueueName"
-        },
-        {
-          "$ref": "../parameters.json#/newQueueName"
-        },
-        {
-          "$ref": "../parameters.json#/queueMsgStatus"
-        },
-        {
-          "$ref": "../parameters.json#/createdTime"
-        },
-        {
-          "$ref": "../parameters.json#/updatedTime"
-        },
-        {
-          "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/scheduledTime"
-        }
-      ],
-      "responses": {
-        "200": {
-          "$ref": "../responses.json#/countResults"
-        },
-        "202": {
-          "$ref": "../responses.json#/accepted"
-        },
-        "400": {
-          "description": "Missing status or Validation for one of the query parameters failed."
-        },
-        "403": {
-          "description": "Cannot mark tasks for retrieve with status TO SCHEDULE"
         },
         "404": {
           "description": "New queue configuration not found"
@@ -1240,7 +1029,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/status"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -1305,6 +1094,9 @@
           "$ref": "../parameters.json#/accept"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -1314,7 +1106,7 @@
           "$ref": "../parameters.json#/localAET"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1374,7 +1166,7 @@
           "$ref": "../parameters.json#/localAET"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1408,7 +1200,7 @@
       "operationId": "deleteStorageVerificationTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1433,6 +1225,9 @@
       "operationId": "countStorageVerificationTasks",
       "parameters": [
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -1442,7 +1237,7 @@
           "$ref": "../parameters.json#/localAET"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1476,7 +1271,7 @@
       "operationId": "cancelStorageVerificationTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1547,7 +1342,7 @@
       "operationId": "rescheduleStorageVerificationTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
@@ -1581,7 +1376,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/StudyInstanceUID"
@@ -1590,7 +1385,7 @@
           "$ref": "../parameters.json#/localAET"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1633,7 +1428,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -1689,6 +1484,9 @@
           "$ref": "../parameters.json#/accept"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -1710,7 +1508,7 @@
           "$ref": "../parameters.json#/comparefield"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1782,7 +1580,7 @@
           "$ref": "../parameters.json#/comparefield"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1816,7 +1614,7 @@
       "operationId": "deleteCompareStudiesTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1841,6 +1639,9 @@
       "operationId": "countCompareStudiesTasks",
       "parameters": [
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
@@ -1862,7 +1663,7 @@
           "$ref": "../parameters.json#/comparefield"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -1896,7 +1697,7 @@
       "operationId": "cancelCompareStudiesTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         }
       ],
       "responses": {
@@ -1979,7 +1780,7 @@
       "operationId": "rescheduleCompareStudiesTask",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
@@ -2013,7 +1814,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/newDeviceName"
+          "$ref": "../parameters.json#/newDeviceNames"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -2034,7 +1835,7 @@
           "$ref": "../parameters.json#/comparefield"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2074,7 +1875,7 @@
       "operationId": "getCompareStudiesTaskResult",
       "parameters": [
         {
-          "$ref": "../parameters.json#/taskPkPathParam"
+          "$ref": "../parameters.json#/taskIDPathParam"
         },
         {
           "$ref": "../parameters.json#/offset"
@@ -2098,7 +1899,7 @@
           "description": "no matching study found at primary C-FIND SCP"
         },
         "404": {
-          "description": "no task with specified taskPK"
+          "description": "no task with specified taskID"
         },
         "500": {
           "description": "Internal Server Error"
@@ -2118,7 +1919,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -2192,7 +1993,7 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/localAET"
@@ -2217,9 +2018,6 @@
         },
         {
           "$ref": "../parameters.json#/updatedTime"
-        },
-        {
-          "$ref": "../parameters.json#/batchID"
         },
         {
           "$ref": "../parameters.json#/offset"
@@ -2260,16 +2058,16 @@
           "$ref": "../parameters.json#/queuePathParam"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/JMSMessageID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2289,11 +2087,11 @@
       ],
       "responses": {
         "200": {
-          "description": "Queue Messages",
+          "description": "Tasks in Queue",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas.json#/messageList"
+                "$ref": "../schemas.json#/taskList"
               }
             }
           }
@@ -2323,13 +2121,13 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/batchID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2366,16 +2164,16 @@
           "$ref": "../parameters.json#/queuePathParam"
         },
         {
+          "$ref": "../parameters.json#/taskID"
+        },
+        {
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/JMSMessageID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2421,7 +2219,7 @@
           "$ref": "../parameters.json#/batchID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"
@@ -2498,13 +2296,13 @@
           "$ref": "../parameters.json#/newDeviceName"
         },
         {
-          "$ref": "../parameters.json#/queueMsgStatus"
+          "$ref": "../parameters.json#/taskStatus"
         },
         {
           "$ref": "../parameters.json#/batchID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/createdTime"

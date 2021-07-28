@@ -44,7 +44,6 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -57,7 +56,7 @@ public interface HL7Sender {
     void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                          String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
                          HttpServletRequestInfo httpServletRequestInfo)
-            throws ConfigurationException, QueueSizeLimitExceededException;
+            throws ConfigurationException;
 
     UnparsedHL7Message sendMessage(HL7Application sender, String receivingApplication, String receivingFacility,
                                    String messageType, String messageControlID, UnparsedHL7Message hl7msg)

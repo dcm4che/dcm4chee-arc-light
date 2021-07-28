@@ -41,7 +41,8 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Code;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
@@ -52,11 +53,10 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.impl.StoreServiceEJB;
 import org.slf4j.Logger;
@@ -64,10 +64,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -111,7 +107,7 @@ public class DeletionServiceEJB {
     private QueryService queryService;
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     public List<Location> findLocationsWithStatus(String storageID, Location.Status status, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
@@ -727,26 +723,30 @@ public class DeletionServiceEJB {
     }
 
     public void scheduleStudyRejectTasks(
-            String aet, List<String> studyUIDs, Code code, HttpServletRequestInfo httpRequestInfo, String batchID)
-            throws QueueSizeLimitExceededException {
+            String aet, List<String> studyUIDs, Code code, HttpServletRequestInfo httpRequestInfo, String batchID) {
         for (String studyUID : studyUIDs)
             scheduleRejection(aet, studyUID, null, null, code, httpRequestInfo, batchID);
     }
 
     public void scheduleRejection(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
-                                  HttpServletRequestInfo httpRequest, String batchID)
-            throws QueueSizeLimitExceededException {
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage("");
-            msg.setStringProperty("LocalAET", aet);
-            msg.setStringProperty("StudyInstanceUID", studyIUID);
-            msg.setStringProperty("SeriesInstanceUID", seriesIUID);
-            msg.setStringProperty("SOPInstanceUID", sopIUID);
-            msg.setStringProperty("Code", code.toString());
-            httpRequest.copyTo(msg);
-            queueManager.scheduleMessage(RejectionService.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, batchID, 0L);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+                                  HttpServletRequestInfo httpRequest, String batchID) {
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueName(RejectionService.QUEUE_NAME);
+        task.setType(Task.Type.REJECT);
+        task.setScheduledTime(new Date());
+        task.setLocalAET(aet);
+        task.setStudyInstanceUID(studyIUID);
+        task.setSeriesInstanceUID(seriesIUID);
+        task.setSOPInstanceUID(sopIUID);
+        task.setCode(code);
+        if (httpRequest != null) {
+            task.setRequesterUserID(httpRequest.requesterUserID);
+            task.setRequesterHost(httpRequest.requesterHost);
+            task.setRequestURI(httpRequest.requestURI);
         }
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setBatchID(batchID);
+        taskManager.scheduleTask(task);
     }
 }

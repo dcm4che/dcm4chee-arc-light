@@ -43,12 +43,8 @@ package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.ScheduleExpression;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.StorageVerificationTask;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,16 +64,9 @@ import java.util.List;
 public class StgVerScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StgVerScheduler.class);
-    private static final long MILLIS_PER_DAY = 24 * 3600_000;
-
-    @Inject
-    private QueueManager queueManager;
 
     @Inject
     private StgCmtEJB ejb;
-
-    @Inject
-    private StgCmtManager stgCmtMgr;
 
     protected StgVerScheduler() {
         super(Mode.scheduleWithFixedDelay);
@@ -122,7 +111,8 @@ public class StgVerScheduler extends Scheduler {
             for (Series.StorageVerification storageVerification : storageVerifications) {
                 if (claim(storageVerification, period)) {
                     try {
-                        if (stgCmtMgr.scheduleStgVerTask(createStgVerTask(aet, storageVerification), null, batchID)) {
+                        if (ejb.scheduleStgVerTask(aet,
+                                storageVerification.studyInstanceUID, storageVerification.seriesInstanceUID, batchID)) {
                             if (--remaining <= 0) {
                                 LOG.info("Maximal number of scheduled Storage Verification Tasks[{}] reached", maxScheduled);
                                 return;
@@ -141,7 +131,7 @@ public class StgVerScheduler extends Scheduler {
         if (maxScheduled <= 0) {
             return Integer.MAX_VALUE;
         }
-        long scheduled = queueManager.countScheduledMessagesOnThisDevice(StgCmtManager.QUEUE_NAME);
+        long scheduled = ejb.countScheduledTasksOnThisDevice(StgCmtManager.QUEUE_NAME);
         return (int) Math.max(maxScheduled - scheduled, 0L);
     }
 
@@ -167,13 +157,5 @@ public class StgVerScheduler extends Scheduler {
         cal.add(Calendar.MONTH, period.getMonths());
         cal.add(Calendar.DAY_OF_MONTH, period.getDays());
         return cal.getTime();
-    }
-
-    private StorageVerificationTask createStgVerTask(String aet, Series.StorageVerification storageVerification) {
-        StorageVerificationTask storageVerificationTask = new StorageVerificationTask();
-        storageVerificationTask.setLocalAET(aet);
-        storageVerificationTask.setStudyInstanceUID(storageVerification.studyInstanceUID);
-        storageVerificationTask.setSeriesInstanceUID(storageVerification.seriesInstanceUID);
-        return storageVerificationTask;
     }
 }

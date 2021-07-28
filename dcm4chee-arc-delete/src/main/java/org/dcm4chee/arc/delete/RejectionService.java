@@ -44,7 +44,6 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
 import java.util.List;
 
@@ -64,8 +63,8 @@ public interface RejectionService {
                HttpServletRequestInfo httpRequest) throws Exception;
 
     void scheduleReject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
-               HttpServletRequestInfo httpRequest, String batchID) throws QueueSizeLimitExceededException;
+               HttpServletRequestInfo httpRequest, String batchID);
 
     void scheduleStudyRejectTasks(String aet, List<String> studyUIDs, Code code,
-              HttpServletRequestInfo httpRequest, String batchID) throws QueueSizeLimitExceededException;
+              HttpServletRequestInfo httpRequest, String batchID);
 }

@@ -42,7 +42,7 @@ package org.dcm4chee.arc.export.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
@@ -89,7 +89,7 @@ public class ExportBatchRS {
     private String deviceName;
 
     @QueryParam("status")
-    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -134,8 +134,7 @@ public class ExportBatchRS {
         logRequest();
         try {
             List<ExportBatch> exportBatches = mgr.listExportBatches(
-                    queueBatchQueryParam(),
-                    exportBatchQueryParam(),
+                    taskQueryParam(),
                     parseInt(offset),
                     parseInt(limit));
             return Response.ok(Output.JSON.entity(exportBatches)).build();
@@ -172,7 +171,6 @@ public class ExportBatchRS {
 
             private void writeTasks(ExportBatch exportBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
-                writer.writeNotNullOrDef("to-schedule", exportBatch.getToSchedule(), 0);
                 writer.writeNotNullOrDef("scheduled", exportBatch.getScheduled(), 0);
                 writer.writeNotNullOrDef("in-process", exportBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", exportBatch.getWarning(), 0);
@@ -192,10 +190,6 @@ public class ExportBatchRS {
         };
 
         abstract Object entity(final List<ExportBatch> exportBatches);
-    }
-
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
     private static int parseInt(String s) {
@@ -224,22 +218,18 @@ public class ExportBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueBatchQueryParam() {
+    private TaskQueryParam taskQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setStatus(status());
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam exportBatchQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
-        taskQueryParam.setBatchID(batchID);
         taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setExporterIDs(exporterIDs.stream()
-                                        .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
-                                        .collect(Collectors.toList()));
+        taskQueryParam.setStatus(status);
+        taskQueryParam.setBatchID(batchID);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.EXPORT);
+        taskQueryParam.setExporterIDs(exporterIDs.stream()
+                .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
+                .collect(Collectors.toList()));
         return taskQueryParam;
     }
 }

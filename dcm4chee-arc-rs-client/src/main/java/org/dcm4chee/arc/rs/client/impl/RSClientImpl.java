@@ -45,11 +45,10 @@ import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.RSOperation;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
@@ -57,13 +56,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.client.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -76,7 +74,7 @@ public class RSClientImpl implements RSClient {
     private static final Logger LOG = LoggerFactory.getLogger(RSClientImpl.class);
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     @Inject
     private AccessTokenRequestor accessTokenRequestor;
@@ -87,6 +85,9 @@ public class RSClientImpl implements RSClient {
     @Inject
     private IWebApplicationCache iWebAppCache;
 
+    @Inject
+    private Device device;
+
     @Override
     public void scheduleRequest(
             RSOperation rsOp,
@@ -96,21 +97,22 @@ public class RSClientImpl implements RSClient {
             String patientID,
             byte[] content,
             boolean tlsAllowAnyHostName,
-            boolean tlsDisableTrustManager)
-            throws QueueSizeLimitExceededException {
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(content);
-            msg.setStringProperty("RSOperation", rsOp.name());
-            msg.setStringProperty("RequestURI", requestURI);
-            msg.setStringProperty("RequestQueryString", requestQueryStr);
-            msg.setStringProperty("WebApplicationName", webAppName);
-            msg.setStringProperty("PatientID", patientID);
-            msg.setStringProperty("TLSAllowAnyHostname", String.valueOf(tlsAllowAnyHostName));
-            msg.setStringProperty("TLSDisableTrustManager", String.valueOf(tlsDisableTrustManager));
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
-        }
+            boolean tlsDisableTrustManager) {
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueName(QUEUE_NAME);
+        task.setType(Task.Type.REST);
+        task.setScheduledTime(new Date());
+        task.setRSOperation(rsOp.name());
+        task.setRequestURI(requestURI);
+        task.setQueryString(requestQueryStr);
+        task.setWebApplicationName(webAppName);
+        task.setPatientID(patientID);
+        task.setTLSAllowAnyHostname(tlsAllowAnyHostName);
+        task.setTLSDisableTrustManager(tlsDisableTrustManager);
+        task.setPayload(content);
+        task.setStatus(Task.Status.SCHEDULED);
+        taskManager.scheduleTask(task);
     }
 
     @Override
@@ -124,7 +126,7 @@ public class RSClientImpl implements RSClient {
                            byte[] content) throws Exception {
         RSOperation rsOperation = RSOperation.valueOf(rsOp);
         WebApplication webApplication;
-        QueueMessage.Status status = QueueMessage.Status.WARNING;
+        Task.Status status = Task.Status.WARNING;
         try {
             webApplication = iWebAppCache.findWebApplication(webAppName);
         } catch (Exception e) {
@@ -234,18 +236,18 @@ public class RSClientImpl implements RSClient {
         switch (status) {
             case OK:
             case NO_CONTENT:
-                return new Outcome(QueueMessage.Status.COMPLETED, "Completed : " + st);
+                return new Outcome(Task.Status.COMPLETED, "Completed : " + st);
             case REQUEST_TIMEOUT:
             case SERVICE_UNAVAILABLE:
-                return new Outcome(QueueMessage.Status.SCHEDULED, "Retry : " + st);
+                return new Outcome(Task.Status.SCHEDULED, "Retry : " + st);
             case NOT_FOUND:
             case FORBIDDEN:
             case BAD_REQUEST:
             case UNAUTHORIZED:
             case INTERNAL_SERVER_ERROR:
-                return new Outcome(QueueMessage.Status.FAILED, st.toString());
+                return new Outcome(Task.Status.FAILED, st.toString());
         }
-        return new Outcome(QueueMessage.Status.WARNING, "Http Response Status from other archive is : " + status.toString());
+        return new Outcome(Task.Status.WARNING, "Http Response Status from other archive is : " + status.toString());
     }
 
     private String getMethod(RSOperation rsOp) {

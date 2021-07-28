@@ -307,15 +307,10 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             batchID:this.filterObject['batchID']||'',
             formSchema:[
                 {
-                    tag:"input",
-                    type:"checkbox",
-                    filterKey:"withoutScheduling",
-                    description:$localize `:@@without_scheduling:Without Scheduling`
-                },{
                     tag:"range-picker-time",
                     type:"text",
                     filterKey:"scheduledTime",
-                    description:$localize `:@@scheduled_time:Scheduled time`
+                    description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                 },
                 {
                     tag:"input",
@@ -384,14 +379,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 if(filter['priority']) clonedFilters['priority'] = filter['priority'];
                 if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
                 if(filter['dcmQueueName']) clonedFilters['dcmQueueName'] = filter['dcmQueueName'];
-                if(filter.withoutScheduling){
-                    if(filter['scheduledTime']) {
-                        clonedFilters['scheduledTime'] = filter['scheduledTime'];
-                    }
-                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/mark4retrieve/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
-                }else{
-                    return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
-                }
+                if(filter['scheduledTime']) clonedFilters['scheduledTime'] = filter['scheduledTime'];
+                return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/dimse/${filter.RemoteAET}/studies/csv:${filter.field}/export/dicom:${filter.DestinationAET}${j4care.getUrlParams(clonedFilters)}`;
             }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
@@ -548,7 +537,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.delete(match.properties.pk)
+                this.service.delete(match.properties.taskID)
                     .subscribe(
                         (res) => {
                             // match.properties.status = 'CANCELED';
@@ -571,7 +560,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.cancel(match.properties.pk)
+                this.service.cancel(match.properties.taskID)
                     .subscribe(
                         (res) => {
                             match.properties.status = 'CANCELED';
@@ -614,7 +603,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         filter["newQueueName"] = res.schema_model.newQueueName;
                     }
                     $this.cfpLoadingBar.start();
-                    this.service.reschedule(match.properties.pk, filter)
+                    this.service.reschedule(match.properties.taskID, filter)
                         .subscribe(
                             (res) => {
                                 $this.getTasks(match.offset||0);
@@ -649,7 +638,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         filter["newQueueName"] = res.schema_model.newQueueName;
                     }
                     $this.cfpLoadingBar.start();
-                    this.service.mark4retrieve(match.properties.pk, filter)
+                    this.service.mark4retrieve(match.properties.taskID, filter)
                         .subscribe(
                             (res) => {
                                 $this.getTasks(match.offset||0);
@@ -681,7 +670,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 this.cfpLoadingBar.start();
                 this.externalRetrieveEntries.forEach((match)=>{
                     if(match.checked){
-                        this.service[mode](match.properties.pk)
+                        this.service[mode](match.properties.taskID)
                             .subscribe((res) => {
                             console.log("execute result=",res);
                             },(err)=>{

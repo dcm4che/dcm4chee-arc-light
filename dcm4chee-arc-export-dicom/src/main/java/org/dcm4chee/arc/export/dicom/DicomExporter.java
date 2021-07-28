@@ -40,7 +40,7 @@ package org.dcm4chee.arc.export.dicom;
 
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -61,10 +61,10 @@ public class DicomExporter extends AbstractExporter {
     private final RetrieveService retrieveService;
     private final CStoreSCU storeSCU;
     private final String destAET;
-    private final Map<String, RetrieveTask> retrieveTaskMap;
+    private final Map<Long, RetrieveTask> retrieveTaskMap;
 
     protected DicomExporter(ExporterDescriptor descriptor, RetrieveService retrieveService,
-                            CStoreSCU storeSCU, Map<String, RetrieveTask> retrieveTaskMap) {
+                            CStoreSCU storeSCU, Map<Long, RetrieveTask> retrieveTaskMap) {
         super(descriptor);
         this.retrieveService = retrieveService;
         this.storeSCU = storeSCU;
@@ -82,13 +82,13 @@ public class DicomExporter extends AbstractExporter {
                 destAET);
         retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
         if (!retrieveService.calculateMatches(retrieveContext))
-            return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
+            return new Outcome(Task.Status.WARNING, noMatches(exportContext));
 
         if (!retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext))
             return new Outcome(
                     retrieveContext.failed() > 0
-                            ? QueueMessage.Status.WARNING
-                            : QueueMessage.Status.COMPLETED,
+                            ? Task.Status.WARNING
+                            : Task.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext, destAET));
 
         if (descriptor.isExportAsSourceAE()) {
@@ -98,22 +98,22 @@ public class DicomExporter extends AbstractExporter {
                     .findFirst()
                     .ifPresent(retrieveContext::setCallingAET);
         }
-        String messageID = exportContext.getMessageID();
+        Long taskPk = exportContext.getTaskPK();
         RetrieveTask retrieveTask = storeSCU.newRetrieveTaskSTORE(retrieveContext);
-        retrieveTaskMap.put(messageID, retrieveTask);
+        retrieveTaskMap.put(taskPk, retrieveTask);
         try {
             retrieveTask.run();
             return new Outcome(
                     retrieveContext.remaining() > 0
-                            ? QueueMessage.Status.CANCELED
+                            ? Task.Status.CANCELED
                             : retrieveContext.failed() > 0
                             ? (retrieveContext.missing() > 0
-                                ? QueueMessage.Status.FAILED
-                                : QueueMessage.Status.WARNING)
-                            : QueueMessage.Status.COMPLETED,
+                                ? Task.Status.FAILED
+                                : Task.Status.WARNING)
+                            : Task.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext, destAET));
         } finally {
-            retrieveTaskMap.remove(messageID);
+            retrieveTaskMap.remove(taskPk);
         }
     }
 }

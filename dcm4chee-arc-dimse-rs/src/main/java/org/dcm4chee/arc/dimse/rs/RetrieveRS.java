@@ -51,10 +51,11 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -143,6 +145,9 @@ public class RetrieveRS {
     @Inject
     private RetrieveManager retrieveManager;
 
+    @Inject
+    private TaskManager taskManager;
+
     @Override
     public String toString() {
         String requestURI = request.getRequestURI();
@@ -180,36 +185,6 @@ public class RetrieveRS {
         return export(destinationAET, studyUID, seriesUID, objectUID);
     }
 
-    @POST
-    @Path("/studies/{StudyUID}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markStudy4Retrieve(
-            @PathParam("StudyUID") String studyUID,
-            @PathParam("DestinationAET") String destinationAET) {
-        return createRetrieveTask(destinationAET, studyUID);
-    }
-
-    @POST
-    @Path("/studies/{StudyUID}/series/{SeriesUID}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markSeries4Retrieve(
-            @PathParam("StudyUID") String studyUID,
-            @PathParam("SeriesUID") String seriesUID,
-            @PathParam("DestinationAET") String destinationAET) {
-        return createRetrieveTask(destinationAET, studyUID, seriesUID);
-    }
-
-    @POST
-    @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/mark4retrieve/dicom:{DestinationAET}")
-    @Produces("application/json")
-    public Response markInstance4Retrieve(
-            @PathParam("StudyUID") String studyUID,
-            @PathParam("SeriesUID") String seriesUID,
-            @PathParam("ObjectUID") String objectUID,
-            @PathParam("DestinationAET") String destinationAET) {
-        return createRetrieveTask(destinationAET, studyUID, seriesUID, objectUID);
-    }
-
     private int priority() {
         return parseInt(priority, 0);
     }
@@ -242,28 +217,6 @@ public class RetrieveRS {
         }
     }
 
-    private Response createRetrieveTask(String destAET, String... uids) {
-        logRequest();
-        if (uids[0].startsWith("csv"))
-            return errResponse("Missing Content-type Header in 'Mark Studies for Retrieve specified in CSV from external archive' service " +
-                            "causes invocation of 'Mark Study for Retrieve from external archive' service.",
-                    Response.Status.BAD_REQUEST);
-
-        if (queueName == null)
-            queueName = "Retrieve1";
-
-        try {
-            validate();
-            Attributes keys = toKeys(uids);
-            retrieveManager.createRetrieveTask(createExtRetrieveCtx(destAET, keys), null);
-        } catch (IllegalStateException | IllegalArgumentException | ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        return Response.noContent().build();
-    }
-
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
@@ -273,11 +226,9 @@ public class RetrieveRS {
     }
 
     private Response queueExport(String destAET, Attributes keys) {
-        try {
-            retrieveManager.scheduleRetrieveTask(
-                    priority(), createExtRetrieveCtx(destAET, keys), null, 0L);
-        } catch (QueueSizeLimitExceededException e) {
-            return errResponse(e.getMessage(), Response.Status.SERVICE_UNAVAILABLE);
+        retrieveManager.scheduleRetrieveTask(createExtRetrieveCtx(destAET, keys), null);
+        if (scheduledOnThisDevice() && scheduledTime == null) {
+            taskManager.processQueue(queueName);
         }
         return Response.accepted().build();
     }
@@ -327,7 +278,7 @@ public class RetrieveRS {
 
     private void validate() throws ConfigurationException {
         aeCache.findApplicationEntity(externalAET);
-        if (deviceName != null) {
+        if (!scheduledOnThisDevice()) {
             Device device = deviceCache.findDevice(deviceName);
             ApplicationEntity ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())
@@ -336,6 +287,10 @@ public class RetrieveRS {
             validateQueue(device);
         } else
             validateQueue(device);
+    }
+
+    private boolean scheduledOnThisDevice() {
+        return deviceName == null || deviceName.equals(device.getDeviceName());
     }
 
     private void validateQueue(Device device) {
@@ -354,7 +309,7 @@ public class RetrieveRS {
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
-                .setScheduledTime(ParseDateTime.valueOf(scheduledTime))
+                .setScheduledTime(scheduledTime != null ? ParseDateTime.valueOf(scheduledTime) : new Date())
                 .setKeys(keys);
     }
 

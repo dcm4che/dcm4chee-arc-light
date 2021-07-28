@@ -236,31 +236,31 @@ public class AuditService {
                 auditLogger);
     }
 
-    void spoolQueueMessageEvent(QueueMessageEvent queueMsgEvent) {
-        if (queueMsgEvent.getQueueMsg() == null)
+    void spoolTaskEvent(TaskEvent taskEvent) {
+        if (taskEvent.getTask() == null)
             return;
 
-        String callingUser = KeycloakContext.valueOf(queueMsgEvent.getRequest()).getUserName();
+        String callingUser = KeycloakContext.valueOf(taskEvent.getRequest()).getUserName();
         try {
             writeSpoolFile(
-                    AuditUtils.EventType.forQueueEvent(queueMsgEvent.getOperation()),
+                    AuditUtils.EventType.forQueueEvent(taskEvent.getOperation()),
                     null,
-                    QueueMessageAuditService.queueMsgAuditInfo(queueMsgEvent));
+                    TaskAuditService.queueMsgAuditInfo(taskEvent));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Queue Message Event for [QueueOperation={}] of [QueueMsgID={}] "
+            LOG.warn("Failed to spool Task Event for [Operation={}] of [TaskID={}] "
                             + "triggered by [User={}]\n",
-                    queueMsgEvent.getOperation(), queueMsgEvent.getQueueMsg().getMessageID(), callingUser, e);
+                    taskEvent.getOperation(), taskEvent.getTask().getPk(), callingUser, e);
         }
     }
 
-    void spoolBulkQueueMessageEvent(BulkQueueMessageEvent bulkQueueMsgEvent) {
+    void spoolBulkQueueMessageEvent(BulkTaskEvent bulkQueueMsgEvent) {
         HttpServletRequest request = bulkQueueMsgEvent.getRequest();
         String callingUser = request != null ? KeycloakContext.valueOf(request).getUserName() : device.getDeviceName();
         try {
             writeSpoolFile(
                     AuditUtils.EventType.forQueueEvent(bulkQueueMsgEvent.getOperation()),
                     null,
-                    QueueMessageAuditService.bulkQueueMsgAuditInfo(bulkQueueMsgEvent, callingUser));
+                    TaskAuditService.bulkQueueMsgAuditInfo(bulkQueueMsgEvent, callingUser));
         } catch (Exception e) {
             LOG.warn("Failed to spool Bulk Queue Message Event for [QueueOperation={}] triggered by [User={}]\n",
                     bulkQueueMsgEvent.getOperation(), callingUser, e);
@@ -270,7 +270,7 @@ public class AuditService {
     private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
             throws Exception {
         emitAuditMessage(
-                QueueMessageAuditService.auditMsg(auditLogger, path, eventType),
+                TaskAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
     }
 

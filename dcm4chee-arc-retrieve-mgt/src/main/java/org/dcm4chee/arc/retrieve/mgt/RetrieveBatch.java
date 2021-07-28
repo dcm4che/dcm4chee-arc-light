@@ -49,7 +49,7 @@ import java.util.List;
  */
 
 public class RetrieveBatch {
-    private String batchID;
+    private final String batchID;
     private Date[] createdTimeRange = {};
     private Date[] updatedTimeRange = {};
     private Date[] scheduledTimeRange = {};
@@ -60,7 +60,6 @@ public class RetrieveBatch {
     private String[] localAETs = {};
     private String[] remoteAETs = {};
     private String[] destinationAETs = {};
-    private long toSchedule;
     private long completed;
     private long canceled;
     private long warning;
@@ -217,13 +216,5 @@ public class RetrieveBatch {
 
     public void setInProcess(long inProcess) {
         this.inProcess = inProcess;
-    }
-
-    public int getToSchedule() {
-        return (int) toSchedule;
-    }
-
-    public void setToSchedule(long toSchedule) {
-        this.toSchedule = toSchedule;
     }
 }

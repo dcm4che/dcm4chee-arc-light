@@ -17,7 +17,7 @@
           "$ref": "../parameters.json#/ExporterID"
         },
         {
-          "$ref": "../parameters.json#/JMSMessageID"
+          "$ref": "../parameters.json#/taskID"
         },
         {
           "$ref": "../parameters.json#/batchID"

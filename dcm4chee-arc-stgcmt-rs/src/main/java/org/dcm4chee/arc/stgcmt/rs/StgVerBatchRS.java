@@ -41,10 +41,10 @@
 package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.StgVerBatch;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,12 +126,9 @@ public class StgVerBatchRS {
     public Response listStgVerBatches() {
         logRequest();
         try {
-            return Response.ok(
-                    Output.JSON.entity(stgCmtMgr.listStgVerBatches(
-                        queueBatchQueryParam(),
-                        stgVerBatchQueryParam(),
-                        parseInt(offset), parseInt(limit))))
-                    .build();
+            List<StgVerBatch> stgVerBatches = stgCmtMgr.listStgVerBatches(
+                    taskQueryParam(), parseInt(offset), parseInt(limit));
+            return Response.ok(Output.JSON.entity(stgVerBatches)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -190,10 +187,6 @@ public class StgVerBatchRS {
 
         abstract Object entity(final List<StgVerBatch> stgVerBatches);
     }
-    
-    private QueueMessage.Status status() {
-        return status != null ? QueueMessage.Status.fromString(status) : null;
-    }
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
@@ -221,19 +214,15 @@ public class StgVerBatchRS {
         return sw.toString();
     }
 
-    private TaskQueryParam queueBatchQueryParam() {
+    private TaskQueryParam taskQueryParam() {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setStatus(status());
+        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
-        return taskQueryParam;
-    }
-
-    private TaskQueryParam stgVerBatchQueryParam() {
-        TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setType(Task.Type.STGVER);
         taskQueryParam.setLocalAET(localAET);
         return taskQueryParam;
     }

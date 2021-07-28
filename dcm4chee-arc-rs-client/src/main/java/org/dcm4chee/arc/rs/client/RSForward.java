@@ -47,7 +47,6 @@ import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.RSForwardRule;
 import org.dcm4chee.arc.conf.RSOperation;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,21 +91,17 @@ public class RSForward {
     }
 
     private void apply(RSForwardRule rule, RSOperation rsOp, byte[] in, String patientID,
-            HttpServletRequest request) {
-        try {
-            LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
-            rsClient.scheduleRequest(
-                    rsOp,
-                    request.getRequestURI(),
-                    request.getQueryString(),
-                    rule.getWebAppName(),
-                    patientID,
-                    in,
-                    rule.isTlsAllowAnyHostname(),
-                    rule.isTlsDisableTrustManager());
-        } catch (QueueSizeLimitExceededException e) {
-            LOG.warn(e.getMessage());
-        }
+        HttpServletRequest request) {
+        LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
+        rsClient.scheduleRequest(
+                rsOp,
+                request.getRequestURI(),
+                request.getQueryString(),
+                rule.getWebAppName(),
+                patientID,
+                in,
+                rule.isTlsAllowAnyHostname(),
+                rule.isTlsDisableTrustManager());
     }
 
     private static byte[] toContent(Attributes attrs, ArchiveAEExtension arcAE) {

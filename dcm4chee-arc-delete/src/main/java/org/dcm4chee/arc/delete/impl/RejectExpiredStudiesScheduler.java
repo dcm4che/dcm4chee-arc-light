@@ -40,7 +40,9 @@
 
 package org.dcm4chee.arc.delete.impl;
 
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.RejectionService;
@@ -48,13 +50,14 @@ import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -164,18 +167,16 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        try {
-            if (ejb.claimExpiredSeriesFor(series, ExpirationState.EXPORT_SCHEDULED))
-                exportManager.scheduleExportTask(
-                        series.getSeriesInstanceUID(),
-                        null,
-                        exporter,
-                        null,
-                        null,
-                        series.getStudy().getStudyInstanceUID());
-        } catch (QueueSizeLimitExceededException e) {
-            LOG.warn(e.getMessage());
-        }
+        if (ejb.claimExpiredSeriesFor(series, ExpirationState.EXPORT_SCHEDULED))
+            exportManager.createExportTask(
+                    device.getDeviceName(),
+                    exporter,
+                    series.getStudy().getStudyInstanceUID(),
+                    series.getSeriesInstanceUID(),
+                    "*",
+                    null,
+                    new Date(),
+                    null);
     }
 
     private void processExpiredStudies(ApplicationEntity ae, RejectionNote rn, int studyFetchSize) {
@@ -215,18 +216,16 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        try {
-            if (ejb.claimExpiredStudyFor(study, ExpirationState.EXPORT_SCHEDULED))
-                exportManager.scheduleExportTask(
-                        null,
-                        null,
-                        exporter,
-                        null,
-                        null,
-                        study.getStudyInstanceUID());
-        } catch (QueueSizeLimitExceededException e) {
-            LOG.warn(e.getMessage());
-        }
+        if (ejb.claimExpiredStudyFor(study, ExpirationState.EXPORT_SCHEDULED))
+            exportManager.createExportTask(
+                    device.getDeviceName(),
+                    exporter,
+                    study.getStudyInstanceUID(),
+                    "*",
+                    "*",
+                    null,
+                    new Date(),
+                    null);
     }
 
     private ApplicationEntity getApplicationEntity(String aet) {

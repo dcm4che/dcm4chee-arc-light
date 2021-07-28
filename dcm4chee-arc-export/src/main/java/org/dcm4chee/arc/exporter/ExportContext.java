@@ -53,9 +53,9 @@ import org.dcm4che3.xdsi.RegistryResponseType;
 public interface ExportContext {
     Exporter getExporter();
 
-    String getMessageID();
+    Long getTaskPK();
 
-    void setMessageID(String messageID);
+    void setTaskPK(Long taskPK);
 
     String getBatchID();
 

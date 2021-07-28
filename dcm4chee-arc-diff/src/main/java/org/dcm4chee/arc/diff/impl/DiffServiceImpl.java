@@ -47,19 +47,21 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.diff.*;
-import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.diff.DiffBatch;
+import org.dcm4chee.arc.diff.DiffContext;
+import org.dcm4chee.arc.diff.DiffSCU;
+import org.dcm4chee.arc.diff.DiffService;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.TaskCanceled;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.persistence.Tuple;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +74,7 @@ import java.util.concurrent.TimeUnit;
 @ApplicationScoped
 public class DiffServiceImpl implements DiffService {
 
-    private Map<String,DiffSCU> diffSCUMap = Collections.synchronizedMap(new HashMap<>());;
+    private Map<Long,DiffSCU> diffSCUMap = Collections.synchronizedMap(new HashMap<>());;
 
     @Inject
     private Device device;
@@ -86,88 +88,109 @@ public class DiffServiceImpl implements DiffService {
     @Inject
     private DiffServiceEJB ejb;
 
+    @Inject
+    private TaskManager taskManager;
+
     @Override
     public DiffSCU createDiffSCU(DiffContext ctx) {
-        return new DiffSCUImpl(ctx, findSCU);
+        return new DiffSCUImpl(ctx, findSCU, device);
     }
 
     @Override
-    public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
-        ejb.scheduleDiffTask(ctx);
+    public void scheduleDiffTask(DiffContext ctx) {
+        scheduleDiffTask(ctx, ctx.getQueryString());
     }
 
     @Override
-    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) throws QueueSizeLimitExceededException {
-        ejb.scheduleDiffTasks(ctx, studyUIDs);
+    public void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) {
+        studyUIDs.forEach(studyUID -> scheduleDiffTask(ctx, ctx.getQueryString() + studyUID));
     }
 
     @Override
-    public Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
+    public Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws Exception {
         ejb.resetDiffTask(diffTask);
-        String messageID = diffTask.getQueueMessage().getMessageID();
+        Long taskPK = diffTask.getPk();
         ScheduledFuture<?> updateDiffTask = null;
         try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
-            diffSCUMap.put(messageID, diffSCU);
+            diffSCUMap.put(taskPK, diffSCU);
             diffSCU.init();
             Attributes diff;
-            updateDiffTask = updateDiffTask(diffTask, diffSCU);
-            while ((diff = diffSCU.nextDiff()) != null)
+            updateDiffTask = updateDiffTaskAtFixRate(diffTask, diffSCU);
+            while ((diff = diffSCU.nextDiff()) != null) {
                 ejb.addDiffTaskAttributes(diffTask, diff);
+            }
+            updateDiffTask.cancel(false);
             ejb.updateDiffTask(diffTask, diffSCU);
             return toOutcome(diffSCU);
         } finally {
-            diffSCUMap.remove(messageID);
             if (updateDiffTask != null)
                 updateDiffTask.cancel(false);
+            diffSCUMap.remove(taskPK);
         }
     }
 
-    private ScheduledFuture<?> updateDiffTask(DiffTask diffTask, DiffSCU diffSCU) {
+    private void scheduleDiffTask(DiffContext ctx, String queryString) {
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueName(QUEUE_NAME);
+        task.setType(Task.Type.DIFF);
+        task.setScheduledTime(new Date());
+        if (ctx.getHttpServletRequestInfo() != null) {
+            task.setRequesterUserID(ctx.getHttpServletRequestInfo().requesterUserID);
+            task.setRequesterHost(ctx.getHttpServletRequestInfo().requesterHost);
+            task.setRequestURI(ctx.getHttpServletRequestInfo().requestURI);
+        }
+        task.setBatchID(ctx.getBatchID());
+        task.setStatus(Task.Status.SCHEDULED);
+        task.setLocalAET(ctx.getLocalAET());
+        task.setPrimaryAET(ctx.getPrimaryAE().getAETitle());
+        task.setSecondaryAET(ctx.getSecondaryAE().getAETitle());
+        task.setQueryString(queryString);
+        task.setCheckMissing(ctx.isCheckMissing());
+        task.setCheckDifferent(ctx.isCheckDifferent());
+        task.setCompareFields(ctx.getCompareFields());
+        taskManager.scheduleTask(task);
+    }
+
+    private ScheduledFuture<?> updateDiffTaskAtFixRate(Task diffTask, DiffSCU diffSCU) {
         Duration interval = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getDiffTaskProgressUpdateInterval();
         return interval != null
                 ? device.scheduleAtFixedRate(
-                    () -> ejb.updateDiffTask(diffTask, diffSCU),
+                () -> ejb.updateDiffTask(diffTask, diffSCU),
                     interval.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS)
                 : null;
     }
 
-    public void cancelDiffTask(@Observes MessageCanceled event) {
-        DiffSCU diffSCU = diffSCUMap.get(event.getMessageID());
+    public void cancelDiffTask(@Observes TaskCanceled event) {
+        DiffSCU diffSCU = diffSCUMap.get(event.task.getPk());
         if (diffSCU != null)
             diffSCU.cancel();
     }
 
     private Outcome toOutcome(DiffSCU diffSCU) {
-        QueueMessage.Status status = QueueMessage.Status.COMPLETED;
+        Task.Status status = Task.Status.COMPLETED;
         StringBuilder sb = new StringBuilder();
         sb.append(diffSCU.matches()).append(" studies compared");
         status = check(", missing: ", diffSCU.missing(), status, sb);
         status = check(", different: ", diffSCU.different(), status, sb);
-        return new Outcome(status, sb.toString());
+        return new Outcome(diffSCU.isCancelled() ? Task.Status.CANCELED : status, sb.toString());
     }
 
     @Override
-    public DiffTask getDiffTask(long taskPK) {
-        return ejb.getDiffTask(taskPK);
+    public List<byte[]> getDiffTaskAttributes(Task task, int offset, int limit) {
+        return ejb.getDiffTaskAttributes(task, offset, limit);
     }
 
     @Override
-    public List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
-        return ejb.getDiffTaskAttributes(diffTask, offset, limit);
+    public List<byte[]> getDiffTaskAttributes(TaskQueryParam taskQueryParam, int offset, int limit) {
+        return ejb.getDiffTaskAttributes(taskQueryParam, offset, limit);
     }
 
     @Override
-    public List<byte[]> getDiffTaskAttributes(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
-        return ejb.getDiffTaskAttributes(queueBatchQueryParam, diffBatchQueryParam, offset, limit);
-    }
-
-    @Override
-    public List<DiffBatch> listDiffBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit) {
-        return ejb.listDiffBatches(queueBatchQueryParam, diffBatchQueryParam, offset, limit);
+    public List<DiffBatch> listDiffBatches(TaskQueryParam taskQueryPara, int offset, int limit) {
+        return ejb.listDiffBatches(taskQueryPara, offset, limit);
     }
 
     @Override
@@ -175,85 +198,24 @@ public class DiffServiceImpl implements DiffService {
         return ejb.diffTasksOfBatch(batchID);
     }
 
-    @Override
-    public boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        return ejb.cancelDiffTask(pk, queueEvent);
-    }
 
-    @Override
-    public long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return ejb.cancelDiffTasks(queueTaskQueryParam, diffTaskQueryParam);
-    }
-
-    @Override
-    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
-        ejb.rescheduleDiffTask(pk, queueEvent);
-    }
-
-    @Override
-    public void rescheduleDiffTask(String diffTaskQueueMsgId) {
-        ejb.rescheduleDiffTask(diffTaskQueueMsgId, null);
-    }
-
-    @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return ejb.listDistinctDeviceNames(queueTaskQueryParam, diffTaskQueryParam);
-    }
-
-    @Override
-    public List<String> listDiffTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
-        return ejb.listDiffTaskQueueMsgIDs(queueTaskQueryParam, diffTaskQueryParam, limit);
-    }
-
-    @Override
-    public List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit) {
-        return ejb.listDiffTaskQueueMsgIDAndMsgProps(queueTaskQueryParam, diffTaskQueryParam, limit);
-    }
-
-
-    @Override
-    public Tuple findDeviceNameAndMsgPropsByPk(Long pk) {
-        return ejb.findDeviceNameAndMsgPropsByPk(pk);
-    }
-
-    @Override
-    public boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.deleteDiffTask(pk, queueEvent);
-    }
-
-    @Override
-    public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(queueTaskQueryParam, diffTaskQueryParam, deleteTasksFetchSize);
-    }
-
-    private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {
+    private Task.Status check(String prompt, int failures, Task.Status status, StringBuilder sb) {
         if (failures == 0)
             return status;
 
         sb.append(prompt).append(failures);
-        return QueueMessage.Status.WARNING;
+        return Task.Status.WARNING;
     }
 
-    private DiffContext toDiffContext(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
+    private DiffContext toDiffContext(Task diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws ConfigurationException {
         return new DiffContext()
-                .setLocalAE(device.getApplicationEntity(diffTask.getLocalAET(), true))
+                .setLocalAET(diffTask.getLocalAET())
                 .setPrimaryAE(aeCache.get(diffTask.getPrimaryAET()))
                 .setSecondaryAE(aeCache.get(diffTask.getSecondaryAET()))
+                .setArcDev(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class))
                 .setQueryString(diffTask.getQueryString())
                 .setHttpServletRequestInfo(httpServletRequestInfo);
     }
 
-    @Override
-    public Iterator<DiffTask> listDiffTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int offset, int limit) {
-        return ejb.listDiffTasks(queueTaskQueryParam, diffTaskQueryParam, offset, limit);
-    }
-
-    @Override
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam) {
-        return ejb.countTasks(queueTaskQueryParam, diffTaskQueryParam);
-    }
 }

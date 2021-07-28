@@ -174,12 +174,12 @@ public class AuditTriggerObserver {
             auditService.spoolSoftwareConfiguration(softwareConfiguration);
     }
 
-    public void onQueueMessageEvent(@Observes QueueMessageEvent queueMsgEvent) {
+    public void onQueueMessageEvent(@Observes TaskEvent queueMsgEvent) {
         if (deviceHasAuditLoggers())
-            auditService.spoolQueueMessageEvent(queueMsgEvent);
+            auditService.spoolTaskEvent(queueMsgEvent);
     }
 
-    public void onBulkQueueMessageEvent(@Observes BulkQueueMessageEvent bulkQueueMsgEvent) {
+    public void onBulkQueueMessageEvent(@Observes BulkTaskEvent bulkQueueMsgEvent) {
         if (deviceHasAuditLoggers())
             auditService.spoolBulkQueueMessageEvent(bulkQueueMsgEvent);
     }

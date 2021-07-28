@@ -49,7 +49,7 @@ import java.util.List;
  * @since Mar 2018
  */
 public class DiffBatch {
-    private String batchID;
+    private final String batchID;
     private Date[] createdTimeRange = {};
     private Date[] updatedTimeRange = {};
     private Date[] scheduledTimeRange = {};

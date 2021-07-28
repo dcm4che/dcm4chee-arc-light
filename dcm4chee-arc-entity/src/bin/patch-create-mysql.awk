@@ -3,10 +3,8 @@ BEGIN { FS = "[ )]" }
 {
     if ($3 == "id_sequence") {
             print "create table id_sequence (name varchar(64) not null, next_value integer not null, version bigint, primary key (name));"
-    } else if ($3 == "UK_hb9rftf7opmg56nkg7dkvsdc8") {
-            print "create index UK_hb9rftf7opmg56nkg7dkvsdc8 on export_task (study_iuid(64), series_iuid(64), sop_iuid(64));"
-    } else if ($3 == "UK_iudr0qmrm15i2evq1733h1ace") {
-            print "create index UK_iudr0qmrm15i2evq1733h1ace on stgver_task (study_iuid(64), series_iuid(64), sop_iuid(64));"
+    } else if ($3 == "UK_6a0y0rsssms4mtm9bpkw8vgl6") {
+            print "create index UK_6a0y0rsssms4mtm9bpkw8vgl6 on task (study_iuid(64), series_iuid(64), sop_iuid(64));"
     } else if ($3 == "UK_r3oh859i9osv3aluoc8dcx9wk") {
             print "create index UK_r3oh859i9osv3aluoc8dcx9wk on location (storage_id(64), status);"
     } else if ($3 == "UK_f7c9hmq8pfypohkgkp5vkbhxp") {
@@ -45,6 +43,9 @@ BEGIN { FS = "[ )]" }
             && $6 != "(ups_priority" \
             && $6 != "(input_readiness_state" \
             && $6 != "(ups_state" \
+            && $6 != "(task_status" \
+            && $6 != "(task_type" \
+            && $6 != "(task_fk" \
         ) {
         print $1 " " $2 " " $3 " " $4 " " $5 " " $6 "(64));"
     } else {

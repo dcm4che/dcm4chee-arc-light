@@ -41,14 +41,11 @@
 
 package org.dcm4chee.arc.diff;
 
-import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 
-import javax.persistence.Tuple;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -61,48 +58,18 @@ public interface DiffService {
 
     DiffSCU createDiffSCU(DiffContext ctx);
 
-    void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException;
+    void scheduleDiffTask(DiffContext ctx);
 
-    void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs) throws QueueSizeLimitExceededException;
+    void scheduleDiffTasks(DiffContext ctx, List<String> studyUIDs);
 
-    Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
+    Outcome executeDiffTask(Task diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
 
-    DiffTask getDiffTask(long taskPK);
+    List<byte[]> getDiffTaskAttributes(Task diffTask, int offset, int limit);
 
-    List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
+    List<byte[]> getDiffTaskAttributes(TaskQueryParam queryParam, int offset, int limit);
 
-    List<byte[]> getDiffTaskAttributes(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
-
-    List<DiffBatch> listDiffBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam diffBatchQueryParam, int offset, int limit);
+    List<DiffBatch> listDiffBatches(TaskQueryParam taskQueryParam, int parseInt, int parseInt1);
 
     long diffTasksOfBatch(String batchID);
 
-    boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
-
-    long cancelDiffTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
-
-    void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);
-
-    void rescheduleDiffTask(String diffTaskQueueMsgId);
-
-    Tuple findDeviceNameAndMsgPropsByPk(Long pk);
-
-    boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
-
-    int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int deleteTasksFetchSize);
-
-    List<String> listDistinctDeviceNames(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
-
-    List<String> listDiffTaskQueueMsgIDs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
-
-    List<Tuple> listDiffTaskQueueMsgIDAndMsgProps(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int limit);
-
-    long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam);
-
-    Iterator<DiffTask> listDiffTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam diffTaskQueryParam, int offset, int limit);
 }

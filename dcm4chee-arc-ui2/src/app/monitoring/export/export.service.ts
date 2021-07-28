@@ -110,10 +110,6 @@ export class ExportService {
     statusValues(){
         return [
             {
-                value:"TO SCHEDULE",
-                text:$localize `:@@to_schedule:TO SCHEDULE`,
-                key:"to-schedule"
-            },{
                 value:"SCHEDULED",
                 text:$localize `:@@SCHEDULED:SCHEDULED`,
                 key:"scheduled"

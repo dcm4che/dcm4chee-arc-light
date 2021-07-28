@@ -91,36 +91,6 @@
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.ExportTask">
-    <sequence-generator name="export_task_pk_seq" sequence-name="export_task_pk_seq" allocation-size="1"/>
-    <attributes>
-      <id name="pk">
-        <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="export_task_pk_seq"/>
-      </id>
-    </attributes>
-  </entity>
-
-  <entity class="org.dcm4chee.arc.entity.RetrieveTask">
-    <sequence-generator name="retrieve_task_pk_seq" sequence-name="retrieve_task_pk_seq" allocation-size="1"/>
-    <attributes>
-      <id name="pk">
-        <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="retrieve_task_pk_seq"/>
-      </id>
-    </attributes>
-  </entity>
-
-  <entity class="org.dcm4chee.arc.entity.DiffTask">
-    <sequence-generator name="diff_task_pk_seq" sequence-name="diff_task_pk_seq" allocation-size="1"/>
-    <attributes>
-      <id name="pk">
-        <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="diff_task_pk_seq"/>
-      </id>
-    </attributes>
-  </entity>
-
   <entity class="org.dcm4chee.arc.entity.IanTask">
     <sequence-generator name="ian_task_pk_seq" sequence-name="ian_task_pk_seq" allocation-size="1"/>
     <attributes>
@@ -231,15 +201,15 @@
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.QueueMessage">
-    <sequence-generator name="queue_msg_pk_seq" sequence-name="queue_msg_pk_seq" allocation-size="1"/>
+  <entity class="org.dcm4chee.arc.entity.Task">
+    <sequence-generator name="task_pk_seq" sequence-name="task_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="queue_msg_pk_seq"/>
+        <generated-value strategy="SEQUENCE" generator="task_pk_seq"/>
       </id>
-      <basic name="messageBody" optional="false">
-        <column name="msg_body" updatable="false" column-definition="${blob}"/>
+      <basic name="payload">
+        <column name="payload" updatable="false" column-definition="${blob}"/>
       </basic>
     </attributes>
   </entity>
@@ -300,16 +270,6 @@
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="stgcmt_result_pk_seq"/>
-      </id>
-    </attributes>
-  </entity>
-
-  <entity class="org.dcm4chee.arc.entity.StorageVerificationTask">
-    <sequence-generator name="stgver_task_pk_seq" sequence-name="stgver_task_pk_seq" allocation-size="1"/>
-    <attributes>
-      <id name="pk">
-        <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="stgver_task_pk_seq"/>
       </id>
     </attributes>
   </entity>

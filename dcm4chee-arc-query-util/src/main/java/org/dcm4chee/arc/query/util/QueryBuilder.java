@@ -124,6 +124,35 @@ public class QueryBuilder {
         return result;
     }
 
+    public Order orderTasks(Root<Task> task, String orderBy) {
+        switch (orderBy) {
+            case "createdTime":
+                return cb.asc(task.get(Task_.createdTime));
+            case "updatedTime":
+                return cb.asc(task.get(Task_.updatedTime));
+            case "-createdTime":
+                return cb.desc(task.get(Task_.createdTime));
+            case "-updatedTime":
+                return cb.desc(task.get(Task_.updatedTime));
+        }
+        throw new IllegalArgumentException(orderBy);
+    }
+
+    public Order orderBatches(Root<Task> task, String orderBy) {
+        switch (orderBy) {
+            case "createdTime":
+                return cb.asc(cb.least(task.get(Task_.createdTime)));
+            case "updatedTime":
+                return cb.asc(cb.least(task.get(Task_.updatedTime)));
+            case "-createdTime":
+                return cb.desc(cb.greatest(task.get(Task_.createdTime)));
+            case "-updatedTime":
+                return cb.desc(cb.greatest(task.get(Task_.updatedTime)));
+        }
+
+        throw new IllegalArgumentException(orderBy);
+    }
+
     private <Z> boolean orderPatients(From<Z, Patient> patient, OrderByTag orderByTag, List<Order> result) {
         switch (orderByTag.tag) {
             case Tag.PatientName:
@@ -411,6 +440,92 @@ public class QueryBuilder {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
         mppsLevelPredicates(predicates, q, mpps, keys, queryParam);
+        return predicates;
+    }
+
+    public List<Predicate> stgCmtResultPredicates(Root<StgCmtResult> stgCmtResult, StgCmtResultQueryParam queryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (queryParam.status != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.status), queryParam.status));
+        if (queryParam.studyUID != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.studyInstanceUID), queryParam.studyUID));
+        if (queryParam.exporterID != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.exporterID), queryParam.exporterID));
+        if (queryParam.batchID != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.batchID), queryParam.batchID));
+        if (queryParam.taskPK != null)
+            predicates.add(cb.equal(stgCmtResult.get(StgCmtResult_.taskPK), queryParam.taskPK));
+        if (queryParam.updatedBefore != null)
+            predicates.add(cb.lessThan(stgCmtResult.get(StgCmtResult_.updatedTime), queryParam.updatedBefore));
+        return predicates;
+    }
+
+    public List<Predicate> taskPredicates(Root<Task> task, TaskQueryParam taskQueryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (taskQueryParam.getTaskPK() != null)
+            predicates.add(cb.equal(task.get(Task_.pk), taskQueryParam.getTaskPK()));
+        if (taskQueryParam.getQueueNames() != null && !taskQueryParam.getQueueNames().isEmpty())
+            predicates.add(task.get(Task_.queueName).in(taskQueryParam.getQueueNames()));
+        if (taskQueryParam.getNotStatus() != null)
+            predicates.add(cb.notEqual(task.get(Task_.status), taskQueryParam.getNotStatus()));
+        if (taskQueryParam.getStatus() != null)
+            predicates.add(cb.equal(task.get(Task_.status), taskQueryParam.getStatus()));
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getBatchID() != null)
+            predicates.add(cb.equal(task.get(Task_.batchID), taskQueryParam.getBatchID()));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
+        if (taskQueryParam.getUpdatedBefore() != null)
+            predicates.add(cb.lessThan(task.get(Task_.updatedTime), taskQueryParam.getUpdatedBefore()));
+        if (taskQueryParam.getNotType() != null)
+            predicates.add(cb.notEqual(task.get(Task_.type), taskQueryParam.getNotType()));
+        if (taskQueryParam.getType() != null) {
+            predicates.add(cb.equal(task.get(Task_.type), taskQueryParam.getType()));
+            switch (taskQueryParam.getType()) {
+                case EXPORT:
+                    if (taskQueryParam.getExporterIDs() != null && !taskQueryParam.getExporterIDs().isEmpty())
+                        predicates.add(task.get(Task_.exporterID).in(taskQueryParam.getExporterIDs()));
+                    if (taskQueryParam.getStudyIUID() != null)
+                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
+                    break;
+                case RETRIEVE:
+                    if (taskQueryParam.getLocalAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+                    if (taskQueryParam.getRemoteAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getRemoteAET()));
+                    if (taskQueryParam.getDestinationAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getDestinationAET()));
+                    if (taskQueryParam.getStudyIUID() != null)
+                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
+                    break;
+                case STGVER:
+                    if (taskQueryParam.getLocalAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+                    if (taskQueryParam.getStudyIUID() != null)
+                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
+                    break;
+                case DIFF:
+                    if (taskQueryParam.getLocalAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+                    if (taskQueryParam.getPrimaryAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getPrimaryAET()));
+                    if (taskQueryParam.getSecondaryAET() != null)
+                        predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getSecondaryAET()));
+                    if (taskQueryParam.getCompareFields() != null)
+                        predicates.add(cb.equal(task.get(Task_.compareFields), taskQueryParam.getCompareFields()));
+                    if (taskQueryParam.getCheckMissing() != null)
+                        predicates.add(cb.equal(task.get(Task_.checkMissing),
+                                Boolean.parseBoolean(taskQueryParam.getCheckMissing())));
+                    if (taskQueryParam.getCheckDifferent() != null)
+                        predicates.add(cb.equal(task.get(Task_.checkDifferent),
+                                Boolean.parseBoolean(taskQueryParam.getCheckDifferent())));
+                    break;
+            }
+        }
+
         return predicates;
     }
 
@@ -1398,6 +1513,68 @@ public class QueryBuilder {
                     cb.equal(soundexCode.get(SoundexCode_.componentPartIndex), partIndex)));
         }
         predicates.add(cb.exists(sq.select(soundexCode).where(y)));
+    }
+
+    public void matchExportBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<Task> task) {
+        if (!taskQueryParam.getExporterIDs().isEmpty())
+            predicates.add(cb.and(task.get(Task_.exporterID).in(taskQueryParam.getExporterIDs())));
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
+    }
+
+    public void matchRetrieveBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<Task> task) {
+        if (!taskQueryParam.getQueueNames().isEmpty())
+            predicates.add(cb.and(task.get(Task_.queueName).in(taskQueryParam.getQueueNames())));
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getLocalAET() != null)
+            predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+        if (taskQueryParam.getRemoteAET() != null)
+            predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getRemoteAET()));
+        if (taskQueryParam.getDestinationAET() != null)
+            predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getDestinationAET()));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
+    }
+
+    public void matchStgVerBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<Task> task) {
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getLocalAET() != null)
+            predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
+    }
+
+    public void matchDiffBatch(List<Predicate> predicates, TaskQueryParam taskQueryParam, Path<Task> task) {
+        if (taskQueryParam.getDeviceName() != null)
+            predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
+        if (taskQueryParam.getLocalAET() != null)
+            predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+        if (taskQueryParam.getPrimaryAET() != null)
+            predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getPrimaryAET()));
+        if (taskQueryParam.getSecondaryAET() != null)
+            predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getSecondaryAET()));
+        if (taskQueryParam.getCompareFields() != null)
+            predicates.add(cb.equal(task.get(Task_.compareFields), taskQueryParam.getCompareFields()));
+        if (taskQueryParam.getCheckMissing() != null)
+            predicates.add(cb.equal(task.get(Task_.checkMissing),
+                    Boolean.parseBoolean(taskQueryParam.getCheckMissing())));
+        if (taskQueryParam.getCheckDifferent() != null)
+            predicates.add(cb.equal(task.get(Task_.checkDifferent),
+                    Boolean.parseBoolean(taskQueryParam.getCheckDifferent())));
+        if (taskQueryParam.getCreatedTime() != null)
+            dateRange(predicates, task.get(Task_.createdTime), taskQueryParam.getCreatedTime());
+        if (taskQueryParam.getUpdatedTime() != null)
+            dateRange(predicates, task.get(Task_.updatedTime), taskQueryParam.getUpdatedTime());
     }
 
     private enum FormatDate {

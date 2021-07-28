@@ -47,9 +47,8 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.ian.scu.IANSCU;
-import org.dcm4chee.arc.ian.scu.IANScheduler;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,9 +84,9 @@ public class IANSCUImpl implements IANSCU {
             rsp.next();
             int status = rsp.getCommand().getInt(Tag.Status, -1);
             return status == Status.Success
-                    ? new Outcome(QueueMessage.Status.COMPLETED,
+                    ? new Outcome(Task.Status.COMPLETED,
                     "Send IAN[uid=" + sopInstanceUID + "] to AE: " + remoteAET)
-                    : new Outcome(QueueMessage.Status.WARNING,
+                    : new Outcome(Task.Status.WARNING,
                     "Send IAN[uid=" + sopInstanceUID + "] to AE: " + remoteAET
                             + " failed with error status: " + Integer.toHexString(status) + 'H');
         } finally {

@@ -61,10 +61,10 @@
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.QueueMessage">
+  <entity class="org.dcm4chee.arc.entity.Task">
     <attributes>
-      <basic name="messageBody" optional="false">
-        <column name="msg_body" updatable="false" column-definition="${blob}"/>
+      <basic name="payload">
+        <column name="payload" updatable="false" column-definition="${blob}"/>
       </basic>
     </attributes>
   </entity>

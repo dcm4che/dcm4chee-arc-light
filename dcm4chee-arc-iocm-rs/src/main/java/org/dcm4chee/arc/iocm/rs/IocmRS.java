@@ -56,7 +56,6 @@ import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -316,12 +315,8 @@ public class IocmRS {
 
     private Response queueReject(RSOperation rsOp, ArchiveAEExtension arcAE, String studyUID, String seriesUID,
                                  String objectUID, RejectionNote rjNote) {
-        try {
-            rejectionService.scheduleReject(aet, studyUID, seriesUID, objectUID, rjNote.getRejectionNoteCode(),
-                    HttpServletRequestInfo.valueOf(request), batchID);
-        } catch (QueueSizeLimitExceededException e) {
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
-        }
+        rejectionService.scheduleReject(aet, studyUID, seriesUID, objectUID, rjNote.getRejectionNoteCode(),
+                HttpServletRequestInfo.valueOf(request), batchID);
         rsForward.forward(rsOp, arcAE, null, request);
         return Response.accepted().build();
     }

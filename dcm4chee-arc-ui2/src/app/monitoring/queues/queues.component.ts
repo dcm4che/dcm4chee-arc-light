@@ -341,7 +341,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     cancel(match) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.cancel(this.filterObject.queueName, match.properties.JMSMessageID)
+        this.service.cancel(this.filterObject.queueName, match.properties.taskID)
             .subscribe(function (res) {
                 match.properties.status = 'CANCELED';
                 $this.cfpLoadingBar.complete();
@@ -359,7 +359,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                         filter["newDeviceName"] = res.schema_model.newDeviceName;
                     }
-                    this.service.reschedule(this.filterObject.queueName, match.properties.JMSMessageID, filter)
+                    this.service.reschedule(this.filterObject.queueName, match.properties.taskID, filter)
                         .subscribe((res) => {
                             $this.search(0);
                             $this.cfpLoadingBar.complete();
@@ -390,7 +390,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
             if (result){
                 $this.cfpLoadingBar.start();
 
-                this.service.delete(this.filterObject.queueName, match.properties.JMSMessageID)
+                this.service.delete(this.filterObject.queueName, match.properties.taskID)
                 .subscribe((res) => {
                     $this.search($this.matches[0].offset);
                     $this.cfpLoadingBar.complete();
@@ -412,7 +412,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 this.cfpLoadingBar.start();
                 this.matches.forEach((match)=>{
                     if(match.checked){
-                        this.service[mode](this.filterObject.queueName, match.properties.JMSMessageID)
+                        this.service[mode](this.filterObject.queueName, match.properties.taskID)
                             .subscribe((res) => {
                             },(err)=>{
                                 this.httpErrorHandler.handleError(err);

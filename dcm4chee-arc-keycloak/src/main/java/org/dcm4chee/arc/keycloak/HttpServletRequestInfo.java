@@ -41,9 +41,6 @@
 
 package org.dcm4chee.arc.keycloak;
 
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Message;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -85,32 +82,10 @@ public class HttpServletRequestInfo {
         return new HttpServletRequestInfo(request);
     }
 
-    public static HttpServletRequestInfo valueOf(Message msg) {
-        try {
-            return msg.propertyExists("RequestURI")
-                    ? new HttpServletRequestInfo(
-                        msg.getStringProperty("RequesterUserID"),
-                        msg.getStringProperty("RequesterHostName"),
-                        msg.getStringProperty("RequestURI"))
-                    : null;
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
-        }
-    }
-
-    public void copyTo(Message msg) {
-        try {
-            msg.setStringProperty("RequesterUserID", requesterUserID);
-            msg.setStringProperty( "RequesterHostName", requesterHost);
-            msg.setStringProperty( "RequestURI", requestURI);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
-        }
-    }
-
-    public static void copyTo(HttpServletRequestInfo requestInfo, Message msg) {
-        if (requestInfo != null)
-            requestInfo.copyTo(msg);
+    public static HttpServletRequestInfo valueOf(String requesterUserID, String requesterHost, String requestURI) {
+        return requestURI != null
+                ? new HttpServletRequestInfo(requesterUserID, requesterHost, requestURI)
+                : null;
     }
 
     private static String hostOfURI(String requestURI) {

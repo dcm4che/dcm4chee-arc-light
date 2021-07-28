@@ -44,12 +44,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
-import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
@@ -61,12 +57,9 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.persistence.Tuple;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -90,15 +83,15 @@ public class RetrieveManagerImpl implements RetrieveManager {
     private RetrieveManagerEJB ejb;
 
     @Override
-    public Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception {
+    public Outcome cmove(ExternalRetrieveContext ctx, Task task) throws Exception {
         ApplicationEntity localAE = device.getApplicationEntity(ctx.getLocalAET(), true);
         Association as = moveSCU.openAssociation(localAE, ctx.getRemoteAET());
         ctx.setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()));
         try {
-            ejb.resetRetrieveTask(queueMessage);
-            final DimseRSP rsp = moveSCU.cmove(as, priority, ctx.getDestinationAET(), ctx.getKeys());
+            ejb.resetRetrieveTask(task);
+            final DimseRSP rsp = moveSCU.cmove(as, Priority.NORMAL, ctx.getDestinationAET(), ctx.getKeys());
             while (rsp.next()) {
-                ejb.updateRetrieveTask(queueMessage, rsp.getCommand());
+                ejb.updateRetrieveTask(task, rsp.getCommand());
             }
             externalRetrieve.fire(ctx.setResponse(rsp.getCommand()));
             return toOutcome(ctx, localAE.getAEExtensionNotNull(ArchiveAEExtension.class));
@@ -141,107 +134,22 @@ public class RetrieveManagerImpl implements RetrieveManager {
                 status == Status.Success
                     ? arcAE.retrieveTaskWarningOnNoMatch() && ctx.completed() == 0 && ctx.warning() == 0
                         || arcAE.retrieveTaskWarningOnWarnings() && ctx.warning() == 0
-                        ? QueueMessage.Status.WARNING
-                        : QueueMessage.Status.COMPLETED
+                        ? Task.Status.WARNING
+                        : Task.Status.COMPLETED
                     : status == Status.OneOrMoreFailures && (ctx.completed() > 0 || ctx.warning() > 0)
-                        ? QueueMessage.Status.WARNING
-                        : QueueMessage.Status.FAILED,
+                        ? Task.Status.WARNING
+                        : Task.Status.FAILED,
                 sb.toString());
     }
 
     @Override
-    public int createRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter) {
-        return ejb.createRetrieveTask(ctx, notRetrievedAfter);
+    public int scheduleRetrieveTask(ExternalRetrieveContext ctx, Date notRetrievedAfter) {
+        return ejb.scheduleRetrieveTask(ctx, notRetrievedAfter);
     }
 
     @Override
-    public int scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx,
-            Date notRetrievedAfter, long delay) throws QueueSizeLimitExceededException {
-        return ejb.scheduleRetrieveTask(priority, ctx, notRetrievedAfter, delay);
+    public List<RetrieveBatch> listRetrieveBatches(TaskQueryParam queryParam, int offset, int limit) {
+        return ejb.listRetrieveBatches(queryParam, offset, limit);
     }
 
-    @Override
-    public boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.deleteRetrieveTask(pk, queueEvent);
-    }
-
-    @Override
-    public boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        return ejb.cancelRetrieveTask(pk, queueEvent);
-    }
-
-    @Override
-    public long cancelRetrieveTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam){
-        return ejb.cancelRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam);
-    }
-
-    @Override
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent) {
-        ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent);
-    }
-
-    @Override
-    public void rescheduleRetrieveTask(Long pk, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
-        ejb.rescheduleRetrieveTask(pk, newQueueName, queueEvent, scheduledTime);
-    }
-
-    @Override
-    public void markTaskForRetrieve(
-            Long pk, String devName, String newQueueName, QueueMessageEvent queueEvent, Date scheduledTime) {
-        ejb.markTaskForRetrieve(pk, devName, newQueueName, queueEvent, scheduledTime);
-    }
-
-    @Override
-    public int deleteTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int deleteTasksFetchSize) {
-        return ejb.deleteTasks(queueTaskQueryParam, retrieveTaskQueryParam, deleteTasksFetchSize);
-    }
-
-    @Override
-    public List<RetrieveBatch> listRetrieveBatches(
-            TaskQueryParam queueBatchQueryParam, TaskQueryParam retrieveBatchQueryParam, int offset, int limit) {
-        return ejb.listRetrieveBatches(queueBatchQueryParam, retrieveBatchQueryParam, offset, limit);
-    }
-
-    @Override
-    public List<String> listDistinctDeviceNames(TaskQueryParam retrieveTaskQueryParam) {
-        return ejb.listDistinctDeviceNames(retrieveTaskQueryParam);
-    }
-
-    @Override
-    public List<Long> listRetrieveTaskPks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam,
-                                          int limit) {
-        return ejb.listRetrieveTaskPks(queueTaskQueryParam, retrieveTaskQueryParam, limit);
-    }
-
-    @Override
-    public List<Tuple> listRetrieveTaskPkAndLocalAETs(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int limit) {
-        return ejb.listRetrieveTaskPkAndLocalAETs(queueTaskQueryParam, retrieveTaskQueryParam, limit);
-    }
-
-    @Override
-    public Iterator<RetrieveTask> listRetrieveTasks(
-            TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam, int offset, int limit) {
-        return ejb.listRetrieveTasks(queueTaskQueryParam, retrieveTaskQueryParam, offset, limit);
-    }
-
-    @Override
-    public long countTasks(TaskQueryParam queueTaskQueryParam, TaskQueryParam retrieveTaskQueryParam) {
-        return ejb.countTasks(queueTaskQueryParam, retrieveTaskQueryParam);
-    }
-
-    @Override
-    public Tuple findDeviceNameAndLocalAETByPk(Long pk) {
-        return ejb.findDeviceNameAndLocalAETByPk(pk);
-    }
-
-    @Override
-    public List<RetrieveTask.PkAndQueueName> findRetrieveTasksToSchedule(int fetchSize, Set<String> suspendedQueues) {
-        return ejb.findRetrieveTasksToSchedule(fetchSize, suspendedQueues);
-    }
-
-    @Override
-    public boolean scheduleRetrieveTask(Long pk) {
-        return ejb.scheduleRetrieveTask(pk);
-    }
 }

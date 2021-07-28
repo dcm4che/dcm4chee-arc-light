@@ -46,7 +46,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -107,7 +107,7 @@ public class StorageExporter extends AbstractExporter {
                     exportContext.getSeriesInstanceUID(),
                     ae.getAEExtensionNotNull(ArchiveAEExtension.class).purgeInstanceRecordsDelay());
             if (!retrieveService.calculateMatches(retrieveContext))
-                return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
+                return new Outcome(Task.Status.WARNING, noMatches(exportContext));
 
             try {
                 Set<String> seriesIUIDs = new HashSet<>();
@@ -155,8 +155,8 @@ public class StorageExporter extends AbstractExporter {
                     }
                 }
                 return new Outcome(retrieveContext.failed() > 0
-                        ? QueueMessage.Status.FAILED
-                        : QueueMessage.Status.COMPLETED,
+                        ? Task.Status.FAILED
+                        : Task.Status.COMPLETED,
                         outcomeMessage(exportContext, retrieveContext, retrieveContext.getDestinationStorage()));
             } finally {
                 retrieveContext.getRetrieveService().updateLocations(retrieveContext);

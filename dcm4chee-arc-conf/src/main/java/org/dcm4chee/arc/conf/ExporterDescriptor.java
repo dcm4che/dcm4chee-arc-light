@@ -42,7 +42,6 @@
 
 package org.dcm4chee.arc.conf;
 
-import javax.jms.Message;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -60,7 +59,6 @@ public class ExporterDescriptor {
     private String description;
     private URI exportURI;
     private String queueName;
-    private int priority = Message.DEFAULT_PRIORITY;
     private String aeTitle;
     private boolean exportAsSourceAE;
     private String[] ianDestinations = {};
@@ -115,17 +113,6 @@ public class ExporterDescriptor {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        if (priority < 0 || priority > 9)
-            throw new IllegalArgumentException("JMS Priority Level for processing the Export Task should be between 0 (lowest) to 9 (highest).");
-
-        this.priority = priority;
     }
 
     public String getAETitle() {
@@ -236,7 +223,6 @@ public class ExporterDescriptor {
         return "ExporterDescriptor{" +
                 "exporterID=" + exporterID +
                 ", exportURI=" + exportURI +
-                ", priority=" + priority +
                 ", queueName=" + queueName +
                 ", aeTitle=" + aeTitle +
                 ", exportAsSourceAE=" + exportAsSourceAE +

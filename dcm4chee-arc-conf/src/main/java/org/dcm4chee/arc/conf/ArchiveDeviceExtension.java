@@ -95,6 +95,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration deleteUPSCanceledDelay;
     private volatile Duration upsProcessingPollingInterval;
     private volatile int upsProcessingFetchSize = 100;
+    private volatile Duration taskPollingInterval;
+    private volatile int taskFetchSize = 100;
     private volatile OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
     private volatile boolean recordAttributeModification = true;
     private volatile ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
@@ -140,10 +142,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String externalRetrieveAEDestination;
     private volatile String xdsiImagingDocumentSourceAETitle;
     private volatile String alternativeCMoveSCP;
-    private volatile Duration exportTaskPollingInterval;
-    private volatile int exportTaskFetchSize = 100;
-    private volatile Duration retrieveTaskPollingInterval;
-    private volatile int retrieveTaskFetchSize = 100;
     private volatile boolean retrieveTaskWarningOnNoMatch;
     private volatile boolean retrieveTaskWarningOnWarnings;
     private volatile Duration deleteRejectedPollingInterval;
@@ -159,14 +157,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration aeCacheStaleTimeout;
     private volatile Duration leadingCFindSCPQueryCacheStaleTimeout;
     private volatile int leadingCFindSCPQueryCacheSize = 10;
-    private volatile int hl7PrefetchHistoryLength = 10;
-    private volatile int hl7ExportHistoryLength = 10;
     private volatile String auditSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
     private volatile Duration auditPollingInterval;
     private volatile Duration auditAggregateDuration;
     private volatile String stowSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
     private volatile String wadoSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
-    private volatile Duration purgeQueueMessagePollingInterval;
+    private volatile Duration purgeTaskPollingInterval;
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
     private volatile Duration mwlPollingInterval;
@@ -606,6 +602,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.upsProcessingFetchSize = upsProcessingFetchSize;
     }
 
+    public Duration getTaskPollingInterval() {
+        return taskPollingInterval;
+    }
+
+    public void setTaskPollingInterval(Duration taskPollingInterval) {
+        this.taskPollingInterval = taskPollingInterval;
+    }
+
+    public int getTaskFetchSize() {
+        return taskFetchSize;
+    }
+
+    public void setTaskFetchSize(int taskFetchSize) {
+        this.taskFetchSize = taskFetchSize;
+    }
+
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
         return personNameComponentOrderInsensitiveMatching;
     }
@@ -978,22 +990,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.qidoETag = qidoETag;
     }
 
-    public int getExportTaskFetchSize() {
-        return exportTaskFetchSize;
-    }
-
-    public void setExportTaskFetchSize(int exportTaskFetchSize) {
-        this.exportTaskFetchSize = greaterZero(exportTaskFetchSize, "exportTaskFetchSize");
-    }
-
-    public Duration getExportTaskPollingInterval() {
-        return exportTaskPollingInterval;
-    }
-
-    public void setExportTaskPollingInterval(Duration exportTaskPollingInterval) {
-        this.exportTaskPollingInterval = exportTaskPollingInterval;
-    }
-
     public Duration getDeleteRejectedPollingInterval() {
         return deleteRejectedPollingInterval;
     }
@@ -1221,12 +1217,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.fallbackCMoveSCPStudyOlderThan = fallbackCMoveSCPStudyOlderThan;
     }
 
-    public Duration getPurgeQueueMessagePollingInterval() {
-        return purgeQueueMessagePollingInterval;
+    public Duration getPurgeTaskPollingInterval() {
+        return purgeTaskPollingInterval;
     }
 
-    public void setPurgeQueueMessagePollingInterval(Duration purgeQueueMessagePollingInterval) {
-        this.purgeQueueMessagePollingInterval = purgeQueueMessagePollingInterval;
+    public void setPurgeTaskPollingInterval(Duration purgeTaskPollingInterval) {
+        this.purgeTaskPollingInterval = purgeTaskPollingInterval;
     }
 
     public Duration getPurgeStgCmtPollingInterval() {
@@ -2958,22 +2954,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.restrictRetrieveSilently = restrictRetrieveSilently;
     }
 
-    public Duration getRetrieveTaskPollingInterval() {
-        return retrieveTaskPollingInterval;
-    }
-
-    public void setRetrieveTaskPollingInterval(Duration retrieveTaskPollingInterval) {
-        this.retrieveTaskPollingInterval = retrieveTaskPollingInterval;
-    }
-
-    public int getRetrieveTaskFetchSize() {
-        return retrieveTaskFetchSize;
-    }
-
-    public void setRetrieveTaskFetchSize(int retrieveTaskFetchSize) {
-        this.retrieveTaskFetchSize = retrieveTaskFetchSize;
-    }
-
     public boolean isRetrieveTaskWarningOnNoMatch() {
         return retrieveTaskWarningOnNoMatch;
     }
@@ -3128,6 +3108,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deleteUPSCanceledDelay = arcdev.deleteUPSCanceledDelay;
         upsProcessingPollingInterval = arcdev.upsProcessingPollingInterval;
         upsProcessingFetchSize = arcdev.upsProcessingFetchSize;
+        taskPollingInterval = arcdev.taskPollingInterval;
+        taskFetchSize = arcdev.taskFetchSize;
         overwritePolicy = arcdev.overwritePolicy;
         recordAttributeModification = arcdev.recordAttributeModification;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
@@ -3179,10 +3161,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;
         xdsiImagingDocumentSourceAETitle = arcdev.xdsiImagingDocumentSourceAETitle;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
-        exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
-        exportTaskFetchSize = arcdev.exportTaskFetchSize;
-        retrieveTaskPollingInterval = arcdev.retrieveTaskPollingInterval;
-        retrieveTaskFetchSize = arcdev.retrieveTaskFetchSize;
         retrieveTaskWarningOnNoMatch = arcdev.retrieveTaskWarningOnNoMatch;
         retrieveTaskWarningOnWarnings = arcdev.retrieveTaskWarningOnWarnings;
         deleteRejectedPollingInterval = arcdev.deleteRejectedPollingInterval;
@@ -3205,7 +3183,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSpoolDirectory = arcdev.wadoSpoolDirectory;
         hl7LogFilePattern = arcdev.hl7LogFilePattern;
         hl7ErrorLogFilePattern = arcdev.hl7ErrorLogFilePattern;
-        purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
+        purgeTaskPollingInterval = arcdev.purgeTaskPollingInterval;
         purgeStgCmtPollingInterval = arcdev.purgeStgCmtPollingInterval;
         purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;

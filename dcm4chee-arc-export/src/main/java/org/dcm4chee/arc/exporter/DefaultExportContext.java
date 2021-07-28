@@ -54,7 +54,7 @@ import org.dcm4che3.xdsi.RegistryResponseType;
 public class DefaultExportContext implements ExportContext {
 
     private final Exporter exporter;
-    private String messageID;
+    private Long taskPK;
     private String batchID;
     private String studyInstanceUID;
     private String seriesInstanceUID;
@@ -77,13 +77,13 @@ public class DefaultExportContext implements ExportContext {
     }
 
     @Override
-    public String getMessageID() {
-        return messageID;
+    public Long getTaskPK() {
+        return taskPK;
     }
 
     @Override
-    public void setMessageID(String messageID) {
-        this.messageID = messageID;
+    public void setTaskPK(Long taskPK) {
+        this.taskPK = taskPK;
     }
 
     @Override

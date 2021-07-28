@@ -42,7 +42,6 @@ package org.dcm4chee.arc.rs.client;
 
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -63,7 +62,7 @@ public interface RSClient {
             String patientID,
             byte[] content,
             boolean tlsAllowAnyHostName,
-            boolean tlsDisableTrustManager) throws QueueSizeLimitExceededException;
+            boolean tlsDisableTrustManager);
 
     Outcome request(
             String rsOp,

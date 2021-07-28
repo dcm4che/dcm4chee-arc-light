@@ -54,21 +54,18 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7ForwardRule;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.TaskManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.JMSRuntimeException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
 import java.io.IOException;
+import java.util.Date;
 import java.util.stream.Stream;
 
 /**
@@ -87,7 +84,7 @@ public class HL7SenderImpl implements HL7Sender {
     private IHL7ApplicationCache hl7AppCache;
 
     @Inject
-    private QueueManager queueManager;
+    private TaskManager taskManager;
 
     public void onHL7Connection(@Observes HL7ConnectionEvent event) {
         if (event.getType() != HL7ConnectionEvent.Type.MESSAGE_PROCESSED || event.getException() != null)
@@ -107,7 +104,7 @@ public class HL7SenderImpl implements HL7Sender {
         String host = ReverseDNS.hostNameOf(event.getSocket().getInetAddress());
         HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
         arcHL7App.hl7ForwardRules()
-                .filter(rule -> rule.getConditions().match(host, hl7Fields))
+                .filter(rule -> rule.match(host, hl7Fields))
                 .map(HL7ForwardRule::getDestinations)
                 .flatMap(Stream::of)
                 .distinct()
@@ -142,7 +139,7 @@ public class HL7SenderImpl implements HL7Sender {
     public void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                                 String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
                                 HttpServletRequestInfo httpServletRequestInfo)
-            throws ConfigurationException, QueueSizeLimitExceededException {
+            throws ConfigurationException {
         getSendingHl7Application(sendingApplication, sendingFacility);
         hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         scheduleMessage(null, hl7msg);
@@ -184,20 +181,23 @@ public class HL7SenderImpl implements HL7Sender {
     public void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data) {
         UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
         HL7Segment msh = hl7Msg.msh();
-        try {
-            ObjectMessage msg = queueManager.createObjectMessage(data);
-            msg.setStringProperty("SendingApplication", msh.getField(2, ""));
-            msg.setStringProperty("SendingFacility", msh.getField(3, ""));
-            msg.setStringProperty("ReceivingApplication", msh.getField(4, ""));
-            msg.setStringProperty("ReceivingFacility", msh.getField(5, ""));
-            msg.setStringProperty("MessageType", msh.getField(9, ""));
-            msg.setStringProperty("MessageControlID", msh.getField(10, ""));
-            if (httpServletRequestInfo != null)
-                httpServletRequestInfo.copyTo(msg);
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null, 0L);
-        } catch (JMSException e) {
-            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+        Task task = new Task();
+        task.setDeviceName(device.getDeviceName());
+        task.setQueueName(HL7Sender.QUEUE_NAME);
+        task.setType(Task.Type.HL7);
+        task.setScheduledTime(new Date());
+        task.setSendingApplicationWithFacility(msh.getSendingApplicationWithFacility());
+        task.setReceivingApplicationWithFacility(msh.getReceivingApplicationWithFacility());
+        task.setMessageType(msh.getMessageType());
+        task.setMessageControlID(msh.getMessageControlID());
+        if (httpServletRequestInfo != null) {
+            task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
+            task.setRequesterHost(httpServletRequestInfo.requesterHost);
+            task.setRequestURI(httpServletRequestInfo.requestURI);
         }
+        task.setPayload(data);
+        task.setStatus(Task.Status.SCHEDULED);
+        taskManager.scheduleTask(task);
     }
 
 }

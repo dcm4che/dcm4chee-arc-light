@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.23.3"
+    "version": "5.24.0"
   },
   "servers": [
     {
@@ -84,20 +84,12 @@
       "description": "Invoke C-MOVE requests on external C-MOVE SCP"
     },
     {
-      "name": "MOVE-LEGACY-RS",
-      "description": "Invoke C-MOVE requests on external C-MOVE SCP - Legacy"
-    },
-    {
       "name": "DIFF-RS",
       "description": "Compare Studies with/between external Archive(s)"
     },
     {
       "name": "EXPORT-RS",
       "description": "Export Instances"
-    },
-    {
-      "name": "EXPORT-LEGACY-RS",
-      "description": "Export Matching Instances - Legacy"
     },
     {
       "name": "IMPORT-RS",
@@ -108,16 +100,8 @@
       "description": "Notify external IAN SCP about Availability of Instances"
     },
     {
-      "name": "IAN-LEGACY-RS",
-      "description": "Schedule IAN to external archive - Legacy"
-    },
-    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
-    },
-    {
-      "name": "IOCM-LEGACY-RS",
-      "description": "Reject Matching - Legacy"
     },
     {
       "name": "MONITOR-RS",
@@ -144,16 +128,8 @@
       "description": "Request Storage Commitment from external Archive"
     },
     {
-      "name": "STGCMT-LEGACY-RS",
-      "description": "Request Storage Commitment of matching entities from external Archive - Legacy"
-    },
-    {
       "name": "STGVER-RS",
       "description": "Storage Verification"
-    },
-    {
-      "name": "STGVER-LEGACY-RS",
-      "description": "Storage Verification Matching - Legacy"
     },
     {
       "name": "IMPAX-REPORT-RS",
@@ -483,9 +459,6 @@
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/frames/{frames}/thumbnail": {
       "$ref": "paths/wado.json#/frames.thumbnail"
     },
-    "/aets/{aet}/rs/studies/csv:{field}/mark4export/{exporterID}": {
-      "$ref": "paths/export.json#/studies.csv.mark4export"
-    },
     "/modalities": {
       "$ref": "paths/misc.json#/modalities"
     },
@@ -639,23 +612,23 @@
     "/monitor/export": {
       "$ref": "paths/monitor.json#/export"
     },
-    "/monitor/export/{taskPK}": {
+    "/monitor/export/{taskID}": {
       "$ref": "paths/monitor.json#/exportTask"
     },
     "/monitor/export/count": {
       "$ref": "paths/monitor.json#/exportCount"
     },
-    "/monitor/export/{taskPK}/cancel": {
+    "/monitor/export/{taskID}/cancel": {
       "$ref": "paths/monitor.json#/exportTaskCancel"
     },
     "/monitor/export/cancel": {
       "$ref": "paths/monitor.json#/exportCancel"
     },
-    "/monitor/export/{taskPK}/reschedule/{exporterID}": {
+    "/monitor/export/{taskID}/reschedule": {
       "$ref": "paths/monitor.json#/exportTaskReschedule"
     },
-    "/monitor/export/{taskPK}/mark4export/{exporterID}": {
-      "$ref": "paths/monitor.json#/exportTaskMark4Export"
+    "/monitor/export/{taskID}/reschedule/{exporterID}": {
+      "$ref": "paths/monitor.json#/exportTaskRescheduleExporter"
     },
     "/monitor/export/reschedule": {
       "$ref": "paths/monitor.json#/exportReschedule"
@@ -663,41 +636,29 @@
     "/monitor/export/reschedule/{newExporterID}": {
       "$ref": "paths/monitor.json#/exportRescheduleExporter"
     },
-    "/monitor/export/mark4export": {
-      "$ref": "paths/monitor.json#/mark4Export"
-    },
-    "/monitor/export/mark4export/{newExporterID}": {
-      "$ref": "paths/monitor.json#/mark4ExportOnExporter"
-    },
     "/monitor/export/batch": {
       "$ref": "paths/monitor.json#/exportBatch"
     },
     "/monitor/retrieve": {
       "$ref": "paths/monitor.json#/retrieve"
     },
-    "/monitor/retrieve/{taskPK}": {
+    "/monitor/retrieve/{taskID}": {
       "$ref": "paths/monitor.json#/retrieveTask"
     },
     "/monitor/retrieve/count": {
       "$ref": "paths/monitor.json#/retrieveCount"
     },
-    "/monitor/retrieve/{taskPK}/cancel": {
+    "/monitor/retrieve/{taskID}/cancel": {
       "$ref": "paths/monitor.json#/retrieveTaskCancel"
     },
     "/monitor/retrieve/cancel": {
       "$ref": "paths/monitor.json#/retrieveCancel"
     },
-    "/monitor/retrieve/{taskPK}/reschedule": {
+    "/monitor/retrieve/{taskID}/reschedule": {
       "$ref": "paths/monitor.json#/retrieveTaskReschedule"
-    },
-    "/monitor/retrieve/{taskPK}/mark4retrieve": {
-      "$ref": "paths/monitor.json#/retrieveTaskMark4Retrieve"
     },
     "/monitor/retrieve/reschedule": {
       "$ref": "paths/monitor.json#/retrieveReschedule"
-    },
-    "/monitor/retrieve/mark4retrieve": {
-      "$ref": "paths/monitor.json#/mark4retrieve"
     },
     "/monitor/retrieve/batch": {
       "$ref": "paths/monitor.json#/retrieveBatch"
@@ -705,19 +666,19 @@
     "/monitor/stgver": {
       "$ref": "paths/monitor.json#/stgver"
     },
-    "/monitor/stgver/{taskPK}": {
+    "/monitor/stgver/{taskID}": {
       "$ref": "paths/monitor.json#/stgverTask"
     },
     "/monitor/stgver/count": {
       "$ref": "paths/monitor.json#/stgverCount"
     },
-    "/monitor/stgver/{taskPK}/cancel": {
+    "/monitor/stgver/{taskID}/cancel": {
       "$ref": "paths/monitor.json#/stgverTaskCancel"
     },
     "/monitor/stgver/cancel": {
       "$ref": "paths/monitor.json#/stgverCancel"
     },
-    "/monitor/stgver/{taskPK}/reschedule": {
+    "/monitor/stgver/{taskID}/reschedule": {
       "$ref": "paths/monitor.json#/stgverTaskReschedule"
     },
     "/monitor/stgver/reschedule": {
@@ -729,25 +690,25 @@
     "/monitor/diff": {
       "$ref": "paths/monitor.json#/diff"
     },
-    "/monitor/diff/{taskPK}": {
+    "/monitor/diff/{taskID}": {
       "$ref": "paths/monitor.json#/diffTask"
     },
     "/monitor/diff/count": {
       "$ref": "paths/monitor.json#/diffCount"
     },
-    "/monitor/diff/{taskPK}/cancel": {
+    "/monitor/diff/{taskID}/cancel": {
       "$ref": "paths/monitor.json#/diffTaskCancel"
     },
     "/monitor/diff/cancel": {
       "$ref": "paths/monitor.json#/diffCancel"
     },
-    "/monitor/diff/{taskPK}/reschedule": {
+    "/monitor/diff/{taskID}/reschedule": {
       "$ref": "paths/monitor.json#/diffTaskReschedule"
     },
     "/monitor/diff/reschedule": {
       "$ref": "paths/monitor.json#/diffReschedule"
     },
-    "/monitor/diff/{taskPK}/studies": {
+    "/monitor/diff/{taskID}/studies": {
       "$ref": "paths/monitor.json#/diffTaskStudies"
     },
     "/monitor/diff/batch": {
@@ -789,24 +750,6 @@
     "/xroad/RR441/{patientID}": {
       "$ref": "paths/misc.json#/xroad"
     },
-    "/aets/{aet}/ian/{ianscp}/studies": {
-      "$ref": "paths/legacy.json#/ian.studies"
-    },
-    "/aets/{aet}/ian/{ianscp}/series": {
-      "$ref": "paths/legacy.json#/ian.series"
-    },
-    "/aets/{aet}/ian/{ianscp}/instances": {
-      "$ref": "paths/legacy.json#/ian.instances"
-    },
-    "/aets/{aet}/ian/{ianscp}/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/ian.studies.series"
-    },
-    "/aets/{aet}/ian/{ianscp}/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/ian.studies.instances"
-    },
-    "/aets/{aet}/ian/{ianscp}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/ian.studies.series.instances"
-    },
     "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients": {
       "$ref": "paths/pam.json#/hl7.patients"
     },
@@ -831,44 +774,8 @@
     "/stgcmt/{transactionUID}": {
       "$ref": "paths/stgcmt.json#/stgcmt"
     },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies": {
-      "$ref": "paths/legacy.json#/stgcmt.studies"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/series": {
-      "$ref": "paths/legacy.json#/stgcmt.series"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/instances": {
-      "$ref": "paths/legacy.json#/stgcmt.instances"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/stgcmt.studies.series"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/stgcmt.studies.instances"
-    },
-    "/aets/{aet}/stgcmt/{stgCmtSCP}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/stgcmt.studies.series.instances"
-    },
     "/aets/{aet}/rs/expire/series": {
       "$ref": "paths/iocm.json#/series.expire"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies": {
-      "$ref": "paths/legacy.json#/reject.studies"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/series": {
-      "$ref": "paths/legacy.json#/reject.series"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/instances": {
-      "$ref": "paths/legacy.json#/reject.instances"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/reject.studies.series"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/reject.studies.instances"
-    },
-    "/aets/{aet}/reject/{codeValue}^{codingSchemeDesignator}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/reject.studies.series.instances"
     },
     "/aets/{aet}/dimse/{storescp}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/dimse.study.reject"
@@ -915,45 +822,6 @@
     "/queue/{queueName}/{taskID}": {
       "$ref": "paths/monitor.json#/queueTask"
     },
-    "/aets/{aet}/stgver/studies": {
-      "$ref": "paths/legacy.json#/stgver.studies"
-    },
-    "/aets/{aet}/stgver/series": {
-      "$ref": "paths/legacy.json#/stgver.series"
-    },
-    "/aets/{aet}/stgver/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/stgver.studies.series"
-    },
-    "/aets/{aet}/stgver/instances": {
-      "$ref": "paths/legacy.json#/stgver.instances"
-    },
-    "/aets/{aet}/stgver/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/stgver.studies.instances"
-    },
-    "/aets/{aet}/stgver/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/stgver.studies.series.instances"
-    },
-    "/aets/{aet}/export/{exporterID}/studies/csv:{field}": {
-      "$ref": "paths/legacy.json#/export.studies.csv"
-    },
-    "/aets/{aet}/export/{exporterID}/studies": {
-      "$ref": "paths/legacy.json#/export.studies"
-    },
-    "/aets/{aet}/export/{exporterID}/series": {
-      "$ref": "paths/legacy.json#/export.series"
-    },
-    "/aets/{aet}/export/{exporterID}/studies/{study}/series": {
-      "$ref": "paths/legacy.json#/export.studies.series"
-    },
-    "/aets/{aet}/export/{exporterID}/instances": {
-      "$ref": "paths/legacy.json#/export.instances"
-    },
-    "/aets/{aet}/export/{exporterID}/studies/{study}/instances": {
-      "$ref": "paths/legacy.json#/export.studies.instances"
-    },
-    "/aets/{aet}/export/{exporterID}/studies/{study}/series/{series}/instances": {
-      "$ref": "paths/legacy.json#/export.studies.series.instances"
-    },
     "/aets/{aet}/dimse/{movescp}/studies/{study}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/studies"
     },
@@ -963,20 +831,8 @@
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/{instance}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/instances"
     },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/studies.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/series.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/{instance}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/instances.mark4retrieve"
-    },
     "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/studies.csv"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/studies.csv.mark4retrieve"
     },
     "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find2.studies"
@@ -987,15 +843,6 @@
     "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/{series}/instances/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find2.instances"
     },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find2.studies.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find2.series.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/{series}/instances/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find2.instances.mark4retrieve"
-    },
     "/aets/{aet}/dimse/{movescp}/studies/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find.studies"
     },
@@ -1004,33 +851,6 @@
     },
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/export/dicom:{destination}": {
       "$ref": "paths/move.json#/find.instances"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find.studies.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find.series.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/move.json#/find.instances.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/export/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.studies"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/query:{findscp}/export/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.series"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/query:{findscp}/export/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.instances"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/query:{findscp}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.studies.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/query:{findscp}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.series.mark4retrieve"
-    },
-    "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/query:{findscp}/mark4retrieve/dicom:{destination}": {
-      "$ref": "paths/legacy.json#/move.instances.mark4retrieve"
     },
     "/aets/{aet}/rs/studies/workitems": {
       "$ref": "paths/workitems.json#/local.studies"
