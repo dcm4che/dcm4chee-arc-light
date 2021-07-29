@@ -35,8 +35,10 @@ export class QueuesService{
     }
 
     reschedule(queueName, msgId, filter) {
-        return this.$http.post(this.url3(queueName, msgId, 'reschedule'), filter, this.header)
-    };
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}queue/${queueName}/${msgId}/reschedule${urlParam}`, {}, this.header);
+    }
     rescheduleAll(filter,queueName){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
