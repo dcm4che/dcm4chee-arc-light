@@ -58,10 +58,8 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -187,16 +185,17 @@ public class ExportManagerEJB implements ExportManager {
     public boolean scheduleStudyExport(
             String studyUID, ExporterDescriptor exporter,
             Date notExportedAfter, String batchID, Date scheduledTime) {
-        try {
-            Task prevTask = em.createNamedQuery(Task.FIND_STUDY_EXPORT_AFTER, Task.class)
-                    .setParameter(1, notExportedAfter)
-                    .setParameter(2, exporter.getExporterID())
-                    .setParameter(3, studyUID)
-                    .setParameter(4, Task.Type.EXPORT)
-                    .getSingleResult();
-            LOG.info("Previous {} found - suppress duplicate Export", prevTask);
+        List<Task> prevTasks = em.createNamedQuery(Task.FIND_STUDY_EXPORT_AFTER, Task.class)
+                .setParameter(1, notExportedAfter)
+                .setParameter(2, exporter.getExporterID())
+                .setParameter(3, studyUID)
+                .setParameter(4, Task.Type.EXPORT)
+                .getResultList();
+        if (!prevTasks.isEmpty()) {
+            for (Task prevTask : prevTasks) {
+                LOG.info("Previous {} found - suppress duplicate Export", prevTask);
+            }
             return false;
-        } catch (NoResultException e) {
         }
 
         createExportTask(
