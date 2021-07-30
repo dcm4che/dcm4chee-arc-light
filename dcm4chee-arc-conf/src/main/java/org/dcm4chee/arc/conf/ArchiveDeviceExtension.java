@@ -170,6 +170,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration mwlImportInterval;
     private volatile String[] deleteMWLDelay = {};
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
+    private volatile SPSStatus[] hideSPSWithStatusFromMWLRS = {};
     private volatile HL7ORUAction[] hl7ORUAction = {};
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
@@ -1247,6 +1248,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHideSPSWithStatusFrom(SPSStatus[] hideSPSWithStatusFrom) {
         this.hideSPSWithStatusFrom = hideSPSWithStatusFrom;
+    }
+
+    public SPSStatus[] getHideSPSWithStatusFromMWLRS() {
+        return hideSPSWithStatusFromMWLRS;
+    }
+
+    public void setHideSPSWithStatusFromMWLRS(SPSStatus[] hideSPSWithStatusFromMWLRS) {
+        this.hideSPSWithStatusFromMWLRS = hideSPSWithStatusFromMWLRS;
     }
 
     public HL7ORUAction[] getHl7ORUAction() {
@@ -3187,6 +3196,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeStgCmtPollingInterval = arcdev.purgeStgCmtPollingInterval;
         purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
+        hideSPSWithStatusFromMWLRS = arcdev.hideSPSWithStatusFromMWLRS;
         hl7ORUAction = arcdev.hl7ORUAction;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
         rejectExpiredStudiesSchedules = arcdev.rejectExpiredStudiesSchedules;

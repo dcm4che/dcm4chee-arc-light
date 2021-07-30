@@ -111,6 +111,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Integer qidoMaxNumberOfResults;
     private Boolean qidoETag;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
+    private SPSStatus[] hideSPSWithStatusFromMWLRS = {};
     private String storePermissionServiceURL;
     private String storePermissionServiceResponse;
     private Pattern storePermissionServiceResponsePattern;
@@ -841,6 +842,20 @@ public class ArchiveAEExtension extends AEExtension {
         return hideSPSWithStatusFromMWL.length > 0
                 ? hideSPSWithStatusFromMWL
                 : getArchiveDeviceExtension().getHideSPSWithStatusFrom();
+    }
+
+    public SPSStatus[] getHideSPSWithStatusFromMWLRS() {
+        return hideSPSWithStatusFromMWLRS;
+    }
+
+    public void setHideSPSWithStatusFromMWLRS(SPSStatus[] hideSPSWithStatusFromMWLRS) {
+        this.hideSPSWithStatusFromMWLRS = hideSPSWithStatusFromMWLRS;
+    }
+
+    public SPSStatus[] hideSPSWithStatusFromMWLRS() {
+        return hideSPSWithStatusFromMWLRS.length > 0
+                ? hideSPSWithStatusFromMWLRS
+                : getArchiveDeviceExtension().getHideSPSWithStatusFromMWLRS();
     }
 
     public String getFallbackCMoveSCPStudyOlderThan() {
@@ -1772,6 +1787,7 @@ public class ArchiveAEExtension extends AEExtension {
         queryMaxNumberOfResults = aeExt.queryMaxNumberOfResults;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
+        hideSPSWithStatusFromMWLRS = aeExt.hideSPSWithStatusFromMWLRS;
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
         storePermissionServiceURL = aeExt.storePermissionServiceURL;
         storePermissionServiceResponse = aeExt.storePermissionServiceResponse;

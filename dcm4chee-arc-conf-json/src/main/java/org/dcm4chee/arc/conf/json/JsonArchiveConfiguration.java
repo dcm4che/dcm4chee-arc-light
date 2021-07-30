@@ -108,6 +108,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
                 arcDev.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcDev.getHideSPSWithStatusFrom());
+        writer.writeNotEmpty("dcmHideSPSWithStatusFromMWLRS", arcDev.getHideSPSWithStatusFromMWLRS());
         writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcDev.getEncodeAsJSONNumber());
         writer.writeNotEmpty("hl7ORUAction", arcDev.getHl7ORUAction());
         writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching",
@@ -1153,6 +1154,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID(), null);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory(), null);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcAE.getHideSPSWithStatusFromMWL());
+        writer.writeNotEmpty("dcmHideSPSWithStatusFromMWLRS", arcAE.getHideSPSWithStatusFromMWLRS());
         writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcAE.getEncodeAsJSONNumber());
         writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcAE.getPersonNameComponentOrderInsensitiveMatching());
@@ -1348,6 +1350,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
                     arcDev.setHideSPSWithStatusFrom(reader.enumArray(SPSStatus.class));
+                    break;
+                case "dcmHideSPSWithStatusFromMWLRS":
+                    arcDev.setHideSPSWithStatusFromMWLRS(reader.enumArray(SPSStatus.class));
                     break;
                 case "dcmEncodeAsJSONNumber":
                     arcDev.setEncodeAsJSONNumber(reader.enumArray(VR.class));
@@ -3723,6 +3728,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
                     arcAE.setHideSPSWithStatusFromMWL(reader.enumArray(SPSStatus.class));
+                    break;
+                case "dcmHideSPSWithStatusFromMWLRS":
+                    arcAE.setHideSPSWithStatusFromMWLRS(reader.enumArray(SPSStatus.class));
                     break;
                 case "dcmEncodeAsJSONNumber":
                     arcAE.setEncodeAsJSONNumber(reader.enumArray(VR.class));

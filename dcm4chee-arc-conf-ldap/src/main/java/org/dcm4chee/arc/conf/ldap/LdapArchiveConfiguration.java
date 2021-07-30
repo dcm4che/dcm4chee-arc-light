@@ -233,6 +233,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessagePollingInterval",
                 ext.getPurgeTaskPollingInterval(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWLRS", ext.getHideSPSWithStatusFromMWLRS());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectExpiredStudiesPollingInterval",
@@ -598,6 +599,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.stringValue(attrs.get("dcmStowSpoolDirectory"), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR));
         ext.setPurgeTaskPollingInterval(toDuration(attrs.get("dcmPurgeQueueMessagePollingInterval"), null));
         ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
+        ext.setHideSPSWithStatusFromMWLRS(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWLRS")));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
         ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
         ext.setRejectExpiredStudiesPollingInterval(toDuration(attrs.get("dcmRejectExpiredStudiesPollingInterval"), null));
@@ -1018,6 +1020,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getPurgeTaskPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWL",
                 aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWLRS",
+                aa.getHideSPSWithStatusFromMWLRS(), bb.getHideSPSWithStatusFromMWLRS());
         LdapUtils.storeDiff(ldapObj, mods, "dcmEncodeAsJSONNumber",
                 aa.getEncodeAsJSONNumber(), bb.getEncodeAsJSONNumber());
         LdapUtils.storeDiff(ldapObj, mods, "hl7ORUAction", aa.getHl7ORUAction(), bb.getHl7ORUAction());
@@ -1591,6 +1595,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanOnTimeout", ext.getIanOnTimeout(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFromMWL());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWLRS", ext.getHideSPSWithStatusFromMWLRS());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPStudyOlderThan",
                 ext.getFallbackCMoveSCPStudyOlderThan(), null);
@@ -1749,6 +1754,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanTimeout(toDuration(attrs.get("dcmIanTimeout"), null));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
         ext.setHideSPSWithStatusFromMWL(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
+        ext.setHideSPSWithStatusFromMWLRS(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWLRS")));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
         ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(
                 attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
@@ -1949,6 +1955,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getIanOnTimeout(), bb.getIanOnTimeout(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWL",
                 aa.getHideSPSWithStatusFromMWL(), bb.getHideSPSWithStatusFromMWL());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWLRS",
+                aa.getHideSPSWithStatusFromMWLRS(), bb.getHideSPSWithStatusFromMWLRS());
         LdapUtils.storeDiff(ldapObj, mods, "dcmEncodeAsJSONNumber",
                 aa.getEncodeAsJSONNumber(), bb.getEncodeAsJSONNumber());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPStudyOlderThan",

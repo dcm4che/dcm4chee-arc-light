@@ -111,6 +111,10 @@ public class QueryParam {
         return arcAE.hideSPSWithStatusFromMWL();
     }
 
+    public SPSStatus[] getHideSPSWithStatusFromMWLRS() {
+        return arcAE.hideSPSWithStatusFromMWLRS();
+    }
+
     public FuzzyStr getFuzzyStr() {
         return arcDev.getFuzzyStr();
     }
