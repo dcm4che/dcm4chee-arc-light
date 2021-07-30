@@ -2455,6 +2455,11 @@ attributetype ( 1.2.40.0.13.1.15.110.3.419 NAME 'dcmHistorySize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.420 NAME 'dcmHideSPSWithStatusFromMWLRS'
+  DESC 'Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL-RS Service. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELED, DISCONTINUED, COMPLETED'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2509,6 +2514,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
     dcmHideSPSWithStatusFromMWL $
+    dcmHideSPSWithStatusFromMWLRS $
     dcmValidateCallingAEHostname $
     dcmUserIdentityNegotiation $
     dcmUserIdentityNegotiationRole $
@@ -2742,6 +2748,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
     dcmHideSPSWithStatusFromMWL $
+    dcmHideSPSWithStatusFromMWLRS $
     dcmValidateCallingAEHostname $
     dcmUserIdentityNegotiation $
     dcmUserIdentityNegotiationRole $
