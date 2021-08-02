@@ -121,8 +121,6 @@ class IocmUtils {
         StoreService storeService = session.getStoreService();
         StoreContext koctx = storeService.newStoreContext(session);
         Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
-        koctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-        koctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
         koctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
         storeService.store(koctx, ko);
     }

@@ -24,11 +24,7 @@ public interface StoreContext {
 
     String getSopClassUID();
 
-    void setSopClassUID(String string);
-
     String getSopInstanceUID();
-
-    void setSopInstanceUID(String string);
 
     String getMppsInstanceUID();
 

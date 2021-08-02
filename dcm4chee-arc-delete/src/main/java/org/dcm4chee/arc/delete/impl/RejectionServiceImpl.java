@@ -141,8 +141,6 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
         LOG.info("Start rejection of {} instances of Study[UID={}], Series[UID={}], SOPInstance[UID={}].",
                 count, studyIUID, seriesIUID, sopIUID);
         StoreContext storeCtx = storeService.newStoreContext(storeSession);
-        storeCtx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
-        storeCtx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
         storeService.store(storeCtx, attrs);
         LOG.info("Rejection of {} instances of Study[UID={}], Series[UID={}], SOPInstance[UID={}] completed.",

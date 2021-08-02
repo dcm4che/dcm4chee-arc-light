@@ -236,8 +236,6 @@ class ImportReportService extends DefaultHL7Service {
                        Attributes attrs) throws Exception {
         try (StoreSession session = storeService.newStoreSession(arcHL7App.getHL7Application(), s, msg, ae)) {
             StoreContext ctx = storeService.newStoreContext(session);
-            ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
-            ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
             ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
             storeService.store(ctx, attrs);
         }

@@ -68,8 +68,6 @@ import java.util.List;
 class StoreContextImpl implements StoreContext {
 
     private final StoreSession storeSession;
-    private String sopClassUID;
-    private String sopInstanceUID;
     private String receiveTranferSyntaxUID;
     private String storeTranferSyntaxUID;
     private ArchiveCompressionRule compressionRule;
@@ -80,9 +78,6 @@ class StoreContextImpl implements StoreContext {
     private ReadContext readContext;
     private Attributes attributes;
     private Attributes coercedAttributes = new Attributes();
-    private String studyInstanceUID;
-    private String seriesInstanceUID;
-    private String mppsInstanceUID;
     private RejectionNote rejectionNote;
     private RejectedInstance rejectedInstance;
     private Instance previousInstance;
@@ -105,37 +100,31 @@ class StoreContextImpl implements StoreContext {
 
     @Override
     public String getSopClassUID() {
-        return sopClassUID;
-    }
-
-    @Override
-    public void setSopClassUID(String sopClassUID) {
-        this.sopClassUID = sopClassUID;
+        return attributes.getString(Tag.SOPClassUID);
     }
 
     @Override
     public String getSopInstanceUID() {
-        return sopInstanceUID;
-    }
-
-    @Override
-    public void setSopInstanceUID(String sopInstanceUID) {
-        this.sopInstanceUID = sopInstanceUID;
+        return attributes.getString(Tag.SOPInstanceUID);
     }
 
     @Override
     public String getStudyInstanceUID() {
-        return studyInstanceUID;
+        return attributes.getString(Tag.StudyInstanceUID);
     }
 
     @Override
     public String getSeriesInstanceUID() {
-        return seriesInstanceUID;
+        return attributes.getString(Tag.SeriesInstanceUID);
     }
 
     @Override
     public String getMppsInstanceUID() {
-        return mppsInstanceUID;
+        Attributes ppsRef = attributes.getNestedDataset(Tag.ReferencedPerformedProcedureStepSequence);
+        return ppsRef != null
+                && UID.ModalityPerformedProcedureStep.equals(ppsRef.getString(Tag.ReferencedSOPClassUID))
+                ? ppsRef.getString(Tag.ReferencedSOPInstanceUID)
+                : null;
     }
 
     @Override
@@ -206,15 +195,6 @@ class StoreContextImpl implements StoreContext {
 
     @Override
     public void setAttributes(Attributes attrs) {
-        this.studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-        this.seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
-        this.sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
-        this.sopClassUID = attrs.getString(Tag.SOPClassUID);
-        Attributes ppsRef = attrs.getNestedDataset(Tag.ReferencedPerformedProcedureStepSequence);
-        this.mppsInstanceUID = ppsRef != null
-                && UID.ModalityPerformedProcedureStep.equals(ppsRef.getString(Tag.ReferencedSOPClassUID))
-                ? ppsRef.getString(Tag.ReferencedSOPInstanceUID)
-                : null;
         this.attributes = attrs;
     }
 
