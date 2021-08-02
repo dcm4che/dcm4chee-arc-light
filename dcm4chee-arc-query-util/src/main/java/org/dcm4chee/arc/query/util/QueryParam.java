@@ -83,6 +83,7 @@ public class QueryParam {
     private long maxStudySize;
     private boolean withoutIssuer;
     private String requested;
+    private SPSStatus[] hideSPSWithStatusFromMWL = {};
 
     public QueryParam(ApplicationEntity ae) {
         this(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
@@ -108,11 +109,11 @@ public class QueryParam {
     }
 
     public SPSStatus[] getHideSPSWithStatusFromMWL() {
-        return arcAE.hideSPSWithStatusFromMWL();
+        return hideSPSWithStatusFromMWL;
     }
 
-    public SPSStatus[] getHideSPSWithStatusFromMWLRS() {
-        return arcAE.hideSPSWithStatusFromMWLRS();
+    public void setHideSPSWithStatusFromMWL(SPSStatus... hideSPSWithStatusFromMWL) {
+        this.hideSPSWithStatusFromMWL = hideSPSWithStatusFromMWL;
     }
 
     public FuzzyStr getFuzzyStr() {

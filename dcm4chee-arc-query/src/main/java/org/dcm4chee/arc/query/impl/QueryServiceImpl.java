@@ -135,13 +135,17 @@ class QueryServiceImpl implements QueryService {
         queryParam.setCombinedDatetimeMatching(queryOpts.contains(QueryOption.DATETIME));
         queryParam.setFuzzySemanticMatching(queryOpts.contains(QueryOption.FUZZY));
         queryParam.setCalledAET(as.getCalledAET());
-        return new QueryContextImpl(ae, queryParam, this).find(as, sopClassUID);
+        QueryContextImpl ctx = new QueryContextImpl(ae, queryParam, this).find(as, sopClassUID);
+        queryParam.setHideSPSWithStatusFromMWL(ctx.getArchiveAEExtension().hideSPSWithStatusFromMWL());
+        return ctx;
     }
 
     @Override
     public QueryContext newQueryContextQIDO(
             HttpServletRequestInfo httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam) {
-        return new QueryContextImpl(ae, queryParam, this).qido(httpRequest, searchMethod);
+        QueryContextImpl ctx = new QueryContextImpl(ae, queryParam, this).qido(httpRequest, searchMethod);
+        queryParam.setHideSPSWithStatusFromMWL(ctx.getArchiveAEExtension().hideSPSWithStatusFromMWLRS());
+        return ctx;
     }
 
     @Override
