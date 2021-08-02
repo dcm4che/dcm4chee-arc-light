@@ -174,3 +174,28 @@ objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
 dcmuiAction: tab-study-series
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmHideSPSWithStatusFromMWLRS
+dcmHideSPSWithStatusFromMWLRS: STARTED
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmHideSPSWithStatusFromMWLRS
+dcmHideSPSWithStatusFromMWLRS: DEPARTED
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmHideSPSWithStatusFromMWLRS
+dcmHideSPSWithStatusFromMWLRS: DISCONTINUED
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmHideSPSWithStatusFromMWLRS
+dcmHideSPSWithStatusFromMWLRS: COMPLETED
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmHideSPSWithStatusFromMWLRS
+dcmHideSPSWithStatusFromMWLRS: CANCELED

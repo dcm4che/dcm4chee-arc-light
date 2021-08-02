@@ -179,6 +179,11 @@ dcmUPSProcessingPollingInterval: PT1M
 dcmStorageVerificationAETitle: DCM4CHEE
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
+dcmHideSPSWithStatusFromMWLRS: STARTED
+dcmHideSPSWithStatusFromMWLRS: DEPARTED
+dcmHideSPSWithStatusFromMWLRS: CANCELED
+dcmHideSPSWithStatusFromMWLRS: DISCONTINUED
+dcmHideSPSWithStatusFromMWLRS: COMPLETED
 dcmSeriesMetadataPollingInterval: PT1M
 dcmOverwritePolicy: SAME_SOURCE
 dcmDiffTaskProgressUpdateInterval: PT10S

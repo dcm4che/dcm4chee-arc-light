@@ -1903,6 +1903,7 @@ class ArchiveDeviceFactory {
                 REVOKE_REJECTION, RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
+        ext.setHideSPSWithStatusFromMWLRS(HIDE_SPS_WITH_STATUS_FROM_MWL);
         ext.setRejectionNoteStorageAET(AE_TITLE);
 
         if (configType == configType.SAMPLE) {
