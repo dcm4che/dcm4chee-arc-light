@@ -410,7 +410,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     });
                     break;
                 case "reschedule":
-                    this.deviceService.selectParameters((res)=>{
+                    this.deviceService.selectParametersForMatching((res)=>{
                             if(res){
                                 let filter = Object.assign({},this.filterObject);
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
@@ -437,10 +437,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         },
                         this.devices,
                         true,
-                        true,
-                        this.queueNames,
-                        $localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
-                        );
+                        this.queueNames);
 
                     break;
                 case "delete":

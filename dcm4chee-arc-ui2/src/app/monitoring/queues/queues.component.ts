@@ -159,7 +159,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     content: text
                 }).subscribe((ok)=>{
                     if(ok){
-                        this.deviceService.selectParameters((res)=>{
+                        this.deviceService.selectParametersForMatching((res)=>{
                             if(res){
                                 this.cfpLoadingBar.start();
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
@@ -177,12 +177,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                                 });
                             }
                         },
-                        this.devices.map(device=>{
-                            return {
-                                text:device.dicomDeviceName,
-                                value:device.dicomDeviceName
-                            }
-                        }));
+                        this.devices);
                     }
                     this.allAction = "";
                     this.allAction = undefined;
@@ -375,12 +370,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                         });
                 }
             },
-            this.devices.map(device=>{
-                return {
-                    text:device.dicomDeviceName,
-                    value:device.dicomDeviceName
-                }
-            }));
+            this.devices);
     };
     checkAll(event){
         console.log("in checkall",event.target.checked);
@@ -477,7 +467,12 @@ export class QueuesComponent implements OnInit, OnDestroy{
         this.cfpLoadingBar.start();
         this.service.getDevices().subscribe(devices=>{
             this.cfpLoadingBar.complete();
-            this.devices = devices.filter(dev => dev.hasArcDevExt);
+            this.devices = devices.filter(dev => dev.hasArcDevExt).map(device => {
+                return {
+                    value:device.dicomDeviceName,
+                    text:device.dicomDeviceName
+                }
+            });
             this.setFilters();
             if(this.urlParam && Object.keys(this.urlParam).length > 0)
                 this.search(0);

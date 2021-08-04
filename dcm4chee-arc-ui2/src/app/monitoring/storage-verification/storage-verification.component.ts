@@ -310,7 +310,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
 
                         break;
                     case "reschedule":
-                        this.deviceService.selectParameters((res)=> {
+                        this.deviceService.selectParametersForMatching((res)=> {
                             if (res){
                                 this.cfpLoadingBar.start();
                                 if (_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != "") {

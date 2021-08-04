@@ -155,7 +155,7 @@ export class DevicesService {
     selectParameters(callBack, devices? , addScheduleTime?:boolean, addQueueName?:boolean, queueNames?:SelectDropdown<string>[], title?:string){
         let setParams = function(tempDevices){
             let schema:any = {
-                content: title || $localize `:@@title.reschedule:Reschedule`,
+                content: $localize `:@@reschedule_task:Reschedule task`,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -214,22 +214,72 @@ export class DevicesService {
             return schema;
         };
 
-        if(devices){
-            this.openDialog(setParams(devices)).subscribe(callBack);
-        }else{
-            this.getDevices().subscribe((devices)=>{
-                devices = devices.map(device=>{
-                    return {
-                        text:device.dicomDeviceName,
-                        value:device.dicomDeviceName
-                    }
+        this.openDialog(setParams(devices)).subscribe(callBack);
+    }
+
+    selectParametersForMatching(callBack, devices?, addQueueName?:boolean, queueNames?:SelectDropdown<string>[]){
+        let setParams = function(tempDevices){
+            let schema:any = {
+                content: $localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`,
+                doNotSave:true,
+                form_schema:[
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@device:Device`
+                            },
+                            {
+                                tag:"multi-select",
+                                options:tempDevices,
+                                showStar:true,
+                                filterKey:"newDeviceName",
+                                description:$localize `:@@device:Device`,
+                                placeholder:$localize `:@@device:Device`
+                            }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                            },{
+                            tag:"single-date-time-picker",
+                            type:"text",
+                            filterKey:"scheduledTime",
+                            description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                        }
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize `:@@SUBMIT:SUBMIT`
+            };
+            if(addQueueName){
+                const options:SelectDropdown<string>[] = queueNames || <SelectDropdown<string>[]> Array.from(Array(13).keys()).map(i=>{
+                    const val = `Retrieve${i+1}`;
+                    return new SelectDropdown(val,val);
                 });
-                this.openDialog(setParams(devices)).subscribe(callBack);
-            },(err)=>{
+                schema.form_schema[0].push([
+                    {
+                        tag:"label",
+                        text:$localize `:@@queue_name:Queue Name`
+                    }
+                    ,{
+                        tag:"select",
+                        options:options,
+                        filterKey:"newQueueName",
+                        description:$localize `:@@queue_name:Queue Name`,
+                        placeholder:$localize `:@@queue_name:Queue Name`
 
-            });
-        }
+                    }
+                ]);
+            }
+            return schema;
+        };
 
+        this.openDialog(setParams(devices)).subscribe(callBack);
     }
 
     openDialog(parameters, width?, height?){

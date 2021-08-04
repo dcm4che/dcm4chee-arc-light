@@ -422,7 +422,80 @@ export class ExportComponent implements OnInit, OnDestroy {
                 });
                 break;
             case "reschedule":
-                this.rescheduleDialog((ok)=>{
+                this.confirm({
+                    content: $localize `:@@export.tasks_reschedule:Tasks reschedule`,
+                    doNotSave:true,
+                    form_schema: [
+                        [
+                            [
+                                {
+                                    tag:"label_large",
+                                    text:text || $localize `:@@export.change_exporter_text:Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:`
+                                }
+                            ],
+                            [
+                                {
+                                    tag:"label",
+                                    text:$localize `:@@exporter_id:Exporter ID`,
+                                },
+                                {
+                                    tag:"select",
+                                    options:this.exporters.map(exporter=>{
+                                        return {
+                                            text:exporter.description,
+                                            value:exporter.id
+                                        }
+                                    }),
+                                    showStar:true,
+                                    filterKey:"selectedExporter",
+                                    description:$localize `:@@exporter_id:Exporter ID`,
+                                    placeholder:$localize `:@@exporter_id:Exporter ID`
+                                }
+                            ],
+                            [
+                                {
+                                    tag:"label_large",
+                                    text:$localize `:@@export.select_device_if_you_want_to_reschedule:Select device if you want to reschedule to an other device:`
+                                }
+                            ],
+                            [
+                                {
+                                    tag:"label",
+                                    text:$localize `:@@device:Device`
+                                },
+                                {
+                                    tag:"multi-select",
+                                    options:this.devices.map(device=>{
+                                        return {
+                                            text:device.dicomDeviceName,
+                                            value:device.dicomDeviceName
+                                        }
+                                    }),
+                                    showStar:true,
+                                    filterKey:"newDeviceName",
+                                    description:$localize `:@@device:Device`,
+                                    placeholder:$localize `:@@device:Device`
+                                }
+                            ],
+                            [
+                                {
+                                    tag:"label",
+                                    text:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                                },
+                                {
+                                    tag:"single-date-time-picker",
+                                    type:"text",
+                                    filterKey:"scheduledTime",
+                                    description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                                }
+                            ]
+                        ]
+                    ],
+                    result: {
+                        schema_model: {}
+                    },
+                    saveButton: $localize `:@@SUBMIT:SUBMIT`
+                }).subscribe((ok)=>{
                     if (ok) {
                         this.cfpLoadingBar.start();
                         if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){

@@ -144,6 +144,7 @@ export class ExportService {
                                 value:exporter.id
                             }
                         }),
+                        showStar:true,
                         filterKey:"selectedExporter",
                         description:$localize `:@@exporter_id:Exporter ID`,
                         placeholder:$localize `:@@exporter_id:Exporter ID`
