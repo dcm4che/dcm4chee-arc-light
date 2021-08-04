@@ -165,6 +165,9 @@ export class QueuesComponent implements OnInit, OnDestroy{
                                 if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                     filter["newDeviceName"] = res.schema_model.newDeviceName;
                                 }
+                                if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                                    filter["scheduledTime"] = res.schema_model.scheduledTime;
+                                }
                                 this.service.rescheduleAll(filter,this.filterObject.queueName).subscribe((res)=>{
                                     this.mainservice.showMsg($localize `:@@tasks_queue_rescheduled:${res.count} tasks in queue rescheduled successfully!`);
                                     this.cfpLoadingBar.complete();
@@ -358,6 +361,9 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     let filter = {};
                     if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                         filter["newDeviceName"] = res.schema_model.newDeviceName;
+                    }
+                    if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                        filter["scheduledTime"] = res.schema_model.scheduledTime;
                     }
                     this.service.reschedule(this.filterObject.queueName, match.properties.taskID, filter)
                         .subscribe((res) => {

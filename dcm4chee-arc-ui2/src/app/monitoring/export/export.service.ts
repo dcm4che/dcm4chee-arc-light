@@ -177,13 +177,13 @@ export class ExportService {
                 [
                     {
                         tag:"label",
-                        text:$localize `:@@scheduled_time:Scheduled Time`
+                        text:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                     },
                     {
                         tag:"single-date-time-picker",
                         type:"text",
                         filterKey:"scheduledTime",
-                        description:$localize `:@@scheduled_time:Scheduled Time`
+                        description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                     }
                 ]
             ]

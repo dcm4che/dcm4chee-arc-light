@@ -172,30 +172,25 @@ export class DevicesService {
                                 description:$localize `:@@device:Device`,
                                 placeholder:$localize `:@@device:Device`
                             }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                            },{
+                                tag:"single-date-time-picker",
+                                type:"text",
+                                filterKey:"scheduledTime",
+                                description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                            }
                         ]
                     ]
                 ],
                 result: {
-                    schema_model: {
-                        newDeviceName:''
-                    }
+                    schema_model: {}
                 },
                 saveButton: $localize `:@@SUBMIT:SUBMIT`
             };
-            if(addScheduleTime){
-                schema.form_schema[0].push([
-                    {
-                        tag:"label",
-                        text:$localize `:@@scheduled_time:Scheduled Time`
-                    }
-                    ,{
-                        tag:"single-date-time-picker",
-                        type:"text",
-                        filterKey:"scheduledTime",
-                        description:$localize `:@@scheduled_time:Scheduled Time`
-                    }
-                ]);
-            }
             if(addQueueName){
                 const options:SelectDropdown<string>[] = queueNames || <SelectDropdown<string>[]> Array.from(Array(13).keys()).map(i=>{
                     const val = `Retrieve${i+1}`;

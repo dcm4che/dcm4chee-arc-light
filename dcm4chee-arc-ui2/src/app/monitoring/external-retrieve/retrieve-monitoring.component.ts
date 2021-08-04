@@ -561,7 +561,6 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
                         filter["scheduledTime"] = res.schema_model.scheduledTime;
                     }
-
                     if(_.hasIn(res, "schema_model.newQueueName") && res.schema_model.newQueueName != ""){
                         filter["newQueueName"] = res.schema_model.newQueueName;
                     }

@@ -186,6 +186,9 @@ export class DiffMonitorComponent implements OnInit {
                                     if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                         filter["newDeviceName"] = res.schema_model.newDeviceName;
                                     }
+                                    if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                                        filter["scheduledTime"] = res.schema_model.scheduledTime;
+                                    }
                                     delete filter["limit"];
                                     delete filter["offset"];
                                     this.service.rescheduleAll(filter).subscribe((res)=>{
@@ -320,6 +323,9 @@ export class DiffMonitorComponent implements OnInit {
                                         let filter = {};
                                         if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                             filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                        }
+                                        if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                                            filter["scheduledTime"] = res.schema_model.scheduledTime;
                                         }
                                         this.service.reschedule(match.taskID, filter)
                                             .subscribe(

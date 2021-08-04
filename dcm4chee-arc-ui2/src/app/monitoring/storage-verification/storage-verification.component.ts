@@ -316,6 +316,9 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                 if (_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != "") {
                                     filter["newDeviceName"] = res.schema_model.newDeviceName;
                                 }
+                                if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                                    filter["scheduledTime"] = res.schema_model.scheduledTime;
+                                }
                                 this.service.rescheduleAll(filter).subscribe((res) => {
                                     this.cfpLoadingBar.complete();
                                     if(_.hasIn(res,"count")){
@@ -530,6 +533,9 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                         let filter = {}
                                         if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
                                             filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                        }
+                                        if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                                            filter["scheduledTime"] = res.schema_model.scheduledTime;
                                         }
                                         this.service.reschedule(match.taskID, filter)
                                             .subscribe(
