@@ -43,19 +43,11 @@ export class RetrieveMonitoringService {
     reschedule(pk, data){
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/${pk}/reschedule${j4care.param(data)}`, {});
     }
-    mark4retrieve(pk, data){
-        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/${pk}/mark4retrieve${j4care.param(data)}`, {});
-    }
     rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/reschedule${urlParam}`, {}, this.header)
             ;
-    }
-    mark4retrieveAll(filter){
-        let urlParam = this.mainservice.param(filter);
-        urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/mark4retrieve${urlParam}`, {}, this.header);
     }
     cancel(pk){
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve/${pk}/cancel`, {});

@@ -748,10 +748,6 @@ export class Globalvar {
                 return $localize `:@@cancel:cancel`;
             case 'reschedule':
                 return $localize `:@@reschedule:reschedule`;
-            case 'mark4export':
-                return $localize `:@@mark4export:mark for export`;
-            case 'mark4retrieve':
-                return $localize `:@@mark4retrieve:mark for retrieve`;
             case 'delete':
                 return $localize `:@@delete:delete`;
         }
