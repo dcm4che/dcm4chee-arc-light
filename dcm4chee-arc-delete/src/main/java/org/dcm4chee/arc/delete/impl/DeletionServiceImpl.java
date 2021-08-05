@@ -207,7 +207,6 @@ public class DeletionServiceImpl implements DeletionService {
                 throw new StudyNotEmptyException(
                         "Deletion of Study with Rejection State: " + rejectionState + " not permitted");
             }
-            ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
         }
         if (rejectionState == RejectionState.EMPTY) {
             ejb.deleteEmptyStudy(ctx);

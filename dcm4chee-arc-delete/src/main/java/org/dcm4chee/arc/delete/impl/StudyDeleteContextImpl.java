@@ -59,7 +59,6 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     private final List<Instance> instances = new ArrayList<>();
     private Exception exception;
     private HttpServletRequestInfo httpServletRequestInfo;
-    private boolean deletePatientOnDeleteLastStudy;
     private Study study;
 
     public StudyDeleteContextImpl(Long studyPk) {
@@ -109,15 +108,5 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     @Override
     public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
-    }
-
-    @Override
-    public boolean isDeletePatientOnDeleteLastStudy() {
-        return deletePatientOnDeleteLastStudy;
-    }
-
-    @Override
-    public void setDeletePatientOnDeleteLastStudy(boolean deletePatientOnDeleteLastStudy) {
-        this.deletePatientOnDeleteLastStudy = deletePatientOnDeleteLastStudy;
     }
 }

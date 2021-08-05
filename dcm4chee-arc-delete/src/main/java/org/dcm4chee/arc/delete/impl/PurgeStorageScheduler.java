@@ -353,7 +353,6 @@ public class PurgeStorageScheduler extends Scheduler {
             if (arcDev.getPurgeStoragePollingInterval() == null)
                 break;
             StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(pkUID.pk);
-            ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
             try {
                 int limit = arcDev.getDeleteStudyChunkSize();
                 int n;

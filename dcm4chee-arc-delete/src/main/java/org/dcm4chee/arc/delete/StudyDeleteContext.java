@@ -69,8 +69,4 @@ public interface StudyDeleteContext {
     HttpServletRequestInfo getHttpServletRequestInfo();
 
     void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
-
-    boolean isDeletePatientOnDeleteLastStudy();
-
-    void setDeletePatientOnDeleteLastStudy(boolean deletePatientOnDeleteLastStudy);
 }

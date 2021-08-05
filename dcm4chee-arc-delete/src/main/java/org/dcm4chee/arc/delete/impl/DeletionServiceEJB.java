@@ -511,8 +511,7 @@ public class DeletionServiceEJB {
                     study.getPatient().decrementNumberOfStudies();
 
                 em.remove(study);
-                if (ctx != null && ctx.isDeletePatientOnDeleteLastStudy()
-                        && countStudiesOfPatient(study.getPatient()) == 0) {
+                if (arcDev().isDeletePatientOnDeleteLastStudy() && countStudiesOfPatient(study.getPatient()) == 0) {
                     PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler();
                     patMgtCtx.setPatient(study.getPatient());
                     patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Delete);
@@ -653,7 +652,7 @@ public class DeletionServiceEJB {
     }
 
     private void calculateMissingSeriesQueryAttributes(Long seriesPk) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = arcDev();
         Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
         viewIDs.removeAll(em.createNamedQuery(SeriesQueryAttributes.VIEW_IDS_FOR_SERIES_PK, String.class)
                 .setParameter(1, seriesPk)
@@ -661,6 +660,10 @@ public class DeletionServiceEJB {
         for (String viewID : viewIDs) {
             queryService.calculateSeriesQueryAttributes(seriesPk, arcDev.getQueryRetrieveView(viewID));
         }
+    }
+
+    private ArchiveDeviceExtension arcDev() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
     public void updateStudyAccessTime(Long studyPk) {
