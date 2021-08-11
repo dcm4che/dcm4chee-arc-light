@@ -356,7 +356,7 @@ public class ArchiveAttributeCoercion {
                 if (item != null) {
                     attrs.setNull(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
                     if (modified != null)
-                        modified.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 1).add(item);
+                        modified.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 1).add(new Attributes(item));
                 }
                 if (next != null)
                     next.coerce(attrs, modified);
