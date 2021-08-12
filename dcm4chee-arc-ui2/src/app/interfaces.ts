@@ -3,6 +3,7 @@ import {Device} from "./models/device";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {HttpHeaders} from "@angular/common/http";
 import {SelectionsDicomObjects} from "./study/study/selections-dicom-objects.model";
+import {TableAction} from "./helpers/dicom-studies-table/dicom-studies-table.interfaces";
 
 export interface J4careDateTime {
     FullYear:string;
@@ -23,7 +24,7 @@ export interface RangeObject {
 
 export type StatisticsPage = "simple"|"detailed"
 
-export type FilterTag = "button"|"input"|"checkbox"|"select"|"modality"|"range-picker-limit"|"range-picker-time"|"range-picker" | "code-selector" | "p-calendar" |"multi-select"| "html-select" | "editable-select" |"label"|"label_large"|"dummy" | "combined" | "number" | "size_range_picker";
+export type FilterTag = "button" | "input" | "checkbox" | "select" | "modality" | "range-picker-limit" | "range-picker-time" | "range-picker" | "code-selector" | "p-calendar" | "multi-select" | "html-select" | "editable-select" | "label" | "label_large" | "dummy" | "combined" | "number" | "size_range_picker";
 
 export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 
@@ -146,17 +147,16 @@ export interface FilterSchemaElement {
     codes?:Code[];
 }
 
+export type DicomMode = "study" | "patient" | "series" | "mwl" | "mpps" | "uwl" | "diff" | "export" | "thumbnail";
+export type StudyTab = "study" | "patient" | "mwl" | "uwl" | "diff" | "mpps";
 
-
-
-export type DicomMode = "study" | "patient" | "series" | "mwl" | "mpps" | "uwl" | "diff" | "export";
 export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff" | "mwl" | string;
 export type AccessLocation = "internal" | "external";
 export type PaginationDirection = "prev" | "next";
 export interface StudyFilterConfig {
     filterSchemaEntry?:{schema:FilterSchema,lineLength:number};
     filterSchemaMain:{schema:FilterSchema,lineLength:number};
-    filterSchemaExpand:{schema:FilterSchema,lineLength:number};
+    filterSchemaExpand?:{schema:FilterSchema,lineLength:number};
     filterEntryModel:any;
     filterModel:any;
     expand:boolean;
@@ -345,3 +345,14 @@ export class TimeRange{
         this.to = to;
     }
 }
+
+export interface StudyTagConfig {
+    tab:StudyTab;
+    title:string;
+    takeActionsOver?:string[]; //Array of the permissions id strings, if empty no actions button will be taken over
+    addActions?:AddActions;
+}
+type AddActions = {
+    addPath:string,
+    addFunction:(actions:Function, $this:any, currentActions:TableAction[]) => TableAction[]
+};

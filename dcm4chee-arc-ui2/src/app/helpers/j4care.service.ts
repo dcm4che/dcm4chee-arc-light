@@ -21,6 +21,7 @@ import {DcmWebApp} from "../models/dcm-web-app";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import * as uuid from  'uuid/v4';
 import {User} from "../models/user";
+import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Aet} from "../models/aet";
 declare const bigInt:Function;
 
@@ -32,7 +33,8 @@ export class j4care {
         private $httpClient:HttpClient,
         public dialog: MatDialog,
         public config: MatDialogConfig,
-        private router: Router
+        private router: Router,
+        private sanitizer : DomSanitizer
     ) {}
     static traverse(object,func, savedKeys?:string){
         if(savedKeys != undefined){
@@ -127,6 +129,17 @@ export class j4care {
         if(_.hasIn(obj,path) && j4care.isSet(_.get(obj,path)))
             return true;
         return false;
+    }
+    static isDate(input){
+        try{
+            if(input && !isNaN((new Date(input)).getTime()) && typeof input != "number"){
+                console.log("date=",new Date(input));
+                return _.isDate(new Date(input));
+            }
+            return false;
+        }catch (e) {
+            return false;
+        }
     }
     static isSetInObject(object:any, key:string){
         return _.hasIn(object,key) && this.isSet(object[key]);
@@ -441,34 +454,10 @@ export class j4care {
                 }
             }
             if(firstDateTime){
-                firstDateTime["dateObject"] = new Date(`${
-                        firstDateTime.FullYear
-                    }-${
-                        firstDateTime.Month
-                    }-${
-                        firstDateTime.Date
-                    } ${
-                        firstDateTime.Hours || '00'
-                    }:${
-                        firstDateTime.Minutes || '00'
-                    }:${
-                        firstDateTime.Seconds || '00'
-                    }`);
+                firstDateTime["dateObject"] = this.getDateFromJ4careDateTime(firstDateTime);
             }
             if(secondDateTime){
-                secondDateTime["dateObject"] = new Date(`${
-                        secondDateTime.FullYear
-                    }-${
-                        secondDateTime.Month
-                    }-${
-                        secondDateTime.Date
-                    } ${
-                        secondDateTime.Hours || '00'
-                    }:${
-                        secondDateTime.Minutes || '00'
-                    }:${
-                        secondDateTime.Seconds || '00'
-                    }`);
+                secondDateTime["dateObject"] = this.getDateFromJ4careDateTime(secondDateTime);
             }
             return {
                 mode:mode,
@@ -476,20 +465,60 @@ export class j4care {
                 secondDateTime:secondDateTime
             }
         }
-        return null;
+        try{
+            let date = new Date(str);
+            if(!isNaN(date.getTime())){
+                mode = "single";
+                firstDateTime = {
+                    FullYear:date.getFullYear().toString(),
+                    Month:(date.getMonth()+1).toString(),
+                    Date:date.getDate().toString(),
+                    Hours:date.getHours().toString(),
+                    Minutes:date.getMinutes().toString(),
+                    Seconds:date.getSeconds().toString(),
+                    dateObject:date
+                };
+                return {
+                    mode:mode,
+                    firstDateTime:firstDateTime,
+                    secondDateTime:secondDateTime
+                }
+            }
+            return null;
+        }catch (e) {
+            this.log("Converting string in to date didn't work",e);
+            return null;
+        }
     }
-    static splitRange(range:string):any{
+    static getDateFromJ4careDateTime(dateObject:J4careDateTime):Date{
+        let today = new Date();
+        return new Date(`${
+        dateObject.FullYear || today.getFullYear()
+            }-${
+        dateObject.Month || today.getMonth()+1
+            }-${
+        dateObject.Date || today.getDate()
+            } ${
+        dateObject.Hours || '00'
+            }:${
+        dateObject.Minutes || '00'
+            }:${
+        dateObject.Seconds || '00'
+            }`);
+    }
+    static splitRange(range:string, splitCount?:number):any{
         let rangeObject:RangeObject = j4care.extractDateTimeFromString(range);
         let diff:number = rangeObject && rangeObject.mode === "range" ? rangeObject.secondDateTime.dateObject.getTime() - rangeObject.firstDateTime.dateObject.getTime() : 0;
-        let block = diff/30;
+        let block = diff/(splitCount||31);
         const DAY_IN_MSC = 86400000;
         if(diff > 0){
             if(DAY_IN_MSC > block){
-                return  (j4care.splitRangeInBlocks(rangeObject,DAY_IN_MSC, undefined, false));
+                return  (j4care.splitRangeInBlocks(rangeObject, DAY_IN_MSC, undefined, false));
             }else{
-                return  (j4care.splitRangeInBlocks(rangeObject,block, undefined, true));
+                return  (j4care.splitRangeInBlocks(rangeObject, block, undefined, true));
             }
         }
+        return [range];
     }
 
     static rangeObjectToString(range:RangeObject):string{
@@ -541,7 +570,7 @@ export class j4care {
             range = object.StudyDate;
         else
             range = object;
-            return j4care.splitRangeInBlocks(j4care.extractDateTimeFromString(range), 86400000);
+        return j4care.splitRangeInBlocks(j4care.extractDateTimeFromString(range), 86400000);
     }
     static getMainAet(aets){
         try{
@@ -768,14 +797,17 @@ export class j4care {
     };
     static objToUrlParams(filter, addQuestionMarktPrefix?:boolean){
         try{
-            let filterMaped = Object.keys(filter).map((key) => {
-                if (filter[key] || filter[key] === false || filter[key] === 0){
-                    console.log("trimmed",filter[key]);
-                    return key + '=' + (typeof filter[key] === "string" ? filter[key].trim() : filter[key]);
-                }
-            });
-            let filterCleared = _.compact(filterMaped);
-            return (addQuestionMarktPrefix && filterCleared && filterCleared.length > 0 ? "?" : "") + filterCleared.join('&');
+            if(filter){
+                let filterMaped = Object.keys(filter).map((key) => {
+                    if (filter[key] || filter[key] === false || filter[key] === 0){
+                        console.log("trimmed",filter[key]);
+                        return key + '=' + (typeof filter[key] === "string" ? filter[key].trim() : filter[key]);
+                    }
+                });
+                let filterCleared = _.compact(filterMaped);
+                return (addQuestionMarktPrefix && filterCleared && filterCleared.length > 0 ? "?" : "") + filterCleared.join('&');
+            }
+            return "";
         }catch (e) {
             console.error(e);
             return "";
@@ -870,38 +902,44 @@ export class j4care {
         return result;
     };
     static calculateWidthOfTable(table:(TableSchemaElement[]|any)){
-        let sum = 0;
-        let pxWidths = 0;
-        let check = 0;
-        table.forEach((m)=>{
-            if(m){
-                if(_.hasIn(m,'pxWidth') && m.pxWidth){
-                    pxWidths += m.pxWidth;
-                }else{
-                    sum += m.widthWeight;
-                }
-            }
-        });
-        if(pxWidths > 0){
-            pxWidths += 1;
-        }
-        table.forEach((m)=>{
-            if(m){
-                let procentualPart = (m.widthWeight * 100)/sum;
-                if(pxWidths > 0){
-                    if(_.hasIn(m, "pxWidth") && m.pxWidth){
-                        m.calculatedWidth = `${m.pxWidth}px`;
+        try{
+            let sum = 0;
+            let pxWidths = 0;
+            let check = 0;
+            table.forEach((m)=>{
+                if(m){
+                    if(_.hasIn(m,'pxWidth') && m.pxWidth){
+                        pxWidths += m.pxWidth;
                     }else{
-                        let pxPart = (procentualPart * 0.01 * pxWidths);
-                        m.calculatedWidth = `calc(${procentualPart}% - ${pxPart}px)`;
-                        check += pxPart;
+                        sum += m.widthWeight;
                     }
-                }else{
-                    m.calculatedWidth =  procentualPart + "%";
                 }
+            });
+            if(pxWidths > 0){
+                pxWidths += 1;
             }
-        });
-        return table;
+            table.forEach((m)=>{
+                if(m){
+                    let procentualPart = (m.widthWeight * 100)/sum;
+                    if(pxWidths > 0){
+                        if(_.hasIn(m, "pxWidth") && m.pxWidth){
+                            m.calculatedWidth = `${m.pxWidth}px`;
+                        }else{
+                            let pxPart = (procentualPart * 0.01 * pxWidths);
+                            m.calculatedWidth = `calc(${procentualPart}% - ${pxPart}px)`;
+                            check += pxPart;
+                        }
+                    }else{
+                        m.calculatedWidth =  procentualPart + "%";
+                    }
+                }
+            });
+            return table;
+        }catch (e){
+            this.log("Error on calculating width of table",e);
+            return table;
+        }
+
     };
 
 
@@ -1085,13 +1123,13 @@ export class j4care {
             if(diff > -1){
                 return `${
                     this.setZeroPrefix(parseInt(((diff/(1000*60*60))%24).toString()))
-                }:${
+                    }:${
                     this.setZeroPrefix(parseInt(((diff/(1000*60))%60).toString()))
-                }:${
+                    }:${
                     this.setZeroPrefix(parseInt(((diff/1000)%60).toString()))
-                }.${
+                    }.${
                     parseInt((diff % 1000).toString())
-                }`;
+                    }`;
             }
             return '';
         }catch (e) {
@@ -1125,7 +1163,19 @@ export class j4care {
         console.groupEnd();
     }
 
-    static getDateFromString(dateString:string):Date|string{
+    static logObject(txt:string, object:Object){
+        try{
+            console.groupCollapsed(txt);
+            Object.keys(object).forEach(key=>{
+               console.log(`${key}:`,object[key]);
+            });
+            console.groupEnd();
+        }catch(e){
+            console.error(e);
+        }
+    }
+
+    static getDateFromString(dateString:string):any|Date{
         let date:RangeObject = j4care.extractDateTimeFromString(dateString);
         if(date.mode === "single" || date.mode === "rightOpen"){
             return date.firstDateTime.dateObject;
@@ -1201,6 +1251,11 @@ export class j4care {
             return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || (baseUrl === "../" ? '': baseUrl)}${dcmWebApp.dcmWebServicePath}`;
         }catch (e) {
             this.log("Error on getting Url from DcmWebApplication",e);
+            this.logObject("getUrlFromDcmWebApplication input:",{
+                dcmWebApp:dcmWebApp,
+                baseUrl:baseUrl,
+                withoutServicePath:withoutServicePath
+            });
         }
     }
 
@@ -1211,9 +1266,14 @@ export class j4care {
         try{
             let selectedConnection:DicomNetworkConnection;
             let filteredConnections:DicomNetworkConnection[];
-
+            let connTemp;
+            if(!_.isArray(conns) && conns){
+                connTemp = [conns];
+            }else{
+                connTemp = conns;
+            }
             //Get only connections with the protocol HTTP
-            filteredConnections = conns.filter(conn=>{
+            filteredConnections = connTemp.filter(conn=>{
                 return this.getHTTPProtocolFromDicomNetworkConnection(conn) != '';
             });
             //If there are more than 1 than check if there is one with https protocol and return the first what you find.
@@ -1255,16 +1315,16 @@ export class j4care {
                 pathToConn = "dcmNetworkConnection.";
             }
             if((_.hasIn(conn,`${pathToConn}dcmProtocol`) && _.get(conn,`${pathToConn}dcmProtocol`) === "HTTP") || !_.hasIn(conn,`${pathToConn}dcmProtocol`)){
-                    if(_.hasIn(conn, `${pathToConn}dicomTLSCipherSuite`) && _.isArray(<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)) && (<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)).length > 0){
-                        return "https";
-                    }else{
-                        return "http";
-                    }
+                if(_.hasIn(conn, `${pathToConn}dicomTLSCipherSuite`) && _.isArray(<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)) && (<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)).length > 0){
+                    return "https";
+                }else{
+                    return "http";
+                }
             }
             return '';
         }catch (e) {
-            return '';
             this.log("Something went wrong on getting the protocol from a connection",e);
+            return '';
         }
     }
 
@@ -1289,9 +1349,9 @@ export class j4care {
                         if(_.isObject(value) && base && key && _.isObject(base[key])){
                             result[key] = changes(value, base[key])
                         }else{
-                           if(!(_.isArray(value) && value.length === 0) && !(_.isObject(value) && Object.keys(value).length === 0) && value != undefined && value != "" && value != [""]){
+                            if(!(_.isArray(value) && value.length === 0) && !(_.isObject(value) && Object.keys(value).length === 0) && value != undefined && value != "" && value != [""]){
                                 result[key] = value;
-                           }
+                            }
                         }
                     }else{
                         result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
@@ -1431,11 +1491,63 @@ export class j4care {
             return "";
         }
     }
+    static is(object,path, value?){
+        try{
+            if(value && _.hasIn(object,path)){
+                return value === _.get(object,path);
+            }else{
+                return _.hasIn(object,path) && _.get(object,path);
+            }
+        }catch (e){
+            return false;
+        }
+    }
+
     static addLastSlash(url){
         if(_.last(url) != "/"){
             return `${url}/`;
         }else{
             return url;
+        }
+    }
+
+    blobToUrl(blob:Blob):Observable<SafeUrl>{
+        return new Observable(observer=>{
+            try{
+                let reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    let url:SafeUrl = this.sanitizer.bypassSecurityTrustUrl(<string> reader.result);
+                    observer.next(url);
+                    observer.complete();
+                }
+            }catch(e){
+                observer.error(e);
+                observer.complete();
+            }
+        });
+    }
+
+
+
+    static extractLastAetFromDiffPath(path){
+        try{
+            const regex = /diff\/(\w*)$/;
+            let m;
+            if ((m = regex.exec(path)) !== null) {
+                return m[1];
+            }
+            return;
+        }catch(e){
+            j4care.log("Error on extratcing AET from path",e);
+        }
+    }
+
+    static isFilesArray(files:File[]){
+        try{
+            return (files instanceof Array) && files.length > 0 && (files[0] instanceof File);
+        }catch(e){
+            return false;
         }
     }
 }

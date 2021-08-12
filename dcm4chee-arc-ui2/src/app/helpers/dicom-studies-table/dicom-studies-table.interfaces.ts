@@ -1,15 +1,15 @@
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {DcmWebApp} from "../../models/dcm-web-app";
-import {StudyPageConfig} from "../../interfaces";
+import {StudyPageConfig, StudyTagConfig} from "../../interfaces";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 
-export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy";
+export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy" | "progress" | "model" | "buttons";
 
 export interface DicomTableSchema{
     patient:TableSchemaElement[];
     studies:TableSchemaElement[];
-    series:TableSchemaElement[];
-    instance:TableSchemaElement[];
+    series?:TableSchemaElement[];
+    instance?:TableSchemaElement[];
     mwl?:TableSchemaElement[];
     mpps?:TableSchemaElement[];
     uwl?:TableSchemaElement[];
@@ -55,6 +55,7 @@ export interface TableParam{
 }
 
 export interface StudySchemaOptions{
+    cd_mode?:boolean;
     trash?:StudyTrash;
     selectedWebService?:DcmWebApp;
     tableParam?:TableParam;
@@ -62,7 +63,8 @@ export interface StudySchemaOptions{
     appService?:any;
     getSOPClassUIDName?:Function;
     internal?:boolean;
-    studyWebService:StudyWebService;
+    studyWebService?:StudyWebService;
+    studyTagConfig?:StudyTagConfig;
 }
 export interface TableAction{
     icon:Icon;

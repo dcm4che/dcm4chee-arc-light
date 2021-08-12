@@ -62,7 +62,8 @@ export class StudyService {
         private webAppListService: WebAppsListService,
         private permissionService: PermissionService,
         private _keycloakService:KeycloakService,
-        private appService:AppService
+        private appService:AppService,
+        private j4careService:j4care
     ) {}
 
     getWebApps(filter?:any) {
@@ -76,10 +77,13 @@ export class StudyService {
             lineLength: 1
         }
     }
-    getTokenService(studyWebService:StudyWebService){
+    getTokenService(studyWebService?:StudyWebService,dcmWebApp?:DcmWebApp){
         if(studyWebService && studyWebService.selectedWebService && _.hasIn(studyWebService.selectedWebService, "dcmKeycloakClientID")){
             return this.$http.getRealm(studyWebService.selectedWebService);
         }else{
+            if(dcmWebApp){
+                return this.$http.getRealm(dcmWebApp);
+            }
             return this._keycloakService.getToken();
         }
     }
@@ -756,7 +760,6 @@ export class StudyService {
         }
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}` : params;
-
         return this.$http.get(
             `${this.getDicomURL("study", dcmWebApp, responseType)}/${studyInstanceUID}/series${params || ''}`,
             header,
@@ -1157,7 +1160,7 @@ export class StudyService {
         return false;
     }
 
-    PATIENT_STUDIES_TABLE_SCHEMA($this, actions, options: StudySchemaOptions): DicomTableSchema {
+    PATIENT_STUDIES_TABLE_SCHEMA($this, actions:Function, options: StudySchemaOptions): DicomTableSchema {
         let schema: DicomTableSchema = {
             patient: [
                 new TableSchemaElement({
@@ -1215,7 +1218,7 @@ export class StudyService {
                                 },
                                 title: $localize `:@@study.query_patient_demographics_service:Query Patient Demographics Service`,
                                 showIf: (e, config) => {
-                                    return options.appService['xRoad'] || (options.appService.global['PDQs'] && options.appService.global['PDQs'].length > 0);
+                                    return j4care.is(options, "appService['xRoad']") || (j4care.is(options,"appService.global['PDQs']") && options.appService.global['PDQs'].length > 0);
                                 }
                             },
                             {
@@ -1390,7 +1393,11 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: $localize `:@@study.toggle_attributes:Toggle Attributes`
+                            title: $localize `:@@study.toggle_attributes:Toggle Attributes`,
+                            permission: {
+                                id: 'action-studies-show-attributes',
+                                param: 'visible'
+                            }
                         }
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
@@ -1444,34 +1451,40 @@ export class StudyService {
                             },
                             title:((string,...keys)=> {
                                 let msg = "Studies";
-                                switch (options.studyConfig.tab) {
-                                    case "mwl":
-                                        msg = "MWLs";
-                                        break;
-                                    case "mpps":
-                                        msg = "MPPSs";
-                                        break;
-                                    case "diff":
-                                        msg = "DIFFs";
-                                        break;
-                                    case "uwl":
-                                        msg = "UWLs";
-                                        break;
+                                if(!options.cd_mode){
+                                    switch (options.studyConfig.tab) {
+                                        case "mwl":
+                                            msg = "MWLs";
+                                            break;
+                                        case "mpps":
+                                            msg = "MPPSs";
+                                            break;
+                                        case "diff":
+                                            msg = "DIFFs";
+                                            break;
+                                        case "uwl":
+                                            msg = "UWLs";
+                                            break;
+                                    }
                                 }
                                 return string[0] + msg;
                             })`Hide ${''}`,
                             showIf: (e) => {
-                                switch (options.studyConfig.tab) {
-                                    case "mwl":
-                                        return e.showMwls;
-                                    case "mpps":
-                                        return e.showMpps;
-                                    case "diff":
-                                        return e.showDiffs;
-                                    case "uwl":
-                                        return e.showUwls;
-                                    default:
-                                        return e.showStudies;
+                                if(!options.cd_mode){
+                                    switch (options.studyConfig.tab) {
+                                        case "mwl":
+                                            return e.showMwls;
+                                        case "mpps":
+                                            return e.showMpps;
+                                        case "diff":
+                                            return e.showDiffs;
+                                        case "uwl":
+                                            return e.showUwls;
+                                        default:
+                                            return e.showStudies;
+                                    }
+                                }else {
+                                    return false;
                                 }
                             }
                         }, {
@@ -1507,35 +1520,41 @@ export class StudyService {
                             },
                             title: ((string,...keys) => {  //TODO change the code so you can use $localize
                                 let msg = "Studies";
-                                switch (options.studyConfig.tab) {
-                                    case "mwl":
-                                        msg = "MWLs";
-                                        break;
-                                    case "mpps":
-                                        msg = "MPPSs";
-                                        break;
-                                    case "diff":
-                                        msg = "DIFFs";
-                                        break;
-                                    case "uwl":
-                                        msg = "UWLs";
-                                        break;
+                                if(!options.cd_mode){
+                                    switch (options.studyConfig.tab) {
+                                        case "mwl":
+                                            msg = "MWLs";
+                                            break;
+                                        case "mpps":
+                                            msg = "MPPSs";
+                                            break;
+                                        case "diff":
+                                            msg = "DIFFs";
+                                            break;
+                                        case "uwl":
+                                            msg = "UWLs";
+                                            break;
+                                    }
                                 }
                                 return string[0] + msg;
                             })`Show ${''}`
                             ,
                             showIf: (e) => {
-                                switch (options.studyConfig.tab) {
-                                    case "mwl":
-                                        return !e.showMwls;
-                                    case "mpps":
-                                        return !e.showMpps;
-                                    case "diff":
-                                        return !e.showDiffs;
-                                    case "uwl":
-                                        return !e.showUwls;
-                                    default:
-                                        return !e.showStudies;
+                                if(!options.cd_mode){
+                                    switch (options.studyConfig.tab) {
+                                        case "mwl":
+                                            return !e.showMwls;
+                                        case "mpps":
+                                            return !e.showMpps;
+                                        case "diff":
+                                            return !e.showDiffs;
+                                        case "uwl":
+                                            return !e.showUwls;
+                                        default:
+                                            return !e.showStudies;
+                                    }
+                                }else{
+                                    return false;
                                 }
                             }
                         }
@@ -1716,7 +1735,7 @@ export class StudyService {
                             }, {
                                 icon: {
                                     tag: 'span',
-                                    cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
+                                    cssClass: j4care.is(options,"trash.active") ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
                                     text: ''
                                 },
                                 click: (e) => {
@@ -1726,10 +1745,10 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
-                                title: options.trash.active ? $localize `:@@study.restore_study:Restore study` : $localize `:@@study.reject_study:Reject study`,
+                                title: j4care.is(options,"trash.active")  ? $localize `:@@study.restore_study:Restore study` : $localize `:@@study.reject_study:Reject study`,
                                 permission: {
                                     id: 'action-studies-study',
-                                    param: options.trash.active ? 'restore' : 'reject'
+                                    param: j4care.is(options,"trash.active")  ? 'restore' : 'reject'
                                 }
                             }, {
                                 icon: {
@@ -1824,12 +1843,9 @@ export class StudyService {
                                 },
                                 title: $localize `:@@study.delete_study_permanently:Delete study permanently`,
                                 showIf: (e) => {
-                                    return (options.trash.active ||
-                                        (
-                                            options.selectedWebService &&
-                                            options.selectedWebService.dicomAETitleObject &&
-                                            options.selectedWebService.dicomAETitleObject.dcmAllowDeleteStudyPermanently === "ALWAYS"
-                                        )
+                                    return (
+                                            j4care.is(options,"trash.active") ||
+                                            j4care.is(options, "selectedWebService.dicomAETitleObject.dcmAllowDeleteStudyPermanently", "ALWAYS")
                                     ) && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET");
                                 },
                                 permission: {
@@ -1961,7 +1977,11 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: $localize `:@@study.toggle_attributes:Toggle Attributes`
+                            title: $localize `:@@study.toggle_attributes:Toggle Attributes`,
+                            permission: {
+                                id: 'action-studies-show-attributes',
+                                param: 'visible'
+                            }
                         }
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
@@ -2126,7 +2146,7 @@ export class StudyService {
                              {
                                 icon: {
                                     tag: 'span',
-                                    cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
+                                    cssClass: j4care.is(options,"trash.active")  ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
                                     text: ''
                                 },
                                 click: (e) => {
@@ -2136,10 +2156,10 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
-                                title: options.trash.active ? $localize `:@@study.restore_series:Restore series` : $localize `:@@study.reject_series:Reject series`,
+                                title: j4care.is(options,"trash.active")  ? $localize `:@@study.restore_series:Restore series` : $localize `:@@study.reject_series:Reject series`,
                                 permission: {
                                     id: 'action-studies-serie',
-                                    param: options.trash.active ? 'restore' : 'reject'
+                                    param: j4care.is(options,"trash.active") ? 'restore' : 'reject'
                                 }
                             }, {
                                 icon: {
@@ -2294,7 +2314,11 @@ export class StudyService {
                             click: (e) => {
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: $localize `:@@study.show_attributes:Show attributes`
+                            title: $localize `:@@study.show_attributes:Show attributes`,
+                            permission: {
+                                id: 'action-studies-show-attributes',
+                                param: 'visible'
+                            }
                         }
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
@@ -2436,7 +2460,7 @@ export class StudyService {
                             {
                                 icon: {
                                     tag: 'span',
-                                    cssClass: options.trash.active ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
+                                    cssClass: j4care.is(options,"trash.active") ? 'glyphicon glyphicon-repeat' : 'glyphicon glyphicon-trash',
                                     text: ''
                                 },
                                 click: (e) => {
@@ -2446,10 +2470,10 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
-                                title: options.trash.active ? $localize `:@@study.restore_instance:Restore instance` : $localize `:@@study.reject_instance:Reject instance`,
+                                title: j4care.is(options,"trash.active") ? $localize `:@@study.restore_instance:Restore instance` : $localize `:@@study.reject_instance:Reject instance`,
                                 permission: {
                                     id: 'action-studies-instance',
-                                    param: options.trash.active ? 'restore' : 'reject'
+                                    param: j4care.is(options,"trash.active") ? 'restore' : 'reject'
                                 }
                             }, {
                                 icon: {
@@ -2587,7 +2611,11 @@ export class StudyService {
                                 e.showFileAttributes = false;
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: $localize `:@@study.show_attributes:Show attributes`
+                            title: $localize `:@@study.show_attributes:Show attributes`,
+                            permission: {
+                                id: 'action-studies-show-attributes',
+                                param: 'visible'
+                            }
                         }
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
@@ -2777,7 +2805,11 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: $localize `:@@study.show_attributes:Show attributes`
+                            title: $localize `:@@study.show_attributes:Show attributes`,
+                            permission: {
+                                id: 'action-studies-show-attributes',
+                                param: 'visible'
+                            }
                         }
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
@@ -2886,7 +2918,11 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: $localize `:@@study.show_attributes:Show attributes`
+                            title: $localize `:@@study.show_attributes:Show attributes`,
+                            permission: {
+                                id: 'action-studies-show-attributes',
+                                param: 'visible'
+                            }
                         }
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
@@ -3161,7 +3197,11 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: $localize `:@@study.show_attributes:Show attributes`
+                            title: $localize `:@@study.show_attributes:Show attributes`,
+                            permission: {
+                                id: 'action-studies-show-attributes',
+                                param: 'visible'
+                            }
                         }
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
@@ -3264,7 +3304,11 @@ export class StudyService {
                                 console.log("e", e);
                                 e.showAttributes = !e.showAttributes;
                             },
-                            title: $localize `:@@study.show_attributes:Show attributes`
+                            title: $localize `:@@study.show_attributes:Show attributes`,
+                            permission: {
+                                id: 'action-studies-show-attributes',
+                                param: 'visible'
+                            }
                         }
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
@@ -3430,6 +3474,29 @@ export class StudyService {
                 pathToValue: '',
                 pxWidth: 40,
             }))
+        }
+        if(j4care.is(options, "studyTagConfig")){
+            Object.keys(schema).forEach((modeKey:DicomLevel)=>{
+                console.log("schema™modeKey",schema[modeKey]);
+                schema[modeKey].forEach((element)=>{
+                    console.log("element",element);
+                    if(element.type === "actions-menu" && _.hasIn(element,"menu.actions[0]")){ //To prevent showing the single action buttons in the tag mode you have to extend this function with  || element.type === "actions" so you can filter the actions too
+
+                        console.log("element.menu.actions",element.menu.actions);
+                        for(let i = element.menu.actions.length; i > -1;i--){
+                            console.log("element in i:",element.menu.actions[i]);
+                            if(!_.hasIn(options,"studyTagConfig.takeActionsOver") || _.hasIn(element,`menu.actions[${i}]permission.id`) && options.studyTagConfig.takeActionsOver.indexOf(element.menu.actions[i].permission.id) === -1){
+                                console.log("about to delete this",element.menu.actions[i]); //TODO
+                                console.log("i:",i);
+                                element.menu.actions.splice(i, 1);
+                            }
+                        }
+                    }
+                })
+            });
+            if(_.hasIn(options,"studyTagConfig.addActions.addPath") && _.hasIn(options,"studyTagConfig.addActions.addFunction")){
+                options.studyTagConfig.addActions.addFunction(actions,$this,_.get(schema, options.studyTagConfig.addActions.addPath));
+            }
         }
 
             return schema;
