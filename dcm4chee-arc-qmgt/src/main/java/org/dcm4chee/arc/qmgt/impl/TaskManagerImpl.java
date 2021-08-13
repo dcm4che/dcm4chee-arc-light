@@ -641,7 +641,7 @@ public class TaskManagerImpl implements TaskManager {
                 ApplicationEntity ae = targetDevice.getDevice().getApplicationEntity(task.getLocalAET(), true);
                 if (ae == null || !ae.isInstalled())
                     throw new IllegalStateException("No such Application Entity{dicomAETitle=" + task.getLocalAET()
-                            + "} on new device{name=" + device.getDeviceName() + "}");
+                            + "} on new device{name=" + targetDevice.getDevice().getDeviceName() + "}");
         }
     }
 
