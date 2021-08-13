@@ -75,6 +75,7 @@ import java.util.List;
  */
 public class HL7PDQService extends AbstractPDQService {
     private static final Logger LOG = LoggerFactory.getLogger(HL7PDQService.class);
+    private static final String HL7_ADT_2_DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
 
     private final Device device;
     private final IHL7ApplicationCache hl7AppCache;
@@ -108,11 +109,7 @@ public class HL7PDQService extends AbstractPDQService {
             throw new PDQServiceException("Query Entity configured as 'Study' for Patient Demographics Query in "
                                             + descriptor);
 
-        String xslStylesheetURI = descriptor.getProperties().get("XSLStylesheetURI");
-        if (xslStylesheetURI == null)
-            throw new PDQServiceException(
-                    "No property 'XSLStylesheetURI' configured to convert Patient Demographics Query response to DICOM attributes in "
-                    + descriptor);
+        String xslStylesheetURI = descriptor.getProperties().getOrDefault("XSLStylesheetURI", HL7_ADT_2_DCM_XSL);
 
         String[] appFacility = msh3456.split(":");
         if (appFacility.length != 2)

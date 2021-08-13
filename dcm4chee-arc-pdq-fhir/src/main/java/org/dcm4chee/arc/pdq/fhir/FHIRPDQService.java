@@ -20,6 +20,7 @@ import javax.enterprise.event.Event;
 public class FHIRPDQService extends AbstractPDQService {
     private static final Logger LOG = LoggerFactory.getLogger(FHIRPDQService.class);
     private static final String FHIR_XML_FHIR_VERSION_4_0 = "application/fhir+xml; fhirVersion=4.0";
+    private static final String FHIR_PAT_2_DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/fhir-pat2dcm.xsl";
 
     private final Device device;
     private final IWebApplicationCache webAppCache;
@@ -56,7 +57,7 @@ public class FHIRPDQService extends AbstractPDQService {
                     webAppCache.findWebApplication(descriptor.getPDQServiceURI().getSchemeSpecificPart()),
                     descriptor.getProperties().getOrDefault("Accept", FHIR_XML_FHIR_VERSION_4_0),
                     identifier(pid),
-                    xslStylesheetURI());
+                    descriptor.getProperties().getOrDefault("XSLStylesheetURI", FHIR_PAT_2_DCM_XSL));
         } catch (ConfigurationException e) {
             throw new PDQServiceException(e);
         }
@@ -73,15 +74,6 @@ public class FHIRPDQService extends AbstractPDQService {
                     + descriptor.getEntity()
                     + " for Patient Demographics Query in "
                     + descriptor);
-    }
-
-    private String xslStylesheetURI() throws PDQServiceException {
-        String xslStylesheetURI = descriptor.getProperties().get("XSLStylesheetURI");
-        if (xslStylesheetURI == null)
-            throw new PDQServiceException(
-                    "No property 'XSLStylesheetURI' configured to convert Patient Demographics Query response to DICOM attributes in "
-                            + descriptor);
-        return xslStylesheetURI;
     }
 
     private String identifier(IDWithIssuer pid) {
