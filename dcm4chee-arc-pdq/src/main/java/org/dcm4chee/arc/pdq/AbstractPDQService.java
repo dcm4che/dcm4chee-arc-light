@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.pdq;
 
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 
 /**
@@ -59,4 +60,13 @@ public abstract class AbstractPDQService implements PDQService {
     public PDQServiceDescriptor getPDQServiceDescriptor() {
         return descriptor;
     }
+
+    protected void requireQueryEntity(Entity entity) throws PDQServiceException {
+        if (descriptor.getEntity() != entity)
+            throw new PDQServiceException("Query Entity configured as "
+                    + descriptor.getEntity()
+                    + " for Patient Demographics Query in "
+                    + descriptor);
+    }
+
 }

@@ -68,14 +68,6 @@ public class FHIRPDQService extends AbstractPDQService {
         return null;
     }
 
-    private void requireQueryEntity(Entity entity) throws PDQServiceException {
-        if (descriptor.getEntity() != entity)
-            throw new PDQServiceException("Query Entity configured as "
-                    + descriptor.getEntity()
-                    + " for Patient Demographics Query in "
-                    + descriptor);
-    }
-
     private String identifier(IDWithIssuer pid) {
         String identifierSystem = descriptor.getProperties().get("IdentifierSystem");
         if (identifierSystem == null && pid.getIssuer() != null)

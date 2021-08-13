@@ -105,10 +105,7 @@ public class HL7PDQService extends AbstractPDQService {
 
     @Override
     public Attributes query(IDWithIssuer pid) throws PDQServiceException {
-        if (descriptor.getEntity() == Entity.Study)
-            throw new PDQServiceException("Query Entity configured as 'Study' for Patient Demographics Query in "
-                                            + descriptor);
-
+        requireQueryEntity(Entity.Patient);
         String xslStylesheetURI = descriptor.getProperties().getOrDefault("XSLStylesheetURI", HL7_ADT_2_DCM_XSL);
 
         String[] appFacility = msh3456.split(":");
