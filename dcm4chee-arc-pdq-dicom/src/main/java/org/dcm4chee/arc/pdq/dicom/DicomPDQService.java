@@ -75,11 +75,7 @@ public class DicomPDQService extends AbstractPDQService {
 
     @Override
     public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
-        return query(ctx.getPatientID());
-    }
-
-    @Override
-    public Attributes query(IDWithIssuer pid) throws PDQServiceException {
+        IDWithIssuer pid = ctx.getPatientID();
         return descriptor.getEntity() == Entity.Patient
                 ? queryPatient(pid)
                 : queryStudiesOfPatient(pid);

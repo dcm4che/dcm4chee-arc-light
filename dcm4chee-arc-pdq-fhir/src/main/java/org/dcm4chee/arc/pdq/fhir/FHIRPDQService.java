@@ -4,6 +4,7 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.Entity;
@@ -16,17 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 
 public class FHIRPDQService extends AbstractPDQService {
     private static final Logger LOG = LoggerFactory.getLogger(FHIRPDQService.class);
-    private static final String FHIR_XML_FHIR_VERSION_4_0 = "application/fhir+xml; fhirVersion=4.0";
     private static final String FHIR_PAT_2_DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/fhir-pat2dcm.xsl";
 
     private final Device device;
     private final IWebApplicationCache webAppCache;
     private final AccessTokenRequestor accessTokenRequestor;
     private final Event<PDQServiceContext> pdqEvent;
-    private PDQServiceContext pdqServiceCtx;
 
     public FHIRPDQService(PDQServiceDescriptor descriptor,
                           Device device,
@@ -42,46 +43,69 @@ public class FHIRPDQService extends AbstractPDQService {
 
     @Override
     public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
-        pdqServiceCtx = ctx;
-        Attributes demographics = query(ctx.getPatientID());
-        ctx.setPatientAttrs(demographics);
-        pdqEvent.fire(ctx);
-        return demographics;
-    }
-
-    @Override
-    public Attributes query(IDWithIssuer pid) throws PDQServiceException {
         try {
             requireQueryEntity(Entity.Patient);
-            return query(
-                    webAppCache.findWebApplication(descriptor.getPDQServiceURI().getSchemeSpecificPart()),
-                    descriptor.getProperties().getOrDefault("Accept", FHIR_XML_FHIR_VERSION_4_0),
-                    identifier(pid),
-                    descriptor.getProperties().getOrDefault("XSLStylesheetURI", FHIR_PAT_2_DCM_XSL));
+            Attributes demographics = query(ctx, webApp());
+            ctx.setPatientAttrs(demographics);
+            pdqEvent.fire(ctx);
+            return demographics;
         } catch (ConfigurationException e) {
             throw new PDQServiceException(e);
         }
     }
 
-    private Attributes query(WebApplication webApp, String accept, String identifier, String xslStylesheetURI) {
+    private Attributes query(PDQServiceContext ctx, WebApplication webApp) {
         //TODO
         return null;
     }
 
-    private String identifier(IDWithIssuer pid) {
-        String identifierSystem = descriptor.getProperties().get("IdentifierSystem");
-        if (identifierSystem == null && pid.getIssuer() != null)
-            identifierSystem = identifierSystemOf(
-                    pid.getIssuer().getUniversalEntityID(),
-                    pid.getIssuer().getUniversalEntityIDType());
-        return identifierSystem != null ? identifierSystem + '|' + pid.getID() : pid.getID();
+    private String xslStylesheetURI() {
+        return descriptor.getProperties().getOrDefault("XSLStylesheetURI", FHIR_PAT_2_DCM_XSL);
     }
 
-    private static String identifierSystemOf(String id, String type) {
-        return id == null ? null
-                : "ISO".equals(type) ? "urn:oid:" + id
-                : "UUID".equals(type) ? "urn:uuid:" + id
-                : "URI".equals(type) ? id
-                : null;
+    private WebApplication webApp() throws ConfigurationException {
+        return webAppCache.findWebApplication(
+                descriptor.getPDQServiceURI().getSchemeSpecificPart());
     }
+
+    private String identifier(IDWithIssuer pid) {
+        String system = systemOf(pid.getIssuer());
+        return system != null ? system + '|' + pid.getID() : pid.getID();
+    }
+
+    private String systemOf(Issuer issuer) {
+        if (issuer != null) {
+            String universalEntityID = issuer.getUniversalEntityID();
+            String type = issuer.getUniversalEntityIDType();
+            if (universalEntityID != null && type != null) {
+                String prefix = descriptor.getProperties()
+                        .get("search.identifier.system.type." + type);
+                if (prefix != null)
+                    return prefix.equals("NONE") ? universalEntityID : prefix + universalEntityID;
+            }
+            String issuerOfPatientID = issuer.getLocalNamespaceEntityID();
+            if (issuerOfPatientID != null) {
+                String system = descriptor.getProperties()
+                        .get("search.identifier.system.issuer." + issuerOfPatientID);
+                if (system != null)
+                    return system;
+            }
+        }
+        return descriptor.getProperties().get("search.identifier.system");
+    }
+
+    private void setHeaders(Invocation.Builder request) {
+        descriptor.getProperties().entrySet().stream()
+                .filter(e -> e.getKey().startsWith("header."))
+                .forEach(e -> request.header(e.getKey().substring(7), e.getValue()));
+    }
+
+    private void setQueryParameters(WebTarget webTarget, IDWithIssuer pid) {
+        webTarget.queryParam("identifier", identifier(pid));
+        descriptor.getProperties().entrySet().stream()
+                .filter(e -> e.getKey().startsWith("search.")
+                        && !e.getKey().startsWith("identifier.", 7))
+                .forEach(e -> webTarget.queryParam(e.getKey().substring(7), e.getValue()));
+    }
+
 }

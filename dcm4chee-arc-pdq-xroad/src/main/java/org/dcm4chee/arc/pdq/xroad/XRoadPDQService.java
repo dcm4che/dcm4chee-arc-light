@@ -42,7 +42,6 @@
 package org.dcm4chee.arc.pdq.xroad;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
@@ -64,16 +63,11 @@ public class XRoadPDQService extends AbstractPDQService {
 
     @Override
     public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
-        return query(ctx.getPatientID());
-    }
-
-    @Override
-    public Attributes query(IDWithIssuer pid) throws PDQServiceException {
         try {
             return serviceProvider.rr441(
                     descriptor.getPDQServiceURI().getSchemeSpecificPart(),
                     descriptor.getProperties(),
-                    pid.getID());
+                    ctx.getPatientID().getID());
         } catch (Exception e) {
             throw new PDQServiceException(e);
         }

@@ -53,7 +53,5 @@ import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 public interface PDQService {
     PDQServiceDescriptor getPDQServiceDescriptor();
 
-    Attributes query(IDWithIssuer pid) throws PDQServiceException;
-
     Attributes query(PDQServiceContext ctx) throws PDQServiceException;
 }

@@ -82,7 +82,6 @@ public class HL7PDQService extends AbstractPDQService {
     private final HL7Sender hl7Sender;
     private final Event<PDQServiceContext> pdqEvent;
     private final String msh3456;
-    private PDQServiceContext pdqServiceCtx;
 
     public HL7PDQService(PDQServiceDescriptor descriptor, Device device, IHL7ApplicationCache hl7AppCache,
                          HL7Sender hl7Sender, Event<PDQServiceContext> pdqEvent) {
@@ -96,30 +95,23 @@ public class HL7PDQService extends AbstractPDQService {
 
     @Override
     public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
-        setPdqServiceCtx(ctx);
-        Attributes demographics = query(ctx.getPatientID());
-        ctx.setPatientAttrs(demographics);
-        pdqEvent.fire(pdqServiceCtx);
-        return demographics;
-    }
-
-    @Override
-    public Attributes query(IDWithIssuer pid) throws PDQServiceException {
         requireQueryEntity(Entity.Patient);
-        String xslStylesheetURI = descriptor.getProperties().getOrDefault("XSLStylesheetURI", HL7_ADT_2_DCM_XSL);
-
         String[] appFacility = msh3456.split(":");
         if (appFacility.length != 2)
             throw new PDQServiceException("Sending and/or Receiving application and facility not specified in URI of " + descriptor);
 
         HL7Application sender = sender(appFacility[0].replace('/', '|'));
         HL7Application receiver = receiver(appFacility[1].replace('/', '|'));
-        pdqServiceCtx.setReceivingAppFacility(receiver.getApplicationName());
-        return query(queryParams(pid), sender, receiver, xslStylesheetURI);
+        ctx.setSendingAppFacility(sender.getApplicationName());
+        ctx.setReceivingAppFacility(receiver.getApplicationName());
+        Attributes demographics = query(ctx, sender, receiver);
+        ctx.setPatientAttrs(demographics);
+        pdqEvent.fire(ctx);
+        return demographics;
     }
 
-    public void setPdqServiceCtx(PDQServiceContext pdqServiceCtx) {
-        this.pdqServiceCtx = pdqServiceCtx;
+    private String xslStylesheetURI() {
+        return descriptor.getProperties().getOrDefault("XSLStylesheetURI", HL7_ADT_2_DCM_XSL);
     }
 
     private HL7Application sender(String sendingAppFacility) throws PDQServiceException {
@@ -129,7 +121,6 @@ public class HL7PDQService extends AbstractPDQService {
             throw new PDQServiceException(
                     "Sending HL7 Application " + sendingAppFacility + " not configured; used in " + descriptor);
 
-        pdqServiceCtx.setSendingAppFacility(sender.getApplicationName());
         return sender;
     }
 
@@ -142,25 +133,25 @@ public class HL7PDQService extends AbstractPDQService {
         }
     }
 
-    public Attributes query(String[] queryParams, HL7Application sender, HL7Application receiver,
-                            String xslStylesheetURI) throws PDQServiceException {
+    public Attributes query(PDQServiceContext ctx, HL7Application sender, HL7Application receiver)
+            throws PDQServiceException {
         try {
+            String[] queryParams = queryParams(ctx.getPatientID());
             HL7Message qbp = HL7Message.makePdqQuery(queryParams);
             HL7Segment msh = qbp.get(0);
             msh.setSendingApplicationWithFacility(sender.getApplicationName());
             msh.setReceivingApplicationWithFacility(receiver.getApplicationName());
             msh.setField(17, sender.getHL7SendingCharacterSet());
             UnparsedHL7Message msg = new UnparsedHL7Message(qbp.getBytes(sender.getHL7SendingCharacterSet()));
-            pdqServiceCtx.setHl7Msg(msg);
-            pdqServiceCtx.setRsp(hl7Sender.sendMessage(sender, receiver, msg));
-            return parseRsp(sender, xslStylesheetURI);
+            ctx.setHl7Msg(msg);
+            ctx.setRsp(hl7Sender.sendMessage(sender, receiver, msg));
+            return parseRsp(ctx.getRsp(), sender);
         } catch (Exception e) {
             throw new PDQServiceException(e);
         }
     }
 
-    private Attributes parseRsp(HL7Application sender, String xslStylesheetURI) throws HL7Exception {
-        UnparsedHL7Message rsp = pdqServiceCtx.getRsp();
+    private Attributes parseRsp(UnparsedHL7Message rsp, HL7Application sender) throws HL7Exception {
         HL7Message hl7RspMsg = HL7Message.parse(rsp.data(), sender.getHL7DefaultCharacterSet());
         HL7Segment msa = hl7RspMsg.getSegment("MSA");
         if (msa == null)
@@ -178,7 +169,7 @@ public class HL7PDQService extends AbstractPDQService {
             return SAXTransformer.transform(
                     rsp,
                     arcHL7App,
-                    xslStylesheetURI,
+                    xslStylesheetURI(),
                     null);
         } catch (Exception e) {
             throw new HL7Exception(new ERRSegment(rsp.msh()).setUserMessage(e.getMessage()), e);
