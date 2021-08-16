@@ -52,8 +52,8 @@ export class ExportService {
         }
         return clonedFilters;
     }
-    cancel(pk){
-        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${pk}/cancel`, {});
+    cancel(taskID){
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${taskID}/cancel`, {});
     }
     cancelAll(filter){
         let urlParam = this.mainservice.param(filter);
@@ -61,8 +61,8 @@ export class ExportService {
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/cancel${urlParam}`, {}, this.header)
             ;
     }
-    delete(pk){
-        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${pk}`);
+    delete(taskID){
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${taskID}`);
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
@@ -70,11 +70,11 @@ export class ExportService {
         return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export${urlParam}`, this.header)
             ;
     }
-    reschedule(pk, exporterID, filter?){
+    reschedule(taskID, exporterID, filter?){
         filter = filter || "";
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${pk}/reschedule/${exporterID + urlParam}`, {});
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export/${taskID}/reschedule/${exporterID + urlParam}`, {});
     }
     rescheduleAll(filter, exporterID){
         let urlParam = this.mainservice.param(filter);

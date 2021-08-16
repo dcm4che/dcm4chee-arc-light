@@ -380,7 +380,7 @@ export class StorageVerificationService {
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/cancel${urlParam}`, {}, this.header)
             ;
     }
-    cancel = (pk) => this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${pk}/cancel`, {});
+    cancel = (taskID) => this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${taskID}/cancel`, {});
 
     rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
@@ -388,10 +388,10 @@ export class StorageVerificationService {
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/reschedule${urlParam}`, {}, this.header)
             ;
     }
-    reschedule(pk, filters?){
+    reschedule(taskID, filters?){
         let urlParam = this.mainservice.param(filters);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${pk}/reschedule${urlParam}`, {});
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${taskID}/reschedule${urlParam}`, {});
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
@@ -400,7 +400,7 @@ export class StorageVerificationService {
             ;
     }
 
-    delete = (pk)=> this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${pk}`);
+    delete = (taskID)=> this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${taskID}`);
 
     getDevices = ()=> this.deviceService.getDevices();
 
