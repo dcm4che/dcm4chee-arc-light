@@ -239,7 +239,7 @@ export class DiffMonitorService {
                             this.router.navigate(['./studies'],{
                                 queryParams:{
                                     batchID:e.batchID,
-                                    pk:e.pk,
+                                    taskID:e.taskID,
                                     mode:"diff"
                                 }
                             })
@@ -436,24 +436,24 @@ export class DiffMonitorService {
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/cancel${urlParam}`, {}, this.header)
     }
-    cancel(pk){
-        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/${pk}/cancel`, {});
+    cancel(taskID){
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/${taskID}/cancel`, {});
     }
     rescheduleAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/reschedule${urlParam}`, {}, this.header)
     }
-    reschedule(pk, data){
-        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/${pk}/reschedule`, data);
+    reschedule(taskID, data){
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/${taskID}/reschedule`, data);
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff${urlParam}`, this.header)
     }
-    delete(pk){
-        return this.$http.delete('${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/' + pk);
+    delete(taskID){
+        return this.$http.delete('${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/' + taskID);
     }
 
 }
