@@ -2051,8 +2051,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"taskPK",
-                description:$localize `:@@pk_of_task:Pk of task`,
-                placeholder:$localize `:@@pk_of_task:Pk of task`
+                description:$localize `:@@task_id:Task ID`,
+                placeholder:$localize `:@@task_id:Task ID`
             },{
                 tag:"input",
                 type:"text",
