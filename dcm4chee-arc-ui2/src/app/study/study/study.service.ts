@@ -547,20 +547,20 @@ export class StudyService {
             header = this.dicomHeader
         }
         let batchID;
-        let taskPK;
+        let taskID;
         let url;
-        if((_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != "") || (_.hasIn(filterModel,"taskPK") && _.get(filterModel,"taskPK") != "")){
+        if((_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != "") || (_.hasIn(filterModel,"taskID") && _.get(filterModel,"taskID") != "")){
             if(_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != ""){
                 batchID = _.get(filterModel,"batchID");
                 url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/batch/${batchID}/studies${j4care.param(filterModel)}`
             }else{
-                taskPK = _.get(filterModel,"taskPK");
-                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/${taskPK}/studies${j4care.param(filterModel)}`
+                taskID = _.get(filterModel,"taskID");
+                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/${taskID}/studies${j4care.param(filterModel)}`
             }
             delete filterModel["batchID"];
-            delete filterModel["taskPK"];
+            delete filterModel["taskID"];
         }
-        if(batchID || taskPK){
+        if(batchID || taskID){
             return this.$http.get(
                 url,
                 header

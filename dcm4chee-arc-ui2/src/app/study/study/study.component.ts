@@ -1951,7 +1951,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }*/
         delete filterModel.orderby;
 
-        if(_.hasIn(filterModel,"taskPK") || (_.hasIn(filterModel,"batchID") && !this.studyWebService.selectedWebService)){
+        if(_.hasIn(filterModel,"taskID") || (_.hasIn(filterModel,"batchID") && !this.studyWebService.selectedWebService)){
             this.service.getDiff(filterModel,this.studyWebService).subscribe(res=>{
                 console.log("res",res);
                 this.cfpLoadingBar.complete();
