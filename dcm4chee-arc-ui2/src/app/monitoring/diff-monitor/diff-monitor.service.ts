@@ -453,7 +453,7 @@ export class DiffMonitorService {
         return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff${urlParam}`, this.header)
     }
     delete(taskID){
-        return this.$http.delete('${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/' + taskID);
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/` + taskID);
     }
 
 }
