@@ -444,8 +444,10 @@ export class DiffMonitorService {
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/reschedule${urlParam}`, {}, this.header)
     }
-    reschedule(taskID, data){
-        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/${taskID}/reschedule`, data);
+    reschedule(taskID, filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff/${taskID}/reschedule${urlParam}`, {});
     }
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
