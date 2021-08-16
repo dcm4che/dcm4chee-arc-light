@@ -55,6 +55,7 @@ import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -151,6 +152,63 @@ class QueryServiceImpl implements QueryService {
     @Override
     public QueryContext newQueryContext(ApplicationEntity ae, QueryParam queryParam) {
         return new QueryContextImpl(ae, queryParam, this);
+    }
+
+    @Override
+    public void coerceAttributes(QueryContext ctx) {
+        ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
+                Dimse.C_FIND_RQ,
+                TransferCapability.Role.SCU,
+                ctx.getSOPClassUID(),
+                ctx.getRemoteHostName(),
+                ctx.getCallingAET(),
+                ctx.getLocalHostName(),
+                ctx.getCalledAET(),
+                ctx.getQueryKeys());
+        if (rule == null)
+            return;
+
+        LOG.info("Apply {} to Search Attributes", rule);
+        AttributesCoercion coercion = null;
+        coercion = coerceAttributesByXSL(ctx, rule, coercion);
+        switch (ctx.getSOPClassUID()) {
+            case UID.PatientRootQueryRetrieveInformationModelFind:
+            case UID.StudyRootQueryRetrieveInformationModelFind:
+            case UID.PatientStudyOnlyQueryRetrieveInformationModelFind:
+                coercion = SupplementAssigningAuthorities.forQuery(rule.getSupplementFromDevice(), coercion);
+                break;
+            case UID.ModalityWorklistInformationModelFind:
+                coercion = SupplementAssigningAuthorities.forMWL(rule.getSupplementFromDevice(), coercion);
+                break;
+        }
+        coercion = rule.supplementIssuerOfPatientID(coercion);
+        coercion = rule.nullifyIssuerOfPatientID(ctx.getQueryKeys(), coercion);
+        coercion = rule.mergeAttributes(coercion);
+        coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
+        if (rule.isTrimISO2022CharacterSet())
+            coercion = new TrimISO2020CharacterSetAttributesCoercion(coercion);
+        coercion = UseCallingAETitleAsCoercion.of(rule.getUseCallingAETitleAs(), ctx.getCallingAET(), coercion);
+        if (coercion != null) {
+            coercion.coerce(ctx.getQueryKeys(), ctx.getCoercedQueryKeys());
+            if (LOG.isDebugEnabled() && !ctx.getCoercedQueryKeys().isEmpty())
+                LOG.debug("Coerced Search Attributes {} to {}", ctx.getCoercedQueryKeys(),
+                        new Attributes(ctx.getQueryKeys(), false, ctx.getCoercedQueryKeys()));
+        }
+    }
+
+    private AttributesCoercion coerceAttributesByXSL(
+            QueryContext ctx, ArchiveAttributeCoercion rule, AttributesCoercion next) {
+        String xsltStylesheetURI = rule.getXSLTStylesheetURI();
+        if (xsltStylesheetURI != null)
+            try {
+                Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
+                return new XSLTAttributesCoercion(tpls, null)
+                        .includeKeyword(!rule.isNoKeywords())
+                        .setupTransformer(setupTransformer(ctx));
+            } catch (TransformerConfigurationException e) {
+                LOG.error("{}: Failed to compile XSL: {}", ctx, xsltStylesheetURI, e);
+            }
+        return next;
     }
 
     @Override
@@ -625,8 +683,8 @@ class QueryServiceImpl implements QueryService {
             t.setParameter("LocalAET", ctx.getCalledAET());
             if (ctx.getCallingAET() != null)
                 t.setParameter("RemoteAET", ctx.getCallingAET());
-
-            t.setParameter("RemoteHost", ctx.getRemoteHostName());
+            if (ctx.getRemoteHostName() != null)
+                t.setParameter("RemoteHost", ctx.getRemoteHostName());
         };
     }
 

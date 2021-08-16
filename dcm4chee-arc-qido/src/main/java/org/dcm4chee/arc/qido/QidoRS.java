@@ -624,6 +624,8 @@ public class QidoRS {
         ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
         ctx.setSOPClassUID(model.getSOPClassUID());
         Attributes keys = queryAttrs.getQueryKeys();
+        ctx.setQueryKeys(keys);
+        service.coerceAttributes(ctx);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)
             ctx.setPatientIDs(idWithIssuer);
@@ -631,7 +633,6 @@ public class QidoRS {
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         if (seriesInstanceUID != null)
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
-        ctx.setQueryKeys(keys);
         ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;
     }

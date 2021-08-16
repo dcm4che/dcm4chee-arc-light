@@ -81,6 +81,8 @@ public interface QueryService {
 
     QueryContext newQueryContext(ApplicationEntity ae, QueryParam queryParam);
 
+    void coerceAttributes(QueryContext ctx);
+
     Query createQuery(QueryContext ctx);
 
     Query createPatientQuery(QueryContext ctx);
