@@ -2050,7 +2050,7 @@ export class Globalvar {
             },{
                 tag:"input",
                 type:"text",
-                filterKey:"taskPK",
+                filterKey:"taskID",
                 description:$localize `:@@task_id:Task ID`,
                 placeholder:$localize `:@@task_id:Task ID`
             },{
