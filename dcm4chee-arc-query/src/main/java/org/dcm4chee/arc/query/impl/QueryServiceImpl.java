@@ -191,7 +191,7 @@ class QueryServiceImpl implements QueryService {
         if (coercion != null) {
             coercion.coerce(ctx.getQueryKeys(), ctx.getCoercedQueryKeys());
             if (LOG.isDebugEnabled() && !ctx.getCoercedQueryKeys().isEmpty())
-                LOG.debug("Coerced Search Attributes {} to {}", ctx.getCoercedQueryKeys(),
+                LOG.debug("Coerced Search Attributes:\n{} to:\n{}", ctx.getCoercedQueryKeys(),
                         new Attributes(ctx.getQueryKeys(), false, ctx.getCoercedQueryKeys()));
         }
     }
