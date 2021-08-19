@@ -15,6 +15,7 @@ import {PermissionService} from "./helpers/permissions/permission.service";
 import {Observable} from "../../node_modules/rxjs";
 import {HttpClient} from "@angular/common/http";
 import {DcmWebApp} from "./models/dcm-web-app";
+import {Title} from "@angular/platform-browser";
 import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
 import {Globalvar} from "./constants/globalvar";
 import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
@@ -64,6 +65,7 @@ export class AppComponent implements OnInit {
         public config: MatDialogConfig,
         public mainservice: AppService,
         private appRequests: AppRequestsService,
+        private titleService: Title,
         private permissionService:PermissionService,
         private keycloakHttpClient:KeycloakHttpClient,
         private _keycloakService: KeycloakService,
@@ -160,6 +162,7 @@ export class AppComponent implements OnInit {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
         this.initGetDevicename(2);
+        this.setTitle();
 /*        this.setServerTime(()=>{
         });*/
         this.initGetPDQServices();
@@ -458,6 +461,13 @@ export class AppComponent implements OnInit {
         })
     }
 
+    setTitle() {
+        this.appRequests.getDeviceName()
+            .subscribe(
+                (res) => {
+                    this.titleService.setTitle(res['ui2-web-app-title']);
+                })
+    }
 
 }
 
