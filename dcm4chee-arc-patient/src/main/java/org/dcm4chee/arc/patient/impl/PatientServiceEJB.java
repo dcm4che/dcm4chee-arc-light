@@ -535,6 +535,7 @@ public class PatientServiceEJB {
         ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
         updatePatientAttrs(ctx, patient);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        em.merge(patient);
         return true;
     }
 
