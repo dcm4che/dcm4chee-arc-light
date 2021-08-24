@@ -149,7 +149,7 @@ public class WadoExporter extends AbstractExporter {
             MessageFormat format = new MessageFormat(targetURI.replace('[', '{').replace(']', '}'));
             Entity entity = Entity.values()[format.getFormats().length];
             List<QueryRetrieveRequest> list = queryRetrieveRequests.computeIfAbsent(entity, k -> new ArrayList<>(2));
-            list.add(new QueryRetrieveRequest(format, token(), device, descriptor));
+            list.add(new QueryRetrieveRequest(format, token(), device, descriptor, queryRetrieveWebApp));
         } catch (ConfigurationException e) {
             LOG.info("Failed to find Web Application for request invocation for {} : {}",
                     uriSchemeSpecificPart, e.getMessage());
@@ -307,18 +307,21 @@ public class WadoExporter extends AbstractExporter {
         final boolean tlsAllowAnyHostname;
         final boolean tlsDisableTrustManager;
         final ExporterDescriptor exporterDescriptor;
+        final WebApplication queryRetrieveWebApp;
         final Device device;
         String targetURL;
 
-        QueryRetrieveRequest(MessageFormat format, String token, Device device, ExporterDescriptor exporterDescriptor) {
+        QueryRetrieveRequest(MessageFormat format, String token, Device device, ExporterDescriptor exporterDescriptor,
+                             WebApplication queryRetrieveWebApp) {
             this.format = format;
             this.exporterDescriptor = exporterDescriptor;
+            this.queryRetrieveWebApp = queryRetrieveWebApp;
             this.device = device;
             this.storageDescriptor = toStorageDescriptor();
             this.headerFields = toHeaderFields();
             this.token = token;
-            this.tlsAllowAnyHostname = setTLSFields("TLSAllowAnyHostName");
-            this.tlsDisableTrustManager = setTLSFields("TLSDisableTrustManager");
+            this.tlsAllowAnyHostname = setTLSFields("allow-any-hostname");
+            this.tlsDisableTrustManager = setTLSFields("disable-trust-manager");
         }
 
         private enum HeaderField {
@@ -331,7 +334,7 @@ public class WadoExporter extends AbstractExporter {
         }
 
         private boolean setTLSFields(String key) {
-            return Boolean.parseBoolean(exporterDescriptor.getProperty(key, null));
+            return Boolean.parseBoolean(queryRetrieveWebApp.getProperty(key, null));
         }
 
         private StorageDescriptor toStorageDescriptor() {
