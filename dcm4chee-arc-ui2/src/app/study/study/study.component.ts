@@ -238,6 +238,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         "export":false
     };
     queues;
+    retrieveQueues;
 
     searchCurrentList = '';
     @ViewChild('stickyHeader', {static: true}) stickyHeaderView: ElementRef;
@@ -4006,7 +4007,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             },
                             {
                                 tag:"select",
-                                options:this.queues,
+                                options:this.retrieveQueues,
                                 filterKey:"dcmQueueName",
                                 description:$localize `:@@queue_name:Queue Name`,
                                 placeholder:$localize `:@@queue_name:Queue Name`
@@ -4621,6 +4622,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.initExporters(2);
                     this.initRjNotes(2);
                     this.getQueueNames();
+                    this.getRetrieveQueueNames();
                 },
                 (err)=> {
                     console.error("Error on getting webApps",err);
@@ -4718,7 +4720,22 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.httpErrorHandler.handleError(err);
         })
     }
-
+    getRetrieveQueueNames(){
+        this.service.getQueueNames().subscribe(names=>{
+            this.retrieveQueues = names
+                .filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1)
+                .sort((a,b)=>{
+                    try{
+                        return parseInt(a.name.replace(/Retrieve/g,"")) - parseInt(b.name.replace(/Retrieve/g,""))
+                    }catch (e) {
+                        return 1;
+                    }
+                })
+                .map(name=> new SelectDropdown(name.name, name.description));
+        },err=>{
+            this.httpErrorHandler.handleError(err);
+        })
+    }
     getStorages($this, callback?:Function) {
         this.service.getStorageSystems().subscribe((storageSystems:StorageSystems[]) => {
             this.storages = storageSystems.map((storageSystem:StorageSystems) => {
