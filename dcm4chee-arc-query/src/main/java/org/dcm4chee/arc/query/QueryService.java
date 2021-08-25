@@ -77,7 +77,8 @@ public interface QueryService {
     QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts);
 
     QueryContext newQueryContextQIDO(
-            HttpServletRequestInfo httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam);
+            HttpServletRequestInfo httpRequest, String searchMethod,
+            String aet, ApplicationEntity ae, QueryParam queryParam);
 
     QueryContext newQueryContext(ApplicationEntity ae, QueryParam queryParam);
 

@@ -620,7 +620,7 @@ public class QidoRS {
         if (expirationState != null)
             queryParam.setExpirationState(ExpirationState.valueOf(expirationState));
         QueryContext ctx = service.newQueryContextQIDO(
-                HttpServletRequestInfo.valueOf(request), method, ae, queryParam);
+                HttpServletRequestInfo.valueOf(request), method, aet, ae, queryParam);
         ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
         ctx.setSOPClassUID(model.getSOPClassUID());
         Attributes keys = queryAttrs.getQueryKeys();

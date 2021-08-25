@@ -143,8 +143,10 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public QueryContext newQueryContextQIDO(
-            HttpServletRequestInfo httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam) {
-        QueryContextImpl ctx = new QueryContextImpl(ae, queryParam, this).qido(httpRequest, searchMethod);
+            HttpServletRequestInfo httpRequest, String searchMethod, String aet,
+            ApplicationEntity ae, QueryParam queryParam) {
+        QueryContextImpl ctx = new QueryContextImpl(ae, queryParam, this)
+                .qido(httpRequest, searchMethod, aet);
         queryParam.setHideSPSWithStatusFromMWL(ctx.getArchiveAEExtension().hideSPSWithStatusFromMWLRS());
         return ctx;
     }

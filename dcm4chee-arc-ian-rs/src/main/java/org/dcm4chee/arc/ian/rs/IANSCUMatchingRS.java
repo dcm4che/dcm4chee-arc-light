@@ -283,7 +283,7 @@ public class IANSCUMatchingRS {
     private QueryContext queryContext(String method, QueryRetrieveLevel2 qrlevel, String studyUID,
                                       String seriesUID, ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(
-                HttpServletRequestInfo.valueOf(request), method, ae, queryParam(ae));
+                HttpServletRequestInfo.valueOf(request), method, aet, ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(qrlevel);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();

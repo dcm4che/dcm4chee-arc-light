@@ -66,6 +66,7 @@ import java.util.List;
  */
 class QueryContextImpl implements QueryContext {
     private Association as;
+    private String calledAET;
     private HttpServletRequestInfo httpRequest;
     private final ApplicationEntity ae;
     private final QueryParam queryParam;
@@ -83,19 +84,22 @@ class QueryContextImpl implements QueryContext {
 
     QueryContextImpl(ApplicationEntity ae, QueryParam queryParam, QueryService queryService) {
         this.ae = ae;
+        this.calledAET = ae.getAETitle();
         this.queryService = queryService;
         this.queryParam = queryParam;
     }
 
     QueryContextImpl find(Association as, String sopClassUID) {
         this.as = as;
+        this.calledAET = as.getCalledAET();
         this.sopClassUID = sopClassUID;
         return this;
     }
 
-    QueryContextImpl qido(HttpServletRequestInfo httpRequest, String searchMethod) {
+    QueryContextImpl qido(HttpServletRequestInfo httpRequest, String searchMethod, String aet) {
         this.httpRequest = httpRequest;
         this.searchMethod = searchMethod;
+        this.calledAET = aet;
         return this;
     }
 
@@ -141,7 +145,7 @@ class QueryContextImpl implements QueryContext {
 
     @Override
     public String getCalledAET() {
-        return as != null ? as.getCalledAET() : ae.getAETitle();
+        return calledAET;
     }
 
     @Override

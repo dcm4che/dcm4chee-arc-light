@@ -257,7 +257,7 @@ public class ApplyRetentionPolicy {
 
     private QueryContext queryContext(ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(
-                HttpServletRequestInfo.valueOf(request), "applyRetentionPolicy", ae, queryParam(ae));
+                HttpServletRequestInfo.valueOf(request), "applyRetentionPolicy", aet, ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.SERIES);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();

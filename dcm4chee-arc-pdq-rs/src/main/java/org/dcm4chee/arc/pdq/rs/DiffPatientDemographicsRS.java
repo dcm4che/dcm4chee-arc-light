@@ -277,7 +277,7 @@ public class DiffPatientDemographicsRS {
         if (patientVerificationStatus != null)
             queryParam.setPatientVerificationStatus(Patient.VerificationStatus.valueOf(patientVerificationStatus));
         QueryContext ctx = queryService.newQueryContextQIDO(
-                HttpServletRequestInfo.valueOf(request), "GET", ae, queryParam);
+                HttpServletRequestInfo.valueOf(request), "GET", aet, ae, queryParam);
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.PATIENT);
         ctx.setSOPClassUID(UID.PatientRootQueryRetrieveInformationModelFind);
         Attributes keys = queryAttrs.getQueryKeys();

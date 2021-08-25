@@ -256,7 +256,7 @@ public class UpdateStudyAccessMatchingRS {
 
     private QueryContext queryContext(ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(
-                HttpServletRequestInfo.valueOf(request), "matchingStudyUpdateAccessControl", ae, queryParam(ae));
+                HttpServletRequestInfo.valueOf(request), "matchingStudyUpdateAccessControl", aet, ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
