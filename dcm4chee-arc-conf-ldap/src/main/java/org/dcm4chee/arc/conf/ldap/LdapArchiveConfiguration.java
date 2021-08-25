@@ -495,6 +495,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getAuditAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeRequesterAET",
                 ext.getChangeRequesterAET(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmFilterByIssuerOfPatientID",
+                ext.isFilterByIssuerOfPatientID(), false);
     }
 
     @Override
@@ -803,6 +805,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditAssigningAuthorityOfPatientID(
                 toIssuer(LdapUtils.stringValue(attrs.get("dcmAuditAssigningAuthorityOfPatientID"), null)));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
+        ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), false));
     }
 
     @Override
@@ -1388,6 +1391,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmChangeRequesterAET",
                 aa.getChangeRequesterAET(), bb.getChangeRequesterAET(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFilterByIssuerOfPatientID",
+                aa.isFilterByIssuerOfPatientID(),
+                bb.isFilterByIssuerOfPatientID(),
+                false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1696,6 +1703,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getUserIdentityNegotiationKeycloakClientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeRequesterAET",
                 ext.getChangeRequesterAET(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFilterByIssuerOfPatientID",
+                ext.getFilterByIssuerOfPatientID(), null);
     }
 
     @Override
@@ -1844,6 +1853,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setUserIdentityNegotiationKeycloakClientID(LdapUtils.stringValue(
                 attrs.get("dcmUserIdentityNegotiationKeycloakClientID"), null));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
+        ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), null));
     }
 
     @Override
@@ -2087,6 +2097,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getChangeRequesterAET(),
                 bb.getChangeRequesterAET(),
                 null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFilterByIssuerOfPatientID",
+                aa.getFilterByIssuerOfPatientID(), bb.getFilterByIssuerOfPatientID(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

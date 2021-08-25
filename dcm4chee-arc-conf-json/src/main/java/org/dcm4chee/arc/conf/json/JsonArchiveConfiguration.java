@@ -394,6 +394,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
+        writer.writeNotDef("dcmFilterByIssuerOfPatientID", arcDev.isFilterByIssuerOfPatientID(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1255,6 +1256,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmUserIdentityNegotiationKeycloakClientID",
                 arcAE.getUserIdentityNegotiationKeycloakClientID(), null);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcAE.getChangeRequesterAET(), null);
+        writer.writeNotNull("dcmFilterByIssuerOfPatientID", arcAE.getFilterByIssuerOfPatientID());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeMPPSForwardRule(writer, arcAE.getMPPSForwardRules());
@@ -1979,6 +1981,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmChangeRequesterAET":
                     arcDev.setChangeRequesterAET(reader.stringValue());
+                    break;
+                case "dcmFilterByIssuerOfPatientID":
+                    arcDev.setFilterByIssuerOfPatientID(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -3993,6 +3998,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmChangeRequesterAET":
                     arcAE.setChangeRequesterAET(reader.stringValue());
+                    break;
+                case "dcmFilterByIssuerOfPatientID":
+                    arcAE.setFilterByIssuerOfPatientID(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
