@@ -339,7 +339,7 @@ public class QueryBuilder {
     public <Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
         predicates.add(cb.and(patientID.get(PatientID_.issuer).isNull()));
-        if (isUniversalMatching(pids))
+        if (isUniversalMatching(pids, null))
             return;
 
         List<Predicate> idPredicates = new ArrayList<>(pids.length);
@@ -354,8 +354,9 @@ public class QueryBuilder {
             predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
     }
 
-    public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
-        if (isUniversalMatching(pids))
+    public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids,
+                                       QueryParam queryParam) {
+        if (isUniversalMatching(pids, queryParam))
             return;
 
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
@@ -546,7 +547,7 @@ public class QueryBuilder {
         if (queryParam.isWithoutIssuer())
             patIDWithoutIssuerPredicate(predicates, patient, pids);
         else
-            patientIDPredicate(predicates, patient, pids);
+            patientIDPredicate(predicates, patient, pids, queryParam);
         personName(predicates, q, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
         anyOf(predicates, patient.get(Patient_.patientSex),
@@ -567,7 +568,7 @@ public class QueryBuilder {
     }
 
     public static boolean hasPatientLevelPredicates(IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
-        if (!isUniversalMatching(pids))
+        if (!isUniversalMatching(pids, queryParam))
             return true;
 
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
@@ -1061,12 +1062,19 @@ public class QueryBuilder {
         return values == null || values.length == 0 || values[0] == null || values[0].equals("*");
     }
 
-    public static boolean isUniversalMatching(IDWithIssuer[] pids) {
+    public static boolean isUniversalMatching(IDWithIssuer[] pids, QueryParam queryParam) {
         for (IDWithIssuer pid : pids) {
-            if (!isUniversalMatching(pid.getID()))
+            if (!isUniversalMatching(pid.getID()) || (queryParam != null
+                    && queryParam.isFilterByIssuerOfPatientID() && !isUniversalMatching(pid.getIssuer())))
                 return false;
         }
         return true;
+    }
+
+    private static boolean isUniversalMatching(Issuer issuer) {
+        return (issuer == null)
+                || (isUniversalMatching(issuer.getLocalNamespaceEntityID())
+                && isUniversalMatching(issuer.getUniversalEntityID()));
     }
 
     private static boolean isUniversalMatching(DateRange range) {

@@ -2049,6 +2049,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.420 NAME 'dcmHideSPSWithStatusFromMW
   DESC 'Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL-RS Service. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELED, DISCONTINUED, COMPLETED'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.421 NAME 'dcmFilterByIssuerOfPatientID'
+  DESC 'Indicates to filter by Issuer of Patient ID even if no matching key for Patient ID is specified; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2124,6 +2129,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQueryMaxNumberOfResults $
     dcmQidoMaxNumberOfResults $
     dcmQidoETag $
+    dcmFilterByIssuerOfPatientID $
     dcmFwdMppsDestination $
     dcmIanDestination $
     dcmIanDelay $
@@ -2354,6 +2360,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmQueryMaxNumberOfResults $
     dcmQidoMaxNumberOfResults $
     dcmQidoETag $
+    dcmFilterByIssuerOfPatientID $
     dcmFwdMppsDestination $
     dcmIanDestination $
     dcmIanDelay $

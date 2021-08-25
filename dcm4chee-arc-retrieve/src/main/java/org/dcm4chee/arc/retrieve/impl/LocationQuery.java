@@ -55,7 +55,6 @@ import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -103,8 +102,8 @@ class LocationQuery {
             q.orderBy(cb.asc(instance.get(Instance_.instanceNumber)));
         } else {
             QueryBuilder builder = new QueryBuilder(cb);
-            if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
-                builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
+            if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs(), null)) {
+                builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs(), null);
             }
             builder.accessControl(predicates, study, ctx.getAccessControlIDs());
             builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());

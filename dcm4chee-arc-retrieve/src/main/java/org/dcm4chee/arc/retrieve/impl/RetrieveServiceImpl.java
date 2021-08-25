@@ -389,8 +389,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
         List<Predicate> predicates = new ArrayList<>();
         QueryBuilder builder = new QueryBuilder(cb);
-        if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
-            builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
+        if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs(), null)) {
+            builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs(), null);
         }
         builder.accessControl(predicates, study, ctx.getAccessControlIDs());
         builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());

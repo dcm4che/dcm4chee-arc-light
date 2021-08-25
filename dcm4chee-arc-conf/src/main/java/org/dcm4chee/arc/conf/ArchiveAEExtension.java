@@ -110,6 +110,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Integer queryMaxNumberOfResults;
     private Integer qidoMaxNumberOfResults;
     private Boolean qidoETag;
+    private Boolean filterByIssuerOfPatientID;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private SPSStatus[] hideSPSWithStatusFromMWLRS = {};
     private String storePermissionServiceURL;
@@ -828,6 +829,20 @@ public class ArchiveAEExtension extends AEExtension {
         return qidoETag != null
                 ? qidoETag
                 : getArchiveDeviceExtension().isQidoETag();
+    }
+
+    public Boolean getFilterByIssuerOfPatientID() {
+        return filterByIssuerOfPatientID;
+    }
+
+    public void setFilterByIssuerOfPatientID(Boolean filterByIssuerOfPatientID) {
+        this.filterByIssuerOfPatientID = filterByIssuerOfPatientID;
+    }
+
+    public boolean filterByIssuerOfPatientID() {
+        return filterByIssuerOfPatientID != null
+                ? filterByIssuerOfPatientID
+                : getArchiveDeviceExtension().isFilterByIssuerOfPatientID();
     }
 
     public SPSStatus[] getHideSPSWithStatusFromMWL() {
@@ -1786,6 +1801,8 @@ public class ArchiveAEExtension extends AEExtension {
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         queryMaxNumberOfResults = aeExt.queryMaxNumberOfResults;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
+        qidoETag = aeExt.qidoETag;
+        filterByIssuerOfPatientID = aeExt.filterByIssuerOfPatientID;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
         hideSPSWithStatusFromMWLRS = aeExt.hideSPSWithStatusFromMWLRS;
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
