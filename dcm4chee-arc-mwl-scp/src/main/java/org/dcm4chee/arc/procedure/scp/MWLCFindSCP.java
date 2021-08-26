@@ -91,6 +91,8 @@ public class MWLCFindSCP extends BasicCFindSCP {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
+        else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
+            ctx.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(keys));
         return new MWLQueryTask(as, pc, rq, keys,
                 queryService.createMWLQuery(ctx),
                 queryService.getAttributesCoercion(ctx),

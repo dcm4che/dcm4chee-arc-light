@@ -113,6 +113,7 @@ public class MWLQuery extends AbstractQuery {
     private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<MWLItem, Patient> patient, Root<MWLItem> mwlItem) {
         List<Predicate> predicates = builder.mwlItemPredicates(q, patient, mwlItem,
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         if (!predicates.isEmpty())

@@ -116,6 +116,7 @@ class PatientQuery extends AbstractQuery {
     private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Root<Patient> patient) {
         List<Predicate> predicates = builder.patientPredicates(q, patient,
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         if (!predicates.isEmpty())

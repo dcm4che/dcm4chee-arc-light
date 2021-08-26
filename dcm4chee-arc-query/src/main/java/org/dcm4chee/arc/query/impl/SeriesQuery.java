@@ -214,6 +214,7 @@ class SeriesQuery extends AbstractQuery {
             Join<Series, Study> study, Root<Series> series) {
         List<Predicate> predicates = builder.seriesPredicates(q, patient, study, series,
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         if (!predicates.isEmpty())

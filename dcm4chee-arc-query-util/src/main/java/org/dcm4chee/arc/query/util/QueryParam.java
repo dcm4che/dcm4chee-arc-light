@@ -124,10 +124,6 @@ public class QueryParam {
         return arcAE.personNameComponentOrderInsensitiveMatching();
     }
 
-    public boolean isFilterByIssuerOfPatientID() {
-        return arcAE.filterByIssuerOfPatientID();
-    }
-
     public boolean isHideNotRejectedInstances() {
         return qrView.isHideNotRejectedInstances();
     }

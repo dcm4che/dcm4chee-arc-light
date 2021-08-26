@@ -42,6 +42,7 @@ package org.dcm4chee.arc.query;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
@@ -99,6 +100,10 @@ public interface QueryContext {
     IDWithIssuer[] getPatientIDs();
 
     void setPatientIDs(IDWithIssuer... pids);
+
+    Issuer getIssuerOfPatientID();
+
+    void setIssuerOfPatientID(Issuer issuerOfPatientID);
 
     QueryService getQueryService();
 

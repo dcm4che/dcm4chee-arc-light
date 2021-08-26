@@ -100,6 +100,8 @@ class CommonCFindSCP extends BasicCFindSCP {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
+        else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
+            ctx.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(keys));
         Sequence sortingOperationSeq = (Sequence) keys.remove(Tag.SortingOperationsSequence);
         if (sortingOperationSeq != null)
             ctx.setOrderByTags(sortingOperationSeq.stream().map(OrderByTag::valueOf).collect(Collectors.toList()));

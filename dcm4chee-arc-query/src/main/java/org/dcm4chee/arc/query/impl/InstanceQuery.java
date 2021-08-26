@@ -42,7 +42,6 @@
 package org.dcm4chee.arc.query.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
@@ -56,11 +55,9 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.util.QueryBuilder;
 
 import javax.json.Json;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
@@ -236,6 +233,7 @@ class InstanceQuery extends AbstractQuery {
             Join<Series, Study> study, Join<Instance, Series> series, Root<Instance> instance) {
         List<Predicate> predicates = builder.instancePredicates(q, patient, study, series, instance,
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam(),
                 codeCache.findOrCreateEntities(
@@ -277,6 +275,7 @@ class InstanceQuery extends AbstractQuery {
             Join<Series, Study> study, Root<Series> series) {
         List<Predicate> predicates = builder.seriesPredicates(q, patient, study, series,
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam()
         );

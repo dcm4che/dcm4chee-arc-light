@@ -298,6 +298,7 @@ public class ProcedureServiceEJB {
                                                 patient,
                                                 mwlItem,
                                                 idWithIssuer != null ? new IDWithIssuer[]{ idWithIssuer } : IDWithIssuer.EMPTY,
+                                                null,
                                                 queryKeys,
                                                 queryParam);
         if (!predicates.isEmpty())
@@ -426,7 +427,7 @@ public class ProcedureServiceEJB {
         queryParam.setFuzzySemanticMatching(fuzzymatching);
         List<Predicate> predicates = new QueryBuilder(cb).mwlItemPredicates(q, patient, mwlItem,
                 idWithIssuer != null ? new IDWithIssuer[]{ idWithIssuer } : IDWithIssuer.EMPTY,
-                keys, queryParam);
+                null, keys, queryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         Path<String> studyIUID = mwlItem.get(MWLItem_.studyInstanceUID);

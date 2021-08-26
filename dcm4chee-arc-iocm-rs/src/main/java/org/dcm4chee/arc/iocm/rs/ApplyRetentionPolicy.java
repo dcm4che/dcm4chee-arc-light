@@ -44,6 +44,7 @@ package org.dcm4chee.arc.iocm.rs;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.ApplicationEntity;
@@ -262,8 +263,10 @@ public class ApplyRetentionPolicy {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
+        if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
+        else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
+            ctx.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(keys));
         ctx.setQueryKeys(keys);
         ctx.setOrderByTags(Collections.singletonList(OrderByTag.asc(Tag.StudyInstanceUID)));
         ctx.setReturnPrivate(true);

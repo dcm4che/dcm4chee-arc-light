@@ -42,6 +42,7 @@ package org.dcm4chee.arc.query.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
@@ -73,6 +74,7 @@ class QueryContextImpl implements QueryContext {
     private final QueryService queryService;
     private QueryRetrieveLevel2 qrLevel;
     private IDWithIssuer[] patientIDs = {};
+    private Issuer issuerOfPatientID;
     private Attributes queryKeys;
     private Attributes coercedQueryKeys = new Attributes();
     private Attributes returnKeys;
@@ -176,6 +178,16 @@ class QueryContextImpl implements QueryContext {
     @Override
     public void setPatientIDs(IDWithIssuer... patientIDs) {
         this.patientIDs = patientIDs != null ? patientIDs : IDWithIssuer.EMPTY;
+    }
+
+    @Override
+    public Issuer getIssuerOfPatientID() {
+        return issuerOfPatientID;
+    }
+
+    @Override
+    public void setIssuerOfPatientID(Issuer issuerOfPatientID) {
+        this.issuerOfPatientID = issuerOfPatientID;
     }
 
     @Override

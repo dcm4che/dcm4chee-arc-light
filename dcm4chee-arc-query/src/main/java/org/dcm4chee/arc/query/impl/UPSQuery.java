@@ -117,6 +117,7 @@ public class UPSQuery extends AbstractQuery {
     private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<UPS, Patient> patient, Root<UPS> ups) {
         List<Predicate> predicates = builder.upsPredicates(q, patient, ups,
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         if (!predicates.isEmpty())

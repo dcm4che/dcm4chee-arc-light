@@ -120,6 +120,7 @@ public class MPPSQuery extends AbstractQuery {
             CriteriaQuery<Long> q, Root<MPPS> mpps, Expression<Long> longExpression, Predicate... extra) {
         boolean hasPatientLevelPredicates = QueryBuilder.hasPatientLevelPredicates(
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         Join<MPPS, Patient> patient = null;
@@ -139,6 +140,7 @@ public class MPPSQuery extends AbstractQuery {
                                           Predicate... extra) {
         List<Predicate> predicates = builder.mppsPredicates(q, patient, mpps,
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         for (Predicate predicate : extra)

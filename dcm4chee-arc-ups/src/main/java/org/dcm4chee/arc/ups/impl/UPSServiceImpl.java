@@ -589,6 +589,8 @@ public class UPSServiceImpl implements UPSService {
             IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(matchKeys);
             if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
                 queryContext.setPatientIDs(idWithIssuer);
+            else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
+                queryContext.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(matchKeys));
             queryContext.setQueryKeys(matchKeys);
         } else {
             queryContext.setQueryKeys(new Attributes(0));

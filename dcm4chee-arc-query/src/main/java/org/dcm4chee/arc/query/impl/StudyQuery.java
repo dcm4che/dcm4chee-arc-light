@@ -198,6 +198,7 @@ class StudyQuery extends AbstractQuery {
             Predicate... extra) {
         List<Predicate> predicates = builder.studyPredicates(q, patient, study,
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         for (Predicate predicate : extra)
@@ -211,6 +212,7 @@ class StudyQuery extends AbstractQuery {
             Root<Study> study, Expression<Long> longExpression, Predicate... extra) {
         boolean hasPatientLevelPredicates = QueryBuilder.hasPatientLevelPredicates(
                 context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         Join<Study, Patient> patient = null;

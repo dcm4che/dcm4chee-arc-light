@@ -351,8 +351,10 @@ public class UpsMatchingRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
+        if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
+        else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
+            ctx.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(keys));
         if (studyInstanceUID != null)
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         if (seriesInstanceUID != null)

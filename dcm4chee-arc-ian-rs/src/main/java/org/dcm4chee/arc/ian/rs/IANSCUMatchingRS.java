@@ -42,10 +42,7 @@ package org.dcm4chee.arc.ian.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
@@ -288,8 +285,10 @@ public class IANSCUMatchingRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
+        if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
+        else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
+            ctx.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(keys));
         if (studyUID != null)
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
         if (seriesUID != null)

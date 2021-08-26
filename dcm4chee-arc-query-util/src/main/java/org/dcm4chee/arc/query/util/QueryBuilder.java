@@ -336,10 +336,10 @@ public class QueryBuilder {
         return true;
     }
 
-    public <Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
+    private <Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
         predicates.add(cb.and(patientID.get(PatientID_.issuer).isNull()));
-        if (isUniversalMatching(pids, null))
+        if (isUniversalMatching(pids))
             return;
 
         List<Predicate> idPredicates = new ArrayList<>(pids.length);
@@ -354,11 +354,7 @@ public class QueryBuilder {
             predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
     }
 
-    public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids,
-                                       QueryParam queryParam) {
-        if (isUniversalMatching(pids, queryParam))
-            return;
-
+    public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
         Join<PatientID, IssuerEntity> issuer = containsIssuer(pids)
                 ? patientID.join(PatientID_.issuer, JoinType.LEFT)
@@ -378,27 +374,31 @@ public class QueryBuilder {
             predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
     }
 
+    private <Z> void patIDIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, Issuer issuer) {
+        issuer(predicates, patient.join(Patient_.patientID).join(PatientID_.issuer), issuer);
+    }
+
     public <T> List<Predicate> patientPredicates(CriteriaQuery<T> q,
-            Root<Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+            Root<Patient> patient, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.PATIENT);
+        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.PATIENT);
         return predicates;
     }
 
     public <T> List<Predicate> studyPredicates(CriteriaQuery<T> q,
             From<Study, Patient> patient, Root<Study> study,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.STUDY);
+        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.STUDY);
         studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.STUDY);
         return predicates;
     }
 
     public <T> List<Predicate> seriesPredicates(CriteriaQuery<T> q,
             From<Study, Patient> patient, From<Series, Study> study, Root<Series> series,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.SERIES);
+        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.SERIES);
         studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.SERIES);
         seriesLevelPredicates(predicates, q, series, keys, queryParam);
         return predicates;
@@ -406,10 +406,10 @@ public class QueryBuilder {
 
     public <T> List<Predicate> instancePredicates(CriteriaQuery<T> q,
             From<Study, Patient> patient, From<Series, Study> study, From<Instance, Series> series,
-            Root<Instance> instance, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
+            Root<Instance> instance, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, QueryRetrieveLevel2.IMAGE);
+        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.IMAGE);
         studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.IMAGE);
         seriesLevelPredicates(predicates, q, series, keys, queryParam);
         instanceLevelPredicates(predicates, q, study, series, instance, keys, queryParam,
@@ -419,27 +419,27 @@ public class QueryBuilder {
 
     public <T> List<Predicate> mwlItemPredicates(CriteriaQuery<T> q,
             From<MWLItem, Patient> patient, Root<MWLItem> mwlItem,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
+        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
         mwlItemLevelPredicates(predicates, q, mwlItem, keys, queryParam);
         return predicates;
     }
 
     public <T> List<Predicate> upsPredicates(CriteriaQuery<T> q,
             Join<UPS, Patient> patient, Root<UPS> ups,
-            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
+        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
         upsLevelPredicates(predicates, q, ups, keys, queryParam);
         return predicates;
     }
 
     public <T> List<Predicate> mppsPredicates(CriteriaQuery<T> q,
            From<MPPS, Patient> patient, Root<MPPS> mpps,
-           IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+           IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, keys, queryParam, null);
+        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
         mppsLevelPredicates(predicates, q, mpps, keys, queryParam);
         return predicates;
     }
@@ -531,7 +531,7 @@ public class QueryBuilder {
     }
 
     private <T, Z> void patientLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            From<Z, Patient> patient, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
+            From<Z, Patient> patient, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
             QueryRetrieveLevel2 queryRetrieveLevel) {
         if (patient == null)
             return;
@@ -546,8 +546,10 @@ public class QueryBuilder {
         }
         if (queryParam.isWithoutIssuer())
             patIDWithoutIssuerPredicate(predicates, patient, pids);
-        else
-            patientIDPredicate(predicates, patient, pids, queryParam);
+        else if (!QueryBuilder.isUniversalMatching(pids))
+            patientIDPredicate(predicates, patient, pids);
+        else if (!QueryBuilder.isUniversalMatching(issuer))
+            patIDIssuerPredicate(predicates, patient, issuer);
         personName(predicates, q, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
         anyOf(predicates, patient.get(Patient_.patientSex),
@@ -567,8 +569,8 @@ public class QueryBuilder {
             predicates.add(cb.equal(patient.get(Patient_.verificationStatus), queryParam.getPatientVerificationStatus()));
     }
 
-    public static boolean hasPatientLevelPredicates(IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
-        if (!isUniversalMatching(pids, queryParam))
+    public static boolean hasPatientLevelPredicates(IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
+        if (!isUniversalMatching(pids) || !isUniversalMatching(issuer))
             return true;
 
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
@@ -1062,10 +1064,9 @@ public class QueryBuilder {
         return values == null || values.length == 0 || values[0] == null || values[0].equals("*");
     }
 
-    public static boolean isUniversalMatching(IDWithIssuer[] pids, QueryParam queryParam) {
+    public static boolean isUniversalMatching(IDWithIssuer[] pids) {
         for (IDWithIssuer pid : pids) {
-            if (!isUniversalMatching(pid.getID()) || (queryParam != null
-                    && queryParam.isFilterByIssuerOfPatientID() && !isUniversalMatching(pid.getIssuer())))
+            if (!isUniversalMatching(pid.getID()))
                 return false;
         }
         return true;

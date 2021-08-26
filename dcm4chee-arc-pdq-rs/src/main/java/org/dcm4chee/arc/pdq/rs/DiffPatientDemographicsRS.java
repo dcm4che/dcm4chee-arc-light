@@ -282,8 +282,10 @@ public class DiffPatientDemographicsRS {
         ctx.setSOPClassUID(UID.PatientRootQueryRetrieveInformationModelFind);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
+        if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
+        else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
+            ctx.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(keys));
         ctx.setQueryKeys(keys);
         ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;

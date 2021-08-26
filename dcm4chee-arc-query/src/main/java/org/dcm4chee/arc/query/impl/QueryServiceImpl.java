@@ -718,6 +718,7 @@ class QueryServiceImpl implements QueryService {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(queryKeys);
         List<Predicate> predicates = builder.patientPredicates(q, patient,
                 idWithIssuer != null ? new IDWithIssuer[] { idWithIssuer } : IDWithIssuer.EMPTY,
+                null,
                 queryKeys,
                 queryParam);
         if (!predicates.isEmpty())
