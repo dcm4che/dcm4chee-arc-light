@@ -281,7 +281,7 @@ public class DeletionServiceEJB {
     public List<Location> deleteStudy(StudyDeleteContext ctx, int limit, boolean orphaned) {
         Long studyPk = ctx.getStudyPk();
         LOG.debug("Query for objects of Study[pk={}]", studyPk);
-        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_ORDER_BY_INSTANCE_PK, Location.class)
+        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                 .setParameter(1, studyPk)
                 .setMaxResults(limit)
                 .getResultList();
