@@ -4182,20 +4182,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             "MOVE_MATCHING"
                         ).subscribe(webApp=>{
                             if(webApp){
-                                let checkbox = "";
-                                if(checkbox != '' && this.appService.param(this.createStudyFilterParams(true,true)) != '')
-                                    checkbox = '&' + checkbox;
-                                    urlRest = `${
-                                        this.service.getDicomURL("export",webApp)
-                                    }/${
-                                        result.selectedExporter
-                                    }?${
-                                        batchID
-                                    }${
-                                        this.appService.param(this.createStudyFilterParams(true,true))
-                                    }${
-                                        checkbox
-                                    }`;
+                                urlRest = `${
+                                    this.service.getDicomURL("export",webApp)
+                                }/${
+                                    result.selectedExporter
+                                }?${
+                                    batchID
+                                }${
+                                    this.appService.param(this.createStudyFilterParams(true,true))
+                                }`;
                             }else{
                                 this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
                             }
@@ -4235,8 +4230,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             else {
                                 id = result.selectedExporter;
                             }
-                            // urlRest = url  + '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
-                            singleUrlSuffix = '/export/' + id + '?'+ batchID + this.appService.param(result.checkboxes);
+                            singleUrlSuffix = '/export/' + id + '?'+ batchID;
                             fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                         }
                     }
