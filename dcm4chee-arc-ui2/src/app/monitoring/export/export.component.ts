@@ -270,14 +270,24 @@ export class ExportComponent implements OnInit, OnDestroy {
                     description:$localize `:@@exporter_id:Exporter ID`,
                     placeholder:$localize `:@@exporter_id:Exporter ID`,
                     validation:Validators.required
-                },{
+                },
+                {
                     tag:"input",
                     type:"number",
-                    filterKey:"field",
-                    description:$localize `:@@field:Field`,
-                    placeholder:$localize `:@@field:Field`,
+                    filterKey:"studyUIDField",
+                    description:$localize `:@@study_uid_field:Study UID Field`,
+                    placeholder:$localize `:@@study_uid_field:Study UID Field`,
                     validation:Validators.minLength(1),
                     defaultValue:1
+                },
+                {
+                    tag:"input",
+                    type:"number",
+                    filterKey:"seriesUIDField",
+                    description:$localize `:@@series_uid_field:Series UID Field`,
+                    placeholder:$localize `:@@series_uid_field:Series UID Field`,
+                    validation:Validators.minLength(1),
+                    defaultValue:null
                 },
                 {
                     tag:"input",
@@ -293,7 +303,9 @@ export class ExportComponent implements OnInit, OnDestroy {
                     clonedFilters['batchID'] = filter['batchID'];
                 if (filter['scheduledTime'])
                     clonedFilters['scheduledTime'] = filter['scheduledTime'];
-                return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/rs/studies/csv:${filter.field}/export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`;
+                return filter['seriesUIDField']
+                    ? `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/rs/studies/csv:${filter.studyUIDField}/series/csv:${filter.seriesUIDField}/export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`
+                    : `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/rs/studies/csv:${filter.studyUIDField}/export/${filter.exporterID}${j4care.getUrlParams(clonedFilters)}`;
             }
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
