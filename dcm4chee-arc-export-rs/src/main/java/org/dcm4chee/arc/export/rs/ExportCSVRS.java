@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -100,22 +99,31 @@ public class ExportCSVRS {
     @ValidValueOf(type = ParseDateTime.class)
     private String scheduledTime;
 
-    @QueryParam("csvSeriesUID")
-    @Pattern(regexp = "^([1-9][0-9]{0,2})$", message = "CSV field for Series Instance UID should be greater than or equal to 1")
-    private String csvSeriesUID;
-
     @HeaderParam("Content-Type")
     private MediaType contentType;
 
     @POST
-    @Path("/studies/csv:{field}/export/{ExporterID}")
+    @Path("/studies/csv:{studyUIDField}/export/{ExporterID}")
     @Consumes("text/csv")
     @Produces("application/json")
     public Response exportStudies(
             @PathParam("ExporterID") String exporterID,
-            @PathParam("field") int field,
+            @PathParam("studyUIDField") int studyUIDField,
             InputStream in) {
-        return exportStudiesFromCSV(aet, exporterID, field, in);
+        return exportFromCSV(aet, exporterID, studyUIDField, null, in);
+
+    }
+
+    @POST
+    @Path("/studies/csv:{studyUIDField}/series/csv:{seriesUIDField}/export/{ExporterID}")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response exportSeries(
+            @PathParam("ExporterID") String exporterID,
+            @PathParam("studyUIDField") int studyUIDField,
+            @PathParam("seriesUIDField") int seriesUIDField,
+            InputStream in) {
+        return exportFromCSV(aet, exporterID, studyUIDField, seriesUIDField, in);
 
     }
 
@@ -126,18 +134,22 @@ public class ExportCSVRS {
         return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
-    Response exportStudiesFromCSV(String aet, String exporterID, int field, InputStream in) {
+    Response exportFromCSV(String aet, String exporterID, int studyUIDField, Integer seriesUIDField, InputStream in) {
         logRequest();
         Response.Status status = Response.Status.BAD_REQUEST;
         try {
-            if (field < 1)
+            if (studyUIDField < 1)
                 return errResponse(status,
                         "CSV field for Study Instance UID should be greater than or equal to 1");
 
-            int csvSeriesUIDField = csvSeriesUID == null ? 0 : Integer.parseInt(csvSeriesUID);
-            if (field == csvSeriesUIDField)
-                return errResponse(status,
-                        "CSV fields for Study and Series Instance UIDs should be different");
+            if (seriesUIDField != null) {
+                if (studyUIDField == seriesUIDField)
+                    return errResponse(status, "CSV fields for Study and Series Instance UIDs should be different");
+
+                if (seriesUIDField < 1)
+                    return errResponse(status,
+                            "CSV field for Series Instance UID should be greater than or equal to 1");
+            }
 
             ApplicationEntity ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())
@@ -161,7 +173,7 @@ public class ExportCSVRS {
                     if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
                         continue;
 
-                    String studyUID = csvRecord.get(field - 1).replaceAll("\"", "");
+                    String studyUID = csvRecord.get(studyUIDField - 1).replaceAll("\"", "");
                     if (header && studyUID.chars().allMatch(Character::isLetter)) {
                         header = false;
                         continue;
@@ -169,7 +181,7 @@ public class ExportCSVRS {
 
                     if (!arcDev.isValidateUID() || validateUID(studyUID)) {
                         StudySeriesInfo studySeriesInfo = new StudySeriesInfo(studyUID);
-                        addSeriesUID(studySeriesInfo, csvRecord, csvSeriesUIDField, arcDev);
+                        addSeriesUID(studySeriesInfo, csvRecord, seriesUIDField, arcDev);
                         studySeries.add(studySeriesInfo);
                     }
 
@@ -206,12 +218,12 @@ public class ExportCSVRS {
         }
     }
 
-    private void addSeriesUID(StudySeriesInfo studySeriesInfo, CSVRecord csvRecord, int csvSeriesUID,
+    private void addSeriesUID(StudySeriesInfo studySeriesInfo, CSVRecord csvRecord, Integer seriesUIDField,
                               ArchiveDeviceExtension arcDev) {
-        if (csvSeriesUID == 0)
+        if (seriesUIDField == null)
             return;
 
-        String seriesUID = csvRecord.get(csvSeriesUID - 1).replaceAll("\"", "");
+        String seriesUID = csvRecord.get(seriesUIDField - 1).replaceAll("\"", "");
         if (arcDev.isValidateUID() && !validateUID(seriesUID)) {
             LOG.info("Invalid Series[uid={}] of valid Study[uid={}] present in CSV file",
                     seriesUID, studySeriesInfo.getStudyUID());

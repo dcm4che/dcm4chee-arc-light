@@ -923,7 +923,7 @@
           "$ref": "../parameters.json#/upsTemplateUIDPathParam"
         },
         {
-          "$ref": "../parameters.json#/csvFieldPathParam"
+          "$ref": "../parameters.json#/csvStudyUIDFieldPathParam"
         },
         {
           "$ref": "../parameters.json#/csvPatientID"
@@ -1356,7 +1356,7 @@
           "$ref": "../parameters.json#/moveSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/csvFieldPathParam"
+          "$ref": "../parameters.json#/csvStudyUIDFieldPathParam"
         },
         {
           "$ref": "../parameters.json#/csvPatientID"

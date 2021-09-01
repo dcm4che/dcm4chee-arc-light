@@ -373,10 +373,19 @@
       "type": "string"
     }
   },
-  "csvFieldPathParam": {
+  "csvStudyUIDFieldPathParam": {
     "name": "field",
     "in": "path",
     "description": "CSV field which contains the Study Instance UID",
+    "required": true,
+    "schema": {
+      "type": "integer"
+    }
+  },
+  "csvSeriesUIDFieldPathParam": {
+    "name": "field",
+    "in": "path",
+    "description": "CSV field which contains the Series Instance UID",
     "required": true,
     "schema": {
       "type": "integer"

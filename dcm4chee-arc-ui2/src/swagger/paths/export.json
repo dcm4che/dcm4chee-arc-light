@@ -835,8 +835,8 @@
       "tags": [
         "EXPORT-RS"
       ],
-      "summary": "Export Studies with(out) Series specified in CSV",
-      "operationId": "ExportStudiesSeriesCSV",
+      "summary": "Export Studies specified in CSV",
+      "operationId": "ExportStudiesCSV",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
@@ -845,20 +845,75 @@
           "$ref": "../parameters.json#/ExporterIDPathParam"
         },
         {
-          "$ref": "../parameters.json#/csvFieldPathParam"
+          "$ref": "../parameters.json#/csvStudyUIDFieldPathParam"
         },
         {
           "$ref": "../parameters.json#/scheduledTime"
         },
         {
           "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/csvSeriesUID"
         }
       ],
       "requestBody": {
-        "description": "CSV File containing Study with(out) Series Instance UIDs",
+        "description": "CSV File containing Study Instance UIDs",
+        "required": true,
+        "content": {
+          "text/csv": {
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "responses": {
+        "202": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "204": {
+          "description": "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs."
+        },
+        "400": {
+          "description": "Specified CSV field for Study Instance UID is less than 1"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Exporter with specified exporterID not configured"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "series.csv": {
+    "post": {
+      "tags": [
+        "EXPORT-RS"
+      ],
+      "summary": "Export Series specified in CSV",
+      "operationId": "ExportSeriesCSV",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/ExporterIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvStudyUIDFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/csvSeriesUIDFieldPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
+        }
+      ],
+      "requestBody": {
+        "description": "CSV File containing Study and Series Instance UIDs",
         "required": true,
         "content": {
           "text/csv": {

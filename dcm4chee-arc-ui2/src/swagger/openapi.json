@@ -195,8 +195,11 @@
     "/aets/{aet}/rs/studies/export/{exporterID}/": {
       "$ref": "paths/export.json#/studies"
     },
-    "/aets/{aet}/rs/studies/csv:{field}/export/{exporterID}": {
+    "/aets/{aet}/rs/studies/csv:{studyUIDField}/export/{exporterID}": {
       "$ref": "paths/export.json#/studies.csv"
+    },
+    "/aets/{aet}/rs/studies/csv:{studyUIDField}/series/csv:{seriesUIDField}/export/{exporterID}": {
+      "$ref": "paths/export.json#/series.csv"
     },
     "/aets/{aet}/rs/studies/csv:{field}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/study.reject.csv"

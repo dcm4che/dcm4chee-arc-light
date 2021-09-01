@@ -50,7 +50,7 @@
           "$ref": "../parameters.json#/archiveAETPathParam"
         },
         {
-          "$ref": "../parameters.json#/csvFieldPathParam"
+          "$ref": "../parameters.json#/csvStudyUIDFieldPathParam"
         },
         {
           "$ref": "../parameters.json#/codeValuePathParam"
@@ -1783,7 +1783,7 @@
           "$ref": "../parameters.json#/secondaryFindSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/csvFieldPathParam"
+          "$ref": "../parameters.json#/csvStudyUIDFieldPathParam"
         },
         {
           "$ref": "../parameters.json#/differentStudies"

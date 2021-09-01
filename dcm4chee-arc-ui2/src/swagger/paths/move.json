@@ -278,7 +278,7 @@
           "$ref": "../parameters.json#/moveSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/csvFieldPathParam"
+          "$ref": "../parameters.json#/csvStudyUIDFieldPathParam"
         },
         {
           "$ref": "../parameters.json#/destinationPathParam"
