@@ -2882,7 +2882,7 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header:  $localize `:@@description:Description`,
+                    header:  $localize `:@@sps_description:SPS Description`,
                     pathToValue: "00400100.Value[0].00400007.Value[0]",
                     headerDescription: $localize `:@@study.scheduled_procedure_step_description:Scheduled Procedure Step Description`,
                     widthWeight: 3,
