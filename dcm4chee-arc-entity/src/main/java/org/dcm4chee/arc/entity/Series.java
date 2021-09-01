@@ -251,6 +251,10 @@ import java.util.stream.Stream;
         query = "update Series se set se.metadataUpdateFailures = se.metadataUpdateFailures + 1, se.metadataScheduledUpdateTime = ?2 " +
                 "where se.pk = ?1"),
 @NamedQuery(
+        name=Series.SET_METADATA,
+        query = "update Series se set se.metadata = ?2, se.metadataUpdateFailures = 0, se.metadataScheduledUpdateTime = null " +
+                "where se.pk = ?1"),
+@NamedQuery(
         name=Series.CLAIM_STORAGE_VERIFICATION,
         query = "update Series se set se.storageVerificationTime = ?3 " +
                 "where se.pk = ?1 and se.storageVerificationTime = ?2"),
@@ -339,6 +343,7 @@ public class Series {
     public static final String SCHEDULED_STORAGE_VERIFICATION = "Series.scheduledStorageVerification";
     public static final String SCHEDULED_COMPRESSION = "Series.scheduledCompression";
     public static final String INCREMENT_METADATA_UPDATE_FAILURES = "Series.setMetadataScheduledUpdateTime";
+    public static final String SET_METADATA = "Series.setMetadata";
     public static final String CLAIM_STORAGE_VERIFICATION = "Series.claimStorageVerification";
     public static final String CLAIM_COMPRESSION = "Series.claimCompression";
     public static final String CLAIM_UPDATE_METADATA = "Series.claimUpdateMetadata";

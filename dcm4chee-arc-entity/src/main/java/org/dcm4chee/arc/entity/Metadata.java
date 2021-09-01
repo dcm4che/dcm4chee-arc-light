@@ -59,6 +59,8 @@ import java.util.Date;
         @NamedQuery(name=Metadata.FIND_BY_SERIES_IUID_AND_STORAGE_ID,
                 query="select se.metadata from Series se " +
                         "where se.seriesInstanceUID = ?1 and se.metadata.storageID = ?2"),
+        @NamedQuery(name = Metadata.SET_STATUS_BY_SERIES_PK,
+                query = "update Metadata m set m.status = ?2 where exists (select 1 from Series s where s.pk = ?1 and s.metadata = m)"),
         @NamedQuery(name = Metadata.UPDATE_STATUS_FROM,
                 query = "update Metadata m set m.status = ?3 where m.pk = ?1 and m.status = ?2"),
         @NamedQuery(name = Metadata.DELETE_BY_PK,
@@ -70,6 +72,7 @@ public class Metadata {
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Metadata.FindByStorageIDAndStatus";
     public static final String FIND_BY_SERIES_IUID_AND_STORAGE_ID = "Metadata.FindBySeriesIUIDAndStorageID";
     public static final String UPDATE_STATUS_FROM = "Metadata.UpdateStatusFrom";
+    public static final String SET_STATUS_BY_SERIES_PK = "Metadata.SetStatusBySeriesPk";
     public static final String DELETE_BY_PK = "Metadata.DeleteByPk";
 
     public enum Status {

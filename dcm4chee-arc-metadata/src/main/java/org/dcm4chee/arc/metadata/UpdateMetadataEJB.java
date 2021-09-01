@@ -81,13 +81,14 @@ public class UpdateMetadataEJB {
     }
 
     public void commit(Long seriesPk, Metadata metadata) {
-        Series series = em.find(Series.class, seriesPk);
         em.persist(metadata);
-        Metadata prev = series.getMetadata();
-        if (prev != null)
-            prev.setStatus(Metadata.Status.TO_DELETE);
-        series.setMetadata(metadata);
-        series.setMetadataScheduledUpdateTime(null);
-        series.setMetadataUpdateFailures(0);
+        em.createNamedQuery(Metadata.SET_STATUS_BY_SERIES_PK)
+                .setParameter(1, seriesPk)
+                .setParameter(2, Metadata.Status.TO_DELETE)
+                .executeUpdate();
+        em.createNamedQuery(Series.SET_METADATA)
+                .setParameter(1, seriesPk)
+                .setParameter(2, metadata)
+                .executeUpdate();
     }
 }
