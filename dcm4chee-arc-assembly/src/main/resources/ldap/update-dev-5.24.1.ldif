@@ -1,0 +1,10 @@
+version: 1
+
+dn: dcmuiPermissionName=Action - Studies - Show Attributes,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmuiPermission
+dcmuiAction: action-studies-show-attributes
+dcmuiPermissionName: Action - Studies - Show Attributes
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiActionParam: visible

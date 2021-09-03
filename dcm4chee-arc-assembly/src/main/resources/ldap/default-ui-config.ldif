@@ -121,6 +121,15 @@ dcmAcceptedUserRole: local-admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
+dn: dcmuiPermissionName=Action - Studies - Show Attributes,dcmuiConfigName=default,dico
+ mDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: action-studies-show-attributes
+dcmuiPermissionName: Action - Studies - Show Attributes
+dcmAcceptedUserRole: local-admin
+dcmAcceptedUserRole: user
+dcmuiActionParam: visible
+
 dn: dcmuiPermissionName=Action - Studies - Count,dcmuiConfigName=default,dic
  omDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=o
  rg
