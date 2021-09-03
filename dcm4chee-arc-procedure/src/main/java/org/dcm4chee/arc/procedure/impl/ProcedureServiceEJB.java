@@ -126,8 +126,10 @@ public class ProcedureServiceEJB {
                 updateMWL(ctx, mwlItem);
             }
         }
-        for (Attributes mwlAttrs : mwlAttrsMap.values())
+        for (Attributes mwlAttrs : mwlAttrsMap.values()) {
+            ctx.setAttributes(mwlAttrs);
             createMWL(ctx);
+        }
     }
 
     private void updateMWL(ProcedureContext ctx, MWLItem mwlItem) {
