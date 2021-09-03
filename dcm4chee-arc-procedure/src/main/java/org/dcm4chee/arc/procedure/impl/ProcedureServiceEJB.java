@@ -122,6 +122,7 @@ public class ProcedureServiceEJB {
                 if (!attrs.update(ctx.getAttributeUpdatePolicy(), mwlAttrs, null))
                     return;
                 attrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(spsItem);
+                ctx.setAttributes(attrs);
                 updateMWL(ctx, mwlItem);
             }
         }
