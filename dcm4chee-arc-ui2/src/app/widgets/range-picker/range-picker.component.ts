@@ -58,6 +58,7 @@ export class RangePickerComponent implements OnInit {
         this.mode = this.mode || "range";
         this.header = this.header || $localize `:@@range-picker.range_picker:Range picker`;
         if(this.datePickerMode || this.onlySingleMode){
+            this.header = $localize `:@@date_time_picker:Date Time picker`;
             this.mode = "single";
         }
         for(let i=0;i<60;i++){
