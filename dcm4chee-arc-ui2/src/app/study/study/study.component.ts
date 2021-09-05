@@ -3652,34 +3652,83 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
 
     rejectMatchingStudies(){
-        let select: any = [];
+        let rjNoteCodes: any = [];
         _.forEach(this.trash.rjnotes, (m, i) => {
-            select.push({
+            rjNoteCodes.push({
                 title: m.codeMeaning,
                 value: m.codeValue + '^' + m.codingSchemeDesignator,
                 label: m.label
             });
         });
-        let parameters: any = {
+        this.confirm({
             content: $localize `:@@select_rejected_type:Select rejected type`,
-            select: select,
-            result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@rejection_reason:Rejection Reason`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:rjNoteCodes,
+                            filterKey:"rjNoteCode",
+                            description:$localize `:@@rejection_reason:Rejection Reason`,
+                            placeholder:$localize `:@@rejection_reason:Rejection Reason`
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@batch_ID:Batch ID`
+                        },
+                        {
+                            tag: "input",
+                            type: "text",
+                            filterKey: "batchID",
+                            description: $localize`:@@batch_ID:Batch ID`,
+                            placeholder: $localize`:@@batch_ID:Batch ID`
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@schedule_at:Schedule at`
+                        },
+                        {
+                            tag:"single-date-time-picker",
+                            type:"text",
+                            filterKey:"scheduledTime",
+                            description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                        },
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
             saveButton: $localize `:@@REJECT:REJECT`
-        };
-        this.confirm(parameters).subscribe(result => {
+        }).subscribe(result => {
             if (result) {
-                console.log("result",result.select);
+                console.log("result",result.rjNoteCode);
                 this.cfpLoadingBar.start();
-                this.service.rejectMatchingStudies(this.studyWebService.selectedWebService,result.select,this.createStudyFilterParams(true,true)).subscribe(res=>{
-                    console.log("res",res);
-                    let count = "";
-                    try{
-                        count = res.count;
-                    }catch (e) {
-                        j4care.log("Could not get count from res=",e);
-                    }
-                    this.appService.showMsg(`Objects rejected successfully:<br>Count: ${count}`);
-                    this.cfpLoadingBar.complete();
+                let rjNoteCode = result.schema_model.rjNoteCode;
+                delete result.schema_model['rjNoteCode'];
+                this.service.rejectMatchingStudies(this.studyWebService.selectedWebService,
+                                                    rjNoteCode,
+                                                    _.merge(result.schema_model, this.createStudyFilterParams(true,true)))
+                    .subscribe(res=>{
+                        console.log("res",res);
+                        let count = "";
+                        try{
+                            count = res.count;
+                        }catch (e) {
+                            j4care.log("Could not get count from res=",e);
+                        }
+                        this.appService.showMsg(`Objects rejected successfully:<br>Count: ${count}`);
+                        this.cfpLoadingBar.complete();
                 },err=>{
                     this.httpErrorHandler.handleError(err);
                     this.cfpLoadingBar.complete();
@@ -3733,7 +3782,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let $this = this;
         if (this.trash.active) {
             //restore
-            this.service.rejectStudy(study.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator)
+            this.service.restoreStudy(study.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator)
             .subscribe(
                 (res) => {
                     $this.appService.showMsg($localize `:@@study.study_restored:Study restored successfully!`);
@@ -3745,48 +3794,109 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
             );
         }else{
-            let select: any = [];
+            let rjNoteCodes: any = [];
             _.forEach(this.trash.rjnotes, (m, i) => {
-                select.push({
+                rjNoteCodes.push({
                     title: m.codeMeaning,
                     value: m.codeValue + '^' + m.codingSchemeDesignator,
                     label: m.label
                 });
             });
-            let parameters: any = {
+            this.confirm({
                 content: $localize `:@@select_rejected_type:Select rejected type`,
-                select: select,
-                result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
-                saveButton:  $localize `:@@REJECT:REJECT`
-            };
-            this.confirm(parameters).subscribe(result => {
+                doNotSave:true,
+                form_schema:[
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@rejection_reason:Rejection Reason`
+                            },
+                            {
+                                tag:"select",
+                                type:"text",
+                                options:rjNoteCodes,
+                                filterKey:"rjNoteCode",
+                                description:$localize `:@@rejection_reason:Rejection Reason`,
+                                placeholder:$localize `:@@rejection_reason:Rejection Reason`
+                            }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@queue_rejection:Queue Rejection`
+                            },
+                            {
+                                tag:"checkbox",
+                                filterKey:"queue",
+                                description:$localize `:@@queue_rejection:Queue Rejection`,
+                                placeholder:$localize `:@@queue_rejection:Queue Rejection`
+                            }
+                        ],
+                        [
+                            {
+                                tag: "label",
+                                text: $localize`:@@batch_ID:Batch ID`
+                            },
+                            {
+                                tag: "input",
+                                type: "text",
+                                filterKey: "batchID",
+                                description: $localize`:@@batch_ID:Batch ID`,
+                                placeholder: $localize`:@@batch_ID:Batch ID`
+                            }
+                        ],
+                        [
+                            {
+                                tag: "label",
+                                text: $localize`:@@schedule_at:Schedule at`
+                            },
+                            {
+                                tag:"single-date-time-picker",
+                                type:"text",
+                                filterKey:"scheduledTime",
+                                description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                            },
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize `:@@REJECT:REJECT`
+            }).subscribe(result => {
                 if (result) {
                     $this.cfpLoadingBar.start();
-                    this.service.rejectStudy(study.attrs, this.studyWebService, parameters.result.select )
+                    let rjNoteCode = result.schema_model.rjNoteCode;
+                    delete result.schema_model['rjNoteCode'];
+                    this.service.rejectStudy(study.attrs, this.studyWebService, rjNoteCode, result.schema_model)
                         .subscribe(
-                        (response) => {
-                            $this.appService.showMsg(j4care.prepareCountMessage($localize `:@@study_study_rejected:Study rejected successfully`, response));
+                            (response) => {
+                                let msg = result.schema_model.queue === "true"
+                                    ? $localize `:@@study_rejected:Study rejected successfully`
+                                    : $localize `:@@study_queue_reject:Study queued for rejection successfully`;
+                                $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
 
-                            // patients.splice(patientkey,1);
-                            $this.cfpLoadingBar.complete();
-                        },
-                        (err) => {
-                            $this.httpErrorHandler.handleError(err);
-                            // angular.element("#querypatients").trigger('click');
-                            $this.cfpLoadingBar.complete();
-                        }
-                    );
+                                // patients.splice(patientkey,1);
+                                $this.cfpLoadingBar.complete();
+                            },
+                            (err) => {
+                                $this.httpErrorHandler.handleError(err);
+                                // angular.element("#querypatients").trigger('click');
+                                $this.cfpLoadingBar.complete();
+                            }
+                        );
                 } else {
                     console.log('else', result);
-                    console.log('parameters', parameters);
+                    console.log('parameters', result.schema_model);
                 }
-            });
+            })
         }
     };
     rejectSeries(series) {
         let $this = this;
         if (this.trash.active) {
-            this.service.rejectSeries(series.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
+            this.service.restoreSeries(series.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
             .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
@@ -3799,50 +3909,109 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
             );
         }else{
-            let select: any = [];
+            let rjNoteCodes: any = [];
             _.forEach(this.trash.rjnotes, (m, i) => {
-                select.push({
+                rjNoteCodes.push({
                     title: m.codeMeaning,
                     value: m.codeValue + '^' + m.codingSchemeDesignator,
                     label: m.label
                 });
             });
-            let parameters: any = {
+            this.confirm({
                 content: $localize `:@@select_rejected_type:Select rejected type`,
-                select: select,
-                result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
-                saveButton:  $localize `:@@REJECT:REJECT`
-            };
-
-            console.log('parameters', parameters);
-            this.confirm(parameters).subscribe(result => {
+                doNotSave:true,
+                form_schema:[
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@rejection_reason:Rejection Reason`
+                            },
+                            {
+                                tag:"select",
+                                type:"text",
+                                options:rjNoteCodes,
+                                filterKey:"rjNoteCode",
+                                description:$localize `:@@rejection_reason:Rejection Reason`,
+                                placeholder:$localize `:@@rejection_reason:Rejection Reason`
+                            }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@queue_rejection:Queue Rejection`
+                            },
+                            {
+                                tag:"checkbox",
+                                filterKey:"queue",
+                                description:$localize `:@@queue_rejection:Queue Rejection`,
+                                placeholder:$localize `:@@queue_rejection:Queue Rejection`
+                            }
+                        ],
+                        [
+                            {
+                                tag: "label",
+                                text: $localize`:@@batch_ID:Batch ID`
+                            },
+                            {
+                                tag: "input",
+                                type: "text",
+                                filterKey: "batchID",
+                                description: $localize`:@@batch_ID:Batch ID`,
+                                placeholder: $localize`:@@batch_ID:Batch ID`
+                            }
+                        ],
+                        [
+                            {
+                                tag: "label",
+                                text: $localize`:@@schedule_at:Schedule at`
+                            },
+                            {
+                                tag:"single-date-time-picker",
+                                type:"text",
+                                filterKey:"scheduledTime",
+                                description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                            },
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize `:@@REJECT:REJECT`
+            }).subscribe(result => {
                 if (result) {
-                    console.log('result', result);
-                    console.log('parameters', parameters);
                     $this.cfpLoadingBar.start();
-                    this.service.rejectSeries(series.attrs, this.studyWebService, parameters.result.select )
+                    let rjNoteCode = result.schema_model.rjNoteCode;
+                    delete result.schema_model['rjNoteCode'];
+                    this.service.rejectSeries(series.attrs, this.studyWebService, rjNoteCode, result.schema_model)
                         .subscribe(
-                        (response) => {
-                            $this.appService.showMsg(j4care.prepareCountMessage($localize `:@@study.series_rejected:Series rejected successfully`, response));
-                            $this.cfpLoadingBar.complete();
-                        },
-                        (err) => {
-                            $this.httpErrorHandler.handleError(err);
-                            // angular.element("#querypatients").trigger('click');
-                            $this.cfpLoadingBar.complete();
-                        }
-                    );
+                            (response) => {
+                                let msg = result.schema_model.queue === "true"
+                                            ? $localize `:@@series_rejected:Series rejected successfully`
+                                            : $localize `:@@series_queue_reject:Series queued for rejection successfully`;
+                                $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
+
+                                // patients.splice(patientkey,1);
+                                $this.cfpLoadingBar.complete();
+                            },
+                            (err) => {
+                                $this.httpErrorHandler.handleError(err);
+                                // angular.element("#querypatients").trigger('click');
+                                $this.cfpLoadingBar.complete();
+                            }
+                        );
                 } else {
                     console.log('else', result);
-                    console.log('parameters', parameters);
+                    console.log('parameters', result.schema_model);
                 }
-            });
+            })
         }
     };
     rejectInstance(instance) {
         let $this = this;
         if (this.trash.active) {
-            this.service.rejectInstance(instance.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
+            this.service.restoreInstance(instance.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
                 .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
@@ -3855,43 +4024,103 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
             );
         }else{
-
-            let select: any = [];
+            let rjNoteCodes: any = [];
             _.forEach(this.trash.rjnotes, (m, i) => {
-                select.push({
+                rjNoteCodes.push({
                     title: m.codeMeaning,
                     value: m.codeValue + '^' + m.codingSchemeDesignator,
                     label: m.label
                 });
             });
-            let parameters: any = {
+            this.confirm({
                 content: $localize `:@@select_rejected_type:Select rejected type`,
-                select: select,
-                result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
-                saveButton:  $localize `:@@REJECT:REJECT`
-            };
-            console.log('parameters', parameters);
-            this.confirm(parameters).subscribe(result => {
+                doNotSave:true,
+                form_schema:[
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@rejection_reason:Rejection Reason`
+                            },
+                            {
+                                tag:"select",
+                                type:"text",
+                                options:rjNoteCodes,
+                                filterKey:"rjNoteCode",
+                                description:$localize `:@@rejection_reason:Rejection Reason`,
+                                placeholder:$localize `:@@rejection_reason:Rejection Reason`
+                            }
+                        ],
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@queue_rejection:Queue Rejection`
+                            },
+                            {
+                                tag:"checkbox",
+                                filterKey:"queue",
+                                description:$localize `:@@queue_rejection:Queue Rejection`,
+                                placeholder:$localize `:@@queue_rejection:Queue Rejection`
+                            }
+                        ],
+                        [
+                            {
+                                tag: "label",
+                                text: $localize`:@@batch_ID:Batch ID`
+                            },
+                            {
+                                tag: "input",
+                                type: "text",
+                                filterKey: "batchID",
+                                description: $localize`:@@batch_ID:Batch ID`,
+                                placeholder: $localize`:@@batch_ID:Batch ID`
+                            }
+                        ],
+                        [
+                            {
+                                tag: "label",
+                                text: $localize`:@@schedule_at:Schedule at`
+                            },
+                            {
+                                tag:"single-date-time-picker",
+                                type:"text",
+                                filterKey:"scheduledTime",
+                                description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                            }
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize `:@@REJECT:REJECT`
+            }).subscribe(result => {
                 if (result) {
-                    console.log('result', result);
-                    console.log('parameters', parameters);
                     $this.cfpLoadingBar.start();
-                    this.service.rejectInstance(instance.attrs, this.studyWebService, parameters.result.select ).subscribe(
-                        (response) => {
-                            $this.appService.showMsg(j4care.prepareCountMessage($localize `:@@study.instance_rejected:Instance rejected successfully`, response));
-                            $this.cfpLoadingBar.complete();
-                        },
-                        (err) => {
-                            $this.httpErrorHandler.handleError(err);
-                            // angular.element("#querypatients").trigger('click');
-                            $this.cfpLoadingBar.complete();
-                        }
-                    );
+                    let rjNoteCode = result.schema_model.rjNoteCode;
+                    delete result.schema_model['rjNoteCode'];
+                    this.service.rejectInstance(instance.attrs, this.studyWebService, rjNoteCode, result.schema_model)
+                        .subscribe(
+                            (response) => {
+                                let msg = result.schema_model.queue === "true"
+                                    ? $localize `:@@instance_rejected:Instance rejected successfully`
+                                    : $localize `:@@instance_queue_reject:Instance queued for rejection successfully`;
+                                $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
+
+                                // patients.splice(patientkey,1);
+                                $this.cfpLoadingBar.complete();
+                            },
+                            (err) => {
+                                $this.httpErrorHandler.handleError(err);
+                                // angular.element("#querypatients").trigger('click');
+                                $this.cfpLoadingBar.complete();
+                            }
+                        );
                 } else {
                     console.log('else', result);
-                    console.log('parameters', parameters);
+                    console.log('parameters', result.schema_model);
                 }
-            });
+            })
         }
     };
 

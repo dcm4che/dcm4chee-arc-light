@@ -4101,11 +4101,33 @@ export class StudyService {
         )
     }
 
-    rejectStudy(studyAttr, webService:StudyWebService, rejectionCode) {
+    restoreStudy(studyAttr, webService:StudyWebService, rejectionCode) {
         let _webApp;
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;
             return `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`;
+        })).pipe(switchMap(url=>{
+            return this.$http.post(
+                url,
+                {},
+                this.jsonHeader,
+                undefined,
+                _webApp
+            )
+        }));
+        /*        return
+                    this.$http.post(
+                    `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`, //TODO this will work only for internal aets (look this 'DCM4CHEE_ARC_AET' if not found look for this class'REJECT')
+                    {},
+                    this.jsonHeader
+                )}*/
+    }
+
+    rejectStudy(studyAttr, webService:StudyWebService, rejectionCode, param) {
+        let _webApp;
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
+            _webApp = webApp;
+            return `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}${j4care.param(param)}`;
         })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,
@@ -4123,11 +4145,11 @@ export class StudyService {
         )}*/
     }
 
-    rejectSeries(studyAttr, webService:StudyWebService, rejectionCode) {
+    restoreSeries(seriesAttr, webService:StudyWebService, rejectionCode) {
         let _webApp;
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;
-            return `${this.seriesURL(studyAttr, webApp)}/reject/${rejectionCode}`;
+            return `${this.seriesURL(seriesAttr, webApp)}/reject/${rejectionCode}`;
         })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,
@@ -4139,11 +4161,43 @@ export class StudyService {
         }));
     }
 
-    rejectInstance(studyAttr, webService:StudyWebService, rejectionCode) {
+    rejectSeries(seriesAttr, webService:StudyWebService, rejectionCode, param) {
         let _webApp;
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;
-            return `${this.instanceURL(studyAttr, webApp)}/reject/${rejectionCode}`;
+            return `${this.seriesURL(seriesAttr, webApp)}/reject/${rejectionCode}${j4care.param(param)}`;
+        })).pipe(switchMap(url=>{
+            return this.$http.post(
+                url,
+                {},
+                this.jsonHeader,
+                undefined,
+                _webApp
+            )
+        }));
+    }
+
+    restoreInstance(instanceAttr, webService:StudyWebService, rejectionCode) {
+        let _webApp;
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
+            _webApp = webApp;
+            return `${this.instanceURL(instanceAttr, webApp)}/reject/${rejectionCode}`;
+        })).pipe(switchMap(url=>{
+            return this.$http.post(
+                url,
+                {},
+                this.jsonHeader,
+                undefined,
+                _webApp
+            )
+        }));
+    }
+
+    rejectInstance(instanceAttr, webService:StudyWebService, rejectionCode, param) {
+        let _webApp;
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
+            _webApp = webApp;
+            return `${this.instanceURL(instanceAttr, webApp)}/reject/${rejectionCode}${j4care.param(param)}`;
         })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,
