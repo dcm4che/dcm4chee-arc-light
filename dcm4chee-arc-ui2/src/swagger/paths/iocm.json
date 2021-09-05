@@ -60,6 +60,9 @@
         },
         {
           "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -106,6 +109,9 @@
         },
         {
           "$ref": "../parameters.json#/batchID"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -146,14 +152,20 @@
         },
         {
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
         "200": {
           "$ref": "../responses.json#/countResults"
-        },
-        "202": {
-          "description": "Rejection of Study queued"
         },
         "400": {
           "description": "Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
@@ -195,14 +207,20 @@
         },
         {
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
         "200": {
           "$ref": "../responses.json#/countResults"
-        },
-        "202": {
-          "description": "Rejection of Series queued"
         },
         "400": {
           "description": "Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
@@ -247,14 +265,20 @@
         },
         {
           "$ref": "../parameters.json#/codingSchemeDesignatorPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/queue"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
         "200": {
           "$ref": "../responses.json#/countResults"
-        },
-        "202": {
-          "description": "Rejection of Instance queued"
         },
         "400": {
           "description": "Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
@@ -359,6 +383,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -468,6 +498,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -574,6 +610,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -686,6 +728,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -795,6 +843,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -901,6 +955,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
