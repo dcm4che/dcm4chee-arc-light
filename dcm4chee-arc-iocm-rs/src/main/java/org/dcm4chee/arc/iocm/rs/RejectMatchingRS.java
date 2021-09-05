@@ -60,7 +60,9 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +76,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -112,6 +116,10 @@ public class RejectMatchingRS {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
+    private String scheduledTime;
 
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
@@ -266,15 +274,28 @@ public class RejectMatchingRS {
     }
 
     @POST
-    @Path("/studies/csv:{field}/reject/{codeValue}^{codingSchemeDesignator}")
+    @Path("/studies/csv:{studyUIDField}/reject/{codeValue}^{codingSchemeDesignator}")
     @Consumes("text/csv")
     @Produces("application/json")
-    public Response retrieveMatchingStudiesFromCSV(
-            @PathParam("field") int field,
+    public Response rejectStudiesFromCSV(
+            @PathParam("studyUIDField") int studyUIDField,
             @PathParam("codeValue") String codeValue,
             @PathParam("codingSchemeDesignator") String designator,
             InputStream in) {
-        return rejectStudiesFromCSV(aet, field, codeValue, designator, in);
+        return rejectFromCSV(aet, studyUIDField, null, codeValue, designator, in);
+    }
+
+    @POST
+    @Path("/studies/csv:{studyUIDField}/series/csv:{seriesUIDField}/reject/{codeValue}^{codingSchemeDesignator}")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response rejectSeriesFromCSV(
+            @PathParam("studyUIDField") int studyUIDField,
+            @PathParam("seriesUIDField") int seriesUIDField,
+            @PathParam("codeValue") String codeValue,
+            @PathParam("codingSchemeDesignator") String designator,
+            InputStream in) {
+        return rejectFromCSV(aet, studyUIDField, seriesUIDField, codeValue, designator, in);
     }
 
     @Override
@@ -309,7 +330,7 @@ public class RejectMatchingRS {
                     return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
 
                 RejectMatchingObjects rejectMatchingObjects = new RejectMatchingObjects(
-                                                                        aet, rjNoteCode, qrlevel, query, status);
+                                                                    aet, rjNoteCode, qrlevel, query, status);
                 runInTx.execute(rejectMatchingObjects);
                 count = rejectMatchingObjects.getCount();
                 status = rejectMatchingObjects.getStatus();
@@ -328,13 +349,23 @@ public class RejectMatchingRS {
         }
     }
 
-    Response rejectStudiesFromCSV(String aet, int field, String codeValue, String designator, InputStream in) {
+    Response rejectFromCSV(String aet, int studyUIDField, Integer seriesUIDField, String codeValue, String designator,
+                           InputStream in) {
         try {
             validateAE(aet);
             Response.Status status = Response.Status.BAD_REQUEST;
-            if (field < 1)
+            if (studyUIDField < 1)
                 return errResponse(
                         "CSV field for Study Instance UID should be greater than or equal to 1", status);
+
+            if (seriesUIDField != null) {
+                if (studyUIDField == seriesUIDField)
+                    return errResponse("CSV fields for Study and Series Instance UIDs should be different", status);
+
+                if (seriesUIDField < 1)
+                    return errResponse(
+                            "CSV field for Series Instance UID should be greater than or equal to 1", status);
+            }
 
             Code rjNoteCode = validateRejectionNote(codeValue, designator);
             if (rjNoteCode == null)
@@ -345,8 +376,7 @@ public class RejectMatchingRS {
             String warning = null;
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
-            List<String> studyUIDs = new ArrayList<>();
-
+            List<StudySeriesInfo> studySeries = new ArrayList<>();
             try (
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                     CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
@@ -356,20 +386,25 @@ public class RejectMatchingRS {
                     if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
                         continue;
 
-                    String studyUID = csvRecord.get(field - 1).replaceAll("\"", "");
+                    String studyUID = csvRecord.get(studyUIDField - 1).replaceAll("\"", "");
                     if (header && studyUID.chars().allMatch(Character::isLetter)) {
                         header = false;
                         continue;
                     }
 
-                    if (!arcDev.isValidateUID() || validateUID(studyUID))
-                        studyUIDs.add(studyUID);
+                    if (!arcDev.isValidateUID() || validateUID(studyUID)) {
+                        StudySeriesInfo studySeriesInfo = new StudySeriesInfo(studyUID);
+                        addSeriesUID(studySeriesInfo, csvRecord, seriesUIDField, arcDev);
+                        studySeries.add(studySeriesInfo);
+                    }
 
-                    if (studyUIDs.size() == csvUploadChunkSize)
-                        count = scheduleStudyRejectTasks(aet, count, rjNoteCode, studyUIDs);
+                    if (studySeries.size() == csvUploadChunkSize) {
+                        count += scheduleStudyRejectTasks(aet, rjNoteCode, studySeries);
+                        studySeries.clear();
+                    }
                 }
-                if (!studyUIDs.isEmpty())
-                    count = scheduleStudyRejectTasks(aet, count, rjNoteCode, studyUIDs);
+                if (!studySeries.isEmpty())
+                    count += scheduleStudyRejectTasks(aet, rjNoteCode, studySeries);
 
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
@@ -433,26 +468,75 @@ public class RejectMatchingRS {
                 request.getRemoteHost());
     }
 
-    private void rejectMatching(String aet, Code rjNoteCode, Attributes match, QueryRetrieveLevel2 qrlevel,
-                                HttpServletRequestInfo httpRequestInfo) {
-        rejectionService.scheduleReject(aet,
-                match.getString(Tag.StudyInstanceUID),
-                qrlevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : null,
-                qrlevel == QueryRetrieveLevel2.IMAGE ? match.getString(Tag.SOPInstanceUID) : null,
-                rjNoteCode,
-                httpRequestInfo,
-                batchID);
+    private void addSeriesUID(StudySeriesInfo studySeriesInfo, CSVRecord csvRecord, Integer seriesUIDField,
+                              ArchiveDeviceExtension arcDev) {
+        if (seriesUIDField == null)
+            return;
+
+        String seriesUID = csvRecord.get(seriesUIDField - 1).replaceAll("\"", "");
+        if (arcDev.isValidateUID() && !validateUID(seriesUID)) {
+            LOG.info("Invalid Series[uid={}] of valid Study[uid={}] present in CSV file",
+                    seriesUID, studySeriesInfo.getStudyUID());
+            return;
+        }
+
+        studySeriesInfo.setSeriesUID(seriesUID);
     }
 
-    private int scheduleStudyRejectTasks(String aet, int count, Code rjNoteCode, List<String> studyUIDs) {
-        rejectionService.scheduleStudyRejectTasks(aet,
-                studyUIDs,
+    static class StudySeriesInfo {
+        private final String studyUID;
+        private String seriesUID = "*";
+
+        StudySeriesInfo(String studyUID) {
+            this.studyUID = studyUID;
+        }
+
+        String getStudyUID() {
+            return studyUID;
+        }
+
+        String getSeriesUID() {
+            return seriesUID;
+        }
+
+        void setSeriesUID(String seriesUID) {
+            this.seriesUID = seriesUID;
+        }
+    }
+
+    private void rejectMatching(String aet, Code rjNoteCode, Attributes match, QueryRetrieveLevel2 qrlevel,
+                                HttpServletRequestInfo httpRequestInfo) {
+        rejectionService.createRejectionTask(aet,
                 rjNoteCode,
-                HttpServletRequestInfo.valueOf(request),
-                batchID);
-        count += studyUIDs.size();
-        studyUIDs.clear();
-        return count;
+                httpRequestInfo,
+                batchID,
+                scheduledTime(),
+                match.getString(Tag.StudyInstanceUID),
+                qrlevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : null,
+                qrlevel == QueryRetrieveLevel2.IMAGE ? match.getString(Tag.SOPInstanceUID) : null);
+    }
+
+    private int scheduleStudyRejectTasks(String aet, Code rjNoteCode, List<StudySeriesInfo> studySeriesInfos) {
+        for (StudySeriesInfo studySeriesInfo : studySeriesInfos)
+            rejectionService.createRejectionTask(aet,
+                    rjNoteCode,
+                    HttpServletRequestInfo.valueOf(request),
+                    batchID,
+                    scheduledTime(),
+                    studySeriesInfo.getStudyUID(),
+                    studySeriesInfo.getSeriesUID(),
+                    null);
+        return studySeriesInfos.size();
+    }
+
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        return new Date();
     }
 
     private RejectionNote toRejectionNote(String codeValue, String designator) {

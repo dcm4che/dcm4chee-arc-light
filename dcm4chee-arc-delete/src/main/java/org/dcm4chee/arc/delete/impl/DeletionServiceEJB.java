@@ -46,10 +46,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.conf.RetentionPeriod;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
@@ -725,19 +722,13 @@ public class DeletionServiceEJB {
                 : claimExpiredStudyFor(findByStudyIUID(studyIUID), expirationState);
     }
 
-    public void scheduleStudyRejectTasks(
-            String aet, List<String> studyUIDs, Code code, HttpServletRequestInfo httpRequestInfo, String batchID) {
-        for (String studyUID : studyUIDs)
-            scheduleRejection(aet, studyUID, null, null, code, httpRequestInfo, batchID);
-    }
-
-    public void scheduleRejection(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
-                                  HttpServletRequestInfo httpRequest, String batchID) {
+    public void createRejectionTask(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
+                                  HttpServletRequestInfo httpRequest, String batchID, Date scheduledTime) {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(RejectionService.QUEUE_NAME);
         task.setType(Task.Type.REJECT);
-        task.setScheduledTime(new Date());
+        task.setScheduledTime(scheduledTime);
         task.setLocalAET(aet);
         task.setStudyInstanceUID(studyIUID);
         task.setSeriesInstanceUID(seriesIUID);

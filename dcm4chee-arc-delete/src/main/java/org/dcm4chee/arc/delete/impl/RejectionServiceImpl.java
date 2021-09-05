@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.List;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 /**
@@ -149,15 +149,9 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
     }
 
     @Override
-    public void scheduleReject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
-                               HttpServletRequestInfo httpRequest, String batchID) {
-        ejb.scheduleRejection(aet, studyIUID, seriesIUID, sopIUID, code, httpRequest, batchID);
-    }
-
-    @Override
-    public void scheduleStudyRejectTasks(
-            String aet, List<String> studyUIDs, Code code, HttpServletRequestInfo httpRequest, String batchID) {
-        ejb.scheduleStudyRejectTasks(aet, studyUIDs, code, httpRequest, batchID);
+    public void createRejectionTask(String aet, Code code, HttpServletRequestInfo httpRequest, String batchID,
+                                    Date scheduledTime, String studyUID, String seriesUID, String sopUID) {
+        ejb.createRejectionTask(aet, studyUID, seriesUID, sopUID, code, httpRequest, batchID, scheduledTime);
     }
 
     private static int countInstances(Attributes attrs) {

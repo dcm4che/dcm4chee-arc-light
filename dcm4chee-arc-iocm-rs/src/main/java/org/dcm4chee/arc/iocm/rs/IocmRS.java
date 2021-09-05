@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
-import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
@@ -57,13 +56,14 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +80,8 @@ import javax.ws.rs.core.UriInfo;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.function.IntFunction;
 
 /**
@@ -115,12 +117,6 @@ public class IocmRS {
     @Inject
     private ProcedureService procedureService;
 
-    @Inject
-    private CFindSCU cFindSCU;
-
-    @Inject
-    private IApplicationEntityCache aeCache;
-
     @PathParam("AETitle")
     private String aet;
 
@@ -129,6 +125,10 @@ public class IocmRS {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
+    private String scheduledTime;
 
     @Context
     private HttpServletRequest request;
@@ -315,8 +315,14 @@ public class IocmRS {
 
     private Response queueReject(RSOperation rsOp, ArchiveAEExtension arcAE, String studyUID, String seriesUID,
                                  String objectUID, RejectionNote rjNote) {
-        rejectionService.scheduleReject(aet, studyUID, seriesUID, objectUID, rjNote.getRejectionNoteCode(),
-                HttpServletRequestInfo.valueOf(request), batchID);
+        rejectionService.createRejectionTask(aet,
+                                        rjNote.getRejectionNoteCode(),
+                                        HttpServletRequestInfo.valueOf(request),
+                                        batchID,
+                                        scheduledTime(),
+                                        studyUID,
+                                        seriesUID,
+                                        objectUID);
         rsForward.forward(rsOp, arcAE, null, request);
         return Response.accepted().build();
     }
@@ -370,6 +376,16 @@ public class IocmRS {
                 : result.getSequence(Tag.FailedSOPSequence) == null
                     || result.getSequence(Tag.FailedSOPSequence).isEmpty()
                     ? Response.Status.OK : Response.Status.ACCEPTED;
+    }
+
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        return new Date();
     }
 
     private String rejectionNoteObjectStorageID() {

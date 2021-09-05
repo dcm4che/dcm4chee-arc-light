@@ -45,7 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
-import java.util.List;
+import java.util.Date;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -62,9 +62,6 @@ public interface RejectionService {
     int reject(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID, RejectionNote rjNote,
                HttpServletRequestInfo httpRequest) throws Exception;
 
-    void scheduleReject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
-               HttpServletRequestInfo httpRequest, String batchID);
-
-    void scheduleStudyRejectTasks(String aet, List<String> studyUIDs, Code code,
-              HttpServletRequestInfo httpRequest, String batchID);
+    void createRejectionTask(String aet, Code code, HttpServletRequestInfo httpRequest, String batchID,
+                             Date scheduledTime, String studyUID, String seriesUID, String sopUID);
 }
