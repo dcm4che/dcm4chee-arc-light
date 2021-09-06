@@ -2624,7 +2624,7 @@ dcmTag: 00380064
 dcmTag: 00380500
 dcmEntity: Study
 objectClass: dcmAttributeFilter
-dcmAttributeUpdatePolicy: MERGE
+dcmAttributeUpdatePolicy: SUPPLEMENT
 
 dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
@@ -2654,7 +2654,7 @@ dcmTag: 00400260
 dcmTag: 00400275
 dcmEntity: Series
 objectClass: dcmAttributeFilter
-dcmAttributeUpdatePolicy: MERGE
+dcmAttributeUpdatePolicy: SUPPLEMENT
 
 dn: dcmStorageID=fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}

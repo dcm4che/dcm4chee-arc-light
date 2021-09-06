@@ -8,3 +8,13 @@ dcmuiPermissionName: Action - Studies - Show Attributes
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
+
+dn: dcmEntity=Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmAttributeUpdatePolicy
+dcmAttributeUpdatePolicy: SUPPLEMENT
+
+dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmAttributeUpdatePolicy
+dcmAttributeUpdatePolicy: SUPPLEMENT

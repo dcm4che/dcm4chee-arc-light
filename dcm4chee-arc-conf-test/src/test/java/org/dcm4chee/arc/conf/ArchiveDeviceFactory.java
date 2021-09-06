@@ -1802,8 +1802,8 @@ class ArchiveDeviceFactory {
         ext.setAudit2XmlFhirTemplateURI(AUDIT2XMLFHIR_XSL);
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
-        ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));
-        ext.setAttributeFilter(Entity.Series, newAttributeFilter(SERIES_ATTRS, Attributes.UpdatePolicy.MERGE));
+        ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
+        ext.setAttributeFilter(Entity.Series, newAttributeFilter(SERIES_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Instance, new AttributeFilter(INSTANCE_ATTRS));
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
