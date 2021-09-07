@@ -953,6 +953,8 @@ class ArchiveDeviceFactory {
             UID.TomotherapeuticRadiationRecordStorage,
             UID.CArmPhotonElectronRadiationRecordStorage,
             UID.RoboticRadiationRecordStorage,
+            UID.RTRadiationSetDeliveryInstructionStorage,
+            UID.RTTreatmentPreparationStorage,
             UID.RTBeamsDeliveryInstructionStorage,
             UID.RTBrachyApplicationSetupDeliveryInstructionStorage,
     };

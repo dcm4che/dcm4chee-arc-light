@@ -224,6 +224,8 @@ DCM4CHE.SOPClass = (function (dictionary) {
 "1.2.840.10008.5.1.4.1.1.481.18":"Tomotherapeutic Radiation Record Storage",
 "1.2.840.10008.5.1.4.1.1.481.19":"C-Arm Photon-Electron Radiation Record Storage",
 "1.2.840.10008.5.1.4.1.1.481.20":"Robotic Radiation Record Storage",
+"1.2.840.10008.5.1.4.1.1.481.21":"RT Radiation Set Delivery Instruction Storage",
+"1.2.840.10008.5.1.4.1.1.481.22":"RT Treatment Preparation Storage",
 "1.2.840.10008.5.1.4.1.1.501.1":"DICOS CT Image Storage",
 "1.2.840.10008.5.1.4.1.1.501.2.1":"DICOS Digital X-Ray Image Storage - For Presentation",
 "1.2.840.10008.5.1.4.1.1.501.2.2":"DICOS Digital X-Ray Image Storage - For Processing",

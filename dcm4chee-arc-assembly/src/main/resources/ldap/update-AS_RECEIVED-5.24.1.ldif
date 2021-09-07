@@ -1,0 +1,19 @@
+version: 1
+
+dn: cn=RT Treatment Preparation Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.22
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Treatment Preparation Storage SCU
+
+dn: cn=RT Radiation Set Delivery Instruction Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.21
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Set Delivery Instruction Storage SCU

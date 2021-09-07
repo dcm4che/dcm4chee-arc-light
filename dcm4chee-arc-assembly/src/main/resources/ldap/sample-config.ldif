@@ -1264,6 +1264,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Robotic Radiation Record Storage SCP
 
+dn: cn=RT Treatment Preparation Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.22
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Treatment Preparation Storage SCP
+
 dn: cn=Simplified Adult Echo SR Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
 dicomTransferRole: SCP
@@ -2190,6 +2199,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Radiopharmaceutical Radiation Dose SR Storage SCP
+
+dn: cn=RT Radiation Set Delivery Instruction Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.21
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Set Delivery Instruction Storage SCP
 
 dn: cn=C-Arm Photon-Electron Radiation Record Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
@@ -6514,6 +6532,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Robotic Radiation Record Storage SCU
 
+dn: cn=RT Treatment Preparation Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.22
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Treatment Preparation Storage SCP
+
+dn: cn=RT Treatment Preparation Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.22
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Treatment Preparation Storage SCU
+
 dn: cn=Simplified Adult Echo SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
 dicomTransferRole: SCP
@@ -9036,6 +9072,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Radiopharmaceutical Radiation Dose SR Storage SCU
 
+dn: cn=RT Radiation Set Delivery Instruction Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.21
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Set Delivery Instruction Storage SCP
+
+dn: cn=RT Radiation Set Delivery Instruction Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.21
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Set Delivery Instruction Storage SCU
+
 dn: cn=C-Arm Photon-Electron Radiation Record Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
 dicomTransferRole: SCP
@@ -11475,6 +11529,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Robotic Radiation Record Storage SCU
 
+dn: cn=RT Treatment Preparation Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.22
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Treatment Preparation Storage SCU
+
 dn: cn=Simplified Adult Echo SR Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
 dicomTransferRole: SCU
@@ -12691,6 +12754,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1.99
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Radiopharmaceutical Radiation Dose SR Storage SCU
+
+dn: cn=RT Radiation Set Delivery Instruction Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.21
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Set Delivery Instruction Storage SCU
 
 dn: cn=C-Arm Photon-Electron Radiation Record Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
@@ -14581,6 +14653,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Robotic Radiation Record Storage SCU
 
+dn: cn=RT Treatment Preparation Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.22
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Treatment Preparation Storage SCU
+
 dn: cn=Simplified Adult Echo SR Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
 dicomTransferRole: SCU
@@ -15805,6 +15886,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1.99
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Radiopharmaceutical Radiation Dose SR Storage SCU
+
+dn: cn=RT Radiation Set Delivery Instruction Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.21
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: RT Radiation Set Delivery Instruction Storage SCU
 
 dn: cn=C-Arm Photon-Electron Radiation Record Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.19
