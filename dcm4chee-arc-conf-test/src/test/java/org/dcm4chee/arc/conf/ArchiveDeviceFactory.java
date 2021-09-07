@@ -200,31 +200,10 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks", true),
         newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks", true),
         newQueueDescriptor("StgVerTasks", "Storage Verification Tasks", true),
-        newQueueDescriptor("Export1", "Dicom Export Tasks", false),
-        newQueueDescriptor("Export2", "WADO Export Tasks", false),
-        newQueueDescriptor("Export3", "XDS-I Export Tasks", false),
-        newQueueDescriptor("Export4", "Export4", false),
-        newQueueDescriptor("Export5", "Nearline Storage Export Tasks", false),
-        newQueueDescriptor("Export6", "Export6", false),
-        newQueueDescriptor("Export7", "Export7", false),
-        newQueueDescriptor("Export8", "Export8", false),
-        newQueueDescriptor("Export9", "Export9", false),
-        newQueueDescriptor("Export10", "Export10", false),
+        newQueueDescriptor("Export", "Export Tasks", true),
         newQueueDescriptor("HL7Send", "HL7 Forward Tasks", true),
         newQueueDescriptor("RSClient", "RESTful Forward Tasks", true),
-        newQueueDescriptor("Retrieve1", "Dicom Retrieve Tasks 1", false),
-        newQueueDescriptor("Retrieve2", "Dicom Retrieve Tasks 2", false),
-        newQueueDescriptor("Retrieve3", "Dicom Retrieve Tasks 3", false),
-        newQueueDescriptor("Retrieve4", "Dicom Retrieve Tasks 4", false),
-        newQueueDescriptor("Retrieve5", "Dicom Retrieve Tasks 5", false),
-        newQueueDescriptor("Retrieve6", "Dicom Retrieve Tasks 6", false),
-        newQueueDescriptor("Retrieve7", "Dicom Retrieve Tasks 7", false),
-        newQueueDescriptor("Retrieve8", "Dicom Retrieve Tasks 8", false),
-        newQueueDescriptor("Retrieve9", "Dicom Retrieve Tasks 9", false),
-        newQueueDescriptor("Retrieve10", "Dicom Retrieve Tasks 10", false),
-        newQueueDescriptor("Retrieve11", "Dicom Retrieve Tasks 11", false),
-        newQueueDescriptor("Retrieve12", "Dicom Retrieve Tasks 12", false),
-        newQueueDescriptor("Retrieve13", "Dicom Retrieve Tasks 13", false),
+        newQueueDescriptor("Retrieve", "Dicom Retrieve Tasks", true),
         newQueueDescriptor("DiffTasks", "Diff Tasks", true),
         newQueueDescriptor("Rejection", "Rejection Tasks", true)
     };
@@ -1949,10 +1928,14 @@ class ArchiveDeviceFactory {
             nearlineStorageDescriptor.setInstanceAvailability(Availability.NEARLINE);
             ext.addStorageDescriptor(nearlineStorageDescriptor);
 
+            newQueueDescriptor("WADO QIDO Export", "WADO QIDO Export Tasks", true);
+            newQueueDescriptor("XDS-I Export", "XDS-I Export Tasks", true);
+            newQueueDescriptor("Nearline Storage Export", "Nearline Storage Export Tasks", true);
+
             ExporterDescriptor nearlineExporter = new ExporterDescriptor(NEARLINE_STORAGE_EXPORTER_ID);
             nearlineExporter.setDescription(NEARLINE_STORAGE_EXPORTER_DESC);
             nearlineExporter.setExportURI(NEARLINE_STORAGE_EXPORTER_URI);
-            nearlineExporter.setQueueName("Export5");
+            nearlineExporter.setQueueName("Nearline Storage Export");
             nearlineExporter.setAETitle(AE_TITLE);
             ext.addExporterDescriptor(nearlineExporter);
 
@@ -1966,7 +1949,7 @@ class ArchiveDeviceFactory {
             ExporterDescriptor dicomExporter = new ExporterDescriptor(DICOM_EXPORTER_ID);
             dicomExporter.setDescription(DICOM_EXPORTER_DESC);
             dicomExporter.setExportURI(DICOM_EXPORT_URI);
-            dicomExporter.setQueueName("Export1");
+            dicomExporter.setQueueName("Export");
             dicomExporter.setAETitle(AE_TITLE);
             ext.addExporterDescriptor(dicomExporter);
 
@@ -1981,7 +1964,7 @@ class ArchiveDeviceFactory {
             ExporterDescriptor wadoJpegExportDescriptor = new ExporterDescriptor(WADO_JPEG_EXPORTER_ID);
             wadoJpegExportDescriptor.setDescription(WADO_JPEG_EXPORTER_DESC);
             wadoJpegExportDescriptor.setExportURI(WADO_EXPORT_URI);
-            wadoJpegExportDescriptor.setQueueName("Export2");
+            wadoJpegExportDescriptor.setQueueName("WADO QIDO Export");
             wadoJpegExportDescriptor.setAETitle(AE_TITLE);
             wadoJpegExportDescriptor.setProperty("WadoService", WADO_JPEG_EXPORT_SERVICE);
             wadoJpegExportDescriptor.setProperty("Cache-Control", WADO_CACHE_CONTROL);
@@ -1991,7 +1974,7 @@ class ArchiveDeviceFactory {
             ExporterDescriptor wadoJsonExportDescriptor = new ExporterDescriptor(WADO_JSON_EXPORTER_ID);
             wadoJsonExportDescriptor.setDescription(WADO_JSON_EXPORTER_DESC);
             wadoJsonExportDescriptor.setExportURI(WADO_JSON_EXPORT_URL);
-            wadoJsonExportDescriptor.setQueueName("Export2");
+            wadoJsonExportDescriptor.setQueueName("WADO QIDO Export");
             wadoJsonExportDescriptor.setAETitle(AE_TITLE);
             wadoJsonExportDescriptor.setProperty("WadoService", WADO_JSON_EXPORT_SERVICE);
             wadoJsonExportDescriptor.setProperty("Accept", WADO_JSON_ACCEPT);
@@ -2002,7 +1985,7 @@ class ArchiveDeviceFactory {
             ExporterDescriptor qidoJsonExportDescriptor = new ExporterDescriptor(QIDO_JSON_EXPORTER_ID);
             qidoJsonExportDescriptor.setDescription(QIDO_JSON_EXPORTER_DESC);
             qidoJsonExportDescriptor.setExportURI(WADO_JSON_EXPORT_URL);
-            qidoJsonExportDescriptor.setQueueName("Export2");
+            qidoJsonExportDescriptor.setQueueName("WADO QIDO Export");
             qidoJsonExportDescriptor.setAETitle(AE_TITLE);
             qidoJsonExportDescriptor.setProperty("QidoService", QIDO_JSON_EXPORT_SERVICE);
             qidoJsonExportDescriptor.setProperty("Accept", WADO_JSON_ACCEPT);
@@ -2033,7 +2016,7 @@ class ArchiveDeviceFactory {
             ExporterDescriptor xdsiExportDescriptor = new ExporterDescriptor(XDSI_EXPORTER_ID);
             xdsiExportDescriptor.setDescription(XDSI_EXPORTER_DESC);
             xdsiExportDescriptor.setExportURI(XDSI_EXPORT_URI);
-            xdsiExportDescriptor.setQueueName("Export3");
+            xdsiExportDescriptor.setQueueName("XDS-I Export");
             xdsiExportDescriptor.setAETitle(AE_TITLE);
             xdsiExportDescriptor.setRetrieveAETitles(AE_TITLE);
             xdsiExportDescriptor.setRetrieveLocationUID(XDSI_SOURCE_ID);

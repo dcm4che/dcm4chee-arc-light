@@ -3243,7 +3243,7 @@ dn: dcmExporterID=XDS-I,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configu
 dcmRetrieveAET: DCM4CHEE
 dcmRetrieveLocationUID: 1.3.6.1.4.1.21367.13.80.110
 dicomDescription: XDS-I Provide and Register
-dcmQueueName: Export3
+dcmQueueName: XDS-I Export
 dcmExporterID: XDS-I
 dicomAETitle: DCM4CHEE
 objectClass: dcmExporter
@@ -3266,6 +3266,16 @@ dcmProperty: TLS.protocol=TLSv1.2
 dcmProperty: DocumentEntry.classCode=(*, 1.3.6.1.4.1.21367.100.1, "*")
 dcmURI: xds-i:https://localhost:9443/xdstools4/sim/default__rr/rep/prb
 
+dn: dcmQueueName=Export,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
+dicomDescription: Export Tasks
+dcmQueueName: Export
+objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
+
 dn: dcmQueueName=IANSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmRetryDelay: PT30S
@@ -3287,105 +3297,6 @@ dcmImageWriteParam: compressionQuality=0.8
 dcmImageWriteParam: maxPixelValueError=20.0
 dcmImageWriteParam: avgPixelValueBlockSize=8.0
 cn: JPEG 12-bit Lossy
-
-dn: dcmQueueName=Export1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Export Tasks
-dcmQueueName: Export1
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Export2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: WADO Export Tasks
-dcmQueueName: Export2
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Export3,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: XDS-I Export Tasks
-dcmQueueName: Export3
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Export4,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Export4
-dcmQueueName: Export4
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Export5,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Nearline Storage Export Tasks
-dcmQueueName: Export5
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Export6,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Export6
-dcmQueueName: Export6
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Export7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Export7
-dcmQueueName: Export7
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Export8,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Export8
-dcmQueueName: Export8
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Export9,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Export9
-dcmQueueName: Export9
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
 
 dn: dcmQueueName=HL7Send,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmPurgeQueueMessageCompletedDelay: P1D
@@ -3449,23 +3360,22 @@ objectClass: dcmArchiveCompressionRule
 dcmImageWriteParam: maxPixelValueError=0.0
 cn: JPEG 2000 Lossless
 
-dn: dcmQueueName=Export10,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Export10
-dcmQueueName: Export10
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
 dn: dcmQueueName=RSClient,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmRetryDelay: PT30S
 dcmMaxRetries: 10
 dicomDescription: RESTful Forward Tasks
 dcmQueueName: RSClient
+objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
+
+dn: dcmQueueName=Retrieve,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
+dicomDescription: Dicom Retrieve Tasks
+dcmQueueName: Retrieve
 objectClass: dcmQueue
 dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
@@ -3516,7 +3426,7 @@ cn: Forward to STORESCP
 dn: dcmExporterID=STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: STORESCP
 dicomDescription: Export to STORESCP
-dcmQueueName: Export1
+dcmQueueName: Export
 objectClass: dcmExporter
 dicomAETitle: DCM4CHEE
 dcmURI: dicom:STORESCP
@@ -3540,105 +3450,6 @@ dcmQueueName: Rejection
 objectClass: dcmQueue
 dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
-
-dn: dcmQueueName=Retrieve1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 1
-dcmQueueName: Retrieve1
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 2
-dcmQueueName: Retrieve2
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve3,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 3
-dcmQueueName: Retrieve3
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve4,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 4
-dcmQueueName: Retrieve4
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve5,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 5
-dcmQueueName: Retrieve5
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve6,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 6
-dcmQueueName: Retrieve6
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 7
-dcmQueueName: Retrieve7
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve8,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 8
-dcmQueueName: Retrieve8
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve9,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 9
-dcmQueueName: Retrieve9
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
 
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmPurgeQueueMessageCompletedDelay: P1D
@@ -3753,7 +3564,7 @@ cn: Supplement Composite
 dn: dcmExporterID=QIDO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: QIDO-JSON
 dicomDescription: Export to QIDO-JSON
-dcmQueueName: Export2
+dcmQueueName: WADO QIDO Export
 dcmProperty: QidoService=/studies/[0]/series/[1]/instances
 dcmProperty: Accept=application/json
 dcmProperty: StorageID=qido-json
@@ -3764,7 +3575,7 @@ dcmURI: wado:DCM4CHEE
 dn: dcmExporterID=WADO-JPEG,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: WADO-JPEG
 dicomDescription: Export to WADO-JPEG
-dcmQueueName: Export2
+dcmQueueName: WADO QIDO Export
 dcmProperty: Cache-Control=no-cache
 dcmProperty: WadoService=?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]
 dcmProperty: StorageID=wado-jpeg
@@ -3775,57 +3586,13 @@ dcmURI: wado:DCM4CHEE-WADO
 dn: dcmExporterID=WADO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: WADO-JSON
 dicomDescription: Export to WADO-JSON
-dcmQueueName: Export2
+dcmQueueName: WADO QIDO Export
 dcmProperty: Accept=application/json
 dcmProperty: WadoService=/studies/[0]/series/[1]/metadata
 dcmProperty: StorageID=wado-json
 objectClass: dcmExporter
 dicomAETitle: DCM4CHEE
 dcmURI: wado:DCM4CHEE
-
-dn: dcmQueueName=Retrieve10,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 10
-dcmQueueName: Retrieve10
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve11,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 11
-dcmQueueName: Retrieve11
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve12,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 12
-dcmQueueName: Retrieve12
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
-
-dn: dcmQueueName=Retrieve13,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomInstalled: FALSE
-dicomDescription: Dicom Retrieve Tasks 13
-dcmQueueName: Retrieve13
-dcmMaxRetries: 10
-dcmRetryDelayMultiplier: 200
-dcmRetryDelay: PT30S
-objectClass: dcmQueue
-dcmMaxRetryDelay: PT10M
-dcmPurgeQueueMessageCompletedDelay: P1D
 
 dn: cn=Leading DCMQRSCP FIND,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_FIND_RSP
@@ -4182,7 +3949,7 @@ dcmWebServicePath: /dcm4chee-arc/aets/IOCM_PAT_SAFETY/wado
 dn: dcmExporterID=CopyToNearlineStorage,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: CopyToNearlineStorage
 dicomDescription: Copy to NEARLINE Storage
-dcmQueueName: Export5
+dcmQueueName: Nearline Storage Export
 objectClass: dcmExporter
 dicomAETitle: DCM4CHEE
 dcmURI: storage:nearline
