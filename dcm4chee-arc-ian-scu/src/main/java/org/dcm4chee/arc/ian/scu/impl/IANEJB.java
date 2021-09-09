@@ -137,16 +137,16 @@ public class IANEJB {
 
     public void scheduleIANTask(IanTask task, Attributes attrs) {
         for (String remoteAET : task.getIanDestinations())
-            scheduleMessage(task.getCallingAET(), attrs, remoteAET);
+            scheduleMessage(task.getCallingAET(), attrs, remoteAET, new Date());
         removeIANTask(task);
     }
 
-    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET) {
+    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET, Date scheduledTime) {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(IANSCU.QUEUE_NAME);
         task.setType(Task.Type.IAN);
-        task.setScheduledTime(new Date());
+        task.setScheduledTime(scheduledTime);
         task.setLocalAET(callingAET);
         task.setRemoteAET(remoteAET);
         task.setSOPInstanceUID(UIDUtils.createUID());

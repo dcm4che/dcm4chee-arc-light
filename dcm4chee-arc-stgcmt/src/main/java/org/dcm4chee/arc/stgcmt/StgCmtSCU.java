@@ -47,6 +47,8 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 
+import java.util.Date;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2015
@@ -57,7 +59,8 @@ public interface StgCmtSCU {
     void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor);
 
     void scheduleStorageCommit(
-            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel);
+            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel,
+            Date scheduledTime);
 
     Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
             String sopInstanceUID, String exporterID, Long taskPK, String batchID, Attributes actionInfo)

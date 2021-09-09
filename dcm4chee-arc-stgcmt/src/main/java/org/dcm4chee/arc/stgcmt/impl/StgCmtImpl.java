@@ -136,17 +136,19 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         if (stgCmtSCPAETitle != null) {
             ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
             Attributes actionInfo = createActionInfo(ctx, ae);
-            scheduleNAction(ae.getCallingAETitle(stgCmtSCPAETitle), stgCmtSCPAETitle, actionInfo, ctx, descriptor.getExporterID());
+            scheduleNAction(ae.getCallingAETitle(stgCmtSCPAETitle), stgCmtSCPAETitle, actionInfo, ctx,
+                    descriptor.getExporterID(), new Date());
         }
     }
 
     @Override
     public void scheduleStorageCommit(
-            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel) {
+            String localAET, String remoteAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel,
+            Date scheduledTime) {
         ExportContext ctx = createExportContext(localAET, match, batchID, qrLevel);
         ApplicationEntity ae = device.getApplicationEntity(localAET, true);
         Attributes actionInfo = createActionInfo(ctx, ae);
-        scheduleNAction(ae.getCallingAETitle(remoteAET), remoteAET, actionInfo, ctx, null);
+        scheduleNAction(ae.getCallingAETitle(remoteAET), remoteAET, actionInfo, ctx, null, scheduledTime);
     }
 
     private ExportContext createExportContext(String localAET, Attributes match, String batchID, QueryRetrieveLevel2 qrLevel) {
@@ -202,12 +204,12 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     private void scheduleNAction(String localAET, String remoteAET, Attributes actionInfo,
-                                 ExportContext ctx, String exporterID) {
+                                 ExportContext ctx, String exporterID, Date scheduledTime) {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtSCU.QUEUE_NAME);
         task.setType(Task.Type.STGCMT_SCU);
-        task.setScheduledTime(new Date());
+        task.setScheduledTime(scheduledTime);
         task.setLocalAET(localAET);
         task.setRemoteAET(remoteAET);
         task.setStudyInstanceUID(ctx.getStudyInstanceUID());

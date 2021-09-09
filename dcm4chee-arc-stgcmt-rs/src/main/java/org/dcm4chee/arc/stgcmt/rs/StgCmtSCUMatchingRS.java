@@ -56,7 +56,9 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +72,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -168,6 +172,10 @@ public class StgCmtSCUMatchingRS {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
+    private String scheduledTime;
 
     private static Boolean parseBoolean(String s) {
         return s != null ? Boolean.valueOf(s) : null;
@@ -339,6 +347,16 @@ public class StgCmtSCUMatchingRS {
                 request.getRemoteHost());
     }
 
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        return new Date();
+    }
+
     private Response errResponse(String msg, Response.Status status) {
         return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
     }
@@ -363,6 +381,7 @@ public class StgCmtSCUMatchingRS {
         private final String stgcmtscp;
         private final QueryRetrieveLevel2 qrLevel;
         private final Query query;
+        private final Date scheduledTime = scheduledTime();
         private Response.Status status;
         private String warning;
 
@@ -396,7 +415,7 @@ public class StgCmtSCUMatchingRS {
                     if (match == null)
                         continue;
 
-                    stgCmtSCU.scheduleStorageCommit(aet, stgcmtscp, match, batchID, qrLevel);
+                    stgCmtSCU.scheduleStorageCommit(aet, stgcmtscp, match, batchID, qrLevel, scheduledTime);
                     count++;
                 }
             } catch (Exception e) {

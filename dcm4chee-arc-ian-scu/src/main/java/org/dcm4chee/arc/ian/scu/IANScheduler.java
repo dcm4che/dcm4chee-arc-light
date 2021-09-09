@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -188,7 +189,7 @@ public class IANScheduler extends Scheduler {
             if (!rejectionNote.isRevokeRejection()) {
                 Attributes ian = createIANOnReject(ctx);
                 for (String ianDestination : ianDestinations) {
-                    ejb.scheduleMessage(session.getCalledAET(), ian, ianDestination);
+                    ejb.scheduleMessage(session.getCalledAET(), ian, ianDestination, new Date());
                 }
             }
             return;
@@ -306,14 +307,14 @@ public class IANScheduler extends Scheduler {
                 descriptor.getInstanceAvailability());
         if (ian != null)
             for (String remoteAET : descriptor.getIanDestinations())
-                ejb.scheduleMessage(ctx.getAETitle(), ian, remoteAET);
+                ejb.scheduleMessage(ctx.getAETitle(), ian, remoteAET, new Date());
     }
 
-    public void scheduleIAN(ApplicationEntity ae, String remoteAET, String studyUID, String seriesUID) {
+    public void scheduleIAN(ApplicationEntity ae, String remoteAET, String studyUID, String seriesUID, Date scheduledTime) {
         Attributes ian = queryService.createIAN(ae, studyUID, new String[]{ seriesUID }, null,
                 null, null, null);
         if (ian != null)
-            ejb.scheduleMessage(ae.getAETitle(), ian, remoteAET);
+            ejb.scheduleMessage(ae.getAETitle(), ian, remoteAET, scheduledTime);
     }
 
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps, boolean allAvailable) {

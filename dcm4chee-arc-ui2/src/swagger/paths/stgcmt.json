@@ -332,6 +332,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -438,6 +441,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -541,6 +547,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -650,6 +659,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -756,6 +768,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
@@ -859,6 +874,9 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
         }
       ],
       "responses": {
