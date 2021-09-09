@@ -377,6 +377,7 @@ public class RejectMatchingRS {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
             List<StudySeriesInfo> studySeries = new ArrayList<>();
+            Date scheduledTime = scheduledTime();
             try (
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                     CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
@@ -399,12 +400,12 @@ public class RejectMatchingRS {
                     }
 
                     if (studySeries.size() == csvUploadChunkSize) {
-                        count += scheduleStudyRejectTasks(aet, rjNoteCode, studySeries);
+                        count += scheduleStudyRejectTasks(aet, rjNoteCode, studySeries, scheduledTime);
                         studySeries.clear();
                     }
                 }
                 if (!studySeries.isEmpty())
-                    count += scheduleStudyRejectTasks(aet, rjNoteCode, studySeries);
+                    count += scheduleStudyRejectTasks(aet, rjNoteCode, studySeries, scheduledTime);
 
                 if (count == 0) {
                     warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
@@ -505,27 +506,28 @@ public class RejectMatchingRS {
     }
 
     private void rejectMatching(String aet, Code rjNoteCode, Attributes match, QueryRetrieveLevel2 qrlevel,
-                                HttpServletRequestInfo httpRequestInfo) {
+                                HttpServletRequestInfo httpRequestInfo, Date scheduledTime) {
         rejectionService.createRejectionTask(aet,
                 rjNoteCode,
                 httpRequestInfo,
                 batchID,
-                scheduledTime(),
+                scheduledTime,
                 match.getString(Tag.StudyInstanceUID),
                 qrlevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : null,
                 qrlevel == QueryRetrieveLevel2.IMAGE ? match.getString(Tag.SOPInstanceUID) : null);
     }
 
-    private int scheduleStudyRejectTasks(String aet, Code rjNoteCode, List<StudySeriesInfo> studySeriesInfos) {
-        for (StudySeriesInfo studySeriesInfo : studySeriesInfos)
-            rejectionService.createRejectionTask(aet,
+    private int scheduleStudyRejectTasks(String aet, Code rjNoteCode, List<StudySeriesInfo> studySeriesInfos,
+                                         Date scheduledTime) {
+        studySeriesInfos.forEach(studySeriesInfo ->
+                rejectionService.createRejectionTask(aet,
                     rjNoteCode,
                     HttpServletRequestInfo.valueOf(request),
                     batchID,
-                    scheduledTime(),
+                    scheduledTime,
                     studySeriesInfo.getStudyUID(),
                     studySeriesInfo.getSeriesUID(),
-                    null);
+                    null));
         return studySeriesInfos.size();
     }
 
@@ -624,6 +626,7 @@ public class RejectMatchingRS {
         private final String aet;
         private final Code rjNoteCode;
         private final QueryRetrieveLevel2 qrLevel;
+        private final Date scheduledTime = scheduledTime();
         private final Query query;
         private Response.Status status;
         private String warning;
@@ -659,7 +662,7 @@ public class RejectMatchingRS {
                     if (match == null)
                         continue;
 
-                    rejectMatching(aet, rjNoteCode, match, qrLevel, httpRequestInfo);
+                    rejectMatching(aet, rjNoteCode, match, qrLevel, httpRequestInfo, scheduledTime);
                     count++;
                 }
             } catch (Exception e) {
