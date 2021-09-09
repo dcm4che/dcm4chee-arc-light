@@ -2194,6 +2194,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 return this.service.getMPPS(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             case "patient":
                 return this.service.getPatients(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
+            case "series":
+                return this.service.getSeries(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             default:
                 return this.service.getStudies(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
         }
@@ -2479,6 +2481,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     getSeries(filterModel){
+        console.log("getSeriesCalled");
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
         this.service.getSeries(filterModel, this.studyWebService.selectedWebService)
@@ -2519,10 +2522,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.patients1.push(patient);
                         }
 
-                        if (!(study && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, patAttrs))) {
+                        if (!(study && this.service.equalsIgnoreSpecificCharacterSet(patient.attrs, studyAttrs))) {
                             study = new Study1Dicom(studyAttrs, patient, 0,false, false,
                                 [], false, false, false, true);
-                            this.studies.push(study);
+                            /*this.studies.push(study);*/
+                            patient.studies.push(study);
                         }
 
                         series = new Series1Dicom(
@@ -2531,7 +2535,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             study,
                             this._filter.filterModel.offset*1 + index
                         );
-                        patient.studies.push(study);
                         study.series.push(series);
                     });
                     if (this.more = (this._filter.filterModel.limit && res.length > this._filter.filterModel.limit)) {
@@ -2546,6 +2549,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                         // this.studies.pop();
                     }
+                    console.log("patient",this.patients1);
                 }else{
                     this.appService.showMsg($localize `:@@no_series_found:No Series found!`);
                 }
@@ -2772,12 +2776,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 return internal && trashActive;
             }
             if(option.value === "reject_object"){
-                return !trashActive && studyConfig && studyConfig.tab === "study";
+                return !trashActive && studyConfig && (studyConfig.tab === "study" || studyConfig.tab === "series");
             }
             if(option.value === "update_access_control_id_to_selections" || option.value === "send_ian_request_for_selections"
                 || option.value === "send_storage_commitment_request_for_selections" || option.value === "export_object"
                 || option.value === "storage_verification_for_selections"){
-                return studyConfig && studyConfig.tab === "study";
+                return studyConfig && (studyConfig.tab === "study" || studyConfig.tab === "series");
             }
             if(option.value === "change_sps_status_on_selections"){
                 return studyConfig && studyConfig.tab === "mwl";

@@ -52,7 +52,7 @@
                       [multiSelectMode]="false"
                       (modelChange)="actionsSelectionsChanged($event)"
                       [showStar]="false"
-                      *ngIf="studyWebService && studyWebService.selectedWebService && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps'))"
+                      *ngIf="studyWebService && studyWebService.selectedWebService && (( patients && patients.length > 0) || (patients1 && patients1.length > 0) )&& !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps'))"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
 <!--              <dcm-drop-down
@@ -108,7 +108,7 @@
     </div>
     <div class="left_arrow arrow"   i18n-title="@@title.preview_page" title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
     <div class="right_arrow arrow"  i18n-title="@@title.next_page" title="Next page" *ngIf="patients" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-    <dicom-studies-table [patients]="patients" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)" [searchList]="searchCurrentList"></dicom-studies-table>
+    <dicom-studies-table [patients]="patients" [patients1]="patients1" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)" [searchList]="searchCurrentList"></dicom-studies-table>
   </div>
     <div id="clipboard" class="clipboard said"  *ngIf="selectedElements.preActionElements && selectedElements.preActionElements.size > 0 && selectedElements.action">
         <div id="clipboardtoggle" class="toggle_button" (click)="showClipboardContent = !showClipboardContent">
