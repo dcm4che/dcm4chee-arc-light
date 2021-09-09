@@ -467,12 +467,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         this.cfpLoadingBar.start();
         this.service.getDevices().subscribe(devices=>{
             this.cfpLoadingBar.complete();
-            this.devices = devices.filter(dev => dev.hasArcDevExt).map(device => {
-                return {
-                    value:device.dicomDeviceName,
-                    text:device.dicomDeviceName
-                }
-            });
+            this.devices = devices.filter(dev => dev.hasArcDevExt);
             this.setFilters();
             if(this.urlParam && Object.keys(this.urlParam).length > 0)
                 this.search(0);
