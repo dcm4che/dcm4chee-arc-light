@@ -189,7 +189,7 @@ public class IANScheduler extends Scheduler {
             if (!rejectionNote.isRevokeRejection()) {
                 Attributes ian = createIANOnReject(ctx);
                 for (String ianDestination : ianDestinations) {
-                    ejb.scheduleMessage(session.getCalledAET(), ian, ianDestination, new Date());
+                    ejb.scheduleMessage(session.getCalledAET(), ian, ianDestination, new Date(), null);
                 }
             }
             return;
@@ -307,14 +307,15 @@ public class IANScheduler extends Scheduler {
                 descriptor.getInstanceAvailability());
         if (ian != null)
             for (String remoteAET : descriptor.getIanDestinations())
-                ejb.scheduleMessage(ctx.getAETitle(), ian, remoteAET, new Date());
+                ejb.scheduleMessage(ctx.getAETitle(), ian, remoteAET, new Date(), null);
     }
 
-    public void scheduleIAN(ApplicationEntity ae, String remoteAET, String studyUID, String seriesUID, Date scheduledTime) {
+    public void scheduleIAN(ApplicationEntity ae, String remoteAET, String studyUID, String seriesUID, String batchID,
+                            Date scheduledTime) {
         Attributes ian = queryService.createIAN(ae, studyUID, new String[]{ seriesUID }, null,
                 null, null, null);
         if (ian != null)
-            ejb.scheduleMessage(ae.getAETitle(), ian, remoteAET, scheduledTime);
+            ejb.scheduleMessage(ae.getAETitle(), ian, remoteAET, scheduledTime, batchID);
     }
 
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps, boolean allAvailable) {

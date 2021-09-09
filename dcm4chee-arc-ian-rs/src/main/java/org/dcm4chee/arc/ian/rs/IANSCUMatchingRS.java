@@ -414,6 +414,7 @@ public class IANSCUMatchingRS {
                     ianScheduler.scheduleIAN(ae, ianscp,
                             match.getString(Tag.StudyInstanceUID),
                             match.getString(Tag.SeriesInstanceUID),
+                            batchID,
                             scheduledTime);
                     count++;
                 }

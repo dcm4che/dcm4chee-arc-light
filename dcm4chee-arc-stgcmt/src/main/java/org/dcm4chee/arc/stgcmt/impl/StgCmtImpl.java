@@ -218,6 +218,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         task.setExporterID(exporterID);
         task.setPayload(actionInfo);
         task.setStatus(Task.Status.SCHEDULED);
+        task.setBatchID(ctx.getBatchID());
         taskManager.scheduleTask(task);
     }
 
