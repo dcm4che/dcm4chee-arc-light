@@ -4101,6 +4101,189 @@ export class StudyService {
         )
     }
 
+    rejectMatchingSeries(webApp:DcmWebApp, rejectionCode, params:any){
+        return this.$http.post(
+            `${this.getDicomURL("series", webApp)}/reject/${rejectionCode}${j4care.param(params)}`,
+            {},
+            this.jsonHeader
+        )
+    }
+
+    exportMatchingSeries(studyWebService:StudyWebService, params:any){
+        let _webApp;
+        const exporterID = params["exporterID"];
+        delete params["exporterID"];
+
+        return this.getWebAppFromWebServiceClassAndSelectedWebApp(
+            studyWebService,
+            "DCM4CHEE_ARC_AET",
+            "MOVE_MATCHING"
+        ).pipe(map(webApp=>{
+            _webApp = webApp;
+            return `${this.getDicomURL("series", webApp)}/export/${exporterID}${j4care.param(params)}`;
+        })).pipe(switchMap(url=>{
+            return this.$http.post(
+                url,
+                {},
+                this.jsonHeader,
+                undefined,
+                _webApp
+            )
+        }));
+    }
+    exportMatchingSeriesDialogSchema(exporterIDs){
+        return [
+            [
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@exporter:Exporter`
+                    },
+                    {
+                        tag:"select",
+                        type:"text",
+                        options:exporterIDs.map(exporter=>{
+                            return new SelectDropdown(exporter.id, exporter.id);
+                        }),
+                        filterKey:"exporterID",
+                        description:$localize `:@@exporter:Exporter`,
+                        placeholder:$localize `:@@exporter:Exporter`
+                    }
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@batch_ID:Batch ID`
+                    },
+                    {
+                        tag: "input",
+                        type: "text",
+                        filterKey: "batchID",
+                        description: $localize`:@@batch_ID:Batch ID`,
+                        placeholder: $localize`:@@batch_ID:Batch ID`
+                    }
+                ],[
+                    {
+                        tag:"label",
+                        text:$localize `:@@patient_verification_status:Patient Verification Status`
+                    },
+                    {
+                        tag:"select",
+                        type:"text",
+                        options:[
+                            new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
+                            new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
+                            new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
+                            new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        ],
+                        filterKey:"patientVerificationStatus",
+                        description:$localize `:@@patient_verification_status:Patient Verification Status`,
+                        placeholder:$localize `:@@status:Status`
+                    }
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                    },
+                    {
+                        tag:"checkbox",
+                        type:"text",
+                        filterKey:"allOfModalitiesInStudy",
+                        description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                    },
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@schedule_at:Schedule at`
+                    },
+                    {
+                        tag:"single-date-time-picker",
+                        type:"text",
+                        filterKey:"scheduledTime",
+                        description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                    },
+                ]
+            ]
+        ]
+    }
+    rejectMatchingSeriesDialogSchema(rjNoteCodes){
+        return [
+            [
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@rejection_reason:Rejection Reason`
+                    },
+                    {
+                        tag:"select",
+                        type:"text",
+                        options:rjNoteCodes,
+                        filterKey:"rjNoteCode",
+                        description:$localize `:@@rejection_reason:Rejection Reason`,
+                        placeholder:$localize `:@@rejection_reason:Rejection Reason`
+                    }
+                ],[
+                    {
+                        tag:"label",
+                        text:$localize `:@@patient_verification_status:Patient Verification Status`
+                    },
+                    {
+                        tag:"select",
+                        type:"text",
+                        options:[
+                            new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
+                            new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
+                            new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
+                            new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        ],
+                        filterKey:"patientVerificationStatus",
+                        description:$localize `:@@patient_verification_status:Patient Verification Status`,
+                        placeholder:$localize `:@@status:Status`
+                    }
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@batch_ID:Batch ID`
+                    },
+                    {
+                        tag: "input",
+                        type: "text",
+                        filterKey: "batchID",
+                        description: $localize`:@@batch_ID:Batch ID`,
+                        placeholder: $localize`:@@batch_ID:Batch ID`
+                    }
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@schedule_at:Schedule at`
+                    },
+                    {
+                        tag:"single-date-time-picker",
+                        type:"text",
+                        filterKey:"scheduledTime",
+                        description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                    },
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                    },
+                    {
+                        tag:"checkbox",
+                        type:"text",
+                        filterKey:"allOfModalitiesInStudy",
+                        description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                    },
+                ]
+            ]
+        ]
+    }
+
     restoreStudy(studyAttr, webService:StudyWebService, rejectionCode) {
         let _webApp;
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
@@ -4144,6 +4327,7 @@ export class StudyService {
             this.jsonHeader
         )}*/
     }
+
 
     restoreSeries(seriesAttr, webService:StudyWebService, rejectionCode) {
         let _webApp;

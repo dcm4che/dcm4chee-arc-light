@@ -188,8 +188,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
-            new SelectDropdown("export_multiple",$localize `:@@study.export_multiple:Export matching studies`),
-            new SelectDropdown("reject_multiple",$localize `:@@study.reject_multiple:Reject matching studies`),
+            new SelectDropdown("export_multiple_study",$localize `:@@study.export_multiple:Export matching studies`),
+            new SelectDropdown("export_multiple_series",$localize `:@@study.export_multiple_series:Export matching series`),
+            new SelectDropdown("reject_multiple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
+            new SelectDropdown("reject_multiple_series",$localize `:@@study.reject_multiple_series:Reject matching series`),
             new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
             new SelectDropdown("storage_verification",$localize `:@@storage_verification:Storage Verification`),
@@ -436,11 +438,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "upload_dicom":
                 this.uploadDicom();
                break;
-            case "export_multiple":
+            case "export_multiple_study":
                 this.exportMultipleStudies();
                break;
-            case "reject_multiple":
+            case "export_multiple_series":
+                this.exportMatchingSeries();
+               break;
+            case "reject_multiple_study":
                 this.rejectMatchingStudies();
+               break;
+            case "reject_multiple_series":
+                this.rejectMatchingSeries();
                break;
             case "retrieve_multiple":
                 this.retrieveMultipleStudies();
@@ -2738,10 +2746,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         && studyConfig && studyConfig.tab === "study";
                                 case "trigger_diff":
                                     return studyConfig && studyConfig.tab === "diff";
-                                case "export_multiple":
+                                case "export_multiple_study":
                                 case "permanent_delete":
                                 case "download_studies":
-                                case "reject_multiple":
+                                case "reject_multiple_study":
                                 case "update_access_control_id_to_matching":
                                 case "storage_verification":
                                 case "schedule_storage_commit_for_matching":
@@ -3860,6 +3868,82 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             j4care.log("Could not get count from res=",e);
                         }
                         this.appService.showMsg(`Objects rejected successfully:<br>Count: ${count}`);
+                        this.cfpLoadingBar.complete();
+                },err=>{
+                    this.httpErrorHandler.handleError(err);
+                    this.cfpLoadingBar.complete();
+                });
+            }
+        });
+    }
+    rejectMatchingSeries(){
+        let rjNoteCodes: any = [];
+        _.forEach(this.trash.rjnotes, (m, i) => {
+            rjNoteCodes.push({
+                title: m.codeMeaning,
+                value: m.codeValue + '^' + m.codingSchemeDesignator,
+                label: m.label
+            });
+        });
+        this.confirm({
+            content: $localize `:@@select_rejected_type:Select rejected type`,
+            doNotSave:true,
+            form_schema:this.service.rejectMatchingSeriesDialogSchema(rjNoteCodes),
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@REJECT:REJECT`
+        }).subscribe(result => {
+            if (result) {
+                console.log("result",result.rjNoteCode);
+                this.cfpLoadingBar.start();
+                let rjNoteCode = result.schema_model.rjNoteCode;
+                delete result.schema_model['rjNoteCode'];
+                this.service.rejectMatchingSeries(
+                        this.studyWebService.selectedWebService,
+                        rjNoteCode,
+                        _.merge(result.schema_model, this.createStudyFilterParams(true,true))
+                    ).subscribe(res=>{
+                        console.log("res",res);
+                        let count = "";
+                        try{
+                            count = res.count;
+                        }catch (e) {
+                            j4care.log("Could not get count from res=",e);
+                        }
+                        this.appService.showMsg(`Objects rejected successfully:<br>Count: ${count}`);
+                        this.cfpLoadingBar.complete();
+                },err=>{
+                    this.httpErrorHandler.handleError(err);
+                    this.cfpLoadingBar.complete();
+                });
+            }
+        });
+    }
+    exportMatchingSeries(){
+        this.confirm({
+            content: $localize `:@@export_all_matching_studies:Export all matching studies`,
+            doNotSave:true,
+            form_schema:this.service.exportMatchingSeriesDialogSchema(this.exporters),
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@EXPORT:EXPORT`
+        }).subscribe(result => {
+            if (result) {
+                this.cfpLoadingBar.start();
+                this.service.exportMatchingSeries(
+                        this.studyWebService,
+                        _.merge(result.schema_model, this.createStudyFilterParams(true,true))
+                    ).subscribe(res=>{
+                        console.log("res",res);
+                        let count = "";
+                        try{
+                            count = res.count;
+                        }catch (e) {
+                            j4care.log("Could not get count from res=",e);
+                        }
+                        this.appService.showMsg(`Objects export successfully:<br>Count: ${count}`);
                         this.cfpLoadingBar.complete();
                 },err=>{
                     this.httpErrorHandler.handleError(err);
