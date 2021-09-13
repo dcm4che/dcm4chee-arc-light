@@ -3939,7 +3939,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         console.log("res",res);
                         let count = "";
                         try{
-                            count = res.count;
+                            count = res["count"];
                         }catch (e) {
                             j4care.log("Could not get count from res=",e);
                         }
