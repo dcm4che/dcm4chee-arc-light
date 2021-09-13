@@ -75,6 +75,9 @@ public class QueryAttributesEJB {
     @Inject
     private Device device;
 
+    @Inject
+    private QueryAttributesEJB self;
+
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
 
@@ -99,7 +102,8 @@ public class QueryAttributesEJB {
             resultStream.forEach(tuple -> {
             Integer numberOfInstancesI = tuple.get(seriesQueryAttributes.get(SeriesQueryAttributes_.numberOfInstances));
             if (numberOfInstancesI == null)
-                builder.add(tuple, calculateSeriesQueryAttributes(tuple.get(series.get(Series_.pk)), qrView));
+                builder.add(tuple,
+                        self.calculateSeriesQueryAttributesIfNotExists(tuple.get(series.get(Series_.pk)), qrView));
             else
                 builder.add(tuple);
             });
@@ -109,6 +113,18 @@ public class QueryAttributesEJB {
         queryAttrs.setStudy(em.getReference(Study.class, studyPk));
         em.persist(queryAttrs);
         return queryAttrs;
+    }
+
+    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView) {
+        try {
+            return em.createNamedQuery(
+                            SeriesQueryAttributes.FIND_BY_VIEW_ID_AND_SERIES_PK, SeriesQueryAttributes.class)
+                    .setParameter(1, qrView.getViewID())
+                    .setParameter(2, seriesPk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return calculateSeriesQueryAttributes(seriesPk, qrView);
+        }
     }
 
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {

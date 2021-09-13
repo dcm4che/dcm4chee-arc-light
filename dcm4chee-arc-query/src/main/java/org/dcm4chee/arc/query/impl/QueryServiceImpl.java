@@ -293,7 +293,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView) {
-        return ejb.calculateSeriesQueryAttributesIfNotExists(seriesPk, qrView);
+        return queryAttributesEJB.calculateSeriesQueryAttributesIfNotExists(seriesPk, qrView);
     }
 
     @Override

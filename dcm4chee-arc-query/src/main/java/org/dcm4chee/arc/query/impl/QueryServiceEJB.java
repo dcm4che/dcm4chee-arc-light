@@ -498,18 +498,6 @@ public class QueryServiceEJB {
             null);
     }
 
-    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView) {
-        try {
-            return em.createNamedQuery(
-                    SeriesQueryAttributes.FIND_BY_VIEW_ID_AND_SERIES_PK, SeriesQueryAttributes.class)
-                    .setParameter(1, qrView.getViewID())
-                    .setParameter(2, seriesPk)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
-        }
-    }
-
     public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
         return em.createNamedQuery(Study.FIND_PK_STUDY_UID_PID_BY_UPDATE_TIME_AND_UNKNOWN_SIZE, Tuple.class)
                 .setParameter(1, dt)
