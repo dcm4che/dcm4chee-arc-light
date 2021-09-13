@@ -1640,7 +1640,7 @@
   "remoteAET": {
     "name": "remoteAET",
     "in": "query",
-    "description": "C-MOVE SCP AE Title to filter by",
+    "description": "Remote AE Title to filter by",
     "schema": {
       "type": "string"
     }

@@ -2076,6 +2076,12 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
+          "$ref": "../parameters.json#/localAET"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAET"
+        },
+        {
           "$ref": "../parameters.json#/taskStatus"
         },
         {
@@ -2133,6 +2139,12 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
+          "$ref": "../parameters.json#/localAET"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAET"
+        },
+        {
           "$ref": "../parameters.json#/taskStatus"
         },
         {
@@ -2182,6 +2194,12 @@
           "$ref": "../parameters.json#/dicomDeviceName"
         },
         {
+          "$ref": "../parameters.json#/localAET"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAET"
+        },
+        {
           "$ref": "../parameters.json#/taskStatus"
         },
         {
@@ -2223,6 +2241,12 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/localAET"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAET"
         },
         {
           "$ref": "../parameters.json#/cancelTaskStatus"
@@ -2303,6 +2327,12 @@
         },
         {
           "$ref": "../parameters.json#/dicomDeviceName"
+        },
+        {
+          "$ref": "../parameters.json#/localAET"
+        },
+        {
+          "$ref": "../parameters.json#/remoteAET"
         },
         {
           "$ref": "../parameters.json#/newDeviceName"
