@@ -194,7 +194,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("reject_multiple_series",$localize `:@@study.reject_multiple_series:Reject matching series`),
             new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
-            new SelectDropdown("storage_verification",$localize `:@@storage_verification:Storage Verification`),
+            new SelectDropdown("storage_verification_studies",$localize `:@@storage_verification_studies:Storage Verification Studies`),
+            new SelectDropdown("storage_verification_series",$localize `:@@storage_verification_series:Storage Verification Series`),
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
@@ -453,8 +454,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "retrieve_multiple":
                 this.retrieveMultipleStudies();
                break;
-            case "storage_verification":
-                this.storageVerification();
+            case "storage_verification_studies":
+                this.storageVerificationStudies();
+               break;
+            case "storage_verification_series":
+                this.storageVerificationSeries();
                break;
             case "download_studies":
                 this.downloadCSV();
@@ -2751,7 +2755,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "download_studies":
                                 case "reject_multiple_study":
                                 case "update_access_control_id_to_matching":
-                                case "storage_verification":
+                                case "storage_verification_studies":
                                 case "schedule_storage_commit_for_matching":
                                 case "instance_availability_notification_for_matching":
                                     return studyConfig && studyConfig.tab === "study"
@@ -3937,14 +3941,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         _.merge(result.schema_model, this.createStudyFilterParams(true,true))
                     ).subscribe(res=>{
                         console.log("res",res);
-                        let count = "";
+                        this.cfpLoadingBar.complete();
                         try{
-                            count = res["count"];
+                            let count = res["count"] || "";
+                            this.appService.showMsg(`Objects export successfully:<br>Count: ${count}`);
                         }catch (e) {
                             j4care.log("Could not get count from res=",e);
                         }
-                        this.appService.showMsg(`Objects export successfully:<br>Count: ${count}`);
-                        this.cfpLoadingBar.complete();
                 },err=>{
                     this.httpErrorHandler.handleError(err);
                     this.cfpLoadingBar.complete();
@@ -4724,7 +4727,33 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         }
     }
-    storageVerification(){
+    storageVerificationSeries(){
+        this.confirm({
+            content: $localize`:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Series`,
+            doNotSave: true,
+            form_schema: this.service.storageVerificationSeriesSchema(),
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize`:@@SUBMIT:SUBMIT`
+        }).subscribe((ok) => {
+            if (ok) {
+                let msg;
+                this.cfpLoadingBar.start();
+                msg = $localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`;
+                this.service.schedulestorageVerificationSeries(_.merge(ok.schema_model, this.createStudyFilterParams(true, true)), this.studyWebService).subscribe(res => {
+                    console.log("res", res);
+                    this.cfpLoadingBar.complete();
+                    msg = j4care.prepareCountMessage(msg, res);
+                    this.appService.showMsg(msg);
+                }, err => {
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
+    storageVerificationStudies(){
         this.service.getStorageSystems().subscribe(storages=> {
             this.confirm({
                 content: $localize`:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Studies`,
@@ -4835,7 +4864,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     let msg;
                     this.cfpLoadingBar.start();
                     msg = $localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`;
-                    this.service.scheduleStorageVerification(_.merge(ok.schema_model, this.createStudyFilterParams(true, true)), this.studyWebService).subscribe(res => {
+                    this.service.schedulestorageVerificationStudies(_.merge(ok.schema_model, this.createStudyFilterParams(true, true)), this.studyWebService).subscribe(res => {
                         console.log("res", res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessage(msg, res);

@@ -1059,7 +1059,9 @@ export class StudyService {
         return this.$http.post(url, {}, this.dicomHeader);
     };
 
-    scheduleStorageVerification = (param, studyWebService: StudyWebService) => this.$http.post(`${this.getDicomURL("study", studyWebService.selectedWebService)}/stgver${j4care.param(param)}`, {});
+    schedulestorageVerificationStudies = (param, studyWebService: StudyWebService) => this.$http.post(`${this.getDicomURL("study", studyWebService.selectedWebService)}/stgver${j4care.param(param)}`, {});
+
+    schedulestorageVerificationSeries = (param, studyWebService: StudyWebService) => this.$http.post(`${this.getDicomURL("series", studyWebService.selectedWebService)}/stgver${j4care.param(param)}`, {});
 
     supplementIssuer = (issuer:string, testSupplement:string, param, studyWebService: StudyWebService) => {
         let paramString = `${j4care.param(param)}`;
@@ -4130,6 +4132,67 @@ export class StudyService {
                 _webApp
             )
         }));
+    }
+
+    storageVerificationSeriesSchema(){
+        return [
+            [
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@patient_verification_status:Patient Verification Status`
+                    },
+                    {
+                        tag:"select",
+                        type:"text",
+                        options:[
+                            new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
+                            new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
+                            new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
+                            new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        ],
+                        filterKey:"patientVerificationStatus",
+                        description:$localize `:@@patient_verification_status:Patient Verification Status`,
+                        placeholder:$localize `:@@status:Status`
+                    }
+                ],[
+                    {
+                        tag: "label",
+                        text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                    },
+                    {
+                        tag:"checkbox",
+                        type:"text",
+                        filterKey:"allOfModalitiesInStudy",
+                        description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                    },
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@schedule_at:Schedule at`
+                    },
+                    {
+                        tag:"single-date-time-picker",
+                        type:"text",
+                        filterKey:"scheduledTime",
+                        description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                    },
+                ], [
+                        {
+                            tag: "label",
+                            text: $localize`:@@batch_ID:Batch ID`
+                        },
+                        {
+                            tag: "input",
+                            type: "text",
+                            filterKey: "batchID",
+                            description: $localize`:@@batch_ID:Batch ID`,
+                            placeholder: $localize`:@@batch_ID:Batch ID`
+                        }
+                    ]
+            ]
+        ]
     }
     exportMatchingSeriesDialogSchema(exporterIDs){
         return [
