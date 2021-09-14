@@ -197,6 +197,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("storage_verification_studies",$localize `:@@storage_verification_studies:Storage Verification Studies`),
             new SelectDropdown("storage_verification_series",$localize `:@@storage_verification_series:Storage Verification Series`),
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
+            new SelectDropdown("download_series",$localize `:@@study.download_series:Download series as CSV`),
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
             new SelectDropdown("import_matching_sps_to_archive",$localize `:@@mwl.import_matching_sps_to_archive:Import matching SPS to archive`),
@@ -462,6 +463,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                break;
             case "download_studies":
                 this.downloadCSV();
+               break;
+            case "download_series":
+                this.downloadCSV(undefined, "series");
                break;
             case "update_access_control_id_to_matching":
                 this.updateAccessControlId(e);
@@ -1607,7 +1611,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(ok)
                 semicolon = true;
             let token;
-            let url = this.service.getDicomURL("study",this.studyWebService.selectedWebService);
+            let url;
             this.service.getTokenService(this.studyWebService).subscribe((response)=>{
                 if(!this.appService.global.notSecure){
                     token = response.token;
@@ -1618,6 +1622,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 filterClone["accept"] = `text/csv${(semicolon?';delimiter=semicolon':'')}`;
                 let fileName = "dcm4chee.csv";
                 if(attr && mode){
+                    url = this.service.getDicomURL("study",this.studyWebService.selectedWebService);
                     filterClone["PatientID"] =  j4care.valueOf(attr['00100020']);
                     filterClone["IssuerOfPatientID"] = j4care.valueOf(attr['00100021']);
                     if(mode === "series" && _.hasIn(attr,'0020000D')){
@@ -1627,6 +1632,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     if(mode === "instance"){
                         url =`${url}/${j4care.valueOf(attr['0020000D'])}/series/${j4care.valueOf(attr['0020000E'])}/instances`;
                         fileName = `${j4care.valueOf(attr['0020000D'])}_${j4care.valueOf(attr['0020000E'])}.csv`;
+                    }
+                }else{
+                    if(attr === undefined && mode === "series"){
+                        url = `${this.service.getDicomURL("series",this.studyWebService.selectedWebService)}/series`;
                     }
                 }
                 if(!this.appService.global.notSecure){
