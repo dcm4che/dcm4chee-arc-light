@@ -525,6 +525,11 @@ public class QueryBuilder {
                                 Boolean.parseBoolean(taskQueryParam.getCheckDifferent())));
                     break;
             }
+        } else {
+            if (taskQueryParam.getLocalAET() != null)
+                predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
+            if (taskQueryParam.getRemoteAET() != null)
+                predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getRemoteAET()));
         }
 
         return predicates;

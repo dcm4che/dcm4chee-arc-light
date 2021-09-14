@@ -118,6 +118,12 @@ public class QueueManagerRS {
     @QueryParam("batchID")
     private String batchID;
 
+    @QueryParam("localAET")
+    private String localAET;
+
+    @QueryParam("remoteAET")
+    private String remoteAET;
+
     @QueryParam("orderby")
     @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
@@ -238,6 +244,8 @@ public class QueueManagerRS {
         taskQueryParam.setDeviceName(deviceName);
         taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
+        taskQueryParam.setLocalAET(localAET);
+        taskQueryParam.setRemoteAET(remoteAET);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);

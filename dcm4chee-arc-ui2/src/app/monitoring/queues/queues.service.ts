@@ -15,13 +15,13 @@ export class QueuesService{
         private deviceService:DevicesService
     ) { }
 
-    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
+    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby) {
 
-        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)));
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby)));
     };
 
-    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
-        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)));
+    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby) {
+        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby)));
     };
 
     cancel(queueName, msgId) {
@@ -68,7 +68,7 @@ export class QueuesService{
         return header;
     }
 
-    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
+    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby) {
         let params = {
             offset: offset,
             limit: limit,
@@ -77,6 +77,8 @@ export class QueuesService{
             createdTime:createdTime,
             updatedTime:updatedTime,
             batchID:batchID,
+            localAET:localAET,
+            remoteAET:remoteAET,
             orderby:undefined
         };
         if (orderby != '*')
@@ -137,7 +139,7 @@ export class QueuesService{
             },
         ]
     }
-    getFilterSchema(queueNames, devices, countText){
+    getFilterSchema(queueNames, devices, localAETs, remoteAETs, countText){
         return [
             {
                 tag:"select",
@@ -205,6 +207,31 @@ export class QueuesService{
                 description:$localize `:@@batch_id:Batch ID`,
                 placeholder:$localize `:@@batch_id:Batch ID`
             },{
+                    tag:"select",
+                    options:localAETs.map(ae=>{
+                        return{
+                            value:ae.dicomAETitle,
+                            text:ae.dicomAETitle
+                        }
+                    }),
+                    showStar:true,
+                    filterKey:"LocalAET",
+                    placeholder:$localize `:@@localaet:Local AET`,
+                    description:$localize `:@@archive_ae_title_to_filter_by:Archive AE Title to filter by`
+            }, {
+                tag:"select",
+                options:remoteAETs.map(ae=>{
+                    return{
+                        value:ae.dicomAETitle,
+                        text:ae.dicomAETitle
+                    }
+                }),
+                showStar:true,
+                filterKey:"RemoteAET",
+                placeholder:$localize `:@@remoteaet:Remote AET`,
+                description:$localize `:@@remote_ae_title_to_filter_by:Remote AE Title to filter by`
+            },
+            {
                 tag:"dummy"
             },
             {

@@ -10,10 +10,13 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {ActivatedRoute} from "@angular/router";
 import {j4care} from "../../helpers/j4care.service";
-import {ReplaySubject} from "rxjs";
+import {forkJoin, ReplaySubject} from "rxjs";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {Globalvar} from "../../constants/globalvar";
+import {AeListService} from "../../configuration/ae-list/ae-list.service";
+import {map} from "rxjs/operators";
+import {PermissionService} from "../../helpers/permissions/permission.service";
 
 
 @Component({
@@ -27,6 +30,8 @@ export class QueuesComponent implements OnInit, OnDestroy{
     dialogRef: MatDialogRef<any>;
     _ = _;
     devices;
+    localAETs;
+    remoteAETs;
     counText = $localize `:@@COUNT:COUNT`;
     allAction;
     allActionsOptions = [
@@ -69,6 +74,8 @@ export class QueuesComponent implements OnInit, OnDestroy{
         createdTime:undefined,
         updatedTime:undefined,
         batchID:undefined,
+        localAET:undefined,
+        remoteAET:undefined,
         limit:20
     };
     filterSchema = [];
@@ -82,7 +89,9 @@ export class QueuesComponent implements OnInit, OnDestroy{
         public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler,
         private route: ActivatedRoute,
-        private deviceService:DevicesService
+        private deviceService:DevicesService,
+        public aeListService:AeListService,
+        private permissionService:PermissionService,
     ) {};
     ngOnInit(){
         this.initCheck(10);
@@ -133,7 +142,9 @@ export class QueuesComponent implements OnInit, OnDestroy{
             dicomDeviceName:(this.filterObject.dicomDeviceName && this.filterObject.status != '*') ? this.filterObject.dicomDeviceName : undefined,
             status:(this.filterObject.status && this.filterObject.status != '*') ? this.filterObject.status : undefined,
             createdTime:this.filterObject.createdTime || undefined,
-            updatedTime:this.filterObject.updatedTime || undefined
+            updatedTime:this.filterObject.updatedTime || undefined,
+            localAET:(this.filterObject.localAET && this.filterObject.localAET != '*') || undefined,
+            remoteAET:(this.filterObject.remoteAET && this.filterObject.remoteAET != '*') || undefined
         };
         switch (this.allAction){
             case "cancel":
@@ -248,7 +259,17 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 this.search(0);
             Object.keys(this.statusValues).forEach(status=>{
                 this.statusValues[status].loader = true;
-                this.service.getCount(this.filterObject.queueName, status, undefined, undefined, this.filterObject.dicomDeviceName, this.filterObject.createdTime,this.filterObject.updatedTime, this.filterObject.batchID, '').subscribe((count)=>{
+                this.service.getCount(this.filterObject.queueName,
+                    status,
+                    undefined,
+                    undefined,
+                    this.filterObject.dicomDeviceName,
+                    this.filterObject.createdTime,
+                    this.filterObject.updatedTime,
+                    this.filterObject.batchID,
+                    this.filterObject.localAET,
+                    this.filterObject.remoteAET,
+                    '').subscribe((count)=>{
                     this.statusValues[status].loader = false;
                     try{
                         this.statusValues[status].count = count.count;
@@ -284,7 +305,16 @@ export class QueuesComponent implements OnInit, OnDestroy{
         let $this = this;
         if(this.filterObject.queueName){
             $this.cfpLoadingBar.start();
-            this.service.search(this.filterObject.queueName, this.filterObject.status, offset, this.filterObject.limit, this.filterObject.dicomDeviceName, this.filterObject.createdTime,this.filterObject.updatedTime, this.filterObject.batchID, this.filterObject.orderby)
+            this.service.search(this.filterObject.queueName,
+                this.filterObject.status, offset,
+                this.filterObject.limit,
+                this.filterObject.dicomDeviceName,
+                this.filterObject.createdTime,
+                this.filterObject.updatedTime,
+                this.filterObject.batchID,
+                this.filterObject.localAET,
+                this.filterObject.remoteAET,
+                this.filterObject.orderby)
                 .subscribe((res) => {
                     if (res && res.length > 0){
                         $this.matches = res.map((properties, index) => {
@@ -311,13 +341,22 @@ export class QueuesComponent implements OnInit, OnDestroy{
     getCount(){
         if(this.filterObject.queueName){
             this.cfpLoadingBar.start();
-            this.service.getCount(this.filterObject.queueName, this.filterObject.status, undefined, undefined, this.filterObject.dicomDeviceName, this.filterObject.createdTime,this.filterObject.updatedTime, this.filterObject.batchID, '').subscribe((count)=>{
+            this.setFilters();
+            this.service.getCount(this.filterObject.queueName,
+                this.filterObject.status,
+                undefined,
+                undefined,
+                this.filterObject.dicomDeviceName,
+                this.filterObject.createdTime,
+                this.filterObject.updatedTime,
+                this.filterObject.batchID,
+                this.filterObject.localAET,
+                this.filterObject.remoteAET, '').subscribe((count)=>{
                 try{
                     this.counText = $localize `:@@count_param:COUNT ${count.count}:@@count:`;
                 }catch (e){
                     this.counText = $localize `:@@COUNT:COUNT`;
                 }
-                this.setFilters();
                 this.cfpLoadingBar.complete();
             },(err)=>{
                 this.cfpLoadingBar.complete();
@@ -450,6 +489,8 @@ export class QueuesComponent implements OnInit, OnDestroy{
     initQuery() {
         let $this = this;
         this.cfpLoadingBar.start();
+        this.getLocalAEs();
+        this.getRemoteAEs();
         this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}queue`)
             // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
@@ -461,7 +502,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
             });
     }
     setFilters(){
-        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema(this.queues,this.devices,this.counText),3);
+        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema(this.queues,this.devices,this.localAETs,this.remoteAETs,this.counText),3);
     }
     getDevices(){
         this.cfpLoadingBar.start();
@@ -475,6 +516,18 @@ export class QueuesComponent implements OnInit, OnDestroy{
             this.cfpLoadingBar.complete();
             console.error("Could not get devices",err);
         });
+    }
+    getRemoteAEs(){
+        this.aeListService.getAes()
+            .subscribe((response)=>{
+            this.remoteAETs = response;
+        });
+    }
+    getLocalAEs(){
+        this.aeListService.getAets()
+            .subscribe((response)=>{
+                this.localAETs = response;
+            });
     }
     ngOnDestroy(){
         if(this.timer.started){
