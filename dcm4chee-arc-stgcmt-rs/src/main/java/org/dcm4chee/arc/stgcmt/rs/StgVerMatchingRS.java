@@ -58,7 +58,9 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +74,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -149,6 +153,10 @@ public class StgVerMatchingRS {
 
     @QueryParam("batchID")
     private String batchID;
+
+    @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
+    private String scheduledTime;
 
     @QueryParam("storageVerificationPolicy")
     @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
@@ -248,6 +256,16 @@ public class StgVerMatchingRS {
     public void validate() {
         logRequest();
         new QueryAttributes(uriInfo, null);
+    }
+
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        return new Date();
     }
 
     Response verifyStorageOf(String aet,
@@ -368,6 +386,7 @@ public class StgVerMatchingRS {
         private final String aet;
         private final QueryRetrieveLevel2 qrLevel;
         private final Query query;
+        private final Date scheduledTime = scheduledTime();
         private Response.Status status;
         private String warning;
 
@@ -405,6 +424,7 @@ public class StgVerMatchingRS {
                             match.getString(Tag.SeriesInstanceUID),
                             match.getString(Tag.SOPInstanceUID),
                             batchID,
+                            scheduledTime,
                             storageVerificationPolicy != null ? StorageVerificationPolicy.valueOf(storageVerificationPolicy) : null,
                             storageVerificationUpdateLocationStatus != null ? Boolean.valueOf(storageVerificationUpdateLocationStatus) : null,
                             storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING))) {

@@ -260,10 +260,10 @@ public class StgCmtManagerImpl implements StgCmtManager {
     public boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
                                       HttpServletRequestInfo httpServletRequestInfo,
                                       String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
-                                      String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                                      String batchID, Date scheduledTime, StorageVerificationPolicy storageVerificationPolicy,
                                       Boolean updateLocationStatus, String... storageIDs) {
         return ejb.scheduleStgVerTask(localAET, qrlevel, httpServletRequestInfo,
-                studyInstanceUID, seriesInstanceUID, sopInstanceUID, batchID, storageVerificationPolicy,
+                studyInstanceUID, seriesInstanceUID, sopInstanceUID, batchID, scheduledTime, storageVerificationPolicy,
                 updateLocationStatus, storageIDs);
     }
 

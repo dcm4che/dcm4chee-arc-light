@@ -86,7 +86,7 @@ public interface StgCmtManager {
     boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
                                HttpServletRequestInfo httpServletRequestInfo,
                                String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
-                               String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                               String batchID, Date scheduledTime, StorageVerificationPolicy storageVerificationPolicy,
                                Boolean updateLocationStatus, String... storageIDs);
 
 }

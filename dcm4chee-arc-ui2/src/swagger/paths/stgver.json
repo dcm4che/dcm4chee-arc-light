@@ -278,6 +278,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -381,6 +387,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -481,6 +493,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -587,6 +605,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -690,6 +714,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {
@@ -790,6 +820,12 @@
         },
         {
           "$ref": "../parameters.json#/storageExported"
+        },
+        {
+          "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/batchID"
         }
       ],
       "responses": {

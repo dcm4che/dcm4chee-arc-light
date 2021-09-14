@@ -382,13 +382,13 @@ public class StgCmtEJB {
     public boolean scheduleStgVerTask(String localAET, QueryRetrieveLevel2 qrlevel,
                                       HttpServletRequestInfo httpServletRequestInfo,
                                       String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
-                                      String batchID, StorageVerificationPolicy storageVerificationPolicy,
+                                      String batchID, Date scheduledTime, StorageVerificationPolicy storageVerificationPolicy,
                                       Boolean updateLocationStatus, String... storageIDs) {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtManager.QUEUE_NAME);
         task.setType(Task.Type.STGVER);
-        task.setScheduledTime(new Date());
+        task.setScheduledTime(scheduledTime);
         if (httpServletRequestInfo != null) {
             task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
             task.setRequesterHost(httpServletRequestInfo.requesterHost);
@@ -418,7 +418,7 @@ public class StgCmtEJB {
     public boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID) {
         return scheduleStgVerTask(localAET, QueryRetrieveLevel2.SERIES, null,
                 studyInstanceUID, seriesInstanceUID, null,
-                batchID, null, null);
+                batchID, new Date(), null, null);
     }
 
     private boolean isStorageVerificationTaskAlreadyScheduled(Task storageVerificationTask) {
