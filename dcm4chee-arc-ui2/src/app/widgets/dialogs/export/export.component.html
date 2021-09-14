@@ -17,6 +17,17 @@
                 <br>
                 <div>
                     <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@batch_id" placeholder="Batch ID">
+                    <range-picker
+                            [model]="result.scheduledTime"
+                            (modelChange)="result.scheduledTime = $event"
+                            [datePickerMode]="true"
+                            dateFormat="YYYYMMDD"
+                            onlySingleMode="true"
+                            defaultTime="00:00:00"
+                            mode="single"
+                            i18n-placeholder="@@schedule_at_desc"
+                            placeholder="Schedule at (if not set, schedule immediately)"
+                    ></range-picker>
                 </div>
                 <br>
             </ng-container>
@@ -83,6 +94,17 @@
                 <div *ngIf="mode === 'multiple-retrieve'" class="noneDicomBlock">
                     <p i18n="@@batch_id">Batch ID:</p>
                     <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@batch_id" placeholder="Batch ID">
+                    <range-picker
+                            [model]="result.scheduledTime"
+                            (modelChange)="result.scheduledTime = $event"
+                            [datePickerMode]="true"
+                            dateFormat="YYYYMMDD"
+                            onlySingleMode="true"
+                            defaultTime="00:00:00"
+                            mode="single"
+                            i18n-placeholder="@@schedule_at_desc"
+                            placeholder="Schedule at (if not set, schedule immediately)"
+                    ></range-picker>
                 </div>
                 <br>
             </div>
@@ -138,6 +160,17 @@
         <div class="content" *ngIf="result.exportType === 'nonedicom' && !(quantity && quantity === 'single')">
             <p i18n="@@batch_id">Batch ID</p>
             <input type="text" [(ngModel)]="result.batchID">
+            <range-picker
+                    [model]="result.scheduledTime"
+                    (modelChange)="result.scheduledTime = $event"
+                    [datePickerMode]="true"
+                    dateFormat="YYYYMMDD"
+                    onlySingleMode="true"
+                    defaultTime="00:00:00"
+                    mode="single"
+                    i18n-placeholder="@@schedule_at_desc"
+                    placeholder="Schedule at (if not set, schedule immediately)"
+            ></range-picker>
         </div>
         <div class="dialogbuttons">
             <button *ngIf="!okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()" i18n="@@EXPORT">EXPORT</button>

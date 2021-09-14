@@ -4597,6 +4597,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 let params = {};
                 if(result.batchID)
                     batchID = `batchID=${result.batchID}&`;
+                let params1 = result.batchID
+                            ? result.scheduledTime
+                                ? `batchID=${result.batchID}&scheduledTime=${result.scheduledTime}`
+                                : `batchID=${result.batchID}&`
+                            : result.scheduledTime
+                                ? `scheduledTime=${result.scheduledTime}&`
+                                : "";
                 $this.cfpLoadingBar.start();
                 if(mode === "multiple-retrieve"){
                     this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
@@ -4610,7 +4617,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 }/studies/export/dicom:${
                                     result.selectedAet
                                 }?${
-                                    batchID
+                                    params1
                                 }${
                                     this.appService.param({...this.createStudyFilterParams(true,true),...{batchID:result.batchID}})
                                 }`;
@@ -4632,7 +4639,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 }/${
                                     result.selectedExporter
                                 }?${
-                                    batchID
+                                    params1
                                 }${
                                     this.appService.param(this.createStudyFilterParams(true,true))
                                 }`;
@@ -4675,7 +4682,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             else {
                                 id = result.selectedExporter;
                             }
-                            singleUrlSuffix = '/export/' + id + '?'+ batchID;
+                            singleUrlSuffix = '/export/' + id + '?'+ params1;
                             fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                         }
                     }
