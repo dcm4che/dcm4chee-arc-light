@@ -1086,9 +1086,15 @@ export class StudyService {
         })));
     }
 
-    sendStorageCommitmentRequestForMatching(studyWebService: StudyWebService,stgCmtSCP:string, filters:any){
+    sendStorageCommitmentRequestForMatchingStudies(studyWebService: StudyWebService,stgCmtSCP:string, filters:any){
         return this.$http.post(
             `${this.getDicomURL("study", studyWebService.selectedWebService)}/stgcmt/${stgCmtSCP}${j4care.param(filters)}`,
+            {}
+        );
+    }
+    sendStorageCommitmentRequestForMatchingSeries(studyWebService: StudyWebService,stgCmtSCP:string, filters:any){
+        return this.$http.post(
+            `${this.getDicomURL("series", studyWebService.selectedWebService)}/stgcmt/${stgCmtSCP}${j4care.param(filters)}`,
             {}
         );
     }

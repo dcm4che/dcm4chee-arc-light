@@ -201,7 +201,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
             new SelectDropdown("import_matching_sps_to_archive",$localize `:@@mwl.import_matching_sps_to_archive:Import matching SPS to archive`),
-            new SelectDropdown("schedule_storage_commit_for_matching",$localize `:@@schedule_storage_commit_for_matching:Schedule Storage Commitment for matching`),
+            new SelectDropdown("schedule_storage_commit_for_matching_studies",$localize `:@@schedule_storage_commit_for_matching_studies:Schedule Storage Commitment for matching Studies`),
+            new SelectDropdown("schedule_storage_commit_for_matching_series",$localize `:@@schedule_storage_commit_for_matching_series:Schedule Storage Commitment for matching Series`),
             new SelectDropdown("instance_availability_notification_for_matching",$localize `:@@instance_availability_notification_for_matching:Instance Availability Notification for matching`),
         ],
         model:undefined
@@ -470,8 +471,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "update_access_control_id_to_matching":
                 this.updateAccessControlId(e);
                break;
-            case "schedule_storage_commit_for_matching":
-                this.sendStorageCommitmentRequestMatching();
+            case "schedule_storage_commit_for_matching_studies":
+                this.sendStorageCommitmentRequestMatchingStudies();
+               break;
+            case "schedule_storage_commit_for_matching_series":
+                this.sendStorageCommitmentRequestMatchingSeries();
                break;
             case "instance_availability_notification_for_matching":
                 this.sendInstanceAvailabilityNotificationMatching();
@@ -2771,7 +2775,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "update_access_control_id_to_matching":
                                 case "storage_verification_studies":
                                     return studyConfig && studyConfig.tab === "study";
-                                case "schedule_storage_commit_for_matching":
+                                case "schedule_storage_commit_for_matching_studies":
+                                    return studyConfig && studyConfig.tab === "study";
+                                case "schedule_storage_commit_for_matching_series":
+                                    return studyConfig && studyConfig.tab === "series";
                                 case "instance_availability_notification_for_matching":
                                     return studyConfig && studyConfig.tab === "study"
                                         && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
@@ -3397,7 +3404,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
     
-    sendStorageCommitmentRequestMatching(){
+    sendStorageCommitmentRequestMatchingStudies(){
         let dialogText = $localize `:@@schedule_storage_commitment_of_matching_studies_from_external_storage_commitment_scp:Schedule Storage Commitment of matching Studies from external Storage Commitment SCP`
         console.log("archiveDevice",this.appService.archiveDeviceName);
         this.confirm({
@@ -3454,11 +3461,115 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(ok && _.hasIn(ok, "schema_model.stgCmtSCP")){
                 let stgCmtSCP = ok.schema_model.stgCmtSCP;
                 delete ok.schema_model['stgCmtSCP'];
-                let service = this.service.sendStorageCommitmentRequestForMatching(
+                let service = this.service.sendStorageCommitmentRequestForMatchingStudies(
                     this.studyWebService,
                     stgCmtSCP,
                     _.merge(ok.schema_model, this.createStudyFilterParams(true,true)));
                 let msg = $localize `:@@storage_commitment_of_matching_studies_from_external_storage_commitment_scp_was_scheduled:Storage Commitment of matching Studies from external Storage Commitment SCP was scheduled successfully`;
+                this.cfpLoadingBar.start();
+                service.subscribe(res=>{
+                    this.cfpLoadingBar.complete();
+                    msg = j4care.prepareCountMessage(msg, res);
+                    this.appService.showMsg(msg);
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
+    sendStorageCommitmentRequestMatchingSeries(){
+        let dialogText = $localize `:@@schedule_storage_commitment_of_matching_series_from_external_storage_commitment_scp:Schedule Storage Commitment of matching Series from external Storage Commitment SCP`
+        console.log("archiveDevice",this.appService.archiveDeviceName);
+        this.confirm({
+            content: dialogText,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@patient_verification_status:Patient Verification Status`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:[
+                                new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
+                                new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
+                                new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
+                                new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                            ],
+                            filterKey:"patientVerificationStatus",
+                            description:$localize `:@@patient_verification_status:Patient Verification Status`,
+                            placeholder:$localize `:@@status:Status`
+                        }
+                    ],[
+                        {
+                            tag: "label",
+                            text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                        },
+                            {
+                                tag:"checkbox",
+                                type:"text",
+                                filterKey:"allOfModalitiesInStudy",
+                                description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                            },
+                        ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
+                            filterKey:"stgCmtSCP",
+                            description:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`,
+                            placeholder:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@schedule_at:Schedule at`
+                        },
+                        {
+                            tag:"single-date-time-picker",
+                            type:"text",
+                            filterKey:"scheduledTime",
+                            description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                        },
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@batch_ID:Batch ID`
+                        },
+                        {
+                            tag: "input",
+                            type: "text",
+                            filterKey: "batchID",
+                            description: $localize`:@@batch_ID:Batch ID`,
+                            placeholder: $localize`:@@batch_ID:Batch ID`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@SEND:SEND`
+        }).subscribe((ok)=>{
+            if(ok && _.hasIn(ok, "schema_model.stgCmtSCP")){
+                let stgCmtSCP = ok.schema_model.stgCmtSCP;
+                delete ok.schema_model['stgCmtSCP'];
+                let service = this.service.sendStorageCommitmentRequestForMatchingSeries(
+                    this.studyWebService,
+                    stgCmtSCP,
+                    _.merge(ok.schema_model, this.createStudyFilterParams(true,true)));
+                let msg = $localize `:@@storage_commitment_of_matching_series_from_external_storage_commitment_scp_was_scheduled:Storage Commitment of matching Series from external Storage Commitment SCP was scheduled successfully`;
                 this.cfpLoadingBar.start();
                 service.subscribe(res=>{
                     this.cfpLoadingBar.complete();
