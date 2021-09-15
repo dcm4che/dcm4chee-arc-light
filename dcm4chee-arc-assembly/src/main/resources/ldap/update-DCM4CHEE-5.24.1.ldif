@@ -1,6 +1,7 @@
 version: 1
 
 dn: cn=RT Treatment Preparation Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.22
 dicomTransferRole: SCP
 dicomTransferSyntax: 1.2.840.10008.1.2
@@ -10,6 +11,7 @@ objectClass: dcmTransferCapability
 cn: RT Treatment Preparation Storage SCP
 
 dn: cn=RT Treatment Preparation Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.22
 dicomTransferRole: SCU
 dicomTransferSyntax: 1.2.840.10008.1.2
@@ -19,6 +21,7 @@ objectClass: dcmTransferCapability
 cn: RT Treatment Preparation Storage SCU
 
 dn: cn=RT Radiation Set Delivery Instruction Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.21
 dicomTransferRole: SCP
 dicomTransferSyntax: 1.2.840.10008.1.2
@@ -28,6 +31,7 @@ objectClass: dcmTransferCapability
 cn: RT Radiation Set Delivery Instruction Storage SCP
 
 dn: cn=RT Radiation Set Delivery Instruction Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.21
 dicomTransferRole: SCU
 dicomTransferSyntax: 1.2.840.10008.1.2
