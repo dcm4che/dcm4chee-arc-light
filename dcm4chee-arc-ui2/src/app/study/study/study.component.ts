@@ -1635,7 +1635,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     }
                 }else{
                     if(attr === undefined && mode === "series"){
-                        url = `${this.service.getDicomURL("series",this.studyWebService.selectedWebService)}/series`;
+                        url = `${this.service.getDicomURL("series",this.studyWebService.selectedWebService)}`;
                     }
                 }
                 if(!this.appService.global.notSecure){
@@ -2760,11 +2760,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "trigger_diff":
                                     return studyConfig && studyConfig.tab === "diff";
                                 case "export_multiple_study":
+                                    return studyConfig && studyConfig.tab === "study";
                                 case "permanent_delete":
                                 case "download_studies":
+                                    return studyConfig && studyConfig.tab === "study";
+                                case "download_series":
+                                    return studyConfig && studyConfig.tab === "series";
                                 case "reject_multiple_study":
+                                    return studyConfig && studyConfig.tab === "study";
                                 case "update_access_control_id_to_matching":
                                 case "storage_verification_studies":
+                                    return studyConfig && studyConfig.tab === "study";
                                 case "schedule_storage_commit_for_matching":
                                 case "instance_availability_notification_for_matching":
                                     return studyConfig && studyConfig.tab === "study"
