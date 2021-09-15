@@ -143,8 +143,8 @@ export class QueuesComponent implements OnInit, OnDestroy{
             status:(this.filterObject.status && this.filterObject.status != '*') ? this.filterObject.status : undefined,
             createdTime:this.filterObject.createdTime || undefined,
             updatedTime:this.filterObject.updatedTime || undefined,
-            localAET:(this.filterObject.localAET && this.filterObject.localAET != '*') || undefined,
-            remoteAET:(this.filterObject.remoteAET && this.filterObject.remoteAET != '*') || undefined
+            localAET:(this.filterObject.localAET && this.filterObject.localAET != '*') ? this.filterObject.localAET: undefined,
+            remoteAET:(this.filterObject.remoteAET && this.filterObject.remoteAET != '*') ?  this.filterObject.remoteAET : undefined
         };
         switch (this.allAction){
             case "cancel":

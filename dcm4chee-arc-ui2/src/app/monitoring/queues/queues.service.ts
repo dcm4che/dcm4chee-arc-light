@@ -215,7 +215,7 @@ export class QueuesService{
                         }
                     }),
                     showStar:true,
-                    filterKey:"LocalAET",
+                    filterKey:"localAET",
                     placeholder:$localize `:@@localaet:Local AET`,
                     description:$localize `:@@archive_ae_title_to_filter_by:Archive AE Title to filter by`
             }, {
@@ -227,7 +227,7 @@ export class QueuesService{
                     }
                 }),
                 showStar:true,
-                filterKey:"RemoteAET",
+                filterKey:"remoteAET",
                 placeholder:$localize `:@@remoteaet:Remote AET`,
                 description:$localize `:@@remote_ae_title_to_filter_by:Remote AE Title to filter by`
             },
