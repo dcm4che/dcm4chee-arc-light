@@ -1110,12 +1110,21 @@ export class StudyService {
         let url = `${this.getURL(attrs, studyWebService.selectedWebService, level)}/stgcmt/dicom:${stgCmtSCP}`;
         return this.$http.post(url, {});
     }
-    sendInstanceAvailabilityNotificationForMatching(studyWebService: StudyWebService,ianscp:string, filters:any){
+    sendInstanceAvailabilityNotificationForMatchingStudies(studyWebService: StudyWebService, ianscp:string, filters:any){
         return this.$http.post(
             `${this.getDicomURL("study", studyWebService.selectedWebService)}/ian/${ianscp}${j4care.param(filters)}`,
             {}
         );
     }
+    sendInstanceAvailabilityNotificationForMatchingSeries(studyWebService: StudyWebService, ianscp:string, filters:any){
+        return this.$http.post(
+            `${this.getDicomURL("series", studyWebService.selectedWebService)}/ian/${ianscp}${j4care.param(filters)}`,
+            {}
+        );
+    }
+
+
+
     sendInstanceAvailabilityNotificationForSelected(multipleObjects: SelectionActionElement, studyWebService: StudyWebService, ianscp:string){
         return forkJoin((<any[]> multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study" || element.dicomLevel === "instance" || element.dicomLevel === "series")).map((element: SelectedDetailObject) => {
             return this.$http.post(

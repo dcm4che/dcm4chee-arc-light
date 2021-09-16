@@ -203,7 +203,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("import_matching_sps_to_archive",$localize `:@@mwl.import_matching_sps_to_archive:Import matching SPS to archive`),
             new SelectDropdown("schedule_storage_commit_for_matching_studies",$localize `:@@schedule_storage_commit_for_matching_studies:Schedule Storage Commitment for matching Studies`),
             new SelectDropdown("schedule_storage_commit_for_matching_series",$localize `:@@schedule_storage_commit_for_matching_series:Schedule Storage Commitment for matching Series`),
-            new SelectDropdown("instance_availability_notification_for_matching",$localize `:@@instance_availability_notification_for_matching:Instance Availability Notification for matching`),
+            new SelectDropdown("instance_availability_notification_for_matching_studies",$localize `:@@instance_availability_notification_for_matching_studies:Instance Availability Notification for matching Studies`),
+            new SelectDropdown("instance_availability_notification_for_matching_series",$localize `:@@instance_availability_notification_for_matching_series:Instance Availability Notification for matching Series`),
         ],
         model:undefined
     };
@@ -477,8 +478,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "schedule_storage_commit_for_matching_series":
                 this.sendStorageCommitmentRequestMatchingSeries();
                break;
-            case "instance_availability_notification_for_matching":
-                this.sendInstanceAvailabilityNotificationMatching();
+            case "instance_availability_notification_for_matching_studies":
+                this.sendInstanceAvailabilityNotificationMatchingStudies();
+               break;
+            case "instance_availability_notification_for_matching_series":
+                this.sendInstanceAvailabilityNotificationMatchingSeries();
                break;
             case "change_sps_status_on_matching":
                 this.changeSPSStatus(e, "matching");
@@ -2779,8 +2783,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     return studyConfig && studyConfig.tab === "study";
                                 case "schedule_storage_commit_for_matching_series":
                                     return studyConfig && studyConfig.tab === "series";
-                                case "instance_availability_notification_for_matching":
+                                case "instance_availability_notification_for_matching_studies":
                                     return studyConfig && studyConfig.tab === "study"
+                                        && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
+                                case "instance_availability_notification_for_matching_series":
+                                    return studyConfig && studyConfig.tab === "series"
                                         && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
                                 case "change_sps_status_on_matching":
                                 case "import_matching_sps_to_archive":
@@ -3659,7 +3666,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
-    sendInstanceAvailabilityNotificationMatching(){
+    sendInstanceAvailabilityNotificationMatchingStudies(){
         let dialogText = $localize `:@@schedule_instance_availability_of_matching_studies_to_external_instance_availability_scp:Schedule Instance Availability of matching Studies to external Instance Availability SCP`
         console.log("archiveDevice",this.appService.archiveDeviceName);
         this.confirm({
@@ -3716,11 +3723,116 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(ok && _.hasIn(ok, "schema_model.ianscp")){
                 let ianscp = ok.schema_model.ianscp;
                 delete ok.schema_model['ianscp'];
-                let service = this.service.sendInstanceAvailabilityNotificationForMatching(
+                let service = this.service.sendInstanceAvailabilityNotificationForMatchingStudies(
                     this.studyWebService,
                     ianscp,
                     _.merge(ok.schema_model, this.createStudyFilterParams(true,true)));
                 let msg = $localize `:@@instance_availability_of_matching_studies_to_external_instance_availability_scp_was_scheduled:Instance Availability of matching Studies to external Instance Availability SCP was scheduled successfully`;
+                this.cfpLoadingBar.start();
+                service.subscribe(res=>{
+                    this.cfpLoadingBar.complete();
+                    msg = j4care.prepareCountMessage(msg, res);
+                    this.appService.showMsg(msg);
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                });
+            }
+        });
+    }
+
+    sendInstanceAvailabilityNotificationMatchingSeries(){
+        let dialogText = $localize `:@@schedule_instance_availability_of_matching_series_to_external_instance_availability_scp:Schedule Instance Availability of matching Series to external Instance Availability SCP`
+        console.log("archiveDevice",this.appService.archiveDeviceName);
+        this.confirm({
+            content: dialogText,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
+                            filterKey:"ianscp",
+                            description:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`,
+                            placeholder:$localize `:@@instance_availability_notification_scp_ae_title:Instance Availability Notification SCP AE Title`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@patient_verification_status:Patient Verification Status`
+                        },
+                            {
+                                tag:"select",
+                                type:"text",
+                                options:[
+                                    new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
+                                    new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
+                                    new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
+                                    new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                                ],
+                                filterKey:"patientVerificationStatus",
+                                description:$localize `:@@patient_verification_status:Patient Verification Status`,
+                                placeholder:$localize `:@@status:Status`
+                            }
+                        ],[
+                        {
+                            tag: "label",
+                            text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                        },
+                        {
+                            tag:"checkbox",
+                            type:"text",
+                            filterKey:"allOfModalitiesInStudy",
+                            description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                        },
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@batch_ID:Batch ID`
+                        },
+                        {
+                            tag: "input",
+                            type: "text",
+                            filterKey: "batchID",
+                            description: $localize`:@@batch_ID:Batch ID`,
+                            placeholder: $localize`:@@batch_ID:Batch ID`
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@schedule_at:Schedule at`
+                        },
+                        {
+                            tag:"single-date-time-picker",
+                            type:"text",
+                            filterKey:"scheduledTime",
+                            description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+                        },
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@SEND:SEND`
+        }).subscribe((ok)=>{
+            if(ok && _.hasIn(ok, "schema_model.ianscp")){
+                let ianscp = ok.schema_model.ianscp;
+                delete ok.schema_model['ianscp'];
+                let service = this.service.sendInstanceAvailabilityNotificationForMatchingSeries(
+                    this.studyWebService,
+                    ianscp,
+                    _.merge(ok.schema_model, this.createStudyFilterParams(true,true)));
+                let msg = $localize `:@@instance_availability_of_matching_series_to_external_instance_availability_scp_was_scheduled:Instance Availability of matching Series to external Instance Availability SCP was scheduled successfully`;
                 this.cfpLoadingBar.start();
                 service.subscribe(res=>{
                     this.cfpLoadingBar.complete();
