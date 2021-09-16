@@ -2250,7 +2250,25 @@ export class Globalvar {
                     type:"text",
                     filterKey:"StudyAccessDateTime",
                     description:$localize `:@@study_access:Study Access`
-                }
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StudyDescription",
+                    description:$localize `:@@study_description:Study Description`,
+                    placeholder:$localize `:@@study_description:Study Description`
+                },{
+                    tag:"range-picker-limit",
+                    type:"text",
+                    filterKey:"PerformedProcedureStepStartDate",
+                    description:$localize `:@@study.performed_procedure_step_start_date:Performed Procedure Step Start Date`,
+                    onlyDate:true
+                },{
+                    tag:"range-picker-time",
+                    type:"text",
+                    filterKey:"PerformedProcedureStepStartTime",
+                    description:$localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`
+                },
             ];
         }
         return [
@@ -2351,24 +2369,6 @@ export class Globalvar {
                 filterKey:"PerformingPhysicianName",
                 placeholder:$localize `:@@Performing_physician_family_name:Performing physician family name`,
                 description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
-            },{
-                tag:"range-picker-limit",
-                type:"text",
-                filterKey:"PerformedProcedureStepStartDate",
-                description:$localize `:@@study.performed_procedure_step_start_date:Performed Procedure Step Start Date`,
-                onlyDate:true
-            },{
-                tag:"range-picker-time",
-                type:"text",
-                filterKey:"PerformedProcedureStepStartTime",
-                description:$localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`
-            },
-            {
-                tag:"input",
-                type:"text",
-                filterKey:"StudyDescription",
-                description:$localize `:@@study_description:Study Description`,
-                placeholder:$localize `:@@study_description:Study Description`
             },{
                 tag:"input",
                 type:"text",
