@@ -6,6 +6,7 @@ import * as _ from 'lodash-es';
 import {AppService} from '../../../app.service';
 import {SearchPipe} from '../../../pipes/search.pipe';
 import {WindowRefService} from "../../../helpers/window-ref.service";
+import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
   selector: 'app-edit-patient',
@@ -262,8 +263,11 @@ export class EditPatientComponent {
             // console.log("in else", this.dialogRef.componentInstance.patient);
             console.log('this.iodattrcod', this.iod[attrcode]);
              patient.attrs[attrcode]  = _.cloneDeep(this.iod[attrcode]);
-             delete patient.attrs[attrcode]["multi"];
-             delete patient.attrs[attrcode]["required"];
+             j4care.removeKeyFromObject(patient.attrs[attrcode],"multi");
+             j4care.removeKeyFromObject(patient.attrs[attrcode],"required");
+
+  /*           delete patient.attrs[attrcode]["multi"];
+             delete patient.attrs[attrcode]["required"];*/
             // patient.attrs[attrcode].Value[0] = "";
             console.log('patient=', patient);
         }
