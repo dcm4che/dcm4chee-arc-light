@@ -253,12 +253,22 @@ export class DynamicFormElementComponent implements OnDestroy{
             }).subscribe(ok => {
                 if(ok){
                     let toRemoveIndex;
+                    //If removed element is referenced prevent removing it
+                    if(formelement.key === "dicomNetworkConnection"){
+                        new OrderByPipe().transform(formelement.options,'refString');
+                    }
+/*                        _.forEach(formelement.options, (m, i) => {
+                            if (m.title === selected.title) {
+                                toRemoveIndex = this.extractIndexFromPath(m.refString);
+                            }
+                        });*/
+
                     _.forEach(formelement.options, (m, i) => {
                         if (m.title === selected.title) {
                             toRemoveIndex = i;
                         }
                     });
-                    //If removed element is referenced prevent removing it
+
                     if (formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, toRemoveIndex)) {
                         $this.mainservice.showWarning($localize `:@@this_element_is_referenced:This element is referenced, remove references first then you can delete this element!`);
                     } else {
@@ -280,13 +290,20 @@ export class DynamicFormElementComponent implements OnDestroy{
                             }
                         }
                         formelement.options.forEach((m, i) => {
-                            if (toRemoveIndex < i) {
-                                let pathObject = $this.extractIndexFromPath(formelement.options[_.toInteger(i) - 1].currentElementUrl);
-                                let oldCurrentElementUrl = formelement.options[_.toInteger(i) - 1].currentElementUrl;
-                                formelement.options[_.toInteger(i) - 1].currentElementUrl = `${pathObject.path}[${(pathObject.index - 1)}]`;
-                                formelement.options[_.toInteger(i) - 1].url = _.replace(formelement.options[_.toInteger(i) - 1].url, oldCurrentElementUrl, formelement.options[_.toInteger(i) - 1].currentElementUrl);
+                            if (toRemoveIndex <= i) {
+                                const index = _.toInteger(i);
+                                let pathObject = $this.extractIndexFromPath(formelement.options[index].currentElementUrl);
+                                let oldCurrentElementUrl = formelement.options[index].currentElementUrl;
+                                formelement.options[index].currentElementUrl = `${pathObject.path}[${(pathObject.index - 1)}]`;
+                                formelement.options[index].url = _.replace(formelement.options[index].url, oldCurrentElementUrl, formelement.options[index].currentElementUrl);
+                                if(formelement.key === "dicomNetworkConnection"){
+                                    formelement.options[index].refString = `/dicomNetworkConnection/${(pathObject.index - 1)}`;
+                                }
                             }
                         });
+                    }
+                    if(formelement.key === "dicomNetworkConnection"){
+                        new OrderByPipe().transform(formelement.options,'title');
                     }
                     $this.ref.detectChanges();
                 }

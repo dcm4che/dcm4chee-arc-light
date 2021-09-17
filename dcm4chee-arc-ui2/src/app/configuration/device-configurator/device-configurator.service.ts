@@ -937,16 +937,15 @@ export class DeviceConfiguratorService{
                                             description: m.description,
                                             key: i,
                                             url: url,
-                                            currentElementUrl: ((params.devicereff) ? params.devicereff + '.' + i + '[' + vali + ']' : i + '[' + vali + ']')
+                                            currentElementUrl: ((params.devicereff) ? params.devicereff + '.' + i + '[' + vali + ']' : i + '[' + vali + ']'),
+                                            refString: `/dicomNetworkConnection/${vali}`
                                         });
                                     });
                                     let addUrl = '/device/edit/' + params.device;
                                     addUrl = addUrl +  ((params.devicereff) ? '/' + params.devicereff + '.' + i + '[' + (maxVali + 1) + ']' : '/' + i + '[' + (maxVali + 1) + ']');
                                     addUrl = addUrl +  ((params.schema) ? '/' + params.schema + '.' + propertiesPath + '.' + i : '/properties.' + i);
                                     console.log('addUrl', addUrl);
-                                    if(i != "dicomNetworkConnection"){
-                                        new OrderByPipe().transform(options,'title');
-                                    }
+                                    new OrderByPipe().transform(options,'title');
                                     form.push({
                                         controlType: 'buttondropdown',
                                         key: i,
