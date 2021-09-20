@@ -82,6 +82,42 @@
         }
       }
     },
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Study",
+      "operationId": "UpdateStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/studyAttributes"
+      },
+      "responses": {
+        "200": {
+          "description": "Updated Study",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "JSON request body not well formed or Missing Patient ID in request body"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
     "delete": {
       "tags": [
         "IOCM-RS"
@@ -154,7 +190,7 @@
         }
       }
     },
-    "post": {
+    "put": {
       "tags": [
         "IOCM-RS"
       ],

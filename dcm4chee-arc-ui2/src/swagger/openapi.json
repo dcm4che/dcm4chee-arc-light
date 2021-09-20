@@ -801,9 +801,6 @@
     "/aets/{aet}/dimse/{storescp}/query:{findscp}/studies/{study}/series/{series}/instances/{instance}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/dimse.instance.queryReject"
     },
-    "/aets/{aet}/rs/studies_": {
-      "$ref": "paths/iocm.json#/studies"
-    },
     "/queue": {
       "$ref": "paths/config.json#/queues"
     },
