@@ -356,10 +356,16 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     placeholder:$localize `:@@queue_name:Queue Name`,
                     description:$localize `:@@queue_name:Queue Name`
                 }
-                ,{
-                    tag:"input",
-                    type:"number",
+                ,
+                {
+                    tag:"select",
+                    options:[
+                        new SelectDropdown(0, $localize `:@@normal:NORMAL`),
+                        new SelectDropdown(1, $localize `:@@HIGH:HIGH`),
+                        new SelectDropdown(2, $localize `:@@LOW:LOW`)
+                    ],
                     filterKey:"priority",
+                    type:"number",
                     description:$localize `:@@priority:Priority`,
                     placeholder:$localize `:@@priority:Priority`
                 },
