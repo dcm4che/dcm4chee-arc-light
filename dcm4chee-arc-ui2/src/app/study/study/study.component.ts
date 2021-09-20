@@ -2769,10 +2769,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     return studyConfig && studyConfig.tab === "diff";
                                 case "export_multiple_study":
                                     return studyConfig && studyConfig.tab === "study";
+                                case "export_multiple_series":
+                                    return studyConfig && studyConfig.tab === "series";
+                                case "reject_multiple_series":
+                                    return studyConfig && studyConfig.tab === "series";
                                 case "permanent_delete":
                                 case "download_studies":
                                     return studyConfig && studyConfig.tab === "study";
                                 case "download_series":
+                                    return studyConfig && studyConfig.tab === "series";
+                                case "storage_verification_series":
                                     return studyConfig && studyConfig.tab === "series";
                                 case "reject_multiple_study":
                                     return studyConfig && studyConfig.tab === "study";
