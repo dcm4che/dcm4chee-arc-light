@@ -2761,37 +2761,27 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }else{
                             switch (option.value) {
                                 case "retrieve_multiple":
-                                    return (!internal || this.service.webAppGroupHasClass(this.studyWebService,"MOVE_MATCHING")) && !(studyConfig && studyConfig.tab === "diff");
+                                    return (!internal || this.service.webAppGroupHasClass(this.studyWebService,"MOVE_MATCHING")) && (studyConfig && studyConfig.tab === "study");
                                 case "upload_dicom":
                                     return this.service.webAppGroupHasClass(this.studyWebService,"STOW_RS")
                                         && studyConfig && studyConfig.tab === "study";
                                 case "trigger_diff":
                                     return studyConfig && studyConfig.tab === "diff";
                                 case "export_multiple_study":
-                                    return studyConfig && studyConfig.tab === "study";
-                                case "export_multiple_series":
-                                    return studyConfig && studyConfig.tab === "series";
-                                case "reject_multiple_series":
-                                    return studyConfig && studyConfig.tab === "series";
                                 case "permanent_delete":
                                 case "download_studies":
-                                    return studyConfig && studyConfig.tab === "study";
-                                case "download_series":
-                                    return studyConfig && studyConfig.tab === "series";
-                                case "storage_verification_series":
-                                    return studyConfig && studyConfig.tab === "series";
                                 case "reject_multiple_study":
-                                    return studyConfig && studyConfig.tab === "study";
                                 case "update_access_control_id_to_matching":
                                 case "storage_verification_studies":
-                                    return studyConfig && studyConfig.tab === "study";
                                 case "schedule_storage_commit_for_matching_studies":
-                                    return studyConfig && studyConfig.tab === "study";
-                                case "schedule_storage_commit_for_matching_series":
-                                    return studyConfig && studyConfig.tab === "series";
                                 case "instance_availability_notification_for_matching_studies":
                                     return studyConfig && studyConfig.tab === "study"
                                         && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
+                                case "export_multiple_series":
+                                case "reject_multiple_series":
+                                case "download_series":
+                                case "storage_verification_series":
+                                case "schedule_storage_commit_for_matching_series":
                                 case "instance_availability_notification_for_matching_series":
                                     return studyConfig && studyConfig.tab === "series"
                                         && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
