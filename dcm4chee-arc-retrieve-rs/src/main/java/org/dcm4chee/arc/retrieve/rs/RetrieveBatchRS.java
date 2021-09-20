@@ -46,7 +46,6 @@ import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.validation.constraints.ValidList;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,19 +120,6 @@ public class RetrieveBatchRS {
     private String batchID;
 
     @QueryParam("dcmQueueName")
-    @ValidList(allowed = {"Retrieve1",
-            "Retrieve2",
-            "Retrieve3",
-            "Retrieve4",
-            "Retrieve5",
-            "Retrieve6",
-            "Retrieve7",
-            "Retrieve8",
-            "Retrieve9",
-            "Retrieve10",
-            "Retrieve11",
-            "Retrieve12",
-            "Retrieve13"})
     private List<String> dcmQueueName;
 
     @Context

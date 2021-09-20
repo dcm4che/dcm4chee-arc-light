@@ -160,59 +160,14 @@
     "default": "-updatedTime"
   },
   "newQueueName": {
-    "type": "string",
-    "enum": [
-      "Retrieve1",
-      "Retrieve2",
-      "Retrieve3",
-      "Retrieve4",
-      "Retrieve5",
-      "Retrieve6",
-      "Retrieve7",
-      "Retrieve8",
-      "Retrieve9",
-      "Retrieve10",
-      "Retrieve11",
-      "Retrieve12",
-      "Retrieve13"
-    ]
+    "type": "string"
   },
   "dcmQueueName": {
-    "type": "string",
-    "enum": [
-      "Retrieve1",
-      "Retrieve2",
-      "Retrieve3",
-      "Retrieve4",
-      "Retrieve5",
-      "Retrieve6",
-      "Retrieve7",
-      "Retrieve8",
-      "Retrieve9",
-      "Retrieve10",
-      "Retrieve11",
-      "Retrieve12",
-      "Retrieve13"
-    ]
+    "type": "string"
   },
   "dcmQueueNameRetrieve": {
     "type": "string",
-    "enum": [
-      "Retrieve1",
-      "Retrieve2",
-      "Retrieve3",
-      "Retrieve4",
-      "Retrieve5",
-      "Retrieve6",
-      "Retrieve7",
-      "Retrieve8",
-      "Retrieve9",
-      "Retrieve10",
-      "Retrieve11",
-      "Retrieve12",
-      "Retrieve13"
-    ],
-    "default": "Retrieve1"
+    "default": "Retrieve"
   },
   "storageVerificationPolicy": {
     "type": "string",

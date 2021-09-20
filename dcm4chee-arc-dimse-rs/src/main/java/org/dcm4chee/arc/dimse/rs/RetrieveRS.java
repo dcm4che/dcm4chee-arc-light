@@ -113,20 +113,6 @@ public class RetrieveRS {
     private String priority;
 
     @QueryParam("dcmQueueName")
-    @Pattern(regexp =
-            "Retrieve1|" +
-            "Retrieve2|" +
-            "Retrieve3|" +
-            "Retrieve4|" +
-            "Retrieve5|" +
-            "Retrieve6|" +
-            "Retrieve7|" +
-            "Retrieve8|" +
-            "Retrieve9|" +
-            "Retrieve10|" +
-            "Retrieve11|" +
-            "Retrieve12|" +
-            "Retrieve13")
     private String queueName;
 
     @QueryParam("batchID")

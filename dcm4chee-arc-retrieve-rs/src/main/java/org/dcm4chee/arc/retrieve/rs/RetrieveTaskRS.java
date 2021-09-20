@@ -47,7 +47,6 @@ import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.validation.ParseDateTime;
-import org.dcm4chee.arc.validation.constraints.ValidList;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -139,37 +138,9 @@ public class RetrieveTaskRS {
     private String orderby;
 
     @QueryParam("dcmQueueName")
-    @ValidList(allowed = {
-            "Retrieve1",
-            "Retrieve2",
-            "Retrieve3",
-            "Retrieve4",
-            "Retrieve5",
-            "Retrieve6",
-            "Retrieve7",
-            "Retrieve8",
-            "Retrieve9",
-            "Retrieve10",
-            "Retrieve11",
-            "Retrieve12",
-            "Retrieve13"})
     private List<String> dcmQueueName;
 
     @QueryParam("newQueueName")
-    @Pattern(regexp =
-            "Retrieve1|" +
-            "Retrieve2|" +
-            "Retrieve3|" +
-            "Retrieve4|" +
-            "Retrieve5|" +
-            "Retrieve6|" +
-            "Retrieve7|" +
-            "Retrieve8|" +
-            "Retrieve9|" +
-            "Retrieve10|" +
-            "Retrieve11|" +
-            "Retrieve12|" +
-            "Retrieve13")
     private String newQueueName;
 
     @Override
