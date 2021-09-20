@@ -4089,7 +4089,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 ]
             ],
             result: {
-                schema_model: {}
+                schema_model: {
+                    rjNoteCode: "113039^DCM"
+                }
             },
             saveButton: $localize `:@@REJECT:REJECT`
         }).subscribe(result => {
@@ -4132,7 +4134,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             doNotSave:true,
             form_schema:this.service.rejectMatchingSeriesDialogSchema(rjNoteCodes),
             result: {
-                schema_model: {}
+                schema_model: {
+                    rjNoteCode: "113039^DCM"
+                }
             },
             saveButton: $localize `:@@REJECT:REJECT`
         }).subscribe(result => {
@@ -4318,7 +4322,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ]
                 ],
                 result: {
-                    schema_model: {}
+                    schema_model: {
+                        rjNoteCode: "113039^DCM"
+                    }
                 },
                 saveButton: $localize `:@@REJECT:REJECT`
             }).subscribe(result => {
@@ -4433,7 +4439,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ]
                 ],
                 result: {
-                    schema_model: {}
+                    schema_model: {
+                        rjNoteCode: "113039^DCM"
+                    }
                 },
                 saveButton: $localize `:@@REJECT:REJECT`
             }).subscribe(result => {
@@ -4548,7 +4556,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ]
                 ],
                 result: {
-                    schema_model: {}
+                    schema_model: {
+                        rjNoteCode: "113039^DCM"
+                    }
                 },
                 saveButton: $localize `:@@REJECT:REJECT`
             }).subscribe(result => {
