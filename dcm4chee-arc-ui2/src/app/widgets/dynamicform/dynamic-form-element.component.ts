@@ -253,15 +253,7 @@ export class DynamicFormElementComponent implements OnDestroy{
             }).subscribe(ok => {
                 if(ok){
                     let toRemoveIndex;
-                    //If removed element is referenced prevent removing it
-                    if(formelement.key === "dicomNetworkConnection"){
-                        new OrderByPipe().transform(formelement.options,'refString');
-                    }
-/*                        _.forEach(formelement.options, (m, i) => {
-                            if (m.title === selected.title) {
-                                toRemoveIndex = this.extractIndexFromPath(m.refString);
-                            }
-                        });*/
+                    new OrderByPipe().transform(formelement.options,'refString');
 
                     _.forEach(formelement.options, (m, i) => {
                         if (m.title === selected.title) {
@@ -269,6 +261,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                         }
                     });
 
+                    //If removed element is referenced prevent removing it
                     if (formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, toRemoveIndex)) {
                         $this.mainservice.showWarning($localize `:@@this_element_is_referenced:This element is referenced, remove references first then you can delete this element!`);
                     } else {
@@ -302,9 +295,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                             }
                         });
                     }
-                    if(formelement.key === "dicomNetworkConnection"){
-                        new OrderByPipe().transform(formelement.options,'title');
-                    }
+                    new OrderByPipe().transform(formelement.options,'title');
                     $this.ref.detectChanges();
                 }
             });
