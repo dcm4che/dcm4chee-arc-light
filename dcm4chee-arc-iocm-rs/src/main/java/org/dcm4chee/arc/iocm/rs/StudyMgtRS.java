@@ -159,18 +159,21 @@ public class StudyMgtRS {
         }
     }
 
-    @POST
-    @Path("/studies")
+    @PUT
+    @Path("/studies/{study}")
     @Consumes("application/dicom+json,application/json")
     @Produces("application/json")
-    public StreamingOutput updateStudy(InputStream in) {
+    public StreamingOutput updateStudy(
+            @PathParam("study") String studyUID,
+            InputStream in) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null || !attrs.containsValue(Tag.StudyInstanceUID))
+        if (patientID == null || !attrs.containsValue(Tag.StudyInstanceUID)
+                || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
             throw new WebApplicationException(
-                    errResponse("missing Patient ID or Study Instance UID in message body",
+                    errResponse("Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload",
                             Response.Status.BAD_REQUEST));
 
         Patient patient = patientService.findPatient(patientID);

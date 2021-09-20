@@ -91,6 +91,9 @@
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
         }
       ],
       "requestBody": {
@@ -108,7 +111,7 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Patient ID in request body"
+          "description": "JSON request body not well formed or Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload"
         },
         "404": {
           "description": "No such Application Entity or Patient or Study"

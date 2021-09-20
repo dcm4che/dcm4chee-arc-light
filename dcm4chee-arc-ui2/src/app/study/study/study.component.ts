@@ -3894,7 +3894,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 local[i] = m;
                             }
                         });
-                        this.service.modifyStudy(local,this.studyWebService, new HttpHeaders({ 'Content-Type': 'application/dicom+json' })).subscribe(
+                        this.service.modifyStudy(local,
+                            this.studyWebService,
+                            new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
+                            this.service.getStudyInstanceUID(study.attrs)).subscribe(
                             () => {
                                 $this.appService.showMsg($localize `:@@study_saved:Study saved successfully!`);
                             },

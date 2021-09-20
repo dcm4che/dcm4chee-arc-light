@@ -3543,10 +3543,10 @@ export class StudyService {
         }
     }
 
-    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders) {
-        const url = this.getModifyStudyUrl(deviceWebservice);
+    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}`;
         if (url) {
-            return this.$http.post(url, study, header);
+            return this.$http.put(url, study, header);
         }
         return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
     }
