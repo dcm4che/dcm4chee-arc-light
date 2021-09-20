@@ -124,6 +124,21 @@
       }
     }
   },
+  "seriesAttributes": {
+    "description": "Series Attributes",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
   "HierarchicalSOPInstanceReference": {
     "description": "References to Source Instances",
     "content": {
