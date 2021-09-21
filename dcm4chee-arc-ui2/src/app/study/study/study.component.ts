@@ -288,6 +288,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.getStudyAttributeFilters();
         this.route.params.subscribe(params => {
             this.patients = [];
+            this.patients1 = [];
             this.internal = !this.internal;
             this.service.clearFilterObject(params.tab, this.filter);
             this.studyConfig.tab = undefined;
