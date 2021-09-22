@@ -266,160 +266,160 @@ export class Globalvar {
         return [
             {
                 value: 'PatientName',
-                label: $localize `:@@orderby_new.order_a_z:<label class="order_label">Order A-Z</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
+                label: $localize `:@@orderby_new.order_a_z:<label class="order_label">A-Z</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
                 mode: 'patient',
-                title:$localize `:@@query_patients:Query Patients`
+                title:$localize `:@@query_patients_pname_asc:Patient Name descending`
             },
             {
                 value: '-PatientName',
                 label: $localize `:@@orderby_new.z_a:<label class="order_label">Z-A</label><span class=\"orderbynamedesc\"></span>`,
                 mode: 'patient',
-                title:$localize `:@@query_patients:Query Patients`
+                title:$localize `:@@query_patients_pname_desc:Patient Name ascending`
             },
             {
 
                 value: '-StudyDate,-StudyTime',
                 label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@query_studies:Query Studies`
+                title:$localize `:@@query_studies_study_datetime_newest_first:Newest StudyDateTime first`
             },
             {
                 value: 'StudyDate,StudyTime',
                 label: $localize `:@@orderby_new.oldest_first:<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@query_studies:Query Studies`
+                title:$localize `:@@query_studies_study_datetime_oldest_first:Oldest StudyDateTime first`
             },
             {
                 value: 'PatientName,-StudyDate,-StudyTime',
                 label: $localize `:@@orderby_new.a_z_new_old:<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@query_studies:Query Studies`
+                title:$localize `:@@query_studies_pname_asc_study_datetime_new_old:Patient Name ascending, New to Old - StudyDateTime`
             },
             {
                 value: '-PatientName,-StudyDate,-StudyTime',
                 label: $localize `:@@orderby_new.z_a_new_old:<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@query_studies:Query Studies`
+                title:$localize `:@@query_studies_pname_desc_study_datetime_new_old:Patient Name descending, New to Old - StudyDateTime`
             },
             {
                 value: 'PatientName,StudyDate,StudyTime',
                 label: $localize `:@@orderby_new.a_z_old_new:<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@query_studies:Query Studies`
+                title:$localize `:@@query_studies_pname_asc_study_datetime_old_new:Patient Name ascending, Old to New - StudyDateTime`
             },
             {
                 value: '-PatientName,StudyDate,StudyTime',
                 label: $localize `:@@orderby_new.z_a_old_new:<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
-                title:$localize `:@@query_studies:Query Studies`
+                title:$localize `:@@query_studies_pname_desc_study_datetime_old_new:Patient Name descending, Old to New - StudyDateTime`
             },
             {
                 value: '-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label><span class=\"orderbydateasc\"></span>`,
                 mode: 'series',
-                title:$localize `:@@query_series_pps_newest_first:Newest PerformedProcedureStepStartTime first`
+                title:$localize `:@@query_series_mpps_pps_newest_first:Newest PerformedProcedureStepStartDateTime first`
             },
             {
                 value: 'PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.oldest_first:<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'series',
-                title:$localize `:@@query_series_pps_oldest_first:Oldest PerformedProcedureStepStartTime first`
+                title:$localize `:@@query_series_mpps_pps_oldest_first:Oldest PerformedProcedureStepStartDateTime first`
             },
             {
                 value: 'PatientName,-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.a_z_new_old:<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'series',
-                title:$localize `:@@query_series_pname_asc_pps_new_old:Patient Name ascending, New to Old - PerformedProcedureStepStartTime`
+                title:$localize `:@@query_series_mpps_pname_asc_pps_new_old:Patient Name ascending, New to Old - PerformedProcedureStepStartDateTime`
             },
             {
                 value: '-PatientName,-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.z_a_new_old:<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'series',
-                title:$localize `:@@query_series_pname_desc_pps_new_old:Patient Name descending, New to Old - PerformedProcedureStepStartTime`
+                title:$localize `:@@query_series_mpps_pname_desc_pps_new_old:Patient Name descending, New to Old - PerformedProcedureStepStartDateTime`
             },
             {
                 value: 'PatientName,PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.a_z_old_new:<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'series',
-                title:$localize `:@@query_series_pname_asc_pps_old_new:Patient Name ascending, Old to New - PerformedProcedureStepStartTime`
+                title:$localize `:@@query_series_mpps_pname_asc_pps_old_new:Patient Name ascending, Old to New - PerformedProcedureStepStartDateTime`
             },
             {
                 value: '-PatientName,PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.z_a_old_new:<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'series',
-                title:$localize `:@@query_series_pname_desc_pps_old_new:Patient Name descending, Old to New - PerformedProcedureStepStartTime`
+                title:$localize `:@@query_series_mpps_pname_desc_pps_old_new:Patient Name descending, Old to New - PerformedProcedureStepStartDateTime`
             },
             {
                 value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@query_mwl:Query MWL`
+                title:$localize `:@@query_mwls_sps_newest_first:Newest ScheduledProcedureStepStartDateTime first`
             },
             {
                 value: 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.oldest_first:<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@query_mwl:Query MWL`
+                title:$localize `:@@query_mwls_sps_oldest_first:Oldest ScheduledProcedureStepStartDateTime first`
             },
             {
                 value: 'PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.a_z_new_old:<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@query_mwl:Query MWL`
+                title:$localize `:@@query_mwls_pname_asc_sps_new_old:Patient Name ascending, New to Old - ScheduledProcedureStepStartDateTime`
             },
             {
                 value: '-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.z_a_new_old:<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@query_mwl:Query MWL`
+                title:$localize `:@@query_mwls_pname_desc_sps_new_old:Patient Name descending, New to Old - ScheduledProcedureStepStartDateTime`
             },
             {
                 value: 'PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.a_z_old_new:<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@query_mwl:Query MWL`
+                title:$localize `:@@query_mwls_pname_asc_sps_old_new:Patient Name ascending, Old to New - ScheduledProcedureStepStartDateTime`
             },
             {
                 value: '-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
                 label: $localize `:@@orderby_new.z_a_old_new:<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
-                title:$localize `:@@query_mwl:Query MWL`
+                title:$localize `:@@query_mwls_pname_desc_sps_old_new:Patient Name descending, Old to New - ScheduledProcedureStepStartDateTime`
             },
             {
                 value: '-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mpps',
-                title:$localize `:@@query_mpps:Query MPPS`
+                title:$localize `:@@query_series_mpps_pps_newest_first:Newest PerformedProcedureStepStartDateTime first`
             },
             {
                 value: 'PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.oldest_first:<label class="order_label">Oldest first</label><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mpps',
-                title:$localize `:@@query_mpps:Query MPPS`
+                title:$localize `:@@query_series_mpps_pps_oldest_first:Oldest PerformedProcedureStepStartDateTime first`
             },
             {
                 value: 'PatientName,-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.a_z_new_old:<label class="order_label">A-Z, New to Old</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mpps',
-                title:$localize `:@@query_mpps:Query MPPS`
+                title:$localize `:@@query_series_mpps_pname_asc_pps_new_old:Patient Name ascending, New to Old - PerformedProcedureStepStartDateTime`
             },
             {
                 value: '-PatientName,-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.z_a_new_old:<label class="order_label">Z-A, New to Old</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>`,
                 mode: 'mpps',
-                title:$localize `:@@query_mpps:Query MPPS`
+                title:$localize `:@@query_series_mpps_pname_desc_pps_new_old:Patient Name descending, New to Old - PerformedProcedureStepStartDateTime`
             },
             {
                 value: 'PatientName,PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.a_z_old_new:<label class="order_label">A-Z, Old to New</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mpps',
-                title:$localize `:@@query_mpps:Query MPPS`
+                title:$localize `:@@query_series_mpps_pname_asc_pps_old_new:Patient Name ascending, Old to New - PerformedProcedureStepStartDateTime`
             },
             {
                 value: '-PatientName,PerformedProcedureStepStartDate,PerformedProcedureStepStartTime',
                 label: $localize `:@@orderby_new.z_a_old_new:<label class="order_label">Z-A, Old to New</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>`,
                 mode: 'mpps',
-                title:$localize `:@@query_mpps:Query MPPS`
+                title:$localize `:@@query_series_mpps_pname_desc_pps_old_new:Patient Name descending, Old to New - PerformedProcedureStepStartDateTime`
             }
         ];
 
