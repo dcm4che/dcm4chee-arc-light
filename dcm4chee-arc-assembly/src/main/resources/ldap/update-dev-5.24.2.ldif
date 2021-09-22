@@ -1,0 +1,6 @@
+version: 1
+
+dn: dcmuiPermissionName=Action - Studies - Series(1),dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmuiActionParam
+dcmuiActionParam: edit

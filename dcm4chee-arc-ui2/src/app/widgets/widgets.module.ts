@@ -9,6 +9,7 @@ import {EditPatientComponent} from './dialogs/edit-patient/edit-patient.componen
 import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
 import { ConfirmComponent } from './dialogs/confirm/confirm.component';
 import { EditStudyComponent } from './dialogs/edit-study/edit-study.component';
+import { EditSeriesComponent } from './dialogs/edit-series/edit-series.component';
 import { DeleteRejectedInstancesComponent } from './dialogs/delete-rejected-instances/delete-rejected-instances.component';
 import { CreateAeComponent } from './dialogs/create-ae/create-ae.component';
 import { ProductLabellingComponent } from './dialogs/product-labelling/product-labelling.component';
@@ -62,6 +63,7 @@ export const WidgetsComponents = [
     EditPatientComponent,
     EditMwlComponent,
     EditStudyComponent,
+    EditSeriesComponent,
     ModifyUpsComponent,
     CreateAeComponent,
     CreateWebappComponent,

@@ -48,6 +48,7 @@ import {EditMwlComponent} from "../../widgets/dialogs/edit-mwl/edit-mwl.componen
 import {ComparewithiodPipe} from "../../pipes/comparewithiod.pipe";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {EditStudyComponent} from "../../widgets/dialogs/edit-study/edit-study.component";
+import {EditSeriesComponent} from "../../widgets/dialogs/edit-series/edit-series.component";
 import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
 import {UploadFilesComponent} from "../../widgets/dialogs/upload-files/upload-files.component";
 import {DcmWebApp} from "../../models/dcm-web-app";
@@ -885,6 +886,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             if(id.action === "edit_study"){
                 this.editStudy(model);
+            }
+            if(id.action === "edit_series"){
+                this.editSeries(model);
             }
             if(id.action === "edit_study"){
                // this.editMWL(model);
@@ -3842,7 +3846,79 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         });
     }
-
+    editSeries(series){
+        let config:{saveLabel:string,titleLabel:string} = {
+            saveLabel:$localize `:@@SAVE:SAVE`,
+            titleLabel:$localize `:@@study.edit_series:Edit series of study `
+        };
+        config.titleLabel += ((_.hasIn(series, 'attrs.0020000D.Value.0')) ? ' with IUID: <b>' + series.attrs['0020000D'].Value[0] + '</b>' : '');
+        config.titleLabel += ((_.hasIn(series, 'attrs.00100010.Value.0.Alphabetic')) ? ' of patient <b>' + series.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
+        config.titleLabel += ((_.hasIn(series, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + series.attrs['00100020'].Value[0] + '</b>' : '');
+        this.modifySeries(series, 'edit', config);
+    };
+    modifySeries(series, mode, config?:{saveLabel:string,titleLabel:string}){
+        let $this = this;
+        this.config.viewContainerRef = this.viewContainerRef;
+        let originalSeriesObject = _.cloneDeep(series);
+        if (mode === 'edit'){
+            _.forEach(series.attrs, function(value, index) {
+                let checkValue = '';
+                if (value.Value && value.Value.length){
+                    checkValue = value.Value.join('');
+                }
+                if (!(value.Value && checkValue != '')){
+                    delete series.attrs[index];
+                }
+            });
+        }
+        this.lastPressedCode = 0;
+        this.service.getSeriesIod()
+            .subscribe((res) => {
+                let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
+                let seriesFiltered = _.cloneDeep(series);
+                seriesFiltered.attrs = new ComparewithiodPipe().transform(series.attrs, iod);
+                $this.service.initEmptyValue(seriesFiltered.attrs);
+                $this.dialogRef = $this.dialog.open(EditSeriesComponent, {
+                    height: 'auto',
+                    width: '90%'
+                });
+                $this.dialogRef.componentInstance.series = seriesFiltered;
+                $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
+                $this.dialogRef.componentInstance.iod = iod;
+                $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
+                $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
+                $this.dialogRef.componentInstance.mode = mode;
+                $this.dialogRef.afterClosed().subscribe(result => {
+                    if (result){
+                        $this.service.clearPatientObject(seriesFiltered.attrs);
+                        $this.service.convertStringToNumber(seriesFiltered.attrs);
+                        let local = {};
+                        $this.service.appendPatientIdTo(series.attrs, local);
+                        _.forEach(seriesFiltered.attrs, function(m, i){
+                            if (res[i]){
+                                local[i] = m;
+                            }
+                        });
+                        this.service.modifySeries(local,
+                            this.studyWebService,
+                            new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
+                            this.service.getStudyInstanceUID(series.attrs),
+                            this.service.getSeriesInstanceUID(series.attrs)).subscribe(
+                            () => {
+                                $this.appService.showMsg($localize `:@@series_saved:Series saved successfully!`);
+                            },
+                            (err) => {
+                                $this.httpErrorHandler.handleError(err);
+                                _.assign(series, originalSeriesObject);
+                            }
+                        );
+                    }else{
+                        _.assign(series, originalSeriesObject);
+                    }
+                    $this.dialogRef = null;
+                });
+            });
+    }
     editStudy(study){
         let config:{saveLabel:string,titleLabel:string} = {
             saveLabel:$localize `:@@SAVE:SAVE`,

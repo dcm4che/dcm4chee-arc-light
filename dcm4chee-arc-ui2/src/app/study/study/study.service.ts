@@ -801,6 +801,14 @@ export class StudyService {
         }
     }
 
+    getSeriesInstanceUID(model){
+        try{
+            return _.get(model, "0020000E.Value[0]");
+        }catch (e) {
+            return undefined;
+        }
+    }
+
     getDicomURL(mode: DicomMode, dcmWebApp: DcmWebApp, responseType?: DicomResponseType, csvField?:number): string {
         console.log("object", dcmWebApp);
         if(dcmWebApp){
@@ -2178,6 +2186,28 @@ export class StudyService {
                                     id: 'action-studies-serie',
                                     param: j4care.is(options,"trash.active") ? 'restore' : 'reject'
                                 }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-pencil',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "edit_series"
+                                    }, e);
+                                },
+                                title: $localize `:@@study.edit_this_series:Edit this series`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-serie',
+                                    param: 'edit'
+                                }
                             }, {
                                 icon: {
                                     tag: 'span',
@@ -3543,6 +3573,13 @@ export class StudyService {
         }
     }
 
+    modifySeries(series, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string, seriesInstanceUID?:string) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
+        if (url) {
+            return this.$http.put(url, series, header);
+        }
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
+    }
     modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string) {
         const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}`;
         if (url) {
@@ -3949,6 +3986,10 @@ export class StudyService {
 
     getStudyIod() {
         return this.getIod("study");
+    };
+
+    getSeriesIod() {
+        return this.getIod("series");
     };
 
     getMwlIod() {

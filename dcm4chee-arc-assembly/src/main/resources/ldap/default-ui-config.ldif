@@ -264,6 +264,7 @@ objectClass: dcmuiPermission
 dcmuiAction: action-studies-serie
 dcmuiPermissionName: Action - Studies - Series(1)
 dcmAcceptedUserRole: local-admin
+dcmuiActionParam: edit
 dcmuiActionParam: export
 dcmuiActionParam: reject
 dcmuiActionParam: restore
