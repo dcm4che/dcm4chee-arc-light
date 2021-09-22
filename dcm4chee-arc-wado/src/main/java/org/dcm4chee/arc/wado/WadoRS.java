@@ -167,8 +167,8 @@ public class WadoRS {
     @Pattern(regexp = "no|yes|srgb|adobergb|rommrgb")
     private String iccprofile;
 
-    @QueryParam("includefields")
-    private String includefields;
+    @QueryParam("includefield")
+    private String includefield;
 
     @QueryParam("excludeprivate")
     @Pattern(regexp = "true|false")
@@ -567,7 +567,7 @@ public class WadoRS {
                     HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata()) {
                 ctx.setObjectType(null);
-                ctx.setMetadataFilter(getMetadataFilter(includefields));
+                ctx.setMetadataFilter(getMetadataFilter(includefield));
                 ctx.setWithoutPrivateAttributes(withoutPrivateAttributes(ae));
             }
 
@@ -612,7 +612,7 @@ public class WadoRS {
         AttributeSet filter = device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getAttributeSet(AttributeSet.Type.WADO_RS).get(name);
         if (filter == null)
-            LOG.info("No Metadata filter configured for includefields={}", name);
+            LOG.info("No Metadata filter configured for includefield={}", name);
         return filter;
     }
 

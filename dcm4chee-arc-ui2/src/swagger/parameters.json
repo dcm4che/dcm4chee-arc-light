@@ -547,7 +547,7 @@
     }
   },
   "wadoRetrieveMetadataIncludefields": {
-    "name": "includefields",
+    "name": "includefield",
     "in": "query",
     "description": "Only return Data Elements referred in configured WADO-RS Attribute Set",
     "schema": {
