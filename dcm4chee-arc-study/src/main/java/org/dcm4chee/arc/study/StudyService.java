@@ -62,6 +62,8 @@ public interface StudyService {
 
     void updateStudy(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException;
 
+    void updateSeries(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException;
+
     void updateExpirationDate(StudyMgtContext ctx) throws Exception;
 
     void updateAccessControlID(StudyMgtContext ctx) throws StudyMissingException;

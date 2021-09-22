@@ -123,13 +123,55 @@ public class StudyServiceEJB {
                 .executeUpdate();
     }
 
-    public Study findStudy(String studyUID) throws StudyMissingException {
+    public void updateSeries(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException {
+        AttributeFilter filter = ctx.getSeriesAttributeFilter();
+        Series series = findSeries(ctx);
+        Attributes attrs = series.getAttributes();
+        Attributes newAttrs = new Attributes(ctx.getAttributes(), filter.getSelection(false));
+        Attributes modified = new Attributes();
+        if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
+            return;
+
+        if (series.getStudy().getPatient().getPk() != ctx.getPatient().getPk())
+            throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
+                    series.getStudy().getPatient() + " in existing " + series.getStudy());
+
+        newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
+        attrs = newAttrs;
+        series.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
+                        ? attrs.addOriginalAttributes(
+                        null,
+                        new Date(),
+                        Attributes.CORRECT,
+                        device.getDeviceName(),
+                        modified)
+                        : attrs,
+                filter, true, ctx.getFuzzyStr());
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                .setParameter(1, series.getPk())
+                .executeUpdate();
+    }
+
+    private Study findStudy(String studyUID) throws StudyMissingException {
         try {
             return em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                     .setParameter(1, studyUID)
                     .getSingleResult();
         } catch (NoResultException e) {
             throw new StudyMissingException("Study to be updated does not exist: " + studyUID);
+        }
+    }
+
+    private Series findSeries(StudyMgtContext ctx) throws StudyMissingException {
+        try {
+            return em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
+                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .setParameter(2, ctx.getSeriesInstanceUID())
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            throw new StudyMissingException("Series[uid=" + ctx.getSeriesInstanceUID()
+                    + "] of Study[uid=" + ctx.getStudyInstanceUID()
+                    + "] to be updated does not exist");
         }
     }
 

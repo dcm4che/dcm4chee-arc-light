@@ -55,6 +55,7 @@ public enum RSOperation {
     MergePatient2,
     UnmergePatient,
     UpdateStudy,
+    UpdateSeries,
     DeleteStudy,
     ReimportStudy,
     RejectStudy,

@@ -83,10 +83,12 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private boolean freezeExpirationDate;
     private boolean unfreezeExpirationDate;
     private String accessControlID;
+    private AttributeFilter seriesAttributeFilter;
 
     StudyMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         this.studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
+        this.seriesAttributeFilter = arcDev.getAttributeFilter(Entity.Series);
         this.fuzzyStr = arcDev.getFuzzyStr();
     }
 
@@ -274,5 +276,10 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     @Override
     public void setAccessControlID(String accessControlID) {
         this.accessControlID = accessControlID;
+    }
+
+    @Override
+    public AttributeFilter getSeriesAttributeFilter() {
+        return seriesAttributeFilter;
     }
 }

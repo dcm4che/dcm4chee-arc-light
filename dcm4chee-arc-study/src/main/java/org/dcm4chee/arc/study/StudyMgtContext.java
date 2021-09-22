@@ -50,7 +50,6 @@ import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 
 /**
@@ -122,4 +121,6 @@ public interface StudyMgtContext {
     String getAccessControlID();
 
     void setAccessControlID(String accessControlID);
+
+    AttributeFilter getSeriesAttributeFilter();
 }

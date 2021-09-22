@@ -225,7 +225,7 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Series Instance UID in request body"
+          "description": "JSON request body not well formed or Missing Patient ID or Series Instance UID in request body or Series UID in request does not match Series UID in request payload"
         },
         "404": {
           "description": "No such Application Entity or Series"

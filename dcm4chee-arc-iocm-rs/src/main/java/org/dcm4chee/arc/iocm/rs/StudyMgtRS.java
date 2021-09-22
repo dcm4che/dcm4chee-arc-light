@@ -204,6 +204,57 @@ public class StudyMgtRS {
     }
 
     @PUT
+    @Path("/studies/{study}/series/{series}")
+    @Consumes("application/dicom+json,application/json")
+    @Produces("application/json")
+    public StreamingOutput updateSeries(
+            @PathParam("study") String studyUID,
+            @PathParam("series") String seriesUID,
+            InputStream in) {
+        logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        final Attributes attrs = toAttributes(in);
+        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
+        if (patientID == null || !attrs.containsValue(Tag.SeriesInstanceUID))
+            throw new WebApplicationException(
+                    errResponse("Missing Patient ID or Series Instance UID in request payload",
+                            Response.Status.BAD_REQUEST));
+
+        if (!seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID)))
+            throw new WebApplicationException(
+                    errResponse("Series UID in request does not match Series UID in request payload",
+                            Response.Status.BAD_REQUEST));
+
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException(
+                    errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND));
+
+        try {
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+            ctx.setPatient(patient);
+            ctx.setAttributes(attrs);
+            ctx.setStudyInstanceUID(studyUID);
+            ctx.setSeriesInstanceUID(seriesUID);
+            studyService.updateSeries(ctx);
+            rsForward.forward(RSOperation.UpdateSeries, arcAE, attrs, request);
+            return out -> {
+                try (JsonGenerator gen = Json.createGenerator(out)) {
+                    arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
+                }
+            };
+        } catch (StudyMissingException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (PatientMismatchException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @PUT
     @Path("/studies/{StudyInstanceUID}/access/{accessControlID}")
     public Response updateStudyAccessControlID(
             @PathParam("StudyInstanceUID") String studyUID,
