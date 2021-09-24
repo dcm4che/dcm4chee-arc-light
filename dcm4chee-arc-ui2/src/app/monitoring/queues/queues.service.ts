@@ -149,7 +149,6 @@ export class QueuesService{
                         value:d.name
                     }
                 }),
-                showStar:true,
                 filterKey:"queueName",
                 description:$localize `:@@queue_name:Queue Name`,
                 placeholder:$localize `:@@queue:Queue`
