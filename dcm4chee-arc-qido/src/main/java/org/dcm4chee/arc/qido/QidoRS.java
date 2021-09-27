@@ -451,7 +451,7 @@ public class QidoRS {
                 lastModified = service.getLastModified(studyInstanceUID, seriesInstanceUID);
                 if (lastModified == null)
                     return errResponse("Last Modified date is null.", Response.Status.NOT_FOUND);
-                LOG.debug("Last Modified date: ", lastModified);
+                LOG.debug("Last Modified date: {}", lastModified);
 
                 if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) != null
                     || request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) != null
