@@ -1199,8 +1199,8 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" +
-                "taskID='" + pk + '\'' +
-                "deviceName='" + deviceName + '\'' +
+                "taskID=" + pk +
+                ", deviceName='" + deviceName + '\'' +
                 ", queueName='" + queueName + '\'' +
                 ", type=" + type +
                 ", status=" + status +
