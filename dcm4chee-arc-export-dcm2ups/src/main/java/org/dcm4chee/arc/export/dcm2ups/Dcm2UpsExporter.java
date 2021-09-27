@@ -182,7 +182,7 @@ public class Dcm2UpsExporter extends AbstractExporter {
         if (token != null)
             request.header("Authorization", token);
 
-        ApplicationEntity ae = device.getApplicationEntity(descriptor.getAETitle());
+        ApplicationEntity ae = device.getApplicationEntity(descriptor.getAETitle(), true);
 
         Attributes upsInfo = queryService.createUPSInfo(
                 ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), descriptor);

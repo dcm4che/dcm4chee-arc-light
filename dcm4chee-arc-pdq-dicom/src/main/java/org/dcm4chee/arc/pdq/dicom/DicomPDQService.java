@@ -105,7 +105,7 @@ public class DicomPDQService extends AbstractPDQService {
         if (aet == null)
             throw new PDQServiceException("No property 'LocalAET' configured in " + descriptor);
 
-        ApplicationEntity ae = device.getApplicationEntity(aet);
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null)
             throw new PDQServiceException("Device '" + device.getDeviceName() +
                     "' does not provide AE '" + aet +
