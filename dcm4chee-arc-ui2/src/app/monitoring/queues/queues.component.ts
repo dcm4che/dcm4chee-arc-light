@@ -297,7 +297,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
             if(object.id === "count"){
                 this.getCount();
             }else{
-                this.search(0);
+                this.getCounts();
             }
         }
     }
