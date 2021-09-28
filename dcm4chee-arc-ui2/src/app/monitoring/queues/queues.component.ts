@@ -503,8 +503,10 @@ export class QueuesComponent implements OnInit, OnDestroy{
     }
     setFilters(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema(this.queues,this.devices,this.localAETs,this.remoteAETs,this.counText),3);
-        if(this.urlParam)
+        if(this.urlParam) {
+            this.filterObject["queueName"] = 'Export1';
             this.filterObject["orderby"] = '-updatedTime';
+        }
     }
     getDevices(){
         this.cfpLoadingBar.start();
