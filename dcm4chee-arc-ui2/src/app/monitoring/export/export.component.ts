@@ -126,6 +126,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         if(this.urlParam){
             this.filterObject = this.urlParam;
             this.filterObject["limit"] = 20;
+            this.filterObject["orderby"] = '-updatedTime';
         }
     }
     setFilterSchema(){

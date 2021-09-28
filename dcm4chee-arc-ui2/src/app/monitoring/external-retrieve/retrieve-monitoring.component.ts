@@ -251,6 +251,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             // this.filterObject = this.urlParam;
             _.extend(this.filterObject, this.urlParam);
             this.filterObject["limit"] = 20;
+            this.filterObject["orderby"] = '-updatedTime';
             // this.getTasks(0);
         }
     }

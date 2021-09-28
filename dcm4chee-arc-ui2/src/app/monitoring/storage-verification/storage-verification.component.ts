@@ -131,6 +131,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
     initSchema(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema( this.devices, this.localAET,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`),3);
+        this.filterObject["orderby"] = '-updatedTime';
         this.triggerFilterSchema = j4care.prepareFlatFilterObject([
                 ...Globalvar.STUDY_FILTER_SCHEMA(this.localAET, []).filter((filter, i)=>{
                     return i < 14 && filter.filterKey != "limit";
