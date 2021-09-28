@@ -136,7 +136,7 @@ public class DiffBatchRS {
 
     @QueryParam("orderby")
     @DefaultValue("-updatedTime")
-    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
+    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime|(-?)scheduledTime")
     private String orderby;
 
     @Override

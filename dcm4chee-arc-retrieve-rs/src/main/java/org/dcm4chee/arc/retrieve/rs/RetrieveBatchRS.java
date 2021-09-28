@@ -113,7 +113,7 @@ public class RetrieveBatchRS {
 
     @QueryParam("orderby")
     @DefaultValue("-updatedTime")
-    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
+    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime|(-?)scheduledTime")
     private String orderby;
 
     @QueryParam("batchID")
