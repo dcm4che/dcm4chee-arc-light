@@ -61,6 +61,7 @@ public class TaskQueryParam {
     private Task.Type notType;
     private Task.Status status;
     private Task.Status notStatus;
+    private Date notScheduledDate;
     private StgCmtResult.Status stgCmtStatus;
     private String batchID;
     private String createdTime;
@@ -117,6 +118,14 @@ public class TaskQueryParam {
 
     public void setNotStatus(Task.Status notStatus) {
         this.notStatus = notStatus;
+    }
+
+    public Date getNotScheduledDate() {
+        return notScheduledDate;
+    }
+
+    public void setNotScheduledDate(Date notScheduledDate) {
+        this.notScheduledDate = notScheduledDate;
     }
 
     public Task.Type getType() {

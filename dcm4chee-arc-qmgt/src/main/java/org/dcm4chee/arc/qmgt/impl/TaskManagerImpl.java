@@ -267,6 +267,7 @@ public class TaskManagerImpl implements TaskManager {
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
         Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        taskQueryParam.setNotScheduledDate(scheduledTime1);
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
@@ -365,6 +366,7 @@ public class TaskManagerImpl implements TaskManager {
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
         Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        taskQueryParam.setNotScheduledDate(scheduledTime1);
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
@@ -463,6 +465,7 @@ public class TaskManagerImpl implements TaskManager {
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
         Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        taskQueryParam.setNotScheduledDate(scheduledTime1);
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
