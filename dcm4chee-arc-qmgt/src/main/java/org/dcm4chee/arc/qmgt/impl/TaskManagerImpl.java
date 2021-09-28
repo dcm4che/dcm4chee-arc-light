@@ -202,8 +202,9 @@ public class TaskManagerImpl implements TaskManager {
             }
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
-            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            List<Task> list;
             do {
+                list = ejb.findTasks(taskQueryParam, taskFetchSize);
                 for (Task task : list) {
                     try {
                         taskCanceledEvent.fire(new TaskCanceled(task));
@@ -269,8 +270,9 @@ public class TaskManagerImpl implements TaskManager {
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
-            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            List<Task> list;
             do {
+                list = ejb.findTasks(taskQueryParam, taskFetchSize);
                 for (Task task : list) {
                     if (!newDeviceName.isEmpty()) {
                         try {
@@ -366,8 +368,9 @@ public class TaskManagerImpl implements TaskManager {
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
-            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            List<Task> list;
             do {
+                list = ejb.findTasks(taskQueryParam, taskFetchSize);
                 for (Task task : list) {
                     if (!newDeviceName.isEmpty() || newExporterID != null) {
                         try {
@@ -463,8 +466,9 @@ public class TaskManagerImpl implements TaskManager {
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
-            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            List<Task> list;
             do {
+                list = ejb.findTasks(taskQueryParam, taskFetchSize);
                 for (Task task : list) {
                     if (!newDeviceName.isEmpty() || newQueueName != null) {
                         try {
@@ -553,8 +557,9 @@ public class TaskManagerImpl implements TaskManager {
             if (status == null || status == Task.Status.IN_PROCESS || type == null || type == Task.Type.DIFF) {
                 ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
                 int taskFetchSize = arcDev.getTaskFetchSize();
-                List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+                List<Task> list;
                 do {
+                    list = ejb.findTasks(taskQueryParam, taskFetchSize);
                     for (Task task : list) {
                         try {
                             if (task.getStatus() == Task.Status.IN_PROCESS) {
