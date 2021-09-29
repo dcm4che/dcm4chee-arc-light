@@ -266,6 +266,7 @@ public class TaskQueryParam {
         return "TaskQueryParam{" +
                 "status=" + status +
                 ", type=" + type +
+                ", deviceName=" + deviceName +
                 ", queueName=" + String.join(";", queueNames) +
                 "}";
     }
