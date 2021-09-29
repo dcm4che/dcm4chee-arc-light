@@ -266,7 +266,9 @@ public class TaskManagerImpl implements TaskManager {
         int failed = 0;
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        Date now = new Date();
+        taskQueryParam.setUpdatedBeforeNotAfter(now); // to ensure rescheduled tasks does not get fetched again
+        Date scheduledTime1 = scheduledTime != null ? scheduledTime : now;
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
@@ -364,7 +366,9 @@ public class TaskManagerImpl implements TaskManager {
         int failed = 0;
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        Date now = new Date();
+        taskQueryParam.setUpdatedBeforeNotAfter(now); // to ensure rescheduled tasks does not get fetched again
+        Date scheduledTime1 = scheduledTime != null ? scheduledTime : now;
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
@@ -462,7 +466,9 @@ public class TaskManagerImpl implements TaskManager {
         int failed = 0;
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        Date now = new Date();
+        taskQueryParam.setUpdatedBeforeNotAfter(now); // to ensure rescheduled tasks does not get fetched again
+        Date scheduledTime1 = scheduledTime != null ? scheduledTime : now;
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();

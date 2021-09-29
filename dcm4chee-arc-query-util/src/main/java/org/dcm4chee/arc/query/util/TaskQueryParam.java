@@ -171,6 +171,11 @@ public class TaskQueryParam {
         this.updatedBefore = updatedBefore;
     }
 
+    public void setUpdatedBeforeNotAfter(Date notAfter) {
+        if (updatedBefore == null || updatedBefore.compareTo(notAfter) > 0)
+            updatedBefore = notAfter;
+    }
+
     public String getOrderBy() {
         return orderBy;
     }
