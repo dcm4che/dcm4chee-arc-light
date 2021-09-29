@@ -491,8 +491,6 @@ public class QueryBuilder {
             predicates.add(cb.lessThan(task.get(Task_.updatedTime), taskQueryParam.getUpdatedBefore()));
         if (taskQueryParam.getNotType() != null)
             predicates.add(cb.notEqual(task.get(Task_.type), taskQueryParam.getNotType()));
-        if (taskQueryParam.getNotScheduledDate() != null)
-            predicates.add(cb.notEqual(task.get(Task_.scheduledTime), taskQueryParam.getNotScheduledDate()));
         if (taskQueryParam.getType() != null) {
             predicates.add(cb.equal(task.get(Task_.type), taskQueryParam.getType()));
             switch (taskQueryParam.getType()) {
