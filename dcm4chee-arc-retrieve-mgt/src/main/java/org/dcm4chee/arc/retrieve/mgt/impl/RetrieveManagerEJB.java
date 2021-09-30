@@ -287,7 +287,7 @@ public class RetrieveManagerEJB {
                     tuple.get(minUpdatedTime),
                     tuple.get(maxUpdatedTime));
             retrieveBatch.setProcessingStartTimeRange(
-                    tuple.get(maxProcessingStartTime),
+                    tuple.get(minProcessingStartTime),
                     tuple.get(maxProcessingStartTime));
             retrieveBatch.setProcessingEndTimeRange(
                     tuple.get(minProcessingEndTime),

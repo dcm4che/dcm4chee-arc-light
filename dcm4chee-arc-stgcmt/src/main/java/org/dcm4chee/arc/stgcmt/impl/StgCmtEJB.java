@@ -342,7 +342,7 @@ public class StgCmtEJB {
             String batchID = tuple.get(batchIDPath);
             StgVerBatch stgVerBatch = new StgVerBatch(batchID);
             stgVerBatch.setProcessingStartTimeRange(
-                    tuple.get(maxProcessingStartTime),
+                    tuple.get(minProcessingStartTime),
                     tuple.get(maxProcessingStartTime));
             stgVerBatch.setProcessingEndTimeRange(
                     tuple.get(minProcessingEndTime),
