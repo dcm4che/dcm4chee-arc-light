@@ -54,14 +54,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,6 +70,48 @@ import java.util.Date;
 @RequestScoped
 public class ArchiveMonitor {
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveMonitor.class);
+
+    private static final String[] COMMANDS = {
+            "C-STORE",
+            "C-GET",
+            "C-FIND",
+            "C-MOVE",
+            "C-ECHO",
+            "N-EVENT-REPORT",
+            "N-GET",
+            "N-SET",
+            "N-ACTION",
+            "N-CREATE",
+            "N-DELETE"
+    };
+
+    private static final Dimse[] RQs = {
+            Dimse.C_STORE_RQ,
+            Dimse.C_GET_RQ,
+            Dimse.C_FIND_RQ,
+            Dimse.C_MOVE_RQ,
+            Dimse.C_ECHO_RQ,
+            Dimse.N_EVENT_REPORT_RQ,
+            Dimse.N_GET_RQ,
+            Dimse.N_SET_RQ,
+            Dimse.N_ACTION_RQ,
+            Dimse.N_CREATE_RQ,
+            Dimse.N_DELETE_RQ
+    };
+
+    private static final Dimse[] RSPs = {
+            Dimse.C_STORE_RSP,
+            Dimse.C_GET_RSP,
+            Dimse.C_FIND_RSP,
+            Dimse.C_MOVE_RSP,
+            Dimse.C_ECHO_RSP,
+            Dimse.N_EVENT_REPORT_RSP,
+            Dimse.N_GET_RSP,
+            Dimse.N_SET_RSP,
+            Dimse.N_ACTION_RSP,
+            Dimse.N_CREATE_RSP,
+            Dimse.N_DELETE_RSP
+    };
 
     @Inject
     private Device device;
@@ -83,35 +125,7 @@ public class ArchiveMonitor {
     @Produces("application/json")
     public StreamingOutput listOpenAssociations() {
         logRequest();
-        return out -> {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-                Writer w = new OutputStreamWriter(out, "UTF-8");
-                int count = 0;
-                w.write('[');
-                for (Association as : device.listOpenAssociations()) {
-                    if (count++ > 0)
-                        w.write(',');
-                    w.write("{\"serialNo\":");
-                    w.write(String.valueOf(as.getSerialNo()));
-                    w.write(",\"connectTime\":\"");
-                    w.write(df.format(new Date(as.getConnectTimeInMillis())));
-                    w.write("\",\"initiated\":");
-                    w.write(String.valueOf(as.isRequestor()));
-                    w.write(",\"localAETitle\":\"");
-                    w.write(as.getLocalAET());
-                    w.write("\",\"remoteAETitle\":\"");
-                    w.write(as.getRemoteAET());
-                    w.write("\",\"performedOps\":{");
-                    writePerformed(w, as);
-                    w.write("},\"invokedOps\":{");
-                    writeInvoked(w, as);
-                    w.write('}');
-                    writeOtherProperties(w, as);
-                    w.write('}');
-                }
-                w.write(']');
-                w.flush();
-        };
+        return this::writeOpenAssociations;
     }
 
     @DELETE
@@ -137,105 +151,46 @@ public class ArchiveMonitor {
                 + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()) + "\"}";
     }
 
-    private void writeOtherProperties(Writer w, Association as) throws IOException {
-        for (String key : as.getPropertyNames()) {
-            Object value = as.getProperty(key);
-            if (value instanceof String) {
-                w.write(",\"");
-                w.write(key);
-                w.write("\":\"");
-                w.write((String) value);
-                w.write('\"');
+    private void writeOpenAssociations(OutputStream out) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        try (JsonGenerator gen = Json.createGenerator(out)) {
+            gen.writeStartArray();
+            for (Association as : device.listOpenAssociations()) {
+                if (as == null || as.getAAssociateRQ() == null) continue;
+                gen.writeStartObject();
+                gen.write("serialNo", as.getSerialNo());
+                gen.write("connectTime", df.format(new Date(as.getConnectTimeInMillis())));
+                gen.write("initiated", as.isRequestor());
+                gen.write("localAETitle", as.getLocalAET());
+                gen.write("remoteAETitle", as.getRemoteAET());
+                gen.writeStartObject("performedOps");
+                for (int i = 0; i < COMMANDS.length; i++) {
+                    writeCommand(gen, COMMANDS[i], as.getNumberOfReceived(RQs[i]), as.getNumberOfSent(RSPs[i]));
+                }
+                gen.writeEnd();
+                gen.writeStartObject("invokedOps");
+                for (int i = 0; i < COMMANDS.length; i++) {
+                    writeCommand(gen, COMMANDS[i], as.getNumberOfSent(RQs[i]), as.getNumberOfReceived(RSPs[i]));
+                }
+                gen.writeEnd();
+                for (String key : as.getPropertyNames()) {
+                    Object value = as.getProperty(key);
+                    if (value instanceof String) {
+                        gen.write(key, (String) value);
+                    }
+                }
+                gen.writeEnd();
             }
+            gen.writeEnd();
         }
     }
 
-    private void writePerformed(Writer w, Association as) throws IOException {
-        boolean previous = ArchiveMonitor.write(w, false, "C-STORE",
-                as.getNumberOfReceived(Dimse.C_STORE_RQ),
-                as.getNumberOfSent(Dimse.C_STORE_RSP));
-        previous = ArchiveMonitor.write(w, previous , "C-GET",
-                as.getNumberOfReceived(Dimse.C_GET_RQ),
-                as.getNumberOfSent(Dimse.C_GET_RSP));
-        previous = ArchiveMonitor.write(w, previous , "C-FIND",
-                as.getNumberOfReceived(Dimse.C_FIND_RQ),
-                as.getNumberOfSent(Dimse.C_FIND_RSP));
-        previous = ArchiveMonitor.write(w, previous , "C-MOVE",
-                as.getNumberOfReceived(Dimse.C_MOVE_RQ),
-                as.getNumberOfSent(Dimse.C_MOVE_RSP));
-        previous = ArchiveMonitor.write(w, previous , "C-ECHO",
-                as.getNumberOfReceived(Dimse.C_ECHO_RQ),
-                as.getNumberOfSent(Dimse.C_ECHO_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-EVENT-REPORT",
-                as.getNumberOfReceived(Dimse.N_EVENT_REPORT_RQ),
-                as.getNumberOfSent(Dimse.N_EVENT_REPORT_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-GET",
-                as.getNumberOfReceived(Dimse.N_GET_RQ),
-                as.getNumberOfSent(Dimse.N_GET_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-SET",
-                as.getNumberOfReceived(Dimse.N_SET_RQ),
-                as.getNumberOfSent(Dimse.N_SET_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-ACTION",
-                as.getNumberOfReceived(Dimse.N_ACTION_RQ),
-                as.getNumberOfSent(Dimse.N_ACTION_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-CREATE",
-                as.getNumberOfReceived(Dimse.N_CREATE_RQ),
-                as.getNumberOfSent(Dimse.N_CREATE_RSP));
-        ArchiveMonitor.write(w, previous , "N-DELETE",
-                as.getNumberOfReceived(Dimse.N_DELETE_RQ),
-                as.getNumberOfSent(Dimse.N_DELETE_RSP));
-    }
-
-    private void writeInvoked(Writer w, Association as) throws IOException {
-        boolean previous = ArchiveMonitor.write(w, false, "C-STORE",
-                as.getNumberOfSent(Dimse.C_STORE_RQ),
-                as.getNumberOfReceived(Dimse.C_STORE_RSP));
-        previous = ArchiveMonitor.write(w, previous , "C-GET",
-                as.getNumberOfSent(Dimse.C_GET_RQ),
-                as.getNumberOfReceived(Dimse.C_GET_RSP));
-        previous = ArchiveMonitor.write(w, previous , "C-FIND",
-                as.getNumberOfSent(Dimse.C_FIND_RQ),
-                as.getNumberOfReceived(Dimse.C_FIND_RSP));
-        previous = ArchiveMonitor.write(w, previous , "C-MOVE",
-                as.getNumberOfSent(Dimse.C_MOVE_RQ),
-                as.getNumberOfReceived(Dimse.C_MOVE_RSP));
-        previous = ArchiveMonitor.write(w, previous , "C-ECHO",
-                as.getNumberOfSent(Dimse.C_ECHO_RQ),
-                as.getNumberOfReceived(Dimse.C_ECHO_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-EVENT-REPORT",
-                as.getNumberOfSent(Dimse.N_EVENT_REPORT_RQ),
-                as.getNumberOfReceived(Dimse.N_EVENT_REPORT_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-GET",
-                as.getNumberOfSent(Dimse.N_GET_RQ),
-                as.getNumberOfReceived(Dimse.N_GET_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-SET",
-                as.getNumberOfSent(Dimse.N_SET_RQ),
-                as.getNumberOfReceived(Dimse.N_SET_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-ACTION",
-                as.getNumberOfSent(Dimse.N_ACTION_RQ),
-                as.getNumberOfReceived(Dimse.N_ACTION_RSP));
-        previous = ArchiveMonitor.write(w, previous , "N-CREATE",
-                as.getNumberOfSent(Dimse.N_CREATE_RQ),
-                as.getNumberOfReceived(Dimse.N_CREATE_RSP));
-        ArchiveMonitor.write(w, previous , "N-DELETE",
-                as.getNumberOfSent(Dimse.N_DELETE_RQ),
-                as.getNumberOfReceived(Dimse.N_DELETE_RSP));
-    }
-
-    private static boolean write(Writer w, boolean previous, String command, int rq, int rsp) throws IOException {
-        if (rq == 0)
-            return previous;
-
-        if (previous)
-            w.write(',');
-        w.write('\"');
-        w.write(command);
-        w.write("\":{\"RQ\":");
-        w.write(String.valueOf(rq));
-        w.write(",\"RSP\":");
-        w.write(String.valueOf(rsp));
-        w.write('}');
-        return true;
+    private static void writeCommand(JsonGenerator gen, String command, int rq, int rsp) {
+        if (rq == 0) return;
+        gen.writeStartObject(command);
+        gen.write("RQ", rq);
+        gen.write("RSP", rsp);
+        gen.writeEnd();
     }
 
     private void logRequest() {
