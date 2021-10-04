@@ -16,8 +16,7 @@ dcmuiModalities: PR
 dcmuiModalities: US
 dcmuiModalities: XA
 
-dn: dcmuiPermissionName=Menu - Navigation,dcmuiConfigName=default,dicomDevic
- eName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Menu - Navigation,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-study
 dcmuiPermissionName: Menu - Navigation
@@ -26,8 +25,7 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Study - Study,dcmuiConfigName=default,dicomDev
- iceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Study - Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-study-study
 dcmuiPermissionName: Tab - Study - Study
@@ -36,8 +34,7 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Study - Patient,dcmuiConfigName=default,dicomD
- eviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Study - Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-study-patient
 dcmuiPermissionName: Tab - Study - Patient
@@ -46,8 +43,7 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Study - Mwl,dcmuiConfigName=default,dicomDevic
- eName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Study - Mwl,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-study-mwl
 dcmuiPermissionName: Tab - Study - Mwl
@@ -56,8 +52,7 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Study - Mpps,dcmuiConfigName=default,dicomDevi
- ceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Study - Mpps,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-study-mpps
 dcmuiPermissionName: Tab - Study - Mpps
@@ -65,8 +60,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Study - Series,dcmuiConfigName=default,dicomDevi
- ceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Study - Series,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-study-series
 dcmuiPermissionName: Tab - Study - Series
@@ -74,8 +68,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Study - Uwl,dcmuiConfigName=default,dicomDevic
- eName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Study - Uwl,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-study-uwl
 dcmuiPermissionName: Tab - Study - Uwl
@@ -84,8 +77,7 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Study - Diff,dcmuiConfigName=default,dicomDevi
- ceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Study - Diff,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-study-diff
 dcmuiPermissionName: Tab - Study - Diff
@@ -94,8 +86,7 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Menu - Monitoring,dcmuiConfigName=default,dicomDevic
- eName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Menu - Monitoring,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-monitoring
 dcmuiPermissionName: Menu - Monitoring
@@ -103,8 +94,7 @@ dcmAcceptedUserRole: local-admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Menu - Configuration,dcmuiConfigName=default,dicomDe
- viceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Menu - Configuration,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-configuration
 dcmuiPermissionName: Menu - Configuration
@@ -112,8 +102,7 @@ dcmAcceptedUserRole: local-admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Studies - Size,dcmuiConfigName=default,dico
- mDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Studies - Size,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-size
 dcmuiPermissionName: Action - Studies - Size
@@ -121,8 +110,7 @@ dcmAcceptedUserRole: local-admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Studies - Show Attributes,dcmuiConfigName=default,dico
- mDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Studies - Show Attributes,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-show-attributes
 dcmuiPermissionName: Action - Studies - Show Attributes
@@ -130,9 +118,7 @@ dcmAcceptedUserRole: local-admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Studies - Count,dcmuiConfigName=default,dic
- omDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=o
- rg
+dn: dcmuiPermissionName=Action - Studies - Count,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-count
 dcmuiPermissionName: Action - Studies - Count
@@ -140,8 +126,7 @@ dcmAcceptedUserRole: local-admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Config Control,dcmuiConfigName=default,dicomDe
- viceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Config Control,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-monitoring->control
 dcmuiPermissionName: Tab - Config Control
@@ -167,8 +152,7 @@ dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
 
-dn: dcmuiPermissionName=Action - Studies - MWL,dcmuiConfigName=default,dicom
- DeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Studies - MWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-mwl
 dcmuiPermissionName: Action - Studies - MWL
@@ -179,9 +163,7 @@ dcmuiActionParam: delete
 dcmuiActionParam: upload
 
 
-dn: dcmuiPermissionName=Tab - Configuration Ae List,dcmuiConfigName=default,
- dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,d
- c=org
+dn: dcmuiPermissionName=Tab - Configuration Ae List,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-configuration->ae_list
 dcmuiPermissionName: Tab - Configuration Ae List
@@ -189,9 +171,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Configuration Devices,dcmuiConfigName=default,
- dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,d
- c=org
+dn: dcmuiPermissionName=Tab - Configuration Devices,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-configuration->devices
 dcmuiPermissionName: Tab - Configuration Devices
@@ -199,9 +179,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Studies - Studies,dcmuiConfigName=default,d
- icomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
- =org
+dn: dcmuiPermissionName=Action - Studies - Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-study
 dcmuiPermissionName: Action - Studies - Studies
@@ -213,9 +191,7 @@ dcmuiActionParam: reject
 dcmuiActionParam: delete
 dcmuiActionParam: restore
 
-dn: dcmuiPermissionName=Tab - Monitoring Associations,dcmuiConfigName=defaul
- t,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che
- ,dc=org
+dn: dcmuiPermissionName=Tab - Monitoring Associations,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-monitoring->associations
 dcmuiPermissionName: Tab - Monitoring Associations
@@ -224,9 +200,7 @@ dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
 
-dn: dcmuiPermissionName=Action - Studies - Open Viewer,dcmuiConfigName=defau
- lt,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4ch
- e,dc=org
+dn: dcmuiPermissionName=Action - Studies - Open Viewer,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-viewer
 dcmuiPermissionName: Action - Studies - Open Viewer
@@ -234,9 +208,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
 
-dn: dcmuiPermissionName=Action - Studies - Series,dcmuiConfigName=default,di
- comDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=
- org
+dn: dcmuiPermissionName=Action - Studies - Series,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-serie
 dcmuiPermissionName: Action - Studies - Series
@@ -245,9 +217,7 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
 
-dn: dcmuiPermissionName=Action - Studies - Patient,dcmuiConfigName=default,d
- icomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
- =org
+dn: dcmuiPermissionName=Action - Studies - Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-patient
 dcmuiPermissionName: Action - Studies - Patient
@@ -257,9 +227,7 @@ dcmuiActionParam: delete
 dcmuiActionParam: unmerge
 
 
-dn: dcmuiPermissionName=Action - Studies - Series(1),dcmuiConfigName=default
- ,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,
- dc=org
+dn: dcmuiPermissionName=Action - Studies - Series(1),dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-serie
 dcmuiPermissionName: Action - Studies - Series(1)
@@ -270,9 +238,7 @@ dcmuiActionParam: reject
 dcmuiActionParam: restore
 
 
-dn: dcmuiPermissionName=Action - Studies - More Function,dcmuiConfigName=def
- ault,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4
- che,dc=org
+dn: dcmuiPermissionName=Action - Studies - More Function,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-more_function
 dcmuiPermissionName: Action - Studies - More Function
@@ -280,9 +246,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
 
-dn: dcmuiPermissionName=Tab - Monitoring Storage Systems,dcmuiConfigName=def
- ault,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4
- che,dc=org
+dn: dcmuiPermissionName=Tab - Monitoring Storage Systems,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-monitoring->storage_systems
 dcmuiPermissionName: Tab - Monitoring Storage Systems
@@ -290,18 +254,14 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Studies - Copy Merge Move,dcmuiConfigName=d
- efault,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dc
- m4che,dc=org
+dn: dcmuiPermissionName=Action - Studies - Copy Merge Move,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-copy_merge_move
 dcmuiPermissionName: Action - Studies - Copy Merge Move
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Studies - Instance,dcmuiConfigName=default,
- dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,d
- c=org
+dn: dcmuiPermissionName=Action - Studies - Instance,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-instance
 dcmuiPermissionName: Action - Studies - Instance
@@ -318,9 +278,7 @@ objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmuiAction: tab-monitoring->external_retrieve
 
-dn: dcmuiPermissionName=Tab - Configuration Hl7 Applications,dcmuiConfigName
- =default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=
- dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Configuration Hl7 Applications,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-configuration->hl7_applications
 dcmuiPermissionName: Tab - Configuration Hl7 Applications
@@ -328,9 +286,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Monitoring Storage Commitments,dcmuiConfigName
- =default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=
- dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Monitoring Storage Commitments,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-monitoring->storage_commitments
 dcmuiPermissionName: Tab - Monitoring Storage Commitments
@@ -338,18 +294,14 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Data Exchange Monitoring Export All Actions
- ,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM C
- onfiguration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Data Exchange Monitoring Export All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-monitoring->export-all_action
 dcmuiPermissionName: Action - Data Exchange Monitoring Export All Actions
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Monitoring Queues All Actions,dcmuiConfigNa
- me=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,d
- c=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Monitoring Queues All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-monitoring->queues-all_action
 dcmuiPermissionName: Action - Monitoring Queues All Actions
@@ -357,36 +309,28 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
 
-dn: dcmuiPermissionName=Action - Studies - Download study,dcmuiConfigName=de
- fault,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm
- 4che,dc=org
+dn: dcmuiPermissionName=Action - Studies - Download study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-download
 dcmuiPermissionName: Action - Studies - Download study
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Monitoring Export Single Action,dcmuiConfig
- Name=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration
- ,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Monitoring Export Single Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-monitoring->export-single_action
 dcmuiPermissionName: Action - Monitoring Export Single Action
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Monitoring Queues Single Actions,dcmuiConfi
- gName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuratio
- n,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Monitoring Queues Single Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-monitoring->queues-single_action
 dcmuiPermissionName: Action - Monitoring Queues Single Actions
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Studies - Verify Storage Commitment,dcmuiCo
- nfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configura
- tion,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Studies - Verify Storage Commitment,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-verify_storage_commitment
 dcmuiPermissionName: Action - Studies - Verify Storage Commitment
@@ -395,35 +339,28 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
 
-dn: dcmuiPermissionName=Action - Monitoring - External Retrieve All Actions,
- dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Co
- nfiguration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Monitoring - External Retrieve All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-monitoring->external_retrieve-all_action
 dcmuiPermissionName: Action - Monitoring - External Retrieve All Actions
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Retrieve - Single Action,dcmuiConfigName=de
- fault,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm
- 4che,dc=org
+dn: dcmuiPermissionName=Action - Retrieve - Single Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-monitoring->external_retrieve-single_action
 dcmuiPermissionName: Action - Retrieve - Single Action
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Action - Monitoring - Diff Monitor All Action,dcmuiC
- onfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configur
- ation,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Action - Monitoring - Diff Monitor All Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-monitoring->diff_monitor-all_action
 dcmuiPermissionName: Action - Monitoring - Diff Monitor All Action
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Menu - XDS,dcmuiConfigName=default,dicomDeviceName=d
- cm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Menu - XDS,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-xds
 dcmuiPermissionName: Menu - XDS
@@ -431,8 +368,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Menu - dashboard,dcmuiConfigName=default,dicomDevice
- Name=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Menu - dashboard,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-dashboard
 dcmuiPermissionName: Menu - dashboard
@@ -440,32 +376,28 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Menu - Statistics,dcmuiConfigName=default,dicomDevic
- eName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Menu - Statistics,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-statistics
 dcmuiPermissionName: Menu - Statistics
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Menu - Correct Data,dcmuiConfigName=default,dicomDev
- iceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Menu - Correct Data,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-correct_data
 dcmuiPermissionName: Menu - Correct Data
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Menu - Data Exchange,dcmuiConfigName=default,dicomDe
- viceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Menu - Data Exchange,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-move_data
 dcmuiPermissionName: Menu - Data Exchange
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Agfa Migration,dcmuiConfigName=default,dicomDe
- viceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Agfa Migration,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-move_data->agfa-migration
 dcmuiPermissionName: Tab - Agfa Migration
@@ -473,16 +405,14 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Dashboard - Ats,dcmuiConfigName=default,dicomD
- eviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Dashboard - Ats,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-dashboard_ats
 dcmuiPermissionName: Tab - Dashboard - Ats
 dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 
-dn: dcmuiPermissionName=Tab - Dashboard - Home,dcmuiConfigName=default,dicom
- DeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Dashboard - Home,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-dashboard_home
 dcmuiPermissionName: Tab - Dashboard - Home
@@ -632,9 +562,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Correct Data Storage Verification,dcmuiConfigN
- ame=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,
- dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Correct Data Storage Verification,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-monitoring->storage_verification
 dcmuiPermissionName: Tab - Correct Data Storage Verification
@@ -650,9 +578,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Audit Record Repository Rejections,dcmuiConfig
- Name=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration
- ,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Audit Record Repository Rejections,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-audit-record-repository->rejections
 dcmuiPermissionName: Tab - Audit Record Repository Rejections
@@ -660,9 +586,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Statistics Studies Stored Detailed,dcmuiConfig
- Name=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration
- ,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Statistics Studies Stored Detailed,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-statistics->studies-stored-detailed
 dcmuiPermissionName: Tab - Statistics Studies Stored Detailed
@@ -670,9 +594,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Audit Record Repository Audit Errors,dcmuiConf
- igName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configurati
- on,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Audit Record Repository Audit Errors,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-audit-record-repository->audit_errors
 dcmuiPermissionName: Tab - Audit Record Repository Audit Errors
@@ -680,9 +602,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Audit Record Repository Authentication,dcmuiCo
- nfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configura
- tion,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Audit Record Repository Authentication,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-audit-record-repository->authentication
 dcmuiPermissionName: Tab - Audit Record Repository Authentication
@@ -690,9 +610,7 @@ dcmAcceptedUserRole: local-admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Tab - Audit Record Repository Software Configuration
- ,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM C
- onfiguration,dc=dcm4che,dc=org
+dn: dcmuiPermissionName=Tab - Audit Record Repository Software Configuration,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-audit-record-repository->software_configuration
 dcmuiPermissionName: Tab - Audit Record Repository Software Configuration
