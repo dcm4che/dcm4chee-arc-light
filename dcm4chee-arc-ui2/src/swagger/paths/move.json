@@ -37,7 +37,7 @@
       ],
       "responses": {
         "200": {
-          "description": "Export Result",
+          "description": "Retrieve Result",
           "content": {
             "application/json": {
               "schema": {
@@ -47,10 +47,17 @@
           }
         },
         "202": {
-          "description": "Request successfully queued for processing"
+          "description": "Scheduled Retrieve Task",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/retrieveTask"
+              }
+            }
+          }
         },
         "206": {
-          "description": "Export Result",
+          "description": "Retrieve Result",
           "content": {
             "application/json": {
               "schema": {
@@ -69,7 +76,7 @@
           "description": "Internal Server Error."
         },
         "502": {
-          "description": "Connection Refused or Export Result failure",
+          "description": "Connection Refused or Retrieve Result failure",
           "content": {
             "application/json": {
               "schema": {
@@ -77,9 +84,6 @@
               }
             }
           }
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -125,7 +129,7 @@
       ],
       "responses": {
         "200": {
-          "description": "Export Result",
+          "description": "Retrieve Result",
           "content": {
             "application/json": {
               "schema": {
@@ -135,10 +139,17 @@
           }
         },
         "202": {
-          "description": "Request successfully queued for processing"
+          "description": "Scheduled Retrieve Task",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/retrieveTask"
+              }
+            }
+          }
         },
         "206": {
-          "description": "Export Result",
+          "description": "Retrieve Result",
           "content": {
             "application/json": {
               "schema": {
@@ -157,7 +168,7 @@
           "description": "Internal Server Error."
         },
         "502": {
-          "description": "Connection Refused or Export Result failure",
+          "description": "Connection Refused or Retrieve Result failure",
           "content": {
             "application/json": {
               "schema": {
@@ -165,9 +176,6 @@
               }
             }
           }
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -216,7 +224,7 @@
       ],
       "responses": {
         "200": {
-          "description": "Export Result",
+          "description": "Retrieve Result",
           "content": {
             "application/json": {
               "schema": {
@@ -226,10 +234,17 @@
           }
         },
         "202": {
-          "description": "Request successfully queued for processing"
+          "description": "Scheduled Retrieve Task",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/retrieveTask"
+              }
+            }
+          }
         },
         "206": {
-          "description": "Export Result",
+          "description": "Retrieve Result",
           "content": {
             "application/json": {
               "schema": {
@@ -256,9 +271,6 @@
               }
             }
           }
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -314,9 +326,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -378,9 +387,6 @@
         },
         "502": {
           "$ref": "../responses.json#/countResults"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -445,9 +451,6 @@
         },
         "502": {
           "$ref": "../responses.json#/countResults"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -515,9 +518,6 @@
         },
         "502": {
           "$ref": "../responses.json#/countResults"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -582,9 +582,6 @@
         },
         "502": {
           "$ref": "../responses.json#/countResults"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -652,9 +649,6 @@
         },
         "502": {
           "$ref": "../responses.json#/countResults"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -725,9 +719,6 @@
         },
         "502": {
           "$ref": "../responses.json#/countResults"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }

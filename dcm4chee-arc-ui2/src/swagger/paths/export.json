@@ -51,9 +51,6 @@
         },
         "502": {
           "description": "DICOM Service Exception or Export of all instances failed"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -113,9 +110,6 @@
         },
         "502": {
           "description": "DICOM Service Exception or Export of all instances failed"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -178,9 +172,6 @@
         },
         "502": {
           "description": "DICOM Service Exception or Export of all instances failed"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -287,9 +278,6 @@
         },
         "500": {
           "description": "Internal Server Error."
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -399,9 +387,6 @@
         },
         "500": {
           "description": "Internal Server Error."
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -508,9 +493,6 @@
         },
         "500": {
           "description": "Internal Server Error."
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -623,9 +605,6 @@
         },
         "500": {
           "description": "Internal Server Error."
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -735,9 +714,6 @@
         },
         "500": {
           "description": "Internal Server Error."
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -844,9 +820,6 @@
         },
         "500": {
           "description": "Internal Server Error."
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
