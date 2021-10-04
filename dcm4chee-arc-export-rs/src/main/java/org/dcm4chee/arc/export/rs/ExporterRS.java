@@ -42,16 +42,14 @@ package org.dcm4chee.arc.export.rs;
 
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.qmgt.impl.TaskScheduler;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -71,8 +69,11 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -184,7 +185,7 @@ public class ExporterRS {
             if (exporter == null) {
                 return errResponse("No such Exporter: " + exporterID, Response.Status.NOT_FOUND);
             }
-            exportManager.createExportTask(
+            Task exportTask = exportManager.createExportTask(
                     device.getDeviceName(),
                     exporter,
                     studyUID,
@@ -198,10 +199,19 @@ public class ExporterRS {
                         arcDev.getQueueDescriptorNotNull(exporter.getQueueName()),
                         arcDev.getTaskFetchSize());
             }
-            return Response.accepted().build();
+            return Response.accepted().entity(writeJSON(exportTask)).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private StreamingOutput writeJSON(Task exportTask) {
+        return out -> {
+            Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+            try (JsonGenerator gen = Json.createGenerator(w)) {
+                exportTask.writeAsJSON(gen);
+            }
+        };
     }
 
     private Date scheduledTime() {
