@@ -728,26 +728,15 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Date getLastModified(String studyUID, String seriesUID) {
-        List<Object[]> dates = queryLastModified(studyUID, seriesUID);
-        Date lastModified = null;
-        for (Object[] objs : dates) {
-            for (Object obj : objs) {
-                Date date = (Date) obj;
-                if (lastModified == null || lastModified.compareTo(date) < 0)
-                    lastModified = date;
-            }
-        }
-        return lastModified;
-    }
+    public Date getLastModified(boolean patUpdateTime4LastModified, String studyUID, String seriesUID) {
+        if (patUpdateTime4LastModified)
+            LOG.debug("Consider Patient Update Time in querying of Last Modified date");
 
-    private List<Object[]> queryLastModified(String studyIUID, String seriesIUID) {
-        return (seriesIUID != null
-                ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
-                    .setParameter(1, studyIUID)
-                    .setParameter(2, seriesIUID)
-                : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
-                    .setParameter(1, studyIUID))
-                .getResultList();
+        List<Date> dates = ejb.queryLastModified(patUpdateTime4LastModified, studyUID, seriesUID);
+        Date lastModified = null;
+        for (Date date : dates)
+            if (lastModified == null || lastModified.compareTo(date) < 0)
+                lastModified = date;
+        return lastModified;
     }
 }
