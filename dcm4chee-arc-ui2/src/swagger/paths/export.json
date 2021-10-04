@@ -28,7 +28,14 @@
           "$ref": "../responses.json#/exported"
         },
         "202": {
-          "description": "successful operation"
+          "description": "Scheduled Export Task",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "schemas.json#/exportTask"
+              }
+            }
+          }
         },
         "206": {
           "$ref": "../responses.json#/exported"

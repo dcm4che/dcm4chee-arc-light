@@ -973,66 +973,70 @@
     "title": "ExportTaskList",
     "type": "array",
     "items": {
-      "allOf": [
-        {
-          "$ref": "#/task"
-        },
-        {
-          "required": [
-            "type",
-            "ExporterID"
-          ],
-          "properties": {
-            "type": {
-              "title": "Task Type",
-              "description": "type of task",
-              "type": "string",
-              "enum": [
-                "EXPORT"
-              ]
-            },
-            "ExporterID": {
-              "title": "Exporter ID",
-              "description": "ID of exporter performing the Task",
+      "$ref": "#/exportTask"
+    }
+  },
+  "exportTask": {
+    "title": "ExportTask",
+    "allOf": [
+      {
+        "$ref": "#/task"
+      },
+      {
+        "required": [
+          "type",
+          "ExporterID"
+        ],
+        "properties": {
+          "type": {
+            "title": "Task Type",
+            "description": "type of task",
+            "type": "string",
+            "enum": [
+              "EXPORT"
+            ]
+          },
+          "ExporterID": {
+            "title": "Exporter ID",
+            "description": "ID of exporter performing the Task",
+            "type": "string"
+          },
+          "LocalAET": {
+            "title": "Local AET",
+            "description": "AET configured in Exporter",
+            "type": "string"
+          },
+          "StudyInstanceUID": {
+            "title": "Study Instance UID",
+            "description": "Unique Identifier of the Study",
+            "type": "string"
+          },
+          "SeriesInstanceUID": {
+            "title": "Series Instance UID",
+            "description": "Unique Identifier of the Series",
+            "type": "string"
+          },
+          "SOPInstanceUID": {
+            "title": "SOP Instance UID",
+            "description": "Unique Identifier of the Object",
+            "type": "string"
+          },
+          "Modality": {
+            "title": "Modality",
+            "description": "Modality",
+            "type": "array",
+            "items": {
               "type": "string"
-            },
-            "LocalAET": {
-              "title": "Local AET",
-              "description": "AET configured in Exporter",
-              "type": "string"
-            },
-            "StudyInstanceUID": {
-              "title": "Study Instance UID",
-              "description": "Unique Identifier of the Study",
-              "type": "string"
-            },
-            "SeriesInstanceUID": {
-              "title": "Series Instance UID",
-              "description": "Unique Identifier of the Series",
-              "type": "string"
-            },
-            "SOPInstanceUID": {
-              "title": "SOP Instance UID",
-              "description": "Unique Identifier of the Object",
-              "type": "string"
-            },
-            "Modality": {
-              "title": "Modality",
-              "description": "Modality",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "NumberOfInstances": {
-              "title": "Number of Instances ",
-              "description": "Number of Instances",
-              "type": "integer"
             }
+          },
+          "NumberOfInstances": {
+            "title": "Number of Instances ",
+            "description": "Number of Instances",
+            "type": "integer"
           }
         }
-      ]
-    }
+      }
+    ]
   },
   "retrieveTaskList": {
     "title": "RetrieveTaskList",
