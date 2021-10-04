@@ -437,6 +437,15 @@ public class QidoRS {
         return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
     }
 
+    private boolean patUpdateTime4LastModified(Attributes returnKeys) {
+        int[] patientTags = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getAttributeFilter(Entity.Patient).getSelection();
+        for (int tag : patientTags)
+            if (tag != Tag.SpecificCharacterSet && returnKeys.contains(tag))
+                return true;
+        return false;
+    }
+
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                             boolean etag) {
         ApplicationEntity ae = getApplicationEntity();
@@ -445,10 +454,20 @@ public class QidoRS {
             validateWebApp();
         Output output = selectMediaType();
         try {
+            QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
+            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
+            ctx.setReturnKeys(queryAttrs.isIncludeAll()
+                    ? null
+                    : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
+                    ? queryAttrs.getReturnKeys(qido.includetags)
+                    : queryAttrs.getQueryKeys());
             Date lastModified = null;
             if (etag && arcAE.qidoETag()) {
                 LOG.debug("Query Last Modified date of {}", model);
-                lastModified = service.getLastModified(studyInstanceUID, seriesInstanceUID);
+                lastModified = service.getLastModified(
+                        queryAttrs.isIncludeAll() || patUpdateTime4LastModified(ctx.getReturnKeys()),
+                                        studyInstanceUID,
+                                        seriesInstanceUID);
                 if (lastModified == null)
                     return errResponse("Last Modified date is null.", Response.Status.NOT_FOUND);
                 LOG.debug("Last Modified date: {}", lastModified);
@@ -466,13 +485,6 @@ public class QidoRS {
                     LOG.debug("Preconditions are not met - build response");
                 }
             }
-            QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
-            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
-            ctx.setReturnKeys(queryAttrs.isIncludeAll()
-                    ? null
-                    : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
-                    ? queryAttrs.getReturnKeys(qido.includetags)
-                    : queryAttrs.getQueryKeys());
             ctx.setReturnPrivate(queryAttrs.isIncludePrivate());
             if (output == Output.CSV) {
                 model.setIncludeAll(queryAttrs.isIncludeAll());
