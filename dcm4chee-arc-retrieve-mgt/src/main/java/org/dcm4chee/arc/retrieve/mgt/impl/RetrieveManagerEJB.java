@@ -115,6 +115,7 @@ public class RetrieveManagerEJB {
         }
         em.persist(task);
         LOG.info("Create {}", task);
+        ctx.setRetrieveTask(task);
         return true;
     }
 

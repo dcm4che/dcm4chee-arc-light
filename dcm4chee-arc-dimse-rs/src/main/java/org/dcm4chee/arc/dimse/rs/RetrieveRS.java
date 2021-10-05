@@ -50,6 +50,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -71,9 +72,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -212,11 +212,21 @@ public class RetrieveRS {
     }
 
     private Response queueExport(String destAET, Attributes keys) {
-        retrieveManager.scheduleRetrieveTask(createExtRetrieveCtx(destAET, keys), null);
+        ExternalRetrieveContext ctx = createExtRetrieveCtx(destAET, keys);
+        retrieveManager.scheduleRetrieveTask(ctx, null);
         if (scheduledOnThisDevice() && scheduledTime == null) {
             taskManager.processQueue(queueName);
         }
-        return Response.accepted().build();
+        return Response.accepted().entity(writeJSON(ctx.getRetrieveTask())).build();
+    }
+
+    private StreamingOutput writeJSON(Task retrieveTask) {
+        return out -> {
+            Writer w = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+            try (JsonGenerator gen = Json.createGenerator(w)) {
+                retrieveTask.writeAsJSON(gen);
+            }
+        };
     }
 
     private Response export(String destAET, Attributes keys)
