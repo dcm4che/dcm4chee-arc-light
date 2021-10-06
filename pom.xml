@@ -46,7 +46,7 @@
 
   <groupId>org.dcm4che.dcm4chee-arc</groupId>
   <artifactId>dcm4chee-arc-parent</artifactId>
-  <version>5.24.2</version>
+  <version>5.25.0</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -544,6 +544,7 @@
     <module>dcm4chee-arc-mwl-scp</module>
     <module>dcm4chee-arc-patient</module>
     <module>dcm4chee-arc-pdq</module>
+    <module>dcm4chee-arc-pdq-db</module>
     <module>dcm4chee-arc-pdq-dicom</module>
     <module>dcm4chee-arc-pdq-fhir</module>
     <module>dcm4chee-arc-pdq-hl7</module>
