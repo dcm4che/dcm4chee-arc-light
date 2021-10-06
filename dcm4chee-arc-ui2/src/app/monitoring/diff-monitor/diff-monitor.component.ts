@@ -155,6 +155,8 @@ export class DiffMonitorComponent implements OnInit {
     }
     initSchema(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`,this.devices),3);
+        if (this.urlParam)
+            this.filterObject["orderby"] = '-updatedTime';
     }
     allActionChanged(e){
         let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;

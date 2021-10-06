@@ -119,6 +119,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private final List<UpdateLocation> updateLocations = new ArrayList<>();
     private volatile Availability updateInstanceAvailability;
     private final AtomicInteger failuresOnCopyToRetrieveCache = new AtomicInteger();
+    private boolean patientUpdatedTime4LastModified;
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -798,5 +799,15 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void incrementFailuresOnCopyToRetrieveCache() {
         failuresOnCopyToRetrieveCache.getAndIncrement();
+    }
+
+    @Override
+    public boolean isPatientUpdatedTime4LastModified() {
+        return patientUpdatedTime4LastModified;
+    }
+
+    @Override
+    public void setPatientUpdatedTime4LastModified(boolean patientUpdatedTime4LastModified) {
+        this.patientUpdatedTime4LastModified = patientUpdatedTime4LastModified;
     }
 }

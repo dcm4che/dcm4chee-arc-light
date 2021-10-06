@@ -43,7 +43,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.24.1</version>
+    <version>5.24.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -53,6 +53,12 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-conf</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-entity</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

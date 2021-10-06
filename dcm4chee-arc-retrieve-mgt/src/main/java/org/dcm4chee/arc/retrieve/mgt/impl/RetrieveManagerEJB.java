@@ -115,6 +115,7 @@ public class RetrieveManagerEJB {
         }
         em.persist(task);
         LOG.info("Create {}", task);
+        ctx.setRetrieveTask(task);
         return true;
     }
 
@@ -287,7 +288,7 @@ public class RetrieveManagerEJB {
                     tuple.get(minUpdatedTime),
                     tuple.get(maxUpdatedTime));
             retrieveBatch.setProcessingStartTimeRange(
-                    tuple.get(maxProcessingStartTime),
+                    tuple.get(minProcessingStartTime),
                     tuple.get(maxProcessingStartTime));
             retrieveBatch.setProcessingEndTimeRange(
                     tuple.get(minProcessingEndTime),

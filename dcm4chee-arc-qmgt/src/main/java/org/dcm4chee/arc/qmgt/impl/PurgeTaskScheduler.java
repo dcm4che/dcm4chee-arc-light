@@ -104,6 +104,7 @@ public class PurgeTaskScheduler extends Scheduler {
 
     private TaskQueryParam taskQueryParam(String queueName, Task.Status status, Date updatedBefore) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
+        taskQueryParam.setDeviceName(device.getDeviceName());
         taskQueryParam.setQueueNames(Collections.singletonList(queueName));
         taskQueryParam.setStatus(status);
         taskQueryParam.setUpdatedBefore(updatedBefore);

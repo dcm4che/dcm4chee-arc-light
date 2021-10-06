@@ -158,5 +158,5 @@ public interface QueryService {
 
     CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
 
-    Date getLastModified(String studyUID, String seriesUID);
+    Date getLastModified(boolean patUpdateTime4LastModified, String studyUID, String seriesUID);
 }

@@ -505,4 +505,48 @@ public class QueryServiceEJB {
                 .getResultList();
     }
 
+    public List<Date> queryLastModified(boolean patUpdateTime4LastModified, String studyUID, String seriesUID) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+
+        Root<Instance> instance = query.from(Instance.class);
+        Join<Instance, Series> series = instance.join(Instance_.series);
+        Join<Series, Study> study = series.join(Series_.study);
+        Join<Study, Patient> patient = null;
+        List<Predicate> predicates = new ArrayList<>();
+        List<Selection> selections = new ArrayList<>();
+        List<Expression> groupBy = new ArrayList<>();
+        Expression<Date> maxInstUpdatedTime = cb.greatest(instance.get(Instance_.updatedTime));
+        Expression<Date> maxSeriesUpdatedTime = cb.greatest(series.get(Series_.updatedTime));
+
+        if (patUpdateTime4LastModified) {
+            patient = study.join(Study_.patient);
+            selections.add(patient.get(Patient_.updatedTime));
+            groupBy.add(patient.get(Patient_.pk));
+        }
+        predicates.add(cb.equal(study.get(Study_.studyInstanceUID), studyUID));
+        selections.add(study.get(Study_.modifiedTime));
+        groupBy.add(study.get(Study_.pk));
+        if (seriesUID != null) {
+            predicates.add(cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
+            selections.add(series.get(Series_.updatedTime));
+            groupBy.add(series.get(Series_.pk));
+        } else
+            selections.add(maxSeriesUpdatedTime);
+
+        selections.add(maxInstUpdatedTime);
+
+        Tuple result = em.createQuery(query.where(predicates.toArray(new Predicate[0]))
+                                            .multiselect(selections.toArray(new Selection[0]))
+                                            .groupBy(groupBy.toArray(new Expression[0])))
+                        .getSingleResult();
+        List<Date> dates = new ArrayList<>();
+        if (patient != null)
+            dates.add(result.get(patient.get(Patient_.updatedTime)));
+        dates.add(result.get(study.get(Study_.modifiedTime)));
+        dates.add(result.get(seriesUID != null ? series.get(Series_.updatedTime) : maxSeriesUpdatedTime));
+        dates.add(result.get(maxInstUpdatedTime));
+        return dates;
+    }
+
 }

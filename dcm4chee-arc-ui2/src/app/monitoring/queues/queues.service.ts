@@ -107,6 +107,14 @@ export class QueuesService{
             {
                 value:"-updatedTime",
                 text:$localize `:@@sort_by_updated_time_desc:Sort by updated time (DESC)`
+            },
+            {
+                value:"scheduledTime",
+                text:$localize `:@@sort_by_scheduled_time_asc:Sort by scheduled time (ASC)`
+            },
+            {
+                value:"-scheduledTime",
+                text:$localize `:@@sort_by_scheduled_time_desc:Sort by scheduled time (DESC)`
             }
         ]
     };
@@ -155,7 +163,6 @@ export class QueuesService{
             },{
                 tag:"select",
                 options:this.sortValues(),
-                showStar:true,
                 filterKey:"orderby",
                 description:$localize `:@@sort:Sort`,
                 placeholder:$localize `:@@sort:Sort`

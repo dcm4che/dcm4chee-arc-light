@@ -584,7 +584,7 @@ public class WadoRS {
             if (lastModified == null)
                 throw new WebApplicationException(
                         errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
-            LOG.debug("Last Modified date: ", lastModified);
+            LOG.debug("Last Modified date: {}", lastModified);
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 
             if (respBuilder == null) {

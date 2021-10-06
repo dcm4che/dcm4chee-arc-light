@@ -134,6 +134,10 @@ public class QueryBuilder {
                 return cb.desc(task.get(Task_.createdTime));
             case "-updatedTime":
                 return cb.desc(task.get(Task_.updatedTime));
+            case "scheduledTime":
+                return cb.asc(task.get(Task_.scheduledTime));
+            case "-scheduledTime":
+                return cb.desc(task.get(Task_.scheduledTime));
         }
         throw new IllegalArgumentException(orderBy);
     }
@@ -148,6 +152,10 @@ public class QueryBuilder {
                 return cb.desc(cb.greatest(task.get(Task_.createdTime)));
             case "-updatedTime":
                 return cb.desc(cb.greatest(task.get(Task_.updatedTime)));
+            case "scheduledTime":
+                return cb.asc(cb.least(task.get(Task_.scheduledTime)));
+            case "-scheduledTime":
+                return cb.desc(cb.greatest(task.get(Task_.scheduledTime)));
         }
 
         throw new IllegalArgumentException(orderBy);

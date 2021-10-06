@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.query.util;
 
-import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Task;
 
 import java.util.ArrayList;
@@ -61,7 +60,6 @@ public class TaskQueryParam {
     private Task.Type notType;
     private Task.Status status;
     private Task.Status notStatus;
-    private StgCmtResult.Status stgCmtStatus;
     private String batchID;
     private String createdTime;
     private String updatedTime;
@@ -77,7 +75,6 @@ public class TaskQueryParam {
     private String checkDifferent;
     private String compareFields;
     private List<String> exporterIDs = new ArrayList<>();
-    private String stgCmtExporterID;
 
     public Long getTaskPK() {
         return taskPK;
@@ -171,6 +168,11 @@ public class TaskQueryParam {
         this.updatedBefore = updatedBefore;
     }
 
+    public void setUpdatedBeforeNotAfter(Date notAfter) {
+        if (updatedBefore == null || updatedBefore.compareTo(notAfter) > 0)
+            updatedBefore = notAfter;
+    }
+
     public String getOrderBy() {
         return orderBy;
     }
@@ -259,27 +261,12 @@ public class TaskQueryParam {
         this.checkDifferent = checkDifferent;
     }
 
-    public StgCmtResult.Status getStgCmtStatus() {
-        return stgCmtStatus;
-    }
-
-    public void setStgCmtStatus(StgCmtResult.Status stgCmtStatus) {
-        this.stgCmtStatus = stgCmtStatus;
-    }
-
-    public String getStgCmtExporterID() {
-        return stgCmtExporterID;
-    }
-
-    public void setStgCmtExporterID(String stgCmtExporterID) {
-        this.stgCmtExporterID = stgCmtExporterID;
-    }
-
     @Override
     public String toString() {
         return "TaskQueryParam{" +
                 "status=" + status +
                 ", type=" + type +
+                ", deviceName=" + deviceName +
                 ", queueName=" + String.join(";", queueNames) +
                 "}";
     }

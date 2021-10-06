@@ -218,7 +218,7 @@ public class DiffServiceEJB {
             String batchID = tuple.get(batchIDPath);
             DiffBatch diffBatch = new DiffBatch(batchID);
             diffBatch.setProcessingStartTimeRange(
-                    tuple.get(maxProcessingStartTime),
+                    tuple.get(minProcessingStartTime),
                     tuple.get(maxProcessingStartTime));
             diffBatch.setProcessingEndTimeRange(
                     tuple.get(minProcessingEndTime),

@@ -94,7 +94,8 @@ public class ExportTaskProcessor implements TaskProcessor {
         try {
             ExporterDescriptor exporterDesc = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getExporterDescriptorNotNull(task.getExporterID());
-            Attributes attrs = queryService.queryExportTaskInfo(task, device.getApplicationEntity(exporterDesc.getAETitle()));
+            Attributes attrs = queryService.queryExportTaskInfo(
+                    task, device.getApplicationEntity(exporterDesc.getAETitle(), true));
             if (attrs != null) {
                 task.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
                 task.setNumberOfInstances(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1));

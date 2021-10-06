@@ -973,156 +973,164 @@
     "title": "ExportTaskList",
     "type": "array",
     "items": {
-      "allOf": [
-        {
-          "$ref": "#/task"
-        },
-        {
-          "required": [
-            "type",
-            "ExporterID"
-          ],
-          "properties": {
-            "type": {
-              "title": "Task Type",
-              "description": "type of task",
-              "type": "string",
-              "enum": [
-                "EXPORT"
-              ]
-            },
-            "ExporterID": {
-              "title": "Exporter ID",
-              "description": "ID of exporter performing the Task",
+      "$ref": "#/exportTask"
+    }
+  },
+  "exportTask": {
+    "title": "ExportTask",
+    "allOf": [
+      {
+        "$ref": "#/task"
+      },
+      {
+        "required": [
+          "type",
+          "ExporterID"
+        ],
+        "properties": {
+          "type": {
+            "title": "Task Type",
+            "description": "type of task",
+            "type": "string",
+            "enum": [
+              "EXPORT"
+            ]
+          },
+          "ExporterID": {
+            "title": "Exporter ID",
+            "description": "ID of exporter performing the Task",
+            "type": "string"
+          },
+          "LocalAET": {
+            "title": "Local AET",
+            "description": "AET configured in Exporter",
+            "type": "string"
+          },
+          "StudyInstanceUID": {
+            "title": "Study Instance UID",
+            "description": "Unique Identifier of the Study",
+            "type": "string"
+          },
+          "SeriesInstanceUID": {
+            "title": "Series Instance UID",
+            "description": "Unique Identifier of the Series",
+            "type": "string"
+          },
+          "SOPInstanceUID": {
+            "title": "SOP Instance UID",
+            "description": "Unique Identifier of the Object",
+            "type": "string"
+          },
+          "Modality": {
+            "title": "Modality",
+            "description": "Modality",
+            "type": "array",
+            "items": {
               "type": "string"
-            },
-            "LocalAET": {
-              "title": "Local AET",
-              "description": "AET configured in Exporter",
-              "type": "string"
-            },
-            "StudyInstanceUID": {
-              "title": "Study Instance UID",
-              "description": "Unique Identifier of the Study",
-              "type": "string"
-            },
-            "SeriesInstanceUID": {
-              "title": "Series Instance UID",
-              "description": "Unique Identifier of the Series",
-              "type": "string"
-            },
-            "SOPInstanceUID": {
-              "title": "SOP Instance UID",
-              "description": "Unique Identifier of the Object",
-              "type": "string"
-            },
-            "Modality": {
-              "title": "Modality",
-              "description": "Modality",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "NumberOfInstances": {
-              "title": "Number of Instances ",
-              "description": "Number of Instances",
-              "type": "integer"
             }
+          },
+          "NumberOfInstances": {
+            "title": "Number of Instances ",
+            "description": "Number of Instances",
+            "type": "integer"
           }
         }
-      ]
-    }
+      }
+    ]
   },
   "retrieveTaskList": {
     "title": "RetrieveTaskList",
     "type": "array",
     "items": {
-      "allOf": [
-        {
-          "$ref": "#/task"
-        },
-        {
-          "required": [
-            "type",
-            "LocalAET",
-            "RemoteAET",
-            "DestinationAET",
-            "StudyInstanceUID"
-          ],
-          "properties": {
-            "type": {
-              "title": "Task Type",
-              "description": "type of task",
-              "type": "string",
-              "enum": [
-                "RETRIEVE"
-              ]
-            },
-            "LocalAET": {
-              "title": "Local AET",
-              "description": "Archive AE Title which was used as Calling AET",
-              "type": "string"
-            },
-            "RemoteAET": {
-              "title": "Remote AET",
-              "description": "AE Title of the C-MOVE SCP",
-              "type": "string"
-            },
-            "DestinationAET": {
-              "title": "Destination AET",
-              "description": "Move Destination AE Title",
-              "type": "string"
-            },
-            "FindSCP": {
-              "title": "Find SCP",
-              "description": "AE Title of C-FIND SCP to verify, if a Study is already available at the Destination",
-              "type": "string"
-            },
-            "StudyInstanceUID": {
-              "title": "Study Instance UID",
-              "description": "Unique Identifier of the Study to be retrieved",
-              "type": "string"
-            },
-            "SeriesInstanceUID": {
-              "title": "Series Instance UID",
-              "description": "Unique Identifier of the Series to be retrieved",
-              "type": "string"
-            },
-            "SOPInstanceUID": {
-              "title": "SOP Instance UID",
-              "description": "Unique Identifier of the Object to be retrieved",
-              "type": "string"
-            },
-            "statusCode": {
-              "title": "DICOM Status Code",
-              "description": "DICOM Status Code in hex",
-              "type": "string"
-            },
-            "errorComment": {
-              "title": "DICOM Error Comment",
-              "type": "string"
-            },
-            "remaining": {
-              "title": "Number of Remaining Sub-Operations",
-              "type": "integer"
-            },
-            "completed": {
-              "title": "Number of Completed Sub-Operations",
-              "type": "integer"
-            },
-            "failed": {
-              "title": "Number of Failed Sub-Operations",
-              "type": "integer"
-            },
-            "warning": {
-              "title": "Number of Warning Sub-Operations",
-              "type": "integer"
-            }
+      "$ref": "#/retrieveTask"
+    }
+  },
+  "retrieveTask": {
+    "title": "RetrieveTask",
+    "allOf": [
+      {
+        "$ref": "#/task"
+      },
+      {
+        "required": [
+          "type",
+          "LocalAET",
+          "RemoteAET",
+          "DestinationAET",
+          "StudyInstanceUID"
+        ],
+        "properties": {
+          "type": {
+            "title": "Task Type",
+            "description": "type of task",
+            "type": "string",
+            "enum": [
+              "RETRIEVE"
+            ]
+          },
+          "LocalAET": {
+            "title": "Local AET",
+            "description": "Archive AE Title which was used as Calling AET",
+            "type": "string"
+          },
+          "RemoteAET": {
+            "title": "Remote AET",
+            "description": "AE Title of the C-MOVE SCP",
+            "type": "string"
+          },
+          "DestinationAET": {
+            "title": "Destination AET",
+            "description": "Move Destination AE Title",
+            "type": "string"
+          },
+          "FindSCP": {
+            "title": "Find SCP",
+            "description": "AE Title of C-FIND SCP to verify, if a Study is already available at the Destination",
+            "type": "string"
+          },
+          "StudyInstanceUID": {
+            "title": "Study Instance UID",
+            "description": "Unique Identifier of the Study to be retrieved",
+            "type": "string"
+          },
+          "SeriesInstanceUID": {
+            "title": "Series Instance UID",
+            "description": "Unique Identifier of the Series to be retrieved",
+            "type": "string"
+          },
+          "SOPInstanceUID": {
+            "title": "SOP Instance UID",
+            "description": "Unique Identifier of the Object to be retrieved",
+            "type": "string"
+          },
+          "statusCode": {
+            "title": "DICOM Status Code",
+            "description": "DICOM Status Code in hex",
+            "type": "string"
+          },
+          "errorComment": {
+            "title": "DICOM Error Comment",
+            "type": "string"
+          },
+          "remaining": {
+            "title": "Number of Remaining Sub-Operations",
+            "type": "integer"
+          },
+          "completed": {
+            "title": "Number of Completed Sub-Operations",
+            "type": "integer"
+          },
+          "failed": {
+            "title": "Number of Failed Sub-Operations",
+            "type": "integer"
+          },
+          "warning": {
+            "title": "Number of Warning Sub-Operations",
+            "type": "integer"
           }
         }
-      ]
-    }
+      }
+    ]
   },
   "stgverTaskList": {
     "title": "StorageVerificationTaskList",

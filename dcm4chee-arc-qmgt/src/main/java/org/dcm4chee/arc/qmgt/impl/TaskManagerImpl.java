@@ -202,8 +202,9 @@ public class TaskManagerImpl implements TaskManager {
             }
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
-            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            List<Task> list;
             do {
+                list = ejb.findTasks(taskQueryParam, taskFetchSize);
                 for (Task task : list) {
                     try {
                         taskCanceledEvent.fire(new TaskCanceled(task));
@@ -265,12 +266,15 @@ public class TaskManagerImpl implements TaskManager {
         int failed = 0;
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        Date now = new Date();
+        taskQueryParam.setUpdatedBeforeNotAfter(now); // to ensure rescheduled tasks does not get fetched again
+        Date scheduledTime1 = scheduledTime != null ? scheduledTime : now;
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
-            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            List<Task> list;
             do {
+                list = ejb.findTasks(taskQueryParam, taskFetchSize);
                 for (Task task : list) {
                     if (!newDeviceName.isEmpty()) {
                         try {
@@ -362,12 +366,15 @@ public class TaskManagerImpl implements TaskManager {
         int failed = 0;
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        Date now = new Date();
+        taskQueryParam.setUpdatedBeforeNotAfter(now); // to ensure rescheduled tasks does not get fetched again
+        Date scheduledTime1 = scheduledTime != null ? scheduledTime : now;
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
-            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            List<Task> list;
             do {
+                list = ejb.findTasks(taskQueryParam, taskFetchSize);
                 for (Task task : list) {
                     if (!newDeviceName.isEmpty() || newExporterID != null) {
                         try {
@@ -459,12 +466,15 @@ public class TaskManagerImpl implements TaskManager {
         int failed = 0;
         Set<String> queueNames = new HashSet<>();
         BulkTaskEvent taskEvent = new BulkTaskEvent(request, TaskOperation.RescheduleTasks);
-        Date scheduledTime1 = scheduledTime != null ? scheduledTime : new Date();
+        Date now = new Date();
+        taskQueryParam.setUpdatedBeforeNotAfter(now); // to ensure rescheduled tasks does not get fetched again
+        Date scheduledTime1 = scheduledTime != null ? scheduledTime : now;
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             int taskFetchSize = arcDev.getTaskFetchSize();
-            List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+            List<Task> list;
             do {
+                list = ejb.findTasks(taskQueryParam, taskFetchSize);
                 for (Task task : list) {
                     if (!newDeviceName.isEmpty() || newQueueName != null) {
                         try {
@@ -553,8 +563,9 @@ public class TaskManagerImpl implements TaskManager {
             if (status == null || status == Task.Status.IN_PROCESS || type == null || type == Task.Type.DIFF) {
                 ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
                 int taskFetchSize = arcDev.getTaskFetchSize();
-                List<Task> list = ejb.findTasks(taskQueryParam, taskFetchSize);
+                List<Task> list;
                 do {
+                    list = ejb.findTasks(taskQueryParam, taskFetchSize);
                     for (Task task : list) {
                         try {
                             if (task.getStatus() == Task.Status.IN_PROCESS) {
@@ -576,7 +587,7 @@ public class TaskManagerImpl implements TaskManager {
             taskEvent.setFailed(failed);
             bulkTaskEventEvent.fire(taskEvent);
             if (count > 0)
-                LOG.info("Deleted {} tasks of {}", count, taskQueryParam);
+                LOG.info("Deleted {} tasks matching {}", count, taskQueryParam);
         }
     }
 

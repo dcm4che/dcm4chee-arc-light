@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
@@ -85,6 +86,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     @Override
     public Outcome cmove(ExternalRetrieveContext ctx, Task task) throws Exception {
         ApplicationEntity localAE = device.getApplicationEntity(ctx.getLocalAET(), true);
+        if (localAE == null || !localAE.isInstalled())
+            throw new ConfigurationException("No such Application Entity: " + ctx.getLocalAET());
+
         Association as = moveSCU.openAssociation(localAE, ctx.getRemoteAET());
         ctx.setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()));
         try {

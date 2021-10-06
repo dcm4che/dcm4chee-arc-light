@@ -41,6 +41,7 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.util.Date;
@@ -65,6 +66,7 @@ public class ExternalRetrieveContext {
     private String queueName;
     private String batchID;
     private Date scheduledTime;
+    private Task retrieveTask;
 
     public ExternalRetrieveContext() {
     }
@@ -219,6 +221,14 @@ public class ExternalRetrieveContext {
 
     public int completed() {
         return response != null ? response.getInt(Tag.NumberOfCompletedSuboperations, 0) : 0;
+    }
+
+    public Task getRetrieveTask() {
+        return retrieveTask;
+    }
+
+    public void setRetrieveTask(Task retrieveTask) {
+        this.retrieveTask = retrieveTask;
     }
 
     @Override

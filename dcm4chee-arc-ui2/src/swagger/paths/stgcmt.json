@@ -349,9 +349,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -458,9 +455,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -564,9 +558,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -676,9 +667,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -785,9 +773,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
@@ -891,9 +876,6 @@
         },
         "500": {
           "description": "Internal Server Error"
-        },
-        "503": {
-          "description": "Maximal number of Tasks in Queue reached"
         }
       }
     }
