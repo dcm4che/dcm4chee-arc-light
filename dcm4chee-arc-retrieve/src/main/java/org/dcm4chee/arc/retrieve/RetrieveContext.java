@@ -58,7 +58,6 @@ import java.io.Closeable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -294,4 +293,8 @@ public interface RetrieveContext extends Closeable {
     int failuresOnCopyToRetrieveCache();
 
     void incrementFailuresOnCopyToRetrieveCache();
+
+    boolean isPatientUpdatedTime4LastModified();
+
+    void setPatientUpdatedTime4LastModified(boolean patientUpdatedTime4LastModified);
 }

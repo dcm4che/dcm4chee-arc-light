@@ -228,6 +228,10 @@ public class WadoURI {
             }
 
             LOG.debug("Query Last Modified date of Instance");
+            ctx.setPatientUpdatedTime4LastModified(
+                    contentType == null || Stream.of(new ContentTypes(contentType).values)
+                                                  .anyMatch(mediaType -> mediaType.equals(MediaType.TEXT_HTML_TYPE)
+                                                                          || mediaType.equals(MediaType.TEXT_PLAIN_TYPE)));
             Date lastModified = service.getLastModified(ctx);
             if (lastModified == null)
                 throw new WebApplicationException(errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
@@ -327,12 +331,13 @@ public class WadoURI {
         if (numMatches > 1)
             LOG.debug("{} matches found. Return {}. match", numMatches, numMatches >>> 1);
         InstanceLocations inst = matches.get(numMatches >>> 1);
+        int frame = frame(inst.getAttributes());
+        ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frame);
+        ctx.setPatientUpdatedTime4LastModified(objectType == ObjectType.SRDocument);
 
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx);
 
-        int frame = frame(inst.getAttributes());
-        ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frame);
         MediaType mimeType = selectMimeType(objectType).orElseThrow(() ->
             new WebApplicationException(errResponse(
                     "Supported Media Types for " + objectType + " not acceptable",
