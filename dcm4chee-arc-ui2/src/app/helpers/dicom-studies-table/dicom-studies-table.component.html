@@ -25,7 +25,7 @@
                  tooltip="{{
                     patient_table.type === 'value' ?
                         (patient_table.hook?
-                            patient_table.hook(_.get(patient.attrs,patient_table.pathToValue)):
+                            patient_table.hook(_.get(patient.attrs,patient_table.pathToValue), patient.attrs, patient_table.pathToValue):
                             _.get(patient.attrs,patient_table.pathToValue)
                         ):
                         (patient_table.type === 'pipe' ?
@@ -74,6 +74,7 @@
                 </ng-container>
             </div>
             <attribute-list *ngIf="patient.showAttributes" [attrs]="patient.attrs"></attribute-list>
+            <custom-attribute-list *ngIf="patient && patient.showCustomAttributes" [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"  [attributesHook]="config.attributesHook" [attributes]="patient"></custom-attribute-list>
         </div>
 
         <!--Studies 2:-->
@@ -89,7 +90,7 @@
                          tooltip="{{
                             studies_table.type === 'value' ?
                                 (studies_table.hook?
-                                    studies_table.hook(_.get(study.attrs,studies_table.pathToValue)):
+                                    studies_table.hook(_.get(study.attrs,studies_table.pathToValue), study.attrs,studies_table.pathToValue):
                                     _.get(study.attrs,studies_table.pathToValue)
                                 ):
                                 (studies_table.type === 'pipe' ?
@@ -146,6 +147,7 @@
                         </ng-container>
                     </div>
                     <attribute-list *ngIf="study.showAttributes" [attrs]="study.attrs"></attribute-list>
+                    <custom-attribute-list *ngIf="study && study.showCustomAttributes" [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute" [attributesHook]="config.attributesHook" [attributes]="study"></custom-attribute-list>
                 </div>
                 <!--Series 3:-->
                 <div *ngIf="study.showSeries" class="series_main_block">
@@ -160,7 +162,7 @@
                                  tooltip="{{
                                     serie_table.type === 'value' ?
                                         (serie_table.hook?
-                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue)):
+                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue), serie.attrs,serie_table.pathToValue):
                                             _.get(serie.attrs,serie_table.pathToValue)
                                         ):
                                         (serie_table.type === 'pipe' ?
@@ -208,6 +210,7 @@
                                 </ng-container>
                             </div>
                             <attribute-list *ngIf="serie.showAttributes" [attrs]="serie.attrs"></attribute-list>
+                            <custom-attribute-list *ngIf="serie && serie.showCustomAttributes"  [attributesHook]="config.attributesHook" [attributes]="serie" [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"></custom-attribute-list>
                         </div>
 
                         <!--Instance 4:-->
@@ -223,7 +226,7 @@
                                          tooltip="{{
                                             instance_table.type === 'value' ?
                                                 (instance_table.hook?
-                                                    instance_table.hook(_.get(instance.attrs,instance_table.pathToValue)):
+                                                    instance_table.hook(_.get(instance.attrs,instance_table.pathToValue), instance.attrs, instance_table.pathToValue):
                                                     _.get(instance.attrs,instance_table.pathToValue)
                                                 ):
                                                 (instance_table.type === 'pipe' ?
@@ -280,6 +283,7 @@
                                             [seriesuid]="instance.wadoQueryParams.seriesUID"
                                             [objectuid]="instance.wadoQueryParams.objectUID">
                                     </attribute-list>
+                                    <custom-attribute-list *ngIf="instance && instance.showCustomAttributes" [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute" [attributesHook]="config.attributesHook" [attributes]="instance"></custom-attribute-list>
                                 </div>
                             </div>
                             <div class="tr" *ngIf="serie.instances && serie.instances.length > 0 && serie.instances[0].showPaginations">

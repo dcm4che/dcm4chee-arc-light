@@ -44,6 +44,7 @@ import { CodeSelectorComponent } from './code-selector/code-selector.component';
 import { LanguagePickerComponent } from './language-picker/language-picker.component';
 import {ModifyUpsComponent} from "./dialogs/modify-ups/modify-ups.component";
 import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.component';
+import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.component';
 
 
 @Injectable()
@@ -53,7 +54,7 @@ import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.com
         BrowserModule,
         FormsModule
     ],
-    declarations: [WidgetsComponent],
+    declarations: [WidgetsComponent, DeviceCloneComponent],
     exports: [WidgetsComponent],
     providers: [MatDialogConfig]
 })
