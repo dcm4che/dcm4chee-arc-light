@@ -57,6 +57,7 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -554,7 +555,7 @@ public class WadoRS {
         return null;
     }
 
-    private boolean hasPatientInfo(Target target) {
+    private boolean hasPatientInfo(Target target, RetrieveContext ctx) {
         switch (target) {
             case Study:
             case Series:
@@ -569,7 +570,31 @@ public class WadoRS {
             case StudyMetadata:
             case SeriesMetadata:
             case InstanceMetadata:
-                //TODO
+                return hasMetadataPatientInfo(ctx);
+        }
+        return false;
+    }
+
+    private boolean hasMetadataPatientInfo(RetrieveContext ctx) {
+        AttributeSet filter = ctx.getMetadataFilter();
+        if (filter == null)
+            return true;
+
+        int[] attrSet = filter.getSelection();
+        int[] patientAttrs = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                    .getAttributeFilter(Entity.Patient)
+                                    .getSelection();
+        return patientAttrs.length < attrSet.length
+                ? binarySearch(patientAttrs, attrSet)
+                : binarySearch(attrSet, patientAttrs);
+    }
+
+    private boolean binarySearch(int[] source, int[] target) {
+        for (int tag : source) {
+            if (tag == Tag.SpecificCharacterSet)
+                continue;
+
+            if (Arrays.binarySearch(target, tag) >= 0)
                 return true;
         }
         return false;
@@ -595,7 +620,7 @@ public class WadoRS {
                 ctx.setWithoutPrivateAttributes(withoutPrivateAttributes(ae));
             }
 
-            ctx.setPatientUpdatedTime4LastModified(patUpdateTime4LastModified && hasPatientInfo(target));
+            ctx.setPatientUpdatedTime4LastModified(patUpdateTime4LastModified && hasPatientInfo(target, ctx));
             if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_MATCH) == null
