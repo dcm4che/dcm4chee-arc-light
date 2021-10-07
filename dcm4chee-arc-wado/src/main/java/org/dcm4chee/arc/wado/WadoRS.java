@@ -59,7 +59,10 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
-import org.dcm4chee.arc.retrieve.*;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveEnd;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.retrieve.stream.DicomObjectOutput;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -202,7 +205,7 @@ public class WadoRS {
     public void retrieveStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.Study, studyUID, null, null, null, null, ar);
+        retrieve(Target.Study, studyUID, null, null, null, null, true, ar);
     }
 
     @GET
@@ -210,7 +213,7 @@ public class WadoRS {
     public void retrieveStudyMetadata(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.StudyMetadata, studyUID, null, null, null, null, ar);
+        retrieve(Target.StudyMetadata, studyUID, null, null, null, null, true, ar);
     }
 
     @GET
@@ -219,7 +222,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.Series, studyUID, seriesUID, null, null, null, ar);
+        retrieve(Target.Series, studyUID, seriesUID, null, null, null, true, ar);
     }
 
     @GET
@@ -228,7 +231,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.SeriesMetadata, studyUID, seriesUID, null, null, null, ar);
+        retrieve(Target.SeriesMetadata, studyUID, seriesUID, null, null, null, true, ar);
     }
 
     @GET
@@ -238,7 +241,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.Instance, studyUID, seriesUID, objectUID, null, null, ar);
+        retrieve(Target.Instance, studyUID, seriesUID, objectUID, null, null, true, ar);
     }
 
     @GET
@@ -248,7 +251,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve(Target.InstanceMetadata, studyUID, seriesUID, objectUID, null, null, ar);
+        retrieve(Target.InstanceMetadata, studyUID, seriesUID, objectUID, null, null, true, ar);
     }
 
     @GET
@@ -260,7 +263,7 @@ public class WadoRS {
             @PathParam("attributePath") @ValidValueOf(type = AttributePath.class) String attributePath,
             @Suspended AsyncResponse ar) {
         retrieve(Target.Bulkdata, studyUID, seriesUID, objectUID,
-                null, new AttributePath(attributePath).path, ar);
+                null, new AttributePath(attributePath).path, false, ar);
     }
 
     @GET
@@ -272,7 +275,7 @@ public class WadoRS {
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
         retrieve(Target.Frame, studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, ar);
+                new FrameList(frameList).frames, null, false, ar);
     }
 
     @GET
@@ -281,7 +284,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.RenderedStudy, studyUID, null, null,
-                null, null, ar);
+                null, null, true, ar);
     }
 
     @GET
@@ -291,7 +294,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.RenderedSeries, studyUID, seriesUID, null,
-                null, null, ar);
+                null, null, true, ar);
     }
 
     @GET
@@ -302,7 +305,7 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.RenderedInstance, studyUID, seriesUID, objectUID,
-                null, null, ar);
+                null, null, true, ar);
     }
 
     @GET
@@ -314,7 +317,7 @@ public class WadoRS {
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
         retrieve(Target.RenderedFrame, studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, ar);
+                new FrameList(frameList).frames, null, true, ar);
     }
 
     @GET
@@ -323,7 +326,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.StudyThumbnail, studyUID, null, null,
-                null, null, ar);
+                null, null, false, ar);
     }
 
     @GET
@@ -333,7 +336,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.SeriesThumbnail, studyUID, seriesUID, null,
-                null, null, ar);
+                null, null, false, ar);
     }
 
     @GET
@@ -344,7 +347,7 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.InstanceThumbnail, studyUID, seriesUID, objectUID,
-                null, null, ar);
+                null, null, false, ar);
     }
 
     @GET
@@ -356,7 +359,7 @@ public class WadoRS {
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
         retrieve(Target.FrameThumbnail, studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, ar);
+                new FrameList(frameList).frames, null, false, ar);
     }
 
     Output bulkdataPath() {
@@ -551,8 +554,30 @@ public class WadoRS {
         return null;
     }
 
+    private boolean hasPatientInfo(Target target, boolean patUpdateTime4LastModified) {
+        if (patUpdateTime4LastModified)
+            switch (target) {
+                case Study:
+                case Series:
+                case Instance:
+                    return acceptableMediaTypes.contains(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE);
+                case RenderedStudy:
+                case RenderedSeries:
+                case RenderedInstance:
+                case RenderedFrame:
+                    return acceptableMultipartRelatedMediaTypes.contains(MediaType.TEXT_HTML_TYPE)
+                            || acceptableMultipartRelatedMediaTypes.contains(MediaType.TEXT_PLAIN_TYPE);
+                case StudyMetadata:
+                case SeriesMetadata:
+                case InstanceMetadata:
+                    //TODO
+                    return true;
+            }
+        return false;
+    }
+
     private void retrieve(Target target, String studyUID, String seriesUID, String objectUID, int[] frameList,
-            int[] attributePath, AsyncResponse ar) {
+            int[] attributePath, boolean patUpdateTime4LastModified, AsyncResponse ar) {
         logRequest();
         ApplicationEntity ae = getApplicationEntity();
         if (aet.equals(ae.getAETitle()))
@@ -571,6 +596,7 @@ public class WadoRS {
                 ctx.setWithoutPrivateAttributes(withoutPrivateAttributes(ae));
             }
 
+            ctx.setPatientUpdatedTime4LastModified(hasPatientInfo(target, patUpdateTime4LastModified));
             if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_MATCH) == null
