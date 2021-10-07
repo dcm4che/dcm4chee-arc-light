@@ -99,7 +99,7 @@
                             <div class="td_block" *ngFor="let aet of clonedDevice.dicomNetworkAE;let i = index">
                                 <input type="text"  [(ngModel)]="aet.dicomAETitle" (keyup)="onAetChange( i, aet)">
                                 <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
-                                    <input type="checkbox" [checked]="_.get(aet,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnetionReffChange(aet, i, $event)">
+                                    <input type="checkbox" [checked]="_.get(aet,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(aet, i, $event)">
                                     {{_.get(connection,'cn')}}
                                 </label>
                             </div>
@@ -147,7 +147,7 @@
                             <div class="td_block" *ngFor="let webApp of clonedDevice.dcmDevice.dcmWebApp">
                                 <input type="text"  [(ngModel)]="webApp.dcmWebAppName">
                                 <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
-                                    <input type="checkbox" [checked]="_.get(webApp,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnetionReffChange(webApp, i, $event)">
+                                    <input type="checkbox" [checked]="_.get(webApp,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(webApp, i, $event)">
                                     {{_.get(connection,'cn')}}
                                 </label>
                                 <input type="text"  [(ngModel)]="webApp.dcmWebServicePath">
@@ -192,7 +192,7 @@
                             <div class="td_block" *ngFor="let hl7 of clonedDevice.dcmDevice.hl7Application;let i = index">
                                 <input type="text"  [(ngModel)]="hl7.hl7ApplicationName">
                                 <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
-                                    <input type="checkbox" [checked]="_.get(hl7,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(aet, i, $event)">
+                                    <input type="checkbox" [checked]="_.get(hl7,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(hl7, i, $event)">
                                     {{_.get(connection,'cn')}}
                                 </label>
                             </div>

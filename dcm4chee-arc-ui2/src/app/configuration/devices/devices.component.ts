@@ -214,6 +214,7 @@ export class DevicesComponent implements OnInit{
                 $this.service.changeWebAppOnClone(device, $this.mainservice.global.webApps);
                 /////*/
 
+
                 this.service.createDevice(_.get(cloneDevice, "dicomDeviceName"), cloneDevice).subscribe(res => {
                         console.log('res succes', res);
                         $this.cfpLoadingBar.complete();

@@ -153,16 +153,28 @@ export class DeviceCloneComponent implements OnInit {
                 console.log("webApp.dcmWebServicePath", webApp.dcmWebServicePath);
                 if(clonedRegex.test(webApp.dcmWebServicePath)){
                     webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(clonedRegex, `/${newAet}/`);
+                    this.replaceOtherAetRef(clonedOldAet, newAet);
                 };
                 if(regex.test(webApp.dcmWebServicePath)){
                     webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(regex, `/${newAet}/`);
+                    this.replaceOtherAetRef(oldAet, newAet);
                 };
                 if(this.previousAetState[i] && prevRegex && prevRegex.test(webApp.dcmWebServicePath)){
                     webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(prevRegex, `/${newAet}/`);
+                    this.replaceOtherAetRef(prevAet, newAet);
                 };
                 console.log("webApp.dcmWebServicePath-after", webApp.dcmWebServicePath);
                 this.previousAetState[i] = newAet;
             }
+        });
+    }
+
+    replaceOtherAetRef(currentAet,newAet){
+        console.log("currentAet",currentAet);
+        console.log("newAet", newAet);
+        j4care.traverse(this.clonedDevice, (object, key)=>{
+           console.log("object",object);
+           console.log("key",key);
         });
     }
 }

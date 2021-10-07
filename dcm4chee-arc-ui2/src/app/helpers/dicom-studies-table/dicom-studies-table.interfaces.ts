@@ -3,7 +3,7 @@ import {DcmWebApp} from "../../models/dcm-web-app";
 import {StudyPageConfig, StudyTagConfig} from "../../interfaces";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 
-export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy" | "progress" | "model" | "buttons";
+export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy" | "progress" | "model" | "buttons" | "sub-table";
 
 export interface DicomTableSchema{
     patient:TableSchemaElement[];
@@ -87,6 +87,8 @@ export interface TableSchemaConfig {
     headerTop?:string;
     offset?:number;
     showCheckboxes?:boolean;
+    attributesHook?:Function;
+    dicomAttributesAsSubAttribute?:{key:string};
 }
 
 export class DynamicPipe{
