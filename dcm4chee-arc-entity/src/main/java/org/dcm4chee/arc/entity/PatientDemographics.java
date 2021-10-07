@@ -46,9 +46,18 @@ import javax.persistence.*;
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Oct 2021
  */
+@NamedQueries({
+@NamedQuery(
+        name=PatientDemographics.FIND_BY_PATIENT_ID,
+        query="select pd from PatientDemographics pd " +
+                "where pd.id like ?1")
+})
 @Entity
 @Table(name = "patient_demographics")
 public class PatientDemographics {
+
+    public static final String FIND_BY_PATIENT_ID = "PatientDemographics.findByPatientID";
+
     @Id
     @Column(name = "pat_id")
     private String id;

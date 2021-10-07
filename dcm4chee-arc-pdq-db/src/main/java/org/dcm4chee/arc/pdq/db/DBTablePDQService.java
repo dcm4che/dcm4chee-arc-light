@@ -43,9 +43,11 @@ package org.dcm4chee.arc.pdq.db;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.Device;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
+import org.dcm4chee.arc.entity.PatientDemographics;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
@@ -53,19 +55,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2021
  */
 public class DBTablePDQService extends AbstractPDQService {
     private static final Logger LOG = LoggerFactory.getLogger(DBTablePDQService.class);
-    private final Device device;
     private final EntityManager em;
 
-    public DBTablePDQService(PDQServiceDescriptor descriptor, Device device,  EntityManager em) {
+    public DBTablePDQService(PDQServiceDescriptor descriptor, EntityManager em) {
         super(descriptor);
-        this.device = device;
         this.em = em;
     }
 
@@ -73,8 +75,34 @@ public class DBTablePDQService extends AbstractPDQService {
     public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
         requireQueryEntity(Entity.Patient);
         IDWithIssuer patientID = ctx.getPatientID();
-        //TODO
-        return null;
+        List<PatientDemographics> patientDemographics = em.createNamedQuery(PatientDemographics.FIND_BY_PATIENT_ID,
+                                                                            PatientDemographics.class)
+                                                            .setParameter(1, toString(patientID))
+                                                            .getResultList();
+        switch (patientDemographics.size()) {
+            case 0:
+                LOG.info("No Patient Demographics found for {}", patientID);
+                return null;
+            case 1:
+                return demographics(patientID, patientDemographics.get(0));
+            default:
+                throw new PDQServiceException("Patient ID '" + patientID + "' not unique at " + descriptor);
+        }
+    }
+
+    private String toString(IDWithIssuer patientID) {
+        if (patientID.getIssuer() == null)
+            return patientID + "%";
+
+        return patientID.toString();
+    }
+
+    private Attributes demographics(IDWithIssuer patientID, PatientDemographics pd) {
+        Attributes attrs = patientID.exportPatientIDWithIssuer(null);
+        attrs.setString(Tag.PatientName, VR.PN, pd.getName());
+        attrs.setString(Tag.PatientBirthDate, VR.DA, pd.getBirthDate());
+        attrs.setString(Tag.PatientSex, VR.CS, pd.getSex());
+        return attrs;
     }
 
 }

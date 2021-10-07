@@ -41,19 +41,18 @@
 
 package org.dcm4chee.arc.pdq.db;
 
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.PDQService;
 import org.dcm4chee.arc.pdq.PDQServiceProvider;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2021
  */
 @ApplicationScoped
@@ -62,11 +61,8 @@ public class DBTablePDQServiceProvider implements PDQServiceProvider {
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
-    @Inject
-    private Device device;
-
     @Override
     public PDQService getPDQService(PDQServiceDescriptor descriptor) {
-        return new DBTablePDQService(descriptor, device, em);
+        return new DBTablePDQService(descriptor, em);
     }
 }
