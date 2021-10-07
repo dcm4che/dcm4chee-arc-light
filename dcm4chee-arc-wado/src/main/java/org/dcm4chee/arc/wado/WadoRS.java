@@ -554,25 +554,24 @@ public class WadoRS {
         return null;
     }
 
-    private boolean hasPatientInfo(Target target, boolean patUpdateTime4LastModified) {
-        if (patUpdateTime4LastModified)
-            switch (target) {
-                case Study:
-                case Series:
-                case Instance:
-                    return acceptableMediaTypes.contains(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE);
-                case RenderedStudy:
-                case RenderedSeries:
-                case RenderedInstance:
-                case RenderedFrame:
-                    return acceptableMultipartRelatedMediaTypes.contains(MediaType.TEXT_HTML_TYPE)
-                            || acceptableMultipartRelatedMediaTypes.contains(MediaType.TEXT_PLAIN_TYPE);
-                case StudyMetadata:
-                case SeriesMetadata:
-                case InstanceMetadata:
-                    //TODO
-                    return true;
-            }
+    private boolean hasPatientInfo(Target target) {
+        switch (target) {
+            case Study:
+            case Series:
+            case Instance:
+                return acceptableMediaTypes.contains(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE);
+            case RenderedStudy:
+            case RenderedSeries:
+            case RenderedInstance:
+            case RenderedFrame:
+                return acceptableMultipartRelatedMediaTypes.contains(MediaType.TEXT_HTML_TYPE)
+                        || acceptableMultipartRelatedMediaTypes.contains(MediaType.TEXT_PLAIN_TYPE);
+            case StudyMetadata:
+            case SeriesMetadata:
+            case InstanceMetadata:
+                //TODO
+                return true;
+        }
         return false;
     }
 
@@ -596,7 +595,7 @@ public class WadoRS {
                 ctx.setWithoutPrivateAttributes(withoutPrivateAttributes(ae));
             }
 
-            ctx.setPatientUpdatedTime4LastModified(hasPatientInfo(target, patUpdateTime4LastModified));
+            ctx.setPatientUpdatedTime4LastModified(patUpdateTime4LastModified && hasPatientInfo(target));
             if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_MATCH) == null
