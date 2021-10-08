@@ -521,7 +521,9 @@ public class WadoRS {
                 MediaTypes.IMAGE_PNG_TYPE,
                 MediaTypes.IMAGE_JPEG_TYPE,
                 MediaTypes.IMAGE_GIF_TYPE);
-        if (mediaType == null) new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        if (mediaType == null) {
+            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        }
         renderedMediaType = mediaType;
         ignorePatientUpdate = true;
         return Output.THUMBNAIL;
