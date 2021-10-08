@@ -107,7 +107,6 @@ export class DeviceCloneComponent implements OnInit {
         }catch (e){
             j4care.log("trying to toggle netwock reference",e);
         }
-        console.log("clone",this.clonedDevice);
     }
 
     onSufficePrefixChange(){
@@ -132,9 +131,6 @@ export class DeviceCloneComponent implements OnInit {
     }
 
     onAetChange( i, aet){
-        console.log("i",i);
-        console.log("aet",aet);
-        console.log("device",_.get(this.device,`dicomNetworkAE[${i}]`));
         const oldAet = _.get(this.device,`dicomNetworkAE[${i}].dicomAETitle`);
         const clonedOldAet = _.get(this.clonedDevice,`dicomNetworkAE[${i}].dicomAETitle`);
         const newAet = aet.dicomAETitle;
@@ -146,11 +142,8 @@ export class DeviceCloneComponent implements OnInit {
             prevAet = this.previousAetState[i];
             prevRegex = new RegExp(`/${prevAet}/`, "gm");
         }
-        console.log("previousAetState",this.previousAetState);
         this.clonedDevice.dcmDevice.dcmWebApp.forEach(webApp=>{
-            //console.log("webApp",webApp.dcmWebServicePath);
             if(webApp.dcmWebServicePath.indexOf(`/${oldAet}/`) > -1  || webApp.dcmWebServicePath.indexOf(`/${clonedOldAet}/`) > -1 || (prevAet && webApp.dcmWebServicePath.indexOf(`/${prevAet}/`) > -1)){
-                console.log("webApp.dcmWebServicePath", webApp.dcmWebServicePath);
                 if(clonedRegex.test(webApp.dcmWebServicePath)){
                     webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(clonedRegex, `/${newAet}/`);
                     this.replaceOtherAetRef(clonedOldAet, newAet);
@@ -163,18 +156,17 @@ export class DeviceCloneComponent implements OnInit {
                     webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(prevRegex, `/${newAet}/`);
                     this.replaceOtherAetRef(prevAet, newAet);
                 };
-                console.log("webApp.dcmWebServicePath-after", webApp.dcmWebServicePath);
                 this.previousAetState[i] = newAet;
             }
         });
     }
 
     replaceOtherAetRef(currentAet,newAet){
-        console.log("currentAet",currentAet);
-        console.log("newAet", newAet);
-        j4care.traverse(this.clonedDevice, (object, key)=>{
-           console.log("object",object);
-           console.log("key",key);
+        j4care.traverse(this.clonedDevice, (value, key, object)=>{
+            if(value === currentAet){
+                object[key] = newAet;
+            }
+            return object[key];
         });
     }
 }

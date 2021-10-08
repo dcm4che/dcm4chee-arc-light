@@ -54,7 +54,7 @@ import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.compon
         BrowserModule,
         FormsModule
     ],
-    declarations: [WidgetsComponent, DeviceCloneComponent],
+    declarations: [WidgetsComponent],
     exports: [WidgetsComponent],
     providers: [MatDialogConfig]
 })
@@ -99,5 +99,6 @@ export const WidgetsComponents = [
     StudyTransferringOverviewComponent,
     MediaViewerComponent,
     CodeSelectorComponent,
-    LanguagePickerComponent
+    LanguagePickerComponent,
+    DeviceCloneComponent
 ];
