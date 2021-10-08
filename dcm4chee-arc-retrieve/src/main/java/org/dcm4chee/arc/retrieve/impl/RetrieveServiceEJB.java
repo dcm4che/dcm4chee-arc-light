@@ -49,11 +49,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Tuple;
-import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -148,60 +143,5 @@ public class RetrieveServiceEJB {
                     .setParameter(2, availability)
                     .executeUpdate();
         }
-    }
-
-    public List<Date> queryLastModified(RetrieveContext ctx) {
-        String seriesUID = ctx.getSeriesInstanceUID();
-        String sopUID = ctx.getSopInstanceUID();
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Tuple> query = cb.createTupleQuery();
-
-        Root<Instance> instance = query.from(Instance.class);
-        Join<Instance, Series> series = instance.join(Instance_.series);
-        Join<Series, Study> study = series.join(Series_.study);
-        Join<Study, Patient> patient = null;
-        List<Predicate> predicates = new ArrayList<>();
-        List<Selection> selections = new ArrayList<>();
-        Expression<Date> maxInstUpdatedTime = cb.greatest(instance.get(Instance_.updatedTime));
-        Expression<Date> maxSeriesUpdatedTime = cb.greatest(series.get(Series_.updatedTime));
-
-        if (ctx.isPatientUpdatedTime4LastModified()) {
-            patient = study.join(Study_.patient);
-            selections.add(patient.get(Patient_.updatedTime));
-        }
-        predicates.add(cb.equal(study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUID()));
-        selections.add(study.get(Study_.modifiedTime));
-        if (seriesUID == null)
-            selections.add(maxSeriesUpdatedTime);
-        else {
-            predicates.add(cb.equal(series.get(Series_.seriesInstanceUID), seriesUID));
-            selections.add(series.get(Series_.updatedTime));
-        }
-
-        if (sopUID == null) {
-            List<Expression> groupBy = new ArrayList<>();
-            if (patient != null)
-                groupBy.add(patient.get(Patient_.pk));
-            groupBy.add(study.get(Study_.pk));
-            if (seriesUID != null)
-                groupBy.add(series.get(Series_.pk));
-            query.groupBy(groupBy.toArray(new Expression[0]));
-            selections.add(maxInstUpdatedTime);
-        } else {
-            predicates.add(cb.equal(instance.get(Instance_.sopInstanceUID), sopUID));
-            selections.add(instance.get(Instance_.updatedTime));
-        }
-
-        query.where(predicates.toArray(new Predicate[0]))
-              .multiselect(selections.toArray(new Selection[0]));
-
-        Tuple result = em.createQuery(query).getSingleResult();
-        List<Date> dates = new ArrayList<>();
-        if (patient != null)
-            dates.add(result.get(patient.get(Patient_.updatedTime)));
-        dates.add(result.get(study.get(Study_.modifiedTime)));
-        dates.add(result.get(seriesUID == null ? maxSeriesUpdatedTime : series.get(Series_.updatedTime)));
-        dates.add(result.get(sopUID == null ? maxInstUpdatedTime : instance.get(Instance_.updatedTime)));
-        return dates;
     }
 }

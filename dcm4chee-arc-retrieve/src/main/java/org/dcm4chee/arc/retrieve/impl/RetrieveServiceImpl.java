@@ -308,22 +308,25 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public Date getLastModified(RetrieveContext ctx) {
-        if (ctx.isPatientUpdatedTime4LastModified())
-            LOG.debug("Consider Patient Update Time in querying of Last Modified date");
-
-        List<Date> dates = ejb.queryLastModified(ctx);
+    public Date getLastModified(RetrieveContext ctx, boolean ignorePatientUpdates) {
+        List<Object[]> dates = queryLastModified(
+                ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUIDs());
+        int first = ignorePatientUpdates ? 1 : 0;
         Date lastModified = null;
-        for (Date date : dates)
-            if (lastModified == null || lastModified.compareTo(date) < 0)
-                lastModified = date;
+        for (Object[] objs : dates) {
+            for (int i = first; i < objs.length; i++) {
+                Date date = (Date) objs[i];
+                if (lastModified == null || lastModified.compareTo(date) < 0)
+                    lastModified = date;
+            }
+        }
         return lastModified;
     }
 
     @Override
-    public Date getLastModifiedFromMatches(RetrieveContext ctx) {
+    public Date getLastModifiedFromMatches(RetrieveContext ctx, boolean ignorePatientUpdates) {
         Date lastModified = ctx.getStudyInfos().iterator().next().getModifiedTime();
-        if (ctx.isPatientUpdatedTime4LastModified() && lastModified.compareTo(ctx.getPatientUpdatedTime()) < 0)
+        if (!ignorePatientUpdates && lastModified.compareTo(ctx.getPatientUpdatedTime()) < 0)
             lastModified = ctx.getPatientUpdatedTime();
         for (SeriesInfo si : ctx.getSeriesInfos())
             if (lastModified.compareTo(si.getUpdatedTime()) < 0)
@@ -332,6 +335,21 @@ public class RetrieveServiceImpl implements RetrieveService {
             if (il.getUpdatedTime() != null && lastModified.compareTo(il.getUpdatedTime()) < 0)
                 lastModified = il.getUpdatedTime();
         return lastModified;
+    }
+
+    private List<Object[]> queryLastModified(String studyIUID, String seriesIUID, String[] sopIUIDs) {
+        return (sopIUIDs.length > 0 // sopIUIDs.length == 1, because WADO-RS does not support multiple sopIUIDs
+                    ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
+                        .setParameter(1, studyIUID)
+                        .setParameter(2, seriesIUID)
+                        .setParameter(3, sopIUIDs[0])
+                    : seriesIUID != null
+                    ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
+                        .setParameter(1, studyIUID)
+                        .setParameter(2, seriesIUID)
+                    : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
+                        .setParameter(1, studyIUID)
+        ).getResultList();
     }
 
     @Override
