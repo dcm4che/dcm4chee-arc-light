@@ -376,8 +376,13 @@ public class WadoRS {
 
     Output render() {
         initAcceptableMediaTypes();
-        ignorePatientUpdate = acceptableMultipartRelatedMediaTypes.stream().allMatch(WadoURI::ignorePatientUpdates);
+        ignorePatientUpdate = acceptableMediaTypes.stream().allMatch(WadoRS::ignorePatientUpdates);
         return Output.RENDER_MULTIPART;
+    }
+
+    private static boolean ignorePatientUpdates(MediaType mediaType) {
+        MediaType multiPartRelatedType = MediaTypes.getMultiPartRelatedType(mediaType);
+        return WadoURI.ignorePatientUpdates(multiPartRelatedType != null ? multiPartRelatedType : mediaType);
     }
 
     Output renderFrame() {
