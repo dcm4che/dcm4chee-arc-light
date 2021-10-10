@@ -90,6 +90,18 @@ public class TaskManagerEJB {
                 .getResultList();
     }
 
+    public int rescheduleInProcess(String queueName) {
+        int rescheduled = em.createNamedQuery(Task.UPDATE_STATUS)
+                .setParameter(1, Task.Status.SCHEDULED)
+                .setParameter(2, Task.Status.IN_PROCESS)
+                .setParameter(3, queueName)
+                .setParameter(4, device.getDeviceName())
+                .executeUpdate();
+        if (rescheduled > 0)
+            LOG.info("Reset status of {} Tasks in Queue {} from IN PROCESS to SCHEDULED", rescheduled);
+        return rescheduled;
+    }
+
     public Task onProcessingStart(Long pk) {
         Task entity = em.find(Task.class, pk);
         if (entity == null) {
