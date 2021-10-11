@@ -201,6 +201,7 @@ public class WadoURI {
     private String iccprofile;
 
     private Collection<String> acceptableTransferSyntaxes;
+    private ContentTypes contentTypes;
 
     @Override
     public String toString() {
@@ -215,6 +216,8 @@ public class WadoURI {
         // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
         // s. https://issues.jboss.org/browse/RESTEASY-903
         request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
+        if (contentType != null)
+            contentTypes = new ContentTypes(contentType);
         logRequest();
         if (aet.equals(getApplicationEntity().getAETitle()))
             validateWebApp();
@@ -228,11 +231,7 @@ public class WadoURI {
             }
 
             LOG.debug("Query Last Modified date of Instance");
-            ctx.setPatientUpdatedTime4LastModified(
-                    contentType == null || Stream.of(new ContentTypes(contentType).values)
-                                                  .anyMatch(mediaType -> mediaType.equals(MediaType.TEXT_HTML_TYPE)
-                                                                          || mediaType.equals(MediaType.TEXT_PLAIN_TYPE)));
-            Date lastModified = service.getLastModified(ctx);
+            Date lastModified = service.getLastModified(ctx, ignorePatientUpdates());
             if (lastModified == null)
                 throw new WebApplicationException(errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
             LOG.debug("Last Modified date: {}", lastModified);
@@ -250,7 +249,6 @@ public class WadoURI {
             ar.resume(e);
         }
     }
-
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
@@ -333,15 +331,13 @@ public class WadoURI {
         InstanceLocations inst = matches.get(numMatches >>> 1);
         int frame = frame(inst.getAttributes());
         ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frame);
-        ctx.setPatientUpdatedTime4LastModified(objectType == ObjectType.SRDocument);
-
-        if (lastModified == null)
-            lastModified = service.getLastModifiedFromMatches(ctx);
-
         MediaType mimeType = selectMimeType(objectType).orElseThrow(() ->
             new WebApplicationException(errResponse(
                     "Supported Media Types for " + objectType + " not acceptable",
                     Response.Status.NOT_ACCEPTABLE)));
+
+        if (lastModified == null)
+            lastModified = service.getLastModifiedFromMatches(ctx, ignorePatientUpdates());
 
         StreamingOutput entity = entityOf(ctx, inst, objectType, mimeType, frame);
         ar.register((CompletionCallback) throwable -> {
@@ -356,6 +352,10 @@ public class WadoURI {
                 .lastModified(lastModified)
                 .tag(String.valueOf(lastModified.hashCode()))
                 .build());
+    }
+
+    private boolean ignorePatientUpdates() {
+        return contentTypes != null && contentTypes.ignorePatientUpdates;
     }
 
     private URI redirectURI(String webAppName) throws ConfigurationException {
@@ -543,7 +543,7 @@ public class WadoURI {
         if (contentType == null)
             return Optional.of(objectType.getDefaultMimeType());
 
-        return Stream.of(new ContentTypes(contentType).values)
+        return Stream.of(contentTypes.values)
                 .map(objectType::getCompatibleMimeType)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -581,13 +581,24 @@ public class WadoURI {
 
     public static final class ContentTypes {
         final MediaType[] values;
+        final boolean ignorePatientUpdates;
 
         public ContentTypes(String s) {
             String[] ss = StringUtils.split(s, ',');
             values = new MediaType[ss.length];
-            for (int i = 0; i < ss.length; i++)
-                values[i] = MediaType.valueOf(ss[i]);
+            boolean ignorePatientUpdates = true;
+            for (int i = 0; i < ss.length; i++) {
+                if (!ignorePatientUpdates(values[i] = MediaType.valueOf(ss[i])))
+                    ignorePatientUpdates = false;
+            }
+            this.ignorePatientUpdates = ignorePatientUpdates;
         }
+    }
+
+    static boolean ignorePatientUpdates(MediaType mediaType) {
+        return mediaType.getType().equalsIgnoreCase("image")
+                || mediaType.getType().equalsIgnoreCase("video")
+                || mediaType.getSubtype().equalsIgnoreCase("pdf");
     }
 
     public static final class Region {

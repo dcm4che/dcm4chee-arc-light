@@ -20,6 +20,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {SelectDropdown} from "../../interfaces";
 import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
 import { loadTranslations } from '@angular/localize';
+import {DeviceCloneComponent} from "../../widgets/dialogs/device-clone/device-clone.component";
 
 @Component({
   selector: 'app-devices',
@@ -190,81 +191,56 @@ export class DevicesComponent implements OnInit{
     };
 
     cloneDevice(devicename){
-        let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-        let deviceNameList = this.devices.map(res => {
-            return res.dicomDeviceName;
-        });
-        console.log('deviceNameList', deviceNameList);
-        let parameters: any = {
-            content: $localize `:@@devices.set_the_name_for_the_new_device_to_clone:Set the name for the new device to clone ${devicename.dicomDeviceName}:@@dicomDeviceName:`,
-            input: {
-                name: 'newdevice',
-                type: 'text'
-            },
-            result: {input: ''},
-            saveButton: 'CLONE'
-        };
         let $this = this;
-        this.confirm(parameters).subscribe(result => {
-            if (result){
-                $this.cfpLoadingBar.start();
-                console.log('result', result);
-                console.log('param', parameters);
-                console.log('devicename', devicename.dicomDeviceName);
-                console.log('indexof', _.indexOf(deviceNameList, parameters.result.input));
-                if (_.indexOf(deviceNameList, parameters.result.input) > -1){
-                    $this.mainservice.showError($localize `:@@devices.name_exist:This name already exists, please choose another one!`);
-                    $this.cfpLoadingBar.complete();
-                }else{
-                    $this.$http.get(
-                        `${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${devicename.dicomDeviceName}`
-                    )
-                    // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
-                        .subscribe(
-                            (device) => {
-                                console.log('response', device);
-                                $this.service.changeAetOnClone(device,$this.aes);
-                                $this.service.changeHl7ApplicationNameOnClone(device, $this.mainservice.global.hl7);
-                                $this.service.changeWebAppOnClone(device, $this.mainservice.global.webApps);
-                                console.log('device afterchange', device);
-                                device.dicomDeviceName = parameters.result.input;
-                                this.service.createDevice(parameters.result.input, device).subscribe(res => {
-                                            console.log('res succes', res);
-                                            $this.cfpLoadingBar.complete();
-                                            $this.mainservice.showMsg($localize `:@@devices.device_cloned:Device cloned successfully!`);
-                                            $this.cloneVendorData(devicename.dicomDeviceName, parameters.result.input);
-                                            $this.service.getAes().subscribe((response) => {
-                                                    $this.aes = response;
-                                                    if ($this.mainservice.global && !$this.mainservice.global.aes){
-                                                        let global = _.cloneDeep($this.mainservice.global);
-                                                        global.aes = response;
-                                                        $this.mainservice.setGlobal(global);
-                                                    }else{
-                                                        if ($this.mainservice.global && $this.mainservice.global.aes){
-                                                            $this.mainservice.global.aes = response;
-                                                        }else{
-                                                            $this.mainservice.setGlobal({aes: response});
-                                                        }
-                                                    }
-                                                }, (response) => {
-                                                    // vex.dialog.alert("Error loading aes, please reload the page and try again!");
-                                                });
-                                            $this.cfpLoadingBar.complete();
-                                            $this.getWebApps(0);
-                                        },
-                                        err => {
-                                            console.log('error');
-                                            $this.cfpLoadingBar.complete();
-                                            $this.httpErrorHandler.handleError(err);
-                                        });
-                            },
-                            (err) => {
-                                $this.httpErrorHandler.handleError(err);
-                                $this.cfpLoadingBar.complete();
-                            }
-                        );
+        this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${devicename.dicomDeviceName}`).subscribe((device) => {
+            let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+            let deviceNameList = this.devices.map(res => {
+                return res.dicomDeviceName;
+            });
+
+            this.config.viewContainerRef = this.viewContainerRef;
+            this.dialogRef = this.dialog.open(DeviceCloneComponent, {
+                height: 'auto',
+                width: '90vw'
+            });
+            this.dialogRef.componentInstance.device = device;
+            this.dialogRef.afterClosed().subscribe(cloneDevice=>{
+                console.log("cloneDevice",cloneDevice);
+                if(cloneDevice){
+                    this.cfpLoadingBar.start();
+                    this.service.createDevice(_.get(cloneDevice, "dicomDeviceName"), cloneDevice).subscribe(res => {
+                            console.log('res succes', res);
+                            $this.cfpLoadingBar.complete();
+                            $this.mainservice.showMsg($localize `:@@devices.device_cloned:Device cloned successfully!`);
+
+                            $this.cloneVendorData(devicename.dicomDeviceName, _.get(cloneDevice, "dicomDeviceName"));
+                            $this.service.getAes().subscribe((response) => {
+                                $this.aes = response;
+                                if ($this.mainservice.global && !$this.mainservice.global.aes){
+                                    let global = _.cloneDeep($this.mainservice.global);
+                                    global.aes = response;
+                                    $this.mainservice.setGlobal(global);
+                                }else{
+                                    if ($this.mainservice.global && $this.mainservice.global.aes){
+                                        $this.mainservice.global.aes = response;
+                                    }else{
+                                        $this.mainservice.setGlobal({aes: response});
+                                    }
+                                }
+                            });
+                            $this.cfpLoadingBar.complete();
+                            $this.getWebApps(0);
+                        },
+                        err => {
+                            console.log('error');
+                            $this.cfpLoadingBar.complete();
+                            $this.httpErrorHandler.handleError(err);
+                        });
                 }
-            }
+            });
+        }, (err) => {
+            this.httpErrorHandler.handleError(err);
+            this.cfpLoadingBar.complete();
         });
     };
     cloneVendorData(oldDeviceName, newDeviceName){

@@ -437,13 +437,13 @@ public class QidoRS {
         return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
     }
 
-    private boolean patUpdateTime4LastModified(Attributes returnKeys) {
+    private boolean ignorePatientUpdates(Attributes returnKeys) {
         int[] patientTags = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                 .getAttributeFilter(Entity.Patient).getSelection();
         for (int tag : patientTags)
             if (tag != Tag.SpecificCharacterSet && returnKeys.contains(tag))
-                return true;
-        return false;
+                return false;
+        return true;
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
@@ -465,7 +465,7 @@ public class QidoRS {
             if (etag && arcAE.qidoETag()) {
                 LOG.debug("Query Last Modified date of {}", model);
                 lastModified = service.getLastModified(
-                        queryAttrs.isIncludeAll() || patUpdateTime4LastModified(ctx.getReturnKeys()),
+                        !queryAttrs.isIncludeAll() && ignorePatientUpdates(ctx.getReturnKeys()),
                                         studyInstanceUID,
                                         seriesInstanceUID);
                 if (lastModified == null)

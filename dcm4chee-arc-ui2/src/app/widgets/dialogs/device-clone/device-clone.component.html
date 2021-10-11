@@ -1,0 +1,208 @@
+<h3>Clone Device {{_.get(device,'dicomDeviceName')}}</h3>
+<div class="content">
+    {{texts.use_this_prefix_suffix}}: <input type="text" [(ngModel)]="suffixPrefix" (keyup)="onSufficePrefixChange()">
+    <div class="dynamic_table">
+        <div class="table_body">
+            <div class="tr">
+                <div class="bluebar" (click)="toggle = 'name'">{{texts.device_base_data}}</div>
+            </div>
+            <ng-container *ngIf="toggle === 'name'">
+                <div class="tr">
+                    <div class="td"></div>
+                    <div class="td">{{texts.current_device}}</div>
+                    <div class="td">{{texts.clone}}</div>
+                </div>
+                <div class="tr scrollable_block">
+                    <div class="td">{{texts.device_name}}:</div>
+                    <div class="td">
+                        <input type="text" value="{{_.get(device,'dicomDeviceName')}}" disabled>
+                    </div>
+                    <div class="td">
+                        <input type="text" [(ngModel)]="clonedDevice.dicomDeviceName">
+                    </div>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="_.hasIn(device, 'dicomNetworkConnection')">
+                <div class="tr">
+                    <div class="bluebar" (click)="toggle = 'connections'">{{texts.dicom_network_connection}}</div>
+                </div>
+                <ng-container *ngIf="toggle === 'connections'">
+                    <div class="tr">
+                        <div class="td"></div>
+                        <div class="td">{{texts.current_device}}</div>
+                        <div class="td">{{texts.clone}}</div>
+                    </div>
+                    <div class="tr scrollable_block">
+                        <div class="td">
+                            <div class="td_block" *ngFor="let key of device.dicomNetworkConnection">
+                                <label>
+                                    {{texts.network_connection_name}}
+                                </label>
+                                <label>
+                                    {{texts.hostname}}
+                                </label>
+                                <label>
+                                    {{texts.port}}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="td">
+                            <div class="td_block" *ngFor="let connection of device.dicomNetworkConnection">
+                                <input type="text" [(ngModel)]="connection.cn" disabled>
+                                <input type="text" [(ngModel)]="connection.dicomHostname" disabled>
+                                <input type="text" [(ngModel)]="connection.dicomPort" disabled>
+                            </div>
+                        </div>
+                        <div class="td">
+                            <div class="td_block" *ngFor="let connection of clonedDevice.dicomNetworkConnection">
+                                <input type="text" [(ngModel)]="connection.cn">
+                                <input type="text" [(ngModel)]="connection.dicomHostname">
+                                <input type="text" [(ngModel)]="connection.dicomPort">
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+            <ng-container *ngIf="_.hasIn(device,'dicomNetworkAE')">
+                <div class="tr">
+                    <div class="bluebar" (click)="toggle = 'aets'">{{texts.network_aes}}</div>
+                </div>
+                <ng-container *ngIf="toggle === 'aets'">
+                    <div class="tr">
+                        <div class="td"></div>
+                        <div class="td">{{texts.current_device}}</div>
+                        <div class="td">{{texts.clone}}</div>
+                    </div>
+                    <div class="tr scrollable_block">
+                        <div class="td">
+                            <div class="td_block" *ngFor="let key of device.dicomNetworkAE">
+                                <label>
+                                    {{texts.ae_title}}:
+                                </label>
+                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                    <ng-container *ngIf="i === 0">
+                                        {{texts.network_connection_reference}}:
+                                    </ng-container>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="td">
+                            <div class="td_block" *ngFor="let aet of device.dicomNetworkAE">
+                                <input type="text"  [(ngModel)]="aet.dicomAETitle" disabled>
+                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                    <input type="checkbox" [checked]="_.get(aet,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" disabled>
+                                    {{_.get(connection,'cn')}}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="td">
+                            <div class="td_block" *ngFor="let aet of clonedDevice.dicomNetworkAE;let i = index">
+                                <input type="text"  [(ngModel)]="aet.dicomAETitle" (keyup)="onAetChange( i, aet)">
+                                <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
+                                    <input type="checkbox" [checked]="_.get(aet,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(aet, i, $event)">
+                                    {{_.get(connection,'cn')}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+            <ng-container *ngIf="_.hasIn(device, 'dcmDevice.dcmWebApp')">
+                <div class="tr">
+                    <div class="bluebar" (click)="toggle = 'webapps'">{{texts.web_apps}}</div>
+                </div>
+                <ng-container *ngIf="toggle === 'webapps'">
+                    <div class="tr">
+                        <div class="td"></div>
+                        <div class="td">{{texts.current_device}}</div>
+                        <div class="td">{{texts.clone}}</div>
+                    </div>
+                    <div class="tr scrollable_block">
+                        <div class="td">
+                            <div class="td_block" *ngFor="let key of device.dcmDevice.dcmWebApp">
+                                <label>
+                                    {{texts.web_app_name}}:
+                                </label>
+                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                    <ng-container *ngIf="i === 0">
+                                        {{texts.network_connection_reference}}:
+                                    </ng-container>
+                                </label>
+                                <label>
+                                    {{texts.web_service_path}}:
+                                </label>
+                            </div>
+                        </div>
+                        <div class="td">
+                            <div class="td_block" *ngFor="let webApp of device.dcmDevice.dcmWebApp">
+                                <input type="text"  [(ngModel)]="webApp.dcmWebAppName" disabled>
+                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                    <input type="checkbox" [checked]="_.get(webApp,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" disabled>
+                                    {{_.get(connection,'cn')}}
+                                </label>
+                                <input type="text"  [(ngModel)]="webApp.dcmWebServicePath" disabled>
+                            </div>
+                        </div>
+                        <div class="td">
+                            <div class="td_block" *ngFor="let webApp of clonedDevice.dcmDevice.dcmWebApp">
+                                <input type="text"  [(ngModel)]="webApp.dcmWebAppName">
+                                <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
+                                    <input type="checkbox" [checked]="_.get(webApp,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(webApp, i, $event)">
+                                    {{_.get(connection,'cn')}}
+                                </label>
+                                <input type="text"  [(ngModel)]="webApp.dcmWebServicePath">
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+            <ng-container *ngIf="_.hasIn(device,'dcmDevice.hl7Application')">
+                <div class="tr">
+                    <div class="bluebar" (click)="toggle = 'hl7'">{{texts.hl7_applications}}</div>
+                </div>
+                <ng-container *ngIf="toggle === 'hl7'">
+                    <div class="tr">
+                        <div class="td"></div>
+                        <div class="td">{{texts.current_device}}</div>
+                        <div class="td">{{texts.clone}}</div>
+                    </div>
+                    <div class="tr scrollable_block">
+                        <div class="td">
+                            <div class="td_block" *ngFor="let key of device.dcmDevice.hl7Application">
+                                <label>
+                                    {{texts.hl7_application_name}}:
+                                </label>
+                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                    <ng-container *ngIf="i === 0">
+                                        {{texts.network_connection_reference}}:
+                                    </ng-container>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="td">
+                            <div class="td_block" *ngFor="let hl7 of device.dcmDevice.hl7Application">
+                                <input type="text"  [(ngModel)]="hl7.hl7ApplicationName" disabled>
+                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                    <input type="checkbox" [checked]="_.get(hl7,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" disabled>
+                                    {{_.get(connection,'cn')}}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="td">
+                            <div class="td_block" *ngFor="let hl7 of clonedDevice.dcmDevice.hl7Application;let i = index">
+                                <input type="text"  [(ngModel)]="hl7.hl7ApplicationName">
+                                <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
+                                    <input type="checkbox" [checked]="_.get(hl7,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(hl7, i, $event)">
+                                    {{_.get(connection,'cn')}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+        </div>
+    </div>
+</div>
+<div class="dialogbuttons">
+    <button class="save" type="button" (click)="clone()" i18n="@@CLONE">CLONE</button>
+</div>

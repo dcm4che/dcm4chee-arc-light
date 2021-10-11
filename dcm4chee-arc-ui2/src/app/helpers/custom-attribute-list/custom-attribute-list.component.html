@@ -1,0 +1,15 @@
+<table class="table table-bordered table-condensed attribute_list custom_attribute_list">
+    <ng-container *ngIf="localAttributes">
+        <tr *ngFor="let elem of localAttributes">
+            <ng-container *ngIf="dicomAttributesAsSubAttribute && elem.key === dicomAttributesAsSubAttribute.key">
+                <td colspan="2">
+                    <attribute-list [attrs]="elem.value"></attribute-list>
+                </td>
+            </ng-container>
+            <ng-container *ngIf="!(dicomAttributesAsSubAttribute && elem.key === dicomAttributesAsSubAttribute.key)">
+                <td>{{elem.key}}</td>
+                <td>{{elem.value}}</td>
+            </ng-container>
+        </tr>
+    </ng-container>
+</table>

@@ -75,6 +75,8 @@ public class TaskScheduler extends Scheduler {
 
     private Set<String> inProcess = Collections.synchronizedSet(new HashSet<>());
 
+    private Set<String> rescheduleInProcess = Collections.synchronizedSet(new HashSet<>());
+
     protected TaskScheduler() {
         super(Mode.scheduleAtFixedRate);
     }
@@ -101,6 +103,9 @@ public class TaskScheduler extends Scheduler {
     public void process(QueueDescriptor desc, int fetchSize) {
         String queueName = desc.getQueueName();
         if (desc.isInstalled() && !inProcess.contains(queueName)) {
+            if (rescheduleInProcess.add(queueName)) {
+                ejb.rescheduleInProcess(queueName);
+            }
             List<Long> pks = ejb.findTasksToProcess(queueName, fetchSize);
             if (!pks.isEmpty()) {
                 device.execute(() -> process(desc, pks));

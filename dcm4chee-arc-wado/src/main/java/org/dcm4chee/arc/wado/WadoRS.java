@@ -57,6 +57,7 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.*;
@@ -189,6 +190,8 @@ public class WadoRS {
     private java.nio.file.Path spoolDirectory;
     private java.nio.file.Path dicomdirPath;
     private String dicomRootPartTransferSyntax;
+    private boolean ignorePatientUpdate;
+    private AttributeSet metadataFilter;
 
     @Override
     public String toString() {
@@ -361,21 +364,30 @@ public class WadoRS {
 
     Output bulkdataPath() {
         checkMultipartRelatedAcceptable();
+        ignorePatientUpdate = true;
         return Output.BULKDATA_PATH;
     }
 
     Output bulkdataFrame() {
         checkMultipartRelatedAcceptable();
+        ignorePatientUpdate = true;
         return Output.BULKDATA_FRAME;
     }
 
     Output render() {
         initAcceptableMediaTypes();
+        ignorePatientUpdate = acceptableMediaTypes.stream().allMatch(WadoRS::ignorePatientUpdates);
         return Output.RENDER_MULTIPART;
+    }
+
+    private static boolean ignorePatientUpdates(MediaType mediaType) {
+        MediaType multiPartRelatedType = MediaTypes.getMultiPartRelatedType(mediaType);
+        return WadoURI.ignorePatientUpdates(multiPartRelatedType != null ? multiPartRelatedType : mediaType);
     }
 
     Output renderFrame() {
         initAcceptableMediaTypes();
+        ignorePatientUpdate = true;
         return Output.RENDER_FRAME_MULTIPART;
     }
 
@@ -513,8 +525,11 @@ public class WadoRS {
                 MediaTypes.IMAGE_PNG_TYPE,
                 MediaTypes.IMAGE_JPEG_TYPE,
                 MediaTypes.IMAGE_GIF_TYPE);
-        if (mediaType == null) new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        if (mediaType == null) {
+            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        }
         renderedMediaType = mediaType;
+        ignorePatientUpdate = true;
         return Output.THUMBNAIL;
     }
 
@@ -523,9 +538,11 @@ public class WadoRS {
         if (acceptableMultipartRelatedMediaTypes.isEmpty() && acceptableZipTransferSyntaxes.isEmpty()) {
             throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
         }
-        return selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_TYPE) != null
-                ? Output.DICOM
-                : acceptableZipTransferSyntaxes.isEmpty() ? Output.BULKDATA : Output.ZIP;
+        if (selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_TYPE) != null)
+            return Output.DICOM;
+        if (!acceptableZipTransferSyntaxes.isEmpty()) return Output.ZIP;
+        ignorePatientUpdate = true;
+        return Output.BULKDATA;
     }
 
     private Output metadataJSONorXML() {
@@ -539,6 +556,13 @@ public class WadoRS {
                 throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
             }
         }
+        if (includefield != null) {
+            if ((metadataFilter = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                    .getAttributeSet(AttributeSet.Type.WADO_RS).get(includefield)) != null)
+                ignorePatientUpdate = !hasMetadataPatientInfo(metadataFilter);
+            else
+                LOG.info("No Metadata filter configured for includefield={}", includefield);
+        }
         return mediaType == MediaTypes.APPLICATION_DICOM_XML_TYPE ? Output.METADATA_XML : Output.METADATA_JSON;
     }
 
@@ -551,8 +575,29 @@ public class WadoRS {
         return null;
     }
 
+    private boolean hasMetadataPatientInfo(AttributeSet filter) {
+        int[] attrSet = filter.getSelection();
+        int[] patientAttrs = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                    .getAttributeFilter(Entity.Patient)
+                                    .getSelection();
+        return patientAttrs.length < attrSet.length
+                ? anyMatch(patientAttrs, attrSet)
+                : anyMatch(attrSet, patientAttrs);
+    }
+
+    private static boolean anyMatch(int[] source, int[] target) {
+        for (int tag : source) {
+            if (tag == Tag.SpecificCharacterSet)
+                continue;
+
+            if (Arrays.binarySearch(target, tag) >= 0)
+                return true;
+        }
+        return false;
+    }
+
     private void retrieve(Target target, String studyUID, String seriesUID, String objectUID, int[] frameList,
-            int[] attributePath, AsyncResponse ar) {
+                          int[] attributePath, AsyncResponse ar) {
         logRequest();
         ApplicationEntity ae = getApplicationEntity();
         if (aet.equals(ae.getAETitle()))
@@ -567,7 +612,7 @@ public class WadoRS {
                     HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata()) {
                 ctx.setObjectType(null);
-                ctx.setMetadataFilter(getMetadataFilter(includefield));
+                ctx.setMetadataFilter(metadataFilter);
                 ctx.setWithoutPrivateAttributes(withoutPrivateAttributes(ae));
             }
 
@@ -580,7 +625,7 @@ public class WadoRS {
             }
 
             LOG.debug("Query Last Modified date of {}", target);
-            Date lastModified = service.getLastModified(ctx);
+            Date lastModified = service.getLastModified(ctx, ignorePatientUpdate);
             if (lastModified == null)
                 throw new WebApplicationException(
                         errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
@@ -603,17 +648,6 @@ public class WadoRS {
     private boolean withoutPrivateAttributes(ApplicationEntity ae) {
         return excludeprivate != null ? excludeprivate.equals("false")
                 : ae.getAEExtensionNotNull(ArchiveAEExtension.class).wadoMetadataWithoutPrivate();
-    }
-
-    private AttributeSet getMetadataFilter(String name) {
-        if (name == null)
-            return null;
-
-        AttributeSet filter = device.getDeviceExtension(ArchiveDeviceExtension.class)
-                .getAttributeSet(AttributeSet.Type.WADO_RS).get(name);
-        if (filter == null)
-            LOG.info("No Metadata filter configured for includefield={}", name);
-        return filter;
     }
 
     private void buildResponse(Target target, int[] frameList, int[] attributePath, AsyncResponse ar, Output output,
@@ -646,7 +680,7 @@ public class WadoRS {
             responseStatus = Response.Status.PARTIAL_CONTENT;
 
         if (lastModified == null)
-            lastModified = service.getLastModifiedFromMatches(ctx);
+            lastModified = service.getLastModifiedFromMatches(ctx, ignorePatientUpdate);
 
         retrieveStart.fire(ctx);
         ar.register((CompletionCallback) throwable -> {

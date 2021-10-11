@@ -114,6 +114,7 @@ import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/mater
 
 // import localeDe from '@angular/common/locales/de';
 import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
+import { CustomAttributeListComponent } from './helpers/custom-attribute-list/custom-attribute-list.component';
 
 // registerLocaleData(localeDe, 'de-DE');
 
@@ -177,7 +178,8 @@ import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
         ArrayToStringPipe,
         MetricsComponent,
         WebAppsListComponent,
-        SelectionsDicomViewComponent
+        SelectionsDicomViewComponent,
+        CustomAttributeListComponent
     ],
     imports: [
         BrowserModule,

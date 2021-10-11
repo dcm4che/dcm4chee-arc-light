@@ -293,8 +293,4 @@ public interface RetrieveContext extends Closeable {
     int failuresOnCopyToRetrieveCache();
 
     void incrementFailuresOnCopyToRetrieveCache();
-
-    boolean isPatientUpdatedTime4LastModified();
-
-    void setPatientUpdatedTime4LastModified(boolean patientUpdatedTime4LastModified);
 }

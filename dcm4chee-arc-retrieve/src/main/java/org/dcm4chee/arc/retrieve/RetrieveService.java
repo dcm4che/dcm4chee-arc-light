@@ -162,7 +162,7 @@ public interface RetrieveService {
 
     void updateInstanceAvailability(RetrieveContext ctx);
 
-    Date getLastModifiedFromMatches(RetrieveContext ctx);
+    Date getLastModifiedFromMatches(RetrieveContext ctx, boolean ignorePatientUpdates);
 
-    Date getLastModified(RetrieveContext ctx);
+    Date getLastModified(RetrieveContext ctx, boolean ignorePatientUpdates);
 }
