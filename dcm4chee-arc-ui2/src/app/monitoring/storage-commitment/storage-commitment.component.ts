@@ -85,7 +85,6 @@ export class StorageCommitmentComponent implements OnInit {
         this.service.search(this.filters, offset)
 
             .subscribe((res) => {
-                // res = [{"dicomDeviceName":"dcm4chee-arc","transactionUID":"2.25.258351030884282860047665252905873583068","status":"COMPLETED","studyUID":"1.3.12.2.1107.5.1.4.64109.30000019012807185180500000001","exporterID":"STORESCP","JMSMessageID":"ID:ff791ec7-44e8-11e9-bf40-c47d4614bea4","requested":"2","createdTime":"2019-03-12 18:05:12.696","updatedTime":"2019-03-12 18:05:12.811"},{"dicomDeviceName":"dcm4chee-arc","transactionUID":"2.25.128928679253241687386682286235669207139","status":"COMPLETED","studyUID":"1.3.12.2.1107.5.1.4.64109.30000019012807185180500000001","exporterID":"STORESCP","JMSMessageID":"ID:025cb6b9-44e9-11e9-bf40-c47d4614bea4","requested":"2","createdTime":"2019-03-12 18:05:17.117","updatedTime":"2019-03-12 18:05:17.17"}];
                 if (res && res.length > 0){
                     if(this.filters.limit < res.length){
                         res.pop();
