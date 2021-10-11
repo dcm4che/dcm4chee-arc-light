@@ -57,7 +57,7 @@ export class CreateExporterComponent implements OnInit{
             },
             "dcmQueueName": {
                 "title": $localize `:@@queue_name:Queue Name`,
-                "description": $localize `:@@create-exporter.jms_queue_name:JMS Queue Name`,
+                "description": $localize `:@@create-exporter.jms_queue_name:Task Queue Name`,
                 "type": "string",
                 "enum" : [
                     "Export1",
@@ -69,7 +69,7 @@ export class CreateExporterComponent implements OnInit{
             },
             "dcmExportPriority": {
                 "title": $localize `:@@create-exporter.export_priority:Export Priority`,
-                "description": $localize `:@@jms_priority_level_for_processing_the_export_task_from_0_lowest_to_9_highest:JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).`,
+                "description": $localize `:@@jms_priority_level_for_processing_the_export_task_from_0_lowest_to_9_highest:Task Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).`,
                 "type": "integer",
                 "default" : 4,
                 "minimum": 0,
