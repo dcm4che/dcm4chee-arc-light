@@ -51,9 +51,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.RSOperation;
-import org.dcm4chee.arc.conf.SPSStatus;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -75,7 +73,13 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -144,6 +148,8 @@ public class MwlRS {
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
             if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
                 spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
+            if (!spsItem.containsValue(Tag.ScheduledStationAETitle))
+                adjustScheduledStations(spsItem);
             ProcedureContext ctx = procedureService.createProcedureContext()
                     .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
             ctx.setLocalAET(aet);
@@ -258,5 +264,22 @@ public class MwlRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void adjustScheduledStations(Attributes sps) {
+        List<String> ssAETs = new ArrayList<>();
+        Collection<HL7OrderScheduledStation> hl7OrderScheduledStations = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                                                                .getHL7OrderScheduledStations();
+        hl7OrderScheduledStations.forEach(station -> ssAETs.addAll(station.getDevice().getApplicationAETitles()));
+
+        if (!ssAETs.isEmpty())
+            sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[0]));
+
+        String[] ssNames = hl7OrderScheduledStations.stream()
+                                                    .filter(station -> station.getDevice().getStationName() != null)
+                                                    .map(station -> station.getDevice().getStationName())
+                                                    .toArray(String[]::new);
+        if (ssNames.length > 0)
+            sps.setString(Tag.ScheduledStationName, VR.SH, ssNames);
     }
 }

@@ -9,10 +9,6 @@ set alphabetic_name = concat(family_name, '^', given_name, '^', middle_name, '^'
     ideographic_name = concat(i_family_name, '^', i_given_name, '^', i_middle_name, '^', i_name_prefix, '^', i_name_suffix, '^'),
     phonetic_name = concat(p_family_name, '^', p_given_name, '^', p_middle_name, '^', p_name_prefix, '^', p_name_suffix, '^');
 
---sqlserver requires additional column to be created upper(alphabetic_name) and index applied on this new column for ALPHABETIC_NAME
-create index alphabetic_name_upper_idx on person_name (upper(alphabetic_name));
---sqlserver requires additional column to be created upper(alphabetic_name) and index applied on this new column for ALPHABETIC_NAME
-
 drop index UK_gknfxd1vh283cmbg8ymia9ms8 on issuer;
 create index UK_gknfxd1vh283cmbg8ymia9ms8 on issuer (entity_id);
 
@@ -39,18 +35,19 @@ where alphabetic_name is null;
 update series set sending_aet = src_aet where sending_aet is null;
 
 -- part 3: can be applied on already running archive 5.23
---[22001][8152] String or binary data would be truncated. / [S0000][3621] The statement has been terminated.
 alter table person_name
-    alter column alphabetic_name varchar not null;
+    alter column alphabetic_name varchar(255) not null;
 alter table person_name
-    alter column ideographic_name varchar not null;
+    alter column ideographic_name varchar(255) not null;
 alter table person_name
-    alter column phonetic_name varchar not null;
---[22001][8152] String or binary data would be truncated. / [S0000][3621] The statement has been terminated.
+    alter column phonetic_name varchar(255) not null;
 
 create index UK_gs2yshbwu0gkd33yxyv13keoh on person_name (alphabetic_name);
 create index UK_ala4l4egord8i2tjvjidoqd1s on person_name (ideographic_name);
 create index UK_9nr8ddkp8enufvbn72esyw3n1 on person_name (phonetic_name);
+
+ALTER TABLE person_name ADD upper_alphabetic_name AS UPPER(alphabetic_name);
+CREATE INDEX alphabetic_name_upper_idx ON person_name (upper_alphabetic_name);
 
 drop index UK_mgrwrswyrk02s1kn86cvpix3m on person_name;
 drop index UK_byvbmsx5w9jop12gdqldogbwm on person_name;
@@ -63,6 +60,16 @@ drop index UK_lwnfdvx2cknj9ravec592642d on person_name;
 drop index UK_2189yvio0mae92hjhgbfwqgvc on person_name;
 drop index UK_6cn50unrp2u9xf6authiollrr on person_name;
 drop index UK_kungbb1r2qtt9aq0vsb1l68y6 on person_name;
+
+---- drop index and column names created for case insensitive index for family_name, middle_name, given_name columns (- if these were created on person_name table initialization) - start
+drop index family_name_upper_idx on person_name;
+drop index given_name_upper_idx on person_name;
+drop index middle_name_upper_idx on person_name;
+
+alter table person_name drop column upper_family_name;
+alter table person_name drop column upper_given_name;
+alter table person_name drop column upper_middle_name;
+---- drop index and column names created for case insensitive index for family_name, middle_name, given_name columns (- if these were created on person_name table initialization) - end
 
 alter table person_name drop column family_name;
 alter table person_name drop column given_name;

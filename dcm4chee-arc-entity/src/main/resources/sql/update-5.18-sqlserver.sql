@@ -29,4 +29,5 @@ insert into rejected_instance (created_time, sop_cuid, sop_iuid, reject_code_fk,
 
 -- part 3: can be applied on already running archive 5.18
 alter table instance drop constraint FK_6pnwsvi69g5ypye6gjo26vn7e;
+drop index FK_6pnwsvi69g5ypye6gjo26vn7e on instance;
 alter table instance drop column reject_code_fk;
