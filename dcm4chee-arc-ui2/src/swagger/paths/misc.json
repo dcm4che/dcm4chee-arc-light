@@ -110,7 +110,7 @@
     }
   },
   "idNextVal": {
-    "get": {
+    "post": {
       "tags": [
         "CONFIG-RS"
       ],
