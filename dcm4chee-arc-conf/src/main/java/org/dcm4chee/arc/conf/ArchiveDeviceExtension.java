@@ -305,7 +305,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
     private final Map<AttributeSet.Type,Map<String,AttributeSet>> attributeSet = new EnumMap<>(AttributeSet.Type.class);
     private final Map<String, BasicBulkDataDescriptor> bulkDataDescriptorMap = new HashMap<>();
-    private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
+    private final Map<String, IDGenerator> idGenerators = new HashMap<>();
     private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
@@ -1715,7 +1715,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return bulkDataDescriptorMap;
     }
 
-    public IDGenerator getIDGenerator(IDGenerator.Name name) {
+    public IDGenerator getIDGenerator(String name) {
         IDGenerator generator = idGenerators.get(name);
         if (generator == null)
             throw new IllegalArgumentException("No ID Generator for " + name + " configured");
@@ -1731,7 +1731,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         idGenerators.remove(generator.getName());
     }
 
-    public Map<IDGenerator.Name, IDGenerator> getIDGenerators() {
+    public Map<String, IDGenerator> getIDGenerators() {
         return idGenerators;
     }
 

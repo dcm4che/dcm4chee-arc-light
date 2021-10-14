@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.id.impl;
 
-import org.dcm4chee.arc.conf.IDGenerator;
 import org.dcm4chee.arc.entity.IDSequence;
 
 import javax.ejb.Stateless;
@@ -61,7 +60,7 @@ public class IDServiceEJB {
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
-    public int nextValue(IDGenerator.Name name, int initialValue) {
+    public int nextValue(String name, int initialValue) {
         IDSequence idSeq = em.find(IDSequence.class, name);
         if (idSeq != null) {
             int val = idSeq.getNextValue();

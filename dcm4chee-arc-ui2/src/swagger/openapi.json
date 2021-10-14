@@ -591,6 +591,12 @@
     "/export": {
       "$ref": "paths/config.json#/export"
     },
+    "/ids": {
+      "$ref": "paths/config.json#/ids"
+    },
+    "/ids/{name}/nextval": {
+      "$ref": "paths/misc.json#/idNextVal"
+    },
     "/pdq": {
       "$ref": "paths/config.json#/pdq"
     },

@@ -254,7 +254,7 @@ class ArchiveDeviceFactory {
         return hl7OrderSPSStatus;
     }
 
-    private static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {
+    private static IDGenerator newIDGenerator(String name, String format) {
         IDGenerator gen = new IDGenerator();
         gen.setName(name);
         gen.setFormat(format);
@@ -1793,10 +1793,10 @@ class ArchiveDeviceFactory {
         ext.setHL7PatientArrivalMessageType("ADT^A10");
         ext.addHL7OrderScheduledStation(newScheduledStation(scheduledStation));
 
-        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.PatientID, "P-%08d"));
-        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.AccessionNumber, "A-%08d"));
-        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.RequestedProcedureID, "RP-%08d"));
-        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.ScheduledProcedureStepID, "SPS-%08d"));
+        ext.addIDGenerator(newIDGenerator("PatientID", "P-%08d"));
+        ext.addIDGenerator(newIDGenerator("AccessionNumber", "A-%08d"));
+        ext.addIDGenerator(newIDGenerator("RequestedProcedureID", "RP-%08d"));
+        ext.addIDGenerator(newIDGenerator("ScheduledProcedureStepID", "SPS-%08d"));
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURIStr(STORAGE_URI);

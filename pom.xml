@@ -526,6 +526,7 @@
     <module>dcm4chee-arc-ian-rs</module>
     <module>dcm4chee-arc-ian-scu</module>
     <module>dcm4chee-arc-id</module>
+    <module>dcm4chee-arc-id-rs</module>
     <module>dcm4chee-arc-impax-report</module>
     <module>dcm4chee-arc-impax-report-rs</module>
     <module>dcm4chee-arc-iocm-rs</module>

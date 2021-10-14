@@ -3164,7 +3164,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmIDGeneratorName":
-                        generator.setName(IDGenerator.Name.valueOf(reader.stringValue()));
+                        generator.setName(reader.stringValue());
                         break;
                     case "dcmIDGeneratorFormat":
                         generator.setFormat(reader.stringValue());

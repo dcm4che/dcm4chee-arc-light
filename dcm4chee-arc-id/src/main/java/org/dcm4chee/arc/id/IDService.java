@@ -41,14 +41,14 @@
 package org.dcm4chee.arc.id;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.conf.IDGenerator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 public interface IDService {
-    String createID(IDGenerator.Name name);
+    String createID(String name);
 
     void newPatientID(Attributes attrs);
 
