@@ -261,7 +261,7 @@
                                     </mat-select>
                                 </div>
                                 <div class="test_button">
-                                    <button (click)="testConnection()" i18n-title="@@title.verify_aet_host_port" title="Verify AET, host and port before saving" [disabled]="!selectedCallingAet" i18n="@@APPLY">TEST</button>
+                                    <button (click)="testConnection()" i18n-title="@@title.verify_aet_host_port" title="Verify AET, host and port before saving" [disabled]="!selectedCallingAet" i18n="@@create-ae.test">TEST</button>
                                 </div>
                             </div>
                         </div>
@@ -277,7 +277,7 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="dialogRef.close({device:selctedDeviceObject,newaetmodel:newAetModel,mode:activetab,selectedForAcceptedCallingAET:selectedForAcceptedCallingAET})" [disabled]="!validAeForm()" i18n="@@create-ae.test">APPLY</button>
+            <button class="save" type="button" (click)="dialogRef.close({device:selctedDeviceObject,newaetmodel:newAetModel,mode:activetab,selectedForAcceptedCallingAET:selectedForAcceptedCallingAET})" [disabled]="!validAeForm()" i18n="@@APPLY">APPLY</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
         </div>
     </div>
