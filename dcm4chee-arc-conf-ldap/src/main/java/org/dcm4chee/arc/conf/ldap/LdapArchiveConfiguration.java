@@ -237,11 +237,11 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLAccessionNumberGenerator",
-                ext.getMWLAccessionNumberGenerator(), null);
+                ext.getMWLAccessionNumberGenerator(), ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLRequestedProcedureIDGenerator",
-                ext.getMWLRequestedProcedureIDGenerator(), null);
+                ext.getMWLRequestedProcedureIDGenerator(), ArchiveDeviceExtension.MWL_REQUESTED_PROCEDURE_ID_GENERATOR);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLScheduledProcedureStepIDGenerator",
-                ext.getMWLScheduledProcedureStepIDGenerator(), null);
+                ext.getMWLScheduledProcedureStepIDGenerator(), ArchiveDeviceExtension.MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectExpiredStudiesPollingInterval",
                 ext.getRejectExpiredStudiesPollingInterval(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRejectExpiredStudiesSchedule",
@@ -610,11 +610,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHideSPSWithStatusFromMWLRS(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWLRS")));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
         ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
-        ext.setMWLAccessionNumberGenerator(LdapUtils.stringValue(attrs.get("dcmMWLAccessionNumberGenerator"), null));
+        ext.setMWLAccessionNumberGenerator(LdapUtils.stringValue(attrs.get("dcmMWLAccessionNumberGenerator"),
+                ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR));
         ext.setMWLRequestedProcedureIDGenerator(
-                LdapUtils.stringValue(attrs.get("dcmMWLRequestedProcedureIDGenerator"), null));
+                LdapUtils.stringValue(attrs.get("dcmMWLRequestedProcedureIDGenerator"),
+                        ArchiveDeviceExtension.MWL_REQUESTED_PROCEDURE_ID_GENERATOR));
         ext.setMWLScheduledProcedureStepIDGenerator(
-                LdapUtils.stringValue(attrs.get("dcmMWLScheduledProcedureStepIDGenerator"), null));
+                LdapUtils.stringValue(attrs.get("dcmMWLScheduledProcedureStepIDGenerator"),
+                        ArchiveDeviceExtension.MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR));
         ext.setRejectExpiredStudiesPollingInterval(toDuration(attrs.get("dcmRejectExpiredStudiesPollingInterval"), null));
         ext.setRejectExpiredStudiesSchedules(
                 ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmRejectExpiredStudiesSchedule"))));
@@ -1040,11 +1043,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getEncodeAsJSONNumber(), bb.getEncodeAsJSONNumber());
         LdapUtils.storeDiff(ldapObj, mods, "hl7ORUAction", aa.getHl7ORUAction(), bb.getHl7ORUAction());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLAccessionNumberGenerator",
-                aa.getMWLAccessionNumberGenerator(), bb.getMWLAccessionNumberGenerator(), null);
+                aa.getMWLAccessionNumberGenerator(), bb.getMWLAccessionNumberGenerator(),
+                ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLRequestedProcedureIDGenerator",
-                aa.getMWLRequestedProcedureIDGenerator(), bb.getMWLRequestedProcedureIDGenerator(), null);
+                aa.getMWLRequestedProcedureIDGenerator(), bb.getMWLRequestedProcedureIDGenerator(),
+                ArchiveDeviceExtension.MWL_REQUESTED_PROCEDURE_ID_GENERATOR);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLScheduledProcedureStepIDGenerator",
-                aa.getMWLScheduledProcedureStepIDGenerator(), bb.getMWLScheduledProcedureStepIDGenerator(), null);
+                aa.getMWLScheduledProcedureStepIDGenerator(), bb.getMWLScheduledProcedureStepIDGenerator(),
+                ArchiveDeviceExtension.MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectExpiredStudiesPollingInterval",
                 aa.getRejectExpiredStudiesPollingInterval(), bb.getRejectExpiredStudiesPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRejectExpiredStudiesSchedule",

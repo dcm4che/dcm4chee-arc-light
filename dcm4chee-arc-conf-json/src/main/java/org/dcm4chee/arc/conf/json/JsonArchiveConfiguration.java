@@ -1163,11 +1163,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcAE.getHideSPSWithStatusFromMWL());
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWLRS", arcAE.getHideSPSWithStatusFromMWLRS());
         writer.writeNotNullOrDef("dcmMWLAccessionNumberGenerator",
-                arcAE.getMWLAccessionNumberGenerator(), null);
+                arcAE.getMWLAccessionNumberGenerator(), ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR);
         writer.writeNotNullOrDef("dcmMWLRequestedProcedureIDGenerator",
-                arcAE.getMWLRequestedProcedureIDGenerator(), null);
+                arcAE.getMWLRequestedProcedureIDGenerator(), ArchiveDeviceExtension.MWL_REQUESTED_PROCEDURE_ID_GENERATOR);
         writer.writeNotNullOrDef("dcmMWLScheduledProcedureStepIDGenerator",
-                arcAE.getMWLScheduledProcedureStepIDGenerator(), null);
+                arcAE.getMWLScheduledProcedureStepIDGenerator(), ArchiveDeviceExtension.MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR);
         writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcAE.getEncodeAsJSONNumber());
         writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcAE.getPersonNameComponentOrderInsensitiveMatching());

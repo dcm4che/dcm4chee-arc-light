@@ -71,6 +71,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT =
             "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.dcm";
     public static final String WADO_THUMBNAIL_VIEWPORT = "64,64";
+    public static final String MWL_ACCESSION_NUMBER_GENERATOR = "AccessionNumber";
+    public static final String MWL_REQUESTED_PROCEDURE_ID_GENERATOR = "RequestedProcedureID";
+    public static final String MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR = "ScheduledProcedureStepID";
 
     private volatile String defaultCharacterSet;
     private volatile String upsWorklistLabel;
@@ -173,9 +176,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile SPSStatus[] hideSPSWithStatusFromMWLRS = {};
     private volatile HL7ORUAction[] hl7ORUAction = {};
-    private volatile String mwlAccessionNumberGenerator;
-    private volatile String mwlRequestedProcedureIDGenerator;
-    private volatile String mwlScheduledProcedureStepIDGenerator;
+    private volatile String mwlAccessionNumberGenerator = MWL_ACCESSION_NUMBER_GENERATOR;
+    private volatile String mwlRequestedProcedureIDGenerator = MWL_REQUESTED_PROCEDURE_ID_GENERATOR;
+    private volatile String mwlScheduledProcedureStepIDGenerator = MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR;
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
     private volatile Duration rejectExpiredStudiesPollingInterval;
