@@ -487,7 +487,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.97 NAME 'dcmFallbackCMoveSCPStudyOld
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.98 NAME 'dcmIDGeneratorName'
-  DESC 'ID Generator Name. Enumerated values: PatientID, AccessionNumber, RequestedProcedureID, ScheduledProcedureStepID'
+  DESC 'ID Generator Name. Defined values: PatientID, AccessionNumber, RequestedProcedureID, ScheduledProcedureStepID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -2054,6 +2054,21 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.421 NAME 'dcmFilterByIssuerOfPatient
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.422 NAME 'dcmMWLAccessionNumberGeneratorName'
+  DESC 'Identifies ID Generator to supplement missing Accession Numbers of Scheduled Procedures Steps created on receive of HL7 Order messages or by RESTful service; default is "AccessionNumber"'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.423 NAME 'dcmMWLRequestedProcedureIDGeneratorName'
+  DESC 'Identifies ID Generator to supplement missing Requested Procedure IDs of Scheduled Procedures Steps created on receive of HL7 Order messages or by RESTful service; default is "RequestedProcedureID"'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.424 NAME 'dcmMWLScheduledProcedureStepIDGeneratorName'
+  DESC 'Identifies ID Generator to supplement missing Scheduled Procedure Step IDs of Scheduled Procedures Steps created on receive of HL7 Order messages or by RESTful service; default is "ScheduledProcedureStepID"'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2286,6 +2301,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmSupplementIssuerFetchSize $
     dcmAuditAssigningAuthorityOfPatientID $
     dcmChangeRequesterAET $
+    dcmMWLAccessionNumberGeneratorName $
+    dcmMWLRequestedProcedureIDGeneratorName $
+    dcmMWLScheduledProcedureStepIDGeneratorName $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -2416,6 +2434,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStowQuicktime2MP4 $
     dcmEncodeAsJSONNumber $
     dcmChangeRequesterAET $
+    dcmMWLAccessionNumberGeneratorName $
+    dcmMWLRequestedProcedureIDGeneratorName $
+    dcmMWLScheduledProcedureStepIDGeneratorName $
     hl7PSUDelay $
     hl7PSUCondition $
     hl7PSUForRequestedProcedure $
@@ -2446,6 +2467,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
   SUP top AUXILIARY
   MAY (
     dcmRecordAttributeModification $
+    dcmMWLAccessionNumberGeneratorName $
+    dcmMWLRequestedProcedureIDGeneratorName $
+    dcmMWLScheduledProcedureStepIDGeneratorName $
     hl7ORUAction $
     hl7PatientUpdateTemplateURI $
     hl7ImportReportTemplateURI $
