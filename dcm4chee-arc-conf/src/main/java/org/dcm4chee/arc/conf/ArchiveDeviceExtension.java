@@ -173,6 +173,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile SPSStatus[] hideSPSWithStatusFromMWLRS = {};
     private volatile HL7ORUAction[] hl7ORUAction = {};
+    private volatile String mwlAccessionNumberGenerator;
+    private volatile String mwlRequestedProcedureIDGenerator;
+    private volatile String mwlScheduledProcedureStepIDGenerator;
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
     private volatile Duration rejectExpiredStudiesPollingInterval;
@@ -1273,6 +1276,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHl7ORUAction(HL7ORUAction[] hl7ORUAction) {
         this.hl7ORUAction = hl7ORUAction;
+    }
+
+    public String getMWLAccessionNumberGenerator() {
+        return mwlAccessionNumberGenerator;
+    }
+
+    public void setMWLAccessionNumberGenerator(String mwlAccessionNumberGenerator) {
+        this.mwlAccessionNumberGenerator = mwlAccessionNumberGenerator;
+    }
+
+    public String getMWLRequestedProcedureIDGenerator() {
+        return mwlRequestedProcedureIDGenerator;
+    }
+
+    public void setMWLRequestedProcedureIDGenerator(String mwlRequestedProcedureIDGenerator) {
+        this.mwlRequestedProcedureIDGenerator = mwlRequestedProcedureIDGenerator;
+    }
+
+    public String getMWLScheduledProcedureStepIDGenerator() {
+        return mwlScheduledProcedureStepIDGenerator;
+    }
+
+    public void setMWLScheduledProcedureStepIDGenerator(String mwlScheduledProcedureStepIDGenerator) {
+        this.mwlScheduledProcedureStepIDGenerator = mwlScheduledProcedureStepIDGenerator;
     }
 
     public String getStorePermissionServiceURL() {
@@ -3208,6 +3235,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         hideSPSWithStatusFromMWLRS = arcdev.hideSPSWithStatusFromMWLRS;
         hl7ORUAction = arcdev.hl7ORUAction;
+        mwlAccessionNumberGenerator = arcdev.mwlAccessionNumberGenerator;
+        mwlRequestedProcedureIDGenerator = arcdev.mwlRequestedProcedureIDGenerator;
+        mwlScheduledProcedureStepIDGenerator = arcdev.mwlScheduledProcedureStepIDGenerator;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
         rejectExpiredStudiesSchedules = arcdev.rejectExpiredStudiesSchedules;
         rejectExpiredStudiesFetchSize = arcdev.rejectExpiredStudiesFetchSize;

@@ -94,13 +94,31 @@ public class IDServiceImpl implements IDService {
     }
 
     @Override
+    public void newAccessionNumber(String idGenerator, Attributes attrs) {
+        attrs.setString(Tag.AccessionNumber, VR.SH, createID(idGenerator));
+        Issuer issuer = device.getIssuerOfAccessionNumber();
+        if (issuer != null)
+            attrs.newSequence(Tag.IssuerOfAccessionNumberSequence, 1).add(issuer.toItem());
+    }
+
+    @Override
     public void newRequestedProcedureID(Attributes attrs) {
         attrs.setString(Tag.RequestedProcedureID, VR.SH, createID("RequestedProcedureID"));
     }
 
     @Override
+    public void newRequestedProcedureID(String idGenerator, Attributes attrs) {
+        attrs.setString(Tag.RequestedProcedureID, VR.SH, createID(idGenerator));
+    }
+
+    @Override
     public void newScheduledProcedureStepID(Attributes attrs) {
         attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, createID("ScheduledProcedureStepID"));
+    }
+
+    @Override
+    public void newScheduledProcedureStepID(String idGenerator, Attributes attrs) {
+        attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, createID(idGenerator));
     }
 
     @Override

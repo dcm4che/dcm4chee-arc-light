@@ -196,7 +196,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 if (!sps.containsValue(Tag.ScheduledProcedureStepID)) {
                     LOG.info("Missing Scheduled ProcedureStep ID in HL7 message");
                     if (uidsGenerated) {
-                        idService.newScheduledProcedureStepID(sps);
+                        idService.newScheduledProcedureStepID(arcHL7App.mwlScheduledProcedureStepIDGenerator(), sps);
                         LOG.info("Generate Scheduled ProcedureStep ID {}", sps.getString(Tag.ScheduledProcedureStepID));
                     }
                     else {
@@ -250,7 +250,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                         break;
                     case GENERATE:
                         studyIUID = UIDUtils.createUID();
-                        idService.newRequestedProcedureID(attrs);
+                        idService.newRequestedProcedureID(arcHL7App.mwlRequestedProcedureIDGenerator(), attrs);
                         uidsGenerated = true;
                         break;
             }

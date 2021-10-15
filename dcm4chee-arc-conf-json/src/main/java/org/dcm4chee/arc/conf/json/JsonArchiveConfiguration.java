@@ -111,6 +111,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWLRS", arcDev.getHideSPSWithStatusFromMWLRS());
         writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcDev.getEncodeAsJSONNumber());
         writer.writeNotEmpty("hl7ORUAction", arcDev.getHl7ORUAction());
+        writer.writeNotNullOrDef("dcmMWLAccessionNumberGenerator",
+                arcDev.getMWLAccessionNumberGenerator(), null);
+        writer.writeNotNullOrDef("dcmMWLRequestedProcedureIDGenerator",
+                arcDev.getMWLRequestedProcedureIDGenerator(), null);
+        writer.writeNotNullOrDef("dcmMWLScheduledProcedureStepIDGenerator",
+                arcDev.getMWLScheduledProcedureStepIDGenerator(), null);
         writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcDev.isPersonNameComponentOrderInsensitiveMatching(), false);
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
@@ -1156,6 +1162,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory(), null);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcAE.getHideSPSWithStatusFromMWL());
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWLRS", arcAE.getHideSPSWithStatusFromMWLRS());
+        writer.writeNotNullOrDef("dcmMWLAccessionNumberGenerator",
+                arcAE.getMWLAccessionNumberGenerator(), null);
+        writer.writeNotNullOrDef("dcmMWLRequestedProcedureIDGenerator",
+                arcAE.getMWLRequestedProcedureIDGenerator(), null);
+        writer.writeNotNullOrDef("dcmMWLScheduledProcedureStepIDGenerator",
+                arcAE.getMWLScheduledProcedureStepIDGenerator(), null);
         writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcAE.getEncodeAsJSONNumber());
         writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcAE.getPersonNameComponentOrderInsensitiveMatching());
@@ -1361,6 +1373,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ORUAction":
                     arcDev.setHl7ORUAction(reader.enumArray(HL7ORUAction.class));
+                    break;
+                case "dcmMWLAccessionNumberGenerator":
+                    arcDev.setMWLAccessionNumberGenerator(reader.stringValue());
+                    break;
+                case "dcmMWLRequestedProcedureIDGenerator":
+                    arcDev.setMWLRequestedProcedureIDGenerator(reader.stringValue());
+                    break;
+                case "dcmMWLScheduledProcedureStepIDGenerator":
+                    arcDev.setMWLScheduledProcedureStepIDGenerator(reader.stringValue());
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcDev.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
@@ -3736,6 +3757,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmHideSPSWithStatusFromMWLRS":
                     arcAE.setHideSPSWithStatusFromMWLRS(reader.enumArray(SPSStatus.class));
+                    break;
+                case "dcmMWLAccessionNumberGenerator":
+                    arcAE.setMWLAccessionNumberGenerator(reader.stringValue());
+                    break;
+                case "dcmMWLRequestedProcedureIDGenerator":
+                    arcAE.setMWLRequestedProcedureIDGenerator(reader.stringValue());
+                    break;
+                case "dcmMWLScheduledProcedureStepIDGenerator":
+                    arcAE.setMWLScheduledProcedureStepIDGenerator(reader.stringValue());
                     break;
                 case "dcmEncodeAsJSONNumber":
                     arcAE.setEncodeAsJSONNumber(reader.enumArray(VR.class));

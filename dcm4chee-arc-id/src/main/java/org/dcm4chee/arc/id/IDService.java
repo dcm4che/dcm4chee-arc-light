@@ -54,9 +54,15 @@ public interface IDService {
 
     void newAccessionNumber(Attributes attrs);
 
+    void newAccessionNumber(String idGenerator, Attributes attrs);
+
     void newRequestedProcedureID(Attributes attrs);
 
+    void newRequestedProcedureID(String idGenerator, Attributes attrs);
+
     void newScheduledProcedureStepID(Attributes attrs);
+
+    void newScheduledProcedureStepID(String idGenerator, Attributes attrs);
 
     int newLocationMultiReference();
 }

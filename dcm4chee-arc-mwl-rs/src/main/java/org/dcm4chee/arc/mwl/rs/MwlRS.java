@@ -139,11 +139,11 @@ public class MwlRS {
 
         try {
             if (!attrs.containsValue(Tag.AccessionNumber))
-                idService.newAccessionNumber(attrs);
+                idService.newAccessionNumber(arcAE.mwlAccessionNumberGenerator(), attrs);
             if (!attrs.containsValue(Tag.RequestedProcedureID))
-                idService.newRequestedProcedureID(attrs);
+                idService.newRequestedProcedureID(arcAE.mwlRequestedProcedureIDGenerator(), attrs);
             if (!spsItem.containsValue(Tag.ScheduledProcedureStepID))
-                idService.newScheduledProcedureStepID(spsItem);
+                idService.newScheduledProcedureStepID(arcAE.mwlScheduledProcedureStepIDGenerator(), spsItem);
             if (!attrs.containsValue(Tag.StudyInstanceUID))
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
             if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
