@@ -214,8 +214,13 @@ public class StorageRS {
             if (StringUtils.contains(arcdev.getSeriesMetadataStorageIDs(), storageID))
                 usages.add("dcmSeriesMetadataStorageID");
 
-            device.getApplicationEntities().forEach(ae -> {
+            for (ApplicationEntity ae : device.getApplicationEntities()) {
                 ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+                if (arcAE == null) {
+                    LOG.info("Archive AE Extension not configured for AE : {}", ae.getAETitle());
+                    continue;
+                }
+                
                 if (StringUtils.contains(arcAE.getObjectStorageIDs(), desc.getStorageID())) {
                     usages.add("dcmObjectStorageID");
                     aets.add(ae.getAETitle());
@@ -224,7 +229,7 @@ public class StorageRS {
                     usages.add("dcmMetadataStorageID");
                     aets.add(ae.getAETitle());
                 }
-            });
+            }
             if ((dicomAETitle == null || aets.contains(dicomAETitle))
                 && (usage == null || usages.contains(usage))
                 && (storageClusterID == null || storageClusterID.equals(desc.getStorageClusterID()))
