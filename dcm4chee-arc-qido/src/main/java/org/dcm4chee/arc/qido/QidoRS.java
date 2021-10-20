@@ -468,8 +468,11 @@ public class QidoRS {
                         !queryAttrs.isIncludeAll() && ignorePatientUpdates(ctx.getReturnKeys()),
                                         studyInstanceUID,
                                         seriesInstanceUID);
-                if (lastModified == null)
-                    return errResponse("Last Modified date is null.", Response.Status.NOT_FOUND);
+                if (lastModified == null) {
+                    LOG.info("Last Modified date for Study[uid={}] Series[uid={}] is unavailable.",
+                            studyInstanceUID, seriesInstanceUID);
+                    return Response.noContent().build();
+                }
                 LOG.debug("Last Modified date: {}", lastModified);
 
                 if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) != null
