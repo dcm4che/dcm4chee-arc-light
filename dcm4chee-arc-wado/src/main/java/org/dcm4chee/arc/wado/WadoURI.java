@@ -233,7 +233,11 @@ public class WadoURI {
             LOG.debug("Query Last Modified date of Instance");
             Date lastModified = service.getLastModified(ctx, ignorePatientUpdates());
             if (lastModified == null)
-                throw new WebApplicationException(errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
+                throw new WebApplicationException(errResponse("Last Modified date for Study[uid={" + studyUID +
+                                "}] Series[uid={" + seriesUID +
+                                "}] Instance[uid={" + objectUID +
+                                "}] is unavailable.",
+                        Response.Status.NOT_FOUND));
             LOG.debug("Last Modified date: {}", lastModified);
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 

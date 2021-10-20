@@ -627,8 +627,11 @@ public class WadoRS {
             LOG.debug("Query Last Modified date of {}", target);
             Date lastModified = service.getLastModified(ctx, ignorePatientUpdate);
             if (lastModified == null)
-                throw new WebApplicationException(
-                        errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
+                throw new WebApplicationException(errResponse("Last Modified date for Study[uid={" + studyUID +
+                        "}] Series[uid={" + seriesUID +
+                        "}] Instance[uid={" + objectUID +
+                        "}] is unavailable.",
+                        Response.Status.NOT_FOUND));
             LOG.debug("Last Modified date: {}", lastModified);
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 
