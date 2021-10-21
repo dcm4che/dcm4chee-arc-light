@@ -71,6 +71,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT =
             "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.dcm";
     public static final String WADO_THUMBNAIL_VIEWPORT = "64,64";
+    public static final String MWL_ACCESSION_NUMBER_GENERATOR = "AccessionNumber";
+    public static final String MWL_REQUESTED_PROCEDURE_ID_GENERATOR = "RequestedProcedureID";
+    public static final String MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR = "ScheduledProcedureStepID";
 
     private volatile String defaultCharacterSet;
     private volatile String upsWorklistLabel;
@@ -173,6 +176,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile SPSStatus[] hideSPSWithStatusFromMWLRS = {};
     private volatile HL7ORUAction[] hl7ORUAction = {};
+    private volatile String mwlAccessionNumberGenerator = MWL_ACCESSION_NUMBER_GENERATOR;
+    private volatile String mwlRequestedProcedureIDGenerator = MWL_REQUESTED_PROCEDURE_ID_GENERATOR;
+    private volatile String mwlScheduledProcedureStepIDGenerator = MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR;
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
     private volatile Duration rejectExpiredStudiesPollingInterval;
@@ -305,7 +311,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
     private final Map<AttributeSet.Type,Map<String,AttributeSet>> attributeSet = new EnumMap<>(AttributeSet.Type.class);
     private final Map<String, BasicBulkDataDescriptor> bulkDataDescriptorMap = new HashMap<>();
-    private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
+    private final Map<String, IDGenerator> idGenerators = new HashMap<>();
     private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
@@ -1275,6 +1281,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ORUAction = hl7ORUAction;
     }
 
+    public String getMWLAccessionNumberGenerator() {
+        return mwlAccessionNumberGenerator;
+    }
+
+    public void setMWLAccessionNumberGenerator(String mwlAccessionNumberGenerator) {
+        this.mwlAccessionNumberGenerator = mwlAccessionNumberGenerator;
+    }
+
+    public String getMWLRequestedProcedureIDGenerator() {
+        return mwlRequestedProcedureIDGenerator;
+    }
+
+    public void setMWLRequestedProcedureIDGenerator(String mwlRequestedProcedureIDGenerator) {
+        this.mwlRequestedProcedureIDGenerator = mwlRequestedProcedureIDGenerator;
+    }
+
+    public String getMWLScheduledProcedureStepIDGenerator() {
+        return mwlScheduledProcedureStepIDGenerator;
+    }
+
+    public void setMWLScheduledProcedureStepIDGenerator(String mwlScheduledProcedureStepIDGenerator) {
+        this.mwlScheduledProcedureStepIDGenerator = mwlScheduledProcedureStepIDGenerator;
+    }
+
     public String getStorePermissionServiceURL() {
         return storePermissionServiceURL;
     }
@@ -1715,7 +1745,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return bulkDataDescriptorMap;
     }
 
-    public IDGenerator getIDGenerator(IDGenerator.Name name) {
+    public IDGenerator getIDGenerator(String name) {
         IDGenerator generator = idGenerators.get(name);
         if (generator == null)
             throw new IllegalArgumentException("No ID Generator for " + name + " configured");
@@ -1731,7 +1761,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         idGenerators.remove(generator.getName());
     }
 
-    public Map<IDGenerator.Name, IDGenerator> getIDGenerators() {
+    public Map<String, IDGenerator> getIDGenerators() {
         return idGenerators;
     }
 
@@ -3208,6 +3238,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         hideSPSWithStatusFromMWLRS = arcdev.hideSPSWithStatusFromMWLRS;
         hl7ORUAction = arcdev.hl7ORUAction;
+        mwlAccessionNumberGenerator = arcdev.mwlAccessionNumberGenerator;
+        mwlRequestedProcedureIDGenerator = arcdev.mwlRequestedProcedureIDGenerator;
+        mwlScheduledProcedureStepIDGenerator = arcdev.mwlScheduledProcedureStepIDGenerator;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
         rejectExpiredStudiesSchedules = arcdev.rejectExpiredStudiesSchedules;
         rejectExpiredStudiesFetchSize = arcdev.rejectExpiredStudiesFetchSize;

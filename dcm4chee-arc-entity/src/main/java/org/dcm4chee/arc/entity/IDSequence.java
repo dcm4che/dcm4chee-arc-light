@@ -40,12 +40,11 @@
 
 package org.dcm4chee.arc.entity;
 
-import org.dcm4chee.arc.conf.IDGenerator;
-
 import javax.persistence.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @Entity
@@ -54,8 +53,7 @@ public class IDSequence {
 
     @Id
     @Column(name = "name")
-    @Enumerated(EnumType.STRING)
-    private IDGenerator.Name name;
+    private String name;
 
     @Version
     @Column(name = "version")
@@ -65,11 +63,11 @@ public class IDSequence {
     @Column(name = "next_value")
     private int nextValue;
 
-    public IDGenerator.Name getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(IDGenerator.Name name) {
+    public void setName(String name) {
         this.name = name;
     }
 

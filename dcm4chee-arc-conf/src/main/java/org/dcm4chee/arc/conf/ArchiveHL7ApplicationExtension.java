@@ -71,6 +71,9 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private Boolean hl7VeterinaryUsePatientName;
     private String hl7PatientArrivalMessageType;
     private HL7ORUAction[] hl7ORUAction = {};
+    private String mwlAccessionNumberGenerator;
+    private String mwlRequestedProcedureIDGenerator;
+    private String mwlScheduledProcedureStepIDGenerator;
 
     private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
@@ -112,6 +115,9 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7VeterinaryUsePatientName = arcapp.hl7VeterinaryUsePatientName;
         hl7PatientArrivalMessageType = arcapp.hl7PatientArrivalMessageType;
         hl7ORUAction = arcapp.hl7ORUAction;
+        mwlAccessionNumberGenerator = arcapp.mwlAccessionNumberGenerator;
+        mwlRequestedProcedureIDGenerator = arcapp.mwlRequestedProcedureIDGenerator;
+        mwlScheduledProcedureStepIDGenerator = arcapp.mwlScheduledProcedureStepIDGenerator;
         hl7ExportRules.clear();
         hl7ExportRules.addAll(arcapp.hl7ExportRules);
         hl7PrefetchRules.clear();
@@ -588,5 +594,47 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7ORUAction.length > 0
                 ? hl7ORUAction
                 : getArchiveDeviceExtension().getHl7ORUAction();
+    }
+
+    public String getMWLAccessionNumberGenerator() {
+        return mwlAccessionNumberGenerator;
+    }
+
+    public void setMWLAccessionNumberGenerator(String mwlAccessionNumberGenerator) {
+        this.mwlAccessionNumberGenerator = mwlAccessionNumberGenerator;
+    }
+
+    public String mwlAccessionNumberGenerator() {
+        return mwlAccessionNumberGenerator != null
+                ? mwlAccessionNumberGenerator
+                : getArchiveDeviceExtension().getMWLAccessionNumberGenerator();
+    }
+
+    public String getMWLRequestedProcedureIDGenerator() {
+        return mwlRequestedProcedureIDGenerator;
+    }
+
+    public void setMWLRequestedProcedureIDGenerator(String mwlRequestedProcedureIDGenerator) {
+        this.mwlRequestedProcedureIDGenerator = mwlRequestedProcedureIDGenerator;
+    }
+
+    public String mwlRequestedProcedureIDGenerator() {
+        return mwlRequestedProcedureIDGenerator != null
+                ? mwlRequestedProcedureIDGenerator
+                : getArchiveDeviceExtension().getMWLRequestedProcedureIDGenerator();
+    }
+
+    public String getMWLScheduledProcedureStepIDGenerator() {
+        return mwlScheduledProcedureStepIDGenerator;
+    }
+
+    public void setMWLScheduledProcedureStepIDGenerator(String mwlScheduledProcedureStepIDGenerator) {
+        this.mwlScheduledProcedureStepIDGenerator = mwlScheduledProcedureStepIDGenerator;
+    }
+
+    public String mwlScheduledProcedureStepIDGenerator() {
+        return mwlScheduledProcedureStepIDGenerator != null
+                ? mwlScheduledProcedureStepIDGenerator
+                : getArchiveDeviceExtension().getMWLScheduledProcedureStepIDGenerator();
     }
 }

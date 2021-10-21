@@ -162,6 +162,7 @@ public class RetrieveManagerEJB {
                         retrieveTask1.setScheduledTime(ctx.getScheduledTime());
                     } else
                         LOG.info("Previous {} found - suppress duplicate retrieve", retrieveTask1);
+                    ctx.setRetrieveTask(retrieveTask1);
                 });
                 return true;
             }

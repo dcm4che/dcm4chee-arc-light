@@ -1918,6 +1918,13 @@
       }
     }
   },
+  "idGenerators": {
+    "title": "ID Generators",
+    "type": "array",
+    "items": {
+      "type": "string"
+    }
+  },
   "hl7appList": {
     "title": "HL7 Application List",
     "type": "array",

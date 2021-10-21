@@ -56,6 +56,7 @@ import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @ApplicationScoped
@@ -70,14 +71,14 @@ public class IDServiceImpl implements IDService {
     private IDServiceEJB ejb;
 
     @Override
-    public String createID(IDGenerator.Name name) {
+    public String createID(String name) {
         IDGenerator generator = device.getDeviceExtension(ArchiveDeviceExtension.class).getIDGenerator(name);
         return String.format(generator.getFormat(), nextValue(generator.getName(), generator.getInitialValue()));
     }
 
     @Override
     public void newPatientID(Attributes attrs) {
-        attrs.setString(Tag.PatientID, VR.LO, createID(IDGenerator.Name.PatientID));
+        attrs.setString(Tag.PatientID, VR.LO, createID("PatientID"));
         Issuer issuer = device.getIssuerOfPatientID();
         if (issuer != null)
             issuer.toIssuerOfPatientID(attrs);
@@ -86,7 +87,15 @@ public class IDServiceImpl implements IDService {
 
     @Override
     public void newAccessionNumber(Attributes attrs) {
-        attrs.setString(Tag.AccessionNumber, VR.SH, createID(IDGenerator.Name.AccessionNumber));
+        attrs.setString(Tag.AccessionNumber, VR.SH, createID("AccessionNumber"));
+        Issuer issuer = device.getIssuerOfAccessionNumber();
+        if (issuer != null)
+            attrs.newSequence(Tag.IssuerOfAccessionNumberSequence, 1).add(issuer.toItem());
+    }
+
+    @Override
+    public void newAccessionNumber(String idGenerator, Attributes attrs) {
+        attrs.setString(Tag.AccessionNumber, VR.SH, createID(idGenerator));
         Issuer issuer = device.getIssuerOfAccessionNumber();
         if (issuer != null)
             attrs.newSequence(Tag.IssuerOfAccessionNumberSequence, 1).add(issuer.toItem());
@@ -94,20 +103,30 @@ public class IDServiceImpl implements IDService {
 
     @Override
     public void newRequestedProcedureID(Attributes attrs) {
-        attrs.setString(Tag.RequestedProcedureID, VR.SH, createID(IDGenerator.Name.RequestedProcedureID));
+        attrs.setString(Tag.RequestedProcedureID, VR.SH, createID("RequestedProcedureID"));
+    }
+
+    @Override
+    public void newRequestedProcedureID(String idGenerator, Attributes attrs) {
+        attrs.setString(Tag.RequestedProcedureID, VR.SH, createID(idGenerator));
     }
 
     @Override
     public void newScheduledProcedureStepID(Attributes attrs) {
-        attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, createID(IDGenerator.Name.ScheduledProcedureStepID));
+        attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, createID("ScheduledProcedureStepID"));
+    }
+
+    @Override
+    public void newScheduledProcedureStepID(String idGenerator, Attributes attrs) {
+        attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, createID(idGenerator));
     }
 
     @Override
     public int newLocationMultiReference() {
-        return nextValue(IDGenerator.Name.LocationMultiReference, 0);
+        return nextValue("LocationMultiReference", 0);
     }
 
-    private int nextValue(IDGenerator.Name name, int initalValue) {
+    private int nextValue(String name, int initalValue) {
         try {
             return ejb.nextValue(name, initalValue);
         } catch (RuntimeException e) {

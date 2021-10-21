@@ -109,6 +109,38 @@
       }
     }
   },
+  "idNextVal": {
+    "post": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "ID Generator Next Value",
+      "operationId": "idGeneratorNextValue",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/name"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "ID Generator Next Value",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../responses.json#/idGeneratorNextValue"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Archive device extension unavailable or specified ID Generator not found"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "reject": {
     "delete": {
       "tags": [

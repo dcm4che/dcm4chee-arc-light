@@ -113,6 +113,9 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean filterByIssuerOfPatientID;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private SPSStatus[] hideSPSWithStatusFromMWLRS = {};
+    private String mwlAccessionNumberGenerator;
+    private String mwlRequestedProcedureIDGenerator;
+    private String mwlScheduledProcedureStepIDGenerator;
     private String storePermissionServiceURL;
     private String storePermissionServiceResponse;
     private Pattern storePermissionServiceResponsePattern;
@@ -871,6 +874,48 @@ public class ArchiveAEExtension extends AEExtension {
         return hideSPSWithStatusFromMWLRS.length > 0
                 ? hideSPSWithStatusFromMWLRS
                 : getArchiveDeviceExtension().getHideSPSWithStatusFromMWLRS();
+    }
+
+    public String getMWLAccessionNumberGenerator() {
+        return mwlAccessionNumberGenerator;
+    }
+
+    public void setMWLAccessionNumberGenerator(String mwlAccessionNumberGenerator) {
+        this.mwlAccessionNumberGenerator = mwlAccessionNumberGenerator;
+    }
+
+    public String mwlAccessionNumberGenerator() {
+        return mwlAccessionNumberGenerator != null
+                ? mwlAccessionNumberGenerator
+                : getArchiveDeviceExtension().getMWLAccessionNumberGenerator();
+    }
+
+    public String getMWLRequestedProcedureIDGenerator() {
+        return mwlRequestedProcedureIDGenerator;
+    }
+
+    public void setMWLRequestedProcedureIDGenerator(String mwlRequestedProcedureIDGenerator) {
+        this.mwlRequestedProcedureIDGenerator = mwlRequestedProcedureIDGenerator;
+    }
+
+    public String mwlRequestedProcedureIDGenerator() {
+        return mwlRequestedProcedureIDGenerator != null
+                ? mwlRequestedProcedureIDGenerator
+                : getArchiveDeviceExtension().getMWLRequestedProcedureIDGenerator();
+    }
+
+    public String getMWLScheduledProcedureStepIDGenerator() {
+        return mwlScheduledProcedureStepIDGenerator;
+    }
+
+    public void setMWLScheduledProcedureStepIDGenerator(String mwlScheduledProcedureStepIDGenerator) {
+        this.mwlScheduledProcedureStepIDGenerator = mwlScheduledProcedureStepIDGenerator;
+    }
+
+    public String mwlScheduledProcedureStepIDGenerator() {
+        return mwlScheduledProcedureStepIDGenerator != null
+                ? mwlScheduledProcedureStepIDGenerator
+                : getArchiveDeviceExtension().getMWLScheduledProcedureStepIDGenerator();
     }
 
     public String getFallbackCMoveSCPStudyOlderThan() {
@@ -1805,6 +1850,9 @@ public class ArchiveAEExtension extends AEExtension {
         filterByIssuerOfPatientID = aeExt.filterByIssuerOfPatientID;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
         hideSPSWithStatusFromMWLRS = aeExt.hideSPSWithStatusFromMWLRS;
+        mwlAccessionNumberGenerator = aeExt.mwlAccessionNumberGenerator;
+        mwlRequestedProcedureIDGenerator = aeExt.mwlRequestedProcedureIDGenerator;
+        mwlScheduledProcedureStepIDGenerator = aeExt.mwlScheduledProcedureStepIDGenerator;
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
         storePermissionServiceURL = aeExt.storePermissionServiceURL;
         storePermissionServiceResponse = aeExt.storePermissionServiceResponse;

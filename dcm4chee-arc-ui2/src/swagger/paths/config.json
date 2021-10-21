@@ -890,6 +890,34 @@
       }
     }
   },
+  "ids": {
+    "get": {
+      "tags": [
+        "CONFIG-RS"
+      ],
+      "summary": "List ID Generators",
+      "operationId": "listIDGenerators",
+      "parameters": [],
+      "responses": {
+        "200": {
+          "description": "ID Generator Names",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/idGenerators"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Archive device extension unavailable"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "reject": {
     "get": {
       "tags": [

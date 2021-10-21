@@ -84,6 +84,12 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotNullOrDef("hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
         writer.writeNotNullOrDef("hl7VeterinaryUsePatientName", ext.getHl7VeterinaryUsePatientName(), null);
         writer.writeNotEmpty("hl7ORUAction", ext.getHl7ORUAction());
+        writer.writeNotNullOrDef("dcmMWLAccessionNumberGenerator",
+                ext.getMWLAccessionNumberGenerator(), null);
+        writer.writeNotNullOrDef("dcmMWLRequestedProcedureIDGenerator",
+                ext.getMWLRequestedProcedureIDGenerator(), null);
+        writer.writeNotNullOrDef("dcmMWLScheduledProcedureStepIDGenerator",
+                ext.getMWLScheduledProcedureStepIDGenerator(), null);
         writer.writeNotNullOrDef("hl7ReferredMergedPatientPolicy",
                 ext.getHl7ReferredMergedPatientPolicy(), null);
         writer.writeNotNullOrDef("hl7PatientArrivalMessageType", ext.getHL7PatientArrivalMessageType(), null);
@@ -170,6 +176,15 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7ORUAction":
                     ext.setHl7ORUAction(reader.enumArray(HL7ORUAction.class));
+                    break;
+                case "dcmMWLAccessionNumberGenerator":
+                    ext.setMWLAccessionNumberGenerator(reader.stringValue());
+                    break;
+                case "dcmMWLRequestedProcedureIDGenerator":
+                    ext.setMWLRequestedProcedureIDGenerator(reader.stringValue());
+                    break;
+                case "dcmMWLScheduledProcedureStepIDGenerator":
+                    ext.setMWLScheduledProcedureStepIDGenerator(reader.stringValue());
                     break;
                 case "hl7ReferredMergedPatientPolicy":
                     ext.setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy.valueOf(reader.stringValue()));

@@ -319,6 +319,15 @@
       "type": "string"
     }
   },
+  "name": {
+    "name": "name",
+    "in": "path",
+    "description": "ID Generator Name",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "codeValuePathParam": {
     "name": "codeValue",
     "in": "path",

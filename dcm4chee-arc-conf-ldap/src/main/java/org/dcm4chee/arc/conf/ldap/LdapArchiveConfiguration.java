@@ -236,6 +236,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWLRS", ext.getHideSPSWithStatusFromMWLRS());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLAccessionNumberGenerator",
+                ext.getMWLAccessionNumberGenerator(), ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLRequestedProcedureIDGenerator",
+                ext.getMWLRequestedProcedureIDGenerator(), ArchiveDeviceExtension.MWL_REQUESTED_PROCEDURE_ID_GENERATOR);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLScheduledProcedureStepIDGenerator",
+                ext.getMWLScheduledProcedureStepIDGenerator(), ArchiveDeviceExtension.MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectExpiredStudiesPollingInterval",
                 ext.getRejectExpiredStudiesPollingInterval(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRejectExpiredStudiesSchedule",
@@ -604,6 +610,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHideSPSWithStatusFromMWLRS(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWLRS")));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
         ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
+        ext.setMWLAccessionNumberGenerator(LdapUtils.stringValue(attrs.get("dcmMWLAccessionNumberGenerator"),
+                ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR));
+        ext.setMWLRequestedProcedureIDGenerator(
+                LdapUtils.stringValue(attrs.get("dcmMWLRequestedProcedureIDGenerator"),
+                        ArchiveDeviceExtension.MWL_REQUESTED_PROCEDURE_ID_GENERATOR));
+        ext.setMWLScheduledProcedureStepIDGenerator(
+                LdapUtils.stringValue(attrs.get("dcmMWLScheduledProcedureStepIDGenerator"),
+                        ArchiveDeviceExtension.MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR));
         ext.setRejectExpiredStudiesPollingInterval(toDuration(attrs.get("dcmRejectExpiredStudiesPollingInterval"), null));
         ext.setRejectExpiredStudiesSchedules(
                 ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmRejectExpiredStudiesSchedule"))));
@@ -1028,6 +1042,15 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmEncodeAsJSONNumber",
                 aa.getEncodeAsJSONNumber(), bb.getEncodeAsJSONNumber());
         LdapUtils.storeDiff(ldapObj, mods, "hl7ORUAction", aa.getHl7ORUAction(), bb.getHl7ORUAction());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLAccessionNumberGenerator",
+                aa.getMWLAccessionNumberGenerator(), bb.getMWLAccessionNumberGenerator(),
+                ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLRequestedProcedureIDGenerator",
+                aa.getMWLRequestedProcedureIDGenerator(), bb.getMWLRequestedProcedureIDGenerator(),
+                ArchiveDeviceExtension.MWL_REQUESTED_PROCEDURE_ID_GENERATOR);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLScheduledProcedureStepIDGenerator",
+                aa.getMWLScheduledProcedureStepIDGenerator(), bb.getMWLScheduledProcedureStepIDGenerator(),
+                ArchiveDeviceExtension.MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectExpiredStudiesPollingInterval",
                 aa.getRejectExpiredStudiesPollingInterval(), bb.getRejectExpiredStudiesPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRejectExpiredStudiesSchedule",
@@ -1603,6 +1626,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanOnTimeout", ext.getIanOnTimeout(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFromMWL());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWLRS", ext.getHideSPSWithStatusFromMWLRS());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLAccessionNumberGenerator",
+                ext.getMWLAccessionNumberGenerator(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLRequestedProcedureIDGenerator",
+                ext.getMWLRequestedProcedureIDGenerator(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLScheduledProcedureStepIDGenerator",
+                ext.getMWLScheduledProcedureStepIDGenerator(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPStudyOlderThan",
                 ext.getFallbackCMoveSCPStudyOlderThan(), null);
@@ -1764,6 +1793,11 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
         ext.setHideSPSWithStatusFromMWL(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
         ext.setHideSPSWithStatusFromMWLRS(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWLRS")));
+        ext.setMWLAccessionNumberGenerator(LdapUtils.stringValue(attrs.get("dcmMWLAccessionNumberGenerator"), null));
+        ext.setMWLRequestedProcedureIDGenerator(
+                LdapUtils.stringValue(attrs.get("dcmMWLRequestedProcedureIDGenerator"), null));
+        ext.setMWLScheduledProcedureStepIDGenerator(
+                LdapUtils.stringValue(attrs.get("dcmMWLScheduledProcedureStepIDGenerator"), null));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
         ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(
                 attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
@@ -1967,6 +2001,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHideSPSWithStatusFromMWL(), bb.getHideSPSWithStatusFromMWL());
         LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWLRS",
                 aa.getHideSPSWithStatusFromMWLRS(), bb.getHideSPSWithStatusFromMWLRS());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLAccessionNumberGenerator",
+                aa.getMWLAccessionNumberGenerator(), bb.getMWLAccessionNumberGenerator(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLRequestedProcedureIDGenerator",
+                aa.getMWLRequestedProcedureIDGenerator(), bb.getMWLRequestedProcedureIDGenerator(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLScheduledProcedureStepIDGenerator",
+                aa.getMWLScheduledProcedureStepIDGenerator(), bb.getMWLScheduledProcedureStepIDGenerator(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmEncodeAsJSONNumber",
                 aa.getEncodeAsJSONNumber(), bb.getEncodeAsJSONNumber());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPStudyOlderThan",
@@ -5735,7 +5775,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void storeIDGenerators(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
         for (IDGenerator generator : arcDev.getIDGenerators().values()) {
-            String dn = LdapUtils.dnOf("dcmIDGeneratorName", generator.getName().name(), deviceDN);
+            String dn = LdapUtils.dnOf("dcmIDGeneratorName", generator.getName(), deviceDN);
             ConfigurationChanges.ModifiedObject ldapObj =
                     ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(dn, storeTo(ldapObj, generator, new BasicAttributes(true)));
@@ -5758,7 +5798,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, IDGenerator generator, BasicAttributes attrs) {
         attrs.put("objectClass", "dcmIDGenerator");
-        attrs.put("dcmIDGeneratorName", generator.getName().name());
+        attrs.put("dcmIDGeneratorName", generator.getName());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIDGeneratorFormat", generator.getFormat(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         return attrs;
@@ -5799,7 +5839,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 IDGenerator generator = new IDGenerator();
-                generator.setName(LdapUtils.enumValue(IDGenerator.Name.class, attrs.get("dcmIDGeneratorName"), null));
+                generator.setName(LdapUtils.stringValue(attrs.get("dcmIDGeneratorName"), null));
                 generator.setFormat(LdapUtils.stringValue(attrs.get("dcmIDGeneratorFormat"), null));
                 generator.setInitialValue(LdapUtils.intValue(attrs.get("dcmIDGeneratorInitialValue"),1));
                 arcdev.addIDGenerator(generator);
@@ -5840,16 +5880,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void mergeIDGenerators(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
-        for (IDGenerator.Name name : prev.getIDGenerators().keySet()) {
+        for (String name : prev.getIDGenerators().keySet()) {
             if (!arcDev.getIDGenerators().containsKey(name)) {
-                String dn = LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN);
+                String dn = LdapUtils.dnOf("dcmIDGeneratorName", name, deviceDN);
                 config.destroySubcontext(dn);
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
             }
         }
         for (IDGenerator entryNew : arcDev.getIDGenerators().values()) {
-            IDGenerator.Name name = entryNew.getName();
-            String dn = LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN);
+            String name = entryNew.getName();
+            String dn = LdapUtils.dnOf("dcmIDGeneratorName", name, deviceDN);
             IDGenerator entryOld = prev.getIDGenerators().get(name);
             if (entryOld == null) {
                 ConfigurationChanges.ModifiedObject ldapObj =

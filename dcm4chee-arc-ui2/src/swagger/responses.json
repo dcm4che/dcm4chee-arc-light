@@ -194,6 +194,24 @@
       }
     }
   },
+  "idGeneratorNextValue": {
+    "description": "Next Value created by ID Generator",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "idGeneratorName"
+          ],
+          "properties": {
+            "idGeneratorName": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
   "importMWLResult": {
     "description": "Imported Scheduled Procedure Steps",
     "content": {

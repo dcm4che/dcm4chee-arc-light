@@ -833,6 +833,12 @@ export class Globalvar {
                 msg:$localize `:@@dynamic_formatter.keycloak_client:Create first a Keycloak Client!`,
                 pathInDevice:'dcmDevice.dcmKeycloakClient'
             },
+            dcmIDGenerator:{
+                key:'dcmIDGeneratorName',
+                labelKey:'{dcmIDGeneratorName}',
+                msg:$localize `:@@dynamic_formatter.id_generator:Create first an ID Generator!`,
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmIDGenerator'
+            },
             dcmPDQServiceID:{
                 key:'dcmPDQServiceID',
                 labelKey:'{dcmPDQServiceID}',

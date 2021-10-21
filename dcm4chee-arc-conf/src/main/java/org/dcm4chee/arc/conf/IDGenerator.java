@@ -42,25 +42,19 @@ package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 public class IDGenerator {
-    public enum Name {
-        PatientID,
-        AccessionNumber,
-        RequestedProcedureID,
-        ScheduledProcedureStepID,
-        LocationMultiReference
-    }
-    private Name name;
+    private String name;
     private String format;
     private int initialValue = 1;
 
-    public Name getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(Name name) {
+    public void setName(String name) {
         this.name = name;
     }
 
