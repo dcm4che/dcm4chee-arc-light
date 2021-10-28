@@ -2622,7 +2622,7 @@
       }
     }
   },
-  "updatePatientCharsetOfPatientResult": {
+  "updateCharsetOfPatientResult": {
     "title": "Update Character Set of Patient result",
     "type": "object",
     "properties": {
