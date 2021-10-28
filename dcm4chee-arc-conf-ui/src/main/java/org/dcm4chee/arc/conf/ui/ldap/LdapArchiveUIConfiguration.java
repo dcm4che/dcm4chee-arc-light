@@ -102,6 +102,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         storeDeviceCluster(diffs, uiConfig, uiConfigDN);
         storeFiltersTemplate(diffs, uiConfig, uiConfigDN);
         storeAets(diffs, uiConfig, uiConfigDN);
+        storeCreateDialogTemplate(diffs, uiConfig, uiConfigDN);
         storeWebApps(diffs, uiConfig, uiConfigDN);
 
     }
@@ -134,6 +135,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             ConfigurationChanges.ModifiedObject ldapObj1 =
                     ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiAetListDN, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(uiAetListDN, storeTo(ldapObj1, uiAets, new BasicAttributes(true)));
+        }
+    }
+    private void storeCreateDialogTemplate(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UICreateDialogTemplate uiDialogTemplate : uiConfig.getCreateDialogTemplates()) {
+            String uiTemplateDN = LdapUtils.dnOf("dcmuiTemplateName", uiDialogTemplate.getTemplateName(), uiConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj1 =
+                    ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiTemplateDN, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(uiTemplateDN, storeTo(ldapObj1, uiDialogTemplate, new BasicAttributes(true)));
         }
     }
     private void storeWebApps(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN)
@@ -194,6 +204,14 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiMode", uiAetList.getMode(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiAets", uiAetList.getAets());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiAetList.getAcceptedRole());
+        return attrs;
+    }
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UICreateDialogTemplate uiCreateDialogTemplate, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiCreateDialogTemplate"));
+        attrs.put(new BasicAttribute("dcmuiTemplateName", uiCreateDialogTemplate.getTemplateName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiTemplateDescription", uiCreateDialogTemplate.getTemplateDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDialog", uiCreateDialogTemplate.getDialog(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmTemplateTag", uiCreateDialogTemplate.getTemplateTag());
         return attrs;
     }
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIWebAppList uiWebAppList, Attributes attrs) {
@@ -457,6 +475,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         loadDeviceClusters(uiConfig, uiConfigDN);
         loadFilterTemplates(uiConfig, uiConfigDN);
         loadAetList(uiConfig, uiConfigDN);
+        loadCreateDialogTemplate(uiConfig, uiConfigDN);
         loadWebAppList(uiConfig, uiConfigDN);
         return uiConfig;
     }
@@ -491,6 +510,23 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiAetList.setAets(LdapUtils.stringArray(attrs.get("dcmuiAets")));
                 uiAetList.setAcceptedRole(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
                 uiConfig.addAetList(uiAetList);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+    private void loadCreateDialogTemplate(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiCreateDialogTemplate)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UICreateDialogTemplate uiCreateDialogTemplate = new UICreateDialogTemplate((String) attrs.get("dcmuiTemplateName").get());
+                uiCreateDialogTemplate.setTemplateDescription(LdapUtils.stringValue(attrs.get("dcmuiTemplateDescription"), null));
+                uiCreateDialogTemplate.setDialog(LdapUtils.stringValue(attrs.get("dcmuiDialog"), null));
+                uiCreateDialogTemplate.setTemplateTag(LdapUtils.stringArray(attrs.get("dcmTemplateTag")));
+                uiConfig.addCreatDialogTemplate(uiCreateDialogTemplate);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -772,6 +808,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeFilterTemplate(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeAetLists(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergeCreateDialogTemplate(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeWebAppLists(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
@@ -838,6 +875,35 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIAetList, uiAetList,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+    private void mergeCreateDialogTemplate(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UICreateDialogTemplate prevUICreateDialogTemplate : prevUIConfig.getCreateDialogTemplates()) {
+            String prevUICreateDialogTemplateName = prevUICreateDialogTemplate.getTemplateName();
+            if (uiConfig.getCreateDialogTemplate(prevUICreateDialogTemplateName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiTemplateName", prevUICreateDialogTemplateName, uiConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UICreateDialogTemplate uiCreateDialogTemplate : uiConfig.getCreateDialogTemplates()) {
+            String uiCreateDialogTemplateName = uiCreateDialogTemplate.getTemplateName();
+            String dn = LdapUtils.dnOf("dcmuiTemplateName", uiCreateDialogTemplateName, uiConfigDN);
+            UICreateDialogTemplate prevUICreateDialogTemplate = prevUIConfig.getCreateDialogTemplate(uiCreateDialogTemplateName);
+            if (prevUICreateDialogTemplate == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                uiCreateDialogTemplate, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUICreateDialogTemplate, uiCreateDialogTemplate,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
@@ -987,6 +1053,19 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
                 prev.getAcceptedRole(),
                 uiAetList.getAcceptedRole());
+        return mods;
+    }
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UICreateDialogTemplate prev,
+                                              UICreateDialogTemplate uiCreateDialogTemplate, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiTemplateDescription",
+                prev.getTemplateDescription(),
+                uiCreateDialogTemplate.getTemplateDescription(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDialog",
+                prev.getDialog(),
+                uiCreateDialogTemplate.getDialog(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmTemplateTag",
+                prev.getTemplateTag(),
+                uiCreateDialogTemplate.getTemplateTag());
         return mods;
     }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIWebAppList prev,
