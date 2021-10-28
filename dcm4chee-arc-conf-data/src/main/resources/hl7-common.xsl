@@ -541,31 +541,31 @@
           </Value>
         </xsl:if>
       </DicomAttribute>
-      <DicomAttribute tag="{$sqtag}" vr="SQ">
-        <Item number="1">
-          <xsl:if test="$ei/component and $val != '&quot;&quot;'">
-            <xsl:if test="$ei/component[1]">
-              <DicomAttribute tag="00400031" vr="UT">
-                <Value number="1">
-                  <xsl:value-of select="$ei/component[1]/text()"/>
-                </Value>
-              </DicomAttribute>
-            </xsl:if>
-            <xsl:if test="$ei/component[2] and $ei/component[3]">
-              <DicomAttribute tag="00400032" vr="UT">
-                <Value number="1">
-                  <xsl:value-of select="$ei/component[2]/text()"/>
-                </Value>
-              </DicomAttribute>
-              <DicomAttribute tag="00400033" vr="CS">
-                <Value number="1">
-                  <xsl:value-of select="$ei/component[3]/text()"/>
-                </Value>
-              </DicomAttribute>
-            </xsl:if>
-          </xsl:if>
-        </Item>
-      </DicomAttribute>
+      <xsl:if test="$ei/component and $val != '&quot;&quot;'">
+        <DicomAttribute tag="{$sqtag}" vr="SQ">
+            <Item number="1">
+                <xsl:if test="$ei/component[1]">
+                  <DicomAttribute tag="00400031" vr="UT">
+                    <Value number="1">
+                      <xsl:value-of select="$ei/component[1]/text()"/>
+                    </Value>
+                  </DicomAttribute>
+                </xsl:if>
+                <xsl:if test="$ei/component[2] and $ei/component[3]">
+                  <DicomAttribute tag="00400032" vr="UT">
+                    <Value number="1">
+                      <xsl:value-of select="$ei/component[2]/text()"/>
+                    </Value>
+                  </DicomAttribute>
+                  <DicomAttribute tag="00400033" vr="CS">
+                    <Value number="1">
+                      <xsl:value-of select="$ei/component[3]/text()"/>
+                    </Value>
+                  </DicomAttribute>
+                </xsl:if>
+            </Item>
+        </DicomAttribute>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
   <xsl:template name="attrDATM">
@@ -661,27 +661,27 @@
           <xsl:with-param name="val" select="$val"/>
         </xsl:call-template>
       </xsl:if>
-      <DicomAttribute tag="00380014" vr="SQ">
-        <Item number="1">
-          <xsl:if test="$ei/component and $val != '&quot;&quot;'">
-            <xsl:call-template name="attr">
-              <xsl:with-param name="tag" select="'00400031'"/>
-              <xsl:with-param name="vr" select="'UT'"/>
-              <xsl:with-param name="val" select="$ei/component[3]/text()"/>
-            </xsl:call-template>
-            <xsl:call-template name="attr">
-              <xsl:with-param name="tag" select="'00400032'"/>
-              <xsl:with-param name="vr" select="'UT'"/>
-              <xsl:with-param name="val" select="$ei/component[3]/subcomponent[1]"/>
-            </xsl:call-template>
-            <xsl:call-template name="attr">
-              <xsl:with-param name="tag" select="'00400033'"/>
-              <xsl:with-param name="vr" select="'CS'"/>
-              <xsl:with-param name="val" select="$ei/component[3]/subcomponent[2]"/>
-            </xsl:call-template>
-          </xsl:if>
-        </Item>
-      </DicomAttribute>
+      <xsl:if test="$ei/component and $val != '&quot;&quot;'">
+        <DicomAttribute tag="00380014" vr="SQ">
+          <Item number="1">
+              <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'00400031'"/>
+                <xsl:with-param name="vr" select="'UT'"/>
+                <xsl:with-param name="val" select="$ei/component[3]/text()"/>
+              </xsl:call-template>
+              <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'00400032'"/>
+                <xsl:with-param name="vr" select="'UT'"/>
+                <xsl:with-param name="val" select="$ei/component[3]/subcomponent[1]"/>
+              </xsl:call-template>
+              <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'00400033'"/>
+                <xsl:with-param name="vr" select="'CS'"/>
+                <xsl:with-param name="val" select="$ei/component[3]/subcomponent[2]"/>
+              </xsl:call-template>
+          </Item>
+        </DicomAttribute>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 
