@@ -165,6 +165,9 @@
     "/aets/{aet}/rs/patients/issuer/{issuer}": {
       "$ref": "paths/pam.json#/patient.issuer"
     },
+    "/aets/{aet}/rs/patients/charset/{charset}": {
+      "$ref": "paths/pam.json#/patient.charset"
+    },
     "/aets/{aet}/rs/patients/{patientID}/unmerge": {
       "$ref": "paths/pam.json#/patient.unmerge"
     },

@@ -361,6 +361,52 @@
       }
     }
   },
+  "patient.charset": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Update Character Set of Patient Attributes",
+      "operationId": "UpdateCharsetOfPatientAttributes",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/charsetPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/test"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/updateCharsetOfPatientOK"
+        },
+        "202": {
+          "$ref": "../responses.json#/updateCharsetOfPatientAccepted"
+        },
+        "204": {
+          "description": "No matching patient found"
+        },
+        "404": {
+          "description": "No such Application Entity."
+        },
+        "409": {
+          "$ref": "../responses.json#/updateCharsetOfPatientConflict"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "patient.changeid": {
     "post": {
       "tags": [

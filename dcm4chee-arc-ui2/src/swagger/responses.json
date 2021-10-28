@@ -925,6 +925,36 @@
       }
     }
   },
+  "updateCharsetOfPatientOK": {
+    "description": "Successfully updated Character Set of attributes of all matching Patients.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/updateCharsetOfPatientResult"
+        }
+      }
+    }
+  },
+  "updateCharsetOfPatientAccepted": {
+    "description": "Successfully updated Character Set of attributes of some matching Patients, but failures exist for others.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/updateCharsetOfPatientResult"
+        }
+      }
+    }
+  },
+  "updateCharsetOfPatientConflict": {
+    "description": "Update of Character Set of attributes failed for all matching Patients.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/updateCharsetOfPatientResult"
+        }
+      }
+    }
+  },
   "ServerTime": {
     "description": "Server Time with Timezone",
     "content": {

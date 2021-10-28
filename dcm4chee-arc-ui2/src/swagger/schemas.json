@@ -2622,6 +2622,28 @@
       }
     }
   },
+  "updatePatientCharsetOfPatientResult": {
+    "title": "Update Character Set of Patient result",
+    "type": "object",
+    "properties": {
+      "pids": {
+        "title": "Patient IDs",
+        "description": "Patient IDs encoded as HL7 CX of Patients which attributes were successfully transcoded with new Character Set",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "failures": {
+        "title": "Failures",
+        "description": "Patient IDs encoded as HL7 CX of Patients which attributes could not be transcoded with new Character Set",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "stgverBatchList": {
     "title": "StorageVerificationBatchList",
     "type": "array",
