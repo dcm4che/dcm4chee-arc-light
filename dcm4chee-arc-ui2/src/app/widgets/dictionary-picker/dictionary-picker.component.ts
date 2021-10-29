@@ -19,6 +19,10 @@ export class DictionaryPickerComponent implements OnInit {
     @Output() onValueSet = new EventEmitter();
     filter = '';
     dcmTags = [];
+    dcmTagsFiltered = [];
+    sliceTo = 20;
+    scrollTop = 0;
+    search = new SearchPipe();
     constructor(
     ) { }
 
@@ -29,7 +33,11 @@ export class DictionaryPickerComponent implements OnInit {
                     this.dcmTags.push({
                         key:i,
                         text:m
-                    })
+                    });
+                    this.dcmTagsFiltered.push({
+                        key:i,
+                        text:m
+                    });
                 });
                 break;
             case 'dcmTransferSyntax':
@@ -37,7 +45,11 @@ export class DictionaryPickerComponent implements OnInit {
                     this.dcmTags.push({
                         key:i,
                         text:m
-                    })
+                    });
+                    this.dcmTagsFiltered.push({
+                        key:i,
+                        text:m
+                    });
                 });
                 break;
             case 'dcmSOPClass':
@@ -45,10 +57,15 @@ export class DictionaryPickerComponent implements OnInit {
                     this.dcmTags.push({
                         key:i,
                         text:m
-                    })
+                    });
+                    this.dcmTagsFiltered.push({
+                        key:i,
+                        text:m
+                    });
                 });
                 break;
         }
+
     }
     ngAfterViewInit() {
         WindowRefService.nativeWindow.document.getElementsByClassName("dictionary_widget_search")[0].focus();
@@ -65,6 +82,22 @@ export class DictionaryPickerComponent implements OnInit {
                 this.onValueSet.emit(filtered[0].key);
             }
         }
+    }
+
+    onScroll(e){
+        const offsetScrollHeight = e.target.scrollTop + e.target.offsetHeight;
+        if(this.scrollTop < e.target.scrollTop && offsetScrollHeight + 20 > e.target.scrollHeight){
+            this.scrollTop = e.target.scrollTop;
+            this.loadMore();
+        }
+    }
+    onSearch(){
+        this.sliceTo = 20;
+        this.scrollTop = 0;
+        this.dcmTagsFiltered = this.search.transform(this.dcmTags,this.filter);
+    }
+    loadMore(){
+        this.sliceTo += 20;
     }
     close(){
         this.onValueSet.emit("");
