@@ -728,6 +728,26 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public CriteriaQuery<AttributesBlob> createPatientAttributesQuery(QueryParam queryParam, Attributes queryKeys) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        QueryBuilder builder = new QueryBuilder(cb);
+        CriteriaQuery<AttributesBlob> q = cb.createQuery(AttributesBlob.class);
+        Root<Patient> patient = q.from(Patient.class);
+        Join<Patient, AttributesBlob> blobJoin = patient.join(Patient_.attributesBlob);
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(queryKeys);
+        List<Predicate> predicates = builder.patientPredicates(q, patient,
+                idWithIssuer != null ? new IDWithIssuer[]{idWithIssuer} : IDWithIssuer.EMPTY,
+                idWithIssuer == null && queryParam.isFilterByIssuerOfPatientID()
+                        ? Issuer.fromIssuerOfPatientID(queryKeys)
+                        : null,
+                queryKeys, queryParam);
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        q.orderBy(cb.asc(blobJoin.get(AttributesBlob_.pk)));
+        return q.select(blobJoin);
+    }
+
+    @Override
     public Date getLastModified(boolean ignorePatientUpdates, String studyUID, String seriesUID) {
         List<Object[]> dates = queryLastModified(studyUID, seriesUID);
         int first = ignorePatientUpdates ? 1 : 0;

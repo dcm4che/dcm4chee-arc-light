@@ -397,6 +397,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStoreImplementationVersionName",
                 arcDev.isStoreImplementationVersionName(), true);
         writer.writeNotDef("dcmSupplementIssuerFetchSize", arcDev.getSupplementIssuerFetchSize(), 100);
+        writer.writeNotDef("dcmUpdateCharsetFetchSize", arcDev.getUpdateCharsetFetchSize(), 100);
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
@@ -1996,6 +1997,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmSupplementIssuerFetchSize":
                     arcDev.setSupplementIssuerFetchSize(reader.intValue());
+                    break;
+                case "dcmUpdateCharsetFetchSize":
+                    arcDev.setUpdateCharsetFetchSize(reader.intValue());
                     break;
                 case "dcmAuditAssigningAuthorityOfPatientID":
                     arcDev.setAuditAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));

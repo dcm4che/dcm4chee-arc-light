@@ -566,8 +566,12 @@ public class PatientServiceEJB {
         return em.createQuery(q.where(predicates.toArray(new Predicate[0])).select(cb.count(patientID))).getSingleResult();
     }
 
-    public List<Patient> queryWithLimit(CriteriaQuery<Patient> query, int limit) {
-        return em.createQuery(query).setMaxResults(limit).getResultList();
+    public <T> List<T> queryWithOffsetAndLimit(CriteriaQuery<T> query, int offset, int limit) {
+        return em.createQuery(query).setFirstResult(offset).setMaxResults(limit).getResultList();
+    }
+
+    public <T> T merge(T entity) {
+        return em.merge(entity);
     }
 
     public void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
