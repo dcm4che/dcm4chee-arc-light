@@ -2627,7 +2627,8 @@
     "type": "object",
     "properties": {
       "updated": {
-        "title": "Number of Patients which LO, LT, PN, SH, ST, UT attributes were transcoded to the new Character Set",
+        "title": "Number of updated Patients",
+        "description": "Number of Patients which LO, LT, PN, SH, ST, UT attributes were transcoded to the new Character Set",
         "type": "integer"
       },
       "failures": {
