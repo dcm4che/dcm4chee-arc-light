@@ -9,25 +9,10 @@ sn:: IA==
 cn:: IA==
 userPassword:: Y2hhbmdlaXQ=
 
-dn: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
-changetype: add
-uid: wildfly-admin
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-sn:: IA==
-cn:: IA==
-userPassword:: Y2hhbmdlaXQ=
-
 dn: cn=user,ou=users,dc=dcm4che,dc=org
 changetype: modify
 add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
-member: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
-
-dn: cn=ADMINISTRATOR,ou=users,dc=dcm4che,dc=org
-changetype: modify
-add: member
-member: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=create-client,ou=realm-management,dc=dcm4che,dc=org
 changetype: modify
@@ -120,6 +105,31 @@ add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-clients,ou=realm-management,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-profile,ou=account,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=delete-account,ou=account,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-account,ou=account,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-consent,ou=account,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-applications,ou=account,dc=dcm4che,dc=org
 changetype: modify
 add: member
 member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
