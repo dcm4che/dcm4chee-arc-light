@@ -2628,10 +2628,7 @@
     "properties": {
       "updated": {
         "title": "Number of Patients which LO, LT, PN, SH, ST, UT attributes were transcoded to the new Character Set",
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
+        "type": "integer"
       },
       "failures": {
         "title": "Failures",
