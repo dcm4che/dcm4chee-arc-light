@@ -2070,6 +2070,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.424 NAME 'dcmMWLScheduledProcedureSt
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.425 NAME 'dcmUpdateCharsetFetchSize'
+  DESC 'Limit result set of DB query for matching Patients by RESTful service for changing the Character Set for encoding of LO, LT, PN, SH, ST, UT attributes; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2302,6 +2307,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmEncodeAsJSONNumber $
     dcmSchedulerMinStartDelay $
     dcmSupplementIssuerFetchSize $
+    dcmUpdateCharsetFetchSize $
     dcmAuditAssigningAuthorityOfPatientID $
     dcmChangeRequesterAET $
     dcmMWLAccessionNumberGenerator $

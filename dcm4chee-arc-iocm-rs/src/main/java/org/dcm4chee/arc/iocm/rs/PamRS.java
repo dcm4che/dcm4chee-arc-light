@@ -59,6 +59,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.hl7.HL7SenderUtils;
@@ -394,7 +395,7 @@ public class PamRS {
                 int carry = 0;
                 do {
                     int limit = supplementIssuerFetchSize + failedPks.size() + carry;
-                    List<Patient> matches = patientService.queryWithLimit(query, limit);
+                    List<Patient> matches = patientService.queryWithOffsetAndLimit(query, 0, limit);
                     remaining = matches.size() == limit;
                     matches.removeIf(p -> failedPks.contains(p.getPk()));
                     if (matches.isEmpty())
@@ -737,4 +738,70 @@ public class PamRS {
             }
         }
     }
+
+    @POST
+    @Path("/patients/charset/{charset}")
+    public Response updateCharset(
+            @Pattern(regexp = "ISO_IR 100|ISO_IR 101|ISO_IR 109|ISO_IR 110|ISO_IR 144|ISO_IR 127|ISO_IR 126|ISO_IR 138|ISO_IR 148|ISO_IR 13|ISO_IR 166|ISO_IR 192|GB18030|GBK")
+            @PathParam("charset") String charset,
+            @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        boolean update = !Boolean.parseBoolean(test);
+        int updated = 0;
+        List<IDWithIssuer> failures = new ArrayList<>();
+        try {
+            QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
+            Attributes queryKeys = queryAttrs.getQueryKeys();
+            CriteriaQuery<AttributesBlob> query = queryService.createPatientAttributesQuery(
+                    queryParam(arcAE.getApplicationEntity()), queryKeys);
+            int limit = arcAE.getArchiveDeviceExtension().getUpdateCharsetFetchSize();
+            int offset = 0;
+            List<AttributesBlob> blobs = patientService.queryWithOffsetAndLimit(query, offset, limit);
+            if (blobs.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
+            for (;;) {
+                for (AttributesBlob blob : blobs) {
+                    Attributes attrs = blob.getAttributes();
+                    if (charset.equals(attrs.getString(Tag.SpecificCharacterSet))) continue;
+                    attrs.setSpecificCharacterSet(charset);
+                    blob.setAttributes(attrs);
+                    if (attrs.equals(AttributesBlob.decodeAttributes(blob.getEncodedAttributes(), null))) {
+                        if (update) patientService.merge(blob);
+                        updated++;
+                    } else {
+                        failures.add(IDWithIssuer.pidOf(attrs));
+                    }
+                }
+                if (blobs.size() < limit) break;
+                offset += blobs.size();
+            }
+            if (updated > 0)
+                rsForward.forward(RSOperation.SupplementIssuer, arcAE, null, request);
+            return updateCharsetResponse(updated, failures).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static Response.ResponseBuilder updateCharsetResponse(int updated, List<IDWithIssuer> failures) {
+        return Response.status(failures.isEmpty()
+                        ? Response.Status.OK
+                        : updated == 0 ? Response.Status.CONFLICT : Response.Status.ACCEPTED)
+                .entity((StreamingOutput) out -> updateCharsetResponsePayload(updated, failures, out));
+    }
+
+    private static void updateCharsetResponsePayload(int updated, List<IDWithIssuer> failures, OutputStream out) {
+        JsonGenerator gen = Json.createGenerator(out);
+        gen.writeStartObject();
+        gen.write("updated", updated);
+        if (!failures.isEmpty()) {
+            gen.writeStartArray("failures");
+            failures.forEach(s -> gen.write(s != null ? s.toString() : "w/o Patient ID"));
+            gen.writeEnd();
+        }
+        gen.writeEnd();
+        gen.flush();
+    }
+
 }

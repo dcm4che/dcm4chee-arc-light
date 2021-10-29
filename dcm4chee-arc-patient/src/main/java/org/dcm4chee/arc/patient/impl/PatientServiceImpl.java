@@ -240,8 +240,13 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public List<Patient> queryWithLimit(CriteriaQuery<Patient> query, int limit) {
-        return ejb.queryWithLimit(query, limit);
+    public <T> List<T> queryWithOffsetAndLimit(CriteriaQuery<T> query, int offset, int limit) {
+        return ejb.queryWithOffsetAndLimit(query, offset, limit);
+    }
+
+    @Override
+    public <T> T merge(T entity) {
+        return ejb.merge(entity);
     }
 
     @Override

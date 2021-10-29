@@ -303,6 +303,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean calculateQueryAttributes;
     private volatile boolean storeImplementationVersionName = true;
     private volatile int supplementIssuerFetchSize = 100;
+    private volatile int updateCharsetFetchSize = 100;
     private volatile Issuer auditAssigningAuthorityOfPatientID;
 
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
@@ -3114,6 +3115,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.supplementIssuerFetchSize = supplementIssuerFetchSize;
     }
 
+    public int getUpdateCharsetFetchSize() {
+        return updateCharsetFetchSize;
+    }
+
+    public void setUpdateCharsetFetchSize(int updateCharsetFetchSize) {
+        this.updateCharsetFetchSize = updateCharsetFetchSize;
+    }
+
     public Issuer getAuditAssigningAuthorityOfPatientID() {
         return auditAssigningAuthorityOfPatientID;
     }
@@ -3362,6 +3371,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         calculateQueryAttributes = arcdev.calculateQueryAttributes;
         storeImplementationVersionName = arcdev.storeImplementationVersionName;
         supplementIssuerFetchSize = arcdev.supplementIssuerFetchSize;
+        updateCharsetFetchSize = arcdev.updateCharsetFetchSize;
         auditAssigningAuthorityOfPatientID = arcdev.auditAssigningAuthorityOfPatientID;
         changeRequesterAET = arcdev.changeRequesterAET;
         attributeFilters.clear();

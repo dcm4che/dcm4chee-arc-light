@@ -497,6 +497,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isStoreImplementationVersionName(), true);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmSupplementIssuerFetchSize",
                 ext.getSupplementIssuerFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUpdateCharsetFetchSize",
+                ext.getUpdateCharsetFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditAssigningAuthorityOfPatientID",
                 ext.getAuditAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeRequesterAET",
@@ -816,6 +818,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStoreImplementationVersionName(LdapUtils.booleanValue(
                 attrs.get("dcmStoreImplementationVersionName"), true));
         ext.setSupplementIssuerFetchSize(LdapUtils.intValue(attrs.get("dcmSupplementIssuerFetchSize"), 100));
+        ext.setUpdateCharsetFetchSize(LdapUtils.intValue(attrs.get("dcmUpdateCharsetFetchSize"), 100));
         ext.setAuditAssigningAuthorityOfPatientID(
                 toIssuer(LdapUtils.stringValue(attrs.get("dcmAuditAssigningAuthorityOfPatientID"), null)));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
@@ -1408,6 +1411,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isStoreImplementationVersionName(), bb.isStoreImplementationVersionName(), true);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSupplementIssuerFetchSize",
                 aa.getSupplementIssuerFetchSize(), bb.getSupplementIssuerFetchSize(), 100);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUpdateCharsetFetchSize",
+                aa.getUpdateCharsetFetchSize(), bb.getUpdateCharsetFetchSize(), 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditAssigningAuthorityOfPatientID",
                 aa.getAuditAssigningAuthorityOfPatientID(),
                 bb.getAuditAssigningAuthorityOfPatientID(),
