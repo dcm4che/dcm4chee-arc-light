@@ -383,7 +383,7 @@ public class PamRS {
                         Response.Status.BAD_REQUEST);
 
             CriteriaQuery<Patient> query = queryService.createPatientWithUnknownIssuerQuery(
-                    queryParam(arcAE.getApplicationEntity()), queryKeys);
+                    queryParam(arcAE.getApplicationEntity(), true), queryKeys);
             String toManyDuplicates = null;
             int supplementIssuerFetchSize = arcAE.getArchiveDeviceExtension().getSupplementIssuerFetchSize();
             boolean testIssuer = Boolean.parseBoolean(test);
@@ -517,10 +517,10 @@ public class PamRS {
         }
     }
 
-    private org.dcm4chee.arc.query.util.QueryParam queryParam(ApplicationEntity ae) {
+    private org.dcm4chee.arc.query.util.QueryParam queryParam(ApplicationEntity ae, boolean withoutIssuer) {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-        queryParam.setWithoutIssuer(true);
+        queryParam.setWithoutIssuer(withoutIssuer);
         return queryParam;
     }
 
@@ -753,7 +753,7 @@ public class PamRS {
             QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
             Attributes queryKeys = queryAttrs.getQueryKeys();
             CriteriaQuery<AttributesBlob> query = queryService.createPatientAttributesQuery(
-                    queryParam(arcAE.getApplicationEntity()), queryKeys);
+                    queryParam(arcAE.getApplicationEntity(), false), queryKeys);
             int limit = arcAE.getArchiveDeviceExtension().getUpdateCharsetFetchSize();
             int offset = 0;
             List<AttributesBlob> blobs = patientService.queryWithOffsetAndLimit(query, offset, limit);
