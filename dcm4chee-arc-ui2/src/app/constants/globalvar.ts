@@ -626,11 +626,11 @@ export class Globalvar {
                     },
                     {
                         title:$localize `:@@dicom_specific_char.latin_alphabet_no._3:Latin alphabet No. 3`,
-                        value:"ISO_IR 101"
+                        value:"ISO_IR 109"
                     },
                     {
                         title:$localize `:@@dicom_specific_char.latin_alphabet_no._4:Latin alphabet No. 4`,
-                        value:"ISO_IR 101"
+                        value:"ISO_IR 110"
                     },
                     {
                         title:$localize `:@@dicom_specific_char.cyrillic:Cyrillic`,
