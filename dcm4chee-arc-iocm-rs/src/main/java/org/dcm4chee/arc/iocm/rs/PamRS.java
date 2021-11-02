@@ -777,7 +777,7 @@ public class PamRS {
                 offset += blobs.size();
             }
             if (updated > 0)
-                rsForward.forward(RSOperation.SupplementIssuer, arcAE, null, request);
+                rsForward.forward(RSOperation.UpdateCharset, arcAE, null, request);
             return updateCharsetResponse(updated, failures).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
