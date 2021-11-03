@@ -1083,6 +1083,18 @@ export class StudyService {
             {});
     };
 
+    updateCharset = (charset:string, testUpdateCharset:string, param, studyWebService: StudyWebService) => {
+        let paramString = `${j4care.param(param)}`;
+        paramString = testUpdateCharset
+            ? paramString == ''
+                ? '?test=' + testUpdateCharset
+                : paramString + '&test=' + testUpdateCharset
+            : paramString;
+        return this.$http.post(
+            `${this.getDicomURL("patient", studyWebService.selectedWebService)}/charset/${charset}${paramString}`,
+            {});
+    };
+
     storageVerificationForSelected(multipleObjects: SelectionActionElement, studyWebService: StudyWebService, param){
         return forkJoin((<any[]> multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) =>
             (element.dicomLevel === "study" || element.dicomLevel === "instance" || element.dicomLevel === "series"))
