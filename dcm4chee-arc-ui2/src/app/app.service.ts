@@ -180,14 +180,11 @@ export class AppService implements OnInit, OnDestroy{
     }
 
     showMsgUpdateCharsets(res) {
-        console.log(res);
         let detail = '';
         let successful = _.hasIn(res, "updated") ? _.get(res, "updated") : '';
         let failures = _.hasIn(res, "failures") ? _.get(res, "failures") : '';
-        console.log(successful);
-        if (successful != '' || successful == 0) {
+        if (successful != '' || successful == 0) 
             detail = detail + `updated: ` + successful + `<br>\n`;
-        }
         if (failures  != '') {
             detail = detail + `failures: ` + `<br>\n`;
             _.forEach(failures, (s) => {
