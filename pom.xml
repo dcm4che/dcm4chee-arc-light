@@ -491,6 +491,7 @@
   <modules>
     <module>dcm4chee-arc-audit</module>
     <module>dcm4chee-arc-code</module>
+    <module>dcm4chee-arc-coerce</module>
     <module>dcm4chee-arc-compress</module>
     <module>dcm4chee-arc-conf</module>
     <module>dcm4chee-arc-conf-data</module>

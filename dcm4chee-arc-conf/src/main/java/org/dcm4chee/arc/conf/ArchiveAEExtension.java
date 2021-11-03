@@ -175,6 +175,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final List<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final List<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
+    private final List<ArchiveAttributeCoercion2> attributeCoercions2 = new ArrayList<>();
     private final List<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
 
@@ -1186,6 +1187,22 @@ public class ArchiveAEExtension extends AEExtension {
         return attributeCoercions;
     }
 
+    public void removeAttributeCoercion2(ArchiveAttributeCoercion2 coercion) {
+        attributeCoercions2.remove(coercion);
+    }
+
+    public void clearAttributeCoercions2() {
+        attributeCoercions2.clear();
+    }
+
+    public void addAttributeCoercion2(ArchiveAttributeCoercion2 coercion) {
+        attributeCoercions2.add(coercion);
+    }
+
+    public Collection<ArchiveAttributeCoercion2> getAttributeCoercions2() {
+        return attributeCoercions2;
+    }
+
     public void removeStoreAccessControlIDRule(StoreAccessControlIDRule storeAccessControlIDRule) {
         storeAccessControlIDRules.remove(storeAccessControlIDRule);
     }
@@ -1925,6 +1942,8 @@ public class ArchiveAEExtension extends AEExtension {
         studyRetentionPolicies.addAll(aeExt.studyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(aeExt.attributeCoercions);
+        attributeCoercions2.clear();
+        attributeCoercions2.addAll(aeExt.attributeCoercions2);
         storeAccessControlIDRules.clear();
         storeAccessControlIDRules.addAll(aeExt.storeAccessControlIDRules);
     }
@@ -1974,6 +1993,12 @@ public class ArchiveAEExtension extends AEExtension {
                         sendingHost, sendingAET, receivingHost, receivingAET, attrs))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public Stream<ArchiveAttributeCoercion2> attributeCoercions2() {
+        return Stream.concat(attributeCoercions2.stream(),
+                getArchiveDeviceExtension().getAttributeCoercions2().stream())
+                .sorted(Comparator.comparingInt(ArchiveAttributeCoercion2::getPriority).reversed());
     }
 
     public Stream<StudyRetentionPolicy> studyRetentionPolicies() {

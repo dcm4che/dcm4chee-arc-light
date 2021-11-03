@@ -337,6 +337,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final List<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final List<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
+    private final List<ArchiveAttributeCoercion2> attributeCoercions2 = new ArrayList<>();
     private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final List<MWLIdleTimeout> mwlIdleTimeoutList = new ArrayList<>();
     private final List<MWLImport> mwlImportList = new ArrayList<>();
@@ -2231,6 +2232,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return attributeCoercions;
     }
 
+    public void removeAttributeCoercion2(ArchiveAttributeCoercion2 coercion) {
+        attributeCoercions2.remove(coercion);
+    }
+
+    public void clearAttributeCoercions2() {
+        attributeCoercions2.clear();
+    }
+
+    public void addAttributeCoercion2(ArchiveAttributeCoercion2 coercion) {
+        attributeCoercions2.add(coercion);
+    }
+
+    public Collection<ArchiveAttributeCoercion2> getAttributeCoercions2() {
+        return attributeCoercions2;
+    }
+
     public void removeStoreAccessControlIDRule(StoreAccessControlIDRule storeAccessControlIDRule) {
         storeAccessControlIDRules.remove(storeAccessControlIDRule);
     }
@@ -3428,6 +3445,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7StudyRetentionPolicies.addAll(arcdev.hl7StudyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(arcdev.attributeCoercions);
+        attributeCoercions2.clear();
+        attributeCoercions2.addAll(arcdev.attributeCoercions2);
         storeAccessControlIDRules.clear();
         storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
         mwlIdleTimeoutList.clear();
