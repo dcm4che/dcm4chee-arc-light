@@ -61,6 +61,7 @@ import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.MergeMWLCache;
+import org.dcm4chee.arc.coerce.CoercionFactory;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
@@ -83,7 +84,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -135,6 +135,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
+
+    @Inject
+    private CoercionFactory coercionFactory;
 
     @Override
     public StoreSession newStoreSession(Association as) {
@@ -202,6 +205,7 @@ class StoreServiceImpl implements StoreService {
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
+            coerceAttributes2(ctx);
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
@@ -367,6 +371,7 @@ class StoreServiceImpl implements StoreService {
                 supplementDefaultCharacterSet(ctx);
                 storeMetadata(ctx);
                 coerceAttributes(ctx);
+                coerceAttributes2(ctx);
             }
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
@@ -394,6 +399,7 @@ class StoreServiceImpl implements StoreService {
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
+            coerceAttributes2(ctx);
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
@@ -520,6 +526,31 @@ class StoreServiceImpl implements StoreService {
                     LOG.warn("Failed to revoke storage", e);
                 }
             }
+        }
+    }
+
+    private void coerceAttributes2(StoreContext ctx) throws Exception {
+        StoreSession session = ctx.getStoreSession();
+        for (ArchiveAttributeCoercion2 coercion : session.getArchiveAEExtension().attributeCoercions2()
+                .filter(descriptor -> descriptor.match(
+                        TransferCapability.Role.SCU,
+                        Dimse.C_STORE_RQ,
+                        ctx.getSopClassUID(),
+                        session.getRemoteHostName(),
+                        session.getCallingAET(),
+                        session.getLocalHostName(),
+                        session.getCalledAET(),
+                        ctx.getAttributes()))
+                .collect(Collectors.toList())) {
+            if (coercionFactory.getCoercionProcessor(coercion).coerce(
+                    coercion,
+                    session.getRemoteHostName(),
+                    session.getCallingAET(),
+                    session.getLocalHostName(),
+                    session.getCalledAET(),
+                    ctx.getAttributes(),
+                    ctx.getCoercedAttributes())
+                && coercion.isCoercionSufficient()) break;
         }
     }
 

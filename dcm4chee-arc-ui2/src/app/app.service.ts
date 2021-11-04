@@ -179,6 +179,27 @@ export class AppService implements OnInit, OnDestroy{
         })
     }
 
+    showMsgUpdateCharsets(res) {
+        let detail = '';
+        let successful = _.hasIn(res, "updated") ? _.get(res, "updated") : '';
+        let failures = _.hasIn(res, "failures") ? _.get(res, "failures") : '';
+        if (successful != '' || successful == 0) 
+            detail = detail + `updated: ` + successful + `<br>\n`;
+        if (failures  != '') {
+            detail = detail + `failures: ` + `<br>\n`;
+            _.forEach(failures, (s) => {
+                detail += s + `<br>\n`;
+            })
+        }
+        if (failures  != '') {
+            if (successful != '')
+                this.showWarning(detail);
+            else
+                this.showError(detail);
+        } else
+            this.showMsg(detail);
+    }
+
     showMsgSupplementIssuer(res){
         console.log(res);
         let detail = '';

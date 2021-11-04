@@ -1448,6 +1448,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeCompressionRules(diffs, arcDev.getCompressionRules(), deviceDN);
         storeStoreAccessControlIDRules(diffs, arcDev.getStoreAccessControlIDRules(), deviceDN);
         storeAttributeCoercions(diffs, arcDev.getAttributeCoercions(), deviceDN);
+        storeAttributeCoercions2(diffs, arcDev.getAttributeCoercions2(), deviceDN);
         storeQueryRetrieveViews(diffs, deviceDN, arcDev);
         storeRejectNotes(diffs, deviceDN, arcDev);
         storeStudyRetentionPolicies(diffs, arcDev.getStudyRetentionPolicies(), deviceDN);
@@ -1488,6 +1489,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
         loadStoreAccessControlIDRules(arcdev.getStoreAccessControlIDRules(), deviceDN);
         loadAttributeCoercions(arcdev.getAttributeCoercions(), deviceDN, device);
+        loadAttributeCoercions2(arcdev.getAttributeCoercions2(), deviceDN, device);
         loadQueryRetrieveViews(arcdev, deviceDN);
         loadRejectNotes(arcdev, deviceDN);
         loadStudyRetentionPolicies(arcdev.getStudyRetentionPolicies(), deviceDN);
@@ -2161,6 +2163,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeCompressionRules(diffs, aeExt.getCompressionRules(), aeDN);
         storeStoreAccessControlIDRules(diffs, aeExt.getStoreAccessControlIDRules(), aeDN);
         storeAttributeCoercions(diffs, aeExt.getAttributeCoercions(), aeDN);
+        storeAttributeCoercions2(diffs, aeExt.getAttributeCoercions2(), aeDN);
         storeStudyRetentionPolicies(diffs, aeExt.getStudyRetentionPolicies(), aeDN);
         storeRSForwardRules(diffs, aeExt.getRSForwardRules(), aeDN);
         storeUPSOnStoreList(diffs, aeExt.listUPSOnStore(), aeDN);
@@ -2179,6 +2182,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadCompressionRules(aeExt.getCompressionRules(), aeDN);
         loadStoreAccessControlIDRules(aeExt.getStoreAccessControlIDRules(), aeDN);
         loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN, ae.getDevice());
+        loadAttributeCoercions2(aeExt.getAttributeCoercions2(), aeDN, ae.getDevice());
         loadStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
         loadRSForwardRules(aeExt.getRSForwardRules(), aeDN);
         loadUPSOnStoreList(aeExt.listUPSOnStore(), aeDN);
@@ -5633,10 +5637,40 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", coercion.getPriority(), 0);
         storeNotEmptyTags(ldapObj, attrs, "dcmNullifyTag", coercion.getNullifyTags());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSupplementFromDeviceReference",
-               supplementDeviceRef(coercion), null);
+                deviceNameOf(coercion.getSupplementFromDevice()), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID", coercion.getNullifyIssuerOfPatientID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", coercion.getIssuerOfPatientIDs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIssuerOfPatientIDFormat", coercion.getIssuerOfPatientIDFormat(), null);
+        return attrs;
+    }
+
+    private void storeAttributeCoercions2(ConfigurationChanges diffs, Collection<ArchiveAttributeCoercion2> coercions, String parentDN)
+            throws NamingException {
+        for (ArchiveAttributeCoercion2 coercion : coercions) {
+            String dn = LdapUtils.dnOf("cn", coercion.getCommonName(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, coercion, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ArchiveAttributeCoercion2 coercion, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmArchiveAttributeCoercion");
+        attrs.put("cn", coercion.getCommonName());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", coercion.getDescription(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", coercion.getPriority(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDIMSE", coercion.getDIMSE(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomTransferRole", coercion.getRole(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSOPClass", coercion.getSOPClasses());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", coercion.getConditions().getMap());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", coercion.getAttributeCoercionURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy",
+                coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDeviceName",
+                deviceNameOf(coercion.getOtherDevice()), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMergeAttribute", coercion.getMergeAttributes());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCoercionParam", coercion.getCoercionParams());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmCoercionSufficient", coercion.isCoercionSufficient(), false);
         return attrs;
     }
 
@@ -5678,12 +5712,47 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 coercion.setNullifyTags(tags(attrs.get("dcmNullifyTag")));
                 String supplementDeviceDN = LdapUtils.stringValue(attrs.get("dcmSupplementFromDeviceReference"), null);
-                coercion.setSupplementFromDevice(parentDN.equals(supplementDeviceDN)
-                        ? device
-                        : loadSupplementFromDevice(supplementDeviceDN));
+                if (supplementDeviceDN != null)
+                    coercion.setSupplementFromDevice(parentDN.equals(supplementDeviceDN)
+                            ? device
+                            : loadDevice(supplementDeviceDN));
                 coercion.setNullifyIssuerOfPatientID(LdapUtils.enumValue(NullifyIssuer.class, attrs.get("dcmNullifyIssuerOfPatientID"), null));
                 coercion.setIssuerOfPatientIDs(toIssuers(LdapUtils.stringArray(attrs.get("dcmIssuerOfPatientID"))));
                 coercion.setIssuerOfPatientIDFormat(LdapUtils.stringValue(attrs.get("dcmIssuerOfPatientIDFormat"), null));
+                coercions.add(coercion);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadAttributeCoercions2(Collection<ArchiveAttributeCoercion2> coercions, String parentDN, Device device)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmArchiveAttributeCoercion2)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                ArchiveAttributeCoercion2 coercion =
+                        new ArchiveAttributeCoercion2(LdapUtils.stringValue(attrs.get("cn"), null));
+                coercion.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
+                coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                coercion.setDIMSE(LdapUtils.enumValue(Dimse.class, attrs.get("dcmDIMSE"), null));
+                coercion.setRole(
+                        LdapUtils.enumValue(TransferCapability.Role.class, attrs.get("dicomTransferRole"), null));
+                coercion.setSOPClasses(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
+                coercion.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                coercion.setAttributeCoercionURI(toURI(attrs.get("dcmURI")));
+                coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
+                        attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
+                String otherDevice = LdapUtils.stringValue(attrs.get("dicomDeviceName"), null);
+                if (otherDevice != null)
+                    coercion.setOtherDevice(parentDN.equals(otherDevice)
+                            ? device
+                            : loadDevice(otherDevice));
+                coercion.setMergeAttributes(LdapUtils.stringArray(attrs.get("dcmMergeAttribute")));
+                coercion.setCoercionParams(LdapUtils.stringArray(attrs.get("dcmCoercionParam")));
+                coercion.setCoercionSufficient(LdapUtils.booleanValue(attrs.get("dcmCoercionSufficient"), false));
                 coercions.add(coercion);
             }
         } finally {
@@ -5702,14 +5771,11 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return issuerOfPatientID != null ? new Issuer(issuerOfPatientID) : null;
     }
 
-    private Device loadSupplementFromDevice(String supplementDeviceRef) {
+    private Device loadDevice(String deviceName) {
         try {
-            return supplementDeviceRef != null
-                    ? config.loadDevice(supplementDeviceRef)
-                    : null;
+            return config.loadDevice(deviceName);
         } catch (ConfigurationException e) {
-            LOG.info("Failed to load Supplement Device Reference "
-                    + supplementDeviceRef + " referenced by Attribute Coercion", e);
+            LOG.info("Failed to load Device {} referenced by Attribute Coercion", deviceName, e);
             return null;
         }
     }
@@ -5751,8 +5817,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
         storeDiffTags(mods, "dcmNullifyTag", prev.getNullifyTags(), coercion.getNullifyTags());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSupplementFromDeviceReference",
-                supplementDeviceRef(prev),
-                supplementDeviceRef(coercion), null);
+                deviceNameOf(prev.getSupplementFromDevice()),
+                deviceNameOf(coercion.getSupplementFromDevice()), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmNullifyIssuerOfPatientID",
                 prev.getNullifyIssuerOfPatientID(), coercion.getNullifyIssuerOfPatientID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmIssuerOfPatientID", prev.getIssuerOfPatientIDs(), coercion.getIssuerOfPatientIDs());
@@ -5942,10 +6008,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private String supplementDeviceRef(ArchiveAttributeCoercion a) {
-        Device supplementDevice = a.getSupplementFromDevice();
-        return supplementDevice != null
-                ? config.deviceRef(supplementDevice.getDeviceName())
+    private String deviceNameOf(Device device) {
+        return device != null
+                ? config.deviceRef(device.getDeviceName())
                 : null;
     }
 
