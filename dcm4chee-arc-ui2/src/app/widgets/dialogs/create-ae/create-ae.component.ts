@@ -74,7 +74,7 @@ export class CreateAeComponent implements OnInit{
                 this.httpErrorHandler.handleError(err);
             })
         }
-/*        this.webAppSchema = this.service.getWebAppsSchema();
+        this.webAppSchema = this.service.getWebAppsSchema();
         this.formObj = this.deviceConfigService.convertSchemaToForm({
             dicomNetworkConnection:{
                 cn: "dicom",
@@ -82,7 +82,7 @@ export class CreateAeComponent implements OnInit{
                 dicomHostname: "127.0.0.1",
                 dicomPort: 11112
             },
-        },  this.service.getSchema(), {},'attr');*/
+        },  this.service.getSchema(), {},'attr');
     }
 
     get dicomconn() {

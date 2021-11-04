@@ -829,6 +829,7 @@ export class DeviceConfiguratorService{
                            });
                        }
                     }else{
+                        this.device = this.device || device;
                         _.forEach(this.device['dicomNetworkConnection'], (opt, i) => {
                             options.push({
                                 value: '/dicomNetworkConnection/' + i,
