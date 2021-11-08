@@ -38,13 +38,12 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.coerce.xslt;
+package org.dcm4chee.arc.coerce;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.Conditions;
 
@@ -66,7 +65,7 @@ public class XSLTCoercionProcessor implements CoercionProcessor {
                           String receivingHost, String receivingAET,
                           Attributes attrs, Attributes modified)
             throws Exception {
-        String xsltStylesheetURI = coercion.getAttributeCoercionURI().getSchemeSpecificPart();
+        String xsltStylesheetURI = coercion.getSchemeSpecificPart();
         Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
         Attributes newAttrs = SAXTransformer.transform(attrs, tpls, false, true,
             t -> setParameters(t, sendingHost, sendingAET, receivingHost, receivingAET));

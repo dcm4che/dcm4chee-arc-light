@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013-2021
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,54 +38,44 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.store.scu.impl;
+package org.dcm4chee.arc.coerce;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.AttributesCoercion;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.net.DataWriter;
-import org.dcm4che3.net.PDVOutputStream;
-import org.dcm4che3.util.CountingOutputStream;
+import org.dcm4che3.deident.DeIdentifier;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2015
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Nov 2021
  */
-public class TranscoderDataWriter implements DataWriter {
-
-    private final Transcoder transcoder;
-    private final AttributesCoercion coerce;
-    private long count;
-
-    public TranscoderDataWriter(Transcoder transcoder, AttributesCoercion coerce) {
-        this.transcoder = transcoder;
-        this.coerce = coerce;
+@ApplicationScoped
+@Named("deidentify")
+public class DeIdentificationCoercionProcessor implements CoercionProcessor {
+    @Override
+    public boolean coerce(ArchiveAttributeCoercion2 coercion,
+                          String sendingHost, String sendingAET,
+                          String receivingHost, String receivingAET,
+                          Attributes attrs, Attributes modified)
+            throws Exception {
+        String[] names = StringUtils.split(coercion.getSchemeSpecificPart(), ',');
+        DeIdentifier.Option[] options = new DeIdentifier.Option[names.length];
+        for (int i = 0; i < names.length; i++) {
+            options[i] = DeIdentifier.Option.valueOf(names[i]);
+        }
+        new DeIdentifier(options).deidentify(attrs);
+        return true;
     }
 
     @Override
-    public void writeTo(final PDVOutputStream out, String tsuid) throws IOException {
-        CountingOutputStream countingOutputStream = new CountingOutputStream(out);
-        transcoder.setDestinationTransferSyntax(tsuid);
-        transcoder.transcode(new Transcoder.Handler(){
-            @Override
-            public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                try {
-                    coerce.coerce(dataset, null);
-                } catch (IOException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new IOException(e);
-                }
-                return countingOutputStream;
-            }
-        });
-        count = countingOutputStream.getCount();
-    }
-
-    public long getCount() {
-        return count;
+    public String remapUID(ArchiveAttributeCoercion2 coercion, String uid) {
+        for (String name : StringUtils.split(coercion.getSchemeSpecificPart(), ',')) {
+            if (name.equals("RetainUIDsOption")) return uid;
+        }
+        return UIDUtils.remapUID(uid);
     }
 }

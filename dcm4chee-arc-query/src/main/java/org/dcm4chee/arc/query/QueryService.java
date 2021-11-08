@@ -79,7 +79,7 @@ public interface QueryService {
 
     QueryContext newQueryContext(ApplicationEntity ae, QueryParam queryParam);
 
-    void coerceAttributes(QueryContext ctx);
+    void coerceAttributes(QueryContext ctx) throws Exception;
 
     Query createQuery(QueryContext ctx);
 

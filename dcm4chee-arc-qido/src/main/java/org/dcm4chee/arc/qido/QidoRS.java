@@ -49,7 +49,6 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -396,34 +395,38 @@ public class QidoRS {
     @Produces("application/json")
     public Response sizeOfStudies() {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
-        QueryContext ctx = newQueryContext(
-                "SizeOfStudies", queryAttrs, null, null, Model.STUDY,
-                getApplicationEntity());
-        if (ctx.getQueryParam().noMatches()) {
-            return Response.ok("{\"size\":0}").build();
-        }
-        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        try (Query query = service.createStudyQuery(ctx)) {
-            try (Stream<Long> studyPkStream = query.withUnknownSize(arcdev.getQueryFetchSize())) {
-                Iterator<Long> studyPks = studyPkStream.iterator();
-                while (studyPks.hasNext())
-                    ctx.getQueryService().calculateStudySize(studyPks.next());
-            } catch (Exception e) {
-                return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        try {
+            QueryContext ctx = newQueryContext(
+                    "SizeOfStudies", queryAttrs, null, null, Model.STUDY,
+                    getApplicationEntity());
+            if (ctx.getQueryParam().noMatches()) {
+                return Response.ok("{\"size\":0}").build();
             }
-            return Response.ok("{\"size\":" + query.fetchSize() + '}').build();
+            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            try (Query query = service.createStudyQuery(ctx)) {
+                try (Stream<Long> studyPkStream = query.withUnknownSize(arcdev.getQueryFetchSize())) {
+                    Iterator<Long> studyPks = studyPkStream.iterator();
+                    while (studyPks.hasNext())
+                        ctx.getQueryService().calculateStudySize(studyPks.next());
+                }
+                return Response.ok("{\"size\":" + query.fetchSize() + '}').build();
+            }
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID) {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model,
-                                            getApplicationEntity());
-        if (ctx.getQueryParam().noMatches()) {
-            return Response.ok("{\"count\":0}").build();
-        }
-        try (Query query = model.createQuery(service, ctx)) {
-            return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
+        try {
+            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model,
+                                                getApplicationEntity());
+            if (ctx.getQueryParam().noMatches()) {
+                return Response.ok("{\"count\":0}").build();
+            }
+            try (Query query = model.createQuery(service, ctx)) {
+                return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
+            }
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -608,7 +611,7 @@ public class QidoRS {
     }
 
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
-                                         String seriesInstanceUID, Model model, ApplicationEntity ae) {
+                                         String seriesInstanceUID, Model model, ApplicationEntity ae) throws Exception {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCalledAET(aet);
         queryParam.setCombinedDatetimeMatching(true);
@@ -799,7 +802,7 @@ public class QidoRS {
         DICOM_XML {
             @Override
             Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
-                    throws DicomServiceException {
+                    throws Exception {
                 return service.writeXML(method, query, model, coercion);
             }
 
@@ -811,7 +814,7 @@ public class QidoRS {
         JSON {
             @Override
             Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
-                    throws DicomServiceException {
+                    throws Exception {
                 return service.writeJSON(method, query, model, coercion);
             }
 
@@ -823,7 +826,7 @@ public class QidoRS {
         CSV {
             @Override
             Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
-                    throws DicomServiceException {
+                    throws Exception {
                 return service.writeCSV(method, query, model, coercion);
             }
 
@@ -834,13 +837,13 @@ public class QidoRS {
         };
 
         abstract Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
-                throws DicomServiceException;
+                throws Exception;
 
         abstract MediaType type();
     }
 
     private Object writeXML(String method, Query query, Model model, AttributesCoercion coercion)
-            throws DicomServiceException {
+            throws Exception {
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         int count = 0;
         while (query != null && query.hasMoreMatches()) {
@@ -864,7 +867,7 @@ public class QidoRS {
     }
 
     private Object writeJSON(String method, Query query, Model model, AttributesCoercion coercion)
-            throws DicomServiceException {
+            throws Exception {
         final List<Attributes> matches = matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
                 LOG.debug("Enter StreamingOutput.write");
@@ -882,7 +885,7 @@ public class QidoRS {
     }
 
     private Object writeCSV(String method, Query query, Model model, AttributesCoercion coercion)
-            throws DicomServiceException {
+            throws Exception {
         final List<Attributes> matches =  matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
@@ -899,7 +902,7 @@ public class QidoRS {
     }
 
     private List<Attributes> matches(String method, Query query, Model model, AttributesCoercion coercion)
-            throws DicomServiceException {
+            throws Exception {
         if (query == null)
             return Collections.emptyList();
 
@@ -1008,7 +1011,7 @@ public class QidoRS {
         }
     }
 
-    private Attributes adjust(Attributes match, Model model, Query query, AttributesCoercion coercion) {
+    private Attributes adjust(Attributes match, Model model, Query query, AttributesCoercion coercion) throws Exception {
         if (coercion != null)
             coercion.coerce(match, null);
         match = query.adjust(match);

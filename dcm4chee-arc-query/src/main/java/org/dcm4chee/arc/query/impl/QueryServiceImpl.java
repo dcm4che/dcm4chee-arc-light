@@ -157,7 +157,7 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public void coerceAttributes(QueryContext ctx) {
+    public void coerceAttributes(QueryContext ctx) throws Exception {
         ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
                 Dimse.C_FIND_RQ,
                 TransferCapability.Role.SCU,

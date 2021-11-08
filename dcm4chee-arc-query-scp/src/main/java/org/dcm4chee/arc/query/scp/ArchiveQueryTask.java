@@ -156,8 +156,14 @@ public class ArchiveQueryTask extends BasicQueryTask {
     }
 
     @Override
-    protected Attributes adjust(Attributes match) {
-        return state.adjust(this, match);
+    protected Attributes adjust(Attributes match) throws DicomServiceException {
+        try {
+            return state.adjust(this, match);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
     }
 
     private void initQuery() throws DicomServiceException {
@@ -214,7 +220,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
             }
 
             @Override
-            public Attributes adjust(ArchiveQueryTask task, Attributes match) {
+            public Attributes adjust(ArchiveQueryTask task, Attributes match) throws Exception {
                 return task.adjustQueryMatch(match);
             }
         },
@@ -230,7 +236,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
             }
 
             @Override
-            public Attributes adjust(ArchiveQueryTask task, Attributes match) {
+            public Attributes adjust(ArchiveQueryTask task, Attributes match) throws Exception {
                 return task.adjustQueryMatch(match);
             }
         },
@@ -273,7 +279,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
             throw new IllegalStateException("State: " + this);
         }
 
-        public Attributes adjust(ArchiveQueryTask task, Attributes match) {
+        public Attributes adjust(ArchiveQueryTask task, Attributes match) throws Exception {
             throw new IllegalStateException("State: " + this);
         }
     }
@@ -310,7 +316,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
         return query.nextMatch();
     }
 
-    private Attributes adjustQueryMatch(Attributes match) {
+    private Attributes adjustQueryMatch(Attributes match) throws Exception {
         if (match == null)
             return null;
 

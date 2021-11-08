@@ -102,7 +102,7 @@ public interface CFindSCU {
 
     DimseRSP query(Association as, int priority, Attributes keys, int autocancel, int capacity, Duration splitStudyDateRange) throws Exception;
 
-    Attributes coerceCFindRQ(Association as, Attributes keys);
+    Attributes coerceCFindRQ(Association as, Attributes keys) throws Exception;
 
-    Attributes coerceCFindRSP(Association as, Attributes keys);
+    Attributes coerceCFindRSP(Association as, Attributes keys) throws Exception;
 }

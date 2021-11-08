@@ -52,12 +52,10 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.TagUtils;
-import org.dcm4che3.util.UIDUtils;
+import org.dcm4che3.util.*;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.coerce.CoercionFactory;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.metrics.MetricsService;
@@ -143,6 +141,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
+
+    @Inject
+    private CoercionFactory coercionFactory;
 
     @Inject @RetrieveFailures
     private Event<RetrieveContext> retrieveFailures;
@@ -710,6 +711,118 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
+    public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst,
+                                                    List<ArchiveAttributeCoercion2> coercions) {
+        UIDMap uidMap = inst.getLocations().get(0).getUidMap();
+        return new AttributesCoercion() {
+            @Override
+            public void coerce(Attributes attrs, Attributes modified) throws Exception {
+                if (uidMap != null)
+                    UIDUtils.remapUIDs(attrs, uidMap.getUIDMap());
+                if (!ArchiveAttributeCoercion2.containsScheme(
+                        coercions, ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED)) {
+                    Attributes.unifyCharacterSets(attrs, inst.getAttributes());
+                    if (modified != null) {
+                        attrs.update(Attributes.UpdatePolicy.OVERWRITE, inst.getAttributes(), modified);
+                    } else {
+                        attrs.addAll(inst.getAttributes());
+                    }
+                }
+                for (ArchiveAttributeCoercion2 coercion : coercions) {
+                    if (coercionFactory.getCoercionProcessor(coercion).coerce(coercion,
+                            ctx.getLocalHostName(),
+                            ctx.getLocalAETitle(),
+                            ctx.getDestinationHostName(),
+                            ctx.getDestinationAETitle(),
+                            attrs, modified)
+                        && coercion.isCoercionSufficient()) break;
+                }
+            }
+
+            @Override
+            public String remapUID(String uid) {
+                if (uidMap != null)
+                    uid = uidMap.getUIDMap().getOrDefault(uid, uid);
+                for (ArchiveAttributeCoercion2 coercion : coercions) {
+                    uid = coercionFactory.getCoercionProcessor(coercion).remapUID(coercion, uid);
+                }
+                return uid;
+            }
+        };
+    }
+
+    private void coerceSeriesMetadata(RetrieveContext ctx, InstanceLocations inst, Attributes attrs) {
+        attrs.setString(Tag.RetrieveAETitle, VR.AE, inst.getRetrieveAETs());
+        attrs.setString(Tag.InstanceAvailability, VR.CS, inst.getAvailability().toString());
+
+        StudyInfo studyInfo = ctx.getStudyInfos().get(0);
+        if (studyInfo.getExpirationDate() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate, VR.DA,
+                    studyInfo.getExpirationDate());
+        if (!studyInfo.getAccessControlID().equals("*"))
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessControlID, VR.LO,
+                    studyInfo.getAccessControlID());
+
+        SeriesInfo seriesInfo = ctx.getSeriesInfos().get(0);
+        if (seriesInfo.getExpirationDate() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationDate, VR.DA,
+                    seriesInfo.getExpirationDate());
+        if (seriesInfo.getSendingAET() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+                    seriesInfo.getSendingAET());
+        if (seriesInfo.getReceivingAET() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingApplicationEntityTitleOfSeries, VR.AE,
+                    seriesInfo.getReceivingAET());
+        if (seriesInfo.getSendingPresentationAddress() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingPresentationAddressOfSeries, VR.UR,
+                    seriesInfo.getSendingPresentationAddress());
+        if (seriesInfo.getSendingAET() != null)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR,
+                    seriesInfo.getReceivingPresentationAddress());
+
+        setDTwTZ(attrs, PrivateTag.InstanceReceiveDateTime,
+                inst.getCreatedTime());
+        setDTwTZ(attrs, PrivateTag.InstanceUpdateDateTime,
+                inst.getUpdatedTime());
+        if (inst.getRejectionCode() != null)
+            attrs.newSequence(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence, 1).
+                    add(inst.getRejectionCode());
+        if (inst.getExternalRetrieveAET() != null) {
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.InstanceExternalRetrieveAETitle, VR.AE,
+                    inst.getExternalRetrieveAET());
+        }
+        Attributes item = null;
+        for (Location location : inst.getLocations()) {
+            if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
+                if (item == null)
+                    item = attrs;
+                else
+                    attrs.ensureSequence(PrivateTag.PrivateCreator, PrivateTag.OtherStorageSequence, 1)
+                            .add(item = new Attributes(5));
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageID, VR.LO,
+                        location.getStorageID());
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StoragePath, VR.LO,
+                        StringUtils.split(location.getStoragePath(), '/'));
+                item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageTransferSyntaxUID, VR.UI,
+                        location.getTransferSyntaxUID());
+                item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, VR.UL,
+                        (int) location.getSize());
+                if (location.getDigestAsHexString() != null)
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest, VR.LO,
+                            location.getDigestAsHexString());
+                if (location.getStatus() != Location.Status.OK)
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
+                            location.getStatus().name());
+            }
+        }
+    }
+
+    static void setDTwTZ(Attributes attrs, int tag, Date value) {
+        attrs.setString(PrivateTag.PrivateCreator, tag, VR.DT,
+                DateUtils.formatDT(null, value, new DatePrecision(Calendar.MILLISECOND, true)));
+    }
+
+    @Override
     public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst) {
         return getAttributesCoercion(ctx, inst, getArchiveAttributeCoercion(ctx, inst));
     }
@@ -989,7 +1102,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst)
-            throws IOException {
+            throws Exception {
         Attributes attrs;
         attrs = loadMetadataFromJSONFile(ctx, inst);
         if (attrs == null)

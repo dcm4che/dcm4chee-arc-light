@@ -83,7 +83,13 @@ public class DicomObjectOutput implements StreamingOutput {
             transcoder.transcode(new Transcoder.Handler() {
                 @Override
                 public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                    ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
+                    try {
+                        ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
+                    } catch (IOException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        throw new IOException(e);
+                    }
                     return out;
                 }
             });

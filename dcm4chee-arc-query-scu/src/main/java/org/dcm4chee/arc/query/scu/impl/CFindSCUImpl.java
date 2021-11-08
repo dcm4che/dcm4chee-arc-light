@@ -346,16 +346,16 @@ public class CFindSCUImpl implements CFindSCU {
     }
 
     @Override
-    public Attributes coerceCFindRQ(Association as, Attributes keys) {
+    public Attributes coerceCFindRQ(Association as, Attributes keys) throws Exception {
         return coerce(Dimse.C_FIND_RQ, as, keys);
     }
 
     @Override
-    public Attributes coerceCFindRSP(Association as, Attributes keys) {
+    public Attributes coerceCFindRSP(Association as, Attributes keys) throws Exception {
         return coerce(Dimse.C_FIND_RSP, as, keys);
     }
 
-    private Attributes coerce(Dimse dimse, Association as, Attributes keys) {
+    private Attributes coerce(Dimse dimse, Association as, Attributes keys) throws Exception {
         ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
         ArchiveAttributeCoercion rule = arcAE.findAttributeCoercion(
                 dimse,

@@ -554,7 +554,7 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void coerceAttributes(StoreContext ctx) {
+    private void coerceAttributes(StoreContext ctx) throws Exception {
         StoreSession session = ctx.getStoreSession();
         ArchiveAttributeCoercion rule = session.getArchiveAEExtension().findAttributeCoercion(
                 Dimse.C_STORE_RQ,

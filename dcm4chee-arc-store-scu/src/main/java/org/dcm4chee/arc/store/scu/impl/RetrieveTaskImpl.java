@@ -51,6 +51,7 @@ import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -65,6 +66,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -211,10 +213,29 @@ final class RetrieveTaskImpl implements RetrieveTask {
             RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
-                ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
-                if (rule != null)
-                    transcoder.setNullifyPixelData(rule.isNullifyPixelData());
-                AttributesCoercion coerce = service.getAttributesCoercion(ctx, inst, rule);
+                AttributesCoercion coerce = null;
+                List<ArchiveAttributeCoercion2> coercions = ctx.getArchiveAEExtension().attributeCoercions2()
+                        .filter(descriptor -> descriptor.match(
+                                TransferCapability.Role.SCP,
+                                Dimse.C_STORE_RQ,
+                                cuid,
+                                storeas.getLocalHostName(),
+                                storeas.getCallingAET(),
+                                storeas.getRemoteHostName(),
+                                storeas.getCalledAET(),
+                                inst.getAttributes()))
+                        .collect(Collectors.toList());
+                if (coercions.isEmpty()) {
+                    ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+                    if (rule != null) {
+                        transcoder.setNullifyPixelData(rule.isNullifyPixelData());
+                        coerce = service.getAttributesCoercion(ctx, inst, rule);
+                    }
+                } else {
+                    transcoder.setNullifyPixelData(ArchiveAttributeCoercion2.containsScheme(
+                            coercions, ArchiveAttributeCoercion2.NULLIFY_PIXEL_DATA));
+                    coerce = service.getAttributesCoercion(ctx, inst, coercions);
+                }
                 if (coerce != null)
                     iuid = coerce.remapUID(iuid);
                 TranscoderDataWriter data = new TranscoderDataWriter(transcoder, coerce);

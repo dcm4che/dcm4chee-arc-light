@@ -41,12 +41,11 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 
-import java.net.URI;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,9 +54,11 @@ import java.util.Map;
  * @since Sep 2021
  */
 public class ArchiveAttributeCoercion2 {
+    public static final String NULLIFY_PIXEL_DATA = "nullify-pixel-data";
+    public static final String RETRIEVE_AS_RECEIVED = "retrieve-as-received";
     private String commonName;
     private String description;
-    private URI attributeCoercionURI;
+    private String uri;
     private int priority;
     private Dimse dimse;
     private TransferCapability.Role role;
@@ -68,6 +69,8 @@ public class ArchiveAttributeCoercion2 {
     private MergeAttribute[] mergeAttributes = {};
     private Device otherDevice;
     private final Map<String, String> params = new HashMap<>();
+    private String scheme;
+    private String schemeSpecificPart;
 
     public ArchiveAttributeCoercion2() {
     }
@@ -94,13 +97,25 @@ public class ArchiveAttributeCoercion2 {
         return this;
     }
 
-    public URI getAttributeCoercionURI() {
-        return attributeCoercionURI;
+    public String getURI() {
+        return uri;
     }
 
-    public ArchiveAttributeCoercion2 setAttributeCoercionURI(URI attributeCoercionURI) {
-        this.attributeCoercionURI = attributeCoercionURI;
+    public ArchiveAttributeCoercion2 setURI(String uri) {
+        int index = uri.indexOf(':');
+        if (index < 0) throw new IllegalArgumentException(uri);
+        this.uri = uri;
+        this.scheme = uri.substring(0, index);
+        this.schemeSpecificPart = uri.substring(index + 1);
         return this;
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public String getSchemeSpecificPart() {
+        return schemeSpecificPart;
     }
 
     public int getPriority() {
@@ -249,4 +264,10 @@ public class ArchiveAttributeCoercion2 {
         return false;
     }
 
+    public static boolean containsScheme(Collection<ArchiveAttributeCoercion2> list, String scheme) {
+        for (ArchiveAttributeCoercion2 coercion : list) {
+            if (scheme.equals(coercion.scheme)) return true;
+        }
+        return false;
+    }
 }

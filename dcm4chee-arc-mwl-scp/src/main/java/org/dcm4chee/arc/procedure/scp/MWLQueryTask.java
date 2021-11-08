@@ -129,12 +129,19 @@ public class MWLQueryTask extends BasicQueryTask {
     }
 
     @Override
-    protected Attributes adjust(Attributes match) {
+    protected Attributes adjust(Attributes match) throws DicomServiceException {
         if (match == null)
             return null;
 
-        if (coercion != null)
-            coercion.coerce(match, null);
+        if (coercion != null) {
+            try {
+                coercion.coerce(match, null);
+            } catch (DicomServiceException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new DicomServiceException(Status.UnableToProcess, e);
+            }
+        }
 
         return query.adjust(match);
     }

@@ -99,9 +99,13 @@ public class DicomXSLTOutput implements StreamingOutput {
     private Attributes readAttributes() throws IOException {
         RetrieveService service = ctx.getRetrieveService();
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)){
-            Attributes attrs = dis.readDataset(-1, -1);
+            Attributes attrs = dis.readDataset();
             service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
             return attrs;
+        } catch (IOException e) {
+           throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
         }
     }
 

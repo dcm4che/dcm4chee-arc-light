@@ -43,9 +43,11 @@ package org.dcm4chee.arc.procedure.scp;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicCFindSCP;
 import org.dcm4che3.net.service.DicomService;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryTask;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -80,14 +82,20 @@ public class MWLCFindSCP extends BasicCFindSCP {
     }
 
     @Override
-    protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys) {
+    protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys) throws DicomServiceException {
         LOG.info("{}: Process MWL C-FIND RQ:\n{}", as, keys);
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
-        queryService.coerceAttributes(ctx);
+        try {
+            queryService.coerceAttributes(ctx);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);

@@ -1540,6 +1540,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
         mergeStoreAccessControlIDRules(diffs, aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), deviceDN);
         mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
+        mergeAttributeCoercions2(diffs, aa.getAttributeCoercions2(), bb.getAttributeCoercions2(), deviceDN);
         mergeQueryRetrieveViews(diffs, aa, bb, deviceDN);
         mergeRejectNotes(diffs, aa, bb, deviceDN);
         mergeStudyRetentionPolicies(diffs, aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
@@ -2208,6 +2209,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
         mergeStoreAccessControlIDRules(diffs, aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), aeDN);
         mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
+        mergeAttributeCoercions2(diffs, aa.getAttributeCoercions2(), bb.getAttributeCoercions2(), aeDN);
         mergeStudyRetentionPolicies(diffs, aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), aeDN);
         mergeRSForwardRules(diffs, aa.getRSForwardRules(), bb.getRSForwardRules(), aeDN);
         mergeUPSOnStoreList(diffs, aa.listUPSOnStore(), bb.listUPSOnStore(), aeDN);
@@ -5280,6 +5282,36 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeAttributeCoercions2(
+            ConfigurationChanges diffs, Collection<ArchiveAttributeCoercion2> prevCoercions,
+            Collection<ArchiveAttributeCoercion2> coercions,
+            String parentDN) throws NamingException {
+        for (ArchiveAttributeCoercion2 prev : prevCoercions) {
+            String cn = prev.getCommonName();
+            if (findAttributeCoercion2ByCN(coercions, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (ArchiveAttributeCoercion2 coercion : coercions) {
+            String cn = coercion.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            ArchiveAttributeCoercion2 prev = findAttributeCoercion2ByCN(prevCoercions, cn);
+            if (prev == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                coercion, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prev, coercion, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
     private void mergeRSForwardRules(
             ConfigurationChanges diffs, Collection<RSForwardRule> prevRules, Collection<RSForwardRule> rules, String parentDN)
             throws NamingException {
@@ -5655,7 +5687,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ArchiveAttributeCoercion2 coercion, BasicAttributes attrs) {
-        attrs.put("objectclass", "dcmArchiveAttributeCoercion");
+        attrs.put("objectclass", "dcmArchiveAttributeCoercion2");
         attrs.put("cn", coercion.getCommonName());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", coercion.getDescription(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", coercion.getPriority(), 0);
@@ -5663,7 +5695,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomTransferRole", coercion.getRole(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSOPClass", coercion.getSOPClasses());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", coercion.getConditions().getMap());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", coercion.getAttributeCoercionURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", coercion.getURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDeviceName",
@@ -5742,7 +5774,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(TransferCapability.Role.class, attrs.get("dicomTransferRole"), null));
                 coercion.setSOPClasses(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
                 coercion.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
-                coercion.setAttributeCoercionURI(toURI(attrs.get("dcmURI")));
+                coercion.setURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
                 String otherDevice = LdapUtils.stringValue(attrs.get("dicomDeviceName"), null);
@@ -5830,6 +5862,40 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private ArchiveAttributeCoercion findAttributeCoercionByCN(
             Collection<ArchiveAttributeCoercion> coercions, String cn) {
         for (ArchiveAttributeCoercion coercion : coercions)
+            if (coercion.getCommonName().equals(cn))
+                return coercion;
+        return null;
+    }
+
+    private List<ModificationItem> storeDiffs(
+            ConfigurationChanges.ModifiedObject ldapObj, ArchiveAttributeCoercion2 prev, ArchiveAttributeCoercion2 coercion, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription", prev.getDescription(), coercion.getDescription(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDIMSE", prev.getDIMSE(), coercion.getDIMSE(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomTransferRole", prev.getRole(), coercion.getRole(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), coercion.getConditions().getMap());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getURI(), coercion.getURI(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAttributeUpdatePolicy",
+                prev.getAttributeUpdatePolicy(),
+                coercion.getAttributeUpdatePolicy(),
+                org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDeviceName",
+                deviceNameOf(prev.getOtherDevice()),
+                deviceNameOf(coercion.getOtherDevice()), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMergeAttribute",
+                prev.getMergeAttributes(), coercion.getMergeAttributes());
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmCoercionParam",
+                prev.getCoercionParams(), coercion.getCoercionParams());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCoercionSufficient",
+                prev.isCoercionSufficient(), coercion.isCoercionSufficient(), false);
+        return mods;
+    }
+
+    private ArchiveAttributeCoercion2 findAttributeCoercion2ByCN(
+            Collection<ArchiveAttributeCoercion2> coercions, String cn) {
+        for (ArchiveAttributeCoercion2 coercion : coercions)
             if (coercion.getCommonName().equals(cn))
                 return coercion;
         return null;

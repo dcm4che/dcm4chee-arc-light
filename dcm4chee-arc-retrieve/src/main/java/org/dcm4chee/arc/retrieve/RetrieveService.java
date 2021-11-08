@@ -52,6 +52,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.metrics.MetricsService;
@@ -65,6 +66,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -139,7 +141,7 @@ public interface RetrieveService {
 
     Storage getStorage(String storageID, RetrieveContext ctx);
 
-    Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException;
+    Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws Exception;
 
     boolean restrictRetrieveAccordingTransferCapabilities(RetrieveContext ctx);
 
@@ -149,6 +151,9 @@ public interface RetrieveService {
 
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst,
             ArchiveAttributeCoercion rule);
+
+    AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst,
+                                             List<ArchiveAttributeCoercion2> coercions);
 
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst);
 

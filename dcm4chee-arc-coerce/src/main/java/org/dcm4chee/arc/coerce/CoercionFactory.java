@@ -53,6 +53,9 @@ import javax.inject.Inject;
  */
 @ApplicationScoped
 public class CoercionFactory {
+    private static final CoercionProcessor NOOP =
+            (coercion, sendingHost, sendingAET, receivingHost, receivingAET, attributes, coercedAttributes) -> true;
+
     @Inject
     private NamedCDIBeanCache namedCDIBeanCache;
 
@@ -60,7 +63,8 @@ public class CoercionFactory {
     private Instance<CoercionProcessor> processors;
 
     public CoercionProcessor getCoercionProcessor(ArchiveAttributeCoercion2 coercion) {
-        String scheme = coercion.getAttributeCoercionURI().getScheme();
-        return namedCDIBeanCache.get(processors, scheme);
+        String scheme = coercion.getScheme();
+        return scheme.equals(ArchiveAttributeCoercion2.NULLIFY_PIXEL_DATA) || scheme.equals(ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED)
+                ? NOOP : namedCDIBeanCache.get(processors, scheme);
     }
 }

@@ -177,7 +177,7 @@ public class Curve2PRExporter extends AbstractExporter {
                 && attrs.getInt(Tag.Columns, -1) > 0;
     }
 
-    private void curve2pr(RetrieveContext ctx, InstanceLocations inst, List<Attributes> results) throws IOException {
+    private void curve2pr(RetrieveContext ctx, InstanceLocations inst, List<Attributes> results) throws Exception {
         Attributes metadata = loadWithoutPixelData(ctx, inst);
         float[] pixelSpacing = metadata.getFloats(Tag.PixelSpacing);
         byte[] curveData;
@@ -191,7 +191,7 @@ public class Curve2PRExporter extends AbstractExporter {
         }
     }
 
-    private static Attributes loadWithoutPixelData(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+    private static Attributes loadWithoutPixelData(RetrieveContext ctx, InstanceLocations inst) throws Exception {
         try (DicomInputStream dis = ctx.getRetrieveService().openDicomInputStream(ctx, inst)) {
             Attributes attrs = dis.readDatasetUntilPixelData();
             ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(attrs, null);

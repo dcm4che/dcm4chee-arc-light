@@ -414,6 +414,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcDev.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
+        writeArchiveAttributeCoercion2(writer, arcDev.getAttributeCoercions2());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
         writeStudyRetentionPolicies(writer, arcDev.getStudyRetentionPolicies());
         writeHL7StudyRetentionPolicies(writer, arcDev.getHL7StudyRetentionPolicies());
@@ -788,7 +789,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dicomTransferRole", aac.getRole(), null);
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
             writer.writeNotEmpty("dcmProperty", aac.getConditions().getMap());
-            writer.writeNotNullOrDef("dcmURI", aac.getAttributeCoercionURI(), null);
+            writer.writeNotNullOrDef("dcmURI", aac.getURI(), null);
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
                     aac.getAttributeUpdatePolicy(), Attributes.UpdatePolicy.MERGE);
             writer.writeNotNullOrDef("dicomDeviceName", deviceNameOf(aac.getOtherDevice()), null);
@@ -1300,6 +1301,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
+        writeArchiveAttributeCoercion2(writer, arcAE.getAttributeCoercions2());
         writeStudyRetentionPolicies(writer, arcAE.getStudyRetentionPolicies());
         writeRSForwardRules(writer, arcAE.getRSForwardRules());
         writeUPSOnStoreList(writer, arcAE.listUPSOnStore());
@@ -2913,7 +2915,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         aac.setConditions(new Conditions(reader.stringArray()));
                         break;
                     case "dcmURI":
-                        aac.setAttributeCoercionURI(URI.create(reader.stringValue()));
+                        aac.setURI(reader.stringValue());
                         break;
                     case "dcmAttributeUpdatePolicy":
                         aac.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
@@ -4138,6 +4140,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmArchiveAttributeCoercion":
                     loadArchiveAttributeCoercion(arcAE.getAttributeCoercions(), reader, config);
+                    break;
+                case "dcmArchiveAttributeCoercion2":
+                    loadArchiveAttributeCoercion2(arcAE.getAttributeCoercions2(), reader, config);
                     break;
                 case "dcmStudyRetentionPolicy":
                     loadStudyRetentionPolicy(arcAE.getStudyRetentionPolicies(), reader);
