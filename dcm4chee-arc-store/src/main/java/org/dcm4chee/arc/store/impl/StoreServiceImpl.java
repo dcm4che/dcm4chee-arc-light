@@ -636,7 +636,7 @@ class StoreServiceImpl implements StoreService {
             return entry.value();
 
         List<Attributes> mwlItems;
-        if (queryParam.mwlSCP == null) {
+        if (queryParam.mwlSCP == null || device.getApplicationEntity(queryParam.mwlSCP, true) != null) {
             mwlItems = ejb.queryMWL(ctx, queryParam);
         } else
             try {
