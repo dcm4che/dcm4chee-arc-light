@@ -205,7 +205,6 @@ class StoreServiceImpl implements StoreService {
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
-            coerceAttributes2(ctx);
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
@@ -371,7 +370,6 @@ class StoreServiceImpl implements StoreService {
                 supplementDefaultCharacterSet(ctx);
                 storeMetadata(ctx);
                 coerceAttributes(ctx);
-                coerceAttributes2(ctx);
             }
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
@@ -399,7 +397,6 @@ class StoreServiceImpl implements StoreService {
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
-            coerceAttributes2(ctx);
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
@@ -556,18 +553,44 @@ class StoreServiceImpl implements StoreService {
 
     private void coerceAttributes(StoreContext ctx) throws Exception {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAttributeCoercion rule = session.getArchiveAEExtension().findAttributeCoercion(
-                Dimse.C_STORE_RQ,
-                TransferCapability.Role.SCU,
-                ctx.getSopClassUID(),
-                session.getRemoteHostName(),
-                session.getCallingAET(),
-                session.getLocalHostName(),
-                session.getCalledAET(),
-                ctx.getAttributes());
-        if (rule == null)
-            return;
+        List<ArchiveAttributeCoercion2> coercions = session.getArchiveAEExtension().attributeCoercions2()
+                .filter(descriptor -> descriptor.match(
+                        TransferCapability.Role.SCU,
+                        Dimse.C_STORE_RQ,
+                        ctx.getSopClassUID(),
+                        session.getRemoteHostName(),
+                        session.getCallingAET(),
+                        session.getLocalHostName(),
+                        session.getCalledAET(),
+                        ctx.getAttributes()))
+                .collect(Collectors.toList());
+        if (coercions.isEmpty()) {
+            ArchiveAttributeCoercion rule = session.getArchiveAEExtension().findAttributeCoercion(
+                    Dimse.C_STORE_RQ,
+                    TransferCapability.Role.SCU,
+                    ctx.getSopClassUID(),
+                    session.getRemoteHostName(),
+                    session.getCallingAET(),
+                    session.getLocalHostName(),
+                    session.getCalledAET(),
+                    ctx.getAttributes());
+            if (rule != null) coerceLegacy(ctx, session, rule);
+        } else {
+            for (ArchiveAttributeCoercion2 coercion : coercions) {
+                if (coercionFactory.getCoercionProcessor(coercion).coerce(
+                        coercion,
+                        session.getRemoteHostName(),
+                        session.getCallingAET(),
+                        session.getLocalHostName(),
+                        session.getCalledAET(),
+                        ctx.getAttributes(),
+                        ctx.getCoercedAttributes())
+                        && coercion.isCoercionSufficient()) break;
+            }
+        }
+    }
 
+    private void coerceLegacy(StoreContext ctx, StoreSession session, ArchiveAttributeCoercion rule) throws Exception {
         AttributesCoercion coercion = null;
         coercion = coerceAttributesByXSL(ctx, rule, coercion);
         coercion = mergeAttributesFromMWL(ctx, rule, coercion);
