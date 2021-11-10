@@ -688,9 +688,6 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public ArchiveAttributeCoercion getArchiveAttributeCoercion(RetrieveContext ctx, InstanceLocations inst) {
-        if (ctx.isUpdateSeriesMetadata()) {
-            return null;
-        }
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
         ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
                 Dimse.C_STORE_RQ,
@@ -958,9 +955,6 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst, ArchiveAttributeCoercion rule) {
         Attributes instAttributes = inst.getAttributes();
-        if (ctx.isUpdateSeriesMetadata())
-            return new MergeAttributesCoercion(instAttributes, new SeriesMetadataAttributeCoercion(ctx, inst));
-
         if (rule == null)
             return new MergeAttributesCoercion(instAttributes, AttributesCoercion.NONE);
 
@@ -1108,7 +1102,17 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (attrs == null)
             attrs = loadMetadataFromDicomFile(ctx, inst);
 
-        getAttributesCoercion(ctx, inst).coerce(attrs, null);
+        if (ctx.isUpdateSeriesMetadata()) {
+            UIDMap uidMap = inst.getLocations().get(0).getUidMap();
+            if (uidMap != null) {
+                UIDUtils.remapUIDs(attrs, uidMap.getUIDMap());
+            }
+            Attributes.unifyCharacterSets(attrs, inst.getAttributes());
+            attrs.addAll(inst.getAttributes());
+            coerceSeriesMetadata(ctx, inst, attrs);
+        } else {
+            getAttributesCoercion(ctx, inst).coerce(attrs, null);
+        }
         return attrs;
     }
 
