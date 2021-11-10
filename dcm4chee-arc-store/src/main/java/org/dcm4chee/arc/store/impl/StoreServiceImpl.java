@@ -526,31 +526,6 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void coerceAttributes2(StoreContext ctx) throws Exception {
-        StoreSession session = ctx.getStoreSession();
-        for (ArchiveAttributeCoercion2 coercion : session.getArchiveAEExtension().attributeCoercions2()
-                .filter(descriptor -> descriptor.match(
-                        TransferCapability.Role.SCU,
-                        Dimse.C_STORE_RQ,
-                        ctx.getSopClassUID(),
-                        session.getRemoteHostName(),
-                        session.getCallingAET(),
-                        session.getLocalHostName(),
-                        session.getCalledAET(),
-                        ctx.getAttributes()))
-                .collect(Collectors.toList())) {
-            if (coercionFactory.getCoercionProcessor(coercion).coerce(
-                    coercion,
-                    session.getRemoteHostName(),
-                    session.getCallingAET(),
-                    session.getLocalHostName(),
-                    session.getCalledAET(),
-                    ctx.getAttributes(),
-                    ctx.getCoercedAttributes())
-                && coercion.isCoercionSufficient()) break;
-        }
-    }
-
     private void coerceAttributes(StoreContext ctx) throws Exception {
         StoreSession session = ctx.getStoreSession();
         List<ArchiveAttributeCoercion2> coercions = session.getArchiveAEExtension().attributeCoercions2()
