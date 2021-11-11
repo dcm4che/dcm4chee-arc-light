@@ -704,7 +704,11 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst,
             ArchiveAttributeCoercion rule) {
-        return uidRemap(inst, coercion(ctx, inst, rule));
+        AttributesCoercion coercion = rule != null
+            ? coercion(ctx, inst, rule)
+            : new MergeAttributesCoercion(inst.getAttributes(), AttributesCoercion.NONE);
+        UIDMap uidMap = inst.getLocations().get(0).getUidMap();
+        return uidMap != null ? new RemapUIDsAttributesCoercion(uidMap.getUIDMap(), coercion) : coercion;
     }
 
     @Override
@@ -749,6 +753,12 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private void coerceSeriesMetadata(RetrieveContext ctx, InstanceLocations inst, Attributes attrs) {
+        UIDMap uidMap = inst.getLocations().get(0).getUidMap();
+        if (uidMap != null) {
+            UIDUtils.remapUIDs(attrs, uidMap.getUIDMap());
+        }
+        Attributes.unifyCharacterSets(attrs, inst.getAttributes());
+        attrs.addAll(inst.getAttributes());
         attrs.setString(Tag.RetrieveAETitle, VR.AE, inst.getRetrieveAETs());
         attrs.setString(Tag.InstanceAvailability, VR.CS, inst.getAvailability().toString());
 
@@ -948,16 +958,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         return expected;
     }
 
-    private AttributesCoercion uidRemap(InstanceLocations inst, AttributesCoercion next) {
-        UIDMap uidMap = inst.getLocations().get(0).getUidMap();
-        return uidMap != null ? new RemapUIDsAttributesCoercion(uidMap.getUIDMap(), next) : next;
-    }
-
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst, ArchiveAttributeCoercion rule) {
-        Attributes instAttributes = inst.getAttributes();
-        if (rule == null)
-            return new MergeAttributesCoercion(instAttributes, AttributesCoercion.NONE);
-
         AttributesCoercion coercion = DeIdentificationAttributesCoercion.valueOf(
                 rule.getDeIdentification(), AttributesCoercion.NONE);
         String xsltStylesheetURI = rule.getXSLTStylesheetURI();
@@ -978,7 +979,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                     rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         if (!rule.isRetrieveAsReceived()) {
-            coercion = new MergeAttributesCoercion(instAttributes, coercion);
+            coercion = new MergeAttributesCoercion(inst.getAttributes(), coercion);
         }
         LOG.info("Coerce Attributes from rule: {}", rule);
         return coercion;
@@ -1103,12 +1104,6 @@ public class RetrieveServiceImpl implements RetrieveService {
             attrs = loadMetadataFromDicomFile(ctx, inst);
 
         if (ctx.isUpdateSeriesMetadata()) {
-            UIDMap uidMap = inst.getLocations().get(0).getUidMap();
-            if (uidMap != null) {
-                UIDUtils.remapUIDs(attrs, uidMap.getUIDMap());
-            }
-            Attributes.unifyCharacterSets(attrs, inst.getAttributes());
-            attrs.addAll(inst.getAttributes());
             coerceSeriesMetadata(ctx, inst, attrs);
         } else {
             getAttributesCoercion(ctx, inst).coerce(attrs, null);
