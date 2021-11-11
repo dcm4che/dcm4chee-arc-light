@@ -94,7 +94,7 @@ public interface StoreService {
 
     StoreSession newStoreSession(Association as);
 
-    StoreSession newStoreSession(HttpServletRequestInfo httpRequestInfo, ApplicationEntity ae, String sourceAET);
+    StoreSession newStoreSession(HttpServletRequestInfo httpRequestInfo, ApplicationEntity ae, String aet, String sourceAET);
 
     StoreSession newStoreSession(ApplicationEntity ae);
 

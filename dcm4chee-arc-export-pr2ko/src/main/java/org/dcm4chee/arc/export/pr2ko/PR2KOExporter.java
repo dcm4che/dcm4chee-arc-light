@@ -132,7 +132,7 @@ public class PR2KOExporter extends AbstractExporter {
             return new Outcome(Task.Status.COMPLETED, noKeyObjectCreated(ctx));
 
         try (StoreSession session = storeService.newStoreSession(
-                ctx.getHttpServletRequestInfo(), ae, properties.get("SourceAET"))) {
+                ctx.getHttpServletRequestInfo(), ae, ctx.getAETitle(), properties.get("SourceAET"))) {
             for (Attributes prAttrs : matches) {
                 StoreContext storeCtx = storeService.newStoreContext(session);
                 storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);

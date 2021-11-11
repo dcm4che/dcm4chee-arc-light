@@ -40,9 +40,7 @@
 
 package org.dcm4chee.arc.delete.impl;
 
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.RejectionService;
@@ -50,7 +48,6 @@ import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,25 +107,25 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
             return;
         }
 
-        process(arcDev, ae, rn);
+        process(arcDev, ae, arcDev.getRejectExpiredStudiesAETitle(), rn);
     }
 
-    private void process(ArchiveDeviceExtension arcDev, ApplicationEntity ae, RejectionNote rjNote) {
+    private void process(ArchiveDeviceExtension arcDev, ApplicationEntity ae, String aet, RejectionNote rjNote) {
         int studyFetchSize = arcDev.getRejectExpiredStudiesFetchSize();
         if (studyFetchSize == 0) {
             LOG.warn("RejectExpiredStudies operation ABORT : Study fetch size is 0");
             return;
         }
-        processExpiredStudies(ae, rjNote, studyFetchSize);
+        processExpiredStudies(ae, aet, rjNote, studyFetchSize);
         int seriesFetchSize = arcDev.getRejectExpiredSeriesFetchSize();
         if (seriesFetchSize == 0) {
             LOG.warn("RejectExpiredSeries operation ABORT : Series fetch size is 0");
             return;
         }
-        processExpiredSeries(ae, rjNote, seriesFetchSize);
+        processExpiredSeries(ae, aet, rjNote, seriesFetchSize);
     }
 
-    private void processExpiredSeries(ApplicationEntity ae, RejectionNote rn, int seriesFetchSize) {
+    private void processExpiredSeries(ApplicationEntity ae, String aet, RejectionNote rn, int seriesFetchSize) {
         List<Series> seriesList;
         do {
             seriesList = ejb.findExpiredSeries(seriesFetchSize);
@@ -137,17 +134,17 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     return;
 
                 if (series.getExpirationExporterID() == null)
-                    rejectExpiredSeries(series, ae, rn);
+                    rejectExpiredSeries(series, ae, aet, rn);
                 else
                     exportExpiredSeries(series);
             }
         } while (seriesFetchSize == seriesList.size());
     }
 
-    private void rejectExpiredSeries(Series series, ApplicationEntity ae, RejectionNote rn) {
+    private void rejectExpiredSeries(Series series, ApplicationEntity ae, String aet, RejectionNote rn) {
         try {
             if (ejb.claimExpiredSeriesFor(series, ExpirationState.REJECTED))
-                rejectionService.reject(ae, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
+                rejectionService.reject(ae, aet, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(),
                         null, rn, null);
         } catch (Exception e) {
             LOG.warn("Failed to reject Expired Series[UID={}] of Study[UID={}].\n",
@@ -179,7 +176,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     null);
     }
 
-    private void processExpiredStudies(ApplicationEntity ae, RejectionNote rn, int studyFetchSize) {
+    private void processExpiredStudies(ApplicationEntity ae, String aet, RejectionNote rn, int studyFetchSize) {
         List<Study> studies;
         do {
             studies = ejb.findExpiredStudies(studyFetchSize);
@@ -188,17 +185,17 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     return;
 
                 if (study.getExpirationExporterID() == null)
-                    rejectExpiredStudy(study, ae, rn);
+                    rejectExpiredStudy(study, ae, aet, rn);
                 else
                     exportExpiredStudy(study);
             }
         } while (studyFetchSize == studies.size());
     }
 
-    private void rejectExpiredStudy(Study study, ApplicationEntity ae, RejectionNote rn) {
+    private void rejectExpiredStudy(Study study, ApplicationEntity ae, String aet, RejectionNote rn) {
         try {
             if (ejb.claimExpiredStudyFor(study, ExpirationState.REJECTED))
-                rejectionService.reject(ae, study.getStudyInstanceUID(), null, null, rn, null);
+                rejectionService.reject(ae, aet, study.getStudyInstanceUID(), null, null, rn, null);
         } catch (Exception e) {
             LOG.warn("Failed to reject Expired Study[UID={}].\n", study.getStudyInstanceUID(), e);
             ejb.claimExpiredStudyFor(study, ExpirationState.FAILED_TO_REJECT);

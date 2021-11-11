@@ -59,7 +59,7 @@ public interface RejectionService {
     int reject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
                HttpServletRequestInfo httpRequest) throws Exception;
 
-    int reject(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID, RejectionNote rjNote,
+    int reject(ApplicationEntity ae, String aet, String studyIUID, String seriesIUID, String sopIUID, RejectionNote rjNote,
                HttpServletRequestInfo httpRequest) throws Exception;
 
     void createRejectionTask(String aet, Code code, HttpServletRequestInfo httpRequest, String batchID,

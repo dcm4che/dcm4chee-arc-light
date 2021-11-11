@@ -61,7 +61,6 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -152,7 +151,7 @@ public class Curve2PRExporter extends AbstractExporter {
         int totInstanceRefs = 0;
         int instanceRefs;
         try (StoreSession session = storeService.newStoreSession(
-                ctx.getHttpServletRequestInfo(), ae, properties.get("SourceAET"))) {
+                ctx.getHttpServletRequestInfo(), ae, ctx.getAETitle(), properties.get("SourceAET"))) {
             for (Attributes pr : results) {
                 totInstanceRefs += instanceRefs = countInstanceRefs(pr);
                 trimSoftcopyVOILUT(pr, instanceRefs);

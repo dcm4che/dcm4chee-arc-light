@@ -95,7 +95,8 @@ public class ImpaxReportExporter extends AbstractExporter {
         ImpaxReportConverter converter = new ImpaxReportConverter(props, studyAttrs);
         List<String> xmlReports = reportService.queryReportByStudyUid(studyUID);
         List<Attributes> srReports = converter.convert(xmlReports);
-        try (StoreSession session = storeService.newStoreSession(ctx.getHttpServletRequestInfo(), ae, props.get("SourceAET"))) {
+        try (StoreSession session = storeService.newStoreSession(
+                ctx.getHttpServletRequestInfo(), ae, ctx.getAETitle(), props.get("SourceAET"))) {
             session.setImpaxReportEndpoint(converter.getEndpoint());
             for (Attributes sr : srReports) {
                 StoreContext storeCtx = storeService.newStoreContext(session);

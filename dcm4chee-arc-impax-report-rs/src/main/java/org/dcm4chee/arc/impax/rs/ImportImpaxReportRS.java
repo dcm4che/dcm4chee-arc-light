@@ -126,7 +126,7 @@ public class ImportImpaxReportRS {
             Attributes response = new Attributes();
             response.setString(Tag.RetrieveURL, VR.UR, studyRetrieveURL().toString());
             try (StoreSession session = storeService.newStoreSession(
-                    HttpServletRequestInfo.valueOf(request), ae, props.get("SourceAET"))) {
+                    HttpServletRequestInfo.valueOf(request), ae, aet, props.get("SourceAET"))) {
                 session.setImpaxReportEndpoint(converter.getEndpoint());
                 srReports.forEach(sr -> {
                     StoreContext storeCtx = storeService.newStoreContext(session);
