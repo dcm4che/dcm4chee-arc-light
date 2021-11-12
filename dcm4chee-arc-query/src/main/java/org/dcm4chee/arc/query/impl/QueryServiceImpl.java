@@ -51,6 +51,7 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
+import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
@@ -78,6 +79,7 @@ import javax.json.Json;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
@@ -86,6 +88,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -770,5 +774,40 @@ class QueryServiceImpl implements QueryService {
                 : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
                 .setParameter(1, studyIUID))
                 .getResultList();
+    }
+
+    @Override
+    public List<Attributes> queryMWL(MergeMWLQueryParam queryParam) {
+        TypedQuery<Tuple> namedQuery = queryParam.mwlSCP != null ?
+                queryParam.accessionNumber != null
+                        ? em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_ACCESSION_NO, Tuple.class)
+                        .setParameter(1, queryParam.mwlSCP)
+                        .setParameter(2, queryParam.accessionNumber)
+                        : queryParam.spsID != null
+                        ? em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_STUDY_UID_AND_SPS_ID, Tuple.class)
+                        .setParameter(1, queryParam.mwlSCP)
+                        .setParameter(2, queryParam.studyIUID)
+                        .setParameter(3, queryParam.spsID)
+                        : em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_STUDY_IUID, Tuple.class)
+                        .setParameter(1, queryParam.mwlSCP)
+                        .setParameter(2, queryParam.studyIUID)
+                : queryParam.accessionNumber != null
+                ? em.createNamedQuery(MWLItem.ATTRS_BY_ACCESSION_NO, Tuple.class)
+                .setParameter(1, queryParam.accessionNumber)
+                : queryParam.spsID != null
+                ? em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, Tuple.class)
+                .setParameter(1, queryParam.studyIUID)
+                .setParameter(2, queryParam.spsID)
+                : em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_IUID, Tuple.class)
+                .setParameter(1, queryParam.studyIUID);
+        try (Stream<Tuple> resultStream = namedQuery.getResultStream()) {
+            return resultStream.map(result -> {
+                Attributes mwlAttrs = AttributesBlob.decodeAttributes(result.get(0, byte[].class), null);
+                Attributes patAttrs = AttributesBlob.decodeAttributes(result.get(1, byte[].class), null);
+                Attributes.unifyCharacterSets(patAttrs, mwlAttrs);
+                mwlAttrs.addAll(patAttrs);
+                return mwlAttrs;
+            }).collect(Collectors.toList());
+        }
     }
 }

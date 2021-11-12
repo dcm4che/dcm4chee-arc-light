@@ -232,6 +232,10 @@ public class ArchiveAttributeCoercion2 {
         return value != null ? value : defValue;
     }
 
+    public boolean parseBooleanCoercionParam(String name) {
+        return Boolean.parseBoolean(params.get(name));
+    }
+
     public Map<String,String> getCoercionParams() {
         return params;
     }

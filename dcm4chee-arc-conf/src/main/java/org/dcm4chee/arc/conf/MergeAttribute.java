@@ -81,7 +81,7 @@ public class MergeAttribute {
                 .toArray(MergeAttribute[]::new);
     }
 
-    void merge(Attributes attrs, Attributes modified) {
+    public void merge(Attributes attrs, Attributes modified) {
         int tag = tagPath[tagPath.length - 1];
         Attributes item = ensureItem(attrs);
         String newValue = this.format.format(attrs);
