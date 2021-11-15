@@ -3632,6 +3632,16 @@ dcmProperty: ReceivingApplicationEntityTitle=LEADING_DCMQRSCP
 objectClass: dcmArchiveAttributeCoercion
 cn: Leading DCMQRSCP STORE
 
+dn: dcmQueueName=XDS-I Export,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
+dicomDescription: XDS-I Export Tasks
+dcmQueueName: XDS-I Export
+objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
+
 dn: dcmSPSStatus=DISCONTINUED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: DISCONTINUED
 hl7OrderControlStatus: DC_CA
@@ -3805,6 +3815,16 @@ dcmProperty: MSH-3=FORWARD
 objectClass: hl7ForwardRule
 hl7FwdApplicationName: HL7RCV|DCM4CHEE
 cn: Forward to HL7RCV|DCM4CHEE
+
+dn: dcmQueueName=WADO QIDO Export,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
+dicomDescription: WADO QIDO Export Tasks
+dcmQueueName: WADO QIDO Export
+objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
 
 dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Quality
@@ -3982,6 +4002,16 @@ dicomDescription: Receive Data-rate from STORESCU
 dcmMetricsName: receive-from-STORESCU
 objectClass: dcmMetrics
 dcmUnit: MB/s
+
+dn: dcmQueueName=Nearline Storage Export,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
+dicomDescription: Nearline Storage Export Tasks
+dcmQueueName: Nearline Storage Export
+objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
 
 dn: dcmRejectionNoteLabel=Patient Safety,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Patient Safety
