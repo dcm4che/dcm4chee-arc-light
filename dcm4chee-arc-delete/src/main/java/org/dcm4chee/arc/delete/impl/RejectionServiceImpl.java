@@ -109,7 +109,7 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
         LOG.info("Export completed, invoke rejection of objects.");
         try {
             if (ejb.claimExpired(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ExpirationState.REJECTED))
-                reject(ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn,
+                reject(ae, ctx.getAETitle(), ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), rn,
                         ctx.getHttpServletRequestInfo());
         } catch (Exception e) {
             LOG.warn("Rejection of Expired Study[UID={}], Series[UID={}], SOPInstance[UID={}] failed.\n",
@@ -121,14 +121,14 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
     @Override
     public int reject(String aet, String studyIUID, String seriesIUID, String sopIUID, Code code,
                       HttpServletRequestInfo httpRequest) throws Exception {
-        return reject(getApplicationEntity(aet), studyIUID, seriesIUID, sopIUID, getRejectionNote(code), httpRequest);
+        return reject(getApplicationEntity(aet), aet, studyIUID, seriesIUID, sopIUID, getRejectionNote(code), httpRequest);
     }
 
     @Override
-    public int reject(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID, RejectionNote rjNote,
-                      HttpServletRequestInfo httpRequest) throws Exception {
+    public int reject(ApplicationEntity ae, String aet, String studyIUID, String seriesIUID, String sopIUID,
+                      RejectionNote rjNote, HttpServletRequestInfo httpRequest) throws Exception {
         String changeRequesterAET = ae.getAEExtension(ArchiveAEExtension.class).changeRequesterAET();
-        StoreSession storeSession = storeService.newStoreSession(httpRequest, ae,
+        StoreSession storeSession = storeService.newStoreSession(httpRequest, ae, aet,
                 changeRequesterAET != null ? changeRequesterAET : ae.getAETitle());
         String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(storeSession);
         storeSession.withObjectStorageID(rejectionNoteObjectStorageID);

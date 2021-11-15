@@ -161,6 +161,31 @@
       "type": "string"
     }
   },
+  "charsetPathParam": {
+    "name": "issuer",
+    "in": "path",
+    "description": "Character Set identified by DICOM Specific Character Set (0008,0005) Code String.",
+    "required": true,
+    "schema": {
+      "type": "string",
+      "enum": [
+        "ISO_IR 100",
+        "ISO_IR 101",
+        "ISO_IR 109",
+        "ISO_IR 110",
+        "ISO_IR 144",
+        "ISO_IR 127",
+        "ISO_IR 126",
+        "ISO_IR 138",
+        "ISO_IR 148",
+        "ISO_IR 13",
+        "ISO_IR 166",
+        "ISO_IR 192",
+        "GB18030",
+        "GBK"
+      ]
+    }
+  },
   "studyPathParam": {
     "name": "study",
     "in": "path",

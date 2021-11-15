@@ -2622,6 +2622,25 @@
       }
     }
   },
+  "updateCharsetOfPatientResult": {
+    "title": "Update Character Set of Patient result",
+    "type": "object",
+    "properties": {
+      "updated": {
+        "title": "Number of updated Patients",
+        "description": "Number of Patients which LO, LT, PN, SH, ST, UT attributes were transcoded to the new Character Set",
+        "type": "integer"
+      },
+      "failures": {
+        "title": "Failures",
+        "description": "Patient IDs encoded as HL7 CX of Patients which LO, LT, PN, SH, ST, UT attributes could not be transcoded to the new Character Set",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "stgverBatchList": {
     "title": "StorageVerificationBatchList",
     "type": "array",

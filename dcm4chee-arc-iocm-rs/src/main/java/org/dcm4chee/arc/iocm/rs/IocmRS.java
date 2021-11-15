@@ -226,6 +226,7 @@ public class IocmRS {
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request),
                     arcAE.getApplicationEntity(),
+                    aet,
                     changeRequesterAET != null ? changeRequesterAET : arcAE.getApplicationEntity().getAETitle())
                     .withObjectStorageID(rejectionNoteObjectStorageID());
 
@@ -295,7 +296,7 @@ public class IocmRS {
             if (queue)
                 return queueReject(rsOp, arcAE, studyUID, seriesUID, objectUID, rjNote);
 
-            int count = rejectionService.reject(arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote,
+            int count = rejectionService.reject(arcAE.getApplicationEntity(), aet, studyUID, seriesUID, objectUID, rjNote,
                     HttpServletRequestInfo.valueOf(request));
             if (count == 0) {
                 return errResponse("No instances of Study[UID=" + studyUID + "] found for rejection.",
@@ -335,6 +336,7 @@ public class IocmRS {
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request),
                     arcAE.getApplicationEntity(),
+                    aet,
                     changeRequesterAET != null ? changeRequesterAET : arcAE.getApplicationEntity().getAETitle());
             if (rjNote != null)
                 session.withObjectStorageID(rejectionNoteObjectStorageID());

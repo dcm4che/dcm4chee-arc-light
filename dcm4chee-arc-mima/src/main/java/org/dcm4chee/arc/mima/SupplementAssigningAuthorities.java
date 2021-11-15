@@ -84,7 +84,7 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     }
 
     @Override
-    public void coerce(Attributes attrs, Attributes modified) {
+    public void coerce(Attributes attrs, Attributes modified) throws Exception {
         entity.supplement(this, attrs);
         if (next != null)
             next.coerce(attrs, modified);

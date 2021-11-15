@@ -69,7 +69,7 @@ public class UseCallingAETitleAsCoercion implements AttributesCoercion {
     }
 
     @Override
-    public void coerce(Attributes attrs, Attributes modified) {
+    public void coerce(Attributes attrs, Attributes modified) throws Exception {
         type.coerce(attrs, modified, callingAET);
         if (next != null)
             next.coerce(attrs, modified);

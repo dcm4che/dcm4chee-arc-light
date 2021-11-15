@@ -715,6 +715,10 @@ public class WadoRS {
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)){
             attrs = dis.readDataset();
             service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
         }
         Collection<InstanceLocations> matches = new ArrayList<>();
         for (Attributes series : attrs.getSequence(Tag.ReferencedSeriesSequence)) {
@@ -1467,7 +1471,7 @@ public class WadoRS {
         }
     }
 
-    private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+    private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws Exception {
         Attributes metadata = inst.isContainsMetadata() ? inst.getAttributes() : service.loadMetadata(ctx, inst);
         StringBuffer sb = device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request);
         sb.setLength(sb.lastIndexOf("/metadata"));

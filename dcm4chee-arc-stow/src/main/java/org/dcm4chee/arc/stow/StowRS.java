@@ -307,7 +307,7 @@ public class StowRS {
             validateWebApp();
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(
-                HttpServletRequestInfo.valueOf(request), ae, null);
+                HttpServletRequestInfo.valueOf(request), ae, aet, null);
         new MultipartParser(boundary())
                 .parse(new BufferedInputStream(in), (partNumber, multipartInputStream) -> {
                     Map<String, List<String>> headerParams = multipartInputStream.readHeaderParams();

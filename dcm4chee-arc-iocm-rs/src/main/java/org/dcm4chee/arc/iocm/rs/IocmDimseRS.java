@@ -123,6 +123,7 @@ public class IocmDimseRS {
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request),
                     arcAE.getApplicationEntity(),
+                    aet,
                     changeRequesterAET != null ? changeRequesterAET : arcAE.getApplicationEntity().getAETitle())
                     .withObjectStorageID(rejectionNoteObjectStorageID());
 

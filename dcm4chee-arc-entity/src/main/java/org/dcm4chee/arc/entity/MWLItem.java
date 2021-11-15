@@ -94,6 +94,21 @@ import java.util.*;
                 "where mwl.studyInstanceUID = ?1 " +
                 "and mwl.scheduledProcedureStepID = ?2"),
 @NamedQuery(
+        name = MWLItem.ATTRS_BY_AET_AND_ACCESSION_NO,
+        query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
+                "from MWLItem mwl " +
+                "where mwl.localAET = ?1 and mwl.accessionNumber = ?2"),
+@NamedQuery(
+        name = MWLItem.ATTRS_BY_AET_AND_STUDY_IUID,
+        query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
+                "from MWLItem mwl " +
+                "where mwl.localAET = ?1 and mwl.studyInstanceUID = ?2"),
+@NamedQuery(
+        name = MWLItem.ATTRS_BY_AET_AND_STUDY_UID_AND_SPS_ID,
+        query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
+                "from MWLItem mwl " +
+                "where mwl.localAET = ?1 and mwl.studyInstanceUID = ?2 and mwl.scheduledProcedureStepID = ?3"),
+@NamedQuery(
         name = MWLItem.FIND_BY_STATUS_AND_UPDATED_BEFORE,
         query = "select mwl from MWLItem mwl " +
                 "where mwl.status = ?1 " +
@@ -132,6 +147,9 @@ public class MWLItem {
     public static final String ATTRS_BY_ACCESSION_NO = "MWLItem.attrsByAccessionNo";
     public static final String ATTRS_BY_STUDY_IUID = "MWLItem.attrsByStudyIUID";
     public static final String ATTRS_BY_STUDY_UID_AND_SPS_ID = "MWLItem.attrsByStudyUIDAndSPSID";
+    public static final String ATTRS_BY_AET_AND_ACCESSION_NO = "MWLItem.attrsByAETAndAccessionNo";
+    public static final String ATTRS_BY_AET_AND_STUDY_IUID = "MWLItem.attrsByAETAndStudyIUID";
+    public static final String ATTRS_BY_AET_AND_STUDY_UID_AND_SPS_ID = "MWLItem.attrsByAETAndStudyUIDAndSPSID";
     public static final String FIND_BY_STATUS_AND_UPDATED_BEFORE = "MWLItem.findByStatusAndUpdatedBefore";
     public static final String IDS_BY_PATIENT_AND_STATUS = "MWLItem.idsByPatientAndStatus";
 
@@ -424,7 +442,7 @@ public class MWLItem {
         scheduledPerformingPhysicianName = PersonName.valueOf(
                 spsItem.getString(Tag.ScheduledPerformingPhysicianName), fuzzyStr, scheduledPerformingPhysicianName);
         String cs = spsItem.getString(Tag.ScheduledProcedureStepStatus);
-        status = SPSStatus.valueOf(cs);
+        status = cs != null ? SPSStatus.valueOf(cs) : SPSStatus.SCHEDULED;
         requestedProcedureID = attrs.getString(Tag.RequestedProcedureID);
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");

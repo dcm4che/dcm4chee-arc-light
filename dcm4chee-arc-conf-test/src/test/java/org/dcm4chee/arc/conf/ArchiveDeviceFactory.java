@@ -1928,9 +1928,12 @@ class ArchiveDeviceFactory {
             nearlineStorageDescriptor.setInstanceAvailability(Availability.NEARLINE);
             ext.addStorageDescriptor(nearlineStorageDescriptor);
 
-            newQueueDescriptor("WADO QIDO Export", "WADO QIDO Export Tasks", true);
-            newQueueDescriptor("XDS-I Export", "XDS-I Export Tasks", true);
-            newQueueDescriptor("Nearline Storage Export", "Nearline Storage Export Tasks", true);
+            ext.addQueueDescriptor(
+                    newQueueDescriptor("WADO QIDO Export", "WADO QIDO Export Tasks", true));
+            ext.addQueueDescriptor(
+                    newQueueDescriptor("XDS-I Export", "XDS-I Export Tasks", true));
+            ext.addQueueDescriptor(
+                    newQueueDescriptor("Nearline Storage Export", "Nearline Storage Export Tasks", true));
 
             ExporterDescriptor nearlineExporter = new ExporterDescriptor(NEARLINE_STORAGE_EXPORTER_ID);
             nearlineExporter.setDescription(NEARLINE_STORAGE_EXPORTER_DESC);

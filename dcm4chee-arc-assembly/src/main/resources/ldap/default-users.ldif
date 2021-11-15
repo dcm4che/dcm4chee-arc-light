@@ -21,22 +21,6 @@ sn:: IA==
 cn:: IA==
 userPassword:: Y2hhbmdlaXQ=
 
-dn: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
-uid: keycloak-admin
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-sn:: IA==
-cn:: IA==
-userPassword:: Y2hhbmdlaXQ=
-
-dn: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
-uid: wildfly-admin
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-sn:: IA==
-cn:: IA==
-userPassword:: Y2hhbmdlaXQ=
-
 dn: cn=admin,ou=users,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: admin
@@ -47,8 +31,6 @@ objectClass: groupOfNames
 cn: user
 member: uid=admin,ou=users,dc=dcm4che,dc=org
 member: uid=user,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
-member: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=auditlog,ou=users,dc=dcm4che,dc=org
 objectClass: groupOfNames
@@ -59,7 +41,6 @@ dn: cn=ADMINISTRATOR,ou=users,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: ADMINISTRATOR
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=wildfly-admin,ou=users,dc=dcm4che,dc=org
 
 dn: ou=realm-management,dc=dcm4che,dc=org
 objectClass: top
@@ -70,112 +51,125 @@ dn: cn=create-client,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: create-client
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=impersonation,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: impersonation
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-authorization,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: manage-authorization
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-clients,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: manage-clients
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-events,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: manage-events
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-identity-providers,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: manage-identity-providers
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-realm,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: manage-realm
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=manage-users,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: manage-users
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=realm-admin,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: realm-admin
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-authorization,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: view-authorization
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-clients,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: view-clients
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-events,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: view-events
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-identity-providers,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: view-identity-providers
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-realm,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: view-realm
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=view-users,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: view-users
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-users,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: query-users
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-groups,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: query-groups
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-realms,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: query-realms
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-clients,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: query-clients
 member: uid=admin,ou=users,dc=dcm4che,dc=org
-member: uid=keycloak-admin,ou=users,dc=dcm4che,dc=org
+
+dn: ou=account,dc=dcm4che,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: account
+
+dn: cn=view-profile,ou=account,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-profile
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+member: uid=user,ou=users,dc=dcm4che,dc=org
+
+dn: cn=delete-account,ou=account,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: delete-account
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-account,ou=account,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-account
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+member: uid=user,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-consent,ou=account,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-consent
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-applications,ou=account,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-applications
+member: uid=admin,ou=users,dc=dcm4che,dc=org

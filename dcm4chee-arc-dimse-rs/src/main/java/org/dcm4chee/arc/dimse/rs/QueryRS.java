@@ -394,7 +394,7 @@ public class QueryRS {
                         }
                         dataset = dimseRSP.getDataset();
                     } while (dimseRSP.next());
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     LOG.warn("Failed to read next C-FIND RSP from {}:\\n", externalAET, e);
                 }
                 gen.writeEnd();

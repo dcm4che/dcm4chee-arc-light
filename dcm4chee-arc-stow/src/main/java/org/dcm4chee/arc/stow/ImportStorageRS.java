@@ -180,7 +180,7 @@ public class ImportStorageRS {
 
                 Storage storage = storageFactory.getStorage(getStorageDesc(location.getStorageID()));
                 final StoreSession session = service.newStoreSession(
-                        HttpServletRequestInfo.valueOf(request), ae, null)
+                        HttpServletRequestInfo.valueOf(request), ae, aet, null)
                         .withObjectStorageID(location.getStorageID());
                 StoreContext ctx = service.newStoreContext(session);
                 ctx.getLocations().add(location);
@@ -208,7 +208,7 @@ public class ImportStorageRS {
         ApplicationEntity ae = getApplicationEntity();
         Storage storage = storageFactory.getStorage(getStorageDesc(storageID));
         final StoreSession session = service.newStoreSession(
-                HttpServletRequestInfo.valueOf(request), ae, null)
+                HttpServletRequestInfo.valueOf(request), ae, aet, null)
                 .withObjectStorageID(storageID);
         Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
         Date now = reasonForModification != null && !coerce.isEmpty() ? new Date() : null;

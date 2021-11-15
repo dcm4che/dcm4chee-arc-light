@@ -46,14 +46,12 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.SeriesQueryAttributes;
-import org.dcm4chee.arc.entity.StudyQueryAttributes;
-import org.dcm4chee.arc.entity.Task;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -82,7 +80,7 @@ public interface QueryService {
 
     QueryContext newQueryContext(ApplicationEntity ae, QueryParam queryParam);
 
-    void coerceAttributes(QueryContext ctx);
+    void coerceAttributes(QueryContext ctx) throws Exception;
 
     Query createQuery(QueryContext ctx);
 
@@ -158,5 +156,9 @@ public interface QueryService {
 
     CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
 
+    CriteriaQuery<AttributesBlob> createPatientAttributesQuery(QueryParam queryParam, Attributes queryKeys);
+
     Date getLastModified(boolean ignorePatientUpdates, String studyUID, String seriesUID);
+
+    List<Attributes> queryMWL(MergeMWLQueryParam queryParam);
 }

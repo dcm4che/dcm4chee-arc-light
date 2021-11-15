@@ -99,6 +99,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
         writeUIFilterTemplate(writer, uiConfig.getFilterTemplates());
         writeUIAetList(writer, uiConfig.getAetLists());
+        writeUICreateDialogTemplate(writer, uiConfig.getCreateDialogTemplates());
         writeUIWebAppList(writer, uiConfig.getWebAppLists());
         writer.writeEnd();
     }
@@ -130,6 +131,21 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiMode", uiAetList.getMode(), null);
             writer.writeNotEmpty("dcmuiAets", uiAetList.getAets());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiAetList.getAcceptedRole());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUICreateDialogTemplate(JsonWriter writer, Collection<UICreateDialogTemplate> uiCreateDialogTemplates) {
+        if (uiCreateDialogTemplates.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiCreateDialogTemplate");
+        for (UICreateDialogTemplate uiCreateDialogTemplate : uiCreateDialogTemplates) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiTemplateName", uiCreateDialogTemplate.getTemplateName(), null);
+            writer.writeNotNullOrDef("dcmuiTemplateDescription", uiCreateDialogTemplate.getTemplateDescription(), null);
+            writer.writeNotNullOrDef("dcmuiDialog", uiCreateDialogTemplate.getDialog(), null);
+            writer.writeNotEmpty("dcmTemplateTag", uiCreateDialogTemplate.getTemplateTag());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -381,6 +397,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiAetConfig":
                     loadUIAetList(uiConfig, reader);
                     break;
+                case "dcmuiCreateDialogTemplate":
+                    loadUICreateDialogTemplate(uiConfig, reader);
+                    break;
                 case "dcmuiWebAppConfig":
                     loadUIWebAppList(uiConfig, reader);
                     break;
@@ -470,6 +489,35 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiConfig.addAetList(uiAetList);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUICreateDialogTemplate(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UICreateDialogTemplate uiCreateDialogTemplate = new UICreateDialogTemplate();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiTemplateName":
+                        uiCreateDialogTemplate.setTemplateName(reader.stringValue());
+                        break;
+                    case "dcmuiTemplateDescription":
+                        uiCreateDialogTemplate.setTemplateDescription(reader.stringValue());
+                        break;
+                    case "dcmuiDialog":
+                        uiCreateDialogTemplate.setDialog(reader.stringValue());
+                        break;
+                    case "dcmTemplateTag":
+                        uiCreateDialogTemplate.setTemplateTag(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addCreatDialogTemplate(uiCreateDialogTemplate);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

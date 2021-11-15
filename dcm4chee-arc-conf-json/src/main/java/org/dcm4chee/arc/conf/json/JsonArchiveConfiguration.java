@@ -397,6 +397,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStoreImplementationVersionName",
                 arcDev.isStoreImplementationVersionName(), true);
         writer.writeNotDef("dcmSupplementIssuerFetchSize", arcDev.getSupplementIssuerFetchSize(), 100);
+        writer.writeNotDef("dcmUpdateCharsetFetchSize", arcDev.getUpdateCharsetFetchSize(), 100);
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
@@ -413,6 +414,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcDev.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
+        writeArchiveAttributeCoercion2(writer, arcDev.getAttributeCoercions2());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
         writeStudyRetentionPolicies(writer, arcDev.getStudyRetentionPolicies());
         writeHL7StudyRetentionPolicies(writer, arcDev.getHL7StudyRetentionPolicies());
@@ -770,6 +772,30 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmIssuerOfPatientIDFormat", aac.getIssuerOfPatientIDFormat(), null);
             writer.writeNotDef("dcmTrimISO2022CharacterSet", aac.isTrimISO2022CharacterSet(), false);
             writer.writeNotNullOrDef("dcmUseCallingAETitleAs", aac.getUseCallingAETitleAs(), null);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeArchiveAttributeCoercion2(
+            JsonWriter writer, Collection<ArchiveAttributeCoercion2> archiveAttributeCoercionList) {
+        writer.writeStartArray("dcmArchiveAttributeCoercion2");
+        for (ArchiveAttributeCoercion2 aac : archiveAttributeCoercionList) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("cn", aac.getCommonName(), null);
+            writer.writeNotNullOrDef("dicomDescription", aac.getDescription(), null);
+            writer.writeNotDef("dcmRulePriority", aac.getPriority(), 0);
+            writer.writeNotNullOrDef("dcmDIMSE", aac.getDIMSE(), null);
+            writer.writeNotNullOrDef("dicomTransferRole", aac.getRole(), null);
+            writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
+            writer.writeNotEmpty("dcmProperty", aac.getConditions().getMap());
+            writer.writeNotNullOrDef("dcmURI", aac.getURI(), null);
+            writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
+                    aac.getAttributeUpdatePolicy(), Attributes.UpdatePolicy.MERGE);
+            writer.writeNotNullOrDef("dicomDeviceName", deviceNameOf(aac.getOtherDevice()), null);
+            writer.writeNotEmpty("dcmMergeAttribute", aac.getMergeAttributes());
+            writer.writeNotEmpty("dcmCoercionParam", aac.getCoercionParams());
+            writer.writeNotDef("dcmCoercionSufficient", aac.isCoercionSufficient(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1275,6 +1301,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
+        writeArchiveAttributeCoercion2(writer, arcAE.getAttributeCoercions2());
         writeStudyRetentionPolicies(writer, arcAE.getStudyRetentionPolicies());
         writeRSForwardRules(writer, arcAE.getRSForwardRules());
         writeUPSOnStoreList(writer, arcAE.listUPSOnStore());
@@ -1997,6 +2024,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmSupplementIssuerFetchSize":
                     arcDev.setSupplementIssuerFetchSize(reader.intValue());
                     break;
+                case "dcmUpdateCharsetFetchSize":
+                    arcDev.setUpdateCharsetFetchSize(reader.intValue());
+                    break;
                 case "dcmAuditAssigningAuthorityOfPatientID":
                     arcDev.setAuditAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
                     break;
@@ -2041,6 +2071,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmArchiveAttributeCoercion":
                     loadArchiveAttributeCoercion(arcDev.getAttributeCoercions(), reader, config);
+                    break;
+                case "dcmArchiveAttributeCoercion2":
+                    loadArchiveAttributeCoercion2(arcDev.getAttributeCoercions2(), reader, config);
                     break;
                 case "dcmRejectionNote":
                     loadRejectionNoteFrom(arcDev, reader);
@@ -2824,7 +2857,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         aac.setNullifyTags(TagUtils.fromHexStrings(reader.stringArray()));
                         break;
                     case "dcmSupplementFromDeviceName":
-                        aac.setSupplementFromDevice(loadSupplementFromDevice(config, reader.stringValue()));
+                        aac.setSupplementFromDevice(loadDevice(config, reader.stringValue()));
                         break;
                     case "dcmNullifyIssuerOfPatientID":
                         aac.setNullifyIssuerOfPatientID(NullifyIssuer.valueOf(reader.stringValue()));
@@ -2851,6 +2884,64 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
+    private void loadArchiveAttributeCoercion2(Collection<ArchiveAttributeCoercion2> coercions, JsonReader reader,
+                                              ConfigurationDelegate config) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            ArchiveAttributeCoercion2 aac = new ArchiveAttributeCoercion2();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        aac.setCommonName(reader.stringValue());
+                        break;
+                    case "dicomDescription":
+                        aac.setDescription(reader.stringValue());
+                        break;
+                    case "dcmRulePriority":
+                        aac.setPriority(reader.intValue());
+                        break;
+                    case "dcmDIMSE":
+                        aac.setDIMSE(Dimse.valueOf(reader.stringValue()));
+                        break;
+                    case "dicomTransferRole":
+                        aac.setRole(TransferCapability.Role.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmSOPClass":
+                        aac.setSOPClasses(reader.stringArray());
+                        break;
+                    case "dcmProperty":
+                        aac.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    case "dcmURI":
+                        aac.setURI(reader.stringValue());
+                        break;
+                    case "dcmAttributeUpdatePolicy":
+                        aac.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
+                        break;
+                    case "dicomDeviceName":
+                        aac.setOtherDevice(loadDevice(config, reader.stringValue()));
+                        break;
+                    case "dcmMergeAttribute":
+                        aac.setMergeAttributes(reader.stringArray());
+                        break;
+                    case "dcmCoercionParam":
+                        aac.setCoercionParams(reader.stringArray());
+                        break;
+                    case "dcmCoercionSufficient":
+                        aac.setCoercionSufficient(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            coercions.add(aac);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
     private static Issuer[] toIssuers(String[] issuerOfPatientIds) {
         Issuer[] issuers = new Issuer[issuerOfPatientIds.length];
         for (int i = 0; i < issuerOfPatientIds.length; i++)
@@ -2862,7 +2953,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return issuerOfPatientID != null ? new Issuer(issuerOfPatientID) : null;
     }
 
-    private Device loadSupplementFromDevice(ConfigurationDelegate config, String supplementDeviceRef) {
+    private Device loadDevice(ConfigurationDelegate config, String supplementDeviceRef) {
         try {
             return supplementDeviceRef != null
                     ? config.findDevice(supplementDeviceRef)
@@ -4049,6 +4140,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmArchiveAttributeCoercion":
                     loadArchiveAttributeCoercion(arcAE.getAttributeCoercions(), reader, config);
+                    break;
+                case "dcmArchiveAttributeCoercion2":
+                    loadArchiveAttributeCoercion2(arcAE.getAttributeCoercions2(), reader, config);
                     break;
                 case "dcmStudyRetentionPolicy":
                     loadStudyRetentionPolicy(arcAE.getStudyRetentionPolicies(), reader);

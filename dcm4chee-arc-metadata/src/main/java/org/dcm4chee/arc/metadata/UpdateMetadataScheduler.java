@@ -266,7 +266,7 @@ public class UpdateMetadataScheduler extends Scheduler {
         }
     }
 
-    private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations match) throws IOException {
+    private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations match) throws Exception {
         return match.isContainsMetadata() ? match.getAttributes() : retrieveService.loadMetadata(ctx, match);
     }
 

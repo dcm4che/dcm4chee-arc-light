@@ -303,6 +303,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean calculateQueryAttributes;
     private volatile boolean storeImplementationVersionName = true;
     private volatile int supplementIssuerFetchSize = 100;
+    private volatile int updateCharsetFetchSize = 100;
     private volatile Issuer auditAssigningAuthorityOfPatientID;
 
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
@@ -336,6 +337,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final List<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final List<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
+    private final List<ArchiveAttributeCoercion2> attributeCoercions2 = new ArrayList<>();
     private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final List<MWLIdleTimeout> mwlIdleTimeoutList = new ArrayList<>();
     private final List<MWLImport> mwlImportList = new ArrayList<>();
@@ -2230,6 +2232,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return attributeCoercions;
     }
 
+    public void removeAttributeCoercion2(ArchiveAttributeCoercion2 coercion) {
+        attributeCoercions2.remove(coercion);
+    }
+
+    public void clearAttributeCoercions2() {
+        attributeCoercions2.clear();
+    }
+
+    public void addAttributeCoercion2(ArchiveAttributeCoercion2 coercion) {
+        attributeCoercions2.add(coercion);
+    }
+
+    public Collection<ArchiveAttributeCoercion2> getAttributeCoercions2() {
+        return attributeCoercions2;
+    }
+
     public void removeStoreAccessControlIDRule(StoreAccessControlIDRule storeAccessControlIDRule) {
         storeAccessControlIDRules.remove(storeAccessControlIDRule);
     }
@@ -3114,6 +3132,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.supplementIssuerFetchSize = supplementIssuerFetchSize;
     }
 
+    public int getUpdateCharsetFetchSize() {
+        return updateCharsetFetchSize;
+    }
+
+    public void setUpdateCharsetFetchSize(int updateCharsetFetchSize) {
+        this.updateCharsetFetchSize = updateCharsetFetchSize;
+    }
+
     public Issuer getAuditAssigningAuthorityOfPatientID() {
         return auditAssigningAuthorityOfPatientID;
     }
@@ -3362,6 +3388,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         calculateQueryAttributes = arcdev.calculateQueryAttributes;
         storeImplementationVersionName = arcdev.storeImplementationVersionName;
         supplementIssuerFetchSize = arcdev.supplementIssuerFetchSize;
+        updateCharsetFetchSize = arcdev.updateCharsetFetchSize;
         auditAssigningAuthorityOfPatientID = arcdev.auditAssigningAuthorityOfPatientID;
         changeRequesterAET = arcdev.changeRequesterAET;
         attributeFilters.clear();
@@ -3418,6 +3445,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7StudyRetentionPolicies.addAll(arcdev.hl7StudyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(arcdev.attributeCoercions);
+        attributeCoercions2.clear();
+        attributeCoercions2.addAll(arcdev.attributeCoercions2);
         storeAccessControlIDRules.clear();
         storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
         mwlIdleTimeoutList.clear();

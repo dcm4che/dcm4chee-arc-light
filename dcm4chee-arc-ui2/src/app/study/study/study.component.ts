@@ -186,6 +186,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
             new SelectDropdown("supplement_issuer",$localize `:@@supplement_issuer:Supplement Issuer`),
+            new SelectDropdown("update_charset",$localize `:@@update_charset:Update Character Set of patients`),
             new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
@@ -434,6 +435,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 break;
             case "supplement_issuer":
                 this.supplementIssuer();
+                break;
+            case "update_charset":
+                this.updateCharset();
                 break;
             case "create_ups":
                 this.createUPS();
@@ -2750,7 +2754,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let studyConfig = args[1];
         return value.filter(option=>{
             console.log("option",option);
-            if(option.value === "create_patient" ||  option.value === "supplement_issuer"){
+            if(option.value === "create_patient" || option.value === "supplement_issuer" || option.value === "update_charset"){
                 return studyConfig && studyConfig.tab === "patient"
                     && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET")
             }else{
@@ -3011,6 +3015,131 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }, err => {
                     this.cfpLoadingBar.complete();
                     this.appService.showMsgSupplementIssuer(err.error);
+                });
+
+            }
+        });
+    }
+
+    updateCharset(){
+        this.confirm({
+            content: $localize`:@@update_charset:Update Character Set of Patients`,
+            doNotSave: true,
+            form_schema: [
+                [
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@charset:Character Set`
+                        },
+                        {
+                            tag: "select",
+                            options: [
+                                {
+                                    value: "ISO_IR 100",
+                                    text: $localize`:@dicom_specific_char.latin_alphabet_no._1:Latin alphabet No. 1`,
+                                    title: $localize`:@@dicom_specific_char.latin_alphabet_no._1_desc:Latin alphabet No. 1 (ISO_IR 100)`
+                                },
+                                {
+                                    value: "ISO_IR 101",
+                                    text: $localize`:@dicom_specific_char.latin_alphabet_no._2:Latin alphabet No. 2`,
+                                    title: $localize`:@@dicom_specific_char.latin_alphabet_no._2_desc:Latin alphabet No. 2 (ISO_IR 101)`
+                                },
+                                {
+                                    value: "ISO_IR 109",
+                                    text: $localize`:@dicom_specific_char.latin_alphabet_no._3:Latin alphabet No. 3`,
+                                    title: $localize`:@@dicom_specific_char.latin_alphabet_no._3_desc:Latin alphabet No. 3 (ISO_IR 109)`
+                                },
+                                {
+                                    value: "ISO_IR 110",
+                                    text: $localize`:@dicom_specific_char.latin_alphabet_no._4:Latin alphabet No. 4`,
+                                    title: $localize`:@@dicom_specific_char.latin_alphabet_no._4_desc:Latin alphabet No. 4 (ISO_IR 110)`
+                                },
+                                {
+                                    value: "ISO_IR 148",
+                                    text: $localize`:@dicom_specific_char.latin_alphabet_no_5:Latin alphabet No. 5`,
+                                    title: $localize`:@@dicom_specific_char.latin_alphabet_no_5_desc:Latin alphabet No. 5 (ISO_IR 1148)`
+                                },
+                                {
+                                    value: "ISO_IR 127",
+                                    text: $localize`:@dicom_specific_char.arabic:Arabic`,
+                                    title: $localize`:@@dicom_specific_char.arabic_desc:Arabic (ISO_IR 127)`
+                                },
+                                {
+                                    value: "ISO_IR 144",
+                                    text: $localize`:@dicom_specific_char.cyrillic:Cyrillic`,
+                                    title: $localize`:@@dicom_specific_char.cyrillic_desc:Cyrillic (ISO_IR 144)`
+                                },
+                                {
+                                    value: "ISO_IR 126",
+                                    text: $localize`:@dicom_specific_char.greek:Greek`,
+                                    title: $localize`:@@dicom_specific_char.greek_desc:Greek (ISO_IR 126)`
+                                },
+                                {
+                                    value: "ISO_IR 138",
+                                    text: $localize`:@dicom_specific_char.hebrew:Hebrew`,
+                                    title: $localize`:@@dicom_specific_char.hebrew_desc:Hebrew (ISO_IR 138)`
+                                },
+                                {
+                                    value: "ISO_IR 13",
+                                    text: $localize`:@dicom_specific_char.japanese:Japanese`,
+                                    title: $localize`:@@dicom_specific_char.japanese_desc:Japanese (ISO_IR 13)`
+                                },
+                                {
+                                    value: "ISO_IR 166",
+                                    text: $localize`:@dicom_specific_char.thai:Thai`,
+                                    title: $localize`:@@dicom_specific_char.thai_desc:Thai (ISO_IR 166)`
+                                },
+                                {
+                                    value: "ISO_IR 192",
+                                    text: $localize`:@dicom_specific_char.unicode:Unicode in UTF-8`,
+                                    title: $localize`:@@dicom_specific_char.unicode_desc:Unicode in UTF-8 (ISO_IR 192)`
+                                },
+                                {
+                                    value: "GB18030",
+                                    text: $localize`:@dicom_specific_char.gb18030:GB18030`,
+                                    title: $localize`:@@dicom_specific_char.gb18030_desc:GB18030 (GB18030)`
+                                },
+                                {
+                                    value: "GBK",
+                                    text: $localize`:@dicom_specific_char.gbk:GBK`,
+                                    title: $localize`:@@dicom_specific_char.gbk_desc:GBK (GBK)`
+                                }
+                            ],
+                            filterKey: "charset",
+                            description: $localize`:@@charset:Character Set`,
+                            placeholder: $localize`:@@charset:Character Set`
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize`:@@test:Test`
+                        },
+                        {
+                            tag: "checkbox",
+                            filterKey: "testUpdateCharset",
+                            description:$localize `:@@update_charset_test_only:Only test, without actually updating charset`,
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize`:@@UPDATE:UPDATE`
+        }).subscribe((ok) => {
+            if (ok) {
+                this.cfpLoadingBar.start();
+                this.service.updateCharset(ok.schema_model.charset,
+                    ok.schema_model.testUpdateCharset,
+                    this.createPatientFilterParams(true),
+                    this.studyWebService).subscribe(res => {
+                    this.cfpLoadingBar.complete();
+                    this.appService.showMsgUpdateCharsets(res);
+                }, err => {
+                    this.cfpLoadingBar.complete();
+                    this.appService.showMsgUpdateCharsets(err.error);
                 });
 
             }

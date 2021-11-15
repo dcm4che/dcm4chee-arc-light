@@ -64,6 +64,7 @@ public class UIConfig {
     private Map<String, UIDeviceCluster> deviceCluster = new HashMap<>();
     private Map<String, UIFiltersTemplate> filterTemplatte = new HashMap<>();
     private Map<String, UIAetList> aetList  = new HashMap<>();
+    private Map<String, UICreateDialogTemplate> dialogTemplate  = new HashMap<>();
     private Map<String, UIWebAppList> webAppList  = new HashMap<>();
     private Map<String, UILanguageConfig> languageConfig = new HashMap<>();
 
@@ -256,6 +257,9 @@ public class UIConfig {
     public UIAetList getAetList(String name) {
         return this.aetList.get(name);
     }
+    public UICreateDialogTemplate getCreateDialogTemplate(String name) {
+        return this.dialogTemplate.get(name);
+    }
 
     public UIWebAppList getWebAppList(String name) {
         return this.webAppList.get(name);
@@ -263,6 +267,9 @@ public class UIConfig {
 
     public void addAetList(UIAetList aetList) {
         this.aetList.put(aetList.getAetListName(), aetList);
+    }
+    public void addCreatDialogTemplate(UICreateDialogTemplate createDialogTemplate) {
+        this.dialogTemplate.put(createDialogTemplate.getTemplateName(), createDialogTemplate);
     }
     public void addWebAppList(UIWebAppList webAppList) {
         this.webAppList.put(webAppList.getWebAppListName(),webAppList);
@@ -278,6 +285,9 @@ public class UIConfig {
 
     public Collection<UIAetList> getAetLists() {
         return this.aetList.values();
+    }
+    public Collection<UICreateDialogTemplate> getCreateDialogTemplates() {
+        return this.dialogTemplate.values();
     }
 
     public Collection<UIWebAppList> getWebAppLists(){

@@ -44,6 +44,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicCFindSCP;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -96,7 +97,13 @@ class CommonCFindSCP extends BasicCFindSCP {
         ctx.setQueryRetrieveLevel(qrLevel);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
-        queryService.coerceAttributes(ctx);
+        try {
+            queryService.coerceAttributes(ctx);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure);
+        }
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);

@@ -48,6 +48,7 @@ import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Dimse;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
@@ -83,7 +84,13 @@ public class MPPSServiceImpl implements MPPSService {
 
     @Override
     public MPPS createMPPS(MPPSContext ctx) throws DicomServiceException {
-        coerceAttributes(ctx, Dimse.N_CREATE_RQ);
+        try {
+            coerceAttributes(ctx, Dimse.N_CREATE_RQ);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
         return ejb.createMPPS(ctx);
     }
 
@@ -94,11 +101,17 @@ public class MPPSServiceImpl implements MPPSService {
 
     @Override
     public MPPS updateMPPS(MPPSContext ctx) throws DicomServiceException {
-        coerceAttributes(ctx, Dimse.N_SET_RQ);
+        try {
+            coerceAttributes(ctx, Dimse.N_SET_RQ);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
         return ejb.updateMPPS(ctx);
     }
 
-    private void coerceAttributes(MPPSContext ctx, Dimse dimse) {
+    private void coerceAttributes(MPPSContext ctx, Dimse dimse) throws Exception {
         ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
                 dimse,
                 TransferCapability.Role.SCU,

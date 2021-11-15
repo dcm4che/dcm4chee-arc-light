@@ -88,7 +88,7 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
     }
 
     @Override
-    public void coerce(Attributes attrs, Attributes modified) {
+    public void coerce(Attributes attrs, Attributes modified) throws Exception {
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         Attributes newAttrs = queryStudy(studyIUID);
         if (newAttrs != null)

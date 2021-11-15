@@ -1021,13 +1021,26 @@ public class StoreServiceEJB {
 
     public List<Attributes> queryMWL(StoreContext ctx, MergeMWLQueryParam queryParam) {
         LOG.info("{}: Query for MWL Items with {}", ctx.getStoreSession(), queryParam);
-        TypedQuery<Tuple> namedQuery = queryParam.accessionNumber != null
+        TypedQuery<Tuple> namedQuery = queryParam.mwlSCP != null ?
+                queryParam.accessionNumber != null
+                ? em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_ACCESSION_NO, Tuple.class)
+                .setParameter(1, queryParam.mwlSCP)
+                .setParameter(2, queryParam.accessionNumber)
+                : queryParam.spsID != null
+                ? em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_STUDY_UID_AND_SPS_ID, Tuple.class)
+                .setParameter(1, queryParam.mwlSCP)
+                .setParameter(2, queryParam.studyIUID)
+                .setParameter(3, queryParam.spsID)
+                : em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_STUDY_IUID, Tuple.class)
+                .setParameter(1, queryParam.mwlSCP)
+                .setParameter(2, queryParam.studyIUID)
+                : queryParam.accessionNumber != null
                 ? em.createNamedQuery(MWLItem.ATTRS_BY_ACCESSION_NO, Tuple.class)
                 .setParameter(1, queryParam.accessionNumber)
                 : queryParam.spsID != null
                 ? em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, Tuple.class)
                 .setParameter(1, queryParam.studyIUID)
-                .setParameter(1, queryParam.spsID)
+                .setParameter(2, queryParam.spsID)
                 : em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_IUID, Tuple.class)
                 .setParameter(1, queryParam.studyIUID);
         List<Tuple> resultList = namedQuery.getResultList();

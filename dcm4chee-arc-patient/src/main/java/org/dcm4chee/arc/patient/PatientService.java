@@ -98,8 +98,10 @@ public interface PatientService {
     boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer,
             Map<IDWithIssuer, Long> ambiguous);
 
-    void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
-            Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer);
+    <T> T merge(T entity);
 
-    List<Patient> queryWithLimit(CriteriaQuery<Patient> query, int limit);
+    void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
+                               Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer);
+
+    <T> List<T> queryWithOffsetAndLimit(CriteriaQuery<T> query, int offset, int limit);
 }

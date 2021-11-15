@@ -84,6 +84,242 @@ dcmuiPermissionName: Menu - Statistics
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
 
+
+dn: dcmuiPermissionName=Menu - XDS,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: menu-xds
+dcmuiPermissionName: Menu - XDS
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Menu - dashboard,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: menu-dashboard
+dcmuiPermissionName: Menu - dashboard
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Menu - Statistics,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: menu-statistics
+dcmuiPermissionName: Menu - Statistics
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Menu - Correct Data,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: menu-correct_data
+dcmuiPermissionName: Menu - Correct Data
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Menu - Data Exchange,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: menu-move_data
+dcmuiPermissionName: Menu - Data Exchange
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Tab - Agfa Migration,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-move_data->agfa-migration
+dcmuiPermissionName: Tab - Agfa Migration
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Dashboard - Ats,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-dashboard_ats
+dcmuiPermissionName: Tab - Dashboard - Ats
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Tab - Dashboard - Home,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-dashboard_home
+dcmuiPermissionName: Tab - Dashboard - Home
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Tab - Correct Data Diff,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-correct_data->diff
+dcmuiPermissionName: Tab - Correct Data Diff
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Corrupted Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-correct_data->corrupted_studies
+dcmuiPermissionName: Tab - Corrupted Studies
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Dashboard - Queue,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-dashboard_queue
+dcmuiPermissionName: Tab - Dashboard - Queue
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository Patients,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-audit-record-repository->patients
+dcmuiPermissionName: Tab - Audit Record Repository Patients
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Statistics Studies Stored Simple,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-statistics->studies-stored-simple
+dcmuiPermissionName: Tab - Statistics Studies Stored Simple
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Correct Data Storage Verification,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-monitoring->storage_verification
+dcmuiPermissionName: Tab - Correct Data Storage Verification
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository App Errors,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-audit-record-repository->app_errors
+dcmuiPermissionName: Tab - Audit Record Repository App Errors
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository Rejections,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-audit-record-repository->rejections
+dcmuiPermissionName: Tab - Audit Record Repository Rejections
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Statistics Studies Stored Detailed,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-statistics->studies-stored-detailed
+dcmuiPermissionName: Tab - Statistics Studies Stored Detailed
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository Audit Errors,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-audit-record-repository->audit_errors
+dcmuiPermissionName: Tab - Audit Record Repository Audit Errors
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository Authentication,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-audit-record-repository->authentication
+dcmuiPermissionName: Tab - Audit Record Repository Authentication
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository Software Configuration,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-audit-record-repository->software_configuration
+dcmuiPermissionName: Tab - Audit Record Repository Software Configuration
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Menu - Audit Record Repository,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: menu-audit_record_repository
+dcmuiPermissionName: Menu - Audit Record Repository
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Configuration Permission,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-configuration->permission
+dcmuiPermissionName: Tab - Configuration Permission
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository All,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-audit-record-repository->all
+dcmuiPermissionName: Tab - Audit Record Repository All
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Audit Record Repository HL7,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-audit-record-repository->hl7
+dcmuiPermissionName: Tab - Audit Record Repository HL7
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Correct Data - Patient Data,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-correct_data->patient_data
+dcmuiPermissionName: Tab - Correct Data - Patient Data
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+
+dn: dcmuiPermissionName=Tab - Dashboard - Compare,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-dashboard_compare
+dcmuiPermissionName: Tab - Dashboard - Compare
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Tab - Dashboard - Hardware,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-dashboard_hardware
+dcmuiPermissionName: Tab - Dashboard - Hardware
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Tab - Exchange Data Export,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-move_data->export
+dcmuiPermissionName: Tab - Exchange Data Export
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Menu - Lifecycle Management,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: menu-lifecycle_management
+dcmuiPermissionName: Menu - Lifecycle Management
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Tab - Exchange Data Retrieve,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: tab-move_data->retrieve
+dcmuiPermissionName: Tab - Exchange Data Retrieve
+dcmAcceptedUserRole: local-admin
+dcmuiActionParam: visible
+dcmuiActionParam: accessible
+
+
 dn: dcmuiPermissionName=Tab - Configuration Permission,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Tab - Configuration Permission
 dcmuiActionParam: accessible
@@ -145,3 +381,32 @@ changetype:delete
 
 dn: dcmuiPermissionName=Tab - Monitoring Export,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype:delete
+
+dn: dcmuiTemplateName=MWL default,dcmuiConfigName=default,dicomDeviceName=dc
+ m4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiCreateDialogTemplate
+dcmTemplateTag: 00400001
+dcmTemplateTag: 0020000D
+dcmTemplateTag: 00400009
+dcmTemplateTag: 00080050
+dcmTemplateTag: 00401001
+dcmuiTemplateName: MWL default
+dcmuiDialog: mwl
+dcmuiTemplateDescription: MWL default attribute template
+
+dn: dcmuiTemplateName=MWL cd upload,dcmuiConfigName=default,dicomDeviceName=
+ dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiCreateDialogTemplate
+dcmTemplateTag: 00400020
+dcmTemplateTag: 00400001
+dcmTemplateTag: 00400002
+dcmTemplateTag: 00400003
+dcmTemplateTag: 00400009
+dcmTemplateTag: 00400008
+dcmTemplateTag: 00080050
+dcmTemplateTag: 00401001
+dcmTemplateTag: 0020000D
+dcmuiTemplateName: MWL cd upload
+dcmuiDialog: mwl
+dcmuiTemplateDescription: MWL cd upload template
+

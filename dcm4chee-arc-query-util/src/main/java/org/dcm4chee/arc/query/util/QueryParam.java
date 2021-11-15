@@ -128,6 +128,10 @@ public class QueryParam {
         return qrView.isHideNotRejectedInstances();
     }
 
+    public boolean isFilterByIssuerOfPatientID() {
+        return arcAE.filterByIssuerOfPatientID();
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return arcDev.getAttributeFilter(entity);
     }

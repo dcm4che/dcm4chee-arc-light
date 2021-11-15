@@ -72,7 +72,13 @@ public class TranscoderDataWriter implements DataWriter {
         transcoder.transcode(new Transcoder.Handler(){
             @Override
             public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                coerce.coerce(dataset, null);
+                try {
+                    coerce.coerce(dataset, null);
+                } catch (IOException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new IOException(e);
+                }
                 return countingOutputStream;
             }
         });

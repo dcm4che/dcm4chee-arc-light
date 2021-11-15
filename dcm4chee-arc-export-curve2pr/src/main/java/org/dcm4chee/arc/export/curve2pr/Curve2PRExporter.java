@@ -61,7 +61,6 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -152,7 +151,7 @@ public class Curve2PRExporter extends AbstractExporter {
         int totInstanceRefs = 0;
         int instanceRefs;
         try (StoreSession session = storeService.newStoreSession(
-                ctx.getHttpServletRequestInfo(), ae, properties.get("SourceAET"))) {
+                ctx.getHttpServletRequestInfo(), ae, ctx.getAETitle(), properties.get("SourceAET"))) {
             for (Attributes pr : results) {
                 totInstanceRefs += instanceRefs = countInstanceRefs(pr);
                 trimSoftcopyVOILUT(pr, instanceRefs);
@@ -177,7 +176,7 @@ public class Curve2PRExporter extends AbstractExporter {
                 && attrs.getInt(Tag.Columns, -1) > 0;
     }
 
-    private void curve2pr(RetrieveContext ctx, InstanceLocations inst, List<Attributes> results) throws IOException {
+    private void curve2pr(RetrieveContext ctx, InstanceLocations inst, List<Attributes> results) throws Exception {
         Attributes metadata = loadWithoutPixelData(ctx, inst);
         float[] pixelSpacing = metadata.getFloats(Tag.PixelSpacing);
         byte[] curveData;
@@ -191,7 +190,7 @@ public class Curve2PRExporter extends AbstractExporter {
         }
     }
 
-    private static Attributes loadWithoutPixelData(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+    private static Attributes loadWithoutPixelData(RetrieveContext ctx, InstanceLocations inst) throws Exception {
         try (DicomInputStream dis = ctx.getRetrieveService().openDicomInputStream(ctx, inst)) {
             Attributes attrs = dis.readDatasetUntilPixelData();
             ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(attrs, null);
