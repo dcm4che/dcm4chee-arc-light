@@ -370,21 +370,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.77 NAME 'dcmuiTemplateName'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.78 NAME 'dcmuiTemplateDescription'
-  DESC 'Template Description'
-  EQUALITY caseExactMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-  SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.79 NAME 'dcmuiDialog'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.78 NAME 'dcmuiDialog'
   DESC 'Create Dialog'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.80 NAME 'dcmTemplateTag'
-  DESC 'Attribute Tag'
-  EQUALITY caseExactMatch
-  SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
@@ -551,7 +541,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.16 NAME 'dcmuiCreateDialogTemplate'
   SUP top STRUCTURAL
   MUST (
     dcmuiTemplateName $
-    dcmTemplateTag )
+    dcmTag )
   MAY (
-    dcmuiTemplateDescription $
+    dicomDescription $
     dcmuiDialog ) )

@@ -41,51 +41,9 @@
 package org.dcm4chee.arc.conf.ui;
 
 /**
- * @author Shefki Esadi <shralsheki@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2021
  */
-public class UICreateDialogTemplate {
-    private String templateName;
-    private String description;
-    private UIFunction dialog = UIFunction.mwl;
-    private int[] tags = {};
-
-    public UICreateDialogTemplate() {
-    }
-
-    public UICreateDialogTemplate(String name) {
-        setTemplateName(name);
-    }
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public UIFunction getDialog() {
-        return dialog;
-    }
-
-    public void setDialog(UIFunction dialog) {
-        this.dialog = dialog;
-    }
-
-    public int[] getTags() {
-        return tags;
-    }
-
-    public void setTags(int[] tags) {
-        this.tags = tags;
-    }
+public enum UIFunction {
+    mwl
 }

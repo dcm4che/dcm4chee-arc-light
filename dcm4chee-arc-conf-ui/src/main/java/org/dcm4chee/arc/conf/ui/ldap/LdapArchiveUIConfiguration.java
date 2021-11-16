@@ -43,16 +43,17 @@ package org.dcm4chee.arc.conf.ui.ldap;
 import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.LdapUtils;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.ByteUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ui.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-import java.rmi.server.UID;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -209,11 +210,31 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UICreateDialogTemplate uiCreateDialogTemplate, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiCreateDialogTemplate"));
         attrs.put(new BasicAttribute("dcmuiTemplateName", uiCreateDialogTemplate.getTemplateName()));
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiTemplateDescription", uiCreateDialogTemplate.getTemplateDescription(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDialog", uiCreateDialogTemplate.getDialog(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmTemplateTag", uiCreateDialogTemplate.getTemplateTag());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", uiCreateDialogTemplate.getDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDialog", uiCreateDialogTemplate.getDialog(), UIFunction.mwl);
+        storeNotEmptyTags(ldapObj, attrs, "dcmTag", uiCreateDialogTemplate.getTags());
         return attrs;
     }
+
+    private void storeNotEmptyTags(ConfigurationChanges.ModifiedObject ldapObj, Attributes attrs, String attrid, int[] vals) {
+        if (vals != null && vals.length > 0) {
+            attrs.put(tagsAttr(attrid, vals));
+            if (ldapObj != null) {
+                ConfigurationChanges.ModifiedAttribute attribute = new ConfigurationChanges.ModifiedAttribute(attrid);
+                for (int val : vals)
+                    attribute.addValue(val);
+                ldapObj.add(attribute);
+            }
+        }
+    }
+
+    private Attribute tagsAttr(String attrID, int[] tags) {
+        Attribute attr = new BasicAttribute(attrID);
+        for (int tag : tags)
+            attr.add(TagUtils.toHexString(tag));
+        return attr;
+    }
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIWebAppList uiWebAppList, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiWebAppConfig"));
         attrs.put(new BasicAttribute("dcmuiWebAppListName", uiWebAppList.getWebAppListName()));
@@ -523,15 +544,27 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 UICreateDialogTemplate uiCreateDialogTemplate = new UICreateDialogTemplate((String) attrs.get("dcmuiTemplateName").get());
-                uiCreateDialogTemplate.setTemplateDescription(LdapUtils.stringValue(attrs.get("dcmuiTemplateDescription"), null));
-                uiCreateDialogTemplate.setDialog(LdapUtils.stringValue(attrs.get("dcmuiDialog"), null));
-                uiCreateDialogTemplate.setTemplateTag(LdapUtils.stringArray(attrs.get("dcmTemplateTag")));
+                uiCreateDialogTemplate.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
+                uiCreateDialogTemplate.setDialog(LdapUtils.enumValue(UIFunction.class, attrs.get("dcmuiDialog"), UIFunction.mwl));
+                uiCreateDialogTemplate.setTags(tags(attrs.get("dcmTag")));
                 uiConfig.addCreatDialogTemplate(uiCreateDialogTemplate);
             }
         } finally {
             LdapUtils.safeClose(ne);
         }
     }
+
+    private int[] tags(Attribute attr) throws NamingException {
+        if (attr == null)
+            return ByteUtils.EMPTY_INTS;
+
+        int[] is = new int[attr.size()];
+        for (int i = 0; i < is.length; i++)
+            is[i] = TagUtils.intFromHexString((String) attr.get(i));
+
+        return is;
+    }
+
     private void loadWebAppList(UIConfig uiConfig, String uiConfigDN) throws NamingException {
         NamingEnumeration<SearchResult> ne =
                 config.search(uiConfigDN, "(objectclass=dcmuiWebAppConfig)");
@@ -1057,17 +1090,23 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UICreateDialogTemplate prev,
                                               UICreateDialogTemplate uiCreateDialogTemplate, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiTemplateDescription",
-                prev.getTemplateDescription(),
-                uiCreateDialogTemplate.getTemplateDescription(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription",
+                prev.getDescription(),
+                uiCreateDialogTemplate.getDescription(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDialog",
                 prev.getDialog(),
-                uiCreateDialogTemplate.getDialog(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmTemplateTag",
-                prev.getTemplateTag(),
-                uiCreateDialogTemplate.getTemplateTag());
+                uiCreateDialogTemplate.getDialog(), UIFunction.mwl);
+        storeDiffTags(mods, "dcmTag", prev.getTags(), uiCreateDialogTemplate.getTags());
         return mods;
     }
+
+    private void storeDiffTags(List<ModificationItem> mods, String attrId, int[] prevs, int[] vals) {
+        if (!Arrays.equals(prevs, vals))
+            mods.add((vals == null || vals.length == 0)
+                    ? new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attrId))
+                    : new ModificationItem(DirContext.REPLACE_ATTRIBUTE, tagsAttr(attrId, vals)));
+    }
+
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIWebAppList prev,
                                               UIWebAppList uiWebAppList, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiWebAppListDescription",

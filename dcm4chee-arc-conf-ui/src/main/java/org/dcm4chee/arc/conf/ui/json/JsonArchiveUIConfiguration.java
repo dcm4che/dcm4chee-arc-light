@@ -45,6 +45,7 @@ import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ui.*;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -143,9 +144,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         for (UICreateDialogTemplate uiCreateDialogTemplate : uiCreateDialogTemplates) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiTemplateName", uiCreateDialogTemplate.getTemplateName(), null);
-            writer.writeNotNullOrDef("dcmuiTemplateDescription", uiCreateDialogTemplate.getTemplateDescription(), null);
-            writer.writeNotNullOrDef("dcmuiDialog", uiCreateDialogTemplate.getDialog(), null);
-            writer.writeNotEmpty("dcmTemplateTag", uiCreateDialogTemplate.getTemplateTag());
+            writer.writeNotNullOrDef("dicomDescription", uiCreateDialogTemplate.getDescription(), null);
+            writer.writeNotNullOrDef("dcmuiDialog", uiCreateDialogTemplate.getDialog(), UIFunction.mwl);
+            writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(uiCreateDialogTemplate.getTags()));
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -503,14 +504,14 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiTemplateName":
                         uiCreateDialogTemplate.setTemplateName(reader.stringValue());
                         break;
-                    case "dcmuiTemplateDescription":
-                        uiCreateDialogTemplate.setTemplateDescription(reader.stringValue());
+                    case "dicomDescription":
+                        uiCreateDialogTemplate.setDescription(reader.stringValue());
                         break;
                     case "dcmuiDialog":
-                        uiCreateDialogTemplate.setDialog(reader.stringValue());
+                        uiCreateDialogTemplate.setDialog(UIFunction.valueOf(reader.stringValue()));
                         break;
-                    case "dcmTemplateTag":
-                        uiCreateDialogTemplate.setTemplateTag(reader.stringArray());
+                    case "dcmTag":
+                        uiCreateDialogTemplate.setTags(TagUtils.fromHexStrings(reader.stringArray()));
                         break;
                     default:
                         reader.skipUnknownProperty();

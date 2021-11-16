@@ -382,31 +382,17 @@ changetype:delete
 dn: dcmuiPermissionName=Tab - Monitoring Export,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype:delete
 
-dn: dcmuiTemplateName=MWL default,dcmuiConfigName=default,dicomDeviceName=dc
- m4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiTemplateName=MWL cd upload,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiCreateDialogTemplate
-dcmTemplateTag: 00400001
-dcmTemplateTag: 0020000D
-dcmTemplateTag: 00400009
-dcmTemplateTag: 00080050
-dcmTemplateTag: 00401001
-dcmuiTemplateName: MWL default
-dcmuiDialog: mwl
-dcmuiTemplateDescription: MWL default attribute template
-
-dn: dcmuiTemplateName=MWL cd upload,dcmuiConfigName=default,dicomDeviceName=
- dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dcmuiCreateDialogTemplate
-dcmTemplateTag: 00400020
-dcmTemplateTag: 00400001
-dcmTemplateTag: 00400002
-dcmTemplateTag: 00400003
-dcmTemplateTag: 00400009
-dcmTemplateTag: 00400008
-dcmTemplateTag: 00080050
-dcmTemplateTag: 00401001
-dcmTemplateTag: 0020000D
+dcmTag: 00400020
+dcmTag: 00400001
+dcmTag: 00400002
+dcmTag: 00400003
+dcmTag: 00400009
+dcmTag: 00400008
+dcmTag: 00080050
+dcmTag: 00401001
+dcmTag: 0020000D
 dcmuiTemplateName: MWL cd upload
 dcmuiDialog: mwl
-dcmuiTemplateDescription: MWL cd upload template
-
+dicomDescription: MWL cd upload template
