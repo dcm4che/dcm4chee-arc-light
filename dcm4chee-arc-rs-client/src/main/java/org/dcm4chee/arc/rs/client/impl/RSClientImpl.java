@@ -239,7 +239,6 @@ public class RSClientImpl implements RSClient {
                 return new Outcome(Task.Status.COMPLETED, "Completed : " + st);
             case REQUEST_TIMEOUT:
             case SERVICE_UNAVAILABLE:
-                return new Outcome(Task.Status.SCHEDULED, "Retry : " + st);
             case NOT_FOUND:
             case FORBIDDEN:
             case BAD_REQUEST:
