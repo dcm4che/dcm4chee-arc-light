@@ -520,6 +520,10 @@ export class Globalvar {
                 }
             },
             '00400009': {
+                'create': {
+                    placeholder: $localize `:@@leave_it_blank_to_generate_it_automatically:Leave it blank to generate it automatically!`,
+                    action: 'replace'
+                },
                 'edit': {
                     action: 'disable'
                 }

@@ -1159,11 +1159,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 '00400100': {
                     'vr': 'SQ',
                     'Value': [{
-                        '00400001': { 'vr': 'AE', 'Value': ['']}
+                        '00400001': { 'vr': 'AE', 'Value': ['']},
+                        '00400009': { 'vr': 'SH', 'Value': ['']},
                     }]
                 },
                 '0020000D': { 'vr': 'UI', 'Value': ['']},
-                '00400009': { 'vr': 'SH', 'Value': ['']},
                 '00080050': { 'vr': 'SH', 'Value': ['']},
                 '00401001': { 'vr': 'SH', 'Value': ['']}
             }
