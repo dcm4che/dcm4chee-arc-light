@@ -735,7 +735,8 @@ public class WadoRS {
     }
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
-        return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
+        return req.evaluatePreconditions(new Date((lastModified.getTime() / 1000) * 1000),
+                new EntityTag(String.valueOf(lastModified.hashCode())));
     }
 
     private ApplicationEntity getApplicationEntity() {
