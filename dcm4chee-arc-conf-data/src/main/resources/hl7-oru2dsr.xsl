@@ -132,7 +132,7 @@
       <xsl:when test="$mimeType='text/xml'">
         <xsl:call-template name="ed-cda-const-attrs"/>
       </xsl:when>
-      <xsl:otherwise>
+      <xsl:when test="$mimeType='application/pdf'">
         <!--SOP Class UID-->
         <xsl:call-template name="attr">
           <xsl:with-param name="tag" select="'00080016'"/>
@@ -151,7 +151,8 @@
           <xsl:with-param name="vr" select="'CS'"/>
           <xsl:with-param name="val" select="'SD'"/>
         </xsl:call-template>
-      </xsl:otherwise>
+      </xsl:when>
+      <xsl:otherwise/>
     </xsl:choose>
     <!--Burned In Annotation-->
     <xsl:call-template name="attr">
@@ -671,21 +672,22 @@
     <xsl:variable name="obx5" select="OBX/field[5]"/>
     <xsl:variable name="mimeType">
       <xsl:choose>
-        <xsl:when test="$obx5/component[1] = 'Application'">
+        <xsl:when test="$obx5/component[1] = 'Application' and $obx5/component[2] = 'PDF' and $obx5/component[3] = 'Base64'">
           <xsl:value-of select="'application/pdf'"/>
         </xsl:when>
-        <xsl:otherwise>
+        <xsl:when test="$obx5/component[1] = 'Text' and $obx5/component[2] = 'text/xml' and $obx5/component[3] = 'A'">
           <xsl:value-of select="'text/xml'"/>
-        </xsl:otherwise>
+        </xsl:when>
+        <xsl:otherwise/>
       </xsl:choose>
     </xsl:variable>
-    <xsl:call-template name="ed-const-attrs">
-      <xsl:with-param name="mimeType" select="$mimeType"/>
-    </xsl:call-template>
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00420012'"/>
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="val" select="$mimeType"/>
+    </xsl:call-template>
+    <xsl:call-template name="ed-const-attrs">
+      <xsl:with-param name="mimeType" select="$mimeType"/>
     </xsl:call-template>
     <xsl:choose>
       <xsl:when test="$mimeType = 'text/xml'">
@@ -695,13 +697,14 @@
           <xsl:with-param name="val" select="$obx5/component[4]"/>
         </xsl:call-template>
       </xsl:when>
-      <xsl:otherwise>
+      <xsl:when test="$mimeType = 'application/pdf'">
         <DicomAttribute tag="00420011" vr="OB">
           <InlineBinary>
             <xsl:value-of select="$obx5/component[4]"/>
           </InlineBinary>
         </DicomAttribute>
-      </xsl:otherwise>
+      </xsl:when>
+      <xsl:otherwise/>
     </xsl:choose>
   </xsl:template>
 

@@ -144,6 +144,13 @@ class ImportReportService extends DefaultHL7Service {
                 arcHL7App.importReportTemplateURI(),
                 tr -> arcHL7App.importReportTemplateParams().forEach(tr::setParameter));
 
+        if (attrs.getString(Tag.SOPClassUID) == null)
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                            .setErrorLocation("OBX^5^2")
+                            .setUserMessage("Encapsulated document invalid encoding in OBX^5^2 to OBX^5^4"));
+
         if (attrs.contains(Tag.MIMETypeOfEncapsulatedDocument) && !adjustAttrs(attrs))
             throw new HL7Exception(
                 new ERRSegment(msg.msh())
