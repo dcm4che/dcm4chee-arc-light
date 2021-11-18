@@ -259,11 +259,11 @@ public class RSClientImpl implements RSClient {
             case UpdateStudyAccessControlID:
             case ChangePatientID2:
             case MergePatient2:
+            case UpdateStudy:
                 method = "PUT";
                 break;
             case ChangePatientID:
             case MergePatient:
-            case UpdateStudy:
             case RejectStudy:
             case RejectSeries:
             case RejectInstance:
