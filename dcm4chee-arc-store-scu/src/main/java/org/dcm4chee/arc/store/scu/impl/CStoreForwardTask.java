@@ -41,10 +41,12 @@
 package org.dcm4chee.arc.store.scu.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.*;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -55,6 +57,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -124,11 +127,20 @@ class CStoreForwardTask implements Runnable {
             RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
-                ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
-                if (rule != null)
-                    transcoder.setNullifyPixelData(rule.isNullifyPixelData());
-                TranscoderDataWriter data = new TranscoderDataWriter(transcoder,
-                        service.getAttributesCoercion(ctx, inst, rule));
+                AttributesCoercion coerce;
+                List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
+                if (coercions.isEmpty()) {
+                    ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+                    if (rule != null) {
+                        transcoder.setNullifyPixelData(rule.isNullifyPixelData());
+                    }
+                    coerce = service.getAttributesCoercion(ctx, inst, rule);
+                } else {
+                    transcoder.setNullifyPixelData(ArchiveAttributeCoercion2.containsScheme(
+                            coercions, ArchiveAttributeCoercion2.NULLIFY_PIXEL_DATA));
+                    coerce = service.getAttributesCoercion(ctx, inst, coercions);
+                }
+                TranscoderDataWriter data = new TranscoderDataWriter(transcoder, coerce);
                 DimseRSPHandler rspHandler = new CStoreRSPHandler(inst);
                 long startTime = System.nanoTime();
                 storeas.cstore(cuid, iuid, ctx.getPriority(),

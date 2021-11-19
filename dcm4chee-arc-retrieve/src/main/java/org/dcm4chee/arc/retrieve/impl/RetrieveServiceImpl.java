@@ -702,6 +702,21 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
+    public List<ArchiveAttributeCoercion2> getArchiveAttributeCoercions(RetrieveContext ctx, InstanceLocations inst) {
+        return ctx.getArchiveAEExtension().attributeCoercions2()
+                .filter(descriptor -> descriptor.match(
+                        TransferCapability.Role.SCP,
+                        Dimse.C_STORE_RQ,
+                        inst.getSopClassUID(),
+                        ctx.getDestinationHostName(),
+                        ctx.getLocalAETitle(),
+                        ctx.getRequestorHostName(),
+                        ctx.getDestinationAETitle(),
+                        inst.getAttributes()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst,
             ArchiveAttributeCoercion rule) {
         AttributesCoercion coercion = rule != null

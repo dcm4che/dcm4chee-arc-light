@@ -149,6 +149,8 @@ public interface RetrieveService {
 
     ArchiveAttributeCoercion getArchiveAttributeCoercion(RetrieveContext ctx, InstanceLocations inst);
 
+    List<ArchiveAttributeCoercion2> getArchiveAttributeCoercions(RetrieveContext ctx, InstanceLocations inst);
+
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst,
             ArchiveAttributeCoercion rule);
 
