@@ -291,6 +291,11 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public StudyQueryAttributes calculateStudyQueryAttributesIfNotExists(Long studyPk, QueryRetrieveView qrView) {
+        return queryAttributesEJB.calculateStudyQueryAttributesIfNotExists(studyPk, qrView);
+    }
+
+    @Override
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
         return queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
     }

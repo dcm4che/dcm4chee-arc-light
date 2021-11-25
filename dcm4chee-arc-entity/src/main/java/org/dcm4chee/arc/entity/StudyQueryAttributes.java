@@ -50,6 +50,10 @@ import javax.persistence.*;
  */
 @NamedQueries({
 @NamedQuery(
+        name = StudyQueryAttributes.FIND_BY_VIEW_ID_AND_STUDY_PK,
+        query = "select a from StudyQueryAttributes a where a.viewID = ?1 and a.study.pk = ?2"
+),
+@NamedQuery(
         name = StudyQueryAttributes.DELETE_FOR_STUDY,
         query = "delete from StudyQueryAttributes a where a.study = ?1"
 ),
@@ -71,6 +75,7 @@ import javax.persistence.*;
     @UniqueConstraint(columnNames = { "view_id", "study_fk" }))
 public class StudyQueryAttributes {
 
+    public static final String FIND_BY_VIEW_ID_AND_STUDY_PK = "StudyQueryAttributes.findByViewIDAndStudyPk";
     public static final String DELETE_FOR_STUDY = "StudyQueryAttributes.deleteForStudy";
     public static final String VIEW_IDS_FOR_STUDY_PK = "StudyQueryAttributes.viewIDsForStudyPk";
     public static final String UPDATE_AVAILABILITY_OF_STUDY = "StudyQueryAttributes.updateAvailabilityOfStudy";

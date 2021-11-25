@@ -81,6 +81,18 @@ public class QueryAttributesEJB {
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
 
+    public StudyQueryAttributes calculateStudyQueryAttributesIfNotExists(Long studyPk, QueryRetrieveView qrView) {
+        try {
+            return em.createNamedQuery(
+                            StudyQueryAttributes.FIND_BY_VIEW_ID_AND_STUDY_PK, StudyQueryAttributes.class)
+                    .setParameter(1, qrView.getViewID())
+                    .setParameter(2, studyPk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return calculateStudyQueryAttributes(studyPk, qrView);
+        }
+    }
+
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();

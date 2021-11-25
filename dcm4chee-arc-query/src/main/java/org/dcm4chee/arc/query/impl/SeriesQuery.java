@@ -317,7 +317,7 @@ class SeriesQuery extends AbstractQuery {
             sopClassesInStudy = results.get(studyQueryAttributes.get(StudyQueryAttributes_.sopClassesInStudy));
         } else {
             StudyQueryAttributes studyView = context.getQueryService()
-                    .calculateStudyQueryAttributes(studyPk, context.getQueryParam().getQueryRetrieveView());
+                    .calculateStudyQueryAttributesIfNotExists(studyPk, context.getQueryParam().getQueryRetrieveView());
             numberOfStudyRelatedInstances = studyView.getNumberOfInstances();
             numberOfStudyRelatedSeries = studyView.getNumberOfSeries();
             modalitiesInStudy = studyView.getModalitiesInStudy();
