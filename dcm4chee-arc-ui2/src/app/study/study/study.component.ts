@@ -4541,8 +4541,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         .subscribe(
                             (response) => {
                                 let msg = result.schema_model.queue === "true"
-                                    ? $localize `:@@study_rejected:Study rejected successfully`
-                                    : $localize `:@@study_queue_reject:Study queued for rejection successfully`;
+                                    ? $localize `:@@study_queue_reject:Study queued for rejection successfully`
+                                    : $localize `:@@study_rejected:Study rejected successfully`;
                                 $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
 
                                 // patients.splice(patientkey,1);
@@ -4658,8 +4658,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         .subscribe(
                             (response) => {
                                 let msg = result.schema_model.queue === "true"
-                                            ? $localize `:@@series_rejected:Series rejected successfully`
-                                            : $localize `:@@series_queue_reject:Series queued for rejection successfully`;
+                                            ? $localize `:@@series_queue_reject:Series queued for rejection successfully`
+                                            : $localize `:@@series_rejected:Series rejected successfully`;
                                 $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
 
                                 // patients.splice(patientkey,1);
@@ -4775,8 +4775,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         .subscribe(
                             (response) => {
                                 let msg = result.schema_model.queue === "true"
-                                    ? $localize `:@@instance_rejected:Instance rejected successfully`
-                                    : $localize `:@@instance_queue_reject:Instance queued for rejection successfully`;
+                                    ? $localize `:@@instance_queue_reject:Instance queued for rejection successfully`
+                                    : $localize `:@@instance_rejected:Instance rejected successfully`;
                                 $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
 
                                 // patients.splice(patientkey,1);
