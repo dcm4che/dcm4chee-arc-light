@@ -65,6 +65,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -168,8 +169,8 @@ public class WadoExporter extends AbstractExporter {
                 for (Object[] params : entry.getKey().queryParams(exportContext, queryService)) {
                     for (QueryRetrieveRequest queryRetrieveRequest : entry.getValue()) {
                         try {
-                            if (invoke(queryRetrieveRequest, params, buffer, storageMap))
-                                count++;
+                            invoke(queryRetrieveRequest, params, buffer, storageMap);
+                            count++;
                         } catch (Exception e) {
                             failed++;
                             ex = e;
@@ -195,21 +196,22 @@ public class WadoExporter extends AbstractExporter {
         throw ex;
     }
 
-    private boolean invoke(QueryRetrieveRequest queryRetrieveRequest, Object[] params, byte[] buffer, Map<String, Storage> storageMap)
+    private void invoke(QueryRetrieveRequest queryRetrieveRequest, Object[] params, byte[] buffer, Map<String, Storage> storageMap)
             throws Exception {
         Invocation.Builder request = queryRetrieveRequest.openConnection(params, accessTokenRequestor);
         Response response = request.get();
-        int responseStatus = response.getStatus();
-        if (responseStatus == Response.Status.NOT_FOUND.getStatusCode()
-                || responseStatus == Response.Status.UNAUTHORIZED.getStatusCode()) {
-            LOG.info("Invocation of request {} failed with status {}", queryRetrieveRequest.getTargetURL(), responseStatus);
-            return false;
+        Response.StatusType statusInfo = response.getStatusInfo();
+        if (statusInfo.getFamily() != Response.Status.Family.SUCCESSFUL) {
+            LOG.info("Invocation of request {} failed with status {} {}",
+                    queryRetrieveRequest.getTargetURL(),
+                    statusInfo.getStatusCode(),
+                    statusInfo.getReasonPhrase());
+            throw new IOException("HTTP " + statusInfo.getStatusCode() + ' ' + statusInfo.getReasonPhrase());
         }
         try (InputStream in = response.readEntity(InputStream.class);
              OutputStream out = getOutputStream(queryRetrieveRequest.storageDescriptor, params, storageMap)) {
             StreamUtils.copy(in, out, buffer);
         }
-        return true;
     }
 
     private OutputStream getOutputStream(
