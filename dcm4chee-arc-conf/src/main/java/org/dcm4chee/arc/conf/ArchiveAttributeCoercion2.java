@@ -54,6 +54,7 @@ import java.util.Map;
  * @since Sep 2021
  */
 public class ArchiveAttributeCoercion2 {
+    public enum OnFailure { RETHROW, CONTINUE, SUFFICENT }
     public static final String NULLIFY_PIXEL_DATA = "nullify-pixel-data";
     public static final String RETRIEVE_AS_RECEIVED = "retrieve-as-received";
     private String commonName;
@@ -65,6 +66,7 @@ public class ArchiveAttributeCoercion2 {
     private String[] sopClasses = {};
     private Conditions conditions = new Conditions();
     private boolean sufficient;
+    private OnFailure onFailure = OnFailure.RETHROW;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
     private MergeAttribute[] mergeAttributes = {};
     private Device otherDevice;
@@ -221,6 +223,14 @@ public class ArchiveAttributeCoercion2 {
     public ArchiveAttributeCoercion2 setCoercionSufficient(boolean sufficient) {
         this.sufficient = sufficient;
         return this;
+    }
+
+    public OnFailure getCoercionOnFailure() {
+        return onFailure;
+    }
+
+    public void setCoercionOnFailure(OnFailure onFailure) {
+        this.onFailure = onFailure;
     }
 
     public void setCoercionParam(String name, String value) {

@@ -5703,6 +5703,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMergeAttribute", coercion.getMergeAttributes());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCoercionParam", coercion.getCoercionParams());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCoercionSufficient", coercion.isCoercionSufficient(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCoercionOnFailure",
+                coercion.getCoercionOnFailure(), ArchiveAttributeCoercion2.OnFailure.RETHROW);
         return attrs;
     }
 
@@ -5785,6 +5787,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setMergeAttributes(LdapUtils.stringArray(attrs.get("dcmMergeAttribute")));
                 coercion.setCoercionParams(LdapUtils.stringArray(attrs.get("dcmCoercionParam")));
                 coercion.setCoercionSufficient(LdapUtils.booleanValue(attrs.get("dcmCoercionSufficient"), false));
+                coercion.setCoercionOnFailure(LdapUtils.enumValue(ArchiveAttributeCoercion2.OnFailure.class,
+                        attrs.get("dcmCoercionOnFailure"), ArchiveAttributeCoercion2.OnFailure.RETHROW));
                 coercions.add(coercion);
             }
         } finally {
@@ -5890,6 +5894,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getCoercionParams(), coercion.getCoercionParams());
         LdapUtils.storeDiff(ldapObj, mods, "dcmCoercionSufficient",
                 prev.isCoercionSufficient(), coercion.isCoercionSufficient(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCoercionOnFailure",
+                prev.getCoercionOnFailure(),
+                coercion.getCoercionOnFailure(),
+                ArchiveAttributeCoercion2.OnFailure.RETHROW);
         return mods;
     }
 

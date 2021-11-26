@@ -553,15 +553,26 @@ class StoreServiceImpl implements StoreService {
             if (rule != null) coerceLegacy(ctx, session, rule);
         } else {
             for (ArchiveAttributeCoercion2 coercion : coercions) {
-                if (coercionFactory.getCoercionProcessor(coercion).coerce(
-                        coercion,
-                        session.getRemoteHostName(),
-                        session.getCallingAET(),
-                        session.getLocalHostName(),
-                        session.getCalledAET(),
-                        ctx.getAttributes(),
-                        ctx.getCoercedAttributes())
-                        && coercion.isCoercionSufficient()) break;
+                try {
+                    if (coercionFactory.getCoercionProcessor(coercion).coerce(
+                            coercion,
+                            session.getRemoteHostName(),
+                            session.getCallingAET(),
+                            session.getLocalHostName(),
+                            session.getCalledAET(),
+                            ctx.getAttributes(),
+                            ctx.getCoercedAttributes())
+                            && coercion.isCoercionSufficient()) break;
+                } catch (Exception e) {
+                    LOG.info("{}: Failed to apply {}:\n", session, coercion, e);
+                    switch(coercion.getCoercionOnFailure()){
+                        case RETHROW:
+                            throw e;
+                        case CONTINUE:
+                            continue;
+                    }
+                    break;
+                }
             }
         }
     }

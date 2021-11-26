@@ -745,13 +745,24 @@ public class RetrieveServiceImpl implements RetrieveService {
                     }
                 }
                 for (ArchiveAttributeCoercion2 coercion : coercions) {
-                    if (coercionFactory.getCoercionProcessor(coercion).coerce(coercion,
-                            ctx.getLocalHostName(),
-                            ctx.getLocalAETitle(),
-                            ctx.getDestinationHostName(),
-                            ctx.getDestinationAETitle(),
-                            attrs, modified)
-                        && coercion.isCoercionSufficient()) break;
+                     try {
+                        if (coercionFactory.getCoercionProcessor(coercion).coerce(coercion,
+                                ctx.getLocalHostName(),
+                                ctx.getLocalAETitle(),
+                                ctx.getDestinationHostName(),
+                                ctx.getDestinationAETitle(),
+                                attrs, modified)
+                                && coercion.isCoercionSufficient()) break;
+                    } catch (Exception e) {
+                        LOG.info("Failed to apply {}:\n", coercion, e);
+                        switch(coercion.getCoercionOnFailure()){
+                            case RETHROW:
+                                throw e;
+                            case CONTINUE:
+                                continue;
+                        }
+                        break;
+                    }
                 }
             }
 

@@ -796,6 +796,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmMergeAttribute", aac.getMergeAttributes());
             writer.writeNotEmpty("dcmCoercionParam", aac.getCoercionParams());
             writer.writeNotDef("dcmCoercionSufficient", aac.isCoercionSufficient(), false);
+            writer.writeNotNullOrDef("dcmCoercionSufficient",
+                    aac.getCoercionOnFailure(), ArchiveAttributeCoercion2.OnFailure.RETHROW);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2931,6 +2933,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmCoercionSufficient":
                         aac.setCoercionSufficient(reader.booleanValue());
+                        break;
+                    case "dcmCoercionOnFailure":
+                        aac.setCoercionOnFailure(ArchiveAttributeCoercion2.OnFailure.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();
