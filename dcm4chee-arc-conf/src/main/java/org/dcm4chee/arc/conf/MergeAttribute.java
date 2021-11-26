@@ -64,7 +64,8 @@ public class MergeAttribute {
             this.value = value;
             int index = value.indexOf('=');
             tagPath = TagUtils.parseTagPath(value.substring(0, index));
-            format = new AttributesFormat(value.substring(index + 1));
+            int beginIndex = index + 1;
+            format = beginIndex <  value.length() ? new AttributesFormat(value.substring(beginIndex)) : null;
         } catch (Exception e) {
             throw new IllegalArgumentException(value);
         }
@@ -83,14 +84,20 @@ public class MergeAttribute {
 
     public void merge(Attributes attrs, Attributes modified) {
         int tag = tagPath[tagPath.length - 1];
-        Attributes item = ensureItem(attrs);
-        String newValue = this.format.format(attrs);
-        String oldValue = item.getString(tag);
-        if (!newValue.equals(oldValue)) {
+        String oldValue;
+        if (format != null) {
+            Attributes item = ensureItem(attrs);
+            oldValue = item.getString(tag);
+            String newValue = format.format(attrs);
+            if (newValue.equals(oldValue)) return;
             item.setString(tag, dict.vrOf(tag), newValue);
-            if (modified != null && oldValue != null) {
-                ensureItem(modified).setString(tag, dict.vrOf(tag), oldValue);
-            }
+        } else {
+            Attributes item = getItem(attrs);
+            if (item == null || (oldValue = item.getString(tag)) == null) return;
+            item.setNull(tag, dict.vrOf(tag));
+        }
+        if (modified != null && oldValue != null) {
+            ensureItem(modified).setString(tag, dict.vrOf(tag), oldValue);
         }
     }
 
@@ -110,6 +117,15 @@ public class MergeAttribute {
         int last = tagPath.length - 1;
         for (int i = 0; i < last; i++) {
             item = ensureItem(item, tagPath[i]);
+        }
+        return item;
+    }
+
+    private Attributes getItem(Attributes attrs) {
+        Attributes item = attrs;
+        int last = tagPath.length - 1;
+        for (int i = 0; i < last; i++) {
+            item = item.getNestedDataset(tagPath[i]);
         }
         return item;
     }
