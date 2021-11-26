@@ -499,6 +499,7 @@ export class UploadFilesComponent implements OnInit {
                                     ]
                                 };
                                 let object = [{}];
+                                this.fixFileSpecificEntries(file, studyObject);
                                 Object.keys(studyObject).forEach(key => {
                                     if (([
                                         "00080054",
@@ -564,6 +565,16 @@ export class UploadFilesComponent implements OnInit {
             }
         });
     }
+
+    fixFileSpecificEntries(file,object){
+        if(_.hasIn(object,"00420011.BulkDataURI")){
+            _.set(object,"00420011.BulkDataURI", `file/${file.name}`);
+        }
+        if(_.hasIn(object,"7FE00010.BulkDataURI")){
+            _.set(object,"7FE00010.BulkDataURI", `file/${file.name}`);
+        }
+    }
+
     close(dialogRef){
         if (this.xmlHttpRequest){
             this.xmlHttpRequest.abort();
