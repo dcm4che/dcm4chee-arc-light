@@ -573,6 +573,9 @@ export class UploadFilesComponent implements OnInit {
         if(_.hasIn(object,"7FE00010.BulkDataURI")){
             _.set(object,"7FE00010.BulkDataURI", `file/${file.name}`);
         }
+        if(_.hasIn(object,"00080018.Value[0]")){
+            _.set(object,"00080018.Value[0]", j4care.generateOIDFromUUID());
+        }
     }
 
     close(dialogRef){
