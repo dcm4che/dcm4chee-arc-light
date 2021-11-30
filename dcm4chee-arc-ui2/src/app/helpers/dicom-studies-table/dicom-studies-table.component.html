@@ -25,7 +25,7 @@
                  tooltip="{{
                     patient_table.type === 'value' ?
                         (patient_table.hook?
-                            patient_table.hook(_.get(patient.attrs,patient_table.pathToValue), patient.attrs, patient_table.pathToValue):
+                            patient_table.hook(_.get(patient.attrs,patient_table.pathToValue), patient.attrs, patient_table.pathToValue, patient):
                             _.get(patient.attrs,patient_table.pathToValue)
                         ):
                         (patient_table.type === 'pipe' ?
@@ -90,7 +90,7 @@
                          tooltip="{{
                             studies_table.type === 'value' ?
                                 (studies_table.hook?
-                                    studies_table.hook(_.get(study.attrs,studies_table.pathToValue), study.attrs,studies_table.pathToValue):
+                                    studies_table.hook(_.get(study.attrs,studies_table.pathToValue), study.attrs,studies_table.pathToValue, study):
                                     _.get(study.attrs,studies_table.pathToValue)
                                 ):
                                 (studies_table.type === 'pipe' ?
@@ -142,7 +142,7 @@
                                 {{_.get(study.attrs, studies_table.pathToValue) || '&nbsp;'}}
                             </ng-container>
                             <ng-container *ngIf="studies_table.hook">
-                                {{studies_table.hook(_.get(study.attrs, studies_table.pathToValue) || '&nbsp;')}}
+                                {{studies_table.hook(_.get(study.attrs, studies_table.pathToValue), study.attrs,studies_table.pathToValue, study)}}
                             </ng-container>
                         </ng-container>
                     </div>
@@ -162,7 +162,7 @@
                                  tooltip="{{
                                     serie_table.type === 'value' ?
                                         (serie_table.hook?
-                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue), serie.attrs,serie_table.pathToValue):
+                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue), serie.attrs,serie_table.pathToValue, series):
                                             _.get(serie.attrs,serie_table.pathToValue)
                                         ):
                                         (serie_table.type === 'pipe' ?
@@ -205,7 +205,7 @@
                                         {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
                                     </ng-container>
                                     <ng-container *ngIf="serie_table.hook">
-                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;')}}
+                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, series)}}
                                     </ng-container>
                                 </ng-container>
                             </div>
@@ -226,7 +226,7 @@
                                          tooltip="{{
                                             instance_table.type === 'value' ?
                                                 (instance_table.hook?
-                                                    instance_table.hook(_.get(instance.attrs,instance_table.pathToValue), instance.attrs, instance_table.pathToValue):
+                                                    instance_table.hook(_.get(instance.attrs,instance_table.pathToValue), instance.attrs, instance_table.pathToValue, instance):
                                                     _.get(instance.attrs,instance_table.pathToValue)
                                                 ):
                                                 (instance_table.type === 'pipe' ?
@@ -271,7 +271,7 @@
                                                 {{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}
                                             </ng-container>
                                             <ng-container *ngIf="instance_table.hook">
-                                                {{instance_table.hook(_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;')}}
+                                                {{instance_table.hook(_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;', instance.attrs, instance_table.pathToValue, instance)}}
                                             </ng-container>
                                         </ng-container>
                                     </div>
@@ -585,7 +585,7 @@
                                  tooltip="{{
                                     serie_table.type === 'value' ?
                                         (serie_table.hook?
-                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue)):
+                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue, serie.attrs,serie_table.pathToValue, series)):
                                             _.get(serie.attrs,serie_table.pathToValue)
                                         ):
                                         (serie_table.type === 'pipe' ?
@@ -628,7 +628,7 @@
                                         {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
                                     </ng-container>
                                     <ng-container *ngIf="serie_table.hook">
-                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;')}}
+                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, series)}}
                                     </ng-container>
                                 </ng-container>
                             </div>
@@ -648,7 +648,7 @@
                                          tooltip="{{
                                             instance_table.type === 'value' ?
                                                 (instance_table.hook?
-                                                    instance_table.hook(_.get(instance.attrs,instance_table.pathToValue)):
+                                                    instance_table.hook(_.get(instance.attrs,instance_table.pathToValue), instance.attrs, instance_table.pathToValue, instance):
                                                     _.get(instance.attrs,instance_table.pathToValue)
                                                 ):
                                                 (instance_table.type === 'pipe' ?
@@ -693,7 +693,7 @@
                                                 {{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}
                                             </ng-container>
                                             <ng-container *ngIf="instance_table.hook">
-                                                {{instance_table.hook(_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;')}}
+                                                {{instance_table.hook(_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;', instance.attrs, instance_table.pathToValue, instance)}}
                                             </ng-container>
                                         </ng-container>
                                     </div>
