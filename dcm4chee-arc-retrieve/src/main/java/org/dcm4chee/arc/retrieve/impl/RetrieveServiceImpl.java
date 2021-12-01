@@ -751,7 +751,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                                 ctx.getLocalAETitle(),
                                 ctx.getDestinationHostName(),
                                 ctx.getDestinationAETitle(),
-                                attrs, modified)
+                                inst.getSopClassUID(), attrs, modified)
                                 && coercion.isCoercionSufficient()) break;
                     } catch (Exception e) {
                         LOG.info("Failed to apply {}:\n", coercion, e);

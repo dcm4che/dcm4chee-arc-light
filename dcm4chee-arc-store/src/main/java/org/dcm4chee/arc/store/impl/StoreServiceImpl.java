@@ -560,7 +560,7 @@ class StoreServiceImpl implements StoreService {
                             session.getCallingAET(),
                             session.getLocalHostName(),
                             session.getCalledAET(),
-                            ctx.getAttributes(),
+                            ctx.getSopClassUID(), ctx.getAttributes(),
                             ctx.getCoercedAttributes())
                             && coercion.isCoercionSufficient()) break;
                 } catch (Exception e) {

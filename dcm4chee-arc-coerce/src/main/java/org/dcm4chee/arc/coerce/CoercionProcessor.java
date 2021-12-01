@@ -50,7 +50,7 @@ import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 public interface CoercionProcessor {
     boolean coerce(ArchiveAttributeCoercion2 coercion,
                    String sendingHost, String sendingAET, String receivingHost, String receivingAET,
-                   Attributes attributes, Attributes coercedAttributes) throws Exception;
+                   String sopClassUID, Attributes attributes, Attributes coercedAttributes) throws Exception;
 
     default String remapUID(ArchiveAttributeCoercion2 coercion, String uid) {
         return uid;

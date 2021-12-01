@@ -60,7 +60,7 @@ public class DeIdentificationCoercionProcessor implements CoercionProcessor {
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
                           String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
-                          Attributes attrs, Attributes modified)
+                          String sopClassUID, Attributes attrs, Attributes modified)
             throws Exception {
         String[] names = StringUtils.split(coercion.getSchemeSpecificPart(), ',');
         DeIdentifier.Option[] options = new DeIdentifier.Option[names.length];

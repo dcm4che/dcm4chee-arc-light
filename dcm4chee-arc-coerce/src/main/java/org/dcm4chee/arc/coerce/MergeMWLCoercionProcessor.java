@@ -95,7 +95,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
                           String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
-                          Attributes attrs, Attributes modified)
+                          String sopClassUID, Attributes attrs, Attributes modified)
             throws Exception {
         Attributes newAttrs = queryMWL(
                 coercion.getRole() == TransferCapability.Role.SCU ? receivingAET : sendingAET,
