@@ -56,7 +56,7 @@ import javax.inject.Named;
  * @since Nov 2021
  */
 @ApplicationScoped
-@Named("suppl-from-device")
+@Named("sup-from-dev")
 public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor {
     static final Logger LOG = LoggerFactory.getLogger(SupplementFromDeviceCoercionProcessor.class);
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
