@@ -61,9 +61,9 @@ import javax.xml.transform.Transformer;
 public class XSLTCoercionProcessor implements CoercionProcessor {
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
-                          String sendingHost, String sendingAET,
+                          String sopClassUID, String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
-                          String sopClassUID, Attributes attrs, Attributes modified)
+                          Attributes attrs, Attributes modified)
             throws Exception {
         String xsltStylesheetURI = coercion.getSchemeSpecificPart();
         Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));

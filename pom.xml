@@ -605,6 +605,7 @@
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arr-query</module>
+      <module>dcm4chee-arc-coerce-query</module>
   </modules>
 
   <build>

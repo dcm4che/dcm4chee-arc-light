@@ -53,6 +53,7 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.coerce.CoercionFactory;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -133,6 +134,9 @@ class QueryServiceImpl implements QueryService {
     @Inject
     private Event<QueryContext> queryEvent;
 
+    @Inject
+    private CoercionFactory coercionFactory;
+
     @Override
     public QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts) {
         ApplicationEntity ae = as.getApplicationEntity();
@@ -162,18 +166,60 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public void coerceAttributes(QueryContext ctx) throws Exception {
-        ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
-                Dimse.C_FIND_RQ,
-                TransferCapability.Role.SCU,
-                ctx.getSOPClassUID(),
-                ctx.getRemoteHostName(),
-                ctx.getCallingAET(),
-                ctx.getLocalHostName(),
-                ctx.getCalledAET(),
-                ctx.getQueryKeys());
-        if (rule == null)
-            return;
+        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
+        List<ArchiveAttributeCoercion2> coercions = aeExt.attributeCoercions2()
+                .filter(descriptor -> descriptor.match(
+                        TransferCapability.Role.SCU,
+                        Dimse.C_FIND_RQ,
+                        ctx.getSOPClassUID(),
+                        ctx.getRemoteHostName(),
+                        ctx.getCallingAET(),
+                        ctx.getLocalHostName(),
+                        ctx.getCalledAET(),
+                        ctx.getQueryKeys()))
+                .collect(Collectors.toList());
+        if (coercions.isEmpty()) {
+            ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
+                    Dimse.C_FIND_RQ,
+                    TransferCapability.Role.SCU,
+                    ctx.getSOPClassUID(),
+                    ctx.getRemoteHostName(),
+                    ctx.getCallingAET(),
+                    ctx.getLocalHostName(),
+                    ctx.getCalledAET(),
+                    ctx.getQueryKeys());
+            if (rule != null) coerceLegacy(ctx, rule);
+        } else {
+            for (ArchiveAttributeCoercion2 coercion : coercions) {
+                try {
+                    if (coercionFactory.getCoercionProcessor(coercion).coerce(
+                            coercion,
+                            ctx.getSOPClassUID(),
+                            ctx.getRemoteHostName(),
+                            ctx.getCallingAET(),
+                            ctx.getLocalHostName(),
+                            ctx.getCalledAET(),
+                            ctx.getQueryKeys(),
+                            ctx.getCoercedQueryKeys())
+                            && coercion.isCoercionSufficient()) break;
+                } catch (Exception e) {
+                    LOG.info("Failed to apply {}:\n", coercion, e);
+                    switch(coercion.getCoercionOnFailure()){
+                        case RETHROW:
+                            throw e;
+                        case CONTINUE:
+                            continue;
+                    }
+                    break;
+                }
+            }
+            if (LOG.isDebugEnabled() && !ctx.getCoercedQueryKeys().isEmpty())
+                LOG.debug("Coerced Search Attributes:\n{} to:\n{}", ctx.getCoercedQueryKeys(),
+                        new Attributes(ctx.getQueryKeys(), false, ctx.getCoercedQueryKeys()));
+        }
+    }
 
+    private void coerceLegacy(QueryContext ctx, ArchiveAttributeCoercion rule) throws Exception {
         LOG.info("Apply {} to Search Attributes", rule);
         AttributesCoercion coercion = null;
         coercion = coerceAttributesByXSL(ctx, rule, coercion);
@@ -655,18 +701,63 @@ class QueryServiceImpl implements QueryService {
     @Override
     public AttributesCoercion getAttributesCoercion(QueryContext ctx) {
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
-        ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
-                Dimse.C_FIND_RSP,
-                TransferCapability.Role.SCU,
-                ctx.getSOPClassUID(),
-                ctx.getRemoteHostName(),
-                ctx.getCallingAET(),
-                ctx.getLocalHostName(),
-                ctx.getCalledAET(),
-                ctx.getQueryKeys());
-        if (rule == null)
-            return null;
+        List<ArchiveAttributeCoercion2> coercions = aeExt.attributeCoercions2()
+                .filter(descriptor -> descriptor.match(
+                        TransferCapability.Role.SCU,
+                        Dimse.C_FIND_RSP,
+                        ctx.getSOPClassUID(),
+                        ctx.getRemoteHostName(),
+                        ctx.getCallingAET(),
+                        ctx.getLocalHostName(),
+                        ctx.getCalledAET(),
+                        ctx.getQueryKeys()))
+                .collect(Collectors.toList());
+        if (coercions.isEmpty()) {
+            ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
+                    Dimse.C_FIND_RSP,
+                    TransferCapability.Role.SCU,
+                    ctx.getSOPClassUID(),
+                    ctx.getRemoteHostName(),
+                    ctx.getCallingAET(),
+                    ctx.getLocalHostName(),
+                    ctx.getCalledAET(),
+                    ctx.getQueryKeys());
+            return rule != null ? getAttributesCoercion(ctx, rule) : null;
+        }
+        return new AttributesCoercion() {
+            @Override
+            public void coerce(Attributes attrs, Attributes modified) throws Exception {
+                for (ArchiveAttributeCoercion2 coercion : coercions) {
+                    try {
+                        if (coercionFactory.getCoercionProcessor(coercion).coerce(coercion,
+                                ctx.getSOPClassUID(),
+                                ctx.getRemoteHostName(),
+                                ctx.getCallingAET(),
+                                ctx.getLocalHostName(),
+                                ctx.getCalledAET(),
+                                ctx.getQueryKeys(), modified)
+                                && coercion.isCoercionSufficient()) break;
+                    } catch (Exception e) {
+                        LOG.info("Failed to apply {}:\n", coercion, e);
+                        switch(coercion.getCoercionOnFailure()){
+                            case RETHROW:
+                                throw e;
+                            case CONTINUE:
+                                continue;
+                        }
+                        break;
+                    }
+                }
+            }
 
+            @Override
+            public String remapUID(String uid) {
+                return uid;
+            }
+        };
+    }
+
+    private AttributesCoercion getAttributesCoercion(QueryContext ctx, ArchiveAttributeCoercion rule) {
         AttributesCoercion coercion = null;
         String xsltStylesheetURI = rule.getXSLTStylesheetURI();
         if (xsltStylesheetURI != null)

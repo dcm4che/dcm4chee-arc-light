@@ -556,11 +556,11 @@ class StoreServiceImpl implements StoreService {
                 try {
                     if (coercionFactory.getCoercionProcessor(coercion).coerce(
                             coercion,
-                            session.getRemoteHostName(),
+                            ctx.getSopClassUID(), session.getRemoteHostName(),
                             session.getCallingAET(),
                             session.getLocalHostName(),
                             session.getCalledAET(),
-                            ctx.getSopClassUID(), ctx.getAttributes(),
+                            ctx.getAttributes(),
                             ctx.getCoercedAttributes())
                             && coercion.isCoercionSufficient()) break;
                 } catch (Exception e) {

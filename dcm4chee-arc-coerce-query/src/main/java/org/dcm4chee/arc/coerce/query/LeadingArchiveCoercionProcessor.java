@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.coerce;
+package org.dcm4chee.arc.coerce.query;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -47,6 +47,7 @@ import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
+import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -79,9 +80,9 @@ public class LeadingArchiveCoercionProcessor implements CoercionProcessor {
 
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
-                          String sendingHost, String sendingAET,
+                          String sopClassUID, String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
-                          String sopClassUID, Attributes attrs, Attributes modified)
+                          Attributes attrs, Attributes modified)
             throws Exception {
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         String findSCP = coercion.getSchemeSpecificPart();

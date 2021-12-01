@@ -58,9 +58,9 @@ import javax.inject.Named;
 public class DeIdentificationCoercionProcessor implements CoercionProcessor {
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
-                          String sendingHost, String sendingAET,
+                          String sopClassUID, String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
-                          String sopClassUID, Attributes attrs, Attributes modified)
+                          Attributes attrs, Attributes modified)
             throws Exception {
         String[] names = StringUtils.split(coercion.getSchemeSpecificPart(), ',');
         DeIdentifier.Option[] options = new DeIdentifier.Option[names.length];

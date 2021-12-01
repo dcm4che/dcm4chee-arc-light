@@ -54,7 +54,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class CoercionFactory {
     private static final CoercionProcessor NOOP =
-            (coercion, sendingHost, sendingAET, receivingHost, receivingAET, sopClassUID, attributes, coercedAttributes) -> true;
+            (coercion, sopClassUID, sendingHost, sendingAET, receivingHost, receivingAET, attributes, coercedAttributes) -> true;
 
     @Inject
     private NamedCDIBeanCache namedCDIBeanCache;

@@ -747,11 +747,12 @@ public class RetrieveServiceImpl implements RetrieveService {
                 for (ArchiveAttributeCoercion2 coercion : coercions) {
                      try {
                         if (coercionFactory.getCoercionProcessor(coercion).coerce(coercion,
+                                inst.getSopClassUID(),
                                 ctx.getLocalHostName(),
                                 ctx.getLocalAETitle(),
                                 ctx.getDestinationHostName(),
                                 ctx.getDestinationAETitle(),
-                                inst.getSopClassUID(), attrs, modified)
+                                attrs, modified)
                                 && coercion.isCoercionSufficient()) break;
                     } catch (Exception e) {
                         LOG.info("Failed to apply {}:\n", coercion, e);

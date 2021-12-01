@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.coerce;
+package org.dcm4chee.arc.coerce.query;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
@@ -52,6 +52,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.MergeMWLCache;
 import org.dcm4chee.arc.MergeMWLQueryParam;
+import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.MergeMWLMatchingKey;
 import org.dcm4chee.arc.query.QueryService;
@@ -93,9 +94,9 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
 
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
-                          String sendingHost, String sendingAET,
+                          String sopClassUID, String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
-                          String sopClassUID, Attributes attrs, Attributes modified)
+                          Attributes attrs, Attributes modified)
             throws Exception {
         Attributes newAttrs = queryMWL(
                 coercion.getRole() == TransferCapability.Role.SCU ? receivingAET : sendingAET,

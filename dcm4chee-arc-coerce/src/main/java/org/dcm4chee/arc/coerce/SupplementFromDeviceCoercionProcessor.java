@@ -62,9 +62,8 @@ public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor 
 
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
-                          String sendingHost, String sendingAET,
+                          String sopClassUID, String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
-                          String sopClassUID,
                           Attributes attributes, Attributes coercedAttributes) throws Exception {
         switch (sopClassUID) {
             case UID.ModalityWorklistInformationModelFind:

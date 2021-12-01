@@ -52,6 +52,7 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.MergeMWLQueryParam;
+import org.dcm4chee.arc.coerce.CoercionFactory;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -65,6 +66,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -79,6 +81,9 @@ public class CFindSCUImpl implements CFindSCU {
 
     @Inject
     private IApplicationEntityCache aeCache;
+
+    @Inject
+    private CoercionFactory coercionFactory;
 
     @Override
     public List<Attributes> findPatient(ApplicationEntity localAE, String calledAET, int priority, IDWithIssuer pid,
@@ -355,20 +360,60 @@ public class CFindSCUImpl implements CFindSCU {
         return coerce(Dimse.C_FIND_RSP, as, keys);
     }
 
-    private Attributes coerce(Dimse dimse, Association as, Attributes keys) throws Exception {
+    private Attributes coerce(Dimse dimse, Association as, final Attributes keys) throws Exception {
         ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
-        ArchiveAttributeCoercion rule = arcAE.findAttributeCoercion(
-                dimse,
-                TransferCapability.Role.SCP,
-                getAbstractSyntax(as),
-                as.getLocalHostName(),
-                as.getCallingAET(),
-                as.getRemoteHostName(),
-                as.getCalledAET(),
-                keys);
-        if (rule == null)
-            return keys;
+        List<ArchiveAttributeCoercion2> coercions = arcAE.attributeCoercions2()
+                .filter(descriptor -> descriptor.match(
+                        TransferCapability.Role.SCP,
+                        dimse,
+                        getAbstractSyntax(as),
+                        as.getLocalHostName(),
+                        as.getCallingAET(),
+                        as.getRemoteHostName(),
+                        as.getCalledAET(),
+                        keys))
+                .collect(Collectors.toList());
+        if (coercions.isEmpty()) {
+            ArchiveAttributeCoercion rule = arcAE.findAttributeCoercion(
+                    dimse,
+                    TransferCapability.Role.SCP,
+                    getAbstractSyntax(as),
+                    as.getLocalHostName(),
+                    as.getCallingAET(),
+                    as.getRemoteHostName(),
+                    as.getCalledAET(),
+                    keys);
+            if (rule != null)
+                return coerceLegacy(as, rule, keys);
+        } else {
+            for (ArchiveAttributeCoercion2 coercion : coercions) {
+                try {
+                    if (coercionFactory.getCoercionProcessor(coercion).coerce(
+                            coercion,
+                            getAbstractSyntax(as),
+                            as.getLocalHostName(),
+                            as.getCallingAET(),
+                            as.getRemoteHostName(),
+                            as.getCalledAET(),
+                            keys,
+                            null)
+                            && coercion.isCoercionSufficient()) break;
+                } catch (Exception e) {
+                    LOG.info("Failed to apply {}:\n", coercion, e);
+                    switch (coercion.getCoercionOnFailure()) {
+                        case RETHROW:
+                            throw e;
+                        case CONTINUE:
+                            continue;
+                    }
+                    break;
+                }
+            }
+        }
+        return keys;
+    }
 
+    private Attributes coerceLegacy(Association as, ArchiveAttributeCoercion rule, Attributes keys) throws Exception {
         AttributesCoercion coercion = null;
         coercion = coerceAttributesByXSL(as, rule, coercion);
         coercion = SupplementAssigningAuthorities.forQuery(rule.getSupplementFromDevice(), coercion);

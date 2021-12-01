@@ -52,7 +52,10 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.coerce.CoercionFactory;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.mpps.MPPSContext;
@@ -64,6 +67,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -76,6 +81,9 @@ public class MPPSServiceImpl implements MPPSService {
 
     @Inject
     private MPPSServiceEJB ejb;
+
+    @Inject
+    private CoercionFactory coercionFactory;
 
     @Override
     public MPPSContext newMPPSContext(Association as) {
@@ -112,18 +120,58 @@ public class MPPSServiceImpl implements MPPSService {
     }
 
     private void coerceAttributes(MPPSContext ctx, Dimse dimse) throws Exception {
-        ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
-                dimse,
-                TransferCapability.Role.SCU,
-                UID.ModalityPerformedProcedureStep,
-                ctx.getRemoteHostName(),
-                ctx.getCallingAET(),
-                ctx.getLocalHostName(),
-                ctx.getCalledAET(),
-                ctx.getAttributes());
-        if (rule == null)
-            return;
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        List<ArchiveAttributeCoercion2> coercions = arcAE.attributeCoercions2()
+                .filter(descriptor -> descriptor.match(
+                        TransferCapability.Role.SCU,
+                        dimse,
+                        UID.ModalityPerformedProcedureStep,
+                        ctx.getRemoteHostName(),
+                        ctx.getCallingAET(),
+                        ctx.getLocalHostName(),
+                        ctx.getCalledAET(),
+                        ctx.getAttributes()))
+                .collect(Collectors.toList());
+        if (coercions.isEmpty()) {
+            ArchiveAttributeCoercion rule = arcAE.findAttributeCoercion(
+                    dimse,
+                    TransferCapability.Role.SCU,
+                    UID.ModalityPerformedProcedureStep,
+                    ctx.getRemoteHostName(),
+                    ctx.getCallingAET(),
+                    ctx.getLocalHostName(),
+                    ctx.getCalledAET(),
+                    ctx.getAttributes());
+            if (rule != null)
+                coerceLegacy(ctx, rule);
+        } else {
+            for (ArchiveAttributeCoercion2 coercion : coercions) {
+                try {
+                    if (coercionFactory.getCoercionProcessor(coercion).coerce(
+                            coercion,
+                            UID.ModalityPerformedProcedureStep,
+                            ctx.getRemoteHostName(),
+                            ctx.getCallingAET(),
+                            ctx.getLocalHostName(),
+                            ctx.getCalledAET(),
+                            ctx.getAttributes(),
+                            null)
+                            && coercion.isCoercionSufficient()) break;
+                } catch (Exception e) {
+                    LOG.info("Failed to apply {}:\n", coercion, e);
+                    switch (coercion.getCoercionOnFailure()) {
+                        case RETHROW:
+                            throw e;
+                        case CONTINUE:
+                            continue;
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
+    private void coerceLegacy(MPPSContext ctx, ArchiveAttributeCoercion rule) throws Exception {
         AttributesCoercion coercion = null;
         coercion = coerceAttributesByXSL(ctx, rule, coercion);
         coercion = SupplementAssigningAuthorities.forMPPS(rule.getSupplementFromDevice(), coercion);

@@ -18,7 +18,7 @@
   ~
   ~ The Initial Developer of the Original Code is
   ~ J4Care.
-  ~ Portions created by the Initial Developer are Copyright (C) 2015
+  ~ Portions created by the Initial Developer are Copyright (C) 2013-2021
   ~ the Initial Developer. All Rights Reserved.
   ~
   ~ Contributor(s):
@@ -49,12 +49,12 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arc-mpps</artifactId>
+  <artifactId>dcm4chee-arc-coerce-query</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-code</artifactId>
+      <artifactId>dcm4chee-arc-conf</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -66,34 +66,21 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-conf</artifactId>
+      <artifactId>dcm4chee-arc-query</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-entity</artifactId>
+      <artifactId>dcm4chee-arc-query-scu</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-issuer</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-mima</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-patient</artifactId>
+      <artifactId>dcm4chee-arc-service</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
 </project>

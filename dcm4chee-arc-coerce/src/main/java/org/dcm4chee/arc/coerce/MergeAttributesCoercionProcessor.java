@@ -57,9 +57,9 @@ public class MergeAttributesCoercionProcessor implements CoercionProcessor {
 
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
-                          String sendingHost, String sendingAET,
+                          String sopClassUID, String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
-                          String sopClassUID, Attributes attrs, Attributes modified)
+                          Attributes attrs, Attributes modified)
             throws Exception {
         for (MergeAttribute mergeAttribute : coercion.getMergeAttributes()) {
             mergeAttribute.merge(attrs, modified);
