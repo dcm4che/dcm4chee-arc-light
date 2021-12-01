@@ -38,22 +38,45 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.coerce;
+package org.dcm4chee.arc.coerce.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Priority;
+import org.dcm4che3.net.TransferCapability;
+import org.dcm4chee.arc.Cache;
+import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
+import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
-import org.dcm4chee.arc.conf.MergeAttribute;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Nov 2021
  */
 @ApplicationScoped
-@Named("merge-attrs")
-public class MergeAttributesCoercionProcessor implements CoercionProcessor {
+@Named("leading-arc")
+public class LeadingArchiveCoercionProcessor implements CoercionProcessor {
+
+    static final Logger LOG = LoggerFactory.getLogger(LeadingArchiveCoercionProcessor.class);
+
+    @Inject
+    private Device device;
+
+    @Inject
+    private LeadingCFindSCPQueryCache queryCache;
+
+    @Inject
+    private CFindSCU cfindSCU;
 
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
@@ -61,9 +84,38 @@ public class MergeAttributesCoercionProcessor implements CoercionProcessor {
                           String receivingHost, String receivingAET,
                           Attributes attrs, Attributes modified)
             throws Exception {
-        for (MergeAttribute mergeAttribute : coercion.getMergeAttributes()) {
-            mergeAttribute.merge(attrs, modified);
+        String studyIUID = attrs.getString(Tag.StudyInstanceUID);
+        String findSCP = coercion.getSchemeSpecificPart();
+        Attributes newAttrs = queryStudy(
+                coercion.getRole() == TransferCapability.Role.SCU ? receivingAET : sendingAET,
+                findSCP,
+                studyIUID);
+        if (newAttrs == null) {
+            return false;
+        }
+        if (attrs.update(coercion.getAttributeUpdatePolicy(), newAttrs, modified)) {
+            LOG.info("Coerce Attributes from matching Study at {}", findSCP);
         }
         return true;
+    }
+
+    private Attributes queryStudy(String localAET, String leadingCFindSCP, String studyIUID) throws Exception {
+        LeadingCFindSCPQueryCache.Key key = new LeadingCFindSCPQueryCache.Key(leadingCFindSCP, studyIUID);
+        Cache.Entry<Attributes> entry = queryCache.getEntry(key);
+        if (entry != null)
+            return entry.value();
+
+        Attributes newAttrs = null;
+        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        List<Attributes> matches = cfindSCU.findStudy(
+                device.getApplicationEntity(localAET, true),
+                leadingCFindSCP,
+                Priority.NORMAL,
+                studyIUID,
+                arcdev.returnKeysForLeadingCFindSCP(leadingCFindSCP));
+        if (!matches.isEmpty())
+            newAttrs = matches.get(0);
+        queryCache.put(key, newAttrs);
+        return newAttrs;
     }
 }

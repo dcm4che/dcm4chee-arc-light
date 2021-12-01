@@ -233,8 +233,9 @@ public class ArchiveAttributeCoercion2 {
         this.onFailure = onFailure;
     }
 
-    public void setCoercionParam(String name, String value) {
+    public ArchiveAttributeCoercion2 setCoercionParam(String name, String value) {
         params.put(name, value);
+        return this;
     }
 
     public String getCoercionParam(String name, String defValue) {

@@ -2719,38 +2719,38 @@ dicomPort: 2762
 dn: cn=Merge MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCU
-dcmMergeMWLMatchingKey: StudyInstanceUID
-dcmMergeMWLTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl
+dcmCoercionParam: xsl-no-keyword=true
+dcmCoercionParam: match-by=StudyInstanceUID
 dcmProperty: SendingApplicationEntityTitle=MERGE_MWL
-objectClass: dcmArchiveAttributeCoercion
-dcmNoKeywords: TRUE
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl
 cn: Merge MWL
 
 dn: cn=Correct VR,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCP
+dcmCoercionParam: xsl-no-keyword=true
 dcmProperty: ReceivingApplicationEntityTitle=CORRECT_VR
-objectClass: dcmArchiveAttributeCoercion
-dcmNoKeywords: TRUE
-dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: xslt:${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl
 cn: Correct VR
 
 dn: cn=Ensure PID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCU
+dcmCoercionParam: xsl-no-keyword=true
 dcmProperty: SendingApplicationEntityTitle=ENSURE_PID
-objectClass: dcmArchiveAttributeCoercion
-dcmNoKeywords: TRUE
-dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: xslt:${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl
 cn: Ensure PID
 
 dn: cn=Nullify PN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCP
+dcmCoercionParam: xsl-no-keyword=true
 dcmProperty: ReceivingApplicationEntityTitle=NULLIFY_PN
-objectClass: dcmArchiveAttributeCoercion
-dcmNoKeywords: TRUE
-dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: xslt:${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl
 cn: Nullify PN
 
 dn: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3160,20 +3160,21 @@ dcmAttributeUpdatePolicy: SUPPLEMENT
 dn: cn=Merge MWL Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCU
-dcmMergeMWLMatchingKey: AccessionNumber
-dcmMergeMWLTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl
+dcmCoercionParam: xsl-no-keyword=true
+dcmCoercionParam: match-by=AccessionNumber
 dcmProperty: SendingApplicationEntityTitle=MERGE_MWL_STUDY
-objectClass: dcmArchiveAttributeCoercion
-dcmNoKeywords: TRUE
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl
 cn: Merge MWL Study
 
 dn: cn=Supplement MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSOPClass: 1.2.840.10008.3.1.2.3.3
 dcmDIMSE: N_CREATE_RQ
 dicomTransferRole: SCU
+dicomDeviceName: dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: SendingApplicationEntityTitle=MPPSSCU
-objectClass: dcmArchiveAttributeCoercion
-dcmSupplementFromDeviceReference: dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: suppl-from-device:MPPSSCU
 cn: Supplement MPPS
 
 dn: dcmEntity=Instance,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3556,9 +3557,10 @@ cn: Image Writer Factory
 dn: cn=Supplement Composite,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCU
+dicomDeviceName: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: SendingApplicationEntityTitle=STORESCU
-objectClass: dcmArchiveAttributeCoercion
-dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: suppl-from-device:STORESCU
 cn: Supplement Composite
 
 dn: dcmExporterID=QIDO-JSON,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3596,10 +3598,10 @@ dcmURI: wado:DCM4CHEE
 
 dn: cn=Leading DCMQRSCP FIND,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_FIND_RSP
-dcmLeadingCFindSCP: DCMQRSCP
 dicomTransferRole: SCU
 dcmProperty: SendingApplicationEntityTitle=LEADING_DCMQRSCP
-objectClass: dcmArchiveAttributeCoercion
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: leading-arc:DCMQRSCP
 cn: Leading DCMQRSCP FIND
 
 dn: dcmQueueName=StgVerTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3626,10 +3628,10 @@ dicomAssociationAcceptor: TRUE
 
 dn: cn=Leading DCMQRSCP STORE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
-dcmLeadingCFindSCP: DCMQRSCP
 dicomTransferRole: SCP
 dcmProperty: ReceivingApplicationEntityTitle=LEADING_DCMQRSCP
-objectClass: dcmArchiveAttributeCoercion
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: leading-arc:DCMQRSCP
 cn: Leading DCMQRSCP STORE
 
 dn: dcmQueueName=XDS-I Export,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3806,8 +3808,8 @@ dcmSOPClass: 1.2.840.10008.5.1.4.31
 dcmDIMSE: C_FIND_RSP
 dicomTransferRole: SCP
 dcmProperty: ReceivingApplicationEntityTitle=AGFA_WL
-objectClass: dcmArchiveAttributeCoercion
-dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl-agfa2arc.xsl
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: xslt:${jboss.server.temp.url}/dcm4chee-arc/mwl-agfa2arc.xsl
 cn: Coerce MWL Agfa to Archive
 
 dn: cn=Forward to HL7RCV|DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

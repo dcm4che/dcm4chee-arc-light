@@ -38,12 +38,13 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.coerce;
+package org.dcm4chee.arc.coerce.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 
 import javax.enterprise.context.ApplicationScoped;

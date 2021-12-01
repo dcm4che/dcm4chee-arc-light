@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.coerce.query;
+package org.dcm4chee.arc.coerce.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
@@ -64,7 +64,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.transform.Templates;
-import javax.xml.transform.TransformerConfigurationException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -102,7 +101,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
                 coercion.getRole() == TransferCapability.Role.SCU ? receivingAET : sendingAET,
                 mergeMWLQueryParam(coercion, attrs),
                 coercion.parseBooleanCoercionParam("filter-by-scu"),
-                tpls(coercion),
+                TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getSchemeSpecificPart())),
                 coercion.parseBooleanCoercionParam("xsl-no-keyword"));
         if (newAttrs == null) {
             return false;
@@ -115,10 +114,6 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
             attrs.addAll(newAttrs);
         }
         return true;
-    }
-
-    private static Templates tpls(ArchiveAttributeCoercion2 coercion) throws TransformerConfigurationException {
-        return TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getSchemeSpecificPart()));
     }
 
     private static MergeMWLQueryParam mergeMWLQueryParam(ArchiveAttributeCoercion2 coercion, Attributes attrs) {

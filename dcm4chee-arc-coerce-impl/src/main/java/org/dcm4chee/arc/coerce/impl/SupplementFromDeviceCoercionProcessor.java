@@ -38,11 +38,12 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.coerce;
+package org.dcm4chee.arc.coerce.impl;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

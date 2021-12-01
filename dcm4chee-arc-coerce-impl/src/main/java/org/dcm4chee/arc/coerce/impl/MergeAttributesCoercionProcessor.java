@@ -38,56 +38,33 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.coerce;
+package org.dcm4chee.arc.coerce.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.io.SAXTransformer;
-import org.dcm4che3.io.TemplatesCache;
-import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
-import org.dcm4chee.arc.conf.Conditions;
+import org.dcm4chee.arc.conf.MergeAttribute;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
- * @since Oct 2021
+ * @since Nov 2021
  */
 @ApplicationScoped
-@Named("xslt")
-public class XSLTCoercionProcessor implements CoercionProcessor {
+@Named("merge-attrs")
+public class MergeAttributesCoercionProcessor implements CoercionProcessor {
+
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
                           String sopClassUID, String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
                           Attributes attrs, Attributes modified)
             throws Exception {
-        String xsltStylesheetURI = coercion.getSchemeSpecificPart();
-        Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
-        Attributes newAttrs = SAXTransformer.transform(attrs, tpls, false,
-                !coercion.parseBooleanCoercionParam("xsl-no-keyword"),
-                t -> setParameters(t, sendingHost, sendingAET, receivingHost, receivingAET));
-        if (modified != null) {
-            attrs.update(Attributes.UpdatePolicy.OVERWRITE, newAttrs, modified);
-        } else {
-            attrs.addAll(newAttrs);
+        for (MergeAttribute mergeAttribute : coercion.getMergeAttributes()) {
+            mergeAttribute.merge(attrs, modified);
         }
         return true;
-    }
-
-    private static void setParameters(Transformer t,
-                                      String sendingHost, String sendingAET,
-                                      String receivingHost, String receivingAET) {
-        setParameter(t, Conditions.SENDING_HOSTNAME, sendingHost);
-        setParameter(t, Conditions.SENDING_APPLICATION_ENTITY_TITLE, sendingAET);
-        setParameter(t, Conditions.RECEIVING_HOSTNAME, receivingHost);
-        setParameter(t, Conditions.RECEIVING_APPLICATION_ENTITY_TITLE, receivingAET);
-    }
-
-    private static void setParameter(Transformer t, String name, String value) {
-        if (value != null) t.setParameter(name, value);
     }
 }

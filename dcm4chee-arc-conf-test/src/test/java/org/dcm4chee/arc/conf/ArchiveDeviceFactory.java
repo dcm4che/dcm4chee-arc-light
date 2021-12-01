@@ -1184,12 +1184,12 @@ class ArchiveDeviceFactory {
     static final String HL7_ORU2DSR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl";
     static final String HL7_ORDER2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl";
     static final String UNZIP_VENDOR_DATA = "${jboss.server.temp.url}/dcm4chee-arc";
-    static final String NULLIFY_PN = "${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl";
-    static final String CORRECT_VR = "${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl";
-    static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
-    static final String MERGE_MWL = "${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
-    static final String MERGE_MWL_STUDY = "${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl";
-    static final String COERCE_MWL_AGFA2ARC = "${jboss.server.temp.url}/dcm4chee-arc/mwl-agfa2arc.xsl";
+    static final String NULLIFY_PN = "xslt:${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl";
+    static final String CORRECT_VR = "xslt:${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl";
+    static final String ENSURE_PID = "xslt:${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
+    static final String MERGE_MWL = "merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
+    static final String MERGE_MWL_STUDY = "merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl";
+    static final String COERCE_MWL_AGFA2ARC = "xslt:${jboss.server.temp.url}/dcm4chee-arc/mwl-agfa2arc.xsl";
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
     static final String AUDIT_LOGGER_SPOOL_DIR_URI = "${jboss.server.temp.url}";
@@ -2057,84 +2057,86 @@ class ArchiveDeviceFactory {
             ext.addStudyRetentionPolicy(THICK_SLICE);
             ext.addStudyRetentionPolicy(THIN_SLICE);
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Ensure PID")
+                    .setURI(ENSURE_PID)
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("ENSURE_PID")
-                    .setXSLTStylesheetURI(ENSURE_PID)
-                    .setNoKeywords(true));
+                    .setCoercionParam("xsl-no-keyword", "true"));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Merge MWL")
+                    .setURI(MERGE_MWL)
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("MERGE_MWL")
-                    .setMergeMWLMatchingKey(MergeMWLMatchingKey.StudyInstanceUID)
-                    .setMergeMWLTemplateURI(MERGE_MWL)
-                    .setNoKeywords(true));
+                    .setCoercionParam("match-by", MergeMWLMatchingKey.StudyInstanceUID.name())
+                    .setCoercionParam("xsl-no-keyword", "true"));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Merge MWL Study")
+                    .setURI(MERGE_MWL_STUDY)
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("MERGE_MWL_STUDY")
-                    .setMergeMWLMatchingKey(MergeMWLMatchingKey.AccessionNumber)
-                    .setMergeMWLTemplateURI(MERGE_MWL_STUDY)
-                    .setNoKeywords(true));
+                    .setCoercionParam("match-by", MergeMWLMatchingKey.AccessionNumber.name())
+                    .setCoercionParam("xsl-no-keyword", "true"));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Nullify PN")
+                    .setURI(NULLIFY_PN)
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCP)
                     .setReceivingAETitle("NULLIFY_PN")
-                    .setXSLTStylesheetURI(NULLIFY_PN)
-                    .setNoKeywords(true));
+                    .setCoercionParam("xsl-no-keyword", "true"));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Correct VR")
+                    .setURI(CORRECT_VR)
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCP)
                     .setReceivingAETitle("CORRECT_VR")
-                    .setXSLTStylesheetURI(CORRECT_VR)
-                    .setNoKeywords(true));
+                    .setCoercionParam("xsl-no-keyword", "true"));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Leading DCMQRSCP STORE")
+                    .setURI("leading-arc:DCMQRSCP")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCP)
-                    .setReceivingAETitle("LEADING_DCMQRSCP")
-                    .setLeadingCFindSCP("DCMQRSCP"));
+                    .setReceivingAETitle("LEADING_DCMQRSCP"));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Leading DCMQRSCP FIND")
+                    .setURI("leading-arc:DCMQRSCP")
                     .setDIMSE(Dimse.C_FIND_RSP)
                     .setRole(SCU)
-                    .setSendingAETitle("LEADING_DCMQRSCP")
-                    .setLeadingCFindSCP("DCMQRSCP"));
+                    .setSendingAETitle("LEADING_DCMQRSCP"));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Supplement Composite")
+                    .setURI("suppl-from-device:STORESCU")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("STORESCU")
-                    .setSupplementFromDevice(storescu));
+                    .setOtherDevice(storescu));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Supplement MPPS")
+                    .setURI("suppl-from-device:MPPSSCU")
                     .setDIMSE(Dimse.N_CREATE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("MPPSSCU")
                     .setSOPClasses(UID.ModalityPerformedProcedureStep)
-                    .setSupplementFromDevice(mppsscu));
+                    .setOtherDevice(mppsscu));
 
-            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Coerce MWL Agfa to Archive")
+                    .setURI(COERCE_MWL_AGFA2ARC)
                     .setDIMSE(Dimse.C_FIND_RSP)
                     .setRole(SCP)
                     .setSOPClasses(UID.ModalityWorklistInformationModelFind)
-                    .setReceivingAETitle("AGFA_WL")
-                    .setXSLTStylesheetURI(COERCE_MWL_AGFA2ARC));
+                    .setReceivingAETitle("AGFA_WL"));
 
             StoreAccessControlIDRule storeAccessControlIDRule =
                     new StoreAccessControlIDRule("StoreAccessControlIDRule1");
