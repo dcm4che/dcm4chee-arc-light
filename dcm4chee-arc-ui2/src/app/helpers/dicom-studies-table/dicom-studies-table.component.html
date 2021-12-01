@@ -162,7 +162,7 @@
                                  tooltip="{{
                                     serie_table.type === 'value' ?
                                         (serie_table.hook?
-                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue), serie.attrs,serie_table.pathToValue, series):
+                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue), serie.attrs,serie_table.pathToValue, serie):
                                             _.get(serie.attrs,serie_table.pathToValue)
                                         ):
                                         (serie_table.type === 'pipe' ?
@@ -205,7 +205,7 @@
                                         {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
                                     </ng-container>
                                     <ng-container *ngIf="serie_table.hook">
-                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, series)}}
+                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, serie)}}
                                     </ng-container>
                                 </ng-container>
                             </div>
@@ -585,7 +585,7 @@
                                  tooltip="{{
                                     serie_table.type === 'value' ?
                                         (serie_table.hook?
-                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue, serie.attrs,serie_table.pathToValue, series)):
+                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue, serie.attrs,serie_table.pathToValue, serie)):
                                             _.get(serie.attrs,serie_table.pathToValue)
                                         ):
                                         (serie_table.type === 'pipe' ?
@@ -628,7 +628,7 @@
                                         {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
                                     </ng-container>
                                     <ng-container *ngIf="serie_table.hook">
-                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, series)}}
+                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, serie)}}
                                     </ng-container>
                                 </ng-container>
                             </div>
