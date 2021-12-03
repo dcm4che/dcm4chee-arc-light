@@ -91,7 +91,6 @@
                       <j4care-option *ngFor="let option of line[index].options"  [value]="option.value" title="{{option.description || option.title}}" [htmlLabel]="option.htmlLabel || option.label || option.text"></j4care-option>
                     </j4care-select>-->
                       <dcm-drop-down
-                              [(model)]="model[line[index].filterKey]"
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'editable-select'"
                               [placeholder]="line[index]?.placeholder"
@@ -105,22 +104,22 @@
                               [multiSelectMode]="false"
                               (modelChange)="filterChange($event)"
                               [showStar]="line[index].showStar"
+                              [(model)]="model[line[index].filterKey]"
                       ></dcm-drop-down>
                       <dcm-drop-down
-                              [(model)]="model[line[index].filterKey]"
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'multi-select'"
                               [placeholder]="line[index]?.placeholder"
                               [ngClass]="line[index].cssClass"
                               [options]="line[index].options"
                               [optionsTree]="line[index].optionsTree"
+                              [(model)]="model[line[index].filterKey]"
                               [showSearchField]="line[index].showSearchField"
                               [multiSelectMode]="true"
                               (modelChange)="filterChange($event)"
                               [showStar]="line[index].showStar"
                       ></dcm-drop-down>
                       <dcm-drop-down
-                              [(model)]="model[line[index].filterKey]"
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'html-select'"
                               [placeholder]="line[index]?.placeholder"
@@ -131,6 +130,7 @@
                               (modelChange)="filterChange($event)"
                               [multiSelectMode]="false"
                               [showStar]="line[index].showStar"
+                              [(model)]="model[line[index].filterKey]"
                       ></dcm-drop-down>
                     <mat-select [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
                       <mat-option *ngIf="line[index].showStar" value="">*</mat-option>
