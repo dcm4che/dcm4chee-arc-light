@@ -795,15 +795,11 @@
           "type": "object",
           "required": [
             "dicomDeviceName",
-            "super-user-role",
             "management-http-port",
             "management-https-port"
           ],
           "properties": {
             "dicomDeviceName": {
-              "type": "string"
-            },
-            "super-user-role": {
               "type": "string"
             },
             "management-http-port": {
