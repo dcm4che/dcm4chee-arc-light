@@ -61,7 +61,6 @@ import org.dcm4chee.arc.retrieve.RetrieveWADO;
 import org.dcm4chee.arc.retrieve.stream.DicomObjectOutput;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.*;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +111,7 @@ public class WadoURI {
     @Inject
     private RetrieveService service;
 
+    @Context
     private HttpServletRequest request;
 
     @Inject
@@ -212,10 +212,6 @@ public class WadoURI {
 
     @GET
     public void get(@Suspended AsyncResponse ar) {
-        // @Inject does not work:
-        // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
-        // s. https://issues.jboss.org/browse/RESTEASY-903
-        request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
         if (contentType != null)
             contentTypes = new ContentTypes(contentType);
         logRequest();

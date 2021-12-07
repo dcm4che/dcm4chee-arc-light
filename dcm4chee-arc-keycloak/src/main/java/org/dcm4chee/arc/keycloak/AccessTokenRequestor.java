@@ -67,6 +67,7 @@ import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import java.io.InputStream;
@@ -141,7 +142,7 @@ public class AccessTokenRequestor {
 
     public ResteasyClientBuilder resteasyClientBuilder(
             String url, boolean allowAnyHostname, boolean disableTrustManager) throws Exception {
-        ResteasyClientBuilder builder = new ResteasyClientBuilder();
+        ResteasyClientBuilder builder = (ResteasyClientBuilder) ClientBuilder.newBuilder();
         if (url.toLowerCase().startsWith("https")) {
             builder.sslContext(device.sslContext())
                     .hostnameVerification(allowAnyHostname

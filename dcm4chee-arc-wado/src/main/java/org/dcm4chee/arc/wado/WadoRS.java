@@ -604,10 +604,6 @@ public class WadoRS {
             validateWebApp();
         Output output = target.output(this);
         try {
-            // @Inject does not work:
-            // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
-            // s. https://issues.jboss.org/browse/RESTEASY-903
-            HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
             final RetrieveContext ctx = service.newRetrieveContextWADO(
                     HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata()) {
