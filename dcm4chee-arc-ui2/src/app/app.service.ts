@@ -307,8 +307,8 @@ export class AppService implements OnInit, OnDestroy{
             let filterCleared = _.compact(filterMapped);
             return filterCleared.join('&');
         }catch (e) {
-            return "";
             j4care.log("Something went wrong on getting param",e);
+            return "";
         }
     }
 

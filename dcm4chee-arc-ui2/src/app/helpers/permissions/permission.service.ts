@@ -100,7 +100,7 @@ export class PermissionService {
                     userInfo = user; //Extracting userInfo from KeyCloak
                 }),
                 switchMap(res => this.mainservice.getDcm4cheeArc()),
-                map(deviceNameResponse=>{
+                map(dcm4cheeArc=>{
                     if(userInfo){
                         const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");
                         let user = new User({
@@ -108,13 +108,13 @@ export class PermissionService {
                             realm:userInfo.realm,
                             user:_.get(userInfo,"userProfile.username"),
                             roles:roles,
-                            su:(_.hasIn(deviceNameResponse,"super-user-role") && roles.indexOf(_.get(deviceNameResponse,"super-user-role")) > -1),
+                            su:(_.hasIn(dcm4cheeArc,"super-user-role") && roles.indexOf(_.get(dcm4cheeArc,"super-user-role")) > -1),
                             tokenParsed:userInfo.tokenParsed
                         });
                         this.mainservice.setUser(user);
                         this.user = user;
                     }
-                    return deviceNameResponse;
+                    return dcm4cheeArc;
                 }),
                 switchMap((res:any) => {
                     deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
