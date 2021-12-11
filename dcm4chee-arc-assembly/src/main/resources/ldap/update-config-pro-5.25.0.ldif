@@ -1,7 +1,18 @@
 version: 1
 
-dn: dcmuiTemplateName=MWL cd upload,dcmuiConfigName=default,dicomDeviceName=
- dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmuiTemplateName=MWL default,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmuiCreateDialogTemplate
+dcmTag: 00400001
+dcmTag: 0020000D
+dcmTag: 00400009
+dcmTag: 00080050
+dcmTag: 00401001
+dcmuiTemplateName: MWL default
+dcmuiDialog: mwl
+dicomDescription: MWL default attribute template
+
+dn: dcmuiTemplateName=MWL cd upload,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 objectClass: dcmuiCreateDialogTemplate
 dcmTag: 00400020
