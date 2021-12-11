@@ -142,7 +142,6 @@ objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmuiAction: tab-monitoring->export
 
-
 dn: dcmuiPermissionName=Tab - Monitoring Queues,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-monitoring->queues
@@ -150,7 +149,6 @@ dcmuiPermissionName: Tab - Monitoring Queues
 dcmAcceptedUserRole: admin
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
-
 
 dn: dcmuiPermissionName=Action - Studies - MWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -161,7 +159,6 @@ dcmuiActionParam: create
 dcmuiActionParam: edit
 dcmuiActionParam: delete
 dcmuiActionParam: upload
-
 
 dn: dcmuiPermissionName=Tab - Configuration Ae List,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -199,14 +196,12 @@ dcmAcceptedUserRole: admin
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
-
 dn: dcmuiPermissionName=Action - Studies - Open Viewer,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-viewer
 dcmuiPermissionName: Action - Studies - Open Viewer
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
-
 
 dn: dcmuiPermissionName=Action - Studies - Series,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -215,7 +210,10 @@ dcmuiPermissionName: Action - Studies - Series
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
-
+dcmuiActionParam: export
+dcmuiActionParam: reject
+dcmuiActionParam: restore
+dcmuiActionParam: edit
 
 dn: dcmuiPermissionName=Action - Studies - Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -225,7 +223,6 @@ dcmAcceptedUserRole: admin
 dcmuiActionParam: edit
 dcmuiActionParam: delete
 dcmuiActionParam: unmerge
-
 
 dn: dcmuiPermissionName=Action - Studies - Series(1),dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -237,14 +234,12 @@ dcmuiActionParam: export
 dcmuiActionParam: reject
 dcmuiActionParam: restore
 
-
 dn: dcmuiPermissionName=Action - Studies - More Function,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-more_function
 dcmuiPermissionName: Action - Studies - More Function
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
-
 
 dn: dcmuiPermissionName=Tab - Monitoring Storage Systems,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -308,7 +303,6 @@ dcmuiPermissionName: Action - Monitoring Queues All Actions
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
 
-
 dn: dcmuiPermissionName=Action - Studies - Download study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-studies-download
@@ -337,7 +331,6 @@ dcmuiPermissionName: Action - Studies - Verify Storage Commitment
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
 dcmuiActionParam: visible
-
 
 dn: dcmuiPermissionName=Action - Monitoring - External Retrieve All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
