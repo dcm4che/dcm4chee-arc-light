@@ -182,7 +182,7 @@ public class HL7PSUEJB {
         else {
             if (task.getMpps() != null)
                 setPIDPV1(msg, arcAE, task.getMpps().getPatient());
-            if (mwl != null) {
+            else if (mwl != null) {
                 msg.setAttributes(mwl.getAttributes());
                 setPIDPV1(msg, arcAE, mwl.getPatient());
             } else
