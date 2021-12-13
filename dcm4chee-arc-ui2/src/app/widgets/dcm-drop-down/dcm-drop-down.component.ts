@@ -144,6 +144,7 @@ export class DcmDropDownComponent implements OnInit {
                 if(count === this.options.length-1){ //TODO make clear optional
                     this.isAllCheck = true;
                 }
+                this.modelChange.emit(this.multiSelectValue);
             }
         }else{
             if(this.options && this.selectedValue){
@@ -154,6 +155,7 @@ export class DcmDropDownComponent implements OnInit {
                         element.selected = false;
                     }
                 });
+                this.modelChange.emit(this.selectedValue);
             }
         }
         // this.changeDetectorRef.detectChanges();
