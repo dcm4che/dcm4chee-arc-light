@@ -62,7 +62,7 @@
     <jbossws-cxf-client.version>5.4.4.Final</jbossws-cxf-client.version>
     <jaxb-xjc.version>2.3.3-b02</jaxb-xjc.version>
     <apache-cxf.version>3.4.4</apache-cxf.version>
-    <apache-commons-csv.version>1.7</apache-commons-csv.version>
+    <apache-commons-csv.version>1.9.0</apache-commons-csv.version>
     <jclouds.version>2.4.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
 
