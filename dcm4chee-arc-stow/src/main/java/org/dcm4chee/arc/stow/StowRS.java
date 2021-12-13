@@ -352,11 +352,12 @@ public class StowRS {
     }
 
     private void logRequest() {
-        LOG.info("Process {} {} from {}@{}",
+        LOG.info("Process {} {} from {}@{}:{}",
                 request.getMethod(),
                 toString(),
                 request.getRemoteUser(),
-                request.getRemoteHost());
+                request.getRemoteHost(),
+                request.getRemotePort());
     }
 
     private void validateWebApp() {
