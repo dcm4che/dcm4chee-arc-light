@@ -2352,7 +2352,7 @@ export class Globalvar {
             },{
                 tag:"modality",
                 type:"text",
-                filterKey:"ModalitiesInStudy",
+                filterKey:"Modality",
                 placeholder:$localize `:@@modality:Modality`,
             },
             {
