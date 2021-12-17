@@ -102,6 +102,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 ext.getMWLRequestedProcedureIDGenerator(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLScheduledProcedureStepIDGenerator",
                 ext.getMWLScheduledProcedureStepIDGenerator(), null);
+        LdapUtils.storeNotNull(ldapObj, attrs, "dcmAuditHL7MsgLimit", ext.getAuditHL7MsgLimit());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ReferredMergedPatientPolicy",
                 ext.getHl7ReferredMergedPatientPolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientArrivalMessageType",
@@ -163,6 +164,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 LdapUtils.stringValue(attrs.get("dcmMWLRequestedProcedureIDGenerator"), null));
         ext.setMWLScheduledProcedureStepIDGenerator(
                 LdapUtils.stringValue(attrs.get("dcmMWLScheduledProcedureStepIDGenerator"), null));
+        ext.setAuditHL7MsgLimit(LdapUtils.intValue(attrs.get("dcmAuditHL7MsgLimit"), null));
         ext.setHl7ReferredMergedPatientPolicy(LdapUtils.enumValue(HL7ReferredMergedPatientPolicy.class,
                 attrs.get("hl7ReferredMergedPatientPolicy"), null));
         ext.setHL7PatientArrivalMessageType(LdapUtils.stringValue(attrs.get("hl7PatientArrivalMessageType"), null));
@@ -247,6 +249,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getMWLRequestedProcedureIDGenerator(), bb.getMWLRequestedProcedureIDGenerator(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLScheduledProcedureStepIDGenerator",
                 aa.getMWLScheduledProcedureStepIDGenerator(), bb.getMWLScheduledProcedureStepIDGenerator(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditHL7MsgLimit",
+                aa.getAuditHL7MsgLimit(), bb.getAuditHL7MsgLimit(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ReferredMergedPatientPolicy",
                 aa.getHl7ReferredMergedPatientPolicy(), bb.getHl7ReferredMergedPatientPolicy(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PatientArrivalMessageType",

@@ -240,6 +240,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String[] hl7ADTReceivingApplication = {};
     private volatile String hl7ADTSendingApplication;
     private volatile int queueTasksFetchSize = 100;
+    private volatile int auditHL7MsgLimit = 1000;
     private volatile ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder =
             ScheduledProtocolCodeInOrder.OBR_4_4;
     private volatile ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
@@ -2521,6 +2522,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.queueTasksFetchSize = queueTasksFetchSize;
     }
 
+    public int getAuditHL7MsgLimit() {
+        return auditHL7MsgLimit;
+    }
+
+    public void setAuditHL7MsgLimit(int auditHL7MsgLimit) {
+        this.auditHL7MsgLimit = auditHL7MsgLimit;
+    }
+
     public String getRejectionNoteStorageAET() {
         return rejectionNoteStorageAET;
     }
@@ -3329,6 +3338,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditSoftwareConfigurationVerbose = arcdev.auditSoftwareConfigurationVerbose;
         hl7UseNullValue = arcdev.hl7UseNullValue;
         queueTasksFetchSize = arcdev.queueTasksFetchSize;
+        auditHL7MsgLimit = arcdev.auditHL7MsgLimit;
         rejectionNoteStorageAET = arcdev.rejectionNoteStorageAET;
         uiConfigurationDeviceName = arcdev.uiConfigurationDeviceName;
         storageVerificationPolicy = arcdev.storageVerificationPolicy;

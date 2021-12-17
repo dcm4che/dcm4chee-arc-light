@@ -74,6 +74,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String mwlAccessionNumberGenerator;
     private String mwlRequestedProcedureIDGenerator;
     private String mwlScheduledProcedureStepIDGenerator;
+    private Integer auditHL7MsgLimit;
 
     private final ArrayList<HL7ExportRule> hl7ExportRules = new ArrayList<>();
     private final ArrayList<HL7PrefetchRule> hl7PrefetchRules = new ArrayList<>();
@@ -118,6 +119,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         mwlAccessionNumberGenerator = arcapp.mwlAccessionNumberGenerator;
         mwlRequestedProcedureIDGenerator = arcapp.mwlRequestedProcedureIDGenerator;
         mwlScheduledProcedureStepIDGenerator = arcapp.mwlScheduledProcedureStepIDGenerator;
+        auditHL7MsgLimit = arcapp.auditHL7MsgLimit;
         hl7ExportRules.clear();
         hl7ExportRules.addAll(arcapp.hl7ExportRules);
         hl7PrefetchRules.clear();
@@ -636,5 +638,19 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return mwlScheduledProcedureStepIDGenerator != null
                 ? mwlScheduledProcedureStepIDGenerator
                 : getArchiveDeviceExtension().getMWLScheduledProcedureStepIDGenerator();
+    }
+
+    public Integer getAuditHL7MsgLimit() {
+        return auditHL7MsgLimit;
+    }
+
+    public void setAuditHL7MsgLimit(Integer auditHL7MsgLimit) {
+        this.auditHL7MsgLimit = auditHL7MsgLimit;
+    }
+
+    public int auditHL7MsgLimit() {
+        return auditHL7MsgLimit != null
+                ? auditHL7MsgLimit
+                : getArchiveDeviceExtension().getAuditHL7MsgLimit();
     }
 }

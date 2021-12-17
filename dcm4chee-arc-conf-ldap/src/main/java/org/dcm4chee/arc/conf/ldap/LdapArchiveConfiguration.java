@@ -505,6 +505,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getChangeRequesterAET(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFilterByIssuerOfPatientID",
                 ext.isFilterByIssuerOfPatientID(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditHL7MsgLimit", ext.getAuditHL7MsgLimit(), 1000);
     }
 
     @Override
@@ -823,6 +824,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 toIssuer(LdapUtils.stringValue(attrs.get("dcmAuditAssigningAuthorityOfPatientID"), null)));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
         ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), false));
+        ext.setAuditHL7MsgLimit(LdapUtils.intValue(attrs.get("dcmAuditHL7MsgLimit"), 1000));
     }
 
     @Override
@@ -1423,6 +1425,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isFilterByIssuerOfPatientID(),
                 bb.isFilterByIssuerOfPatientID(),
                 false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAuditHL7MsgLimit",
+                aa.getAuditHL7MsgLimit(),
+                bb.getAuditHL7MsgLimit(),
+                1000);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

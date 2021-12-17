@@ -402,6 +402,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
         writer.writeNotDef("dcmFilterByIssuerOfPatientID", arcDev.isFilterByIssuerOfPatientID(), false);
+        writer.writeNotDef("dcmAuditHL7MsgLimit", arcDev.getAuditHL7MsgLimit(), 1000);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -2037,6 +2038,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFilterByIssuerOfPatientID":
                     arcDev.setFilterByIssuerOfPatientID(reader.booleanValue());
+                    break;
+                case "dcmAuditHL7MsgLimit":
+                    arcDev.setAuditHL7MsgLimit(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

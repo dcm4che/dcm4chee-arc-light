@@ -90,6 +90,7 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                 ext.getMWLRequestedProcedureIDGenerator(), null);
         writer.writeNotNullOrDef("dcmMWLScheduledProcedureStepIDGenerator",
                 ext.getMWLScheduledProcedureStepIDGenerator(), null);
+        writer.writeNotNull("dcmAuditHL7MsgLimit", ext.getAuditHL7MsgLimit());
         writer.writeNotNullOrDef("hl7ReferredMergedPatientPolicy",
                 ext.getHl7ReferredMergedPatientPolicy(), null);
         writer.writeNotNullOrDef("hl7PatientArrivalMessageType", ext.getHL7PatientArrivalMessageType(), null);
@@ -191,6 +192,9 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7PatientArrivalMessageType":
                     ext.setHL7PatientArrivalMessageType(reader.stringValue());
+                    break;
+                case "dcmAuditHL7MsgLimit":
+                    ext.setAuditHL7MsgLimit(reader.intValue());
                     break;
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);
