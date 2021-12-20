@@ -963,30 +963,32 @@ public class AuditService {
             AuditInfoBuilder auditInfoBuilder, AuditUtils.EventType eventType, HL7ConnectionEvent hl7ConnEvent) {
         writeSpoolFile(auditInfoBuilder,
                 eventType,
-                truncateHL7(hl7ConnEvent.getHL7Application(), hl7ConnEvent.getHL7Message()),
-                truncateHL7(hl7ConnEvent.getHL7Application(), hl7ConnEvent.getHL7ResponseMessage()));
+                limitHL7MsgInAudit(hl7ConnEvent.getHL7Message(), hl7ConnEvent.getType()),
+                limitHL7MsgInAudit(hl7ConnEvent.getHL7ResponseMessage(), hl7ConnEvent.getType()));
     }
 
-    private byte[] truncateHL7(HL7Application hl7App, UnparsedHL7Message unparsedHL7Msg) {
+    private byte[] limitHL7MsgInAudit(UnparsedHL7Message unparsedHL7Msg, HL7ConnectionEvent.Type type) {
         HL7Segment msh = unparsedHL7Msg.msh();
-        if (hl7App == null)
-            hl7App = device.getDeviceExtensionNotNull(HL7DeviceExtension.class)
-                            .getHL7Application(msh.getReceivingApplicationWithFacility(), true);
+        HL7Application hl7App = device.getDeviceExtensionNotNull(HL7DeviceExtension.class)
+                .getHL7Application(type == HL7ConnectionEvent.Type.MESSAGE_PROCESSED
+                                    ? msh.getReceivingApplicationWithFacility()
+                                    : msh.getSendingApplicationWithFacility(),
+                        true);
+        ArchiveHL7ApplicationExtension arcHL7App;
+        int auditHL7MsgLimit = hl7App == null
+                                || ((arcHL7App = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)) == null)
+                                    ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getAuditHL7MsgLimit()
+                                    : arcHL7App.auditHL7MsgLimit();
+        return truncateHL7(unparsedHL7Msg, auditHL7MsgLimit);
+    }
 
-        ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+    private byte[] truncateHL7(UnparsedHL7Message unparsedHL7Msg, int auditHL7MsgLimit) {
         byte[] data = unparsedHL7Msg.data();
-        if (arcHL7App == null) {
-            LOG.info("No archive HL7 application extension configured for HL7 application {} - HL7 message data not checked for truncation",
-                    hl7App);
-            return data;
-        }
-
-        int auditHL7MsgLimit = arcHL7App.auditHL7MsgLimit();
         if (data.length <= auditHL7MsgLimit)
             return data;
 
         LOG.info("HL7 message [MessageHeader={}] length {} greater configured Audit HL7 Message Limit {} - truncate HL7 message in emitted audit",
-                msh, data.length, auditHL7MsgLimit);
+                unparsedHL7Msg.msh(), data.length, auditHL7MsgLimit);
         byte[] truncatedHL7 = new byte[auditHL7MsgLimit];
         System.arraycopy(data, 0, truncatedHL7, 0, auditHL7MsgLimit - 3);
         System.arraycopy("...".getBytes(), 0, truncatedHL7, auditHL7MsgLimit - 3, 3);
