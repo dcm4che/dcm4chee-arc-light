@@ -117,7 +117,7 @@ public class ExportTaskProcessor implements TaskProcessor {
                     task.getRequestURI()));
             outcome = exporter.export(exportContext);
             exportContext.setOutcome(outcome);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (exportContext != null)
                 exportContext.setException(e);
             LOG.warn("Failed to process {}", task, e);

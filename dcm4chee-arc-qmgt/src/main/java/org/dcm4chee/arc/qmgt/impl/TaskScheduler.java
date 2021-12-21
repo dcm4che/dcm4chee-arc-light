@@ -196,7 +196,7 @@ public class TaskScheduler extends Scheduler {
             TaskProcessor processor = namedCDIBeanCache.get(taskProcessors, task.getType().name());
             Outcome outcome = processor.process(task);
             ejb.onProcessingSuccessful(task.getPk(), outcome);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             ejb.onProcessingFailed(task.getPk(), e);
         }
     }
