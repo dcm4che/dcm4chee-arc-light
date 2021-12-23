@@ -86,7 +86,7 @@ public class StgVerScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        if (!ScheduleExpression.emptyOrAnyContains(Calendar.getInstance(), arcDev.getStorageVerificationSchedules()))
+        if (!ScheduleExpression.emptyOrAnyContainsNow(arcDev.getStorageVerificationSchedules()))
             return;
 
         String aet = arcDev.getStorageVerificationAETitle();

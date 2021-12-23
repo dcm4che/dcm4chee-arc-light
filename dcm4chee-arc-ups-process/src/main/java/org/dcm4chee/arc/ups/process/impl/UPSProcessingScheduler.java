@@ -105,10 +105,9 @@ public class UPSProcessingScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         if (arcDev.getUPSProcessingPollingInterval() == null) return;
-        Calendar now = Calendar.getInstance();
         for (UPSProcessingRule rule : arcDev.listUPSProcessingRules()) {
             if (!inProcess.containsKey(rule.getUPSProcessingRuleID())
-                    && ScheduleExpression.emptyOrAnyContains(now, rule.getSchedules())) {
+                    && ScheduleExpression.emptyOrAnyContainsNow(rule.getSchedules())) {
                 try {
                     device.execute(new ProcessWorkitems(rule));
                 } catch (Exception e){

@@ -102,7 +102,8 @@ public class TaskScheduler extends Scheduler {
 
     public void process(QueueDescriptor desc, int fetchSize) {
         String queueName = desc.getQueueName();
-        if (desc.isInstalled() && !inProcess.contains(queueName)) {
+        if (desc.isInstalled() && !inProcess.contains(queueName)
+                && ScheduleExpression.emptyOrAnyContainsNow(desc.getSchedules())) {
             if (rescheduleInProcess.add(queueName)) {
                 ejb.rescheduleInProcess(queueName);
             }
@@ -133,7 +134,8 @@ public class TaskScheduler extends Scheduler {
         do {
             for (Long pk : pks) {
                 if (arcDev.getTaskPollingInterval() == null
-                        || !arcDev.getQueueDescriptor(queueName).isInstalled()) {
+                        || !arcDev.getQueueDescriptor(queueName).isInstalled()
+                        || !ScheduleExpression.emptyOrAnyContainsNow(desc.getSchedules())) {
                     return;
                 }
                 Task task = onProcessingStart(pk);
@@ -165,7 +167,8 @@ public class TaskScheduler extends Scheduler {
                     for (Long pk : pks) {
                         semaphore.acquire();
                         if (arcDev.getTaskPollingInterval() == null
-                                || !arcDev.getQueueDescriptor(queueName).isInstalled()) {
+                                || !arcDev.getQueueDescriptor(queueName).isInstalled()
+                                || !ScheduleExpression.emptyOrAnyContainsNow(desc.getSchedules())) {
                             semaphore.release();
                             return;
                         }

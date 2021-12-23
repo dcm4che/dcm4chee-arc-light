@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -93,7 +92,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        if (!ScheduleExpression.emptyOrAnyContains(Calendar.getInstance(), arcDev.getRejectExpiredStudiesSchedules()))
+        if (!ScheduleExpression.emptyOrAnyContainsNow(arcDev.getRejectExpiredStudiesSchedules()))
             return;
 
         ApplicationEntity ae = getApplicationEntity(arcDev.getRejectExpiredStudiesAETitle());

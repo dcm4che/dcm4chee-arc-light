@@ -76,6 +76,12 @@ public class ScheduleExpression {
         return expressions.length == 0 || Stream.of(expressions).anyMatch(expr -> expr.contains(cal));
     }
 
+    public static boolean emptyOrAnyContainsNow(ScheduleExpression... expressions) {
+        if (expressions.length == 0) return true;
+        Calendar now = Calendar.getInstance();
+        return Stream.of(expressions).anyMatch(expr -> expr.contains(now));
+    }
+
     public Calendar ceil(Calendar cal) {
         if (contains(cal))
             return cal;

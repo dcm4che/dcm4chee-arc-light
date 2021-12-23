@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -102,7 +101,7 @@ public class CompressionScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        if (!ScheduleExpression.emptyOrAnyContains(Calendar.getInstance(), arcDev.getCompressionSchedules()))
+        if (!ScheduleExpression.emptyOrAnyContainsNow(arcDev.getCompressionSchedules()))
             return;
 
         String aet = arcDev.getCompressionAETitle();
