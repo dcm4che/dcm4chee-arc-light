@@ -173,7 +173,6 @@ describe("DeviceConfiguratorService",()=> {
                 "dcmURI": "dicom:STORESCP2",
                 "dcmStgCmtSCP": "",
                 "dcmQueueName": "Export2",
-                "dcmExportPriority": 4,
                 "dicomDescription": "",
                 "dicomAETitle": "DCM4CHEE",
                 "dcmExporterID": "STORESCP",
