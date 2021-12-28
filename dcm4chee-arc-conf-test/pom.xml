@@ -45,7 +45,7 @@
     <parent>
         <groupId>org.dcm4che.dcm4chee-arc</groupId>
         <artifactId>dcm4chee-arc-parent</artifactId>
-        <version>5.25.0</version>
+        <version>5.25.1</version>
     </parent>
     <artifactId>dcm4chee-arc-conf-test</artifactId>
 
