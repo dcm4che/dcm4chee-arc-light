@@ -101,10 +101,10 @@
                               [max]="line[index].max"
                               [editable]="true"
                               [showSearchField]="line[index].showSearchField"
+                              [(model)]="model[line[index].filterKey]"
                               [multiSelectMode]="false"
                               (modelChange)="filterChange($event)"
                               [showStar]="line[index].showStar"
-                              [(model)]="model[line[index].filterKey]"
                       ></dcm-drop-down>
                       <dcm-drop-down
                               [ngStyle]="line[index].style"
@@ -125,12 +125,12 @@
                               [placeholder]="line[index]?.placeholder"
                               [ngClass]="line[index].cssClass"
                               [options]="line[index].options"
+                              [(model)]="model[line[index].filterKey]"
                               [optionsTree]="line[index].optionsTree"
                               [showSearchField]="line[index].showSearchField"
                               (modelChange)="filterChange($event)"
                               [multiSelectMode]="false"
                               [showStar]="line[index].showStar"
-                              [(model)]="model[line[index].filterKey]"
                       ></dcm-drop-down>
                     <mat-select [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
                       <mat-option *ngIf="line[index].showStar" value="">*</mat-option>

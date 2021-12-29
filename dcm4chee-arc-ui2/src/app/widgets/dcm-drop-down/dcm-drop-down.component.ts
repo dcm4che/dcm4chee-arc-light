@@ -61,6 +61,9 @@ export class DcmDropDownComponent implements OnInit {
     @Input() showStar:boolean = false;
     @Input('model')
     set model(value){
+        console.log("this.selectedDropdown.value",this.selectedDropdown.value);
+        console.log("value",value);
+        console.log("==",this.selectedDropdown.value === value);
         if(!(this.selectedDropdown && this.selectedDropdown.value === value) && !this.multiSelectMode){
             if(value){
                 this.selectedValue = value;
@@ -72,9 +75,21 @@ export class DcmDropDownComponent implements OnInit {
                 this.clearSelection();
             }
         }else{
-            console.log("model,element",value);
-            this.multiSelectValue = value || [];
-            this.setSelectedElement();
+            if(this.multiSelectMode){
+                console.log("model,element",value);
+                this.multiSelectValue = value || [];
+                this.setSelectedElement();
+            }
+        }
+    }
+
+    get model(){
+        if(this.multiSelectMode){
+            this.modelChange.emit(this.multiSelectValue);
+            return this.multiSelectValue;
+        }else{
+            this.modelChange.emit(this.selectedValue);
+            return this.selectedValue;
         }
     }
     @Output() modelChange =  new EventEmitter();
@@ -158,6 +173,7 @@ export class DcmDropDownComponent implements OnInit {
                 this.modelChange.emit(this.selectedValue);
             }
         }
+
         // this.changeDetectorRef.detectChanges();
     }
     select(element){
