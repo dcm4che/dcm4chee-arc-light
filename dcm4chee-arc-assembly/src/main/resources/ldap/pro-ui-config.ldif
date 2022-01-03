@@ -24,14 +24,6 @@ dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
 
-dn: dcmuiPermissionName=Menu - Navigation,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dcmuiPermission
-dcmuiAction: menu-study
-dcmuiPermissionName: Menu - Navigation
-dcmAcceptedUserRole: admin
-dcmuiActionParam: visible
-dcmuiActionParam: accessible
-
 dn: dcmuiPermissionName=Menu - Statistics,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: menu-statistics
