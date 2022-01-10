@@ -29,16 +29,18 @@ export class PatientIssuerPipe implements PipeTransform {
           let issuerOfPIDQualifiersUniversalEntityIDType = valueOfItem(attrs, '00100024', '00400033');
           let issuerOfPIDQualifiers = issuerOfPIDQualifiersUniversalEntityID === false
                                         ? issuerOfPIDQualifiersUniversalEntityIDType == false
-                                            ? ''
+                                            ? false
                                             : '&' + issuerOfPIDQualifiersUniversalEntityIDType
                                         : issuerOfPIDQualifiersUniversalEntityIDType == false
                                             ? issuerOfPIDQualifiersUniversalEntityID + '&'
                                             : issuerOfPIDQualifiersUniversalEntityID + '&' + issuerOfPIDQualifiersUniversalEntityIDType;
           return issuerOfPID === false
-                    ? issuerOfPIDQualifiers == ''
+                    ? issuerOfPIDQualifiers === false
                         ? ''
                         : '&' + issuerOfPIDQualifiers
-                    : issuerOfPID + '&' + issuerOfPIDQualifiers;
+                    : issuerOfPIDQualifiers === false
+                        ? issuerOfPID
+                        : issuerOfPID + '&' + issuerOfPIDQualifiers;
       }
 
       return issuerOf(attrs);
