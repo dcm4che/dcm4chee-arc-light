@@ -142,7 +142,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
                         queryParam.setMatchingKeys(new Attributes()), false, false));
             }
         }
-        LOG.info("Found {} matching MWL Items", localAET, mwlItems.size());
+        LOG.info("Found {} matching MWL Items in {}", mwlItems.size(), localAET);
         if (mwlItems.isEmpty()) {
             mergeMWLCache.put(queryParam, null);
             return null;
