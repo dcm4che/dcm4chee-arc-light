@@ -94,7 +94,9 @@ class UpsCSV {
         Map<String, IDWithIssuer> studyPatientMap = new HashMap<>();
         try (
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
+                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.builder()
+                                                                          .setDelimiter(csvDelimiter())
+                                                                          .build())
         ) {
             boolean header = true;
             IDWithIssuer pid = dummyPatientID;

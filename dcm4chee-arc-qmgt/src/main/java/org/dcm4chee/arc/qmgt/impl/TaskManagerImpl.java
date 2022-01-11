@@ -140,10 +140,12 @@ public class TaskManagerImpl implements TaskManager {
                                       String[] headers, char delimiter) {
         return out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-            try (CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
-                    .withHeader(headers)
-                    .withDelimiter(delimiter)
-                    .withQuoteMode(QuoteMode.ALL))) {
+            try (CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180.builder()
+                                                                                .setHeader(headers)
+                                                                                .setDelimiter(delimiter)
+                                                                                .setQuoteMode(QuoteMode.ALL)
+                                                                                .build()))
+            {
                 ejb.forEachTask(taskQueryParam, offset, limit, task -> task.writeAsCSV(printer));
             }
         };

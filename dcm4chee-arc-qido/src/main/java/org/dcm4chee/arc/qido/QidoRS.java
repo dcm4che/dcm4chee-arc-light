@@ -892,10 +892,11 @@ public class QidoRS {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
             int[] tags = tagsFrom(model, matches.get(0));
             if (tags.length != 0) {
-                CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180
-                                            .withHeader(csvHeader(matches.get(0), tags))
-                                            .withDelimiter(csvDelimiter)
-                                            .withQuoteMode(QuoteMode.ALL));
+                CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180.builder()
+                                            .setHeader(csvHeader(matches.get(0), tags))
+                                            .setDelimiter(csvDelimiter)
+                                            .setQuoteMode(QuoteMode.ALL)
+                                            .build());
                 matches.forEach(match -> printRecord(printer, match, tags));
             }
             writer.flush();

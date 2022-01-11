@@ -166,7 +166,9 @@ public class ExportCSVRS {
             List<StudySeriesInfo> studySeries = new ArrayList<>();
             try (
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                    CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(csvDelimiter()))
+                    CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.builder()
+                                                                                .setDelimiter(csvDelimiter())
+                                                                                .build())
             ) {
                 boolean header = true;
                 for (CSVRecord csvRecord : parser) {
