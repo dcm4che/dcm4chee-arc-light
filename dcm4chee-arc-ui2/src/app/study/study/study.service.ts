@@ -317,10 +317,18 @@ export class StudyService {
         return [];
     }
 
-    getFilterSchema(tab: DicomMode, aets: Aet[], quantityText: { count: string, size: string }, filterMode: ('main' | 'expand'),
-                    storages?:SelectDropdown<StorageSystems>[],
-                    studyWebService?: StudyWebService, attributeSet?:SelectDropdown<DiffAttributeSet>[],
-                    showCount?:boolean, filter?:StudyFilterConfig) {
+    getFilterSchema(
+        tab: DicomMode,
+        aets: Aet[],
+        quantityText: { count: string, size: string },
+        filterMode: ('main' | 'expand'),
+        storages?:SelectDropdown<StorageSystems>[],
+        studyWebService?: StudyWebService,
+        attributeSet?:SelectDropdown<DiffAttributeSet>[],
+        showCount?:boolean,
+        filter?:StudyFilterConfig,
+        hook?:Function
+    ) {
         let schema: FilterSchema;
         let lineLength: number = 3;
         switch (tab) {
@@ -458,6 +466,9 @@ export class StudyService {
                     description: $localize `:@@query_only_the_size:QUERY ONLY THE SIZE`
                 })
             }
+        }
+        if(hook){
+            schema = hook.call(this, schema);
         }
         return {
             lineLength: lineLength,
