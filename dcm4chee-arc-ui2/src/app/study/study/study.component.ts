@@ -336,9 +336,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                 }
                 if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series") {
-                    this.getStorages(this, () => {
-                        this.getApplicationEntities();
-                    });
+                    this.initStorages();
                 }
                 this.more = false;
                 this._filter.filterModel.offset = 0;
@@ -5707,15 +5705,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.httpErrorHandler.handleError(err);
         })
     }
-    getStorages($this, callback?:Function) {
-        this.service.getStorageSystems().subscribe((storageSystems:StorageSystems[]) => {
-            this.storages = storageSystems.map((storageSystem:StorageSystems) => {
-                return new SelectDropdown(storageSystem.dcmStorageID, storageSystem.dcmStorageID);
-            });
-            callback.call($this);
-        }, err => {
-            this.httpErrorHandler.handleError(err);
-        });
+    initStorages() {
+        this.storages = this.service.getStorages(this, () => this.getApplicationEntities());
     }
 
     getDiffAttributeSet($this, callback?:Function){
