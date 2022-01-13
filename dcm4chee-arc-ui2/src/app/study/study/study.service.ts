@@ -43,7 +43,6 @@ import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe"
 import {AppService} from "../../app.service";
 import {MwlDicom} from "../../models/mwl-dicom";
 import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
-import {HttpErrorHandler} from "../../helpers/http-error-handler";
 
 @Injectable()
 export class StudyService {
@@ -55,11 +54,9 @@ export class StudyService {
     jsonHeader = new HttpHeaders({'Content-Type': 'application/json'});
 
     selectedElements:SelectionActionElement;
-    storages:SelectDropdown<StorageSystems>[];
     constructor(
         private aeListService: AeListService,
         private $http: J4careHttpService,
-        private httpErrorHandler:HttpErrorHandler,
         private storageSystems: StorageSystemsService,
         private devicesService: DevicesService,
         private webAppListService: WebAppsListService,
@@ -1073,18 +1070,6 @@ export class StudyService {
 
     getStorageSystems() {
         return this.storageSystems.search({}, 0);
-    }
-
-    getStorages($this, callback?:Function) {
-        this.getStorageSystems().subscribe((storageSystems:StorageSystems[]) => {
-            this.storages = storageSystems.map((storageSystem:StorageSystems) => {
-                return new SelectDropdown(storageSystem.dcmStorageID, storageSystem.dcmStorageID);
-            });
-            callback.call($this);
-        }, err => {
-            this.httpErrorHandler.handleError(err);
-        });
-        return this.storages;
     }
 
     verifyStorage = (attrs, studyWebService: StudyWebService, level: DicomLevel, param) => {
