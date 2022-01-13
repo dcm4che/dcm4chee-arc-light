@@ -42,7 +42,9 @@ package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.image.BufferedImageUtils;
 import org.dcm4che3.image.ICCProfile;
+import org.dcm4che3.image.PaletteColorModel;
 import org.dcm4che3.image.PixelAspectRatio;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.imageio.plugins.dcm.DicomMetaData;
@@ -64,6 +66,8 @@ import javax.ws.rs.core.StreamingOutput;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -193,7 +197,14 @@ public class RenderedImageOutput implements StreamingOutput {
         AffineTransformOp op = new AffineTransformOp(
                 AffineTransform.getScaleInstance(sx, sy),
                 AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        return op.filter(bi, null);
+        return op.filter(convertPalettetoRGB(bi), null);
+    }
+
+    private static BufferedImage convertPalettetoRGB(BufferedImage bi) {
+        ColorModel pcm = bi.getColorModel();
+        return (pcm instanceof PaletteColorModel || pcm instanceof IndexColorModel)
+            ? BufferedImageUtils.convertPalettetoRGB(bi, null)
+            : bi;
     }
 
     private float getPixelAspectRatio() throws IOException {
