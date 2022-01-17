@@ -105,6 +105,7 @@ class StoreServiceImpl implements StoreService {
 
     static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
     static final int DIFF_STUDY_INSTANCE_UID = 0xC409;
+    static final int FAILED_TO_PARSE_DICOM_STREAM = 0xC499;
 
     @Inject
     private DicomConfiguration conf;
@@ -242,6 +243,9 @@ class StoreServiceImpl implements StoreService {
         } catch (StorageException e) {
             LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
             throw new DicomServiceException(Status.OutOfResources, e);
+        } catch (DicomStreamException e) {
+            LOG.warn("{}: Failed to parse received object:\n", ctx.getStoreSession(), e);
+            throw new DicomServiceException(FAILED_TO_PARSE_DICOM_STREAM, e);
         } catch (Throwable e) {
             LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
             throw new DicomServiceException(Status.ProcessingFailure, e);

@@ -106,6 +106,7 @@ import java.util.*;
 public class StowRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StowRS.class);
+    private static final String NOT_A_DICOM_FILE_UID = "1.2.40.0.13.1.15.110.3.165.2";
     private static final int[] IUIDS_TAGS = {
             Tag.StudyInstanceUID,
             Tag.SeriesInstanceUID,
@@ -160,6 +161,7 @@ public class StowRS {
 
     private final ArrayList<Attributes> instances = new ArrayList<>();
     private final Attributes response = new Attributes();
+    private volatile String warning;
     private Sequence sopSequence;
     private Sequence failedSOPSequence;
     private java.nio.file.Path spoolDirectory;
@@ -343,7 +345,7 @@ public class StowRS {
         Response.ResponseBuilder responseBuilder = Response.status(status());
         ar.resume(responseBuilder
                     .entity(output.entity(response, ae))
-                    .header("Warning", response.getString(Tag.ErrorComment))
+                    .header("Warning", warning)
                     .build());
     }
 
@@ -466,10 +468,19 @@ public class StowRS {
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
-            LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
-            response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
+            LOG.info("{}: Failed to store {}", session, getSopClassName(ctx), e);
+            setWarning(e);
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
+    }
+
+    private void setWarning(DicomServiceException e) {
+        warning = "299 " + device.getDeviceName() + " \"" + e.getMessage() + "\"";
+    }
+
+    private static String getSopClassName(StoreContext ctx) {
+        Attributes attributes = ctx.getAttributes();
+        return attributes != null ? UID.nameOf(attributes.getString(Tag.SOPClassUID)) : "?";
     }
 
     private void coerceAttributes(Attributes attrs) {
@@ -500,8 +511,8 @@ public class StowRS {
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
             ctx.setAttributes(attrs);
-            LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
-            response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
+            LOG.info("{}: Failed to store {}", session, getSopClassName(ctx), e);
+            setWarning(e);
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
     }
@@ -891,8 +902,13 @@ public class StowRS {
 
     private Attributes mkSOPRef(StoreContext ctx, int size) {
         Attributes attrs = new Attributes(size);
-        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, ctx.getSopClassUID());
-        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, ctx.getSopInstanceUID());
+        if (ctx.getAttributes() != null) {
+            attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, ctx.getSopClassUID());
+            attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, ctx.getSopInstanceUID());
+        } else {
+            attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, NOT_A_DICOM_FILE_UID);
+            attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, UIDUtils.createUID());
+        }
         return attrs;
     }
 
