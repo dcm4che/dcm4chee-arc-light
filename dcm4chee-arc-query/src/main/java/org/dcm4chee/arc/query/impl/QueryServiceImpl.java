@@ -337,23 +337,27 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public StudyQueryAttributes calculateStudyQueryAttributesIfNotExists(Long studyPk, QueryRetrieveView qrView) {
-        return queryAttributesEJB.calculateStudyQueryAttributesIfNotExists(studyPk, qrView);
-    }
-
-    @Override
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
-        return queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
-    }
-
-    @Override
-    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView) {
-        return queryAttributesEJB.calculateSeriesQueryAttributesIfNotExists(seriesPk, qrView);
+        StudyQueryAttributes studyQueryAttributes = null;
+        try {
+            studyQueryAttributes = queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
+        } catch (EJBException e) {
+            if ((studyQueryAttributes = queryAttributesEJB.findStudyQueryAttributes(studyPk, qrView)) == null)
+                throw e;
+        }
+        return studyQueryAttributes;
     }
 
     @Override
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
-        return queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
+        SeriesQueryAttributes seriesQueryAttributes;
+        try {
+            seriesQueryAttributes = queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
+        } catch (EJBException e) {
+            if ((seriesQueryAttributes = queryAttributesEJB.findSeriesQueryAttributes(seriesPk, qrView)) == null)
+                throw e;
+        }
+        return seriesQueryAttributes;
     }
 
     @Override

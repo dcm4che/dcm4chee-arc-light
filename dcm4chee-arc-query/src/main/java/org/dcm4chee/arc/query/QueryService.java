@@ -106,11 +106,7 @@ public interface QueryService {
 
     long calculateStudySize(Long studyPk);
 
-    StudyQueryAttributes calculateStudyQueryAttributesIfNotExists(Long studyPk, QueryRetrieveView qrView);
-
     StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView);
-
-    SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView);
 
     SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView);
 

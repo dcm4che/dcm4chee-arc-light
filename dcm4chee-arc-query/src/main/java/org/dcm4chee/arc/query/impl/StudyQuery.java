@@ -160,7 +160,7 @@ class StudyQuery extends AbstractQuery {
             availability = results.get(studyQueryAttributes.get(StudyQueryAttributes_.availability));
         } else {
             StudyQueryAttributes studyView = context.getQueryService()
-                    .calculateStudyQueryAttributesIfNotExists(studyPk, queryParam.getQueryRetrieveView());
+                    .calculateStudyQueryAttributes(studyPk, queryParam.getQueryRetrieveView());
             numberOfStudyRelatedInstances = studyView.getNumberOfInstances();
             if (numberOfStudyRelatedInstances == 0) {
                 return null;

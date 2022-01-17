@@ -49,6 +49,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJBException;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -81,7 +82,7 @@ public class QueryAttributesEJB {
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
 
-    public StudyQueryAttributes calculateStudyQueryAttributesIfNotExists(Long studyPk, QueryRetrieveView qrView) {
+    public StudyQueryAttributes findStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
         try {
             return em.createNamedQuery(
                             StudyQueryAttributes.FIND_BY_VIEW_ID_AND_STUDY_PK, StudyQueryAttributes.class)
@@ -89,7 +90,7 @@ public class QueryAttributesEJB {
                     .setParameter(2, studyPk)
                     .getSingleResult();
         } catch (NoResultException e) {
-            return calculateStudyQueryAttributes(studyPk, qrView);
+            return null;
         }
     }
 
@@ -113,10 +114,17 @@ public class QueryAttributesEJB {
         try (Stream<Tuple> resultStream = query.getResultStream()) {
             resultStream.forEach(tuple -> {
             Integer numberOfInstancesI = tuple.get(seriesQueryAttributes.get(SeriesQueryAttributes_.numberOfInstances));
-            if (numberOfInstancesI == null)
-                builder.add(tuple,
-                        self.calculateSeriesQueryAttributesIfNotExists(tuple.get(series.get(Series_.pk)), qrView));
-            else
+            if (numberOfInstancesI == null) {
+                SeriesQueryAttributes seriesQueryAttrs;
+                try {
+                    seriesQueryAttrs = self.calculateSeriesQueryAttributes(tuple.get(series.get(Series_.pk)), qrView);
+                } catch (EJBException e) {
+                    if ((seriesQueryAttrs = self.findSeriesQueryAttributes(tuple.get(series.get(Series_.pk)), qrView))
+                            == null)
+                        throw e;
+                }
+                builder.add(tuple, seriesQueryAttrs);
+            } else
                 builder.add(tuple);
             });
         }
@@ -127,7 +135,7 @@ public class QueryAttributesEJB {
         return queryAttrs;
     }
 
-    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView) {
+    public SeriesQueryAttributes findSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
         try {
             return em.createNamedQuery(
                             SeriesQueryAttributes.FIND_BY_VIEW_ID_AND_SERIES_PK, SeriesQueryAttributes.class)
@@ -135,7 +143,7 @@ public class QueryAttributesEJB {
                     .setParameter(2, seriesPk)
                     .getSingleResult();
         } catch (NoResultException e) {
-            return calculateSeriesQueryAttributes(seriesPk, qrView);
+            return null;
         }
     }
 
