@@ -624,6 +624,9 @@
     "/monitor/serverTime": {
       "$ref": "paths/monitor.json#/serverTime"
     },
+    "/monitor/serverTimeZone": {
+      "$ref": "paths/monitor.json#/serverTimeZone"
+    },
     "/monitor/export": {
       "$ref": "paths/monitor.json#/export"
     },

@@ -969,6 +969,28 @@
       }
     }
   },
+  "ServerTimeZone": {
+    "description": "Server Timezone",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "timeZone",
+            "offset"
+          ],
+          "properties": {
+            "timeZone": {
+              "type": "string"
+            },
+            "offset": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
   "Status": {
     "description": "archive status",
     "content": {

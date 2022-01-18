@@ -147,6 +147,22 @@
       }
     }
   },
+  "serverTimeZone": {
+    "get": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "Get Server Timezone",
+      "operationId": "getServerTimeZone",
+      "parameters": [
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/ServerTimeZone"
+        }
+      }
+    }
+  },
   "export": {
     "get": {
       "tags": [
