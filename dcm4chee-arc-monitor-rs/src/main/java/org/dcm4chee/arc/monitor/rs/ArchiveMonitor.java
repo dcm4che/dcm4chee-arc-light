@@ -151,6 +151,22 @@ public class ArchiveMonitor {
                 + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()) + "\"}";
     }
 
+    @GET
+    @NoCache
+    @Path("serverTimeZone")
+    @Produces("application/json")
+    public StreamingOutput getServerTimeZone() {
+        logRequest();
+        return out -> {
+            try (JsonGenerator gen = Json.createGenerator(out)) {
+                gen.writeStartObject();
+                gen.write("timeZone", java.util.TimeZone.getDefault().getID());
+                gen.write("offset", java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis()));
+                gen.writeEnd();
+            }
+        };
+    }
+
     private void writeOpenAssociations(OutputStream out) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         try (JsonGenerator gen = Json.createGenerator(out)) {
