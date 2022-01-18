@@ -91,6 +91,7 @@ public class WadoExporter extends AbstractExporter {
     private final Device device;
     private final IWebApplicationCache webApplicationCache;
     private final EnumMap<Entity,List<QueryRetrieveRequest>> queryRetrieveRequests = new EnumMap<>(Entity.class);
+    private final boolean ignoreNotFound;
     private WebApplication queryRetrieveWebApp;
 
     public WadoExporter(
@@ -102,6 +103,7 @@ public class WadoExporter extends AbstractExporter {
         this.accessTokenRequestor = accessTokenRequestor;
         this.device = device;
         this.webApplicationCache = webApplicationCache;
+        this.ignoreNotFound = Boolean.parseBoolean(descriptor.getProperties().get("IgnoreNotFound"));
         addQueryRetrieveRequest();
     }
 
@@ -169,8 +171,8 @@ public class WadoExporter extends AbstractExporter {
                 for (Object[] params : entry.getKey().queryParams(exportContext, queryService)) {
                     for (QueryRetrieveRequest queryRetrieveRequest : entry.getValue()) {
                         try {
-                            invoke(queryRetrieveRequest, params, buffer, storageMap);
-                            count++;
+                            if (invoke(queryRetrieveRequest, params, buffer, storageMap))
+                                count++;
                         } catch (Exception e) {
                             failed++;
                             ex = e;
@@ -196,22 +198,26 @@ public class WadoExporter extends AbstractExporter {
         throw ex;
     }
 
-    private void invoke(QueryRetrieveRequest queryRetrieveRequest, Object[] params, byte[] buffer, Map<String, Storage> storageMap)
+    private boolean invoke(QueryRetrieveRequest queryRetrieveRequest, Object[] params, byte[] buffer, Map<String, Storage> storageMap)
             throws Exception {
         Invocation.Builder request = queryRetrieveRequest.openConnection(params, accessTokenRequestor);
-        Response response = request.get();
-        Response.StatusType statusInfo = response.getStatusInfo();
-        if (statusInfo.getFamily() != Response.Status.Family.SUCCESSFUL) {
-            LOG.info("Invocation of request {} failed with status {} {}",
-                    queryRetrieveRequest.getTargetURL(),
-                    statusInfo.getStatusCode(),
-                    statusInfo.getReasonPhrase());
-            throw new IOException("HTTP " + statusInfo.getStatusCode() + ' ' + statusInfo.getReasonPhrase());
+        try (Response response = request.get()) {
+            Response.StatusType statusInfo = response.getStatusInfo();
+            if (statusInfo.getFamily() != Response.Status.Family.SUCCESSFUL) {
+                LOG.info("Invocation of request {} failed with status {} {}",
+                        queryRetrieveRequest.getTargetURL(),
+                        statusInfo.getStatusCode(),
+                        statusInfo.getReasonPhrase());
+                if (ignoreNotFound && (response.getStatus() == 404 || response.getStatus() == 410))
+                    return false;
+                throw new IOException("HTTP " + statusInfo.getStatusCode() + ' ' + statusInfo.getReasonPhrase());
+            }
+            try (InputStream in = response.readEntity(InputStream.class);
+                 OutputStream out = getOutputStream(queryRetrieveRequest.storageDescriptor, params, storageMap)) {
+                StreamUtils.copy(in, out, buffer);
+            }
         }
-        try (InputStream in = response.readEntity(InputStream.class);
-             OutputStream out = getOutputStream(queryRetrieveRequest.storageDescriptor, params, storageMap)) {
-            StreamUtils.copy(in, out, buffer);
-        }
+        return true;
     }
 
     private OutputStream getOutputStream(
