@@ -2094,6 +2094,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.429 NAME 'dcmAuditHL7MsgLimit'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.430 NAME 'dcmMergeLocalMWLSCP'
+  DESC 'AE Title of external MWL SCP to lookup MWL Item used to coerce request attributes of received objects.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2644,6 +2649,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmMergeMWLMatchingKey $
     dcmMergeMWLTemplateURI $
     dcmMergeMWLSCP $
+    dcmMergeLocalMWLSCP $
     dcmMWLImportFilterBySCU $
     dcmLeadingCFindSCP $
     dcmTag $
