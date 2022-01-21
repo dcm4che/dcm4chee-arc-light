@@ -1770,29 +1770,47 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     if (!this.appService.global.notSecure) {
                         token = response.token;
                     }
-                    let exQueryParams = {contentType: 'application/dicom'};
-                    if(_.hasIn(ok,"schema_model.compressed") && _.get(ok,"schema_model.compressed")){
-                        exQueryParams["transferSyntax"] = transferSyntax;
-                    }
-                    if(_.hasIn(ok,"schema_model.includingdicomdir") && _.get(ok,"schema_model.includingdicomdir")) {
-                        exQueryParams["dicomdir"] = true;
-                    }
+                    var includeDicomDir = _.hasIn(ok,"schema_model.includingdicomdir") && _.get(ok,"schema_model.includingdicomdir");
+                    let exQueryParams = includeDicomDir === true
+                                            ? {accept: 'application/zip'}
+                                            : {contentType: 'application/dicom'};
+                    var compressed = _.hasIn(ok,"schema_model.compressed") && _.get(ok,"schema_model.compressed");
                     console.log("keys", Object.keys(inst.wadoQueryParams));
                     console.log("keys", Object.getOwnPropertyNames(inst.wadoQueryParams));
                     console.log("keys", inst.wadoQueryParams);
-                    this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams).subscribe((urlWebApp: string) => {
-                        if (!this.appService.global.notSecure) {
-                            // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
-                            url = urlWebApp + `&access_token=${token}`;
-                        } else {
-                            // WindowRefService.nativeWindow.open(this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams));
-                            url = urlWebApp;
-                        }
-                        if (j4care.hasSet(inst, "attrs[00080018].Value[0]")) {
-                            fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`
-                        }
-                        j4care.downloadFile(url, fileName);
-                    })
+                    if(includeDicomDir === true){
+                        exQueryParams["dicomdir"] = true;
+                        if(compressed === true)
+                            exQueryParams.accept += ';transfer-syntax=*';
+                        url = this.service.instanceURL(inst.attrs, this.studyWebService.selectedWebService);
+                        fileName = this.service.instanceFileName(inst.attrs);
+                        this.service.getTokenService(this.studyWebService).subscribe((response)=>{
+                            if(!this.appService.global.notSecure){
+                                token = response.token;
+                            }
+                            if(!this.appService.global.notSecure){
+                                j4care.downloadFile(`${url}?${j4care.objToUrlParams(exQueryParams)}&access_token=${token}`,`${fileName}.zip`)
+                            }else{
+                                j4care.downloadFile(`${url}?${j4care.objToUrlParams(exQueryParams)}`,`${fileName}.zip`)
+                            }
+                        });
+                    } else {
+                        if(compressed === true)
+                            exQueryParams["transferSyntax"] = transferSyntax;
+                        this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams).subscribe((urlWebApp: string) => {
+                            if (!this.appService.global.notSecure) {
+                                // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
+                                url = urlWebApp + `&access_token=${token}`;
+                            } else {
+                                // WindowRefService.nativeWindow.open(this.service.wadoURL(this.studyWebService.selectedWebService, inst.wadoQueryParams, exQueryParams));
+                                url = urlWebApp;
+                            }
+                            if (j4care.hasSet(inst, "attrs[00080018].Value[0]")) {
+                                fileName = `${_.get(inst, "attrs[00080018].Value[0]")}.dcm`
+                            }
+                            j4care.downloadFile(url, fileName);
+                        })
+                    }
                 });
             }
         });
