@@ -763,7 +763,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmMergeMWLSCP", aac.getMergeMWLSCP(), null);
-            writer.writeNotEmpty("dcmMergeLocalMWLSCP", aac.getMergeLocalMWLSCPs(), null);
+            writer.writeNotEmpty("dcmMergeLocalMWLSCP", aac.getMergeLocalMWLSCPs());
             writer.writeNotDef("dcmMWLImportFilterBySCU", aac.isFilterBySCU(), false);
             writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", aac.getNullifyIssuerOfPatientID(), null);
             writer.writeNotEmpty("dcmIssuerOfPatientID", aac.getIssuerOfPatientIDs());
