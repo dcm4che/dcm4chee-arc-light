@@ -2094,7 +2094,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.429 NAME 'dcmAuditHL7MsgLimit'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.430 NAME 'dcmMergeLocalMWLSCP'
-  DESC 'AE Title of external MWL SCP to lookup MWL Item used to coerce request attributes of received objects.'
+  DESC 'AE Titles of local archive MWL SCPs used to lookup MWL Item to coerce request attributes of received objects. If absent, the Archive DB is queried for a matching MWL item provided by any Archive MWL AE.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
