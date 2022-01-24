@@ -878,18 +878,18 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public List<Attributes> queryMWL(MergeMWLQueryParam queryParam) {
-        TypedQuery<Tuple> namedQuery = queryParam.mwlSCP != null ?
+        TypedQuery<Tuple> namedQuery = queryParam.localMwlSCPs.length > 0 ?
                 queryParam.accessionNumber != null
                         ? em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_ACCESSION_NO, Tuple.class)
-                        .setParameter(1, queryParam.mwlSCP)
+                        .setParameter(1, queryParam.localMwlSCPs)
                         .setParameter(2, queryParam.accessionNumber)
                         : queryParam.spsID != null
                         ? em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_STUDY_UID_AND_SPS_ID, Tuple.class)
-                        .setParameter(1, queryParam.mwlSCP)
+                        .setParameter(1, queryParam.localMwlSCPs)
                         .setParameter(2, queryParam.studyIUID)
                         .setParameter(3, queryParam.spsID)
                         : em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_STUDY_IUID, Tuple.class)
-                        .setParameter(1, queryParam.mwlSCP)
+                        .setParameter(1, queryParam.localMwlSCPs)
                         .setParameter(2, queryParam.studyIUID)
                 : queryParam.accessionNumber != null
                 ? em.createNamedQuery(MWLItem.ATTRS_BY_ACCESSION_NO, Tuple.class)
