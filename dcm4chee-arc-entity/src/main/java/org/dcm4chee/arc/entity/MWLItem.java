@@ -97,17 +97,17 @@ import java.util.*;
         name = MWLItem.ATTRS_BY_AET_AND_ACCESSION_NO,
         query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
                 "from MWLItem mwl " +
-                "where mwl.localAET = ?1 and mwl.accessionNumber = ?2"),
+                "where mwl.localAET in (?1) and mwl.accessionNumber = ?2"),
 @NamedQuery(
         name = MWLItem.ATTRS_BY_AET_AND_STUDY_IUID,
         query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
                 "from MWLItem mwl " +
-                "where mwl.localAET = ?1 and mwl.studyInstanceUID = ?2"),
+                "where mwl.localAET in (?1) and mwl.studyInstanceUID = ?2"),
 @NamedQuery(
         name = MWLItem.ATTRS_BY_AET_AND_STUDY_UID_AND_SPS_ID,
         query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes " +
                 "from MWLItem mwl " +
-                "where mwl.localAET = ?1 and mwl.studyInstanceUID = ?2 and mwl.scheduledProcedureStepID = ?3"),
+                "where mwl.localAET in (?1) and mwl.studyInstanceUID = ?2 and mwl.scheduledProcedureStepID = ?3"),
 @NamedQuery(
         name = MWLItem.FIND_BY_STATUS_AND_UPDATED_BEFORE,
         query = "select mwl from MWLItem mwl " +

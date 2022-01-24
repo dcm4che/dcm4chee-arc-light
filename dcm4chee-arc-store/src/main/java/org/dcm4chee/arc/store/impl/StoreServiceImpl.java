@@ -644,15 +644,15 @@ class StoreServiceImpl implements StoreService {
         if (mergeMWLMatchingKey == null || tplURI == null)
             return null;
 
-        MergeMWLQueryParam queryParam =
-                MergeMWLQueryParam.valueOf(rule.getMergeMWLSCP(), mergeMWLMatchingKey, ctx.getAttributes());
+        MergeMWLQueryParam queryParam = MergeMWLQueryParam.valueOf(rule.getMergeMWLSCP(), rule.getMergeLocalMWLSCPs(),
+                        mergeMWLMatchingKey, ctx.getAttributes());
 
         Cache.Entry<Attributes> entry = mergeMWLCache.getEntry(queryParam);
         if (entry != null)
             return entry.value();
 
         List<Attributes> mwlItems;
-        if (queryParam.mwlSCP == null || device.getApplicationEntity(queryParam.mwlSCP, true) != null) {
+        if (queryParam.mwlSCP == null) {
             mwlItems = ejb.queryMWL(ctx, queryParam);
         } else
             try {

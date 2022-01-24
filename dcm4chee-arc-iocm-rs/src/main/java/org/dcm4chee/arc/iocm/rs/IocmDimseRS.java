@@ -9,6 +9,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -108,7 +109,7 @@ public class IocmDimseRS {
             aeCache.findApplicationEntity(mwlscp);
             List<Attributes> mwlItems = cFindSCU.findMWLItems(
                     arcAE.getApplicationEntity(),
-                    new MergeMWLQueryParam(mwlscp, null, null, studyUID, spsID),
+                    new MergeMWLQueryParam(mwlscp, StringUtils.EMPTY_STRING, null, null, studyUID, spsID),
                     Priority.NORMAL);
             if (mwlItems.isEmpty())
                 return errResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",

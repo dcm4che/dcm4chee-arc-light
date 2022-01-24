@@ -120,7 +120,10 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
         MergeMWLMatchingKey mergeMWLMatchingKey = MergeMWLMatchingKey.valueOf(
                 coercion.getCoercionParam("match-by", MergeMWLMatchingKey.ScheduledProcedureStepID.name()));
         String mwlSCP = coercion.getCoercionParam("mwl-scp", null);
-        return MergeMWLQueryParam.valueOf(mwlSCP, mergeMWLMatchingKey, attrs);
+        String localMwlSCPs = coercion.getCoercionParam("local-mwl-scp", null);
+        return MergeMWLQueryParam.valueOf(mwlSCP,
+                localMwlSCPs != null ? StringUtils.split(localMwlSCPs, '|') : null,
+                mergeMWLMatchingKey, attrs);
     }
 
     private Attributes queryMWL(String localAET, MergeMWLQueryParam queryParam, boolean filterbyscu,
@@ -132,7 +135,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
 
         List<Attributes> mwlItems;
         LOG.info("Query for MWL Items with {}", queryParam);
-        if (queryParam.mwlSCP == null || device.getApplicationEntity(queryParam.mwlSCP, true) != null) {
+        if (queryParam.mwlSCP == null) {
             mwlItems = queryService.queryMWL(queryParam);
         } else {
             mwlItems = cfindscu.findMWLItems(
