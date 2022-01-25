@@ -1199,7 +1199,21 @@ public class QueryBuilder {
         Root<Series> series = sq.from(Series.class);
         List<Predicate> y = new ArrayList<>();
         anyOf(y, series.get(Series_.modality), toUpperCase(modalitiesInStudy), false);
-        anyOf(y, series.get(Series_.sopClassUID), keys.getStrings(Tag.SOPClassesInStudy), false);
+        String[] cuidsInStudy = keys.getStrings(Tag.SOPClassesInStudy);
+        if (!isUniversalMatching(cuidsInStudy)) {
+            if (queryParam.isMatchSOPClassOnInstanceLevel()) {
+                Subquery<Instance> ssq = sq.subquery(Instance.class);
+                Root<Instance> inst = ssq.from(Instance.class);
+                y.add(cb.or(
+                        series.get(Series_.sopClassUID).in(cuidsInStudy),
+                        cb.exists(ssq.select(inst).where(
+                                cb.equal(inst.get(Instance_.series), series),
+                                inst.get(Instance_.sopClassUID).in(cuidsInStudy)))
+                ));
+            } else {
+                y.add(series.get(Series_.sopClassUID).in(cuidsInStudy));
+            }
+        }
         requestedOrUnscheduled(y, series, queryParam);
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             anyOf(y, series.get(Series_.institutionName),

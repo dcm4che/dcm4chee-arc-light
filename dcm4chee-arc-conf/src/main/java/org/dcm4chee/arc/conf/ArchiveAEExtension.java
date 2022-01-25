@@ -111,6 +111,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Integer qidoMaxNumberOfResults;
     private Boolean qidoETag;
     private Boolean filterByIssuerOfPatientID;
+    private Boolean matchSOPClassOnInstanceLevel;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private SPSStatus[] hideSPSWithStatusFromMWLRS = {};
     private String mwlAccessionNumberGenerator;
@@ -847,6 +848,20 @@ public class ArchiveAEExtension extends AEExtension {
         return filterByIssuerOfPatientID != null
                 ? filterByIssuerOfPatientID
                 : getArchiveDeviceExtension().isFilterByIssuerOfPatientID();
+    }
+
+    public Boolean getMatchSOPClassOnInstanceLevel() {
+        return matchSOPClassOnInstanceLevel;
+    }
+
+    public void setMatchSOPClassOnInstanceLevel(Boolean matchSOPClassOnInstanceLevel) {
+        this.matchSOPClassOnInstanceLevel = matchSOPClassOnInstanceLevel;
+    }
+
+    public boolean matchSOPClassOnInstanceLevel() {
+        return matchSOPClassOnInstanceLevel != null
+                ? matchSOPClassOnInstanceLevel
+                : getArchiveDeviceExtension().isMatchSOPClassOnInstanceLevel();
     }
 
     public SPSStatus[] getHideSPSWithStatusFromMWL() {
@@ -1865,6 +1880,7 @@ public class ArchiveAEExtension extends AEExtension {
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         qidoETag = aeExt.qidoETag;
         filterByIssuerOfPatientID = aeExt.filterByIssuerOfPatientID;
+        matchSOPClassOnInstanceLevel = aeExt.matchSOPClassOnInstanceLevel;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
         hideSPSWithStatusFromMWLRS = aeExt.hideSPSWithStatusFromMWLRS;
         mwlAccessionNumberGenerator = aeExt.mwlAccessionNumberGenerator;

@@ -2097,6 +2097,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.430 NAME 'dcmMergeLocalMWLSCP'
   DESC 'AE Titles of local archive MWL SCPs used to lookup MWL Item to coerce request attributes of received objects. If absent, the Archive DB is queried for a matching MWL item provided by any Archive MWL AE.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.431 NAME 'dcmMatchSOPClassOnInstanceLevel'
+  DESC 'Indicates to consider the SOP Class UID on Instance level for calculation of matches with SOP Classes in Study (0008,0062); if false or absent rely on stored SOP Class UID on Series level.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2173,6 +2178,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQidoMaxNumberOfResults $
     dcmQidoETag $
     dcmFilterByIssuerOfPatientID $
+    dcmMatchSOPClassOnInstanceLevel $
     dcmFwdMppsDestination $
     dcmIanDestination $
     dcmIanDelay $
@@ -2409,6 +2415,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmQidoMaxNumberOfResults $
     dcmQidoETag $
     dcmFilterByIssuerOfPatientID $
+    dcmMatchSOPClassOnInstanceLevel $
     dcmFwdMppsDestination $
     dcmIanDestination $
     dcmIanDelay $

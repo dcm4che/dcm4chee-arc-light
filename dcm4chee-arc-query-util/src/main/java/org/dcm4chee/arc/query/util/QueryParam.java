@@ -132,6 +132,10 @@ public class QueryParam {
         return arcAE.filterByIssuerOfPatientID();
     }
 
+    public boolean isMatchSOPClassOnInstanceLevel() {
+        return arcAE.matchSOPClassOnInstanceLevel();
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return arcDev.getAttributeFilter(entity);
     }

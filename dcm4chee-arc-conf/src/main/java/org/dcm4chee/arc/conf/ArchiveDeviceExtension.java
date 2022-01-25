@@ -114,6 +114,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int qidoMaxNumberOfResults = 0;
     private volatile boolean qidoETag = false;
     private volatile boolean filterByIssuerOfPatientID = false;
+    private volatile boolean matchSOPClassOnInstanceLevel = false;
     private volatile boolean wadoMetadataWithoutPrivate = false;
     private volatile boolean wadoIgnorePresentationLUTShape = false;
     private volatile String wadoThumbnailViewPort = WADO_THUMBNAIL_VIEWPORT;
@@ -1007,6 +1008,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFilterByIssuerOfPatientID(boolean filterByIssuerOfPatientID) {
         this.filterByIssuerOfPatientID = filterByIssuerOfPatientID;
+    }
+
+    public boolean isMatchSOPClassOnInstanceLevel() {
+        return matchSOPClassOnInstanceLevel;
+    }
+
+    public void setMatchSOPClassOnInstanceLevel(boolean matchSOPClassOnInstanceLevel) {
+        this.matchSOPClassOnInstanceLevel = matchSOPClassOnInstanceLevel;
     }
 
     public Duration getDeleteRejectedPollingInterval() {
@@ -3223,6 +3232,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         qidoETag = arcdev.qidoETag;
         filterByIssuerOfPatientID = arcdev.filterByIssuerOfPatientID;
+        matchSOPClassOnInstanceLevel = arcdev.matchSOPClassOnInstanceLevel;
         queryRetrieveViewMap.clear();
         queryRetrieveViewMap.putAll(arcdev.queryRetrieveViewMap);
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
