@@ -53,6 +53,7 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 
 import javax.ejb.Stateless;
@@ -82,7 +83,7 @@ public class QueryServiceEJB {
     QuerySizeEJB querySizeEJB;
 
     @Inject
-    QueryAttributesEJB queryAttributesEJB;
+    QueryService queryService;
 
     public Attributes getSeriesAttributes(Long seriesPk, QueryContext context) {
         QueryRetrieveView qrView = context.getQueryParam().getQueryRetrieveView();
@@ -170,7 +171,7 @@ public class QueryServiceEJB {
                 result.get(seriesQueryAttributesPath.get(SeriesQueryAttributes_.numberOfInstances));
         if (numberOfSeriesRelatedInstances == null) {
             SeriesQueryAttributes seriesQueryAttributes =
-                    queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
+                    queryService.calculateSeriesQueryAttributes(seriesPk, qrView);
             numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
         }
 
@@ -181,7 +182,7 @@ public class QueryServiceEJB {
                 result.get(studyQueryAttributesPath.get(StudyQueryAttributes_.numberOfInstances));
         if (numberOfStudyRelatedInstances == null) {
             StudyQueryAttributes studyQueryAttributes =
-                    queryAttributesEJB.calculateStudyQueryAttributes(result.get(study.get(Study_.pk)), qrView);
+                    queryService.calculateStudyQueryAttributes(result.get(study.get(Study_.pk)), qrView);
             numberOfStudyRelatedInstances = studyQueryAttributes.getNumberOfInstances();
             numberOfStudyRelatedSeries = studyQueryAttributes.getNumberOfSeries();
             modalitiesInStudy = studyQueryAttributes.getModalitiesInStudy();
@@ -278,7 +279,7 @@ public class QueryServiceEJB {
                 result.get(studyQueryAttributesPath.get(StudyQueryAttributes_.numberOfInstances));
         if (numberOfStudyRelatedInstances == null) {
             StudyQueryAttributes studyQueryAttributes =
-                    queryAttributesEJB.calculateStudyQueryAttributes(result.get(study.get(Study_.pk)), qrView);
+                    queryService.calculateStudyQueryAttributes(result.get(study.get(Study_.pk)), qrView);
             numberOfStudyRelatedInstances = studyQueryAttributes.getNumberOfInstances();
             modalitiesInStudy = studyQueryAttributes.getModalitiesInStudy();
         } else {
@@ -320,7 +321,7 @@ public class QueryServiceEJB {
         if (numberOfSeriesRelatedInstances == null) {
             Long seriesPk = result.get(series.get(Series_.pk));
             SeriesQueryAttributes seriesQueryAttributes =
-                    queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
+                    queryService.calculateSeriesQueryAttributes(seriesPk, qrView);
             numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
         }
         Attributes attrs = new Attributes(2);

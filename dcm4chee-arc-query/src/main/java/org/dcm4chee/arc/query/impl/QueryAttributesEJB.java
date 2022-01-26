@@ -47,8 +47,6 @@ import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -68,8 +66,6 @@ import java.util.stream.Stream;
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class QueryAttributesEJB {
 
-    private static final Logger LOG = LoggerFactory.getLogger(QueryAttributesEJB.class);
-
     @Inject
     private CodeCache codeCache;
 
@@ -82,19 +78,14 @@ public class QueryAttributesEJB {
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
 
-    public StudyQueryAttributes findStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
+    public StudyQueryAttributes findOrCalculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
         try {
             return em.createNamedQuery(
                             StudyQueryAttributes.FIND_BY_VIEW_ID_AND_STUDY_PK, StudyQueryAttributes.class)
                     .setParameter(1, qrView.getViewID())
                     .setParameter(2, studyPk)
                     .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
+        } catch (NoResultException e) {}
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Series> series = q.from(Series.class);
@@ -127,19 +118,14 @@ public class QueryAttributesEJB {
         return queryAttrs;
     }
 
-    public SeriesQueryAttributes findSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
+    public SeriesQueryAttributes findOrCalculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
         try {
             return em.createNamedQuery(
                             SeriesQueryAttributes.FIND_BY_VIEW_ID_AND_SERIES_PK, SeriesQueryAttributes.class)
                     .setParameter(1, qrView.getViewID())
                     .setParameter(2, seriesPk)
                     .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
+        } catch (NoResultException e) {}
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Instance> instance = q.from(Instance.class);
@@ -178,7 +164,7 @@ public class QueryAttributesEJB {
                 .getResultList());
 
         for (String viewID : viewIDs) {
-            calculateStudyQueryAttributes(studyPk, arcDev.getQueryRetrieveView(viewID));
+            service.calculateStudyQueryAttributes(studyPk, arcDev.getQueryRetrieveView(viewID));
         }
         return true;
     }

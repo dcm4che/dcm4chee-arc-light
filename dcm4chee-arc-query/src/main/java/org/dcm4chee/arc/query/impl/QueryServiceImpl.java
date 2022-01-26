@@ -338,23 +338,47 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
-        try {
-            return queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
-        } catch (EJBException e) {
-            StudyQueryAttributes studyQueryAttributes = queryAttributesEJB.findStudyQueryAttributes(studyPk, qrView);
-            return studyQueryAttributes != null ? studyQueryAttributes
-                    : queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
+        int retries = arcDev().getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                return queryAttributesEJB.findOrCalculateStudyQueryAttributes(studyPk, qrView);
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failed to calculate Query Attributes for Study[pk={}] and View[{}] caused by {} - retry",
+                            studyPk, qrView.getViewID(), DicomServiceException.initialCauseOf(e));
+                } else {
+                    throw e;
+                }
+            }
+            try {
+                Thread.sleep(arcDev().storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("Failed to delay retry to calculate Query Attributes for Study[pk={}] and View[{}]:\n",
+                        studyPk, qrView.getViewID(), e);
+            }
         }
     }
 
     @Override
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
-        try {
-            return queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
-        } catch (EJBException e) {
-            SeriesQueryAttributes seriesQueryAttributes = queryAttributesEJB.findSeriesQueryAttributes(seriesPk, qrView);
-            return seriesQueryAttributes != null ? seriesQueryAttributes
-                    : queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
+        int retries = arcDev().getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                return queryAttributesEJB.findOrCalculateSeriesQueryAttributes(seriesPk, qrView);
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failed to calculate Query Attributes for Series[pk={}] and View[{}] caused by {} - retry",
+                            seriesPk, qrView.getViewID(), DicomServiceException.initialCauseOf(e));
+                } else {
+                    throw e;
+                }
+            }
+            try {
+                Thread.sleep(arcDev().storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("Failed to delay retry to calculate Query Attributes for Series[pk={}] and View[{}]:\n",
+                        seriesPk, qrView.getViewID(), e);
+            }
         }
     }
 
@@ -427,8 +451,7 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes queryExportTaskInfo(Task exportTask, ApplicationEntity ae) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        int retries = arcDev().getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
                 if (exportTask.getSeriesInstanceUID().equals("*")) {
@@ -452,7 +475,7 @@ class QueryServiceImpl implements QueryService {
                 }
             }
             try {
-                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+                Thread.sleep(arcDev().storeUpdateDBRetryDelay());
             } catch (InterruptedException e) {
                 LOG.info("Failed to delay retry to query Export Task Info for {}:\n", exportTask, e);
             }
