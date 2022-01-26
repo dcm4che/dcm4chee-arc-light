@@ -338,26 +338,24 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
-        StudyQueryAttributes studyQueryAttributes = null;
         try {
-            studyQueryAttributes = queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
+            return queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
         } catch (EJBException e) {
-            if ((studyQueryAttributes = queryAttributesEJB.findStudyQueryAttributes(studyPk, qrView)) == null)
-                throw e;
+            StudyQueryAttributes studyQueryAttributes = queryAttributesEJB.findStudyQueryAttributes(studyPk, qrView);
+            return studyQueryAttributes != null ? studyQueryAttributes
+                    : queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
         }
-        return studyQueryAttributes;
     }
 
     @Override
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
-        SeriesQueryAttributes seriesQueryAttributes;
         try {
-            seriesQueryAttributes = queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
+            return queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
         } catch (EJBException e) {
-            if ((seriesQueryAttributes = queryAttributesEJB.findSeriesQueryAttributes(seriesPk, qrView)) == null)
-                throw e;
+            SeriesQueryAttributes seriesQueryAttributes = queryAttributesEJB.findSeriesQueryAttributes(seriesPk, qrView);
+            return seriesQueryAttributes != null ? seriesQueryAttributes
+                    : queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
         }
-        return seriesQueryAttributes;
     }
 
     @Override
@@ -429,7 +427,7 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes queryExportTaskInfo(Task exportTask, ApplicationEntity ae) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
-        ArchiveDeviceExtension arcDev = ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {

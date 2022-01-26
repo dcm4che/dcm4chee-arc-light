@@ -45,11 +45,11 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJBException;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -77,7 +77,7 @@ public class QueryAttributesEJB {
     private Device device;
 
     @Inject
-    private QueryAttributesEJB self;
+    private QueryService service;
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
@@ -115,15 +115,7 @@ public class QueryAttributesEJB {
             resultStream.forEach(tuple -> {
             Integer numberOfInstancesI = tuple.get(seriesQueryAttributes.get(SeriesQueryAttributes_.numberOfInstances));
             if (numberOfInstancesI == null) {
-                SeriesQueryAttributes seriesQueryAttrs;
-                try {
-                    seriesQueryAttrs = self.calculateSeriesQueryAttributes(tuple.get(series.get(Series_.pk)), qrView);
-                } catch (EJBException e) {
-                    if ((seriesQueryAttrs = self.findSeriesQueryAttributes(tuple.get(series.get(Series_.pk)), qrView))
-                            == null)
-                        throw e;
-                }
-                builder.add(tuple, seriesQueryAttrs);
+                builder.add(tuple, service.calculateSeriesQueryAttributes(tuple.get(series.get(Series_.pk)), qrView));
             } else
                 builder.add(tuple);
             });
