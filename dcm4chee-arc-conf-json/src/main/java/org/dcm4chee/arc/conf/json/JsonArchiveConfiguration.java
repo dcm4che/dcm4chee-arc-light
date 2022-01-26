@@ -403,6 +403,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
         writer.writeNotDef("dcmFilterByIssuerOfPatientID", arcDev.isFilterByIssuerOfPatientID(), false);
         writer.writeNotDef("dcmAuditHL7MsgLimit", arcDev.getAuditHL7MsgLimit(), 1000);
+        writer.writeNotDef("dcmMatchSOPClassOnInstanceLevel", arcDev.isMatchSOPClassOnInstanceLevel(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1299,6 +1300,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getUserIdentityNegotiationKeycloakClientID(), null);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcAE.getChangeRequesterAET(), null);
         writer.writeNotNull("dcmFilterByIssuerOfPatientID", arcAE.getFilterByIssuerOfPatientID());
+        writer.writeNotNull("dcmMatchSOPClassOnInstanceLevel", arcAE.getMatchSOPClassOnInstanceLevel());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeMPPSForwardRule(writer, arcAE.getMPPSForwardRules());
@@ -2042,6 +2044,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAuditHL7MsgLimit":
                     arcDev.setAuditHL7MsgLimit(reader.intValue());
+                    break;
+                case "dcmMatchSOPClassOnInstanceLevel":
+                    arcDev.setMatchSOPClassOnInstanceLevel(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -4135,6 +4140,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFilterByIssuerOfPatientID":
                     arcAE.setFilterByIssuerOfPatientID(reader.booleanValue());
+                    break;
+                case "dcmMatchSOPClassOnInstanceLevel":
+                    arcAE.setMatchSOPClassOnInstanceLevel(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

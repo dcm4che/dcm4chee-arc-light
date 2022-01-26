@@ -506,6 +506,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFilterByIssuerOfPatientID",
                 ext.isFilterByIssuerOfPatientID(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditHL7MsgLimit", ext.getAuditHL7MsgLimit(), 1000);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMatchSOPClassOnInstanceLevel",
+                ext.isMatchSOPClassOnInstanceLevel(), false);
     }
 
     @Override
@@ -825,6 +827,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
         ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), false));
         ext.setAuditHL7MsgLimit(LdapUtils.intValue(attrs.get("dcmAuditHL7MsgLimit"), 1000));
+        ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), false));
     }
 
     @Override
@@ -1429,6 +1432,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getAuditHL7MsgLimit(),
                 bb.getAuditHL7MsgLimit(),
                 1000);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMatchSOPClassOnInstanceLevel",
+                aa.isMatchSOPClassOnInstanceLevel(),
+                bb.isMatchSOPClassOnInstanceLevel(),
+                false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1748,6 +1755,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getChangeRequesterAET(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFilterByIssuerOfPatientID",
                 ext.getFilterByIssuerOfPatientID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMatchSOPClassOnInstanceLevel",
+                ext.getMatchSOPClassOnInstanceLevel(), null);
     }
 
     @Override
@@ -1902,6 +1911,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmUserIdentityNegotiationKeycloakClientID"), null));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
         ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), null));
+        ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), null));
     }
 
     @Override
@@ -2153,6 +2163,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFilterByIssuerOfPatientID",
                 aa.getFilterByIssuerOfPatientID(), bb.getFilterByIssuerOfPatientID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMatchSOPClassOnInstanceLevel",
+                aa.getMatchSOPClassOnInstanceLevel(), bb.getMatchSOPClassOnInstanceLevel(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));
