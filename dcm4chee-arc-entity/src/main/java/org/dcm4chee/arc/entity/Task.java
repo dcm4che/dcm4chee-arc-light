@@ -1198,14 +1198,29 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        StringBuilder sb = new StringBuilder("Task{" +
                 "taskID=" + pk +
                 ", deviceName='" + deviceName + '\'' +
                 ", queueName='" + queueName + '\'' +
                 ", type=" + type +
                 ", status=" + status +
                 ", scheduledTime=" + scheduledTime +
-                ", numberOfFailures=" + numberOfFailures +
-                '}';
+                ", numberOfFailures=" + numberOfFailures);
+        if (exporterID != null)
+            sb.append(", exporterID=").append(exporterID);
+        if (errorMessage != null)
+            sb.append(", errorMessage=").append(errorMessage);
+        if (errorComment != null)
+            sb.append(", errorComment=").append(errorComment);
+        if (studyInstanceUID != null)
+            sb.append(", studyInstanceUID=").append(studyInstanceUID);
+        if (seriesInstanceUID != null)
+            sb.append(", seriesInstanceUID=").append(seriesInstanceUID);
+        if (sopInstanceUID != null)
+            sb.append(", sopInstanceUID=").append(sopInstanceUID);
+        if (batchID != null)
+            sb.append(", batchID=").append(batchID);
+        sb.append("}");
+        return sb.toString();
     }
 }
