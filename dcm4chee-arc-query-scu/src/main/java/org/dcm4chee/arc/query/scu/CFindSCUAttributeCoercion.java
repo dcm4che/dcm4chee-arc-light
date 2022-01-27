@@ -45,7 +45,6 @@ import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Priority;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -91,10 +90,14 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
     public void coerce(Attributes attrs, Attributes modified) throws Exception {
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         Attributes newAttrs = queryStudy(studyIUID);
-        if (newAttrs != null)
+        if (newAttrs != null) {
             attrs.update(attributeUpdatePolicy, newAttrs, modified);
+            LOG.info("Coerce Attributes for study {} from matching Study at {} by coercion {}",
+                    studyIUID, leadingCFindSCP, this);
+        }
         else
-            LOG.warn("Failed to query Study[{}] from {} - do not coerce attributes", studyIUID, leadingCFindSCP);
+            LOG.warn("Failed to query Study[{}] from {} called by coercion {} - do not coerce attributes",
+                    studyIUID, leadingCFindSCP, this);
         if (next != null)
             next.coerce(attrs, modified);
     }

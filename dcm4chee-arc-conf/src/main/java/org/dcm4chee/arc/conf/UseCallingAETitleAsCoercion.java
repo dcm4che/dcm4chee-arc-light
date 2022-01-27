@@ -43,12 +43,16 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.PrivateTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Oct 2019
  */
 public class UseCallingAETitleAsCoercion implements AttributesCoercion {
+    static final Logger LOG = LoggerFactory.getLogger(UseCallingAETitleAsCoercion.class);
+
     private final Type type;
     private final String callingAET;
     private final AttributesCoercion next;
@@ -70,6 +74,7 @@ public class UseCallingAETitleAsCoercion implements AttributesCoercion {
 
     @Override
     public void coerce(Attributes attrs, Attributes modified) throws Exception {
+        LOG.info("Use Calling AE Title coercion applied by {}", this);
         type.coerce(attrs, modified, callingAET);
         if (next != null)
             next.coerce(attrs, modified);
