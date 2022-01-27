@@ -106,7 +106,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
         if (newAttrs == null) {
             return false;
         }
-        LOG.info("Coerce Request Attributes from matching MWL item");
+        LOG.info("Coerce Request Attributes from matching MWL item coerced using {}", coercion);
         Attributes.unifyCharacterSets(attrs, newAttrs);
         if (modified != null) {
             attrs.update(Attributes.UpdatePolicy.OVERWRITE, newAttrs, modified);

@@ -68,24 +68,25 @@ public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor 
                           Attributes attributes, Attributes coercedAttributes) throws Exception {
         switch (sopClassUID) {
             case UID.ModalityWorklistInformationModelFind:
-                supplementMWL(coercion.getOtherDevice(), attributes);
+                supplementMWL(coercion, attributes);
                 break;
             case UID.ModalityPerformedProcedureStep:
-                supplementMPPS(coercion.getOtherDevice(), attributes);
+                supplementMPPS(coercion, attributes);
                 break;
             case UID.PatientRootQueryRetrieveInformationModelFind:
             case UID.StudyRootQueryRetrieveInformationModelFind:
             case UID.PatientStudyOnlyQueryRetrieveInformationModelFind:
-                supplementQuery(coercion.getOtherDevice(), attributes);
+                supplementQuery(coercion, attributes);
                 break;
             default:
-                supplementInstance(coercion.getOtherDevice(), attributes);
+                supplementInstance(coercion, attributes);
                 break;
         }
         return true;
     }
 
-    private void supplementInstance(Device device, Attributes attrs) {
+    private void supplementInstance(ArchiveAttributeCoercion2 coercion, Attributes attrs) {
+        Device device = coercion.getOtherDevice();
         supplementValue(attrs, Tag.Manufacturer, VR.LO, device.getManufacturer());
         supplementValue(attrs, Tag.ManufacturerModelName, VR.LO, device.getManufacturerModelName());
         supplementValue(attrs, Tag.StationName, VR.SH, device.getStationName());
@@ -98,26 +99,29 @@ public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor 
         supplementIssuers(device, attrs);
         supplementRequestIssuers(device, attrs);
         supplementRequestIssuers(device, attrs.getSequence(Tag.RequestAttributesSequence));
-        LOG.info("Supplement composite object from device: {}", device.getDeviceName());
+        LOG.info("Supplement composite object from device: {} using coercion {}", device.getDeviceName(), coercion);
     }
 
-    private void supplementMPPS(Device device, Attributes attrs) {
+    private void supplementMPPS(ArchiveAttributeCoercion2 coercion, Attributes attrs) {
+        Device device = coercion.getOtherDevice();
         supplementIssuers(device, attrs);
         supplementRequestIssuers(device, attrs.getSequence(Tag.ScheduledStepAttributesSequence));
-        LOG.info("Supplement MPPS from device: {}", device.getDeviceName());
+        LOG.info("Supplement MPPS from device: {} using coercion {}", device.getDeviceName(), coercion);
     }
 
-    private void supplementMWL(Device device, Attributes attrs) {
+    private void supplementMWL(ArchiveAttributeCoercion2 coercion, Attributes attrs) {
+        Device device = coercion.getOtherDevice();
         supplementIssuers(device, attrs);
         supplementRequestIssuers(device, attrs);
-        LOG.info("Supplement MWL from device: {}", device.getDeviceName());
+        LOG.info("Supplement MWL from device: {} using coercion {}", device.getDeviceName(), coercion);
     }
 
-    private void supplementQuery(Device device, Attributes attrs) {
+    private void supplementQuery(ArchiveAttributeCoercion2 coercion, Attributes attrs) {
+        Device device = coercion.getOtherDevice();
         supplementIssuers(device, attrs);
         supplementRequestIssuers(device, attrs);
         supplementRequestIssuers(device, attrs.getSequence(Tag.RequestAttributesSequence));
-        LOG.info("Supplement composite query from device: {}", device.getDeviceName());
+        LOG.info("Supplement composite query from device: {} using coercion {}", device.getDeviceName(), coercion);
     }
 
     private void supplementValue(Attributes attrs, int tag, VR vr, String... values) {

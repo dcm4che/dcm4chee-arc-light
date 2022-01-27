@@ -94,7 +94,7 @@ public class LeadingArchiveCoercionProcessor implements CoercionProcessor {
             return false;
         }
         if (attrs.update(coercion.getAttributeUpdatePolicy(), newAttrs, modified)) {
-            LOG.info("Coerce Attributes from matching Study at {}", findSCP);
+            LOG.info("Coerce Attributes from matching Study at {} part of coercion {}", findSCP, coercion);
         }
         return true;
     }

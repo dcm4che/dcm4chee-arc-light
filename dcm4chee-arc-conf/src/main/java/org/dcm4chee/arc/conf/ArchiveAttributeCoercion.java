@@ -46,6 +46,8 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.AttributesFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -55,6 +57,8 @@ import java.util.stream.IntStream;
  * @since Oct 2015
  */
 public class ArchiveAttributeCoercion {
+
+    static final Logger LOG = LoggerFactory.getLogger(ArchiveAttributeCoercion.class);
 
     public static final ArchiveAttributeCoercion[] EMPTY = {};
     private String commonName;
@@ -355,6 +359,7 @@ public class ArchiveAttributeCoercion {
         return new AttributesCoercion() {
             @Override
             public void coerce(Attributes attrs, Attributes modified) throws Exception {
+                LOG.info("Nullify Issuer of Patient ID using coercion: {}", this);
                 String issuerOfPatientID = attrs.getString(Tag.IssuerOfPatientID);
                 if (issuerOfPatientID != null && !issuerOfPatientID.isEmpty()) {
                     attrs.setNull(Tag.IssuerOfPatientID, VR.LO);
@@ -397,6 +402,7 @@ public class ArchiveAttributeCoercion {
         return new AttributesCoercion() {
             @Override
             public void coerce(Attributes attrs, Attributes modified) throws Exception {
+                LOG.info("Merge attributes using coercion: {}", this);
                 for (MergeAttribute mergeAttribute : mergeAttributes) {
                     mergeAttribute.merge(attrs, modified);
                 }
@@ -419,6 +425,7 @@ public class ArchiveAttributeCoercion {
         return new AttributesCoercion() {
             @Override
             public void coerce(Attributes attrs, Attributes modified) throws Exception {
+                LOG.info("Supplement Issuer of Patient ID using coercion: {}", this);
                 String issuerOfPatientID = attrs.getString(Tag.IssuerOfPatientID);
                 String supplementIssuerOfPatientID = new AttributesFormat(issuerOfPatientIDFormat).format(attrs);
 

@@ -44,6 +44,8 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.MergeAttribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -56,12 +58,15 @@ import javax.inject.Named;
 @Named("merge-attrs")
 public class MergeAttributesCoercionProcessor implements CoercionProcessor {
 
+    static final Logger LOG = LoggerFactory.getLogger(MergeAttributesCoercionProcessor.class);
+
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
                           String sopClassUID, String sendingHost, String sendingAET,
                           String receivingHost, String receivingAET,
                           Attributes attrs, Attributes modified)
             throws Exception {
+        LOG.info("Merge Attributes using {}", coercion);
         for (MergeAttribute mergeAttribute : coercion.getMergeAttributes()) {
             mergeAttribute.merge(attrs, modified);
         }

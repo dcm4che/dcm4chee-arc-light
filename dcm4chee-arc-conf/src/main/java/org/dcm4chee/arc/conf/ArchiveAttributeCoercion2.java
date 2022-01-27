@@ -45,9 +45,11 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -284,5 +286,24 @@ public class ArchiveAttributeCoercion2 {
             if (scheme.equals(coercion.scheme)) return true;
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "ArchiveAttributeCoercion2[cn=" + commonName
+                + ", priority=" + priority
+                + ", DIMSE=" + dimse
+                + ", role=" + role
+                + ", cuids=" + Arrays.toString(sopClasses)
+                + ", conditions=" + conditions.toString()
+                + ", uri=" + uri
+                + ", description=" + description
+                + ", onFailure=" + onFailure.name()
+                + ", sufficient=" + sufficient
+                + ", attributeUpdatePolicy=" + attributeUpdatePolicy.name()
+                + ", mergeAttributes=" + Stream.of(mergeAttributes)
+                + ", deviceCoercionParam=" + otherDevice.getDeviceName()
+                + ", otherCoercionParams=" + params
+                + "]";
     }
 }

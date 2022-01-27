@@ -47,6 +47,8 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.Conditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -60,6 +62,8 @@ import javax.xml.transform.Transformer;
 @ApplicationScoped
 @Named("xslt")
 public class XSLTCoercionProcessor implements CoercionProcessor {
+    static final Logger LOG = LoggerFactory.getLogger(XSLTCoercionProcessor.class);
+
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
                           String sopClassUID, String sendingHost, String sendingAET,
@@ -76,6 +80,7 @@ public class XSLTCoercionProcessor implements CoercionProcessor {
         } else {
             attrs.addAll(newAttrs);
         }
+        LOG.info("Coerced attributes from stylesheet by coercion {}", coercion);
         return true;
     }
 

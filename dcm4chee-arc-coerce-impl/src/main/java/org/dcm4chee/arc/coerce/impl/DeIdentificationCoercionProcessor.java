@@ -46,6 +46,8 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -57,6 +59,8 @@ import javax.inject.Named;
 @ApplicationScoped
 @Named("deidentify")
 public class DeIdentificationCoercionProcessor implements CoercionProcessor {
+    static final Logger LOG = LoggerFactory.getLogger(DeIdentificationCoercionProcessor.class);
+
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion,
                           String sopClassUID, String sendingHost, String sendingAET,
@@ -69,6 +73,7 @@ public class DeIdentificationCoercionProcessor implements CoercionProcessor {
             options[i] = DeIdentifier.Option.valueOf(names[i]);
         }
         new DeIdentifier(options).deidentify(attrs);
+        LOG.info("Deidentified attributes by coercion {}", coercion);
         return true;
     }
 
