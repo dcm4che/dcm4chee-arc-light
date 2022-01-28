@@ -341,6 +341,7 @@ public class ProcedureServiceEJB {
         Attributes studyAttr = study.getAttributes();
         Attributes modified = new Attributes();
         AttributeFilter studyFilter = arcDev.getAttributeFilter(Entity.Study);
+        LOG.debug("Update attributes of Study[uid={}], triggered by {}", study.getStudyInstanceUID(), ctx);
         if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
                 mwlAttr, modified, studyFilter.getSelection())) {
             study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
