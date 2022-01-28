@@ -64,10 +64,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.IndexColorModel;
+import java.awt.image.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -197,14 +194,18 @@ public class RenderedImageOutput implements StreamingOutput {
         AffineTransformOp op = new AffineTransformOp(
                 AffineTransform.getScaleInstance(sx, sy),
                 AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        return op.filter(convertPalettetoRGB(bi), null);
+        return op.filter(makeScaleable(bi), null);
     }
 
-    private static BufferedImage convertPalettetoRGB(BufferedImage bi) {
+    private static BufferedImage makeScaleable(BufferedImage bi) {
         ColorModel pcm = bi.getColorModel();
-        return (pcm instanceof PaletteColorModel || pcm instanceof IndexColorModel)
-            ? BufferedImageUtils.convertPalettetoRGB(bi, null)
-            : bi;
+        if (pcm instanceof PaletteColorModel || pcm instanceof IndexColorModel)
+            return BufferedImageUtils.convertPalettetoRGB(bi, null);
+
+        if (bi.getSampleModel() instanceof BandedSampleModel)
+            return BufferedImageUtils.convertToIntRGB(bi);
+
+        return bi;
     }
 
     private float getPixelAspectRatio() throws IOException {
