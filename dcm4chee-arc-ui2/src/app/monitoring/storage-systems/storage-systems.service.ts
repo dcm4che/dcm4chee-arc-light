@@ -69,7 +69,7 @@ export class StorageSystemsService {
             [
                 [
                     {
-                        tag:"select",
+                        tag:"html-select",
                         options:aets.map(d=>{
                             return{
                                 text:d.dicomAETitle,
@@ -77,6 +77,7 @@ export class StorageSystemsService {
                             }
                         }),
                         showStar:true,
+                        showSearchField:true,
                         filterKey:"dicomAETitle",
                         description:$localize `:@@aetitle:AETitle`,
                         placeholder:$localize `:@@aetitle:AETitle`

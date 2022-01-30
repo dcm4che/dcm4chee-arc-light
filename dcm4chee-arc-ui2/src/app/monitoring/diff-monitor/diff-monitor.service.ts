@@ -51,31 +51,35 @@ export class DiffMonitorService {
   getFormSchema(aes, aets, countText, devices){
       return [
           {
-              tag:"select",
+              tag: "html-select",
               options:devices,
               showStar:true,
+              showSearchField:true,
               filterKey:"dicomDeviceName",
               description:$localize `:@@device_name:Device Name`,
               placeholder:$localize `:@@device_name:Device Name`
           },{
-              tag:"select",
+              tag:"html-select",
               options:aets,
               showStar:true,
+              showSearchField:true,
               filterKey:"LocalAET",
               description:$localize `:@@local_aet:Local AET`,
               placeholder:$localize `:@@local_aet:Local AET`
           },{
-              tag:"select",
+              tag:"html-select",
               options:aes,
               showStar:true,
+              showSearchField:true,
               filterKey:"PrimaryAET",
               description:$localize `:@@primary_aet:Primary AET`,
               placeholder:$localize `:@@primary_aet:Primary AET`
           },
           {
-              tag:"select",
+              tag:"html-select",
               options:aes,
               showStar:true,
+              showSearchField:true,
               filterKey:"SecondaryAET",
               description:$localize `:@@secondary_aet:Secondary AET`,
               placeholder:$localize `:@@secondary_aet:Secondary AET`

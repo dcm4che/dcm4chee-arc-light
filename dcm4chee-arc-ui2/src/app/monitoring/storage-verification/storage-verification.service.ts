@@ -271,17 +271,19 @@ export class StorageVerificationService {
   getFilterSchema(devices, localAET, countText){
     return [
         {
-            tag:"select",
+            tag:"html-select",
             options:devices,
             showStar:true,
+            showSearchField:true,
             filterKey:"dicomDeviceName",
             description:$localize `:@@device_name_to_filter_by:Device Name to filter by`,
             placeholder:$localize `:@@device_name:Device Name`
         },
         {
-            tag:"select",
+            tag:"html-select",
             options:localAET,
             showStar:true,
+            showSearchField:true,
             filterKey:"LocalAET",
             description:$localize `:@@archive_ae_title_to_filter_by:Archive AE Title to filter by`,
             placeholder:$localize `:@@archive_ae_title:Archive AE Title`

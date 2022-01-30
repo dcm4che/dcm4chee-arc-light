@@ -25,11 +25,12 @@ export class MetricsService {
 
     getFilterSchema = (nameDescriptors:any,binOptions):FilterSchema => [
         {
-            tag:"select",
+            tag:"html-select",
             type:"text",
             filterKey:"name",
             options:nameDescriptors,
             text:"Name",
+            showSearchField:true,
             description:$localize `:@@metrics_name:Metrics Name`,
             placeholder:$localize `:@@metrics_name:Metrics Name`
         },

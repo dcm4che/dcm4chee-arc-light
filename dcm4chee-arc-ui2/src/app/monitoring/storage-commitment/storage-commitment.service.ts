@@ -65,7 +65,7 @@ export class StorageCommitmentService {
             [
                 [
                     {
-                        tag:"select",
+                        tag:"html-select",
                         options:exporters.map(d=>{
                             return{
                                 text:d.description || d.id,
@@ -73,6 +73,7 @@ export class StorageCommitmentService {
                             }
                         }),
                         showStar:true,
+                        showSearchField:true,
                         filterKey:"ExporterID",
                         description:$localize `:@@exporter_id:Exporter ID`,
                         placeholder:$localize `:@@exporter_id:Exporter ID`

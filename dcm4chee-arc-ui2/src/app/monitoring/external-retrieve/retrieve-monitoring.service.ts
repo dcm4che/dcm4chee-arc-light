@@ -99,9 +99,10 @@ export class RetrieveMonitoringService {
         let destinationAet:any = {};
         if(destinationAET){
             destinationAet = {
-                tag:"select",
+                tag: "html-select",
                 options:destinationAET,
                 showStar:true,
+                showSearchField:true,
                 filterKey:"DestinationAET",
                 placeholder:$localize `:@@destination_aet:Destination AET`,
                 description:$localize `:@@destination_ae_title_to_filter_by:Destination AE Title to filter by`
@@ -123,8 +124,9 @@ export class RetrieveMonitoringService {
                         text:$localize `:@@device_name:Device name`
                     },
                     {
-                        tag:"select",
+                        tag: "html-select",
                         options:devices,
+                        showSearchField:true,
                         showStar:true,
                         filterKey:"dicomDeviceName",
                         description:$localize `:@@device_name_to_filter_by:Device Name to filter by`
@@ -134,8 +136,9 @@ export class RetrieveMonitoringService {
                         tag:"label",
                         text:$localize `:@@localaet:Local AET`
                     },{
-                        tag:"select",
+                        tag: "html-select",
                         options:localAET,
+                        showSearchField:true,
                         showStar:true,
                         filterKey:"LocalAET",
                         description:$localize `:@@archive_ae_title_to_filter_by:Archive AE Title to filter by`
@@ -147,8 +150,9 @@ export class RetrieveMonitoringService {
                         text:$localize `:@@remoteaet:Remote AET`
                     },
                     {
-                        tag:"select",
+                        tag: "html-select",
                         options:remoteAET,
+                        showSearchField:true,
                         showStar:true,
                         filterKey:"RemoteAET",
                         description:$localize `:@@c_move_scp_aet_filter:C-MOVE SCP AE Title to filter by`

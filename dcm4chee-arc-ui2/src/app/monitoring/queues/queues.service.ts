@@ -150,7 +150,7 @@ export class QueuesService{
     getFilterSchema(queueNames, devices, localAETs, remoteAETs, countText){
         return [
             {
-                tag:"select",
+                tag:"html-select",
                 options:queueNames.map(d=>{
                     return{
                         text:d.description || d.name,
@@ -158,6 +158,7 @@ export class QueuesService{
                     }
                 }),
                 filterKey:"queueName",
+                showSearchField:true,
                 description:$localize `:@@queue_name:Queue Name`,
                 placeholder:$localize `:@@queue:Queue`
             },{
@@ -175,7 +176,7 @@ export class QueuesService{
                 description:$localize `:@@status:Status`,
                 placeholder:$localize `:@@status:Status`
             },{
-                tag:"select",
+                tag:"html-select",
                 options:devices.map(d=>{
                     return{
                         text:d.dicomDescription ? `${d.dicomDescription} ( ${d.dicomDeviceName} )` : d.dicomDeviceName,
@@ -183,6 +184,7 @@ export class QueuesService{
                     }
                 }),
                 showStar:true,
+                showSearchField:true,
                 filterKey:"dicomDeviceName",
                 description:$localize `:@@device_name:Device name`,
                 placeholder:$localize `:@@device_name:Device name`
@@ -213,7 +215,7 @@ export class QueuesService{
                 description:$localize `:@@batch_id:Batch ID`,
                 placeholder:$localize `:@@batch_id:Batch ID`
             },{
-                    tag:"select",
+                    tag:"html-select",
                     options:localAETs.map(ae=>{
                         return{
                             value:ae.dicomAETitle,
@@ -221,11 +223,12 @@ export class QueuesService{
                         }
                     }),
                     showStar:true,
+                    showSearchField:true,
                     filterKey:"localAET",
                     placeholder:$localize `:@@localaet:Local AET`,
                     description:$localize `:@@archive_ae_title_to_filter_by:Archive AE Title to filter by`
             }, {
-                tag:"select",
+                tag:"html-select",
                 options:remoteAETs.map(ae=>{
                     return{
                         value:ae.dicomAETitle,
@@ -233,6 +236,7 @@ export class QueuesService{
                     }
                 }),
                 showStar:true,
+                showSearchField:true,
                 filterKey:"remoteAET",
                 placeholder:$localize `:@@remoteaet:Remote AET`,
                 description:$localize `:@@remote_ae_title_to_filter_by:Remote AE Title to filter by`

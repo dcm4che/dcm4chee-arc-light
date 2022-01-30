@@ -195,7 +195,7 @@ export class ExportService {
             [
                 [
                     {
-                        tag:"select",
+                        tag:"html-select",
                         options:exporters.map(d=>{
                             return{
                                 text:d.description || d.id,
@@ -203,12 +203,13 @@ export class ExportService {
                             }
                         }),
                         showStar:true,
+                        showSearchField:true,
                         filterKey:"ExporterID",
                         description:$localize `:@@exporter_id:Exporter ID`,
                         placeholder:$localize `:@@exporter_id:Exporter ID`
                     },
                     {
-                        tag:"select",
+                        tag:"html-select",
                         options:devices.map(d=>{
                             return{
                                 text:d.dicomDeviceName,
@@ -216,6 +217,7 @@ export class ExportService {
                             }
                         }),
                         showStar:true,
+                        showSearchField:true,
                         filterKey:"dicomDeviceName",
                         description:$localize `:@@device_name_to_filter_by:Device Name to filter by`,
                         placeholder:$localize `:@@device_name:Device Name`
