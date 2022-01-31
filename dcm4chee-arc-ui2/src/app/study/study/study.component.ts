@@ -200,6 +200,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("storage_verification_series",$localize `:@@storage_verification_series:Storage Verification Series`),
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
             new SelectDropdown("download_series",$localize `:@@study.download_series:Download series as CSV`),
+            new SelectDropdown("download_mwl",$localize `:@@study.download_mwl:Download MWL as CSV`),
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
             new SelectDropdown("import_matching_sps_to_archive",$localize `:@@mwl.import_matching_sps_to_archive:Import matching SPS to archive`),
@@ -475,6 +476,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "download_series":
                 this.downloadCSV(undefined, "series");
                break;
+            case "download_mwl":
+                this.downloadCSV(undefined, "mwl");
+                break;
             case "update_access_control_id_to_matching":
                 this.updateAccessControlId(e);
                break;
@@ -1654,6 +1658,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     if(attr === undefined && mode === "series"){
                         url = `${this.service.getDicomURL("series",this.studyWebService.selectedWebService)}`;
                     }
+                    if(attr === undefined && mode === "mwl"){
+                        url = `${this.service.getDicomURL("mwl",this.studyWebService.selectedWebService)}`;
+                    }
                 }
                 if(!this.appService.global.notSecure){
                     filterClone["access_token"] = token;
@@ -2780,6 +2787,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                      return (option.value === "import_matching_sps_to_archive"
                                     && !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
                                 || (option.value === "change_sps_status_on_matching"
+                                    && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
+                                || (option.value === "download_mwl"
                                     && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"));
                  }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
@@ -2813,6 +2822,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     return studyConfig && studyConfig.tab === "series"
                                         && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
                                 case "change_sps_status_on_matching":
+                                case "download_mwl":
                                 case "import_matching_sps_to_archive":
                                 case "create_ups":
                                     return false;
