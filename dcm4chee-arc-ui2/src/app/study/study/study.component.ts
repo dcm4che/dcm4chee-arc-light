@@ -198,6 +198,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
             new SelectDropdown("storage_verification_studies",$localize `:@@storage_verification_studies:Storage Verification Studies`),
             new SelectDropdown("storage_verification_series",$localize `:@@storage_verification_series:Storage Verification Series`),
+            new SelectDropdown("download_patients",$localize `:@@study.download_patients:Download patients as CSV`),
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
             new SelectDropdown("download_series",$localize `:@@study.download_series:Download series as CSV`),
             new SelectDropdown("download_mwl",$localize `:@@study.download_mwl:Download MWL as CSV`),
@@ -470,6 +471,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "storage_verification_series":
                 this.storageVerificationSeries();
                break;
+            case "download_patients":
+                this.downloadCSV(undefined, "patient");
+                break;
             case "download_studies":
                 this.downloadCSV(undefined, "study");
                break;
@@ -1655,6 +1659,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         fileName = `${j4care.valueOf(attr['0020000D'])}_${j4care.valueOf(attr['0020000E'])}.csv`;
                     }
                 }else{
+                    if(attr === undefined && mode === "patient"){
+                        url = `${this.service.getDicomURL("patient",this.studyWebService.selectedWebService)}`;
+                    }
                     if(attr === undefined && mode === "study"){
                         url = `${this.service.getDicomURL("study",this.studyWebService.selectedWebService)}`;
                     }
@@ -2782,7 +2789,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let studyConfig = args[1];
         return value.filter(option=>{
             console.log("option",option);
-            if(option.value === "create_patient" || option.value === "supplement_issuer" || option.value === "update_charset"){
+            if(option.value === "create_patient"
+                || option.value === "supplement_issuer"
+                || option.value === "update_charset"
+                || option.value === "download_patients"){
                 return studyConfig && studyConfig.tab === "patient"
                     && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET")
             }else{
