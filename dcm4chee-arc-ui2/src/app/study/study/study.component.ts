@@ -471,7 +471,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.storageVerificationSeries();
                break;
             case "download_studies":
-                this.downloadCSV();
+                this.downloadCSV(undefined, "study");
                break;
             case "download_series":
                 this.downloadCSV(undefined, "series");
@@ -1655,6 +1655,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         fileName = `${j4care.valueOf(attr['0020000D'])}_${j4care.valueOf(attr['0020000E'])}.csv`;
                     }
                 }else{
+                    if(attr === undefined && mode === "study"){
+                        url = `${this.service.getDicomURL("study",this.studyWebService.selectedWebService)}`;
+                    }
                     if(attr === undefined && mode === "series"){
                         url = `${this.service.getDicomURL("series",this.studyWebService.selectedWebService)}`;
                     }
