@@ -44,6 +44,7 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.TagUtils;
 
@@ -90,6 +91,10 @@ public class MergeAttribute {
             oldValue = item.getString(tag);
             String newValue = format.format(attrs);
             if (newValue.equals(oldValue)) return;
+            if (tag == Tag.SpecificCharacterSet && item == attrs) {
+                attrs.setSpecificCharacterSet(newValue);
+                return;
+            }
             item.setString(tag, dict.vrOf(tag), newValue);
         } else {
             Attributes item = getItem(attrs);
