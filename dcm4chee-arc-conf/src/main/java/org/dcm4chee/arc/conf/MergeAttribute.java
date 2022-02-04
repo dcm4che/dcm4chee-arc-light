@@ -91,8 +91,8 @@ public class MergeAttribute {
             oldValue = item.getString(tag);
             String newValue = format.format(attrs);
             if (newValue.equals(oldValue)) return;
-            if (tag == Tag.SpecificCharacterSet && item == attrs) {
-                attrs.setSpecificCharacterSet(newValue);
+            if (tag == Tag.SpecificCharacterSet) {
+                item.setSpecificCharacterSet(newValue);
                 return;
             }
             item.setString(tag, dict.vrOf(tag), newValue);
