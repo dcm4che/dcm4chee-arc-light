@@ -161,6 +161,7 @@ abstract class AbstractQuery implements Query {
 
         Attributes filtered = new Attributes(returnKeys.size());
         filtered.addSelected(match, returnKeys);
+        filtered.supplementEmpty(returnKeys);
         return filtered;
     }
 
