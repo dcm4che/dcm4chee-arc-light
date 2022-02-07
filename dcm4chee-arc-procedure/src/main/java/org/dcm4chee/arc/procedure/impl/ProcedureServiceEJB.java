@@ -175,6 +175,12 @@ public class ProcedureServiceEJB {
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate))
             spsItem.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
+        if (!spsItem.contains(Tag.ScheduledPerformingPhysicianName))
+            spsItem.setNull(Tag.ScheduledPerformingPhysicianName, VR.PN);
+        if (!spsItem.contains(Tag.ScheduledStationName))
+            spsItem.setNull(Tag.ScheduledStationName, VR.SH);
+        if (!spsItem.contains(Tag.ScheduledProcedureStepLocation))
+            spsItem.setNull(Tag.ScheduledProcedureStepLocation, VR.SH);
         mwlItem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
         mwlItem.setIssuerOfAdmissionID(findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence)));
