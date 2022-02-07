@@ -359,7 +359,8 @@ public class ArchiveAttributeCoercion {
         return new AttributesCoercion() {
             @Override
             public void coerce(Attributes attrs, Attributes modified) throws Exception {
-                LOG.info("Nullify Issuer of Patient ID using coercion: {}", this);
+                LOG.info("Nullify Issuer of Patient ID using coercion [cn={}, nullifyIssuerOfPatientID={}]",
+                        commonName, nullifyIssuerOfPatientID);
                 String issuerOfPatientID = attrs.getString(Tag.IssuerOfPatientID);
                 if (issuerOfPatientID != null && !issuerOfPatientID.isEmpty()) {
                     attrs.setNull(Tag.IssuerOfPatientID, VR.LO);
@@ -402,7 +403,7 @@ public class ArchiveAttributeCoercion {
         return new AttributesCoercion() {
             @Override
             public void coerce(Attributes attrs, Attributes modified) throws Exception {
-                LOG.info("Merge attributes using coercion: {}", this);
+                LOG.info("Merge attributes using coercion [cn={}]", commonName);
                 for (MergeAttribute mergeAttribute : mergeAttributes) {
                     mergeAttribute.merge(attrs, modified);
                 }
@@ -425,7 +426,8 @@ public class ArchiveAttributeCoercion {
         return new AttributesCoercion() {
             @Override
             public void coerce(Attributes attrs, Attributes modified) throws Exception {
-                LOG.info("Supplement Issuer of Patient ID using coercion: {}", this);
+                LOG.info("Supplement Issuer of Patient ID using coercion [cn={}, issuerOfPatientIDFormat={}]",
+                        commonName, issuerOfPatientIDFormat);
                 String issuerOfPatientID = attrs.getString(Tag.IssuerOfPatientID);
                 String supplementIssuerOfPatientID = new AttributesFormat(issuerOfPatientIDFormat).format(attrs);
 
