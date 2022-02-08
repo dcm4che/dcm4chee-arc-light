@@ -116,10 +116,11 @@ public class ProcedureServiceEJB {
                 Attributes attrs = mwlItem.getAttributes();
                 Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
                 Attributes mwlSPSItem = mwlAttrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+                Attributes.unifyCharacterSets(attrs, mwlAttrs);
+                boolean updateSPS = spsItem.update(ctx.getAttributeUpdatePolicy(), mwlSPSItem, null);
                 attrs.remove(Tag.ScheduledProcedureStepSequence);
                 mwlAttrs.remove(Tag.ScheduledProcedureStepSequence);
-                spsItem.update(ctx.getAttributeUpdatePolicy(), mwlSPSItem, null);
-                if (!attrs.update(ctx.getAttributeUpdatePolicy(), mwlAttrs, null))
+                if (!updateSPS && !attrs.update(ctx.getAttributeUpdatePolicy(), mwlAttrs, null))
                     return;
                 attrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(spsItem);
                 ctx.setAttributes(attrs);
