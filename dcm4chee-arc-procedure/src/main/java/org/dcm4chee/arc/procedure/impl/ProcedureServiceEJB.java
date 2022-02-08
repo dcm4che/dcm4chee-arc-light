@@ -120,7 +120,11 @@ public class ProcedureServiceEJB {
                 boolean updateSPS = spsItem.update(ctx.getAttributeUpdatePolicy(), mwlSPSItem, null);
                 attrs.remove(Tag.ScheduledProcedureStepSequence);
                 mwlAttrs.remove(Tag.ScheduledProcedureStepSequence);
-                if (!updateSPS && !attrs.update(ctx.getAttributeUpdatePolicy(), mwlAttrs, null))
+                if (!updateSPS
+                        && !attrs.updateSelected(ctx.getAttributeUpdatePolicy(), mwlAttrs, null,
+                                device.getDeviceExtension(ArchiveDeviceExtension.class)
+                                      .getAttributeFilter(Entity.MWL)
+                                      .getSelection(false)))
                     return;
                 attrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(spsItem);
                 ctx.setAttributes(attrs);
