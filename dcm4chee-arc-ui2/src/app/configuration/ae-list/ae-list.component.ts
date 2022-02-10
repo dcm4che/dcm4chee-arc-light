@@ -56,7 +56,7 @@ export class AeListComponent implements OnInit{
   ){}
     ngOnInit(){
         this.initCheck(10);
-        this.filterSchema = this.service.getFiltersSchema();
+        this.filterSchema = this.service.getFiltersSchema(this.devices, this.mainservice.global.aes);
     }
     initCheck(retries){
         let $this = this;
@@ -417,32 +417,29 @@ export class AeListComponent implements OnInit{
     }
     getAes(){
         let $this = this;
-            this.service.getAes()
-                .subscribe((response) => {
-                    $this.aes = response;
-                    if ($this.mainservice.global && !$this.mainservice.global.aes){
-                        let global = _.cloneDeep($this.mainservice.global);
-                        global.aes = response;
-                        $this.mainservice.setGlobal(global);
+        this.service.getAes()
+            .subscribe((response) => {
+                $this.aes = response;
+                if ($this.mainservice.global && !$this.mainservice.global.aes){
+                    let global = _.cloneDeep($this.mainservice.global);
+                    global.aes = response;
+                    $this.mainservice.setGlobal(global);
+                }else{
+                    if ($this.mainservice.global && $this.mainservice.global.aes){
+                        $this.mainservice.global.aes = response;
                     }else{
-                        if ($this.mainservice.global && $this.mainservice.global.aes){
-                            $this.mainservice.global.aes = response;
-                        }else{
-                            $this.mainservice.setGlobal({aes: response});
-                        }
+                        $this.mainservice.setGlobal({aes: response});
                     }
-                }, (response) => {
-                    // vex.dialog.alert("Error loading aes, please reload the page and try again!");
-                });
-        // }
+                }
+            }, (response) => {
+                // vex.dialog.alert("Error loading aes, please reload the page and try again!");
+            });
     }
     getAets(){
-
         let $this = this;
         this.service.getAets()
             .subscribe((response) => {
                 $this.aets = response;
-
             }, (err) => {
                 console.log('error getting aets', err);
             });

@@ -4,6 +4,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import * as _ from 'lodash-es';
 import {AppService} from "../../app.service";
+import {SelectDropdown} from "../../interfaces";
 @Injectable()
 export class AeListService {
 
@@ -54,18 +55,32 @@ export class AeListService {
         }
     }
 
-    getFiltersSchema(){
+    getFiltersSchema(devices, aes){
         return j4care.prepareFlatFilterObject([
             {
-                tag:"input",
-                type:"text",
+                tag:"html-select",
+                options:devices.map(d=>{
+                    return{
+                        text:d.dicomDescription ? `${d.dicomDescription} ( ${d.dicomDeviceName} )` : d.dicomDeviceName,
+                        value:d.dicomDeviceName
+                    }
+                }),
+                showStar:true,
+                showSearchField:true,
                 filterKey:"dicomDeviceName",
                 description:$localize `:@@device_name:Device name`,
                 placeholder:$localize `:@@device_name:Device name`
             },{
-                tag:"input",
-                type:"text",
-                filterKey:"dicomAETitle",
+                tag:"html-select",
+                options:aes.map(ae=>{
+                    return{
+                        value:ae.dicomAETitle,
+                        text:ae.dicomAETitle
+                    }
+                }),
+                showStar:true,
+                showSearchField:true,
+                filterKey:"remoteAET",
                 description:$localize `:@@aetitle:AE Title`,
                 placeholder:$localize `:@@aetitle:AE Title`
             },{
@@ -75,14 +90,22 @@ export class AeListService {
                 description:$localize `:@@description:Description`,
                 placeholder:$localize `:@@description:Description`
             },{
-                tag:"input",
-                type:"text",
+                tag:"select",
+                options:[
+                    new SelectDropdown("true",$localize `:@@Yes:Yes`),
+                    new SelectDropdown("false",$localize `:@@no:No`),
+                ],
+                showStar:true,
                 filterKey:"dicomAssociationInitiator",
                 description:$localize `:@@ae-list.association_initiator:Association Initiator`,
                 placeholder:$localize `:@@ae-list.association_initiator:Association Initiator`
             },{
-                tag:"input",
-                type:"text",
+                tag:"select",
+                options:[
+                    new SelectDropdown("true",$localize `:@@Yes:Yes`),
+                    new SelectDropdown("false",$localize `:@@no:No`),
+                ],
+                showStar:true,
                 filterKey:"dicomAssociationAcceptor",
                 description:$localize `:@@ae-list.association_acceptor:Association Acceptor`,
                 placeholder:$localize `:@@ae-list.association_acceptor:Association Acceptor`
