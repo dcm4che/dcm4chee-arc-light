@@ -123,7 +123,16 @@ public class MWLScheduler extends Scheduler {
         int mwlFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                     .getMWLFetchSize();
         do {
-            count = ejb.deleteMWLItems(spsStatus, before, mwlFetchSize);
+            count = 0;
+            for (long mwlItemPK : ejb.mwlItemPKs(spsStatus, before, mwlFetchSize)) {
+                try {
+                    if (ejb.deleteMWL(mwlItemPK))
+                        count++;
+                } catch (Exception e) {
+                    LOG.warn("Failed to delete MWL[pk={}]:{}", mwlItemPK, System.lineSeparator(), e);
+                }
+            }
+
             deleted += count;
         } while (count >= mwlFetchSize);
         if (deleted > 0)

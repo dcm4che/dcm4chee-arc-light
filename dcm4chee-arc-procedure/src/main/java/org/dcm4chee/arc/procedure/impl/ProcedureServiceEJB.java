@@ -240,15 +240,19 @@ public class ProcedureServiceEJB {
             }
     }
 
-    public int deleteMWLItems(SPSStatus status, Date before, int mwlFetchSize) {
-        List<MWLItem> mwlItems = em.createNamedQuery(
-                MWLItem.FIND_BY_STATUS_AND_UPDATED_BEFORE, MWLItem.class)
+    public List<Long> mwlItemPKs(SPSStatus status, Date before, int mwlFetchSize) {
+        return em.createNamedQuery(MWLItem.FIND_PK_BY_STATUS_AND_UPDATED_BEFORE, Long.class)
                 .setParameter(1, status)
                 .setParameter(2, before)
                 .setMaxResults(mwlFetchSize)
                 .getResultList();
-        mwlItems.forEach(mwl -> em.remove(mwl));
-        return mwlItems.size();
+    }
+
+    public boolean deleteMWL(long pk) {
+        em.remove(em.createNamedQuery(MWLItem.FIND_BY_PK, MWLItem.class)
+                .setParameter(1, pk)
+                .getSingleResult());
+        return true;
     }
 
     public void updateSPSStatus(ProcedureContext ctx) {
