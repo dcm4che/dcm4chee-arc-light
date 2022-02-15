@@ -345,7 +345,7 @@ class QueryServiceImpl implements QueryService {
             } catch (EJBException e) {
                 if (retries-- > 0) {
                     LOG.info("Failed to calculate Query Attributes for Study[pk={}] and View[{}] caused by {} - retry",
-                            studyPk, qrView.getViewID(), DicomServiceException.initialCauseOf(e));
+                            studyPk, qrView.getViewID(), DicomServiceException.initialCauseOf(e).getMessage());
                 } else {
                     throw e;
                 }
@@ -368,7 +368,7 @@ class QueryServiceImpl implements QueryService {
             } catch (EJBException e) {
                 if (retries-- > 0) {
                     LOG.info("Failed to calculate Query Attributes for Series[pk={}] and View[{}] caused by {} - retry",
-                            seriesPk, qrView.getViewID(), DicomServiceException.initialCauseOf(e));
+                            seriesPk, qrView.getViewID(), DicomServiceException.initialCauseOf(e).getMessage());
                 } else {
                     throw e;
                 }
