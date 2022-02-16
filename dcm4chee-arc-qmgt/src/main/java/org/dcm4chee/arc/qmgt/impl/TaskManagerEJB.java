@@ -98,7 +98,7 @@ public class TaskManagerEJB {
                 .setParameter(4, device.getDeviceName())
                 .executeUpdate();
         if (rescheduled > 0)
-            LOG.info("Reset status of {} Tasks in Queue {} from IN PROCESS to SCHEDULED", rescheduled);
+            LOG.info("Reset status of {} Tasks in Queue {} from IN PROCESS to SCHEDULED", rescheduled, queueName);
         return rescheduled;
     }
 
