@@ -109,7 +109,6 @@ public class TaskManagerEJB {
         } else if (entity.getStatus() != Task.Status.SCHEDULED) {
             LOG.info("Suppress processing {}", entity);
         } else {
-            LOG.info("Start processing {}", entity);
             entity.setProcessingStartTime(new Date());
             entity.setStatus(Task.Status.IN_PROCESS);
             return entity;
@@ -117,10 +116,10 @@ public class TaskManagerEJB {
         return null;
     }
 
-    public Task onProcessingSuccessful(Long pk, Outcome outcome) {
-        Task entity = em.find(Task.class, pk);
+    public Task onProcessingSuccessful(Task task, Outcome outcome) {
+        Task entity = em.find(Task.class, task.getPk());
         if (entity == null) {
-            LOG.info("Finished processing of Task[pk={}]", pk);
+            LOG.info("Finished processing of {}", task);
             return null;
         }
         Task.Status status = outcome.getStatus();
@@ -146,10 +145,10 @@ public class TaskManagerEJB {
         return entity;
     }
 
-    public Task onProcessingFailed(Long msgId, Throwable e) {
-        Task entity = em.find(Task.class, msgId);
+    public Task onProcessingFailed(Task task, Throwable e) {
+        Task entity = em.find(Task.class, task.getPk());
         if (entity == null) {
-            LOG.warn("Failed processing of Task[pk={}]:\n", msgId, e);
+            LOG.warn("Failed processing of {}}:\n", task, e);
             return null;
         }
 

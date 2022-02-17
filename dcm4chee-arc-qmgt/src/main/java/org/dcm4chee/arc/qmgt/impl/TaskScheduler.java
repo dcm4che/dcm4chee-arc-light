@@ -165,7 +165,11 @@ public class TaskScheduler extends Scheduler {
             try {
                 do {
                     for (Long pk : pks) {
-                        semaphore.acquire();
+                        if (!semaphore.tryAcquire()) {
+                            LOG.debug("Acquiring thread for processing Task[pk={}] from {}", pk, desc);
+                            semaphore.acquire();
+                            LOG.debug("Acquired thread for processing Task[pk={}] from {}", pk, desc);
+                        }
                         if (arcDev.getTaskPollingInterval() == null
                                 || !arcDev.getQueueDescriptor(queueName).isInstalled()
                                 || !ScheduleExpression.emptyOrAnyContainsNow(desc.getSchedules())) {
@@ -188,7 +192,10 @@ public class TaskScheduler extends Scheduler {
                 }
                 while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskFetchSize())).isEmpty());
             } finally {
+                LOG.debug("Wait for finishing {} processing Tasks from {}",
+                        maxTasksParallel - semaphore.availablePermits(), desc);
                 semaphore.acquire(maxTasksParallel);
+                LOG.debug("All processing Tasks from {} finished", desc);
                 semaphore.release(maxTasksParallel);
             }
         } while (!(pks = ejb.findTasksToProcess(queueName, arcDev.getTaskFetchSize())).isEmpty());
@@ -196,11 +203,12 @@ public class TaskScheduler extends Scheduler {
 
     private void processTask(Task task) {
         try {
+            LOG.info("Start processing {}", task);
             TaskProcessor processor = namedCDIBeanCache.get(taskProcessors, task.getType().name());
             Outcome outcome = processor.process(task);
-            ejb.onProcessingSuccessful(task.getPk(), outcome);
+            ejb.onProcessingSuccessful(task, outcome);
         } catch (Throwable e) {
-            ejb.onProcessingFailed(task.getPk(), e);
+            ejb.onProcessingFailed(task, e);
         }
     }
 }
