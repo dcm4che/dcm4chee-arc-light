@@ -361,6 +361,7 @@ class ArchiveDeviceFactory {
             Tag.AdmittingDiagnosesCodeSequence,
             Tag.AdmissionID,
             Tag.IssuerOfAdmissionIDSequence,
+            Tag.RouteOfAdmissions,
             Tag.ReasonForVisit,
             Tag.ReasonForVisitCodeSequence,
             Tag.Occupation,

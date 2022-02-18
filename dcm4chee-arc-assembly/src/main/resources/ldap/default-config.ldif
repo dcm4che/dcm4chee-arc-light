@@ -2636,6 +2636,7 @@ dcmTag: 00321066
 dcmTag: 00321067
 dcmTag: 00380010
 dcmTag: 00380014
+dcmTag: 00380016
 dcmTag: 00380060
 dcmTag: 00380062
 dcmTag: 00380064
@@ -3646,6 +3647,7 @@ dcmTag: 00321066
 dcmTag: 00321067
 dcmTag: 00380010
 dcmTag: 00380014
+dcmTag: 00380016
 dcmTag: 00380050
 dcmTag: 00380060
 dcmTag: 00380062
