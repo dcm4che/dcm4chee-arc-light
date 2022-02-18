@@ -87,7 +87,7 @@ public class RSForward {
     }
 
     private boolean match(RSForwardRule rule, RSOperation rsOp, HttpServletRequest request) {
-        return rule.containsRSOperations(rsOp) && rule.matchesRequestURL(request);
+        return rule.containsRSOperations(rsOp) && rule.matchesRequest(request);
     }
 
     private void apply(RSForwardRule rule, RSOperation rsOp, byte[] in, String patientID,

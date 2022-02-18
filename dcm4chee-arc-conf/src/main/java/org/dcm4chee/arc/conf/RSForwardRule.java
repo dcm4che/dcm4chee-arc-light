@@ -60,6 +60,14 @@ public class RSForwardRule {
 
     private EnumSet<RSOperation> rsOperations = EnumSet.noneOf(RSOperation.class);
 
+    private boolean ifNotIPAddressPattern;
+
+    private Pattern ipAddressPattern;
+
+    private boolean ifNotHostnamePattern;
+
+    private Pattern hostnamePattern;
+
     private boolean ifNotRequestURLPattern;
 
     private Pattern requestURLPattern;
@@ -116,6 +124,48 @@ public class RSForwardRule {
         this.tlsDisableTrustManager = tlsDisableTrustManager;
     }
 
+    public String getRemoteHostnamePattern() {
+        if (hostnamePattern == null)
+            return null;
+
+        String s = hostnamePattern.pattern();
+        return ifNotHostnamePattern ? '!' + s : s;
+    }
+
+    public void setRemoteHostnamePattern(String hostnamePattern) {
+        if (hostnamePattern == null || hostnamePattern.isEmpty()) {
+            this.hostnamePattern = null;
+            this.ifNotHostnamePattern = false;
+        } else if (hostnamePattern.charAt(0) == '!') {
+            this.hostnamePattern = Pattern.compile(hostnamePattern.substring(1));
+            this.ifNotHostnamePattern = true;
+        } else {
+            this.hostnamePattern = Pattern.compile(hostnamePattern);
+            this.ifNotHostnamePattern = false;
+        }
+    }
+
+    public String getRemoteIPAddressPattern() {
+        if (ipAddressPattern == null)
+            return null;
+
+        String s = ipAddressPattern.pattern();
+        return ifNotIPAddressPattern ? '!' + s : s;
+    }
+
+    public void setRemoteIPAddressPattern(String ipAddressPattern) {
+        if (ipAddressPattern == null || ipAddressPattern.isEmpty()) {
+            this.ipAddressPattern = null;
+            this.ifNotIPAddressPattern = false;
+        } else if (ipAddressPattern.charAt(0) == '!') {
+            this.ipAddressPattern = Pattern.compile(ipAddressPattern.substring(1));
+            this.ifNotIPAddressPattern = true;
+        } else {
+            this.ipAddressPattern = Pattern.compile(ipAddressPattern);
+            this.ifNotIPAddressPattern = false;
+        }
+    }
+
     public String getRequestURLPattern() {
         if (requestURLPattern == null)
             return null;
@@ -141,10 +191,14 @@ public class RSForwardRule {
         return rsOperations.contains(rsOp);
     }
 
-    public boolean matchesRequestURL(HttpServletRequest request) {
-        return requestURLPattern == null
-                || requestURLPattern.matcher(request.getRequestURL().toString()).matches()
-                    != ifNotRequestURLPattern;
+    public boolean matchesRequest(HttpServletRequest request) {
+        return matches(hostnamePattern, ifNotHostnamePattern, request.getRemoteHost())
+                && matches(ipAddressPattern, ifNotIPAddressPattern, request.getRemoteAddr())
+                && matches(requestURLPattern, ifNotRequestURLPattern, request.getRequestURL().toString());
+    }
+
+    private static boolean matches(Pattern pattern, boolean not, String value) {
+        return pattern == null || pattern.matcher(value).matches() != not;
     }
 
     @Override

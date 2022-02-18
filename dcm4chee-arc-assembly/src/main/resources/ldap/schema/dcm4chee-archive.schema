@@ -2524,6 +2524,18 @@ attributetype ( 1.2.40.0.13.1.15.110.3.431 NAME 'dcmMatchSOPClassOnInstanceLevel
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.432 NAME 'dcmHostnamePattern'
+  DESC 'Only forward requests received from clients which hostname match the given Regular Expression. If prefixed with !, only forward requests from clients which hostname does not match the given Regular Expression.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.433 NAME 'dcmIPAddressPattern'
+  DESC 'Only forward requests which received from clients which match the given Regular Expression. If prefixed with !, only forward requests from clients which IP address does not match the given Regular Expression.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -3170,6 +3182,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
     dcmTLSAllowAnyHostname $
     dcmTLSDisableTrustManager $
     dcmURIPattern $
+    dcmHostnamePattern $
+    dcmIPAddressPattern $
     dcmRSOperation ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.26 NAME 'dcmMetadataFilter'
