@@ -913,6 +913,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
             writer.writeNotDef("dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
             writer.writeNotNullOrDef("dcmURIPattern", rule.getRequestURLPattern(), null);
+            writer.writeNotNullOrDef("dcmHostnamePattern", rule.getRemoteHostnamePattern(), null);
+            writer.writeNotNullOrDef("dcmIPAddressPattern", rule.getRemoteIPAddressPattern(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -3244,6 +3246,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmURIPattern":
                         rule.setRequestURLPattern(reader.stringValue());
+                        break;
+                    case "dcmHostnamePattern":
+                        rule.setRemoteHostnamePattern(reader.stringValue());
+                        break;
+                    case "dcmIPAddressPattern":
+                        rule.setRemoteIPAddressPattern(reader.stringValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

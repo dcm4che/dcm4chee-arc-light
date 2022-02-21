@@ -4891,6 +4891,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURIPattern", rule.getRequestURLPattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmHostnamePattern", rule.getRemoteHostnamePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIPAddressPattern", rule.getRemoteIPAddressPattern(), null);
         return attrs;
     }
 
@@ -5054,6 +5056,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setTlsAllowAnyHostname(LdapUtils.booleanValue(attrs.get("dcmTLSAllowAnyHostname"), false));
                 rule.setTlsDisableTrustManager(LdapUtils.booleanValue(attrs.get("dcmTLSDisableTrustManager"), false));
                 rule.setRequestURLPattern(LdapUtils.stringValue(attrs.get("dcmURIPattern"), null));
+                rule.setRemoteHostnamePattern(LdapUtils.stringValue(attrs.get("dcmHostnamePattern"), null));
+                rule.setRemoteIPAddressPattern(LdapUtils.stringValue(attrs.get("dcmIPAddressPattern"), null));
 
                 rules.add(rule);
             }
@@ -5487,6 +5491,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmRSOperation", prev.getRSOperations(), rule.getRSOperations());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURIPattern", prev.getRequestURLPattern(),
                 rule.getRequestURLPattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmHostnamePattern", prev.getRemoteHostnamePattern(),
+                rule.getRemoteHostnamePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIPAddressPattern", prev.getRemoteIPAddressPattern(),
+                rule.getRemoteIPAddressPattern(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSAllowAnyHostname",
                 prev.isTlsAllowAnyHostname(), rule.isTlsAllowAnyHostname(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSDisableTrustManager",
