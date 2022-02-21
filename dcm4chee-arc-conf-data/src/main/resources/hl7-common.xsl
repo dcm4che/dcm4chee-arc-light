@@ -620,6 +620,12 @@
   </xsl:template>
 
   <xsl:template match="PV1">
+    <!-- Route of Admissions -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00380016'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val" select="string(field[2]/text())"/>
+    </xsl:call-template>
     <!-- Referring Physician Name -->
     <xsl:call-template name="cn2pnAttr">
       <xsl:with-param name="tag" select="'00080090'"/>
