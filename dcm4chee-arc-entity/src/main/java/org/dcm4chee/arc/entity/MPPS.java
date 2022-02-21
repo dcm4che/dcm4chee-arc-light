@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.AttributeFilter;
 
@@ -137,6 +138,15 @@ public class MPPS {
     @Basic(optional = false)
     @Column(name = "accession_no")
     private String accessionNumber;
+
+    @Column(name = "accno_entity_id")
+    private String accessionNumberLocalNamespaceEntityID;
+
+    @Column(name = "accno_entity_uid")
+    private String accessionNumberUniversalEntityID;
+
+    @Column(name = "accno_entity_uid_type")
+    private String accessionNumberUniversalEntityIDType;
 
     @Basic(optional = false)
     @Column(name = "pps_status")
@@ -255,6 +265,16 @@ public class MPPS {
         performedProcedureStepStartTime = attrs.getString(Tag.PerformedProcedureStepStartTime);
         studyInstanceUID = ssa.getString(Tag.StudyInstanceUID);
         accessionNumber = ssa.getString(Tag.AccessionNumber, "*");
+        Issuer issuer = Issuer.valueOf(ssa.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+        if (issuer != null) {
+            accessionNumberLocalNamespaceEntityID = issuer.getLocalNamespaceEntityID();
+            accessionNumberUniversalEntityID = issuer.getUniversalEntityID();
+            accessionNumberUniversalEntityIDType = issuer.getUniversalEntityIDType();
+        } else {
+            accessionNumberLocalNamespaceEntityID = null;
+            accessionNumberUniversalEntityID = null;
+            accessionNumberUniversalEntityIDType = null;
+        }
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else

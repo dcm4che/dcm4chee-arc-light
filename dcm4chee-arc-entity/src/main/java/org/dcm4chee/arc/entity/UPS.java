@@ -47,6 +47,7 @@ package org.dcm4chee.arc.entity;
  */
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.*;
 
@@ -158,6 +159,15 @@ public class UPS {
     @Basic(optional = false)
     @Column(name = "admission_id")
     private String admissionID;
+
+    @Column(name = "admid_entity_id")
+    private String admissionIDLocalNamespaceEntityID;
+
+    @Column(name = "admid_entity_uid")
+    private String admissionIDUniversalEntityID;
+
+    @Column(name = "admid_entity_uid_type")
+    private String admissionIDUniversalEntityIDType;
 
     @Basic(optional = false)
     @Column(name = "replaced_iuid")
@@ -292,6 +302,16 @@ public class UPS {
         expectedCompletionDateAndTime = attrs.getString(Tag.ExpectedCompletionDateTime, "*");
         inputReadinessState = InputReadinessState.valueOf(attrs.getString(Tag.InputReadinessState, "READY"));
         admissionID = attrs.getString(Tag.AdmissionID, "*");
+        Issuer admissionIDIssuer = Issuer.valueOf(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+        if (admissionIDIssuer != null) {
+            admissionIDLocalNamespaceEntityID = admissionIDIssuer.getLocalNamespaceEntityID();
+            admissionIDUniversalEntityID = admissionIDIssuer.getUniversalEntityID();
+            admissionIDUniversalEntityIDType = admissionIDIssuer.getUniversalEntityIDType();
+        } else {
+            admissionIDLocalNamespaceEntityID = null;
+            admissionIDUniversalEntityID = null;
+            admissionIDUniversalEntityIDType = null;
+        }
         replacedSOPInstanceUID = getString(attrs.getNestedDataset(Tag.ReplacedProcedureStepSequence),
                 Tag.ReferencedSOPInstanceUID, "*");
         procedureStepState = UPSState.fromString(attrs.getString(Tag.ProcedureStepState, "SCHEDULED"));

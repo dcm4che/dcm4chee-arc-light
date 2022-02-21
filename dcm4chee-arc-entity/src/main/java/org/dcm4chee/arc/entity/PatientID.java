@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Issuer;
 
 import javax.persistence.*;
 
@@ -49,8 +50,12 @@ import javax.persistence.*;
  *
  */
 @Entity
-@Table(name = "patient_id", uniqueConstraints =
-    @UniqueConstraint(columnNames = { "pat_id", "issuer_fk" }))
+@Table(name = "patient_id",
+        indexes = {
+                @Index(columnList = "pat_id"),
+                @Index(columnList = "entity_id"),
+                @Index(columnList = "entity_uid, entity_uid"),
+        })
 public class PatientID {
 
     @Id
@@ -65,6 +70,15 @@ public class PatientID {
     @Basic(optional=false)
     @Column(name = "pat_id")
     private String id;
+
+    @Column(name = "entity_id")
+    private String localNamespaceEntityID;
+
+    @Column(name = "entity_uid")
+    private String universalEntityID;
+
+    @Column(name = "entity_uid_type")
+    private String universalEntityIDType;
 
     @Column(name = "pat_id_type_code")
     private String identifierTypeCode;
@@ -83,6 +97,18 @@ public class PatientID {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    public void setIssuer(Issuer issuer) {
+        if (issuer != null) {
+            localNamespaceEntityID = issuer.getLocalNamespaceEntityID();
+            universalEntityID = issuer.getUniversalEntityID();
+            universalEntityIDType = issuer.getUniversalEntityIDType();
+        } else {
+            localNamespaceEntityID = null;
+            universalEntityID = null;
+            universalEntityIDType = null;
+        }
     }
 
     public String getIdentifierTypeCode() {

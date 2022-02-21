@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.soundex.FuzzyStr;
 
@@ -68,6 +69,15 @@ public class UPSRequest {
     @Column(name = "accession_no")
     private String accessionNumber;
 
+    @Column(name = "accno_entity_id")
+    private String accessionNumberLocalNamespaceEntityID;
+
+    @Column(name = "accno_entity_uid")
+    private String accessionNumberUniversalEntityID;
+
+    @Column(name = "accno_entity_uid_type")
+    private String accessionNumberUniversalEntityIDType;
+
     @Basic(optional = false)
     @Column(name = "study_iuid")
     private String studyInstanceUID;
@@ -94,6 +104,16 @@ public class UPSRequest {
                                    FuzzyStr fuzzyStr) {
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID, "*");
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");
+        Issuer issuer = Issuer.valueOf(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+        if (issuer != null) {
+            accessionNumberLocalNamespaceEntityID = issuer.getLocalNamespaceEntityID();
+            accessionNumberUniversalEntityID = issuer.getUniversalEntityID();
+            accessionNumberUniversalEntityIDType = issuer.getUniversalEntityIDType();
+        } else {
+            accessionNumberLocalNamespaceEntityID = null;
+            accessionNumberUniversalEntityID = null;
+            accessionNumberUniversalEntityIDType = null;
+        }
         this.issuerOfAccessionNumber = issuerOfAccessionNumber;
         requestedProcedureID = attrs.getString(Tag.RequestedProcedureID, "*");
         requestingService = attrs.getString(Tag.RequestingService, "*");

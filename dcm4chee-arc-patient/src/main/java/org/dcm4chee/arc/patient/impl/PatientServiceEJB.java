@@ -338,7 +338,7 @@ public class PatientServiceEJB {
 
     private void updateIssuer(PatientID patientID, Issuer issuer) {
         if (issuer == null) {
-            patientID.setIssuer(null);
+            patientID.setIssuer((IssuerEntity) null);
         } else {
             IssuerEntity entity = patientID.getIssuer();
             if (entity == null)
@@ -456,6 +456,7 @@ public class PatientServiceEJB {
 
         PatientID patientID = new PatientID();
         patientID.setID(idWithIssuer.getID());
+        patientID.setIssuer(idWithIssuer.getIssuer());
         if (idWithIssuer.getIssuer() != null)
             patientID.setIssuer(issuerService.mergeOrCreate(idWithIssuer.getIssuer()));
 
