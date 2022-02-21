@@ -50,6 +50,8 @@
       <xsl:copy-of select="DicomAttribute[@tag='00321034']"/>
       <!-- Admission ID -->
       <xsl:copy-of select="DicomAttribute[@tag='00380010']"/>
+      <!-- Issuer of Admission ID Sequence -->
+      <xsl:copy-of select="DicomAttribute[@tag='00380014']"/>
       <!-- Route of Admissions -->
       <xsl:copy-of select="DicomAttribute[@tag='00380016']"/>
       <!-- Study Instance UID -->
