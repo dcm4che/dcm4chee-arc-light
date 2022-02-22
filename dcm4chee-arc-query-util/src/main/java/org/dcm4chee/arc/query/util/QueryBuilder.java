@@ -56,8 +56,6 @@ import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 import java.util.function.Function;
 
-import static org.dcm4chee.arc.entity.Instance_.contentItems;
-
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -346,7 +344,8 @@ public class QueryBuilder {
 
     private <Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
-        predicates.add(cb.and(patientID.get(PatientID_.issuer).isNull()));
+        predicates.add(patientID.get(PatientID_.localNamespaceEntityID).isNull());
+        predicates.add(patientID.get(PatientID_.universalEntityID).isNull());
         if (isUniversalMatching(pids))
             return;
 
@@ -364,16 +363,17 @@ public class QueryBuilder {
 
     public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
-        Join<PatientID, IssuerEntity> issuer = containsIssuer(pids)
-                ? patientID.join(PatientID_.issuer, JoinType.LEFT)
-                : null;
         List<Predicate> idPredicates = new ArrayList<>(pids.length);
         for (IDWithIssuer pid : pids)
             if (!isUniversalMatching(pid.getID())) {
                 List<Predicate> idPredicate = new ArrayList<>(3);
                 if (wildCard(idPredicate, patientID.get(PatientID_.id), pid.getID())) {
                     if (pid.getIssuer() != null)
-                        issuer(idPredicate, issuer, pid.getIssuer());
+                        issuer(idPredicate,
+                                patientID.get(PatientID_.localNamespaceEntityID),
+                                patientID.get(PatientID_.universalEntityID),
+                                patientID.get(PatientID_.universalEntityIDType),
+                                pid.getIssuer());
                     idPredicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
                 }
             }
@@ -383,7 +383,12 @@ public class QueryBuilder {
     }
 
     private <Z> void patIDIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, Issuer issuer) {
-        issuer(predicates, patient.join(Patient_.patientID).join(PatientID_.issuer), issuer);
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        issuer(predicates,
+                patientID.get(PatientID_.localNamespaceEntityID),
+                patientID.get(PatientID_.universalEntityID),
+                patientID.get(PatientID_.universalEntityIDType),
+                issuer);
     }
 
     public <T> List<Predicate> patientPredicates(CriteriaQuery<T> q,
@@ -656,7 +661,13 @@ public class QueryBuilder {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
             if (issuer == null)
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
-            idWithIssuer(predicates, study, Study_.accessionNumber, Study_.issuerOfAccessionNumber, accNo, issuer);
+            if (wildCard(predicates, study.get(Study_.accessionNumber), accNo) && issuer != null) {
+                issuer(predicates,
+                        study.get(Study_.accessionNumberLocalNamespaceEntityID),
+                        study.get(Study_.accessionNumberUniversalEntityID),
+                        study.get(Study_.accessionNumberUniversalEntityIDType),
+                        issuer);
+            }
         }
         String[] modalitiesInStudy = keys.getStrings(Tag.ModalitiesInStudy);
         if (queryParam.isAllOfModalitiesInStudy() && modalitiesInStudy != null && modalitiesInStudy.length > 1) {
@@ -705,7 +716,13 @@ public class QueryBuilder {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
             if (issuer == null)
                 issuer = queryParam.getDefaultIssuerOfAdmissionID();
-            idWithIssuer(predicates, study, Study_.admissionID, Study_.issuerOfAdmissionID, admissionID, issuer);
+            if (wildCard(predicates, study.get(Study_.admissionID), admissionID) && issuer != null) {
+                issuer(predicates,
+                        study.get(Study_.admissionIDLocalNamespaceEntityID),
+                        study.get(Study_.admissionIDUniversalEntityID),
+                        study.get(Study_.admissionIDUniversalEntityIDType),
+                        issuer);
+            }
         }
         return predicates;
     }
@@ -860,7 +877,13 @@ public class QueryBuilder {
             if (issuer == null) {
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
             }
-            idWithIssuer(predicates, mwlItem, MWLItem_.accessionNumber, MWLItem_.issuerOfAccessionNumber, accNo, issuer);
+            if (wildCard(predicates, mwlItem.get(MWLItem_.accessionNumber), accNo) && issuer != null) {
+                issuer(predicates,
+                        mwlItem.get(MWLItem_.accessionNumberLocalNamespaceEntityID),
+                        mwlItem.get(MWLItem_.accessionNumberUniversalEntityID),
+                        mwlItem.get(MWLItem_.accessionNumberUniversalEntityIDType),
+                        issuer);
+            }
         }
         Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (sps != null) {
@@ -889,7 +912,13 @@ public class QueryBuilder {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
             if (issuer == null)
                 issuer = queryParam.getDefaultIssuerOfAdmissionID();
-            idWithIssuer(predicates, mwlItem, MWLItem_.admissionID, MWLItem_.issuerOfAdmissionID, admissionID, issuer);
+            if (wildCard(predicates, mwlItem.get(MWLItem_.admissionID), admissionID) && issuer != null) {
+                issuer(predicates,
+                        mwlItem.get(MWLItem_.admissionIDLocalNamespaceEntityID),
+                        mwlItem.get(MWLItem_.admissionIDUniversalEntityID),
+                        mwlItem.get(MWLItem_.admissionIDUniversalEntityIDType),
+                        issuer);
+            }
         }
         anyOf(predicates, mwlItem.get(MWLItem_.institutionName),
                 keys.getStrings(Tag.InstitutionName), true);
@@ -975,7 +1004,13 @@ public class QueryBuilder {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
             if (issuer == null)
                 issuer = queryParam.getDefaultIssuerOfAdmissionID();
-            idWithIssuer(predicates, ups, UPS_.admissionID, UPS_.issuerOfAdmissionID, admissionID, issuer);
+            if (wildCard(predicates, ups.get(UPS_.admissionID), admissionID) && issuer != null) {
+                issuer(predicates,
+                        ups.get(UPS_.admissionIDLocalNamespaceEntityID),
+                        ups.get(UPS_.admissionIDUniversalEntityID),
+                        ups.get(UPS_.admissionIDUniversalEntityIDType),
+                        issuer);
+            }
         }
         upsRequestAttributes(predicates, q, ups, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
         Attributes replacedProcedureStep = keys.getNestedDataset(Tag.ReplacedProcedureStepSequence);
@@ -1008,7 +1043,13 @@ public class QueryBuilder {
                 Issuer issuer = Issuer.valueOf(ssa.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
                 if (issuer == null)
                     issuer = queryParam.getDefaultIssuerOfAccessionNumber();
-                idWithIssuer(predicates, mpps, MPPS_.accessionNumber, MPPS_.issuerOfAccessionNumber, accNo, issuer);
+                if (wildCard(predicates, mpps.get(MPPS_.accessionNumber), accNo) && issuer != null) {
+                    issuer(predicates,
+                            mpps.get(MPPS_.accessionNumberLocalNamespaceEntityID),
+                            mpps.get(MPPS_.accessionNumberUniversalEntityID),
+                            mpps.get(MPPS_.accessionNumberUniversalEntityIDType),
+                            issuer);
+                }
             }
         }
     }
@@ -1039,30 +1080,22 @@ public class QueryBuilder {
                     instance.get(Instance_.conceptNameCode).in(codes).not()));
     }
 
-    private static boolean containsIssuer(IDWithIssuer[] pids) {
-        for (IDWithIssuer pid : pids)
-            if (pid.getIssuer() != null)
-                return true;
-        return false;
-    }
-
-    private <Z, X> void idWithIssuer(List<Predicate> predicates, From<Z, X> entity,
-            SingularAttribute<X, String> idAttribute, SingularAttribute<X, IssuerEntity> issuerAttribute,
-            String id, Issuer issuer) {
-        if (wildCard(predicates, entity.get(idAttribute), id) && issuer != null)
-            issuer(predicates, entity.join(issuerAttribute, JoinType.LEFT), issuer);
-    }
-
-    private void issuer(List<Predicate> predicates, Path<IssuerEntity> issuerPath, Issuer issuer) {
+    private void issuer(List<Predicate> predicates,
+                        Path<String> localNamespaceEntityID,
+                        Path<String> universalEntityID,
+                        Path<String> universalEntityIDType,
+                        Issuer issuer) {
         String entityID = issuer.getLocalNamespaceEntityID();
         String entityUID = issuer.getUniversalEntityID();
         String entityUIDType = issuer.getUniversalEntityIDType();
-        if (!isUniversalMatching(entityID))
-            wildCardIssuer(predicates, issuerPath.get(IssuerEntity_.localNamespaceEntityID), entityID);
-        if (!isUniversalMatching(entityUID))
-            predicates.add(cb.or(issuerPath.get(IssuerEntity_.universalEntityID).isNull(),
-                    cb.and(cb.equal(issuerPath.get(IssuerEntity_.universalEntityID), entityUID),
-                            cb.equal(issuerPath.get(IssuerEntity_.universalEntityIDType), entityUIDType))));
+        if (!isUniversalMatching(entityID)) {
+            wildCardIssuer(predicates, localNamespaceEntityID, entityID);
+        }
+        if (!isUniversalMatching(entityUID)) {
+            predicates.add(cb.or(
+                    universalEntityID.isNull(),
+                    cb.and(cb.equal(universalEntityID, entityUID), cb.equal(universalEntityIDType, entityUIDType))));
+        }
     }
 
     private static boolean isUniversalMatching(Attributes item) {
@@ -1326,9 +1359,13 @@ public class QueryBuilder {
                     .getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
             if (issuerOfAccessionNumber == null)
                 issuerOfAccessionNumber = queryParam.getDefaultIssuerOfAccessionNumber();
-            idWithIssuer(requestPredicates, request,
-                    SeriesRequestAttributes_.accessionNumber, SeriesRequestAttributes_.issuerOfAccessionNumber,
-                    accNo, issuerOfAccessionNumber);
+            if (wildCard(requestPredicates, request.get(SeriesRequestAttributes_.accessionNumber), accNo) && issuerOfAccessionNumber != null) {
+                issuer(requestPredicates,
+                        request.get(SeriesRequestAttributes_.accessionNumberLocalNamespaceEntityID),
+                        request.get(SeriesRequestAttributes_.accessionNumberUniversalEntityID),
+                        request.get(SeriesRequestAttributes_.accessionNumberUniversalEntityIDType),
+                        issuerOfAccessionNumber);
+            }
         }
         anyOf(requestPredicates,
                 request.get(SeriesRequestAttributes_.requestingService),
@@ -1374,9 +1411,13 @@ public class QueryBuilder {
                     .getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
             if (issuerOfAccessionNumber == null)
                 issuerOfAccessionNumber = queryParam.getDefaultIssuerOfAccessionNumber();
-            idWithIssuer(requestPredicates, request,
-                    UPSRequest_.accessionNumber, UPSRequest_.issuerOfAccessionNumber,
-                    accNo, issuerOfAccessionNumber);
+            if (wildCard(requestPredicates, request.get(UPSRequest_.accessionNumber), accNo) && issuerOfAccessionNumber != null) {
+                issuer(requestPredicates,
+                        request.get(UPSRequest_.accessionNumberLocalNamespaceEntityID),
+                        request.get(UPSRequest_.accessionNumberUniversalEntityID),
+                        request.get(UPSRequest_.accessionNumberUniversalEntityIDType),
+                        issuerOfAccessionNumber);
+            }
         }
         anyOf(requestPredicates,
                 request.get(UPSRequest_.requestingService),
@@ -1422,7 +1463,7 @@ public class QueryBuilder {
 
         Subquery<ContentItem> sq = q.subquery(ContentItem.class);
         Root<Instance> sqInstance = sq.correlate(instance);
-        CollectionJoin<Instance, ContentItem> contentItem = sqInstance.join(contentItems);
+        CollectionJoin<Instance, ContentItem> contentItem = sqInstance.join(Instance_.contentItems);
         List<Predicate> y = new ArrayList<>();
         code(y, contentItem.get(ContentItem_.conceptName),
                 item.getNestedDataset(Tag.ConceptNameCodeSequence));
