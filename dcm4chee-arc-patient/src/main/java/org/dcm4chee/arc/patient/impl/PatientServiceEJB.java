@@ -48,7 +48,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.*;
 import org.hibernate.annotations.QueryHints;
 import org.slf4j.Logger;
@@ -78,9 +77,6 @@ public class PatientServiceEJB {
     private EntityManager em;
 
     @Inject
-    private IssuerService issuerService;
-
-    @Inject
     private Device device;
 
     public List<Patient> findPatients(IDWithIssuer pid) {
@@ -101,8 +97,8 @@ public class PatientServiceEJB {
 
     private void removeWithoutIssuer(List<Patient> list) {
         for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
-            IssuerEntity ie = it.next().getPatientID().getIssuer();
-            if (ie == null)
+            Issuer issuer = it.next().getPatientID().getIssuer();
+            if (issuer == null)
                 it.remove();
         }
     }
@@ -110,8 +106,7 @@ public class PatientServiceEJB {
     private void removeNonMatchingIssuer(List<Patient> list, Issuer issuer) {
         if (issuer != null) {
             for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
-                IssuerEntity ie = it.next().getPatientID().getIssuer();
-                Issuer other = ie != null ? ie.getIssuer() : null;
+                Issuer other = it.next().getPatientID().getIssuer();
                 if (other != null && !other.matches(issuer))
                     it.remove();
             }
@@ -120,8 +115,7 @@ public class PatientServiceEJB {
 
     private void removeLessQualifiedIssuer(List<Patient> list) {
         for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
-            IssuerEntity ie = it.next().getPatientID().getIssuer();
-            Issuer other = ie != null ? ie.getIssuer() : null;
+            Issuer other = it.next().getPatientID().getIssuer();
             if (other != null && other.getUniversalEntityID() == null && other.getUniversalEntityIDType() == null)
                 it.remove();
         }
@@ -225,7 +219,7 @@ public class PatientServiceEJB {
 
         if (ctx.getPatientID().getIssuer() != null) {
             PatientID patientID = pat.getPatientID();
-            patientID.setIssuer(issuerService.mergeOrCreate(ctx.getPatientID().getIssuer()));
+            patientID.setIssuer(ctx.getPatientID().getIssuer());
             em.merge(patientID);
         }
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
@@ -296,7 +290,7 @@ public class PatientServiceEJB {
             pat.setPatientID(createPatientID(patientID));
         else if (pat2 == pat) {
             PatientID patientID1 = pat.getPatientID();
-            updateIssuer(patientID1, patientID.getIssuer());
+            patientID1.setIssuer(patientID.getIssuer());
             em.merge(patientID1);
         } else
             throw new PatientAlreadyExistsException("Patient with Patient ID " + pat2.getPatientID() + "already exists");
@@ -334,18 +328,6 @@ public class PatientServiceEJB {
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
-    }
-
-    private void updateIssuer(PatientID patientID, Issuer issuer) {
-        if (issuer == null) {
-            patientID.setIssuer((IssuerEntity) null);
-        } else {
-            IssuerEntity entity = patientID.getIssuer();
-            if (entity == null)
-                patientID.setIssuer(issuerService.updateOrCreate(issuer));
-            else
-                entity.setIssuer(issuer);
-        }
     }
 
     public Patient findPatient(PatientMgtContext ctx) {
@@ -457,9 +439,6 @@ public class PatientServiceEJB {
         PatientID patientID = new PatientID();
         patientID.setID(idWithIssuer.getID());
         patientID.setIssuer(idWithIssuer.getIssuer());
-        if (idWithIssuer.getIssuer() != null)
-            patientID.setIssuer(issuerService.mergeOrCreate(idWithIssuer.getIssuer()));
-
         return patientID;
     }
 
@@ -530,7 +509,7 @@ public class PatientServiceEJB {
         }
 
         PatientID patientID = patient.getPatientID();
-        updateIssuer(patientID, idWithIssuer.getIssuer());
+        patientID.setIssuer(idWithIssuer.getIssuer());
         em.merge(patientID);
         Attributes patAttrs = patient.getAttributes();
         ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
@@ -544,7 +523,6 @@ public class PatientServiceEJB {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<PatientID> patientID = q.from(PatientID.class);
-        Join<PatientID, IssuerEntity> issuerEntity = patientID.join(PatientID_.issuer);
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(patientID.get(PatientID_.id), idWithIssuer.getID()));
         Issuer issuer = idWithIssuer.getIssuer();
@@ -552,16 +530,16 @@ public class PatientServiceEJB {
         String entityUID = issuer.getUniversalEntityID();
         String entityUIDType = issuer.getUniversalEntityIDType();
         if (entityID == null) {
-            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID), entityUID));
-            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), entityUIDType));
+            predicates.add(cb.equal(patientID.get(PatientID_.universalEntityID), entityUID));
+            predicates.add(cb.equal(patientID.get(PatientID_.universalEntityIDType), entityUIDType));
         } else if (entityUID == null) {
-            predicates.add(cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID), entityID));
+            predicates.add(cb.equal(patientID.get(PatientID_.localNamespaceEntityID), entityID));
         } else {
             predicates.add(cb.or(
-                    cb.equal(issuerEntity.get(IssuerEntity_.localNamespaceEntityID), entityID),
+                    cb.equal(patientID.get(PatientID_.localNamespaceEntityID), entityID),
                     cb.and(
-                            cb.equal(issuerEntity.get(IssuerEntity_.universalEntityID), entityUID),
-                            cb.equal(issuerEntity.get(IssuerEntity_.universalEntityIDType), entityUIDType)
+                            cb.equal(patientID.get(PatientID_.universalEntityID), entityUID),
+                            cb.equal(patientID.get(PatientID_.universalEntityIDType), entityUIDType)
                     )));
         }
         return em.createQuery(q.where(predicates.toArray(new Predicate[0])).select(cb.count(patientID))).getSingleResult();

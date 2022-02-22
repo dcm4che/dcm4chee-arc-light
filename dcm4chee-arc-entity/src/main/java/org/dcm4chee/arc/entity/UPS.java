@@ -199,10 +199,6 @@ public class UPS {
     @JoinColumn(name = "station_location_fk")
     private CodeEntity scheduledStationGeographicLocationCode;
 
-    @ManyToOne
-    @JoinColumn(name = "admission_issuer_fk")
-    private IssuerEntity issuerOfAdmissionID;
-
     @ManyToMany
     @JoinTable(name = "rel_ups_perf_code",
             joinColumns = @JoinColumn(name = "ups_fk", referencedColumnName = "pk"),
@@ -341,10 +337,6 @@ public class UPS {
 
     public void setScheduledStationGeographicLocationCode(CodeEntity scheduledStationGeographicLocationCode) {
         this.scheduledStationGeographicLocationCode = scheduledStationGeographicLocationCode;
-    }
-
-    public void setIssuerOfAdmissionID(IssuerEntity issuerOfAdmissionID) {
-        this.issuerOfAdmissionID = issuerOfAdmissionID;
     }
 
     public Collection<CodeEntity> getHumanPerformerCodes() {

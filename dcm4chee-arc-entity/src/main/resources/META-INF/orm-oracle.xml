@@ -121,16 +121,6 @@
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.IssuerEntity">
-    <sequence-generator name="issuer_pk_seq" sequence-name="issuer_pk_seq" allocation-size="1"/>
-    <attributes>
-      <id name="pk">
-        <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="issuer_pk_seq"/>
-      </id>
-    </attributes>
-  </entity>
-
   <entity class="org.dcm4chee.arc.entity.Location">
     <sequence-generator name="location_pk_seq" sequence-name="location_pk_seq" allocation-size="1"/>
     <attributes>

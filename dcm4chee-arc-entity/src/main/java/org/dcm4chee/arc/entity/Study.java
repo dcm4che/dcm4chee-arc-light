@@ -336,14 +336,6 @@ public class Study {
     @JoinColumn(name = "ref_phys_name_fk")
     private PersonName referringPhysicianName;
 
-    @ManyToOne
-    @JoinColumn(name = "accno_issuer_fk")
-    private IssuerEntity issuerOfAccessionNumber;
-
-    @ManyToOne
-    @JoinColumn(name = "admid_issuer_fk")
-    private IssuerEntity issuerOfAdmissionID;
-
     @ManyToMany
     @JoinTable(name = "rel_study_pcode",
             joinColumns = @JoinColumn(name = "study_fk", referencedColumnName = "pk"),
@@ -504,24 +496,8 @@ public class Study {
         return accessionNumber;
     }
 
-    public IssuerEntity getIssuerOfAccessionNumber() {
-        return issuerOfAccessionNumber;
-    }
-
-    public void setIssuerOfAccessionNumber(IssuerEntity issuerOfAccessionNumber) {
-        this.issuerOfAccessionNumber = issuerOfAccessionNumber;
-    }
-
     public String getAdmissionID() {
         return admissionID;
-    }
-
-    public IssuerEntity getIssuerOfAdmissionID() {
-        return issuerOfAdmissionID;
-    }
-
-    public void setIssuerOfAdmissionID(IssuerEntity issuerOfAdmissionID) {
-        this.issuerOfAdmissionID = issuerOfAdmissionID;
     }
 
     public PersonName getReferringPhysicianName() {

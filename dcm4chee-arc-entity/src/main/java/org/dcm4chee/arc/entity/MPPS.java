@@ -152,10 +152,6 @@ public class MPPS {
     @Column(name = "pps_status")
     private Status status;
 
-    @ManyToOne
-    @JoinColumn(name = "accno_issuer_fk")
-    private IssuerEntity issuerOfAccessionNumber;
-
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
     private AttributesBlob attributesBlob;
@@ -223,14 +219,6 @@ public class MPPS {
 
     public void setSopInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
-    }
-
-    public IssuerEntity getIssuerOfAccessionNumber() {
-        return issuerOfAccessionNumber;
-    }
-
-    public void setIssuerOfAccessionNumber(IssuerEntity issuerOfAccessionNumber) {
-        this.issuerOfAccessionNumber = issuerOfAccessionNumber;
     }
 
     public CodeEntity getDiscontinuationReasonCode() {

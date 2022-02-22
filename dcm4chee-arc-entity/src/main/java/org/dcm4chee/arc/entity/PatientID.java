@@ -83,10 +83,6 @@ public class PatientID {
     @Column(name = "pat_id_type_code")
     private String identifierTypeCode;
 
-    @ManyToOne
-    @JoinColumn(name = "issuer_fk")
-    private IssuerEntity issuer;
-
     public long getPk() {
         return pk;
     }
@@ -97,6 +93,12 @@ public class PatientID {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    public Issuer getIssuer() {
+        return localNamespaceEntityID != null || universalEntityID != null
+                ? new Issuer(localNamespaceEntityID, universalEntityID, universalEntityIDType)
+                : null;
     }
 
     public void setIssuer(Issuer issuer) {
@@ -119,23 +121,15 @@ public class PatientID {
         this.identifierTypeCode = identifierTypeCode;
     }
 
-    public IssuerEntity getIssuer() {
-        return issuer;
-    }
-
-    public void setIssuer(IssuerEntity issuer) {
-        this.issuer = issuer;
-    }
-
     public IDWithIssuer getIDWithIssuer() {
-        return new IDWithIssuer(id, issuer != null ? issuer.getIssuer() : null);
+        return new IDWithIssuer(id, getIssuer());
     }
 
     @Override
     public String toString() {
         return "PatientID[pk=" + pk
                 + ", id=" + id
-                + ", issuer=" + issuer
+                + ", issuer=" + getIssuer()
                 + "]";
     }
 }

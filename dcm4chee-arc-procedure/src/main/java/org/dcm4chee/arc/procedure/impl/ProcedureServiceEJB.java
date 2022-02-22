@@ -50,7 +50,6 @@ import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.patient.PatientService;
@@ -89,9 +88,6 @@ public class ProcedureServiceEJB {
 
     @Inject
     private CodeCache codeCache;
-
-    @Inject
-    private IssuerService issuerService;
 
     public void updateProcedure(ProcedureContext ctx) {
         if (ctx.getHttpRequest() != null)
@@ -141,8 +137,6 @@ public class ProcedureServiceEJB {
         Attributes mwlAttrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         mwlItem.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
-        mwlItem.setIssuerOfAccessionNumber(findOrCreateIssuer(mwlAttrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
-        mwlItem.setIssuerOfAdmissionID(findOrCreateIssuer(mwlAttrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence)));
         mwlItem.setInstitutionCode(findOrCreateCode(mwlAttrs, Tag.InstitutionCodeSequence));
         mwlItem.setInstitutionalDepartmentTypeCode(findOrCreateCode(mwlAttrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
@@ -187,17 +181,11 @@ public class ProcedureServiceEJB {
         if (!spsItem.contains(Tag.ScheduledProcedureStepLocation))
             spsItem.setNull(Tag.ScheduledProcedureStepLocation, VR.SH);
         mwlItem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
-        mwlItem.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
-        mwlItem.setIssuerOfAdmissionID(findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence)));
         mwlItem.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         mwlItem.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         em.persist(mwlItem);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         LOG.info("{}: Create {}", ctx, mwlItem);
-    }
-
-    private IssuerEntity findOrCreateIssuer(Attributes item) {
-        return item != null && !item.isEmpty() ? issuerService.mergeOrCreate(new Issuer(item)) : null;
     }
 
     private CodeEntity findOrCreateCode(Attributes attrs, int seqTag) {
@@ -347,10 +335,6 @@ public class ProcedureServiceEJB {
         if (seriesList.isEmpty())
             return false;
 
-        IssuerEntity issuerOfAccessionNumber =
-                findOrCreateIssuer(mwlAttr.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
-        IssuerEntity issuerOfAdmissionID =
-                findOrCreateIssuer(mwlAttr.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
         Date now = new Date();
         Study study = seriesList.get(0).getStudy();
         Attributes studyAttr = study.getAttributes();
@@ -360,8 +344,6 @@ public class ProcedureServiceEJB {
         Attributes.unifyCharacterSets(studyAttr, mwlAttr);
         if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
                 mwlAttr, modified, studyFilter.getSelection())) {
-            study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-            study.setIssuerOfAdmissionID(issuerOfAdmissionID);
             study.setAttributes(recordAttributeModification(ctx)
                     ? studyAttr.addOriginalAttributes(
                         null,
@@ -375,14 +357,14 @@ public class ProcedureServiceEJB {
         Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
             if (sourceSeriesIUIDs == null || sourceSeriesIUIDs.contains(series.getSeriesInstanceUID()))
-                updateSeriesAttributes(series, mwlAttr, issuerOfAccessionNumber,
+                updateSeriesAttributes(series, mwlAttr,
                         arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr(), now, ctx);
 
         LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
         return true;
     }
 
-    private void updateSeriesAttributes(Series series, Attributes mwlAttr, IssuerEntity issuerOfAccessionNumber,
+    private void updateSeriesAttributes(Series series, Attributes mwlAttr,
                                         AttributeFilter filter, FuzzyStr fuzzyStr, Date now, ProcedureContext ctx) {
         Attributes seriesAttr = series.getAttributes();
         Attributes.unifyCharacterSets(seriesAttr, mwlAttr);
@@ -400,7 +382,7 @@ public class ProcedureServiceEJB {
         requestAttributes.clear();
         for (Attributes spsItem : spsSeq) {
             Attributes rqAttrsItem = MWLItem.addItemToRequestAttributesSequence(rqAttrsSeq, mwlAttr, spsItem);
-            SeriesRequestAttributes request = new SeriesRequestAttributes(rqAttrsItem, issuerOfAccessionNumber, fuzzyStr);
+            SeriesRequestAttributes request = new SeriesRequestAttributes(rqAttrsItem, fuzzyStr);
             requestAttributes.add(request);
         }
         series.setAttributes(seriesAttr, filter, true, fuzzyStr);

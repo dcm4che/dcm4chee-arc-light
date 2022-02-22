@@ -538,7 +538,6 @@
     <module>dcm4chee-arc-impax-report</module>
     <module>dcm4chee-arc-impax-report-rs</module>
     <module>dcm4chee-arc-iocm-rs</module>
-    <module>dcm4chee-arc-issuer</module>
     <module>dcm4chee-arc-keycloak</module>
     <module>dcm4chee-arc-keycloak-rs</module>
     <module>dcm4chee-arc-metadata</module>

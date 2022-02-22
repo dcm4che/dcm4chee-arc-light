@@ -55,7 +55,6 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.store.StoreContext;
@@ -97,17 +96,12 @@ public class UPSServiceEJB {
     @Inject
     private CodeCache codeCache;
 
-    @Inject
-    private IssuerService issuerService;
-
     public UPS createUPS(UPSContext ctx) {
         ArchiveDeviceExtension arcDev = ctx.getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
         UPS ups = new UPS();
         ups.setUpsInstanceUID(ctx.getUPSInstanceUID());
         ups.setPatient(findOrCreatePatient(ctx));
-        ups.setIssuerOfAdmissionID(
-                findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         ups.setScheduledWorkitemCode(
                 findOrCreateCode(attrs, Tag.ScheduledWorkitemCodeSequence));
         ups.setScheduledStationNameCode(
@@ -182,7 +176,6 @@ public class UPSServiceEJB {
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.UPS);
         Attributes modified = new Attributes();
         Attributes attrs = ups.getAttributes();
-        boolean prevIssuerOfAdmissionID = attrs.containsValue(Tag.IssuerOfAdmissionIDSequence);
         boolean prevWorkitemCode = attrs.containsValue(Tag.ScheduledWorkitemCodeSequence);
         boolean prevStationName = attrs.containsValue(Tag.ScheduledStationNameCodeSequence);
         boolean prevStationClass = attrs.containsValue(Tag.ScheduledStationClassCodeSequence);
@@ -194,12 +187,6 @@ public class UPSServiceEJB {
         if (!attrs.updateSelected(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), modified,
                 filter.getSelection())) {
             return ups;
-        }
-        boolean issuerOfAdmissionIDUpdated = (prevIssuerOfAdmissionID ? modified : attrs)
-                .containsValue(Tag.IssuerOfAdmissionIDSequence);
-        if (issuerOfAdmissionIDUpdated) {
-            ups.setIssuerOfAdmissionID(
-                    findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         }
         boolean workitemCodeUpdated = (prevWorkitemCode ? modified : attrs)
                 .containsValue(Tag.ScheduledWorkitemCodeSequence);
@@ -298,17 +285,9 @@ public class UPSServiceEJB {
         referencedRequests.clear();
         if (seq != null) {
             for (Attributes item : seq) {
-                referencedRequests.add(new UPSRequest(
-                        item,
-                        findOrCreateIssuer(item, Tag.IssuerOfAccessionNumberSequence),
-                        fuzzyStr));
+                referencedRequests.add(new UPSRequest(item, fuzzyStr));
             }
         }
-    }
-
-    private IssuerEntity findOrCreateIssuer(Attributes attrs, int tag) {
-        Issuer issuer = Issuer.valueOf(attrs.getNestedDataset(tag));
-        return issuer != null ? issuerService.mergeOrCreate(issuer) : null;
     }
 
     private CodeEntity findOrCreateCode(Attributes attrs, int seqTag) {

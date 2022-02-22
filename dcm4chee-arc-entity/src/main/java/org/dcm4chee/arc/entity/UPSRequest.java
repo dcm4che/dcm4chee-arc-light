@@ -94,14 +94,9 @@ public class UPSRequest {
     @JoinColumn(name = "req_phys_name_fk")
     private PersonName requestingPhysician;
 
-    @ManyToOne
-    @JoinColumn(name = "accno_issuer_fk")
-    private IssuerEntity issuerOfAccessionNumber;
-
     public UPSRequest() {}
 
-    public UPSRequest(Attributes attrs, IssuerEntity issuerOfAccessionNumber,
-                                   FuzzyStr fuzzyStr) {
+    public UPSRequest(Attributes attrs, FuzzyStr fuzzyStr) {
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID, "*");
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");
         Issuer issuer = Issuer.valueOf(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
@@ -114,7 +109,6 @@ public class UPSRequest {
             accessionNumberUniversalEntityID = null;
             accessionNumberUniversalEntityIDType = null;
         }
-        this.issuerOfAccessionNumber = issuerOfAccessionNumber;
         requestedProcedureID = attrs.getString(Tag.RequestedProcedureID, "*");
         requestingService = attrs.getString(Tag.RequestingService, "*");
         requestingPhysician = PersonName.valueOf(
@@ -147,10 +141,6 @@ public class UPSRequest {
 
     public void setAccessionNumber(String accessionNumber) {
         this.accessionNumber = accessionNumber;
-    }
-
-    public IssuerEntity getIssuerOfAccessionNumber() {
-        return issuerOfAccessionNumber;
     }
 
     @Override

@@ -59,7 +59,6 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.id.IDService;
-import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -119,9 +118,6 @@ public class StoreServiceEJB {
 
     @Inject
     private CodeCache codeCache;
-
-    @Inject
-    private IssuerService issuerService;
 
     @Inject
     private PatientService patientService;
@@ -944,15 +940,7 @@ public class StoreServiceEJB {
         pat = em.find(Patient.class, pat.getPk());
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(attrs);
         if (idWithIssuer != null) {
-            Issuer issuer = idWithIssuer.getIssuer();
-            if (issuer != null) {
-                PatientID patientID = pat.getPatientID();
-                IssuerEntity issuerEntity = patientID.getIssuer();
-                if (issuerEntity == null)
-                    patientID.setIssuer(issuerService.mergeOrCreate(issuer));
-                else
-                    issuerEntity.merge(issuer);
-            }
+            pat.getPatientID().setIssuer(idWithIssuer.getIssuer());
         }
         pat.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
@@ -983,8 +971,6 @@ public class StoreServiceEJB {
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,
                 filter, true, arcDev.getFuzzyStr());
-        study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
-        study.setIssuerOfAdmissionID(findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                 .setParameter(1, study)
@@ -1396,8 +1382,6 @@ public class StoreServiceEJB {
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
         study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), false, arcDev.getFuzzyStr());
-        study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
-        study.setIssuerOfAdmissionID(findOrCreateIssuer(attrs, Tag.IssuerOfAdmissionIDSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
     }
 
@@ -1695,10 +1679,7 @@ public class StoreServiceEJB {
         requestAttributes.clear();
         if (seq != null)
             for (Attributes item : seq) {
-                SeriesRequestAttributes request = new SeriesRequestAttributes(
-                        item,
-                        findOrCreateIssuer(item, Tag.IssuerOfAccessionNumberSequence),
-                        fuzzyStr);
+                SeriesRequestAttributes request = new SeriesRequestAttributes(item, fuzzyStr);
                 requestAttributes.add(request);
             }
     }
@@ -1751,11 +1732,6 @@ public class StoreServiceEJB {
                     LOG.info("{}: Invalid Content Item: {}", session, e.getMessage());
                 }
             }
-    }
-
-    private IssuerEntity findOrCreateIssuer(Attributes attrs, int tag) {
-        Issuer issuer = Issuer.valueOf(attrs.getNestedDataset(tag));
-        return issuer != null ? issuerService.mergeOrCreate(issuer) : null;
     }
 
     private CodeEntity findOrCreateCode(Attributes attrs, int seqTag) {

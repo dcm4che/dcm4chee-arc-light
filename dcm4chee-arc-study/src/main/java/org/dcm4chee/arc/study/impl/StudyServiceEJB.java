@@ -46,7 +46,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyMissingException;
@@ -77,9 +76,6 @@ public class StudyServiceEJB {
 
     @Inject
     private CodeCache codeCache;
-
-    @Inject
-    private IssuerService issuerService;
 
     @Inject
     private PatientService patientService;
@@ -114,10 +110,6 @@ public class StudyServiceEJB {
                     modified)
                 : attrs,
                 filter, true, ctx.getFuzzyStr());
-        study.setIssuerOfAccessionNumber(
-                findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
-        study.setIssuerOfAdmissionID(
-                findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence)));
         setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                 .setParameter(1, study)
@@ -323,9 +315,5 @@ public class StudyServiceEJB {
                     LOG.info("Illegal Procedure Code:\n{}", item);
                 }
             }
-    }
-
-    private IssuerEntity findOrCreateIssuer(Attributes item) {
-        return item != null && !item.isEmpty() ? issuerService.mergeOrCreate(new Issuer(item)) : null;
     }
 }

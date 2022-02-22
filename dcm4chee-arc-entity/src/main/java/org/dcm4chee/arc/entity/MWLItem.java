@@ -280,14 +280,6 @@ public class MWLItem {
     private PersonName scheduledPerformingPhysicianName;
 
     @ManyToOne
-    @JoinColumn(name = "accno_issuer_fk")
-    private IssuerEntity issuerOfAccessionNumber;
-
-    @ManyToOne
-    @JoinColumn(name = "admid_issuer_fk")
-    private IssuerEntity issuerOfAdmissionID;
-
-    @ManyToOne
     @JoinColumn(name = "inst_code_fk")
     private CodeEntity institutionCode;
 
@@ -333,24 +325,8 @@ public class MWLItem {
         return accessionNumber;
     }
 
-    public IssuerEntity getIssuerOfAccessionNumber() {
-        return issuerOfAccessionNumber;
-    }
-
-    public void setIssuerOfAccessionNumber(IssuerEntity issuerOfAccessionNumber) {
-        this.issuerOfAccessionNumber = issuerOfAccessionNumber;
-    }
-
     public String getAdmissionID() {
         return admissionID;
-    }
-
-    public IssuerEntity getIssuerOfAdmissionID() {
-        return issuerOfAdmissionID;
-    }
-
-    public void setIssuerOfAdmissionID(IssuerEntity issuerOfAdmissionID) {
-        this.issuerOfAdmissionID = issuerOfAdmissionID;
     }
 
     public String getInstitutionalDepartmentName() {
@@ -519,6 +495,7 @@ public class MWLItem {
 
     private static final int[] REQUEST_ATTR = {
             Tag.AccessionNumber,
+            Tag.IssuerOfAccessionNumberSequence,
             Tag.RequestedProcedureID,
             Tag.StudyInstanceUID,
             Tag.RequestedProcedureDescription
