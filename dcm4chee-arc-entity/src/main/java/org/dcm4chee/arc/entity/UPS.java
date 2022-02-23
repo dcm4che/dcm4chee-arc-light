@@ -187,17 +187,23 @@ public class UPS {
     @JoinColumn(name = "ups_code_fk")
     private CodeEntity scheduledWorkitemCode;
 
-    @ManyToOne
-    @JoinColumn(name = "station_name_fk")
-    private CodeEntity scheduledStationNameCode;
+    @ManyToMany
+    @JoinTable(name = "rel_ups_station_name_code",
+            joinColumns = @JoinColumn(name = "ups_fk", referencedColumnName = "pk"),
+            inverseJoinColumns = @JoinColumn(name = "station_name_code_fk", referencedColumnName = "pk"))
+    private Collection<CodeEntity> scheduledStationNameCodes;
 
-    @ManyToOne
-    @JoinColumn(name = "station_class_fk")
-    private CodeEntity scheduledStationClassCode;
+    @ManyToMany
+    @JoinTable(name = "rel_ups_station_class_code",
+            joinColumns = @JoinColumn(name = "ups_fk", referencedColumnName = "pk"),
+            inverseJoinColumns = @JoinColumn(name = "station_class_code_fk", referencedColumnName = "pk"))
+    private Collection<CodeEntity> scheduledStationClassCodes;
 
-    @ManyToOne
-    @JoinColumn(name = "station_location_fk")
-    private CodeEntity scheduledStationGeographicLocationCode;
+    @ManyToMany
+    @JoinTable(name = "rel_ups_station_location_code",
+            joinColumns = @JoinColumn(name = "ups_fk", referencedColumnName = "pk"),
+            inverseJoinColumns = @JoinColumn(name = "station_location_code_fk", referencedColumnName = "pk"))
+    private Collection<CodeEntity> scheduledStationGeographicLocationCodes;
 
     @ManyToMany
     @JoinTable(name = "rel_ups_perf_code",
@@ -327,16 +333,25 @@ public class UPS {
         this.scheduledWorkitemCode = scheduledWorkitemCode;
     }
 
-    public void setScheduledStationNameCode(CodeEntity scheduledStationNameCode) {
-        this.scheduledStationNameCode = scheduledStationNameCode;
+    public Collection<CodeEntity> getScheduledStationNameCodes() {
+        if (scheduledStationNameCodes == null)
+            scheduledStationNameCodes = new ArrayList<>();
+
+        return scheduledStationNameCodes;
     }
 
-    public void setScheduledStationClassCode(CodeEntity scheduledStationClassCode) {
-        this.scheduledStationClassCode = scheduledStationClassCode;
+    public Collection<CodeEntity> getScheduledStationClassCodes() {
+        if (scheduledStationClassCodes == null)
+            scheduledStationClassCodes = new ArrayList<>();
+
+        return scheduledStationClassCodes;
     }
 
-    public void setScheduledStationGeographicLocationCode(CodeEntity scheduledStationGeographicLocationCode) {
-        this.scheduledStationGeographicLocationCode = scheduledStationGeographicLocationCode;
+    public Collection<CodeEntity> getScheduledStationGeographicLocationCodes() {
+        if (scheduledStationGeographicLocationCodes == null)
+            scheduledStationGeographicLocationCodes = new ArrayList<>();
+
+        return scheduledStationGeographicLocationCodes;
     }
 
     public Collection<CodeEntity> getHumanPerformerCodes() {

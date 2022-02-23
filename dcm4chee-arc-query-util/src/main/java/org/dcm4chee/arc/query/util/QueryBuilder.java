@@ -52,6 +52,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.CollectionAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 import java.util.function.Function;
@@ -677,7 +678,7 @@ public class QueryBuilder {
         } else {
             seriesAttributesInStudy(predicates, q, study, keys, queryParam, queryRetrieveLevel, modalitiesInStudy);
         }
-        procedureCode(predicates, q, study, keys.getNestedDataset(Tag.ProcedureCodeSequence));
+        codes(predicates, q, study, Study_.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence));
         if (queryParam.isHideNotRejectedInstances())
             predicates.add(cb.notEqual(study.get(Study_.rejectionState), RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
@@ -974,16 +975,16 @@ public class QueryBuilder {
                 keys.getDateRange(Tag.ScheduledProcedureStepModificationDateTime));
         anyOf(predicates, ups.get(UPS_.upsLabel), keys.getStrings(Tag.ProcedureStepLabel), true);
         anyOf(predicates, ups.get(UPS_.worklistLabel), keys.getStrings(Tag.WorklistLabel), true);
-        code(predicates, ups.get(UPS_.scheduledStationNameCode),
+        codes(predicates, q, ups, UPS_.scheduledStationNameCodes,
                 keys.getNestedDataset(Tag.ScheduledStationNameCodeSequence));
-        code(predicates, ups.get(UPS_.scheduledStationClassCode),
+        codes(predicates, q, ups, UPS_.scheduledStationClassCodes,
                 keys.getNestedDataset(Tag.ScheduledStationClassCodeSequence));
-        code(predicates, ups.get(UPS_.scheduledStationGeographicLocationCode),
+        codes(predicates, q, ups, UPS_.scheduledStationGeographicLocationCodes,
                 keys.getNestedDataset(Tag.ScheduledStationGeographicLocationCodeSequence));
         Attributes scheduledHumanPerformersSequence = keys.getNestedDataset(Tag.ScheduledHumanPerformersSequence);
         if (scheduledHumanPerformersSequence != null)
-            performerCode(predicates, q, ups,
-                scheduledHumanPerformersSequence.getSequence(Tag.HumanPerformerCodeSequence).get(0));
+            codes(predicates, q, ups, UPS_.humanPerformerCodes,
+                    scheduledHumanPerformersSequence.getNestedDataset(Tag.HumanPerformerCodeSequence));
         if (queryParam.isTemplate())
             predicates.add(cb.equal(ups.get(UPS_.scheduledStartDateAndTime), "*"));
         else {
@@ -1301,29 +1302,14 @@ public class QueryBuilder {
         return result;
     }
 
-    private <T, Z> void procedureCode(List<Predicate> predicates, CriteriaQuery<T> q,
-            From<Z, Study> study, Attributes item) {
+    private <T, Z, X> void codes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, X> from,
+                           CollectionAttribute<X, CodeEntity> collection, Attributes item) {
         if (isUniversalMatching(item))
             return;
 
         Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
-        From<Z, Study> sqStudy = correlate(sq, study);
-        CollectionJoin<Study, CodeEntity> code = sqStudy.join(Study_.procedureCodes);
-        List<Predicate> y = new ArrayList<>();
-        code(y, code, item);
-        if (!y.isEmpty()) {
-            predicates.add(cb.exists(sq.select(code).where(y.toArray(new Predicate[0]))));
-        }
-    }
-
-    private <T, Z> void performerCode(List<Predicate> predicates, CriteriaQuery<T> q,
-                                      From<Z, UPS> ups, Attributes item) {
-        if (isUniversalMatching(item))
-            return;
-
-        Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
-        From<Z, UPS> sqUPS = correlate(sq, ups);
-        CollectionJoin<UPS, CodeEntity> code = sqUPS.join(UPS_.humanPerformerCodes);
+        From<Z, X> sqFrom = correlate(sq, from);
+        CollectionJoin<X, CodeEntity> code = sqFrom.join(collection);
         List<Predicate> y = new ArrayList<>();
         code(y, code, item);
         if (!y.isEmpty())
@@ -1396,13 +1382,13 @@ public class QueryBuilder {
             predicates.add(cb.isEmpty(series.get(Series_.requestAttributes)));
     }
 
-    private <T, Z> void upsRequestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, UPS> ups,
+    private <T> void upsRequestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, Root<UPS> ups,
                                           Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
             return;
 
         Subquery<UPSRequest> sq = q.subquery(UPSRequest.class);
-        From<Z, UPS> sqUPS = correlate(sq, ups);
+        Root<UPS> sqUPS = sq.correlate(ups);
         Join<UPS, UPSRequest> request = sqUPS.join(UPS_.referencedRequests);
         List<Predicate> requestPredicates = new ArrayList<>();
         String accNo = item.getString(Tag.AccessionNumber, "*");

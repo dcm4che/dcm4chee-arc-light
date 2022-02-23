@@ -104,14 +104,11 @@ public class UPSServiceEJB {
         ups.setPatient(findOrCreatePatient(ctx));
         ups.setScheduledWorkitemCode(
                 findOrCreateCode(attrs, Tag.ScheduledWorkitemCodeSequence));
-        ups.setScheduledStationNameCode(
-                findOrCreateCode(attrs, Tag.ScheduledStationNameCodeSequence));
-        ups.setScheduledStationClassCode(
-                findOrCreateCode(attrs, Tag.ScheduledStationClassCodeSequence));
-        ups.setScheduledStationGeographicLocationCode(
-                findOrCreateCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence));
-        setHumanPerformerCodes(ups.getHumanPerformerCodes(),
-                attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
+        setCodes(ups.getScheduledStationNameCodes(), attrs, Tag.ScheduledStationNameCodeSequence);
+        setCodes(ups.getScheduledStationClassCodes(), attrs, Tag.ScheduledStationClassCodeSequence);
+        setCodes(ups.getScheduledStationGeographicLocationCodes(),
+                attrs, Tag.ScheduledStationGeographicLocationCodeSequence);
+        setCodes(ups.getHumanPerformerCodes(), attrs, Tag.ScheduledHumanPerformersSequence);
         setReferencedRequests(ups.getReferencedRequests(),
                 attrs.getSequence(Tag.ReferencedRequestSequence),
                 arcDev.getFuzzyStr());
@@ -197,26 +194,23 @@ public class UPSServiceEJB {
         boolean stationNameUpdated = (prevStationName ? modified : attrs)
                 .containsValue(Tag.ScheduledStationNameCodeSequence);
         if (stationNameUpdated) {
-            ups.setScheduledStationNameCode(
-                    findOrCreateCode(attrs, Tag.ScheduledStationNameCodeSequence));
+            setCodes(ups.getScheduledStationNameCodes(), attrs, Tag.ScheduledStationNameCodeSequence);
         }
         boolean stationClassUpdated = (prevStationClass ? modified : attrs)
                 .containsValue(Tag.ScheduledStationClassCodeSequence);
         if (stationClassUpdated) {
-            ups.setScheduledStationClassCode(
-                    findOrCreateCode(attrs, Tag.ScheduledStationClassCodeSequence));
+            setCodes(ups.getScheduledStationClassCodes(), attrs, Tag.ScheduledStationClassCodeSequence);
         }
         boolean stationLocationUpdated = (prevStationLocation ? modified : attrs)
                 .containsValue(Tag.ScheduledStationGeographicLocationCodeSequence);
         if (stationLocationUpdated) {
-            ups.setScheduledStationGeographicLocationCode(
-                    findOrCreateCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence));
+            setCodes(ups.getScheduledStationGeographicLocationCodes(),
+                    attrs, Tag.ScheduledStationGeographicLocationCodeSequence);
         }
         boolean performerUpdated = (prevPerformers ? modified : attrs)
                 .containsValue(Tag.ScheduledHumanPerformersSequence);
         if (performerUpdated) {
-            setHumanPerformerCodes(ups.getHumanPerformerCodes(),
-                    attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
+            setCodes(ups.getHumanPerformerCodes(), attrs, Tag.ScheduledHumanPerformersSequence);
         }
         boolean requestUpdated = (prevRequest ? modified : attrs)
                 .containsValue(Tag.ReferencedRequestSequence);
@@ -301,18 +295,17 @@ public class UPSServiceEJB {
         return null;
     }
 
-    private void setHumanPerformerCodes(Collection<CodeEntity> codes, Sequence seq) {
+    private void setCodes(Collection<CodeEntity> codes, Attributes attrs, int seqTag) {
+        Sequence seq = attrs.getSequence(seqTag);
         codes.clear();
-        if (seq != null) {
+        if (seq != null)
             for (Attributes item : seq) {
                 try {
-                    codes.add(codeCache.findOrCreate(
-                            new Code(item.getNestedDataset(Tag.HumanPerformerCodeSequence))));
+                    codes.add(codeCache.findOrCreate(new Code(item)));
                 } catch (Exception e) {
-                    LOG.info("Missing or invalid Human Performer Code:\n{}", item);
+                    LOG.info("Illegal code item in Sequence {}:\n{}", TagUtils.toString(seqTag), item);
                 }
             }
-        }
     }
 
     public UPS changeUPSState(UPSContext ctx, UPSState upsState, String transactionUID)
