@@ -7,18 +7,20 @@ dicomDeviceName: getscu
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: WSD
+dicomIssuerOfAdmissionID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 
 dn: dicomDeviceName=hl7rcv,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
-dicomInstitutionCode: (111.1111, 99DCM4CHEE, "Site A")
 dicomIssuerOfPatientID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomDeviceName: hl7rcv
+dicomIssuerOfAdmissionID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
+dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
+dicomInstitutionName: Site A
+dicomInstitutionCode: (111.1111, 99DCM4CHEE, "Site A")
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: DSS
-dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
-dicomInstitutionName: Site A
 
 dn: dicomDeviceName=hl7snd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
@@ -41,6 +43,7 @@ dicomDeviceName: findscu
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: WSD
+dicomIssuerOfAdmissionID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 
 dn: dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -50,6 +53,7 @@ dicomDeviceName: movescu
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: WSD
+dicomIssuerOfAdmissionID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 
 dn: dicomDeviceName=mppsscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -59,6 +63,7 @@ dicomDeviceName: mppsscp
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: DSS
+dicomIssuerOfAdmissionID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 
 dn: dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -68,6 +73,7 @@ dicomDeviceName: mppsscu
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: CT
+dicomIssuerOfAdmissionID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 
 dn: dicomDeviceName=stowrsd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -79,14 +85,15 @@ dicomPrimaryDeviceType: ARCHIVE
 
 dn: dicomDeviceName=dcmqrscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
-dicomInstitutionCode: (222.2222, 99DCM4CHEE, "Site B")
 dicomIssuerOfPatientID: Site B&1.2.40.0.13.1.1.999.222.2222&ISO
 dicomDeviceName: dcmqrscp
+dicomIssuerOfAdmissionID: Site B&1.2.40.0.13.1.1.999.222.2222&ISO
+dicomIssuerOfAccessionNumber: Site B&1.2.40.0.13.1.1.999.222.2222&ISO
+dicomInstitutionName: Site B
+dicomInstitutionCode: (222.2222, 99DCM4CHEE, "Site B")
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: ARCHIVE
-dicomIssuerOfAccessionNumber: Site B&1.2.40.0.13.1.1.999.222.2222&ISO
-dicomInstitutionName: Site B
 
 dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
@@ -116,14 +123,15 @@ objectClass: dcmDevice
 
 dn: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
-dicomInstitutionCode: (111.1111, 99DCM4CHEE, "Site A")
 dicomIssuerOfPatientID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomDeviceName: storescu
+dicomIssuerOfAdmissionID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
+dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
+dicomInstitutionName: Site A
+dicomInstitutionCode: (111.1111, 99DCM4CHEE, "Site A")
 objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: CT
-dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
-dicomInstitutionName: Site A
 
 dn: dicomDeviceName=stgcmtscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE

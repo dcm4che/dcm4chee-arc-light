@@ -1342,6 +1342,7 @@ class ArchiveDeviceFactory {
             device.setPrimaryDeviceTypes(primaryDeviceType);
         device.setIssuerOfPatientID(issuer);
         device.setIssuerOfAccessionNumber(issuer);
+        device.setIssuerOfAdmissionID(issuer);
         if (institutionCode != null) {
             device.setInstitutionNames(institutionCode.getCodeMeaning());
             device.setInstitutionCodes(institutionCode);
