@@ -76,9 +76,7 @@ class HL7PSUMessage {
         orc = new HL7Segment(6);
         orc.setField(0, "ORC");
         orc.setField(1, "SC");
-        orc.setField(5,
-                task.getMpps() != null && task.getMpps().getStatus() == MPPS.Status.DISCONTINUED
-                        ? "DC" : "CM");
+        orc.setField(5, orderStatusCode(task));
         tq1 = new HL7Segment(10);
         tq1.setField(0, "TQ1");
         obr = new HL7Segment(45);
@@ -105,6 +103,14 @@ class HL7PSUMessage {
 
     void setReceivingApplicationWithFacility(String receivingApp) {
         msh.setReceivingApplicationWithFacility(receivingApp);
+    }
+
+    private String orderStatusCode(HL7PSUTask task) {
+        MPPS.Status ppsStatus;
+        if (task.getMpps() == null || (ppsStatus = task.getPPSStatus()) == MPPS.Status.COMPLETED)
+            return "CM";
+
+        return ppsStatus == MPPS.Status.DISCONTINUED ? "DC" : "IP";
     }
 
     void setCharacterSet(String hl7cs) {
