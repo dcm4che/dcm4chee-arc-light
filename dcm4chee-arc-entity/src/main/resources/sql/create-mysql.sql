@@ -2,7 +2,7 @@ create table code (pk bigint not null auto_increment, code_meaning varchar(255) 
 create table content_item (pk bigint not null auto_increment, rel_type varchar(255) not null, text_value varchar(255), code_fk bigint, name_fk bigint not null, instance_fk bigint, primary key (pk));
 create table dicomattrs (pk bigint not null auto_increment, attrs longblob not null, primary key (pk));
 create table global_subscription (pk bigint not null auto_increment, deletion_lock bit not null, subscriber_aet varchar(255) not null, matchkeys_fk bigint, primary key (pk));
-create table hl7psu_task (pk bigint not null auto_increment, aet varchar(255) not null, created_time datetime not null, device_name varchar(255) not null, scheduled_time datetime, series_iuid varchar(255), study_iuid varchar(255), mpps_fk bigint, primary key (pk));
+create table hl7psu_task (pk bigint not null auto_increment, aet varchar(255) not null, created_time datetime not null, device_name varchar(255) not null, pps_status integer, scheduled_time datetime, series_iuid varchar(255), study_iuid varchar(255), mpps_fk bigint, primary key (pk));
 create table ian_task (pk bigint not null auto_increment, calling_aet varchar(255) not null, device_name varchar(255) not null, ian_dests varchar(255) not null, scheduled_time datetime, study_iuid varchar(255), mpps_fk bigint, primary key (pk));
 create table id_sequence (name varchar(64) not null, next_value integer not null, version bigint, primary key (name));
 create table instance (pk bigint not null auto_increment, availability integer not null, sr_complete varchar(255) not null, content_date varchar(255) not null, content_time varchar(255) not null, created_time datetime not null, ext_retrieve_aet varchar(255), inst_custom1 varchar(255) not null, inst_custom2 varchar(255) not null, inst_custom3 varchar(255) not null, inst_no integer, num_frames integer, retrieve_aets varchar(255), sop_cuid varchar(255) not null, sop_iuid varchar(255) not null, updated_time datetime not null, sr_verified varchar(255) not null, version bigint, dicomattrs_fk bigint not null, srcode_fk bigint, series_fk bigint not null, primary key (pk));
@@ -39,7 +39,7 @@ alter table code add constraint UK_sb4oc9lkns36wswku831c33w6  unique (code_value
 create index UK_i715nk4mi378f9bxflvfroa5a on content_item (rel_type(64));
 create index UK_6iism30y000w85v649ju968sv on content_item (text_value(64));
 alter table global_subscription add constraint UK_4n26cxir6d3tksb2cd1kd86ch  unique (subscriber_aet);
-alter table hl7psu_task add constraint UK_p5fraoqdbaywmlyumaeo16t56  unique (study_iuid);
+alter table hl7psu_task add constraint UK_1t3jge4o2fl1byp3y8ljmkb3m  unique (study_iuid, pps_status);
 create index UK_t0y05h07d9dagn9a4a9s4a5a4 on hl7psu_task (device_name(64));
 alter table ian_task add constraint UK_dq88edcjjxh7h92f89y5ueast  unique (study_iuid);
 create index UK_5shiir23exao1xpy2n5gvasrh on ian_task (device_name(64));

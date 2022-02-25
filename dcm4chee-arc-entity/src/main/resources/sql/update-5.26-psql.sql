@@ -63,7 +63,8 @@ alter table hl7psu_task
     add pps_status int4;
 
 alter table hl7psu_task
-    drop constraint uk_p5fraoqdbaywmlyumaeo16t56
+    drop constraint UK_p5fraoqdbaywmlyumaeo16t56;
+
 alter table hl7psu_task
     add constraint UK_1t3jge4o2fl1byp3y8ljmkb3m  unique (study_iuid, pps_status);
 
