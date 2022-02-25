@@ -30,7 +30,7 @@
       }
     }
   },
-  "00404025": { "vr": "SQ", "required": 2,
+  "00404025": { "vr": "SQ", "required": 2, "multi": true,
     "items": {
       "00080100": { "vr": "SH", "required": 1 },
       "00080102": { "vr": "SH", "required": 1 },
@@ -38,7 +38,7 @@
       "00080104": { "vr": "LO", "required": 1 }
     }
   },
-  "00404026": { "vr": "SQ", "required": 2,
+  "00404026": { "vr": "SQ", "required": 2, "multi": true,
     "items": {
       "00080100": { "vr": "SH", "required": 1 },
       "00080102": { "vr": "SH", "required": 1 },
@@ -46,7 +46,7 @@
       "00080104": { "vr": "LO", "required": 1 }
     }
   },
-  "00404027": { "vr": "SQ", "required": 2,
+  "00404027": { "vr": "SQ", "required": 2, "multi": true,
     "items": {
       "00080100": { "vr": "SH", "required": 1 },
       "00080102": { "vr": "SH", "required": 1 },
@@ -54,7 +54,7 @@
       "00080104": { "vr": "LO", "required": 1 }
     }
   },
-  "00404034": { "vr": "SQ", "required": 2,
+  "00404034": { "vr": "SQ", "required": 2, "multi": true,
     "items": {
       "00404009": { "vr": "SQ", "required": 1,
         "items": {
