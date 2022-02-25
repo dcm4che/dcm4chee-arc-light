@@ -67,7 +67,7 @@ import java.util.Date;
 })
 @Entity
 @Table(name = "hl7psu_task",
-        uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
+        uniqueConstraints = @UniqueConstraint(columnNames = { "study_iuid", "pps_status" }),
         indexes = @Index(columnList = "device_name")
 )
 public class HL7PSUTask {
@@ -102,6 +102,9 @@ public class HL7PSUTask {
 
     @Column(name = "series_iuid")
     private String seriesInstanceUID;
+
+    @Column(name = "pps_status")
+    private MPPS.Status pps_status;
 
     @OneToOne
     @JoinColumn(name = "mpps_fk", updatable = false)
@@ -166,6 +169,11 @@ public class HL7PSUTask {
 
     public void setMpps(MPPS mpps) {
         this.mpps = mpps;
+        this.pps_status = mpps.getStatus();
+    }
+
+    public MPPS.Status getPPSStatus() {
+        return pps_status;
     }
 
     @Override
@@ -174,8 +182,10 @@ public class HL7PSUTask {
         sb.append("HL7PSUTask[pk=").append(pk).append(", deviceName=").append(deviceName);
         if (mpps == null)
             sb.append(", studyInstanceUID=").append(studyInstanceUID);
-        else
+        else {
             sb.append(", mppsInstanceUID=").append(mpps.getSopInstanceUID());
+            sb.append(", mppsStatus=").append(mpps.getStatus());
+        }
         if (scheduledTime != null)
             sb.append(", scheduledTime=").append(scheduledTime);
         sb.append(']');

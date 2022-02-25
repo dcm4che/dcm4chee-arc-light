@@ -150,8 +150,7 @@ public class HL7PSUEJB {
     }
 
     private MWLItem updateMWLStatus(HL7PSUTask task) {
-        SPSStatus status = task.getMpps() != null && task.getMpps().getStatus() == MPPS.Status.DISCONTINUED
-                ? SPSStatus.DISCONTINUED : SPSStatus.COMPLETED;
+        SPSStatus status = spsStatus(task);
         List<MWLItem> mwlItems = procedureService.updateMWLStatus(task.getStudyInstanceUID(), status);
         if (mwlItems.size() > 0)
             LOG.info("{} MWL Items status updated to {} by HL7 PSU task {}.", mwlItems.size(), status, task);
@@ -159,6 +158,16 @@ public class HL7PSUEJB {
             LOG.info("Study referenced in the HL7 PSU task {} does not have any associated MWL items.", task);
 
         return !mwlItems.isEmpty() ? mwlItems.get(0) : null;
+    }
+
+    private SPSStatus spsStatus(HL7PSUTask task) {
+        MPPS.Status ppsStatus;
+        if (task.getMpps() == null || (ppsStatus = task.getPPSStatus()) == MPPS.Status.COMPLETED)
+            return SPSStatus.COMPLETED;
+
+        return ppsStatus == MPPS.Status.DISCONTINUED
+                ? SPSStatus.DISCONTINUED
+                : SPSStatus.ARRIVED;
     }
 
     private void scheduleHL7Msg(ArchiveAEExtension arcAE, HL7PSUTask task, MWLItem mwl) {

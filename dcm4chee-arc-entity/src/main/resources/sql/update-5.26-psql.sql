@@ -59,6 +59,14 @@ alter table rel_ups_station_name_code
 alter table rel_ups_station_name_code
     add constraint FK_8jf5xe8ot2yammv3ksd5xrgif foreign key (ups_fk) references ups;
 
+alter table hl7psu_task
+    add pps_status int4;
+
+alter table hl7psu_task
+    drop constraint uk_p5fraoqdbaywmlyumaeo16t56
+alter table hl7psu_task
+    add constraint UK_1t3jge4o2fl1byp3y8ljmkb3m  unique (study_iuid, pps_status);
+
 update patient_id
 set (entity_id, entity_uid, entity_uid_type) =
         (select issuer.entity_id, issuer.entity_uid, issuer.entity_uid_type
