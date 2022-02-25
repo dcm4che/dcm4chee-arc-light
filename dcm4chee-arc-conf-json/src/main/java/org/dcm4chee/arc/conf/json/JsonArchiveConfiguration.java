@@ -961,14 +961,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmEntity", upsOnStore.getScopeOfAccumulation(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledWorkitemCode", upsOnStore.getScheduledWorkitemCode(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationNameCode", upsOnStore.getScheduledStationName(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationClassCode", upsOnStore.getScheduledStationClass(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationLocationCode", upsOnStore.getScheduledStationLocation(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledHumanPerformerCode", upsOnStore.getScheduledHumanPerformer(), null);
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationNameCode", upsOnStore.getScheduledStationNames());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationClassCode", upsOnStore.getScheduledStationClasses());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationLocationCode", upsOnStore.getScheduledStationLocations());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledHumanPerformerCode", upsOnStore.getScheduledHumanPerformers());
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledHumanPerformerName", upsOnStore.getScheduledHumanPerformerName(), null);
             writer.writeNotNullOrDef("dcmUPSScheduledHumanPerformerOrganization",
@@ -1062,14 +1062,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmDestinationAE", upsOnHL7.getDestinationAE(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledWorkitemCode", upsOnHL7.getScheduledWorkitemCode(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationNameCode", upsOnHL7.getScheduledStationName(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationClassCode", upsOnHL7.getScheduledStationClass(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationLocationCode", upsOnHL7.getScheduledStationLocation(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledHumanPerformerCode", upsOnHL7.getScheduledHumanPerformer(), null);
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationNameCode", upsOnHL7.getScheduledStationNames());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationClassCode", upsOnHL7.getScheduledStationClasses());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationLocationCode", upsOnHL7.getScheduledStationLocations());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledHumanPerformerCode", upsOnHL7.getScheduledHumanPerformers());
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledHumanPerformerName", upsOnHL7.getScheduledHumanPerformerName(), null);
             writer.writeNotNullOrDef("dcmUPSScheduledHumanPerformerOrganization",
@@ -1123,14 +1123,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmEntity", upsOnUPSCompleted.getScopeOfAccumulation(), null);
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledWorkitemCode", upsOnUPSCompleted.getScheduledWorkitemCode(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationNameCode", upsOnUPSCompleted.getScheduledStationName(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationClassCode", upsOnUPSCompleted.getScheduledStationClass(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledStationLocationCode", upsOnUPSCompleted.getScheduledStationLocation(), null);
-            writer.writeNotNullOrDef(
-                    "dcmUPSScheduledHumanPerformerCode", upsOnUPSCompleted.getScheduledHumanPerformer(), null);
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationNameCode", upsOnUPSCompleted.getScheduledStationNames());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationClassCode", upsOnUPSCompleted.getScheduledStationClasses());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationLocationCode", upsOnUPSCompleted.getScheduledStationLocations());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledHumanPerformerCode", upsOnUPSCompleted.getScheduledHumanPerformers());
             writer.writeNotNullOrDef(
                     "dcmUPSScheduledHumanPerformerName", upsOnUPSCompleted.getScheduledHumanPerformerName(), null);
             writer.writeNotNullOrDef("dcmUPSScheduledHumanPerformerOrganization",
@@ -3375,16 +3375,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         upsOnStore.setScheduledWorkitemCode(new Code(reader.stringValue()));
                         break;
                     case "dcmUPSScheduledStationNameCode":
-                        upsOnStore.setScheduledStationName(new Code(reader.stringValue()));
+                        upsOnStore.setScheduledStationNames(reader.codeArray());
                         break;
                     case "dcmUPSScheduledStationClassCode":
-                        upsOnStore.setScheduledStationClass(new Code(reader.stringValue()));
+                        upsOnStore.setScheduledStationClasses(reader.codeArray());
                         break;
                     case "dcmUPSScheduledStationLocationCode":
-                        upsOnStore.setScheduledStationLocation(new Code(reader.stringValue()));
+                        upsOnStore.setScheduledStationLocations(reader.codeArray());
                         break;
                     case "dcmUPSScheduledHumanPerformerCode":
-                        upsOnStore.setScheduledHumanPerformer(new Code(reader.stringValue()));
+                        upsOnStore.setScheduledHumanPerformers(reader.codeArray());
                         break;
                     case "dcmUPSScheduledHumanPerformerName":
                         upsOnStore.setScheduledHumanPerformerName(reader.stringValue());
@@ -3565,16 +3565,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         upsOnHL7.setScheduledWorkitemCode(new Code(reader.stringValue()));
                         break;
                     case "dcmUPSScheduledStationNameCode":
-                        upsOnHL7.setScheduledStationName(new Code(reader.stringValue()));
+                        upsOnHL7.setScheduledStationNames(reader.codeArray());
                         break;
                     case "dcmUPSScheduledStationClassCode":
-                        upsOnHL7.setScheduledStationClass(new Code(reader.stringValue()));
+                        upsOnHL7.setScheduledStationClasses(reader.codeArray());
                         break;
                     case "dcmUPSScheduledStationLocationCode":
-                        upsOnHL7.setScheduledStationLocation(new Code(reader.stringValue()));
+                        upsOnHL7.setScheduledStationLocations(reader.codeArray());
                         break;
                     case "dcmUPSScheduledHumanPerformerCode":
-                        upsOnHL7.setScheduledHumanPerformer(new Code(reader.stringValue()));
+                        upsOnHL7.setScheduledHumanPerformers(reader.codeArray());
                         break;
                     case "dcmUPSScheduledHumanPerformerName":
                         upsOnHL7.setScheduledHumanPerformerName(reader.stringValue());
@@ -3689,16 +3689,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         upsOnUPSCompleted.setScheduledWorkitemCode(new Code(reader.stringValue()));
                         break;
                     case "dcmUPSScheduledStationNameCode":
-                        upsOnUPSCompleted.setScheduledStationName(new Code(reader.stringValue()));
+                        upsOnUPSCompleted.setScheduledStationNames(reader.codeArray());
                         break;
                     case "dcmUPSScheduledStationClassCode":
-                        upsOnUPSCompleted.setScheduledStationClass(new Code(reader.stringValue()));
+                        upsOnUPSCompleted.setScheduledStationClasses(reader.codeArray());
                         break;
                     case "dcmUPSScheduledStationLocationCode":
-                        upsOnUPSCompleted.setScheduledStationLocation(new Code(reader.stringValue()));
+                        upsOnUPSCompleted.setScheduledStationLocations(reader.codeArray());
                         break;
                     case "dcmUPSScheduledHumanPerformerCode":
-                        upsOnUPSCompleted.setScheduledHumanPerformer(new Code(reader.stringValue()));
+                        upsOnUPSCompleted.setScheduledHumanPerformers(reader.codeArray());
                         break;
                     case "dcmUPSScheduledHumanPerformerName":
                         upsOnUPSCompleted.setScheduledHumanPerformerName(reader.stringValue());

@@ -108,7 +108,8 @@ public class UPSServiceEJB {
         setCodes(ups.getScheduledStationClassCodes(), attrs, Tag.ScheduledStationClassCodeSequence);
         setCodes(ups.getScheduledStationGeographicLocationCodes(),
                 attrs, Tag.ScheduledStationGeographicLocationCodeSequence);
-        setCodes(ups.getHumanPerformerCodes(), attrs, Tag.ScheduledHumanPerformersSequence);
+        setHumanPerformerCodes(ups.getHumanPerformerCodes(),
+                attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
         setReferencedRequests(ups.getReferencedRequests(),
                 attrs.getSequence(Tag.ReferencedRequestSequence),
                 arcDev.getFuzzyStr());
@@ -210,7 +211,8 @@ public class UPSServiceEJB {
         boolean performerUpdated = (prevPerformers ? modified : attrs)
                 .containsValue(Tag.ScheduledHumanPerformersSequence);
         if (performerUpdated) {
-            setCodes(ups.getHumanPerformerCodes(), attrs, Tag.ScheduledHumanPerformersSequence);
+            setHumanPerformerCodes(ups.getHumanPerformerCodes(),
+                    attrs.getSequence(Tag.ScheduledHumanPerformersSequence));
         }
         boolean requestUpdated = (prevRequest ? modified : attrs)
                 .containsValue(Tag.ReferencedRequestSequence);
@@ -304,6 +306,18 @@ public class UPSServiceEJB {
                     codes.add(codeCache.findOrCreate(new Code(item)));
                 } catch (Exception e) {
                     LOG.info("Illegal code item in Sequence {}:\n{}", TagUtils.toString(seqTag), item);
+                }
+            }
+    }
+
+    private void setHumanPerformerCodes(Collection<CodeEntity> codes, Sequence seq) {
+        codes.clear();
+        if (seq != null)
+            for (Attributes item : seq) {
+                try {
+                    codes.add(codeCache.findOrCreate(new Code(item.getNestedDataset(Tag.HumanPerformerCodeSequence))));
+                } catch (Exception e) {
+                    LOG.info("Illegal code item in Human Performer Code Sequence (0040,4009):\n{}", item);
                 }
             }
     }
@@ -760,21 +774,22 @@ public class UPSServiceEJB {
         if (rule.getCompletionDateTimeDelay() != null && !attrs.contains(Tag.ExpectedCompletionDateTime)) {
             attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, UPSUtils.add(now, rule.getCompletionDateTimeDelay()));
         }
-        if (rule.getScheduledHumanPerformer() != null && !attrs.contains(Tag.ScheduledHumanPerformersSequence)) {
-            attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
-                    .add(rule.getScheduledHumanPerformerItem(storeCtx.getAttributes()));
-        }
+        if (rule.getScheduledHumanPerformers().length > 0 && !attrs.contains(Tag.ScheduledHumanPerformersSequence))
+            UPSUtils.setScheduledHumanPerformerItems(attrs,
+                    rule.getScheduledHumanPerformers(),
+                    rule.getScheduledHumanPerformerName(attrs),
+                    rule.getScheduledHumanPerformerOrganization(attrs));
         if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence)) {
             UPSUtils.setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
         }
         if (!attrs.contains(Tag.ScheduledStationNameCodeSequence)) {
-            UPSUtils.setCode(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationName());
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationNames());
         }
         if (!attrs.contains(Tag.ScheduledStationClassCodeSequence)) {
-            UPSUtils.setCode(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClass());
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClasses());
         }
         if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence)) {
-            UPSUtils.setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocation());
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocations());
         }
         if (!attrs.contains(Tag.InputReadinessState)) {
             attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());

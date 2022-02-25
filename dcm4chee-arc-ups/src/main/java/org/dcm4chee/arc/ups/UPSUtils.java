@@ -169,6 +169,17 @@ public class UPSUtils {
         }
     }
 
+    public static void setCodes(Attributes attrs, int sqtag, Code... codes) {
+        if (codes.length > 0) {
+            Sequence seq = attrs.newSequence(sqtag, 1);
+            for (Code code : codes) {
+                seq.add(code.toItem());
+            }
+        } else {
+            attrs.setNull(sqtag, VR.SQ);
+        }
+    }
+
     public static Date add(Calendar now, Duration delay) {
         return delay != null ? new Date(now.getTimeInMillis() + delay.getSeconds() * 1000) : now.getTime();
     }
@@ -215,17 +226,19 @@ public class UPSUtils {
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, spsStartDateTime(now, upsOnHL7, attrs));
         if (upsOnHL7.getCompletionDateTimeDelay() != null)
             attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, add(now, upsOnHL7.getCompletionDateTimeDelay()));
-        if (upsOnHL7.getScheduledHumanPerformer() != null)
-            attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
-                    .add(upsOnHL7.getScheduledHumanPerformerItem(hl7Fields));
+        if (upsOnHL7.getScheduledHumanPerformers().length > 0 && !attrs.contains(Tag.ScheduledHumanPerformersSequence))
+            setScheduledHumanPerformerItems(attrs,
+                    upsOnHL7.getScheduledHumanPerformers(),
+                    upsOnHL7.getScheduledHumanPerformerName(hl7Fields),
+                    upsOnHL7.getScheduledHumanPerformerOrganization(hl7Fields));
         if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence))
             setCode(attrs, Tag.ScheduledWorkitemCodeSequence, upsOnHL7.getScheduledWorkitemCode());
         if (!attrs.contains(Tag.ScheduledStationNameCodeSequence))
-            setCode(attrs, Tag.ScheduledStationNameCodeSequence, upsOnHL7.getScheduledStationName());
+            setCodes(attrs, Tag.ScheduledStationNameCodeSequence, upsOnHL7.getScheduledStationNames());
         if (!attrs.contains(Tag.ScheduledStationClassCodeSequence))
-            setCode(attrs, Tag.ScheduledStationClassCodeSequence, upsOnHL7.getScheduledStationClass());
+            setCodes(attrs, Tag.ScheduledStationClassCodeSequence, upsOnHL7.getScheduledStationClasses());
         if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
-            setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, upsOnHL7.getScheduledStationLocation());
+            setCodes(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, upsOnHL7.getScheduledStationLocations());
         if (!attrs.contains(Tag.InputReadinessState))
             attrs.setString(Tag.InputReadinessState, VR.CS, upsOnHL7.getInputReadinessState().name());
         if (upsOnHL7.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence)) {
@@ -276,5 +289,20 @@ public class UPSUtils {
     private static void setNotNull(Attributes item, int tag, VR vr, String value) {
         if (value != null)
             item.setString(tag, vr, value);
+    }
+
+    public static void setScheduledHumanPerformerItems(Attributes attrs, Code[] codes, String name, String org) {
+        Sequence seq = attrs.newSequence(Tag.ScheduledHumanPerformersSequence, codes.length);
+        for (Code code : codes) {
+            seq.add(toScheduledHumanPerformerItem(code, name, org));
+        }
+    }
+
+    private static Attributes toScheduledHumanPerformerItem(Code code, String name, String org) {
+        Attributes item = new Attributes(3);
+        item.newSequence(Tag.HumanPerformerCodeSequence, 1).add(code.toItem());
+        item.setString(Tag.HumanPerformerOrganization, VR.LO, org);
+        item.setString(Tag.HumanPerformerName, VR.PN, name);
+        return item;
     }
 }

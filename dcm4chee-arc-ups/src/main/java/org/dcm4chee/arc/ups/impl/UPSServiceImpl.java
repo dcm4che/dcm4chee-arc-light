@@ -629,17 +629,19 @@ public class UPSServiceImpl implements UPSService {
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, UPSUtils.add(now, rule.getStartDateTimeDelay()));
         if (rule.getCompletionDateTimeDelay() != null && !attrs.contains(Tag.ExpectedCompletionDateTime))
             attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, UPSUtils.add(now, rule.getCompletionDateTimeDelay()));
-        if (rule.getScheduledHumanPerformer() != null && !attrs.contains(Tag.ScheduledHumanPerformersSequence))
-            attrs.newSequence(Tag.ScheduledHumanPerformersSequence, 1)
-                    .add(rule.getScheduledHumanPerformerItem(prevUPSAttrs));
+        if (rule.getScheduledHumanPerformers().length > 0 && !attrs.contains(Tag.ScheduledHumanPerformersSequence))
+            UPSUtils.setScheduledHumanPerformerItems(attrs,
+                    rule.getScheduledHumanPerformers(),
+                    rule.getScheduledHumanPerformerName(attrs),
+                    rule.getScheduledHumanPerformerOrganization(attrs));
         if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence))
             UPSUtils.setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
         if (!attrs.contains(Tag.ScheduledStationNameCodeSequence))
-            UPSUtils.setCode(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationName());
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationNames());
         if (!attrs.contains(Tag.ScheduledStationClassCodeSequence))
-            UPSUtils.setCode(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClass());
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClasses());
         if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
-            UPSUtils.setCode(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocation());
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocations());
         if (!attrs.contains(Tag.InputReadinessState))
             attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());
         if (!attrs.contains(Tag.ReferencedRequestSequence)) {

@@ -65,10 +65,10 @@ public class UPSOnHL7 {
     private String instanceUIDBasedOnName;
     private String destinationAE;
     private Code scheduledWorkitemCode;
-    private Code scheduledStationName;
-    private Code scheduledStationClass;
-    private Code scheduledStationLocation;
-    private Code scheduledHumanPerformer;
+    private Code[] scheduledStationNames = {};
+    private Code[] scheduledStationClasses = {};
+    private Code[] scheduledStationLocations = {};
+    private Code[] scheduledHumanPerformers = {};
     private String scheduledHumanPerformerName;
     private String scheduledHumanPerformerOrganization;
     private String studyInstanceUID;
@@ -202,44 +202,36 @@ public class UPSOnHL7 {
         this.scheduledWorkitemCode = scheduledWorkitemCode;
     }
 
-    public Code getScheduledStationName() {
-        return scheduledStationName;
+    public Code[] getScheduledStationNames() {
+        return scheduledStationNames;
     }
 
-    public void setScheduledStationName(Code scheduledStationName) {
-        this.scheduledStationName = scheduledStationName;
+    public void setScheduledStationNames(Code... scheduledStationNames) {
+        this.scheduledStationNames = scheduledStationNames;
     }
 
-    public Code getScheduledStationClass() {
-        return scheduledStationClass;
+    public Code[] getScheduledStationClasses() {
+        return scheduledStationClasses;
     }
 
-    public void setScheduledStationClass(Code scheduledStationClass) {
-        this.scheduledStationClass = scheduledStationClass;
+    public void setScheduledStationClasses(Code... scheduledStationClasses) {
+        this.scheduledStationClasses = scheduledStationClasses;
     }
 
-    public Code getScheduledStationLocation() {
-        return scheduledStationLocation;
+    public Code[] getScheduledStationLocations() {
+        return scheduledStationLocations;
     }
 
-    public void setScheduledStationLocation(Code scheduledStationLocation) {
-        this.scheduledStationLocation = scheduledStationLocation;
+    public void setScheduledStationLocations(Code... scheduledStationLocations) {
+        this.scheduledStationLocations = scheduledStationLocations;
     }
 
-    public Code getScheduledHumanPerformer() {
-        return scheduledHumanPerformer;
+    public Code[] getScheduledHumanPerformers() {
+        return scheduledHumanPerformers;
     }
 
-    public void setScheduledHumanPerformer(Code scheduledHumanPerformer) {
-        this.scheduledHumanPerformer = scheduledHumanPerformer;
-    }
-
-    public Attributes getScheduledHumanPerformerItem(HL7Fields hl7Fields) {
-        Attributes item = new Attributes(3);
-        item.newSequence(Tag.HumanPerformerCodeSequence, 1).add(scheduledHumanPerformer.toItem());
-        item.setString(Tag.HumanPerformerOrganization, VR.LO, getScheduledHumanPerformerOrganization(hl7Fields));
-        item.setString(Tag.HumanPerformerName, VR.PN, getScheduledHumanPerformerName(hl7Fields));
-        return item;
+    public void setScheduledHumanPerformers(Code[] scheduledHumanPerformers) {
+        this.scheduledHumanPerformers = scheduledHumanPerformers;
     }
 
     public String getScheduledHumanPerformerName() {

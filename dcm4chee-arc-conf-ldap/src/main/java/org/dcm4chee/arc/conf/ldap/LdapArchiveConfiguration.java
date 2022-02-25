@@ -3202,18 +3202,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
                 upsOnStore.getScheduledWorkitemCode(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationNameCode",
-                upsOnStore.getScheduledStationName(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationClassCode",
-                upsOnStore.getScheduledStationClass(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
-                upsOnStore.getScheduledStationLocation(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode",
-                upsOnStore.getScheduledHumanPerformer(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationNameCode",
+                upsOnStore.getScheduledStationNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationClassCode",
+                upsOnStore.getScheduledStationClasses());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
+                upsOnStore.getScheduledStationLocations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode",
+                upsOnStore.getScheduledHumanPerformers());
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledHumanPerformerName",
                 upsOnStore.getScheduledHumanPerformerName(), null);
@@ -3273,18 +3269,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
                 upsOnUPSCompleted.getScheduledWorkitemCode(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationNameCode",
-                upsOnUPSCompleted.getScheduledStationName(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationClassCode",
-                upsOnUPSCompleted.getScheduledStationClass(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
-                upsOnUPSCompleted.getScheduledStationLocation(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode",
-                upsOnUPSCompleted.getScheduledHumanPerformer(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationNameCode",
+                upsOnUPSCompleted.getScheduledStationNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationClassCode",
+                upsOnUPSCompleted.getScheduledStationClasses());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
+                upsOnUPSCompleted.getScheduledStationLocations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode",
+                upsOnUPSCompleted.getScheduledHumanPerformers());
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledHumanPerformerName",
                 upsOnUPSCompleted.getScheduledHumanPerformerName(), null);
@@ -3374,18 +3366,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
                 upsOnHL7.getScheduledWorkitemCode(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationNameCode",
-                upsOnHL7.getScheduledStationName(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationClassCode",
-                upsOnHL7.getScheduledStationClass(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
-                upsOnHL7.getScheduledStationLocation(), null);
-        LdapUtils.storeNotNullOrDef(
-                ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode",
-                upsOnHL7.getScheduledHumanPerformer(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationNameCode",
+                upsOnHL7.getScheduledStationNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationClassCode",
+                upsOnHL7.getScheduledStationClasses());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
+                upsOnHL7.getScheduledStationLocations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode",
+                upsOnHL7.getScheduledHumanPerformers());
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSScheduledHumanPerformerName",
                 upsOnHL7.getScheduledHumanPerformerName(), null);
@@ -3534,10 +3522,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
                 upsOnStore.setScopeOfAccumulation(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
                 upsOnStore.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
-                upsOnStore.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
-                upsOnStore.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
-                upsOnStore.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
-                upsOnStore.setScheduledHumanPerformer(LdapUtils.codeValue(attrs.get("dcmUPSScheduledHumanPerformerCode")));
+                upsOnStore.setScheduledStationNames(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationNameCode")));
+                upsOnStore.setScheduledStationClasses(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationClassCode")));
+                upsOnStore.setScheduledStationLocations(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationLocationCode")));
+                upsOnStore.setScheduledHumanPerformers(LdapUtils.codeArray(attrs.get("dcmUPSScheduledHumanPerformerCode")));
                 upsOnStore.setScheduledHumanPerformerName(
                         LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerName"), null));
                 upsOnStore.setScheduledHumanPerformerOrganization(
@@ -3597,10 +3585,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnUPSCompleted.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
                 upsOnUPSCompleted.setScopeOfAccumulation(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
                 upsOnUPSCompleted.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
-                upsOnUPSCompleted.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
-                upsOnUPSCompleted.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
-                upsOnUPSCompleted.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
-                upsOnUPSCompleted.setScheduledHumanPerformer(LdapUtils.codeValue(attrs.get("dcmUPSScheduledHumanPerformerCode")));
+                upsOnUPSCompleted.setScheduledStationNames(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationNameCode")));
+                upsOnUPSCompleted.setScheduledStationClasses(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationClassCode")));
+                upsOnUPSCompleted.setScheduledStationLocations(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationLocationCode")));
+                upsOnUPSCompleted.setScheduledHumanPerformers(LdapUtils.codeArray(attrs.get("dcmUPSScheduledHumanPerformerCode")));
                 upsOnUPSCompleted.setScheduledHumanPerformerName(
                         LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerName"), null));
                 upsOnUPSCompleted.setScheduledHumanPerformerOrganization(
@@ -3688,12 +3676,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnHL7.setWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
                 upsOnHL7.setInstanceUIDBasedOnName(
                         LdapUtils.stringValue(attrs.get("dcmUPSInstanceUIDBasedOnName"), null));
-                upsOnHL7.setScheduledStationName(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationNameCode")));
+                upsOnHL7.setScheduledStationNames(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationNameCode")));
                 upsOnHL7.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
                 upsOnHL7.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
-                upsOnHL7.setScheduledStationClass(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationClassCode")));
-                upsOnHL7.setScheduledStationLocation(LdapUtils.codeValue(attrs.get("dcmUPSScheduledStationLocationCode")));
-                upsOnHL7.setScheduledHumanPerformer(LdapUtils.codeValue(attrs.get("dcmUPSScheduledHumanPerformerCode")));
+                upsOnHL7.setScheduledStationClasses(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationClassCode")));
+                upsOnHL7.setScheduledStationLocations(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationLocationCode")));
+                upsOnHL7.setScheduledHumanPerformers(LdapUtils.codeArray(attrs.get("dcmUPSScheduledHumanPerformerCode")));
                 upsOnHL7.setScheduledHumanPerformerName(
                         LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerName"), null));
                 upsOnHL7.setScheduledHumanPerformerOrganization(
@@ -4249,14 +4237,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getScopeOfAccumulation(), upsOnStore.getScopeOfAccumulation(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
                 prev.getScheduledWorkitemCode(), upsOnStore.getScheduledWorkitemCode(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",
-                prev.getScheduledStationName(), upsOnStore.getScheduledStationName(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationClassCode",
-                prev.getScheduledStationClass(), upsOnStore.getScheduledStationClass(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
-                prev.getScheduledStationLocation(), upsOnStore.getScheduledStationLocation(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
-                prev.getScheduledHumanPerformer(), upsOnStore.getScheduledHumanPerformer(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationNameCode",
+                prev.getScheduledStationNames(), upsOnStore.getScheduledStationNames());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationClassCode",
+                prev.getScheduledStationClasses(), upsOnStore.getScheduledStationClasses());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
+                prev.getScheduledStationLocations(), upsOnStore.getScheduledStationLocations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
+                prev.getScheduledHumanPerformers(), upsOnStore.getScheduledHumanPerformers());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerName",
                 prev.getScheduledHumanPerformerName(), upsOnStore.getScheduledHumanPerformerName(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerOrganization",
@@ -4320,14 +4308,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getScopeOfAccumulation(), upsOnUPSCompleted.getScopeOfAccumulation(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
                 prev.getScheduledWorkitemCode(), upsOnUPSCompleted.getScheduledWorkitemCode(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",
-                prev.getScheduledStationName(), upsOnUPSCompleted.getScheduledStationName(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationClassCode",
-                prev.getScheduledStationClass(), upsOnUPSCompleted.getScheduledStationClass(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
-                prev.getScheduledStationLocation(), upsOnUPSCompleted.getScheduledStationLocation(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
-                prev.getScheduledHumanPerformer(), upsOnUPSCompleted.getScheduledHumanPerformer(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationNameCode",
+                prev.getScheduledStationNames(), upsOnUPSCompleted.getScheduledStationNames());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationClassCode",
+                prev.getScheduledStationClasses(), upsOnUPSCompleted.getScheduledStationClasses());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
+                prev.getScheduledStationLocations(), upsOnUPSCompleted.getScheduledStationLocations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
+                prev.getScheduledHumanPerformers(), upsOnUPSCompleted.getScheduledHumanPerformers());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerName",
                 prev.getScheduledHumanPerformerName(), upsOnUPSCompleted.getScheduledHumanPerformerName(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerOrganization",
@@ -4417,14 +4405,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getDestinationAE(), upsOnHL7.getDestinationAE(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
                 prev.getScheduledWorkitemCode(), upsOnHL7.getScheduledWorkitemCode(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationNameCode",
-                prev.getScheduledStationName(), upsOnHL7.getScheduledStationName(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationClassCode",
-                prev.getScheduledStationClass(), upsOnHL7.getScheduledStationClass(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
-                prev.getScheduledStationLocation(), upsOnHL7.getScheduledStationLocation(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
-                prev.getScheduledHumanPerformer(), upsOnHL7.getScheduledHumanPerformer(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationNameCode",
+                prev.getScheduledStationNames(), upsOnHL7.getScheduledStationNames());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationClassCode",
+                prev.getScheduledStationClasses(), upsOnHL7.getScheduledStationClasses());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
+                prev.getScheduledStationLocations(), upsOnHL7.getScheduledStationLocations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
+                prev.getScheduledHumanPerformers(), upsOnHL7.getScheduledHumanPerformers());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerName",
                 prev.getScheduledHumanPerformerName(), upsOnHL7.getScheduledHumanPerformerName(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerOrganization",
