@@ -659,19 +659,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     this.service.linkStudyToMwl(this.selectedElements, this.studyWebService.selectedWebService, result.reject).subscribe(res=>{
                                         console.log("res",res);
                                         this.cfpLoadingBar.complete();
-                                        const errorCount = res.filter(result=>result.isError).length;
-                                        let msg;
-                                        if(errorCount === res.length){
-                                            msg = $localize `:@@study.process_executed_all_failed_detail:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed - all failed:<br>\nErrors: ${errorCount}:@@error:`;
-                                            this.appService.showError(msg);
-                                        }else{
-                                            msg = $localize `:@@study.process_executed_successfully_detailed:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
-                                            if(errorCount > 0){
-                                                this.appService.showWarning(msg);
-                                            }else{
-                                                this.appService.showMsg(msg);
-                                            }
-                                        }
+                                        this.appService.showMsgCopyMoveLink(res, this.service.getTextFromAction(this.selectedElements.action));
                                         this.clearClipboard();
                                     },err=>{
                                         this.cfpLoadingBar.complete();
@@ -682,19 +670,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     this.service.copyMove(this.selectedElements, this.studyWebService.selectedWebService,result.reject).subscribe(res=>{
                                         try{
                                             console.log("res",res);
-                                            const errorCount = res.filter(result=>result.isError).length;
-                                            let msg;
-                                            if(errorCount === res.length){
-                                                msg = $localize `:@@study.process_executed_all_failed_detail:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed - all failed:<br>\nErrors: ${errorCount}:@@error:`;
-                                                this.appService.showError(msg);
-                                            }else{
-                                                msg = $localize `:@@study.process_executed_successfully_detailed:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
-                                                if(errorCount > 0){
-                                                    this.appService.showWarning(msg);
-                                                }else{
-                                                    this.appService.showMsg(msg);
-                                                }
-                                            }
+                                            this.appService.showMsgCopyMoveLink(res, this.service.getTextFromAction(this.selectedElements.action));
                                         }catch (e) {
                                             this.httpErrorHandler.handleError(res);
                                         }
