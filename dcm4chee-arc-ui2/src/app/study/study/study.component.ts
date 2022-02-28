@@ -660,10 +660,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         console.log("res",res);
                                         this.cfpLoadingBar.complete();
                                         const errorCount = res.filter(result=>result.isError).length;
-                                        const msg = $localize `:@@study.process_executed_successfully_detailed:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
+                                        let msg;
                                         if(errorCount === res.length){
+                                            msg = $localize `:@@study.process_executed_all_failed_detail:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed - all failed:<br>\nErrors: ${errorCount}:@@error:`;
                                             this.appService.showError(msg);
                                         }else{
+                                            msg = $localize `:@@study.process_executed_successfully_detailed:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
                                             if(errorCount > 0){
                                                 this.appService.showWarning(msg);
                                             }else{
@@ -681,10 +683,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         try{
                                             console.log("res",res);
                                             const errorCount = res.filter(result=>result.isError).length;
-                                            const msg = $localize `:@@study.process_executed_successfully_detailed:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
+                                            let msg;
                                             if(errorCount === res.length){
+                                                msg = $localize `:@@study.process_executed_all_failed_detail:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed - all failed:<br>\nErrors: ${errorCount}:@@error:`;
                                                 this.appService.showError(msg);
                                             }else{
+                                                msg = $localize `:@@study.process_executed_successfully_detailed:${this.service.getTextFromAction(this.selectedElements.action)}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
                                                 if(errorCount > 0){
                                                     this.appService.showWarning(msg);
                                                 }else{
