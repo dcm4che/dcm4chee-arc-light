@@ -637,7 +637,7 @@ public class Study {
             accessionNumberUniversalEntityIDType = null;
         }
         admissionID = attrs.getString(Tag.AdmissionID, "*");
-        Issuer admissionIDIssuer = Issuer.valueOf(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+        Issuer admissionIDIssuer = Issuer.valueOf(attrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
         if (admissionIDIssuer != null) {
             admissionIDLocalNamespaceEntityID = admissionIDIssuer.getLocalNamespaceEntityID();
             admissionIDUniversalEntityID = admissionIDIssuer.getUniversalEntityID();
