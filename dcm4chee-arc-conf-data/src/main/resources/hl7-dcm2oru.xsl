@@ -45,10 +45,18 @@
     </xsl:template>
 
     <xsl:template name="PV1">
+        <xsl:variable name="routeOfAdmissions" select="DicomAttribute[@tag='00380016']/Value"/>
         <PV1>
             <field/>
             <field>
-                <xsl:value-of select="'U'" />
+                <xsl:choose>
+                    <xsl:when test="$routeOfAdmissions">
+                        <xsl:value-of select="$routeOfAdmissions"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="'U'" />
+                    </xsl:otherwise>
+                </xsl:choose>
             </field>
             <field/>
             <field/>

@@ -50,10 +50,10 @@
       <xsl:copy-of select="DicomAttribute[@tag='00321034']"/>
       <!-- Admission ID -->
       <xsl:copy-of select="DicomAttribute[@tag='00380010']"/>
-      <!-- Route of Admission ID -->
-      <xsl:copy-of select="DicomAttribute[@tag='00380016']"/>
       <!-- Issuer of Admission ID Sequence -->
       <xsl:copy-of select="DicomAttribute[@tag='00380014']"/>
+      <!-- Route of Admissions -->
+      <xsl:copy-of select="DicomAttribute[@tag='00380016']"/>
       <!-- Reason For Performed Procedure Code Sequence from Reason for Requested Procedure Code Sequence -->
       <xsl:if test="DicomAttribute[@tag='0040100A']">
         <DicomAttribute tag="00401012" vr="SQ">

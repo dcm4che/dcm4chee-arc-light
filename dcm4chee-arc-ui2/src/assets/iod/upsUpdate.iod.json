@@ -20,7 +20,7 @@
       }
     }
   },
-  "00404025": { "vr": "SQ",
+  "00404025": { "vr": "SQ", "multi": true,
     "items": {
       "00080100": { "vr": "SH", "required": 1 },
       "00080102": { "vr": "SH", "required": 1 },
@@ -28,7 +28,7 @@
       "00080104": { "vr": "LO", "required": 1 }
     }
   },
-  "00404026": { "vr": "SQ",
+  "00404026": { "vr": "SQ", "multi": true,
     "items": {
       "00080100": { "vr": "SH", "required": 1 },
       "00080102": { "vr": "SH", "required": 1 },
@@ -36,7 +36,7 @@
       "00080104": { "vr": "LO", "required": 1 }
     }
   },
-  "00404027": { "vr": "SQ",
+  "00404027": { "vr": "SQ", "multi": true,
     "items": {
       "00080100": { "vr": "SH", "required": 1 },
       "00080102": { "vr": "SH", "required": 1 },
@@ -44,7 +44,7 @@
       "00080104": { "vr": "LO", "required": 1 }
     }
   },
-  "00404034": { "vr": "SQ",
+  "00404034": { "vr": "SQ", "multi": true,
     "items": {
       "00404009": { "vr": "SQ", "required": 1,
         "items": {

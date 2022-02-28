@@ -246,8 +246,10 @@ public class IocmRS {
 
     private Attributes instAttrs(MWLItem mwlItem) {
         Attributes mwlItemAttrs = mwlItem.getAttributes();
+        Attributes patAttrs = mwlItem.getPatient().getAttributes();
+        Attributes.unifyCharacterSets(mwlItemAttrs, patAttrs);
         Attributes attrs = new Attributes(mwlItemAttrs, arcDev().getAttributeFilter(Entity.Study).getSelection());
-        attrs.addAll(mwlItem.getPatient().getAttributes());
+        attrs.addAll(patAttrs);
         attrs.setString(Tag.StudyDescription, VR.LO, mwlItemAttrs.getString(Tag.RequestedProcedureDescription));
         attrs.setString(Tag.StudyID, VR.SH, mwlItemAttrs.getString(Tag.RequestedProcedureID));
         mwlItem.addItemToRequestAttributesSequence(attrs.newSequence(Tag.RequestAttributesSequence, 1));

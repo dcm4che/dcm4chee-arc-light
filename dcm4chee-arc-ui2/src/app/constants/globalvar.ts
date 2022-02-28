@@ -2285,6 +2285,20 @@ export class Globalvar {
                     filterKey:"PerformedProcedureStepStartTime",
                     description:$localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`
                 },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"RequestAttributesSequence.RequestedProcedureID",
+                    description:$localize `:@@study.requested_procedure_id:Requested Procedure ID`,
+                    placeholder:$localize `:@@study.requested_procedure_id:Requested Procedure ID`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"RequestAttributesSequence.ScheduledProcedureStepID",
+                    description:$localize `:@@scheduled_procedure_step_id:Scheduled Procedure Step ID`,
+                    placeholder:$localize `:@@scheduled_procedure_step_id:Scheduled Procedure Step ID`
+                }
             ];
         }
         return [
