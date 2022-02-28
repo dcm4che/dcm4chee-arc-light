@@ -179,6 +179,24 @@ export class AppService implements OnInit, OnDestroy{
         })
     }
 
+    showMsgCopyMoveLink(res, action:string) {
+        let msg;
+        const errorCount = res.filter(result=>result.isError).length;
+        let errorDetail = _.hasIn(res, "0.error.error.errorMessage") ? _.get(res, "0.error.error.errorMessage") : '';
+        if(errorCount === res.length){
+            msg = $localize `:@@study.process_executed_all_failed_detail:${action}:@@action: process executed - all failed:<br>\nErrors: ${errorCount}:@@error:`;
+            errorDetail = msg + `<br>\n` + errorDetail;
+            this.showError(errorDetail);
+        } else {
+            msg = $localize `:@@study.process_executed_successfully_detailed:${action}:@@action: process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successfull:`;
+            if(errorCount > 0){
+                this.showWarning(msg);
+            }else{
+                this.showMsg(msg);
+            }
+        }
+    }
+
     showMsgUpdateCharsets(res) {
         let detail = '';
         let successful = _.hasIn(res, "updated") ? _.get(res, "updated") : '';
