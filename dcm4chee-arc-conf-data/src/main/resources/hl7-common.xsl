@@ -390,6 +390,20 @@
       <xsl:with-param name="val" select="substring($val, 1, 64)"/>
     </xsl:call-template>
   </xsl:template>
+  
+  <xsl:template name="address">
+    <xsl:param name="val"/>
+    <xsl:variable name="streetAddr" select="$val/text()"/>
+    <xsl:variable name="addrComponents">
+      <xsl:for-each select="$val/component">
+        <xsl:value-of select="." />
+        <xsl:if test="position()!=last()">
+          <xsl:value-of select="'^'"/>
+        </xsl:if>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:value-of select="concat($streetAddr, '^', $addrComponents)"/>
+  </xsl:template>
 
   <xsl:template match="PID">
     <!-- Patient Name -->
@@ -406,6 +420,16 @@
       <xsl:with-param name="tag" select="'00100030'"/>
       <xsl:with-param name="vr" select="'DA'"/>
       <xsl:with-param name="val" select="substring(field[7],1,8)"/>
+    </xsl:call-template>
+    <!-- Patient's Address' -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00101040'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="address">
+          <xsl:with-param name="val" select="field[11]"/>
+        </xsl:call-template>
+      </xsl:with-param>
     </xsl:call-template>
     <!-- Patient Sex -->
     <xsl:call-template name="attr">

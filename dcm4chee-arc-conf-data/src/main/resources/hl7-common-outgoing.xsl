@@ -111,7 +111,12 @@
                 </xsl:call-template>
             </field>
             <field/>
-            <field/>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'00101040'" />
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues" />
+                </xsl:call-template>
+            </field>
             <field/>
             <field/>
             <field/>
