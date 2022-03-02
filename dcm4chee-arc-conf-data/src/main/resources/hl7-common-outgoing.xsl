@@ -112,10 +112,7 @@
             </field>
             <field/>
             <field>
-                <xsl:call-template name="attr">
-                    <xsl:with-param name="tag" select="'00101040'" />
-                    <xsl:with-param name="includeNullValues" select="$includeNullValues" />
-                </xsl:call-template>
+                <xsl:call-template name="address"/>
             </field>
             <field/>
             <field/>
@@ -153,6 +150,47 @@
                 </xsl:call-template>
             </field>
         </PID>
+    </xsl:template>
+
+    <xsl:template name="address">
+        <xsl:variable name="address" select="DicomAttribute[@tag='00101040']" />
+        <xsl:if test="contains($address, '^')">
+            <xsl:variable name="streetAddr" select="substring-before($address, '^')"/>
+            <xsl:value-of select="$streetAddr"/>
+            <xsl:call-template name="addressComp">
+                <xsl:with-param name="addrComp" select="substring-after($address, '^')"/>
+            </xsl:call-template>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="addressComp">
+        <xsl:param name="addrComp"/>
+        <xsl:choose>
+            <xsl:when test="not(contains($addrComp, '^')) and string-length($addrComp) > 0">
+                <component>
+                    <xsl:value-of select="$addrComp"/>
+                </component>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:choose>
+                    <xsl:when test="starts-with($addrComp, '^')">
+                        <component/>
+                        <xsl:call-template name="addressComp">
+                            <xsl:with-param name="addrComp" select="substring-after($addrComp, '^')"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:variable name="comp" select="substring-before($addrComp, '^')"/>
+                        <component>
+                            <xsl:value-of select="$comp"/>
+                        </component>
+                        <xsl:call-template name="addressComp">
+                            <xsl:with-param name="addrComp" select="substring-after($addrComp, '^')"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="pidWithIssuer">
