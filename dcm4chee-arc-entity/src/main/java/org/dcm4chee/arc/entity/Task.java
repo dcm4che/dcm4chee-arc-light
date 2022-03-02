@@ -1220,6 +1220,10 @@ public class Task {
             sb.append(", sopInstanceUID=").append(sopInstanceUID);
         if (batchID != null)
             sb.append(", batchID=").append(batchID);
+        if (localAET != null)
+            sb.append(", localAET=").append(localAET);
+        if (remoteAET != null)
+            sb.append(", remoteAET=").append(remoteAET);
         sb.append("}");
         return sb.toString();
     }
