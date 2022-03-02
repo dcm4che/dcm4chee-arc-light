@@ -962,7 +962,18 @@ public class StoreServiceEJB {
         Attributes attrs = study.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
         Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false)))
+        boolean updated = false;
+        if (updatePolicy == Attributes.UpdatePolicy.SUPPLEMENT) {
+            updated = supplementIssuer(attrs, ctx.getAttributes(), updateInfo.modified,
+                    Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
+            updated = supplementIssuer(attrs, ctx.getAttributes(), updateInfo.modified,
+                    Tag.AdmissionID, Tag.IssuerOfAdmissionIDSequence)
+                    || updated;
+        }
+        updated = attrs.updateSelected(updatePolicy,
+                ctx.getAttributes(), updateInfo.modified, filter.getSelection(false))
+                || updated;
+        if (!updated)
             return study;
 
         updateInfo.log(session, study, attrs);
@@ -976,6 +987,31 @@ public class StoreServiceEJB {
                 .setParameter(1, study)
                 .executeUpdate();
         return study;
+    }
+
+    private static boolean supplementIssuer(Attributes attrs, Attributes newAttrs, Attributes modified,
+                                            int idtag, int seqtag) {
+        String id = attrs.getString(idtag);
+        if (id != null && id.equals(newAttrs.getString(idtag))) {
+            Attributes item = attrs.getNestedDataset(seqtag);
+            if (item != null) {
+                Attributes newItem = newAttrs.getNestedDataset(seqtag);
+                if (newItem != null) {
+                    Attributes origItem = new Attributes(item);
+                    if (item.update(Attributes.UpdatePolicy.SUPPLEMENT, newItem, null)) {
+                        if (Issuer.valueOf(item).matches(Issuer.valueOf(origItem))) {
+                            modified.newSequence(seqtag, 1).add(origItem);
+                            return true;
+                        } else { // revert update
+                            Sequence seq = attrs.getSequence(seqtag);
+                            seq.remove(item);
+                            seq.add(origItem);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private Series updateSeries(StoreContext ctx, Series series, Date now, String reason) {
