@@ -115,6 +115,8 @@ import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/mater
 // import localeDe from '@angular/common/locales/de';
 import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
 import { CustomAttributeListComponent } from './helpers/custom-attribute-list/custom-attribute-list.component';
+import { CustomDatePipe } from './pipes/custom-date.pipe';
+
 
 // registerLocaleData(localeDe, 'de-DE');
 
@@ -179,7 +181,9 @@ import { CustomAttributeListComponent } from './helpers/custom-attribute-list/cu
         MetricsComponent,
         WebAppsListComponent,
         SelectionsDicomViewComponent,
-        CustomAttributeListComponent
+        CustomAttributeListComponent,
+        CustomDatePipe
+
     ],
     imports: [
         BrowserModule,
@@ -281,6 +285,8 @@ import { CustomAttributeListComponent } from './helpers/custom-attribute-list/cu
         MetricsService,
         WebAppsListService,
         SelectionsDicomViewService,
+        CustomDatePipe,
+        DynamicPipePipe,
         {provide: LOCALE_ID, useValue: 'en-US' },
         {
             provide: DateAdapter,
