@@ -112,7 +112,9 @@
             </field>
             <field/>
             <field>
-                <xsl:call-template name="address"/>
+                <xsl:call-template name="address">
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues" />
+                </xsl:call-template>
             </field>
             <field/>
             <field/>
@@ -153,14 +155,22 @@
     </xsl:template>
 
     <xsl:template name="address">
+        <xsl:param name="includeNullValues"/>
         <xsl:variable name="address" select="DicomAttribute[@tag='00101040']" />
-        <xsl:if test="contains($address, '^')">
-            <xsl:variable name="streetAddr" select="substring-before($address, '^')"/>
-            <xsl:value-of select="$streetAddr"/>
-            <xsl:call-template name="addressComp">
-                <xsl:with-param name="addrComp" select="substring-after($address, '^')"/>
-            </xsl:call-template>
-        </xsl:if>
+        <xsl:choose>
+            <xsl:when test="$address">
+                <xsl:if test="contains($address, '^')">
+                    <xsl:variable name="streetAddr" select="substring-before($address, '^')"/>
+                    <xsl:value-of select="$streetAddr"/>
+                    <xsl:call-template name="addressComp">
+                        <xsl:with-param name="addrComp" select="substring-after($address, '^')"/>
+                    </xsl:call-template>
+                </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$includeNullValues" />
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="addressComp">
