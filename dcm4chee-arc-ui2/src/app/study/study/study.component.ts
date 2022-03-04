@@ -4832,6 +4832,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.tableParam.tableSchema  = this.getSchema();
     };
     getSchema(){
+        let dateTimeFormat = _.hasIn(this.appService.global,"dateTimeFormat") ? this.appService.global["dateTimeFormat"] : undefined;
+        let personNameFormat = _.hasIn(this.appService.global,"personNameFormat") ? this.appService.global["personNameFormat"] : undefined;
         return this.service.checkSchemaPermission(this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {
             trash:this.trash,
             selectedWebService: _.get(this.studyWebService,"selectedWebService"),
@@ -4840,7 +4842,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             studyConfig:this.studyConfig,
             appService:this.appService,
             getSOPClassUIDName:this.getSOPClassUIDName,
-            internal:this.internal
+            internal:this.internal,
+            configuredDateTimeFormats:dateTimeFormat,
+            configuredPersonNameFormat:personNameFormat
         }));
     }
 

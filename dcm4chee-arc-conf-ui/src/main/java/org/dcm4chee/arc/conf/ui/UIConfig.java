@@ -54,6 +54,8 @@ public class UIConfig {
     private String[] widgetAets = {};
     private String xdsUrl;
     private String backgroundUrl;
+    private String dateTimeFormat;
+    private String personNameFormat;
     private String logoUrl;
     private String[] defaultWidgetAets = {};
     private Map<String, UIPermission> permissions = new HashMap<>();
@@ -113,6 +115,22 @@ public class UIConfig {
 
     public void setBackgroundUrl(String backgroundUrl) {
         this.backgroundUrl = backgroundUrl;
+    }
+
+    public String getDateTimeFormat() {
+        return dateTimeFormat;
+    }
+
+    public void setDateTimeFormat(String dateTimeFormat) {
+        this.dateTimeFormat = dateTimeFormat;
+    }
+
+    public String getPersonNameFormat() {
+        return personNameFormat;
+    }
+
+    public void setPersonNameFormat(String personNameFormat) {
+        this.personNameFormat = personNameFormat;
     }
 
     public String getLogoUrl() {

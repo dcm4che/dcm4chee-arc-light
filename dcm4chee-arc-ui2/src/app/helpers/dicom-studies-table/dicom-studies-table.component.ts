@@ -1,11 +1,12 @@
 import {Component, EventEmitter, HostListener, Input, OnInit, Output} from '@angular/core';
-import {DicomTableSchema, TableSchemaConfig} from "./dicom-studies-table.interfaces";
+import {DicomTableSchema, DynamicPipe, TableSchemaConfig} from "./dicom-studies-table.interfaces";
 import {PatientDicom} from "../../models/patient-dicom";
 import {Patient1Dicom} from "../../models/patient1-dicom";
 import * as _ from "lodash-es";
 import {j4care} from "../j4care.service";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 import {DicomLevel, PaginationDirection} from "../../interfaces";
+import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
 
 @Component({
   selector: 'dicom-studies-table',
@@ -26,7 +27,9 @@ export class DicomStudiesTableComponent implements OnInit {
     hover_mode = 'patient';
     active_td = '';
     showStudyMenu = false;
-    constructor() { }
+    constructor(
+        private dynamicPipe:DynamicPipePipe
+    ) { }
     ngOnInit() {
         this._config.offset = this._config.offset || 0;
     }
@@ -98,6 +101,23 @@ export class DicomStudiesTableComponent implements OnInit {
         console.log("this.presedKey",this.pressedKey);
         if(this.pressedKey === 17){
             object.selected = !object.selected;
+        }
+    }
+
+    getTooltip(object, table) {
+        if(table.type === "value"){
+            if(table.hook){
+                return table.hook(_.get(object.attrs,table.pathToValue), object.attrs, table.pathToValue, object)  ;
+            }else{
+                return _.get(object.attrs,table.pathToValue)
+            }
+        }else{
+            if(table.type==="pipe" || table.pipe){
+                if(table.pathToValue){
+                    return this.dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe);
+                }
+                return this.dynamicPipe.transform(object.attrs,table.pipe);
+            }
         }
     }
 }

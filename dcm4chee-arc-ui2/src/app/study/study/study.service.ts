@@ -4,10 +4,17 @@ import {
     AccessLocation,
     DicomLevel,
     DicomMode,
-    DicomResponseType, DiffAttributeSet, StorageSystems,
-    FilterSchema, FilterSchemaElement,
-    SelectDropdown, SelectedDetailObject, SelectionAction, StudyFilterConfig,
-    UniqueSelectIdObject, UPSModifyMode
+    DicomResponseType,
+    DiffAttributeSet,
+    StorageSystems,
+    FilterSchema,
+    FilterSchemaElement,
+    SelectDropdown,
+    SelectedDetailObject,
+    SelectionAction,
+    StudyFilterConfig,
+    UniqueSelectIdObject,
+    UPSModifyMode
 } from "../../interfaces";
 import {Globalvar} from "../../constants/globalvar";
 import {Aet} from "../../models/aet";
@@ -43,6 +50,8 @@ import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe"
 import {AppService} from "../../app.service";
 import {MwlDicom} from "../../models/mwl-dicom";
 import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
+import {DatePipe} from "@angular/common";
+import {CustomDatePipe} from "../../pipes/custom-date.pipe";
 
 @Injectable()
 export class StudyService {
@@ -1338,7 +1347,8 @@ export class StudyService {
                                 permission: {
                                     id: 'action-studies-mwl',
                                     param: 'create'
-                                }
+                                },
+                                id:"patient_create_mwl"
                             },
                             {
                                 icon: {
@@ -1353,6 +1363,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
+                                id:"patient_upload_file",
                                 title: $localize `:@@upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-study',
@@ -1373,6 +1384,7 @@ export class StudyService {
                                 },showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
+                                id:"study_download_csv",
                                 title: $localize `:@@study.download_as_csv:Download as CSV`,
                                 permission: {
                                     id: 'action-studies-download',
@@ -1391,6 +1403,7 @@ export class StudyService {
                                         action: "open_viewer"
                                     }, e);
                                 },
+                                id:"patient_open_viewer",
                                 title: $localize `:@@study.open_patient_in_the_viewer:Open patient in the viewer`,
                                 permission: {
                                     id: 'action-studies-viewer',
@@ -1412,6 +1425,7 @@ export class StudyService {
                                         action: "unmerge_patient"
                                     }, e);
                                 },
+                                id:"patient_unmerge_patient",
                                 title: $localize `:@@unmerge_this_patient:Unmerge this Patient`,
                                 permission: {
                                     id: 'action-studies-patient',
@@ -1633,7 +1647,8 @@ export class StudyService {
                     headerDescription: $localize `:@@patients_name:Patient's Name`,
                     widthWeight: 1.5,
                     calculatedWidth: "20%",
-                    pipe: new DynamicPipe(PersonNamePipe, ["00100010"])
+                    pathToValue:"00100010.Value.0",
+                    pipe: new DynamicPipe(PersonNamePipe, [options.configuredPersonNameFormat])
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -1652,10 +1667,11 @@ export class StudyService {
                     pipe: new DynamicPipe(PatientIssuerPipe, undefined)
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@birth_date:Birth Date`,
                     pathToValue: "00100030.Value[0]",
                     headerDescription: $localize `:@@patients_birth_date:Patient's Birth Date`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 0.5,
                     calculatedWidth: "20%"
                 }),
@@ -1751,6 +1767,7 @@ export class StudyService {
                                         action: "edit_study"
                                     }, e);
                                 },
+                                id: "study_edit_study",
                                 title: $localize `:@@study.edit_this_study:Edit this study`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -1772,6 +1789,7 @@ export class StudyService {
                                         action: "modify_expired_date"
                                     }, e);
                                 },
+                                id: "study_modify_expired_date",
                                 title: $localize `:@@set_change_expired_date:Set/Change expired date`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -1793,6 +1811,7 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
+                                id: "study_reject",
                                 title: j4care.is(options,"trash.active")  ? $localize `:@@study.restore_study:Restore study` : $localize `:@@study.reject_study:Reject study`,
                                 permission: {
                                     id: 'action-studies-study',
@@ -1811,6 +1830,7 @@ export class StudyService {
                                         action: "verify_storage"
                                     }, e);
                                 },
+                                id: "study_verify_storage",
                                 title: $localize `:@@study.verify_storage_commitment:Verify storage commitment`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -1832,6 +1852,7 @@ export class StudyService {
                                         action: "download"
                                     }, e);
                                 },
+                                id: "study_download",
                                 title: $localize `:@@download:Download`,
                                 permission: {
                                     id: 'action-studies-download',
@@ -1850,6 +1871,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
+                                id: "study_upload_file",
                                 title: $localize `:@@upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-study',
@@ -1868,6 +1890,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
+                                id: "study_export",
                                 title: options.internal ? $localize `:@@study.export_study:Export study`: $localize `:@@study.retrieve_study:Retrieve study`,
                                 permission: {
                                     id: 'action-studies-study',
@@ -1889,6 +1912,7 @@ export class StudyService {
                                         action: "delete"
                                     }, e);
                                 },
+                                id: "study_delete",
                                 title: $localize `:@@study.delete_study_permanently:Delete study permanently`,
                                 showIf: (e) => {
                                     return (
@@ -1913,6 +1937,7 @@ export class StudyService {
                                         action: "download_csv"
                                     }, e);
                                 },
+                                id: "series_download_csv",
                                 title: $localize `:@@study.download_as_csv:Download as CSV`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -1934,6 +1959,7 @@ export class StudyService {
                                         action: "update_access_control_id"
                                     }, e);
                                 },
+                                id: "study_update_access_control_id",
                                 title: $localize `:@@study.update_study_access_control_id:Update Study Access Control ID`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -1955,6 +1981,7 @@ export class StudyService {
                                         action: "send_storage_commit"
                                     }, e);
                                 },
+                                id: "study_send_storage_commit",
                                 title: $localize `:@@send_storage_commitment_request_for_study:Send Storage Commitment Request for this study`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -1976,6 +2003,7 @@ export class StudyService {
                                         action: "send_instance_availability_notification"
                                     }, e);
                                 },
+                                id: "study_send_instance_availability_notification",
                                 title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this study`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -1997,6 +2025,7 @@ export class StudyService {
                                         action: "open_viewer"
                                     }, e);
                                 },
+                                id: "study_open_viewer",
                                 title: $localize `:@@study.open_study_in_the_viewer:Open study in the viewer`,
                                 permission: {
                                     id: 'action-studies-viewer',
@@ -2103,18 +2132,20 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study_date:Study Date`,
                     pathToValue: "[00080020].Value[0]",
                     headerDescription: $localize `:@@study_date:Study Date`,
                     widthWeight: 0.6,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.study_time:Study Time`,
                     pathToValue: "[00080030].Value[0]",
                     headerDescription: $localize `:@@study.study_time:Study Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
@@ -2124,7 +2155,8 @@ export class StudyService {
                     headerDescription: $localize `:@@referring_physician_name:Referring physician name`,
                     widthWeight: 1,
                     calculatedWidth: "20%",
-                    pipe: new DynamicPipe(PersonNamePipe, ["00080090"])
+                    pathToValue:"[00080090].PersonName[0]",
+                    pipe: new DynamicPipe(PersonNamePipe, [options.configuredPersonNameFormat])
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -2204,6 +2236,7 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
+                                 id: "series_reject",
                                 title: j4care.is(options,"trash.active")  ? $localize `:@@study.restore_series:Restore series` : $localize `:@@study.reject_series:Reject series`,
                                 permission: {
                                     id: 'action-studies-serie',
@@ -2223,6 +2256,7 @@ export class StudyService {
                                         action: "edit_series"
                                     }, e);
                                 },
+                                id: "series_edit_series",
                                 title: $localize `:@@study.edit_this_series:Edit this series`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -2244,6 +2278,7 @@ export class StudyService {
                                         action: "verify_storage"
                                     }, e);
                                 },
+                                id: "series_verify_storage",
                                 title: $localize `:@@study.verify_storage_commitment:Verify storage commitment`,
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
@@ -2262,6 +2297,7 @@ export class StudyService {
                                         action: "download"
                                     }, e);
                                 },
+                                id: "series_download",
                                 title: $localize `:@@download:Download`,
                                 permission: {
                                     id: 'action-studies-download',
@@ -2280,6 +2316,7 @@ export class StudyService {
                                         action: "upload_file"
                                     }, e);
                                 },
+                                id: "series_upload_file",
                                 title: $localize `:@@upload_file:Upload file`,
                                 permission: {
                                     id: 'action-studies-download',
@@ -2299,6 +2336,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
+                                id: "series_export",
                                 title: options.internal ? $localize `:@@export_series:Export series` : $localize `:@@retrieve_series:Retrieve series`,
                                 permission: {
                                     id: 'action-studies-serie',
@@ -2317,6 +2355,7 @@ export class StudyService {
                                         action: "send_storage_commit"
                                     }, e);
                                 },
+                                id: "series_send_storage_commit",
                                 title: $localize `:@@study.send_storage_commitment_request_for_series:Send Storage Commitment Request for this series`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -2338,6 +2377,7 @@ export class StudyService {
                                         action: "send_instance_availability_notification"
                                     }, e);
                                 },
+                                id: "series_send_instance_availability_notification",
                                 title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this Series`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -2360,6 +2400,7 @@ export class StudyService {
                                         action: "download_csv"
                                     }, e);
                                 },
+                                id: "instance_download_csv",
                                 title: $localize `:@@study.download_as_csv:Download as CSV`,
                                 permission: {
                                     id: 'action-studies-download',
@@ -2540,6 +2581,7 @@ export class StudyService {
                                         action: "reject"
                                     }, e);
                                 },
+                                id: "instance_reject",
                                 title: j4care.is(options,"trash.active") ? $localize `:@@study.restore_instance:Restore instance` : $localize `:@@study.reject_instance:Reject instance`,
                                 permission: {
                                     id: 'action-studies-instance',
@@ -2558,6 +2600,7 @@ export class StudyService {
                                         action: "verify_storage"
                                     }, e);
                                 },
+                                id: "instance_edit_series",
                                 title: $localize `:@@study.verify_storage_commitment:Verify storage commitment`,
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
@@ -2577,6 +2620,7 @@ export class StudyService {
                                         action: "download"
                                     }, e);
                                 },
+                                id: "instance_verify_storage",
                                 title: $localize `:@@study.download_dicom_object:Download DICOM Object`,
                                 permission: {
                                     id: 'action-studies-download',
@@ -2595,6 +2639,7 @@ export class StudyService {
                                         action: "export"
                                     }, e);
                                 },
+                                id: "instance_download",
                                 title: options.internal ? $localize `:@@export_instance:Export instance` : $localize `:@@retrieve_instance:Retrieve instance`,
                                 permission: {
                                     id: 'action-studies-instance',
@@ -2614,6 +2659,7 @@ export class StudyService {
                                         action: "view"
                                     }, e);
                                 },
+                                id: "instance_upload_file",
                                 title: $localize `:@@study.view_dicom_object:View DICOM Object`,
                                 permission: {
                                     id: 'action-studies-download',
@@ -2632,6 +2678,7 @@ export class StudyService {
                                         action: "send_storage_commit"
                                     }, e);
                                 },
+                                id: "instance_export",
                                 title: $localize `:@@study.send_storage_commitment_request_for_study:Send Storage Commitment Request for this instance`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -2653,6 +2700,7 @@ export class StudyService {
                                         action: "send_instance_availability_notification"
                                     }, e);
                                 },
+                                id: "instance_send_storage_commit",
                                 title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this Instance`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
@@ -2730,18 +2778,20 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@content_date:Content Date`,
                     pathToValue: "00080023.Value[0]",
                     headerDescription: $localize `:@@content_date:Content Date`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.content_time:Content Time`,
                     pathToValue: "00080033.Value[0]",
                     headerDescription: $localize `:@@study.content_time:Content Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -2903,18 +2953,20 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@sps_start_date:SPS Start Date`,
                     pathToValue: "00400100.Value[0].00400002.Value[0]",
                     headerDescription: $localize `:@@scheduled_procedure_step_start_date:Scheduled Procedure Step Start Date`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.sps_start:SPS Start`,
                     pathToValue: "00400100.Value[0].00400003.Value[0]",
                     headerDescription: $localize `:@@scheduled_procedure_step_start_time:Scheduled Procedure Step Start Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 0.9,
                     calculatedWidth: "20%"
                 }),
@@ -2924,7 +2976,8 @@ export class StudyService {
                     headerDescription: $localize `:@@scheduled_performing_physicians_name:Scheduled Performing Physician's Name`,
                     widthWeight: 2,
                     calculatedWidth: "20%",
-                    pipe: new DynamicPipe(PersonNamePipe, ["00400100.00400006"])
+                    pathToValue:"00400100.Value[0].00400006.Value[0]",
+                    pipe: new DynamicPipe(PersonNamePipe, [options.configuredPersonNameFormat])
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -3016,34 +3069,38 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.pps_start_date:PPS Start Date`,
                     pathToValue: "00400244.Value[0]",
                     headerDescription: $localize `:@@study.performed_procedure_step_start_date:Performed Procedure Step Start Date`,
                     widthWeight: 1,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.pps_start_time:PPS Start Time`,
                     pathToValue: "00400245.Value[0]",
                     headerDescription: $localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.pps_end_date:PPS End Date`,
                     pathToValue: "00400250.Value[0]",
                     headerDescription: $localize `:@@study.performed_procedure_step_end_date:Performed Procedure Step End Date`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.pps_end_time:PPS End Time`,
                     pathToValue: "00400251.Value[0]",
                     headerDescription: $localize `:@@study.performed_procedure_step_end_time:Performed Procedure Step End Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 1,
                     calculatedWidth: "20%"
                 }),
@@ -3319,10 +3376,11 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.start_date_and_time:Start Date and Time`,
                     pathToValue: "00404005.Value[0]",
                     headerDescription: $localize `:@@scheduled_procedure_step_start_date_and_time:Scheduled Procedure Step Start Date and Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 2,
                     calculatedWidth: "20%"
                 }),
@@ -3336,19 +3394,21 @@ export class StudyService {
                 }),
 
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.e._completion_time:E. Completion Time`,
                     pathToValue: "00404011.Value[0]",
                     headerDescription: $localize `:@@expected_completion_date_and_time:Expected Completion Date and Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 2,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.step_m._date_and_time:Step M. Date and Time`,
                     pathToValue: "00404010.Value[0]",
                     headerDescription: $localize `:@@scheduled_procedure_step_modification_date_and_time:Scheduled Procedure Step Modification Date and Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 4,
                     calculatedWidth: "20%",
                     cssClass:"border-left"
@@ -3404,20 +3464,22 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study_date:Study Date`,
                     pathToValue: "[00080020].Value[0]",
                     showBorderPath:"[00080020].showBorder",
                     headerDescription: $localize `:@@study_date:Study Date`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.study_time:Study Time`,
                     pathToValue: "[00080030].Value[0]",
                     showBorderPath:"[00080030].showBorder",
                     headerDescription: $localize `:@@study.study_time:Study Time`,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
                     widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
@@ -3553,9 +3615,9 @@ export class StudyService {
                     if(element.type === "actions-menu" && _.hasIn(element,"menu.actions[0]")){ //To prevent showing the single action buttons in the tag mode you have to extend this function with  || element.type === "actions" so you can filter the actions too
 
                         console.log("element.menu.actions",element.menu.actions);
-                        for(let i = element.menu.actions.length; i > -1;i--){
+                        for(let i = element.menu.actions.length - 1; i > -1;i--){
                             console.log("element in i:",element.menu.actions[i]);
-                            if(!_.hasIn(options,"studyTagConfig.takeActionsOver") || _.hasIn(element,`menu.actions[${i}]permission.id`) && options.studyTagConfig.takeActionsOver.indexOf(element.menu.actions[i].permission.id) === -1){
+                            if(!_.hasIn(options,"studyTagConfig.takeActionsOver") || !(_.hasIn(element,`menu.actions[${i}].id`) && options.studyTagConfig.takeActionsOver.indexOf(element.menu.actions[i].id) > -1)){
                                 console.log("about to delete this",element.menu.actions[i]); //TODO
                                 console.log("i:",i);
                                 element.menu.actions.splice(i, 1);
@@ -4448,7 +4510,7 @@ export class StudyService {
                 )}*/
     }
 
-    rejectStudy(studyAttr, webService:StudyWebService, rejectionCode, param) {
+    rejectStudy(studyAttr, webService:StudyWebService, rejectionCode, param?) {
         let _webApp;
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;

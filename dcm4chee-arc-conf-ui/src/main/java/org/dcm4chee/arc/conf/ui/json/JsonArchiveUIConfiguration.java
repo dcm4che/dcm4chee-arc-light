@@ -89,6 +89,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmuiWidgetAets", uiConfig.getWidgetAets());
         writer.writeNotNullOrDef("dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
         writer.writeNotNullOrDef("dcmuiBackgroundURL", uiConfig.getBackgroundUrl(),null);
+        writer.writeNotNullOrDef("dcmuiDateTimeFormat", uiConfig.getDateTimeFormat(),null);
+        writer.writeNotNullOrDef("dcmuiPersonNameFormat", uiConfig.getPersonNameFormat(),null);
         writer.writeNotNullOrDef("dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         writer.writeNotEmpty("dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
         writeUIPermissions(writer, uiConfig.getPermissions());
@@ -385,6 +387,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiBackgroundURL":
                     uiConfig.setBackgroundUrl(reader.stringValue());
+                    break;
+                case "dcmuiDateTimeFormat":
+                    uiConfig.setDateTimeFormat(reader.stringValue());
+                    break;
+                case "dcmuiPersonNameFormat":
+                    uiConfig.setPersonNameFormat(reader.stringValue());
                     break;
                 case "dcmuiLogoURL":
                     uiConfig.setLogoUrl(reader.stringValue());

@@ -21,11 +21,11 @@ import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-clien
 import {User} from "./models/user";
 import {LanguageSwitcher} from "./models/language-switcher";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
-import {LanguageConfig, LanguageObject, LocalLanguageObject} from "./interfaces";
+import {ConfiguredDateTameFormatObject, LanguageObject, LocalLanguageObject} from "./interfaces";
 import {AppRequestsService} from "./app-requests.service";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
-const worker = new Worker('./server-time.worker', { type: 'module' });
+const worker = new Worker('./server-time.worker', { type: 'module', name: 'server-time'});
 
 @Component({
   selector: 'app-root',
@@ -58,6 +58,8 @@ export class AppComponent implements OnInit {
     sidenavopen = false;
     superUser:boolean = false;
     languageSwitcher:LanguageSwitcher;
+    dateTimeFormat:ConfiguredDateTameFormatObject;
+    personNameFormat:string;
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -147,7 +149,18 @@ export class AppComponent implements OnInit {
                         }
                     }
                     //TODO check if the current_language is the same with the default language of the uiConfig if not update default language in LDAP and Localstorage
-
+                }
+                if(_.hasIn(global, "uiConfig.dcmuiDateTimeFormat") && !this.dateTimeFormat){
+                    this.dateTimeFormat = j4care.extractDateTimeFormat(_.get(global, "uiConfig.dcmuiDateTimeFormat"));
+                    global["dateTimeFormat"] = this.dateTimeFormat;
+                    console.log("Global Date Time Format:", this.dateTimeFormat);
+                    this.mainservice.setGlobal(global);
+                }
+                if(_.hasIn(global, "uiConfig.dcmuiPersonNameFormat") && !this.personNameFormat){
+                    this.personNameFormat = _.get(global, "uiConfig.dcmuiPersonNameFormat");
+                    global["personNameFormat"] = this.personNameFormat;
+                    console.log("Global Patient Name Format:", this.personNameFormat);
+                    this.mainservice.setGlobal(global);
                 }
             }
         });

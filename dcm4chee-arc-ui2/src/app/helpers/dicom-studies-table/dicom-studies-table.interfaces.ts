@@ -1,6 +1,6 @@
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {DcmWebApp} from "../../models/dcm-web-app";
-import {StudyPageConfig, StudyTagConfig} from "../../interfaces";
+import {ConfiguredDateTameFormatObject, StudyPageConfig, StudyTagConfig} from "../../interfaces";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 
 export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy" | "progress" | "model" | "buttons" | "sub-table";
@@ -65,6 +65,8 @@ export interface StudySchemaOptions{
     internal?:boolean;
     studyWebService?:StudyWebService;
     studyTagConfig?:StudyTagConfig;
+    configuredDateTimeFormats?:ConfiguredDateTameFormatObject;
+    configuredPersonNameFormat?:string;
 }
 export interface TableAction{
     icon:Icon;
@@ -72,6 +74,7 @@ export interface TableAction{
     title?:string;
     permission?:PermissionParam;
     showIf?:Function;
+    id?:string;
 }
 
 export interface ActionsMenu{

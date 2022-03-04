@@ -72,6 +72,7 @@ describe('j4care', () => {
         expect(j4care.formatDate(new Date("2018-11-03T02:04:05.582+01:00"), 'HH:mm')).toBe("02:04");
         expect(j4care.formatDate(new Date("2018-02-03T02:04:05.582+01:00"), 'yyyyMMdd')).toBe("20180203");
         expect(j4care.formatDate(new Date("2018-02-03T02:04:05.582+01:00"), undefined)).toBe("20180203");
+        expect(j4care.formatDate(new Date("2018-02-00T02:04:05.582+01:00"), "yyyy-MM-dd")).toBe("");
     });
 
     it("Should get the main aet", () => {
@@ -99,9 +100,45 @@ describe('j4care', () => {
             "dicomDescription": "Only show instances rejected for Data Retention Expired",
             "dcmAcceptedUserRole": ["user", "admin"],
         }])
-    })
+    });
+
+    it("Should extract string formats from the ui config of dcmuiDateTimeFormat", ()=>{
+        expect(j4care.extractDateTimeFormat("DATE=yyyy-MM-dd, TIME=HH:mm,DATE-TIME=yyyy-MM-dd HH:mm")).toEqual({
+            dateFormat:"yyyy-MM-dd",
+            timeFormat:"HH:mm",
+            dateTimeFormat:"yyyy-MM-dd HH:mm"
+        });
+        expect(j4care.extractDateTimeFormat("DATE=dd.MM.yyyy, TIME=HH:mm,DATE-TIME=dd.MM.yyyy HH:mm")).toEqual({
+            dateFormat:"dd.MM.yyyy",
+            timeFormat:"HH:mm",
+            dateTimeFormat:"dd.MM.yyyy HH:mm"
+        });
+        expect(j4care.extractDateTimeFormat("DATE-TIME=dd/MM/yyyy HH:mm; DATE=dd/MM/yyyy; TIME=HH-mm")).toEqual({
+            dateFormat:"dd/MM/yyyy",
+            timeFormat:"HH-mm",
+            dateTimeFormat:"dd/MM/yyyy HH:mm"
+        });
+        expect(j4care.extractDateTimeFormat(`DATE-TIME=dd\\MM\\yyyy HH:mm; time=HH:mm`)).toEqual({
+            dateFormat:"yyyyMMdd",
+            timeFormat:"HH:mm",
+            dateTimeFormat:"dd\\MM\\yyyy HH:mm"
+        });
+        expect(j4care.extractDateTimeFormat(`DATE=dd/MM/yyyy; TIME=HH-mm`)).toEqual({
+            dateFormat:"dd/MM/yyyy",
+            timeFormat:"HH-mm",
+            dateTimeFormat:"dd/MM/yyyy HH-mm"
+        });
+    });
 
     it("Should return date range as object from string extractDateTimeFromString(input:string)",()=>{
+        let getTodayDateFromTime = function(hours:number, min:number, sec:number){
+            let newDate = new Date();
+            newDate.setHours(hours);
+            newDate.setMinutes(min);
+            newDate.setSeconds(sec);
+            newDate.setMilliseconds(0);
+            return newDate;
+        };
         expect(j4care.extractDateTimeFromString('20181012-20181130')).toEqual({
             mode:"range",
             firstDateTime:{
@@ -159,6 +196,34 @@ describe('j4care', () => {
         });
         expect(j4care.extractDateTimeFromString('test')).toEqual(null);
         expect(isNaN(j4care.extractDateTimeFromString('12345678').firstDateTime.dateObject.getTime())).toBe(true);
+        expect(j4care.extractDateTimeFromString("19000123").firstDateTime).toEqual({
+            FullYear:"1900",
+            Month:"01",
+            Date:"23",
+            Hours:undefined,
+            Minutes:undefined,
+            Seconds:undefined,
+            dateObject: new Date("1900-01-23 00:00:00")
+        });
+        expect(j4care.extractDateTimeFromString("095237.0").firstDateTime).toEqual({
+            FullYear:undefined,
+            Month:undefined,
+            Date:undefined,
+            Hours:"09",
+            Minutes:"52",
+            Seconds:"37",
+            dateObject:getTodayDateFromTime(9,52,37)
+        });
+        expect(j4care.extractDateTimeFromString("095238").firstDateTime).toEqual({
+            FullYear: undefined,
+            Month: undefined,
+            Date: undefined,
+            Hours: "09",
+            Minutes: "52",
+            Seconds: "38",
+            dateObject: getTodayDateFromTime(9,52,38)
+        });
+        console.log("test=",j4care.extractDateTimeFromString("19000100"));
     });
 
     it("Check if value is set",()=>{
@@ -201,33 +266,41 @@ describe('j4care', () => {
             "20180912-20180913",
             "20180914",
             "20180915-20180916",
-            "20180917-20180918",
-            "20180919",
+            "20180917",
+            "20180918-20180919",
             "20180920-20180921",
-            "20180922-20180923",
-            "20180924",
-            "20180925-20180926",
-            "20180927",
-            "20180928-20180929",
-            "20180930-20181001",
-            "20181002",
-            "20181003-20181004",
-            "20181005-20181006",
-            "20181007",
-            "20181008-20181009",
-            "20181010-20181011",
-            "20181012",
-            "20181013-20181014",
-            "20181015",
-            "20181016-20181017",
+            "20180922",
+            "20180923-20180924",
+            "20180925",
+            "20180926-20180927",
+            "20180928",
+            "20180929-20180930",
+            "20181001-20181002",
+            "20181003",
+            "20181004-20181005",
+            "20181006",
+            "20181007-20181008",
+            "20181009-20181010",
+            "20181011",
+            "20181012-20181013",
+            "20181014",
+            "20181015-20181016",
+            "20181017",
             "20181018-20181019",
-            "20181020",
-            "20181021-20181022",
+            "20181020-20181021",
+            "20181022",
             "20181023-20181024",
             "20181025",
             "20181026-20181027",
             "20181028-20181029"
-        ])
+        ]);
+
+        expect(j4care.splitRange("20190115-20190116")).toEqual([
+            "20190115-20190116"
+        ]);
+        expect(j4care.splitRange("20190115")).toEqual([
+            "20190115"
+        ]);
     });
 
     it("Checks if key or value is in the array path",()=>{

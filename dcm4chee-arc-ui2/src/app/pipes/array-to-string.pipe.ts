@@ -5,7 +5,6 @@ import * as _ from "lodash-es";
     pure: false
 })
 export class ArrayToStringPipe implements PipeTransform {
-
     transform(value: any, args?: any): any {
         try{
             if(value){
@@ -29,5 +28,4 @@ export class ArrayToStringPipe implements PipeTransform {
         }
         return null;
     }
-
 }

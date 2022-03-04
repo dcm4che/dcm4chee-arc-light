@@ -374,6 +374,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.78 NAME 'dcmuiDialog'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.79 NAME 'dcmuiDateTimeFormat'
+  DESC 'Format Date Time'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.80 NAME 'dcmuiPersonNameFormat'
+  DESC 'Format Date Time'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
@@ -385,6 +395,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
     dcmuiXDSInterfaceURL $
     dcmuiBackgroundURL $
     dcmuiLogoURL $
+    dcmuiDateTimeFormat $
+    dcmuiPersonNameFormat $
     dcmDefaultLanguage $
     dcmLanguages $
     dcmuiWidgetAets ) )

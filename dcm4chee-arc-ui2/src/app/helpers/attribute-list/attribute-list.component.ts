@@ -23,7 +23,9 @@ export class AttributeListComponent implements OnInit {
     @Input() aet;
     @Input() attrs;
     @Input() studyWebService:StudyWebService;
-
+    customDateTimeFormat;
+    personNameFormat;
+    _ = _;
     rows = [];
     constructor(
         public $http:J4careHttpService,
@@ -36,6 +38,8 @@ export class AttributeListComponent implements OnInit {
         this.init();
     }
     init(){
+        this.customDateTimeFormat = _.hasIn(this.mainservice.global,"dateTimeFormat") ? this.mainservice.global["dateTimeFormat"] : undefined;
+        this.personNameFormat = _.hasIn(this.mainservice.global,"personNameFormat") ? this.mainservice.global["personNameFormat"] : undefined;
         if(this.attrs){
             this.attrs2rows('', this.attrs, this.rows);
         }else{

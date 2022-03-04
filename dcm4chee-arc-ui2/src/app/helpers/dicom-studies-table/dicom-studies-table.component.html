@@ -22,17 +22,7 @@
                  [ngStyle]="{width: patient_table.calculatedWidth}"
                  [ngSwitch]="patient_table.type"
                  (mouseenter)="active_td = patient_table.elementId"
-                 tooltip="{{
-                    patient_table.type === 'value' ?
-                        (patient_table.hook?
-                            patient_table.hook(_.get(patient.attrs,patient_table.pathToValue), patient.attrs, patient_table.pathToValue, patient):
-                            _.get(patient.attrs,patient_table.pathToValue)
-                        ):
-                        (patient_table.type === 'pipe' ?
-                            (patient.attrs | dynamicPipe:patient_table.pipe):
-                            ''
-                        )
-                }}"
+                 tooltip="{{getTooltip(patient, patient_table)}}"
             >
                 <ng-container *ngSwitchCase="'dummy'"></ng-container>
                 <ng-container *ngSwitchCase="'index'">{{patient.offset + 1}}</ng-container>
@@ -63,7 +53,14 @@
                         </ng-container>
                     </mat-menu>
                 </ng-container>
-                <ng-container *ngSwitchCase="'pipe'">{{patient.attrs | dynamicPipe:patient_table.pipe}}</ng-container>
+                <ng-container *ngSwitchCase="'pipe'">
+                    <ng-container *ngIf="patient_table.pathToValue">
+                        {{_.get(patient.attrs,patient_table.pathToValue) | dynamicPipe:patient_table.pipe}}
+                    </ng-container>
+                    <ng-container *ngIf="!patient_table.pathToValue">
+                        {{patient.attrs | dynamicPipe:patient_table.pipe}}
+                    </ng-container>
+                </ng-container>
                 <ng-container *ngSwitchCase="'value'">
                     <ng-container *ngIf="!patient_table.hook">
                         {{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}
@@ -87,17 +84,7 @@
                          [ngStyle]="{width: studies_table.calculatedWidth}"
                          [ngSwitch]="studies_table.type"
                          (mouseenter)="active_td = studies_table.elementId"
-                         tooltip="{{
-                            studies_table.type === 'value' ?
-                                (studies_table.hook?
-                                    studies_table.hook(_.get(study.attrs,studies_table.pathToValue), study.attrs,studies_table.pathToValue, study):
-                                    _.get(study.attrs,studies_table.pathToValue)
-                                ):
-                                (studies_table.type === 'pipe' ?
-                                    (study.attrs | dynamicPipe:studies_table.pipe):
-                                    ''
-                                )
-                        }}"
+                         tooltip="{{getTooltip(study, studies_table)}}"
                     >
                         <ng-container *ngSwitchCase="'index'">{{study.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
@@ -136,7 +123,14 @@
                                 </ng-container>
                             </mat-menu>
                         </ng-container>
-                        <ng-container *ngSwitchCase="'pipe'">{{study.attrs | dynamicPipe:studies_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">
+                            <ng-container *ngIf="studies_table.pathToValue">
+                                {{_.get(study.attrs,studies_table.pathToValue) | dynamicPipe:studies_table.pipe}}
+                            </ng-container>
+                            <ng-container *ngIf="!studies_table.pathToValue">
+                                {{study.attrs | dynamicPipe:studies_table.pipe}}
+                            </ng-container>
+                        </ng-container>
                         <ng-container *ngSwitchCase="'value'">
                             <ng-container *ngIf="!studies_table.hook">
                                 {{_.get(study.attrs, studies_table.pathToValue) || '&nbsp;'}}
@@ -159,17 +153,7 @@
                                  [ngStyle]="{width: serie_table.calculatedWidth}"
                                  [ngSwitch]="serie_table.type"
                                  (mouseenter)="active_td = serie_table.elementId"
-                                 tooltip="{{
-                                    serie_table.type === 'value' ?
-                                        (serie_table.hook?
-                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue), serie.attrs,serie_table.pathToValue, serie):
-                                            _.get(serie.attrs,serie_table.pathToValue)
-                                        ):
-                                        (serie_table.type === 'pipe' ?
-                                            (serie.attrs | dynamicPipe:serie_table.pipe):
-                                            ''
-                                        )
-                                }}"
+                                 tooltip="{{getTooltip(serie, serie_table)}}"
                             >
                                 <ng-container *ngSwitchCase="'index'">{{serie.offset + 1}}</ng-container>
                                 <ng-container *ngSwitchCase="'actions'">
@@ -199,7 +183,14 @@
                                         </ng-container>
                                     </mat-menu>
                                 </ng-container>
-                                <ng-container *ngSwitchCase="'pipe'">{{serie.attrs | dynamicPipe:serie_table.pipe}}</ng-container>
+                                <ng-container *ngSwitchCase="'pipe'">
+                                    <ng-container *ngIf="serie_table.pathToValue">
+                                        {{_.get(serie.attrs,serie_table.pathToValue) | dynamicPipe:serie_table.pipe}}
+                                    </ng-container>
+                                    <ng-container *ngIf="!serie_table.pathToValue">
+                                        {{serie.attrs | dynamicPipe:serie_table.pipe}}
+                                    </ng-container>
+                                </ng-container>
                                 <ng-container *ngSwitchCase="'value'">
                                     <ng-container *ngIf="!serie_table.hook">
                                         {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
@@ -223,17 +214,7 @@
                                          [ngStyle]="{width: instance_table.calculatedWidth}"
                                          [ngSwitch]="instance_table.type"
                                          (mouseenter)="active_td = instance_table.elementId"
-                                         tooltip="{{
-                                            instance_table.type === 'value' ?
-                                                (instance_table.hook?
-                                                    instance_table.hook(_.get(instance.attrs,instance_table.pathToValue), instance.attrs, instance_table.pathToValue, instance):
-                                                    _.get(instance.attrs,instance_table.pathToValue)
-                                                ):
-                                                (instance_table.type === 'pipe' ?
-                                                    (instance.attrs | dynamicPipe:instance_table.pipe):
-                                                    ''
-                                                )
-                                        }}"
+                                         tooltip="{{getTooltip(instance, instance_table)}}"
                                     >
                                         <ng-container *ngSwitchCase="'index'">{{instance.offset + 1}}</ng-container>
 <!--                                        <ng-container *ngSwitchCase="'selected-checkbox'">
@@ -265,7 +246,14 @@
                                                 </ng-container>
                                             </mat-menu>
                                         </ng-container>
-                                        <ng-container *ngSwitchCase="'pipe'">{{instance.attrs | dynamicPipe:instance_table.pipe}}</ng-container>
+                                        <ng-container *ngSwitchCase="'pipe'">
+                                            <ng-container *ngIf="instance_table.pathToValue">
+                                                {{_.get(instance.attrs,instance_table.pathToValue) | dynamicPipe:instance_table.pipe}}
+                                            </ng-container>
+                                            <ng-container *ngIf="!instance_table.pathToValue">
+                                                {{instance.attrs | dynamicPipe:instance_table.pipe}}
+                                            </ng-container>
+                                        </ng-container>
                                         <ng-container *ngSwitchCase="'value'">
                                             <ng-container *ngIf="!instance_table.hook">
                                                 {{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}
@@ -362,7 +350,7 @@
                          [ngStyle]="{width: mwl_table.calculatedWidth}"
                          [ngSwitch]="mwl_table.type"
                          (mouseenter)="active_td = mwl_table.elementId"
-                         tooltip="{{ mwl_table.type === 'value' ? _.get(mwl.attrs, mwl_table.pathToValue) : (mwl_table.type === 'pipe' ? (mwl.attrs | dynamicPipe:mwl_table.pipe):'')}}"
+                         tooltip="{{getTooltip(mwl, mwl_table)}}"
                     >
                         <ng-container *ngSwitchCase="'index'">{{mwl.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
@@ -388,7 +376,14 @@
                                 </ng-container>
                             </mat-menu>
                         </ng-container>
-                        <ng-container *ngSwitchCase="'pipe'">{{mwl.attrs | dynamicPipe:mwl_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">
+                            <ng-container *ngIf="mwl_table.pathToValue">
+                                {{_.get(mwl.attrs,mwl_table.pathToValue) | dynamicPipe:mwl_table.pipe}}
+                            </ng-container>
+                            <ng-container *ngIf="!mwl_table.pathToValue">
+                                {{mwl.attrs | dynamicPipe:mwl_table.pipe}}
+                            </ng-container>
+                        </ng-container>
                         <ng-container *ngSwitchCase="'value'">{{_.get(mwl.attrs, mwl_table.pathToValue) || '&nbsp;'}}</ng-container>
                     </div>
                     <attribute-list *ngIf="mwl.showAttributes" [attrs]="mwl.attrs"></attribute-list>
@@ -406,7 +401,7 @@
                          [ngStyle]="{width: uwl_table.calculatedWidth}"
                          [ngSwitch]="uwl_table.type"
                          (mouseenter)="active_td = uwl_table.elementId"
-                         tooltip="{{ uwl_table.type === 'value' ? _.get(uwl.attrs, uwl_table.pathToValue) : (uwl_table.type === 'pipe' ? (uwl.attrs | dynamicPipe:uwl_table.pipe):'')}}"
+                         tooltip="{{getTooltip(uwl, uwl_table)}}"
                     >
                         <ng-container *ngSwitchCase="'index'">{{uwl.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
@@ -432,7 +427,14 @@
                                 </ng-container>
                             </mat-menu>
                         </ng-container>
-                        <ng-container *ngSwitchCase="'pipe'">{{uwl.attrs | dynamicPipe:uwl_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">
+                            <ng-container *ngIf="uwl_table.pathToValue">
+                                {{_.get(uwl.attrs,uwl_table.pathToValue) | dynamicPipe:uwl_table.pipe}}
+                            </ng-container>
+                            <ng-container *ngIf="!uwl_table.pathToValue">
+                                {{uwl.attrs | dynamicPipe:uwl_table.pipe}}
+                            </ng-container>
+                        </ng-container>
                         <ng-container *ngSwitchCase="'value'">{{_.get(uwl.attrs, uwl_table.pathToValue) || '&nbsp;'}}</ng-container>
                     </div>
                     <attribute-list *ngIf="uwl.showAttributes" [attrs]="uwl.attrs"></attribute-list>
@@ -450,10 +452,7 @@
                          [ngStyle]="{width: mpps_table.calculatedWidth}"
                          [ngSwitch]="mpps_table.type"
                          (mouseenter)="active_td = mpps_table.elementId"
-                         tooltip="{{ mpps_table.type === 'value'
-                                        ? _.get(mpps.attrs, mpps_table.pathToValue)
-                                        : (mpps_table.type === 'pipe'
-                                            ? (mpps.attrs | dynamicPipe:mpps_table.pipe):'')}}"
+                         tooltip="{{getTooltip(mpps, mpps_table)}}"
                     >
                         <ng-container *ngSwitchCase="'index'">{{mpps.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
@@ -475,7 +474,14 @@
                                 </ng-container>
                             </mat-menu>
                         </ng-container>
-                        <ng-container *ngSwitchCase="'pipe'">{{mpps.attrs | dynamicPipe:mpps_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">
+                            <ng-container *ngIf="mpps_table.pathToValue">
+                                {{_.get(mpps.attrs,mpps_table.pathToValue) | dynamicPipe:mpps_table.pipe}}
+                            </ng-container>
+                            <ng-container *ngIf="!mpps_table.pathToValue">
+                                {{mpps.attrs | dynamicPipe:mpps_table.pipe}}
+                            </ng-container>
+                        </ng-container>
                         <ng-container *ngSwitchCase="'value'">{{_.get(mpps.attrs, mpps_table.pathToValue) || '&nbsp;'}}</ng-container>
                     </div>
                     <attribute-list *ngIf="mpps.showAttributes" [attrs]="mpps.attrs"></attribute-list>
@@ -493,7 +499,7 @@
                          [ngStyle]="{width: diff_table.calculatedWidth}"
                          [ngSwitch]="diff_table.type"
                          (mouseenter)="active_td = diff_table.elementId"
-                         tooltip="{{ diff_table.type === 'value' ? _.get(diff.diffHeaders, diff_table.pathToValue) : (diff_table.type === 'pipe' ? (diff.diffHeaders | dynamicPipe:diff_table.pipe):'')}}"
+                         tooltip="{{getTooltip(diff, diff_table)}}"
                     >
                         <ng-container *ngSwitchCase="'index'">{{diff.offset + 1}}</ng-container>
                         <ng-container *ngSwitchCase="'actions'">
@@ -515,7 +521,14 @@
                                 </ng-container>
                             </mat-menu>
                         </ng-container>
-                        <ng-container *ngSwitchCase="'pipe'">{{diff.diffHeaders | dynamicPipe:diff_table.pipe}}</ng-container>
+                        <ng-container *ngSwitchCase="'pipe'">
+                            <ng-container *ngIf="diff_table.pathToValue">
+                                {{_.get(diff.attrs,diff_table.pathToValue) | dynamicPipe:diff_table.pipe}}
+                            </ng-container>
+                            <ng-container *ngIf="!diff_table.pathToValue">
+                                {{diff.attrs | dynamicPipe:diff_table.pipe}}
+                            </ng-container>
+                        </ng-container>
                         <ng-container *ngSwitchCase="'value'">
                             <ng-container *ngIf="_.get(diff.diffHeaders, diff_table.showBorderPath)">
                                 <span class="red_border">{{_.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;'}}</span>
@@ -582,17 +595,7 @@
                                  [ngStyle]="{width: serie_table.calculatedWidth}"
                                  [ngSwitch]="serie_table.type"
                                  (mouseenter)="active_td = serie_table.elementId"
-                                 tooltip="{{
-                                    serie_table.type === 'value' ?
-                                        (serie_table.hook?
-                                            serie_table.hook(_.get(serie.attrs,serie_table.pathToValue, serie.attrs,serie_table.pathToValue, serie)):
-                                            _.get(serie.attrs,serie_table.pathToValue)
-                                        ):
-                                        (serie_table.type === 'pipe' ?
-                                            (serie.attrs | dynamicPipe:serie_table.pipe):
-                                            ''
-                                        )
-                                }}"
+                                 tooltip="{{getTooltip(serie, serie_table)}}"
                             >
                                 <ng-container *ngSwitchCase="'index'">{{serie.offset + 1}}</ng-container>
                                 <ng-container *ngSwitchCase="'actions'">
@@ -622,7 +625,14 @@
                                         </ng-container>
                                     </mat-menu>
                                 </ng-container>
-                                <ng-container *ngSwitchCase="'pipe'">{{serie.attrs | dynamicPipe:serie_table.pipe}}</ng-container>
+                                <ng-container *ngSwitchCase="'pipe'">
+                                    <ng-container *ngIf="serie_table.pathToValue">
+                                        {{_.get(serie.attrs,serie_table.pathToValue) | dynamicPipe:serie_table.pipe}}
+                                    </ng-container>
+                                    <ng-container *ngIf="!serie_table.pathToValue">
+                                        {{serie.attrs | dynamicPipe:serie_table.pipe}}
+                                    </ng-container>
+                                </ng-container>
                                 <ng-container *ngSwitchCase="'value'">
                                     <ng-container *ngIf="!serie_table.hook">
                                         {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
@@ -645,17 +655,7 @@
                                          [ngStyle]="{width: instance_table.calculatedWidth}"
                                          [ngSwitch]="instance_table.type"
                                          (mouseenter)="active_td = instance_table.elementId"
-                                         tooltip="{{
-                                            instance_table.type === 'value' ?
-                                                (instance_table.hook?
-                                                    instance_table.hook(_.get(instance.attrs,instance_table.pathToValue), instance.attrs, instance_table.pathToValue, instance):
-                                                    _.get(instance.attrs,instance_table.pathToValue)
-                                                ):
-                                                (instance_table.type === 'pipe' ?
-                                                    (instance.attrs | dynamicPipe:instance_table.pipe):
-                                                    ''
-                                                )
-                                        }}"
+                                         tooltip="{{getTooltip(instance, instance_table)}}"
                                     >
                                         <ng-container *ngSwitchCase="'index'">{{instance.offset + 1}}</ng-container>
                                         <!--                                        <ng-container *ngSwitchCase="'selected-checkbox'">
@@ -687,7 +687,14 @@
                                                 </ng-container>
                                             </mat-menu>
                                         </ng-container>
-                                        <ng-container *ngSwitchCase="'pipe'">{{instance.attrs | dynamicPipe:instance_table.pipe}}</ng-container>
+                                        <ng-container *ngSwitchCase="'pipe'">
+                                            <ng-container *ngIf="instance_table.pathToValue">
+                                                {{_.get(instance.attrs,instance_table.pathToValue) | dynamicPipe:instance_table.pipe}}
+                                            </ng-container>
+                                            <ng-container *ngIf="!instance_table.pathToValue">
+                                                {{instance.attrs | dynamicPipe:instance_table.pipe}}
+                                            </ng-container>
+                                        </ng-container>
                                         <ng-container *ngSwitchCase="'value'">
                                             <ng-container *ngIf="!instance_table.hook">
                                                 {{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}
