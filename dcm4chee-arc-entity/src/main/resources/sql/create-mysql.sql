@@ -87,7 +87,7 @@ create index UK_dwp6no1c4624yii6sbo59fedg on patient (pat_custom2(64));
 create index UK_3ioui3yamjf01yny98bliqfgs on patient (pat_custom3(64));
 create index UK_tkyjkkxxhnr0fem7m0h3844jk on patient_id (pat_id(64));
 create index UK_d1sdyupb0vwvx23jownjnyy72 on patient_id (entity_id(64));
-create index UK_m2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid,(64));
+create index UK_m2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid(64), entity_uid_type(64));
 create index UK_gs2yshbwu0gkd33yxyv13keoh on person_name (alphabetic_name(64));
 create index UK_ala4l4egord8i2tjvjidoqd1s on person_name (ideographic_name(64));
 create index UK_9nr8ddkp8enufvbn72esyw3n1 on person_name (phonetic_name(64));

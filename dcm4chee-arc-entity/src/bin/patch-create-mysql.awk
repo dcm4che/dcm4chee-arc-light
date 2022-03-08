@@ -9,6 +9,8 @@ BEGIN { FS = "[ )]" }
             print "create index UK_r3oh859i9osv3aluoc8dcx9wk on location (storage_id(64), status);"
     } else if ($3 == "UK_f7c9hmq8pfypohkgkp5vkbhxp") {
             print "create index UK_f7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id(64), status);"
+    } else if ($3 == "UK_m2jq6xe87vegohf6g10t5ptew") {
+            print "create index UK_m2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid(64), entity_uid_type(64));"
     } else if ($2 == "index" \
             && $6 != "(created_time" \
             && $6 != "(updated_time" \
