@@ -76,7 +76,7 @@ where issuer_fk is not null;
 
 create index UK_tkyjkkxxhnr0fem7m0h3844jk on patient_id (pat_id);
 create index UK_d1sdyupb0vwvx23jownjnyy72 on patient_id (entity_id);
-create index UK_7ng2mv24lewubudyh6c8lnjee on patient_id (entity_uid);
+create index UK_m2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid, entity_uid_type);
 
 create index FK_q26e06qk9gwviwe2ug0f86doa on rel_ups_station_class_code (station_class_code_fk) ;
 create index FK_e1ioaswm010jlsq6kl7y3um1c on rel_ups_station_class_code (ups_fk) ;
@@ -174,14 +174,6 @@ set (admid_entity_id, admid_entity_uid, admid_entity_uid_type) =
 where admid_issuer_fk is not null
   and admid_entity_id is null
   and admid_entity_uid is null;
-
-update patient_id
-set (entity_id, entity_uid, entity_uid_type) =
-        (select issuer.entity_id, issuer.entity_uid, issuer.entity_uid_type
-         from issuer where issuer_fk = issuer.pk)
-where issuer_fk is not null
-  and entity_id is null
-  and entity_uid is null;
 
 update series_req
 set (accno_entity_id, accno_entity_uid, accno_entity_uid_type) =

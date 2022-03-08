@@ -54,7 +54,7 @@ import javax.persistence.*;
         indexes = {
                 @Index(columnList = "pat_id"),
                 @Index(columnList = "entity_id"),
-                @Index(columnList = "entity_uid, entity_uid"),
+                @Index(columnList = "entity_uid, entity_uid_type")
         })
 public class PatientID {
 
