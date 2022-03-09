@@ -3844,47 +3844,68 @@ export class StudyService {
     }
     modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService, msg:string, mode:UPSModifyMode, template?:boolean) {
         let xmlHttpRequest = new XMLHttpRequest();
+        let url;
         return this.getModifyUPSUrl(deviceWebservice)
-            .pipe(switchMap((url:string)=>{
-                if (url) {
-                    if (workitemUID) {
-                        //Change ups;
-                        xmlHttpRequest.open('POST', `${url}/${workitemUID}`, false);
-                        xmlHttpRequest.setRequestHeader("Content-Type","application/dicom+json");
-                        xmlHttpRequest.setRequestHeader("Accept","application/dicom+json");
-                        xmlHttpRequest.send(JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])));
-                        let status = xmlHttpRequest.status;
-                        if (status === 200) {
-                            this.appService.showMsg(msg);
+            .pipe(
+                switchMap((returnedUrl:string)=>{
+                    url = returnedUrl
+                    return this.getTokenService(deviceWebservice);
+                }),
+                map(token=>{
+                    console.log("token1",token);
+                    if(_.hasIn(token,"token")){
+                        return _.get(token,"token");
+                    }
+                    return
+                }),
+                switchMap((token)=>{
+                    console.log("token",token);
+                    if (url) {
+
+                        if (workitemUID) {
+                            //Change ups;
+                            xmlHttpRequest.open('POST', `${url}/${workitemUID}`, false);
+                            if(token){
+                                xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+                            }
+                            xmlHttpRequest.setRequestHeader("Content-Type","application/dicom+json");
+                            xmlHttpRequest.setRequestHeader("Accept","application/dicom+json");
+                            xmlHttpRequest.send(JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])));
+                            let status = xmlHttpRequest.status;
+                            if (status === 200) {
+                                this.appService.showMsg(msg);
+                            } else {
+                                this.appService.showError($localize `:@@ups_workitem_update_failed:UPS workitem update failed with status `
+                                    + status
+                                    + `\n- ` + xmlHttpRequest.getResponseHeader('Warning'));
+                            }
                         } else {
-                            this.appService.showError($localize `:@@ups_workitem_update_failed:UPS workitem update failed with status `
-                                                    + status
-                                                    + `\n- ` + xmlHttpRequest.getResponseHeader('Warning'));
-                        }
-                    } else {
-                        //Create or clone new workitem
-                        xmlHttpRequest.open('POST', url + j4care.objToUrlParams({template:template},true), false);
-                        xmlHttpRequest.setRequestHeader("Content-Type","application/dicom+json");
-                        xmlHttpRequest.setRequestHeader("Accept","application/dicom+json");
-                        xmlHttpRequest.send(JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])));
-                        let status = xmlHttpRequest.status;
-                        if (status === 201) {
-                            this.appService.showMsg(msg + xmlHttpRequest.getResponseHeader('Location'));
-                        } else {
-                            let errMsg = template
-                                ? mode === "create"
-                                    ? $localize `:@@ups_template_creation_failed:UPS template creation failed with status `
-                                    : $localize `:@@ups_template_cloning_failed:UPS template cloning failed with status `
-                                : mode === "create"
-                                    ? $localize `:@@ups_workitem_creation_failed:UPS workitem creation failed with status `
-                                    : $localize `:@@ups_workitem_cloning_failed:UPS workitem cloning failed with status `;
-                            this.appService.showError(errMsg + status
-                                                      + `<br>\n` + `- ` + xmlHttpRequest.getResponseHeader('Warning'));
+                            //Create or clone new workitem
+                            xmlHttpRequest.open('POST', url + j4care.objToUrlParams({template:template},true), false);
+                            if(token){
+                                xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+                            }
+                            xmlHttpRequest.setRequestHeader("Content-Type","application/dicom+json");
+                            xmlHttpRequest.setRequestHeader("Accept","application/dicom+json");
+                            xmlHttpRequest.send(JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])));
+                            let status = xmlHttpRequest.status;
+                            if (status === 201) {
+                                this.appService.showMsg(msg + xmlHttpRequest.getResponseHeader('Location'));
+                            } else {
+                                let errMsg = template
+                                    ? mode === "create"
+                                        ? $localize `:@@ups_template_creation_failed:UPS template creation failed with status `
+                                        : $localize `:@@ups_template_cloning_failed:UPS template cloning failed with status `
+                                    : mode === "create"
+                                        ? $localize `:@@ups_workitem_creation_failed:UPS workitem creation failed with status `
+                                        : $localize `:@@ups_workitem_cloning_failed:UPS workitem cloning failed with status `;
+                                this.appService.showError(errMsg + status
+                                    + `<br>\n` + `- ` + xmlHttpRequest.getResponseHeader('Warning'));
+                            }
                         }
                     }
-                }
-                return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
-            }))
+                    return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
+                }))
     }
 
     getModifyUPSUrl(deviceWebService: StudyWebService) {
