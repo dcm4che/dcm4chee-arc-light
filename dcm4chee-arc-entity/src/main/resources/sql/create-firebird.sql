@@ -14,7 +14,7 @@ create table patient (pk numeric(18,0) not null, created_time timestamp not null
 create table patient_demographics (pat_id varchar(255) not null, pat_birthdate varchar(255), pat_name varchar(255), pat_sex varchar(255), primary key (pat_id));
 create table patient_id (pk numeric(18,0) not null, pat_id varchar(255) not null, pat_id_type_code varchar(255), entity_id varchar(255), entity_uid varchar(255), entity_uid_type varchar(255), version numeric(18,0), primary key (pk));
 create table person_name (pk numeric(18,0) not null, alphabetic_name varchar(255) not null, ideographic_name varchar(255) not null, phonetic_name varchar(255) not null, primary key (pk));
-create table rejected_instance (pk numeric(18,0) not null, created_time timestamp not null, series_iuid varchar(255) not null, sop_cuid varchar(255) not null, sop_iuid varchar(255) not null, study_iuid varchar(255) not null, reject_code_fk numeric(18,0), primary key (pk));
+create table rejected_instance (pk numeric(18,0) not null, created_time timestamp not null, series_iuid varchar(64) not null, sop_cuid varchar(64) not null, sop_iuid varchar(64) not null, study_iuid varchar(64) not null, reject_code_fk numeric(18,0), primary key (pk));
 create table rel_study_pcode (study_fk numeric(18,0) not null, pcode_fk numeric(18,0) not null);
 create table rel_task_dicomattrs (task_fk numeric(18,0) not null, dicomattrs_fk numeric(18,0) not null);
 create table rel_ups_perf_code (ups_fk numeric(18,0) not null, perf_code_fk numeric(18,0) not null);
