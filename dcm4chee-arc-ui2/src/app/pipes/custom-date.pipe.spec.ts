@@ -30,5 +30,17 @@ describe('CustomDatePipe', () => {
             timeFormat:"HH:mm:ss",
             dateTimeFormat:"yyyy-MM-dd HH:mm"
         })).toBe("09:52:37");
+
+        expect(pipe.transform("20220309130523",{
+            dateFormat:"yyyy-MM-dd",
+            timeFormat:"HH:mm:ss",
+            dateTimeFormat:"yyyy-MM-dd HH:mm"
+        })).toBe("2022-03-09 13:05");
+
+        expect(pipe.transform("20220309050602.308",{
+            dateFormat:"yyyy-MM-dd",
+            timeFormat:"HH:mm:ss",
+            dateTimeFormat:"yyyy-MM-dd HH:mm"
+        })).toBe("2022-03-09 05:06");
     })
 });
