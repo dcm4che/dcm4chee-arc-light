@@ -203,6 +203,28 @@ export class j4care {
             return array;
         }
     }
+
+    static filtersExists(filters:any, keys:string[], mode?:("or"|"and")){
+        try{
+            mode = mode || "or";
+            let allExist = true;
+            let elementsFound = 0;
+            keys.forEach(key=>{
+                allExist = allExist && Object.keys(filters).indexOf(key) > -1;
+                if(Object.keys(filters).indexOf(key) > -1){
+                    elementsFound++;
+
+                }
+            });
+            if(mode === "and"){
+                return allExist;
+            }else{
+                return elementsFound > 0;
+            }
+        }catch (e){
+            return false;
+        }
+    }
     static arrayHasIn(arr:any[], path:string, value?:any){
         let check:boolean = false;
         arr.forEach(el=>{
@@ -455,8 +477,8 @@ export class j4care {
     }
 
     static extractDateTimeFromString(str):RangeObject{
-        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}|\d{6}.\d{1,3}$/m;
-        const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)|(\d{2})(\d{2})(\d{2}).(\d{1,3})/g;
+        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}$|^\d{14}.\d{1,3}|^\d{6}.\d{1,3}$/m;
+        const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)|(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}).(\d{1,3})|(\d{2})(\d{2})(\d{2}).(\d{1,3})/g;
         let matchString = checkRegex.exec(str);
         let match;
         let resultArray = [];

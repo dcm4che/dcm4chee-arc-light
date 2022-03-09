@@ -8,10 +8,10 @@
             <ng-container *ngIf="row.el.vr === 'PN' && _.hasIn(row,'el.Value.0')">
                 {{row.el.Value[0]  | personName:personNameFormat}}
             </ng-container>
-            <ng-container *ngIf="(row.el.vr === 'DA' || row.el.vr === 'TM') && _.hasIn(row,'el.Value.0')">
+            <ng-container *ngIf="(row.el.vr === 'DA' || row.el.vr === 'TM' || row.el.vr === 'DT') && _.hasIn(row,'el.Value.0')">
                 {{row.el.Value[0]  | customDate:customDateTimeFormat}}
             </ng-container>
-            <ng-container *ngIf="!(row.el.vr === 'DA' || row.el.vr === 'TM' || row.el.vr === 'PN') && row.el">
+            <ng-container *ngIf="!(row.el.vr === 'DA' || row.el.vr === 'TM' || row.el.vr === 'PN'  || row.el.vr === 'DT') && row.el">
                 {{row.el | formatAttributeValue}}
             </ng-container>
         </td>

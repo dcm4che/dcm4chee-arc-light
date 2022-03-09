@@ -223,7 +223,16 @@ describe('j4care', () => {
             Seconds: "38",
             dateObject: getTodayDateFromTime(9,52,38)
         });
-        console.log("test=",j4care.extractDateTimeFromString("19000100"));
+        expect(j4care.extractDateTimeFromString("20220309050602.308").firstDateTime).toEqual({
+            FullYear: "2022",
+            Month: "03",
+            Date: "09",
+            Hours: "05",
+            Minutes: "06",
+            Seconds: "02",
+            dateObject: new Date("2022-03-09 05:06:02")
+        });
+        console.log("test=",j4care.extractDateTimeFromString("20220309050602.308"));
     });
 
     it("Check if value is set",()=>{
