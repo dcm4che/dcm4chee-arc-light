@@ -446,7 +446,7 @@ public class AuditService {
                 Files.move(file, file.resolveSibling(file.getFileName().toString() + ".failed"));
             } catch (IOException e1) {
                 LOG.warn("Failed to mark [AuditSpoolFile={}] of [AuditLogger={}] as failed.\n",
-                        file, auditLogger.getCommonName(), e);
+                        file, auditLogger.getCommonName(), e1);
             }
         }
     }
