@@ -2504,19 +2504,23 @@ export class StudyService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.pps_start_date:PPS Start Date`,
-                    pathToValue: "00400244.Value[0]",
+                    pathToValue: "[00400244].Value[0]",
+                    showBorderPath:"[00400244].showBorder",
                     headerDescription: $localize `:@@study.performed_procedure_step_start_date:Performed Procedure Step Start Date`,
-                    widthWeight: 0.9,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
+                    widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@study.pps_start_time:PPS Start Time`,
-                    pathToValue: "00400245.Value[0]",
+                    pathToValue: "[00400245].Value[0]",
+                    showBorderPath:"[00400245].showBorder",
                     headerDescription: $localize `:@@study.performed_procedure_step_start_time:Performed Procedure Step Start Time`,
-                    widthWeight: 0.9,
+                    pipe: new DynamicPipe(CustomDatePipe, [options.configuredDateTimeFormats]),
+                    widthWeight: 0.6,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
