@@ -16,10 +16,18 @@ export interface J4careDateTime {
 }
 export type J4careDateTimeMode = "range" | "leftOpen" | "rightOpen" | "single";
 
+export type DateTimeFormatMode = "dateFormat" | "timeFormat" | "dateTimeFormat";
+
 export interface RangeObject {
     firstDateTime:J4careDateTime;
     secondDateTime:J4careDateTime;
     mode:J4careDateTimeMode;
+}
+
+export interface ConfiguredDateTameFormatObject{
+    dateFormat:string;
+    timeFormat:string;
+    dateTimeFormat:string;
 }
 
 export type StatisticsPage = "simple"|"detailed"
@@ -351,8 +359,17 @@ export interface StudyTagConfig {
     title:string;
     takeActionsOver?:string[]; //Array of the permissions id strings, if empty no actions button will be taken over
     addActions?:AddActions;
+    searchPatientAfterNoMwl?:boolean;
+    tableMode?:StudyTab;
 }
 type AddActions = {
     addPath:string,
     addFunction:(actions:Function, $this:any, currentActions:TableAction[]) => TableAction[]
 };
+
+export interface CreateDialogTemplate{
+    dcmTag: string[];
+    dcmuiDialog: string;
+    dicomDescription: string;
+    dcmuiTemplateName: string;
+}

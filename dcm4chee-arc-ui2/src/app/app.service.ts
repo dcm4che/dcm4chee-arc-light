@@ -4,7 +4,6 @@ import {User} from './models/user';
 import * as _ from 'lodash-es';
 import {WindowRefService} from "./helpers/window-ref.service";
 import {DatePipe} from "@angular/common";
-import {J4careHttpService} from "./helpers/j4care-http.service";
 import {HttpClient} from "@angular/common/http";
 import {j4care} from "./helpers/j4care.service";
 import {DcmWebApp} from "./models/dcm-web-app";
@@ -12,7 +11,7 @@ import {Router} from "@angular/router";
 import {Error} from "tslint/lib/error";
 import {first, map, switchMap} from "rxjs/operators";
 import { loadTranslations } from '@angular/localize';
-import {TimeRange} from "./interfaces";
+import {ConfiguredDateTameFormatObject, DateTimeFormatMode, TimeRange} from "./interfaces";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
@@ -23,7 +22,6 @@ export class AppService implements OnInit, OnDestroy{
     private serverTimeSubject = new Subject<Date>();
     private securedValue:boolean;
     private _global;
-
     private _baseUrl:string = '../';
     extensionsMap;
     subscription: Subscription;
@@ -201,7 +199,7 @@ export class AppService implements OnInit, OnDestroy{
         let detail = '';
         let successful = _.hasIn(res, "updated") ? _.get(res, "updated") : '';
         let failures = _.hasIn(res, "failures") ? _.get(res, "failures") : '';
-        if (successful != '' || successful == 0) 
+        if (successful != '' || successful == 0)
             detail = detail + `updated: ` + successful + `<br>\n`;
         if (failures  != '') {
             detail = detail + `failures: ` + `<br>\n`;
@@ -310,12 +308,12 @@ export class AppService implements OnInit, OnDestroy{
         try{
             let filterMapped = Object.keys(filter).map((key) => {
                 if(_.isArray(filter[key])){
-                        let multiParameter = [];
-                        filter[key].forEach(p=>{
-                            multiParameter.push(`${key}=${p}`);
-                        });
-                        return multiParameter.join("&");
-                        // return key + "[]=" + filter[key].join(",");
+                    let multiParameter = [];
+                    filter[key].forEach(p=>{
+                        multiParameter.push(`${key}=${p}`);
+                    });
+                    return multiParameter.join("&");
+                    // return key + "[]=" + filter[key].join(",");
                 }else{
                     if (filter[key] || filter[key] === false || filter[key] === 0){
                         return key + '=' + filter[key];
@@ -329,6 +327,7 @@ export class AppService implements OnInit, OnDestroy{
             return "";
         }
     }
+
 
     getUniqueID(){
         let newDate = new Date(this._serverTime);
@@ -410,7 +409,7 @@ export class AppService implements OnInit, OnDestroy{
                             this.showError($localize `:@@permission_not_found:Permission not found!`);
                         }
                         return res;
-                }));
+                    }));
         }
     }
     getKeycloakJson(){
@@ -457,6 +456,24 @@ export class AppService implements OnInit, OnDestroy{
         }
     }
 
+    formatBasedOnConfig(date:Date, mode:DateTimeFormatMode):string{
+        try{
+            let dateTimeFormat:ConfiguredDateTameFormatObject;
+            if(_.hasIn(this.global,"dateTimeFormat")){
+                dateTimeFormat = _.get(this.global, "dateTimeFormat");
+            }else{
+                dateTimeFormat = {
+                    timeFormat: "HH:mm",
+                    dateFormat: "dd.MM.yyyy",
+                    dateTimeFormat: "dd.MM.yyyy HH:mm"
+                }
+            }
+            return j4care.formatDate(date, dateTimeFormat[mode]);
+        }catch (e){
+            j4care.log("Error on formatting date based on config",e);
+            return "";
+        }
+    }
 
     testUrl(url){
 

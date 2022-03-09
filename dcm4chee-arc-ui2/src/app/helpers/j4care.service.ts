@@ -8,6 +8,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dial
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {
+    ConfiguredDateTameFormatObject,
     J4careDateTime,
     J4careDateTimeMode, LanguageConfig,
     LanguageProfile,
@@ -391,9 +392,71 @@ export class j4care {
         else
             return '00';
     }
-    static extractDateTimeFromString(str):{mode:J4careDateTimeMode,firstDateTime:J4careDateTime,secondDateTime:J4careDateTime}{
-        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}$/m;
-        const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)/g;
+
+    /*
+   * Input:
+   * uiConfigFormat:string - The configured Format string from the UI Config that should contain DATE=[date format], TIME=[time format], and Optional DATE-TIME=[date time format] if DATE-TIME is missing it will be a combination of both other parameters
+   *
+   * Output:
+   * date time formats as string extracted from the single input string
+   *
+   * Example:
+   * input: "DATE=yyyy-MM-dd, TIME=HH:mm,DATE-TIME=yyyy-MM-dd HH:mm"
+   * Output:{
+            dateFormat:"yyyy-MM-dd",
+            timeFormat:"HH:mm",
+            dateTimeFormat:"yyyy-MM-dd HH:mm"
+        }
+        For more examples see the j4care.service.spec.ts file regarding this function
+   * */
+
+    static extractDateTimeFormat(uiConfigFormat:string):ConfiguredDateTameFormatObject{
+        const regex = /(DATE|date|TIME|time|DATE-TIME|date-time|datetime)=([yMdHmsS:\-.\ \/\\]*)/gm;
+        let match;
+        let configuredFormats:ConfiguredDateTameFormatObject = {
+            dateFormat:undefined,
+            timeFormat:undefined,
+            dateTimeFormat:undefined
+        };
+        try{
+            while ((match = regex.exec(uiConfigFormat)) !== null) {
+                if (match.index === regex.lastIndex) {
+                    regex.lastIndex++;
+                }
+                switch (match[1].toUpperCase()){
+                    case "DATE":{
+                        configuredFormats.dateFormat = match[2];
+                        break;
+                    }
+                    case "TIME":{
+                        configuredFormats.timeFormat = match[2];
+                        break;
+                    }
+                    case "DATE-TIME":{
+                        configuredFormats.dateTimeFormat = match[2];
+                        break;
+                    }
+                }
+            }
+            if(configuredFormats.dateFormat && configuredFormats.timeFormat && !configuredFormats.dateTimeFormat){
+                configuredFormats.dateTimeFormat = `${configuredFormats.dateFormat} ${configuredFormats.timeFormat}`;
+            }
+            configuredFormats.dateFormat = configuredFormats.dateFormat || "yyyyMMdd";
+            configuredFormats.timeFormat = configuredFormats.timeFormat || "HH:mm";
+            configuredFormats.dateTimeFormat = configuredFormats.dateTimeFormat || "yyyyMMdd HH:mm";
+            return configuredFormats;
+        }catch (e){
+            return {
+                dateFormat:"yyyyMMdd",
+                timeFormat:"HH:mm",
+                dateTimeFormat:"yyyyMMdd HH:mm"
+            }
+        }
+    }
+
+    static extractDateTimeFromString(str):RangeObject{
+        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}|\d{6}.\d{1,3}$/m;
+        const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)|(\d{2})(\d{2})(\d{2}).(\d{1,3})/g;
         let matchString = checkRegex.exec(str);
         let match;
         let resultArray = [];
@@ -772,6 +835,9 @@ export class j4care {
             return (Math.round((value / 1000 / 1000) * mantissaValue) / mantissaValue ) + ' MB';
         }
     }
+    static millisecondsToHumanReadable(ms){
+        return new Date(ms).toISOString().slice(11, -1);
+    }
     static clearEmptyObject(obj){
         _.forEach(obj,(m,i)=>{
             if((!m || m === "" || m === undefined) && m != 0){
@@ -1031,23 +1097,26 @@ export class j4care {
     * */
     static formatDate(date:Date, format:string, appendTimezoneOffset?:boolean):string{
         try{
-            format = format || 'yyyyMMdd';
-            return format.replace(/(yyyy)|(MM)|(dd)|(HH)|(mm)|(ss)|(SSS)/g,(g1, g2, g3, g4, g5, g6, g7, g8)=>{
-                if(g2)
-                    return `${date.getFullYear()}`;
-                if(g3)
-                    return this.setZeroPrefix(`${date.getMonth() + 1}`);
-                if(g4)
-                    return this.setZeroPrefix(`${date.getDate()}`);
-                if(g5)
-                    return this.setZeroPrefix(`${date.getHours()}`);
-                if(g6)
-                    return this.setZeroPrefix(`${date.getMinutes()}`);
-                if(g7)
-                    return this.setZeroPrefix(`${date.getSeconds()}`);
-                if(g8)
-                    return `${date.getMilliseconds()}`;
-            }) + (appendTimezoneOffset ? j4care.getTimezoneOffset(date) : '');
+            if(date && date.getFullYear()){
+                format = format || 'yyyyMMdd';
+                return format.replace(/(yyyy)|(MM)|(dd)|(HH)|(mm)|(ss)|(SSS)/g,(g1, g2, g3, g4, g5, g6, g7, g8)=>{
+                    if(g2)
+                        return `${date.getFullYear()}`;
+                    if(g3)
+                        return this.setZeroPrefix(`${date.getMonth() + 1}`);
+                    if(g4)
+                        return this.setZeroPrefix(`${date.getDate()}`);
+                    if(g5)
+                        return this.setZeroPrefix(`${date.getHours()}`);
+                    if(g6)
+                        return this.setZeroPrefix(`${date.getMinutes()}`);
+                    if(g7)
+                        return this.setZeroPrefix(`${date.getSeconds()}`);
+                    if(g8)
+                        return `${date.getMilliseconds()}`;
+                }) + (appendTimezoneOffset ? j4care.getTimezoneOffset(date) : '');
+            }
+            return "";
         }catch (e) {
             this.log(`Error on formatting date, date=${date}, format=${format}`,e);
             return "";
@@ -1503,12 +1572,31 @@ export class j4care {
         }
     }
 
+    static arrayIsNotEmpty(array, path?:string){
+        try{
+            return _.isArray(array) && array.length > 0;
+        }catch (e){
+            return false;
+        }
+    }
+
     static addLastSlash(url){
         if(_.last(url) != "/"){
             return `${url}/`;
         }else{
             return url;
         }
+    }
+
+
+    static MAP_STATUS_INDEX_TO_STRING(index:number):string{
+        return [
+            $localize `:@@NEW:NEW`,
+            $localize `:@@IN_PROGRESS:IN PROGRESS`,
+            $localize `:@@COMPLETED:COMPLETED`,
+            $localize `:@@WARNING:WARNING`,
+            $localize `:@@ERROR:ERROR`,
+        ][index];
     }
 
     blobToUrl(blob:Blob):Observable<SafeUrl>{
@@ -1543,7 +1631,7 @@ export class j4care {
         }
     }
 
-    static isFilesArray(files:File[]){
+    static isFilesArray(files:(File[]|any)):boolean{
         try{
             return (files instanceof Array) && files.length > 0 && (files[0] instanceof File);
         }catch(e){
