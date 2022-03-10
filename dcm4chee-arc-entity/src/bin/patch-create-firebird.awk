@@ -10,6 +10,8 @@ BEGIN { FS = "[ )]" }
             print "create table mwl_item (pk numeric(18,0) not null, accession_no varchar(16) not null, accno_entity_id varchar(64), accno_entity_uid varchar(64), accno_entity_uid_type varchar(64), admission_id varchar(64) not null, admid_entity_id varchar(64), admid_entity_uid varchar(64), admid_entity_uid_type varchar(16), created_time timestamp not null, institution varchar(64) not null, department varchar(64) not null, local_aet varchar(16) not null, modality varchar(16) not null, req_proc_id varchar(16) not null, sps_id varchar(16) not null, sps_start_date varchar(16) not null, sps_start_time varchar(16) not null, sps_status integer not null, study_iuid varchar(64) not null, updated_time timestamp not null, version numeric(18,0), dicomattrs_fk numeric(18,0) not null, inst_code_fk numeric(18,0), dept_code_fk numeric(18,0), patient_fk numeric(18,0) not null, perf_phys_name_fk numeric(18,0), primary key (pk));"
         } else if ($3 == "rejected_instance") {
             print "create table rejected_instance (pk numeric(18,0) not null, created_time timestamp not null, series_iuid varchar(64) not null, sop_cuid varchar(64) not null, sop_iuid varchar(64) not null, study_iuid varchar(64) not null, reject_code_fk numeric(18,0), primary key (pk));"
+        } else if ($3 == "patient_id") {
+            print "create table patient_id (pk numeric(18,0) not null, pat_id varchar(64) not null, pat_id_type_code varchar(64), entity_id varchar(64), entity_uid varchar(64), entity_uid_type varchar(64), version numeric(18,0), primary key (pk));"
         } else {
             print $0
         }
