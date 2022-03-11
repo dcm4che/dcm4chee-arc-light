@@ -21,4 +21,4 @@ create index UK_s1vceb8cu9c45j0q8tbldgol9 on series (stgver_failures);
 create index UK_38mfgfnjhan2yhnwqtcrawe4 on series (compress_time);
 create index UK_889438ocqfrvybu3k2eo65lpa on series (compress_failures);
 
-create sequence stgver_task_pk_seq;
+create generator stgver_task_pk_seq;
