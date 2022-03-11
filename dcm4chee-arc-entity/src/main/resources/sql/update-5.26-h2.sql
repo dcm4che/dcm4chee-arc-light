@@ -1,48 +1,68 @@
 -- can be applied on archive running archive 5.25
 alter table mpps
-    add accno_entity_id       varchar(255),
-    add accno_entity_uid      varchar(255),
+    add accno_entity_id       varchar(255);
+alter table mpps
+    add accno_entity_uid      varchar(255);
+alter table mpps
     add accno_entity_uid_type varchar(255);
 
 alter table mwl_item
-    add accno_entity_id       varchar(255),
-    add accno_entity_uid      varchar(255),
-    add accno_entity_uid_type varchar(255),
-    add admid_entity_id       varchar(255),
-    add admid_entity_uid      varchar(255),
+    add accno_entity_id       varchar(255);
+alter table mwl_item
+    add accno_entity_uid      varchar(255);
+alter table mwl_item
+    add accno_entity_uid_type varchar(255);
+alter table mwl_item
+    add admid_entity_id       varchar(255);
+alter table mwl_item
+    add admid_entity_uid      varchar(255);
+alter table mwl_item
     add admid_entity_uid_type varchar(255);
 
 alter table patient_id
-    add entity_id       varchar(255),
-    add entity_uid      varchar(255),
-    add entity_uid_type varchar(255);
+    add entity_id       varchar(64);
+alter table patient_id
+    add entity_uid      varchar(64);
+alter table patient_id
+    add entity_uid_type varchar(64);
 
 alter table series_req
-    add accno_entity_id       varchar(255),
-    add accno_entity_uid      varchar(255),
+    add accno_entity_id       varchar(255);
+alter table series_req
+    add accno_entity_uid      varchar(255);
+alter table series_req
     add accno_entity_uid_type varchar(255);
 
 alter table study
-    add accno_entity_id       varchar(255),
-    add accno_entity_uid      varchar(255),
-    add accno_entity_uid_type varchar(255),
-    add admid_entity_id       varchar(255),
-    add admid_entity_uid      varchar(255),
+    add accno_entity_id       varchar(255);
+alter table study
+    add accno_entity_uid      varchar(255);
+alter table study
+    add accno_entity_uid_type varchar(255);
+alter table study
+    add admid_entity_id       varchar(255);
+alter table study
+    add admid_entity_uid      varchar(255);
+alter table study
     add admid_entity_uid_type varchar(255);
 
 alter table ups
-    add admid_entity_id       varchar(255),
-    add admid_entity_uid      varchar(255),
+    add admid_entity_id       varchar(255);
+alter table ups
+    add admid_entity_uid      varchar(255);
+alter table ups
     add admid_entity_uid_type varchar(255);
 
 alter table ups_req
-    add accno_entity_id       varchar(255),
-    add accno_entity_uid      varchar(255),
+    add accno_entity_id       varchar(255);
+alter table ups_req
+    add accno_entity_uid      varchar(255);
+alter table ups_req
     add accno_entity_uid_type varchar(255);
 
-create table rel_ups_station_class_code (ups_fk int8 not null, station_class_code_fk int8 not null);
-create table rel_ups_station_location_code (ups_fk int8 not null, station_location_code_fk int8 not null);
-create table rel_ups_station_name_code (ups_fk int8 not null, station_name_code_fk int8 not null);
+create table rel_ups_station_class_code (ups_fk bigint not null, station_class_code_fk bigint not null);
+create table rel_ups_station_location_code (ups_fk bigint not null, station_location_code_fk bigint not null);
+create table rel_ups_station_name_code (ups_fk bigint not null, station_name_code_fk bigint not null);
 
 alter table rel_ups_station_class_code
     add constraint FK_q26e06qk9gwviwe2ug0f86doa foreign key (station_class_code_fk) references code;
@@ -60,7 +80,7 @@ alter table rel_ups_station_name_code
     add constraint FK_8jf5xe8ot2yammv3ksd5xrgif foreign key (ups_fk) references ups;
 
 alter table hl7psu_task
-    add pps_status int4;
+    add pps_status integer;
 alter table hl7psu_task
     drop constraint UK_p5fraoqdbaywmlyumaeo16t56;
 alter table hl7psu_task
@@ -215,30 +235,36 @@ where accno_issuer_fk is not null
 
 -- part 3: can be applied on already running archive 5.25
 alter table mpps
-    drop accno_issuer_fk;
+    drop column accno_issuer_fk;
 
 alter table mwl_item
-    drop accno_issuer_fk,
-    drop admid_issuer_fk;
+    drop column accno_issuer_fk;
+alter table mwl_item
+    drop column admid_issuer_fk;
 
 alter table patient_id
-    drop issuer_fk;
+    drop constraint UK_31gvi9falc03xs94m8l3pgoid;
+alter table patient_id
+    drop column issuer_fk;
 
 alter table series_req
-    drop accno_issuer_fk;
+    drop column accno_issuer_fk;
 
 alter table study
-    drop accno_issuer_fk,
-    drop admid_issuer_fk;
+    drop column accno_issuer_fk;
+alter table study
+    drop column admid_issuer_fk;
 
 alter table ups
-    drop admission_issuer_fk,
-    drop station_name_fk,
-    drop station_class_fk,
-    drop station_location_fk;
+    drop column admission_issuer_fk;
+alter table ups
+    drop column station_name_fk;
+alter table ups
+    drop column station_class_fk;
+alter table ups
+    drop column station_location_fk;
 
 alter table ups_req
-    drop accno_issuer_fk;
+    drop column accno_issuer_fk;
 
 drop table issuer;
-drop sequence issuer_pk_seq;
