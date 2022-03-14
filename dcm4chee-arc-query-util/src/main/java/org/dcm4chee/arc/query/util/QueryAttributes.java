@@ -196,6 +196,22 @@ public class QueryAttributes {
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
+                case "SendingHL7ApplicationOfSeries":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingHL7ApplicationOfSeries, VR.LO,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
+                case "SendingHL7FacilityOfSeries":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingHL7FacilityOfSeries, VR.LO,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
+                case "ReceivingHL7ApplicationOfSeries":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7ApplicationOfSeries, VR.LO,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
+                case "ReceivingHL7FacilityOfSeries":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7FacilityOfSeries, VR.LO,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
                 case "StudyReceiveDateTime":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));

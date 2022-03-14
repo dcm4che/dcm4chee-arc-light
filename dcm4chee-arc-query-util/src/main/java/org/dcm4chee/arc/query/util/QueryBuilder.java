@@ -801,6 +801,18 @@ public class QueryBuilder {
         anyOf(predicates, series.get(Series_.receivingPresentationAddress),
                 keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR),
                 false);
+        anyOf(predicates, series.get(Series_.sendingHL7Application),
+                keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.SendingHL7ApplicationOfSeries, VR.LO),
+                false);
+        anyOf(predicates, series.get(Series_.sendingHL7Facility),
+                keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.SendingHL7FacilityOfSeries, VR.LO),
+                false);
+        anyOf(predicates, series.get(Series_.receivingHL7Application),
+                keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7ApplicationOfSeries, VR.LO),
+                false);
+        anyOf(predicates, series.get(Series_.receivingHL7Facility),
+                keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7FacilityOfSeries, VR.LO),
+                false);
         if (queryParam.getExpirationDate() != null)
             dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
         return predicates;
@@ -1273,6 +1285,18 @@ public class QueryBuilder {
                     false);
             anyOf(y, series.get(Series_.receivingPresentationAddress),
                     keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR),
+                    false);
+            anyOf(predicates, series.get(Series_.sendingHL7Application),
+                    keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.SendingHL7ApplicationOfSeries, VR.LO),
+                    false);
+            anyOf(predicates, series.get(Series_.sendingHL7Facility),
+                    keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.SendingHL7FacilityOfSeries, VR.LO),
+                    false);
+            anyOf(predicates, series.get(Series_.receivingHL7Application),
+                    keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7ApplicationOfSeries, VR.LO),
+                    false);
+            anyOf(predicates, series.get(Series_.receivingHL7Facility),
+                    keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7FacilityOfSeries, VR.LO),
                     false);
             if (queryParam.isStorageVerificationFailed())
                 y.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
