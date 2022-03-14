@@ -1,4 +1,10 @@
 -- can be applied on archive running archive 5.25
+alter table series
+    add receiving_hl7_app varchar(255),
+    add receiving_hl7_facility varchar(255),
+    add sending_hl7_app varchar(255),
+    add sending_hl7_facility varchar(255);
+
 alter table mpps
     add accno_entity_id       varchar(255),
     add accno_entity_uid      varchar(255),
@@ -61,8 +67,10 @@ alter table rel_ups_station_name_code
 
 alter table hl7psu_task
     add pps_status int4;
+
 alter table hl7psu_task
     drop constraint UK_p5fraoqdbaywmlyumaeo16t56;
+
 alter table hl7psu_task
     add constraint UK_1t3jge4o2fl1byp3y8ljmkb3m  unique (study_iuid, pps_status);
 
@@ -71,6 +79,11 @@ set (entity_id, entity_uid, entity_uid_type) =
         (select issuer.entity_id, issuer.entity_uid, issuer.entity_uid_type
          from issuer where issuer_fk = issuer.pk)
 where issuer_fk is not null;
+
+create index UK_ffpftwfkijejj09tlbxr7u5g8 on series (sending_hl7_app);
+create index UK_1e4aqxc5w1557hr3fb3lqm2qb on series (sending_hl7_facility);
+create index UK_gj0bxgi55bhjic9s3i4dp2aee on series (receiving_hl7_app);
+create index UK_pbay159cdhwbtjvlmel6d6em2 on series (receiving_hl7_facility);
 
 create index UK_tkyjkkxxhnr0fem7m0h3844jk on patient_id (pat_id);
 create index UK_d1sdyupb0vwvx23jownjnyy72 on patient_id (entity_id);

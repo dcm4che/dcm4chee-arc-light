@@ -123,6 +123,10 @@ class SeriesQuery extends AbstractQuery {
                 series.get(Series_.receivingAET),
                 series.get(Series_.sendingPresentationAddress),
                 series.get(Series_.receivingPresentationAddress),
+                series.get(Series_.sendingHL7Application),
+                series.get(Series_.sendingHL7Facility),
+                series.get(Series_.receivingHL7Application),
+                series.get(Series_.receivingHL7Facility),
                 series.get(Series_.externalRetrieveAET),
                 series.get(Series_.metadataScheduledUpdateTime),
                 series.get(Series_.metadataUpdateFailures),
@@ -256,6 +260,14 @@ class SeriesQuery extends AbstractQuery {
                 results.get(series.get(Series_.sendingPresentationAddress)));
         setStringNotNull(attrs, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR,
                 results.get(series.get(Series_.receivingPresentationAddress)));
+        setStringNotNull(attrs, PrivateTag.SendingHL7ApplicationOfSeries, VR.LO,
+                results.get(series.get(Series_.sendingHL7Application)));
+        setStringNotNull(attrs, PrivateTag.SendingHL7FacilityOfSeries, VR.LO,
+                results.get(series.get(Series_.sendingHL7Facility)));
+        setStringNotNull(attrs, PrivateTag.ReceivingHL7ApplicationOfSeries, VR.LO,
+                results.get(series.get(Series_.receivingHL7Application)));
+        setStringNotNull(attrs, PrivateTag.ReceivingHL7FacilityOfSeries, VR.LO,
+                results.get(series.get(Series_.receivingHL7Facility)));
         if (results.get(series.get(Series_.metadataScheduledUpdateTime))!= null)
             setDTwTZ(attrs, PrivateTag.ScheduledMetadataUpdateDateTimeOfSeries,
                     results.get(series.get(Series_.metadataScheduledUpdateTime)));

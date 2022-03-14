@@ -146,7 +146,6 @@ class StoreSessionImpl implements StoreSession {
 
     public void setMsg(UnparsedHL7Message msg) {
         this.msg = msg;
-        this.callingAET = msg.msh().getSendingApplicationWithFacility();
     }
 
     void setAssociation(Association as) {

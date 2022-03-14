@@ -42,10 +42,12 @@ package org.dcm4chee.arc.store.impl;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.PrivateTag;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.AttributesFormat;
@@ -1540,6 +1542,14 @@ public class StoreServiceEJB {
         series.setReceivingAET(session.getCalledAET());
         series.setSendingPresentationAddress(session.getSendingPresentationAddress());
         series.setReceivingPresentationAddress(session.getReceivingPresentationAddress());
+        UnparsedHL7Message hl7msg = session.getUnparsedHL7Message();
+        if (hl7msg != null) {
+            HL7Segment msh = hl7msg.msh();
+            series.setSendingHL7Application(msh.getField(2, null));
+            series.setSendingHL7Facility(msh.getField(3, null));
+            series.setReceivingHL7Application(msh.getField(4, null));
+            series.setReceivingHL7Facility(msh.getField(5, null));
+        }
     }
 
     private Instance createInstance(StoreSession session, Series series, CodeEntity conceptNameCode, Attributes attrs,

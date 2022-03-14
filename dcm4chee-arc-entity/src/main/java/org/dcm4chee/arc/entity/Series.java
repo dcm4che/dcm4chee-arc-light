@@ -296,6 +296,10 @@ import java.util.stream.Stream;
         @Index(columnList = "receiving_aet"),
         @Index(columnList = "sending_pres_addr"),
         @Index(columnList = "receiving_pres_addr"),
+        @Index(columnList = "sending_hl7_app"),
+        @Index(columnList = "sending_hl7_facility"),
+        @Index(columnList = "receiving_hl7_app"),
+        @Index(columnList = "receiving_hl7_facility"),
         @Index(columnList = "expiration_state"),
         @Index(columnList = "expiration_date"),
         @Index(columnList = "failed_retrieves"),
@@ -544,6 +548,18 @@ public class Series {
     @Column(name = "receiving_pres_addr")
     private String receivingPresentationAddress;
 
+    @Column(name = "sending_hl7_app")
+    private String sendingHL7Application;
+
+    @Column(name = "sending_hl7_facility")
+    private String sendingHL7Facility;
+
+    @Column(name = "receiving_hl7_app")
+    private String receivingHL7Application;
+
+    @Column(name = "receiving_hl7_facility")
+    private String receivingHL7Facility;
+
     @Column(name = "ext_retrieve_aet")
     private String externalRetrieveAET;
 
@@ -784,6 +800,38 @@ public class Series {
 
     public void setReceivingPresentationAddress(String receivingPresentationAddress) {
         this.receivingPresentationAddress = receivingPresentationAddress;
+    }
+
+    public String getSendingHL7Application() {
+        return sendingHL7Application;
+    }
+
+    public void setSendingHL7Application(String sendingHL7Application) {
+        this.sendingHL7Application = sendingHL7Application;
+    }
+
+    public String getSendingHL7Facility() {
+        return sendingHL7Facility;
+    }
+
+    public void setSendingHL7Facility(String sendingHL7Facility) {
+        this.sendingHL7Facility = sendingHL7Facility;
+    }
+
+    public String getReceivingHL7Application() {
+        return receivingHL7Application;
+    }
+
+    public void setReceivingHL7Application(String receivingHL7Application) {
+        this.receivingHL7Application = receivingHL7Application;
+    }
+
+    public String getReceivingHL7Facility() {
+        return receivingHL7Facility;
+    }
+
+    public void setReceivingHL7Facility(String receivingHL7Facility) {
+        this.receivingHL7Facility = receivingHL7Facility;
     }
 
     public String getExternalRetrieveAET() {
