@@ -130,9 +130,12 @@ class HL7PSUMessage {
 
     void setPV1Segment(Attributes attrs) {
         String routeOfAdmissions = attrs.getString(Tag.RouteOfAdmissions);
+        IDWithIssuer admissionIDWithIssuer = IDWithIssuer.valueOf(attrs, Tag.AdmissionID, Tag.IssuerOfAdmissionIDSequence);
         pv1 = new HL7Segment(52);
         pv1.setField(0, "PV1");
         pv1.setField(2, routeOfAdmissions == null ? UNKNOWN_PATIENT_CLASS : routeOfAdmissions);
+        if (admissionIDWithIssuer != null)
+            pv1.setField(19, admissionIDWithIssuer.toString());
         hl7Message.add(pv1);
     }
 
