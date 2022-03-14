@@ -1,4 +1,10 @@
 -- can be applied on archive running archive 5.25
+alter table series
+    add receiving_hl7_app varchar(255),
+    add receiving_hl7_facility varchar(255),
+    add sending_hl7_app varchar(255),
+    add sending_hl7_facility varchar(255);
+
 alter table mpps
     add accno_entity_id       varchar(255),
     add accno_entity_uid      varchar(255),
@@ -75,6 +81,11 @@ where issuer_fk is not null;
 update patient_id
     set entity_uid_type = (select issuer.entity_uid_type from issuer where issuer_fk = issuer.pk)
 where issuer_fk is not null;
+
+create index UK_ffpftwfkijejj09tlbxr7u5g8 on series (sending_hl7_app(64));
+create index UK_1e4aqxc5w1557hr3fb3lqm2qb on series (sending_hl7_facility(64));
+create index UK_gj0bxgi55bhjic9s3i4dp2aee on series (receiving_hl7_app(64));
+create index UK_pbay159cdhwbtjvlmel6d6em2 on series (receiving_hl7_facility(64));
 
 create index UK_tkyjkkxxhnr0fem7m0h3844jk on patient_id (pat_id(64));
 create index UK_d1sdyupb0vwvx23jownjnyy72 on patient_id (entity_id(64));
