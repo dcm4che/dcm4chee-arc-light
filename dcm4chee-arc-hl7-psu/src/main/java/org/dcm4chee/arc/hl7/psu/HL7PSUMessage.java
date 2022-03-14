@@ -62,6 +62,7 @@ import java.util.Date;
  * @since Jan 2017
  */
 class HL7PSUMessage {
+    private static final String UNKNOWN_PATIENT_CLASS = "U";
     private final HL7Segment msh;
     private final HL7Segment orc;
     private final HL7Segment tq1;
@@ -127,10 +128,11 @@ class HL7PSUMessage {
         hl7Message.add(pid);
     }
 
-    void setPV1Segment() {
+    void setPV1Segment(Attributes attrs) {
+        String routeOfAdmissions = attrs.getString(Tag.RouteOfAdmissions);
         pv1 = new HL7Segment(52);
         pv1.setField(0, "PV1");
-        pv1.setField(2, "U");
+        pv1.setField(2, routeOfAdmissions == null ? UNKNOWN_PATIENT_CLASS : routeOfAdmissions);
         hl7Message.add(pv1);
     }
 
