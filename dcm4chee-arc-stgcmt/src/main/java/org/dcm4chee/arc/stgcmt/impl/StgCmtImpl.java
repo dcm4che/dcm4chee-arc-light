@@ -258,7 +258,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             throws Exception  {
         ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
-        AAssociateRQ aarq = mkAAssociateRQ(localAE, localAET, remoteAET, TransferCapability.Role.SCU);
+        AAssociateRQ aarq = mkAAssociateRQ(localAE, TransferCapability.Role.SCU);
+        if (!localAE.isMasqueradeCallingAETitle(remoteAET))
+            aarq.setCallingAET(localAET);
         Association as = localAE.connect(remoteAE, aarq);
         try {
             StgCmtResult result = new StgCmtResult();
@@ -296,7 +298,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     public Outcome sendNEventReport(String localAET, ApplicationEntity remoteAE, Attributes eventInfo)
             throws Exception  {
             ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
-            AAssociateRQ aarq = mkAAssociateRQ(localAE, localAET, remoteAE.getAETitle(), TransferCapability.Role.SCP);
+            AAssociateRQ aarq = mkAAssociateRQ(localAE, TransferCapability.Role.SCP);
+            aarq.setCallingAET(localAET);
             Association as = localAE.connect(remoteAE, aarq);
             try {
                 int successful = sequenceSizeOf(eventInfo, Tag.ReferencedSOPSequence);
@@ -323,11 +326,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         return seq != null ? seq.size() : 0;
     }
 
-    private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE, String localAET, String remoteAET,
-                                        TransferCapability.Role role) {
+    private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE, TransferCapability.Role role) {
         AAssociateRQ aarq = new AAssociateRQ();
-        if (!localAE.isMasqueradeCallingAETitle(remoteAET))
-            aarq.setCallingAET(localAET);
         TransferCapability tc = localAE.getTransferCapabilityFor(UID.StorageCommitmentPushModel, role);
         aarq.addPresentationContext(new PresentationContext(1, UID.StorageCommitmentPushModel,
                 tc.getTransferSyntaxes()));

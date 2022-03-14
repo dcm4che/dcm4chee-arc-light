@@ -225,7 +225,7 @@ public class HL7PSUEJB {
     }
 
     private void setPIDPV1(HL7PSUMessage msg, ArchiveAEExtension arcAE, Patient patient, Attributes attrs) {
-        if (!arcAE.hl7PSUPIDPV1() && arcAE.hl7PSUMessageType() != HL7PSUMessageType.ORU_R01)
+        if (!arcAE.hl7PSUPIDPV1())
             return;
 
         msg.setPIDSegment(patient);
