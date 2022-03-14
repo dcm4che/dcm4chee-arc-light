@@ -1706,6 +1706,34 @@ export class Globalvar {
                     ],
                     description:$localize `:@@unscheduled_studies:Unscheduled Studies`,
                     placeholder:$localize `:@@unscheduled_studies:Unscheduled Studies`,
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SendingHL7ApplicationOfSeries",
+                    description:$localize `:@@sending_hl7_application_of_series:Sending HL7 Application Of Series`,
+                    placeholder:$localize `:@@sending_hl7_application_of_series:Sending HL7 Application Of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SendingHL7FacilityOfSeries",
+                    description:$localize `:@@sending_hl7_facility_of_series:Sending HL7 Facility Of Series`,
+                    placeholder:$localize `:@@sending_hl7_facility_of_series:Sending HL7 Facility Of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingHL7ApplicationOfSeries",
+                    description:$localize `:@@receiving_hl7_application_of_series:Receiving HL7 Application Of Series`,
+                    placeholder:$localize `:@@receiving_hl7_application_of_series:Receiving HL7 Application Of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingHL7FacilityOfSeries",
+                    description:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`,
+                    placeholder:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`
                 }
             ];
         }
@@ -2298,6 +2326,34 @@ export class Globalvar {
                     filterKey:"RequestAttributesSequence.ScheduledProcedureStepID",
                     description:$localize `:@@scheduled_procedure_step_id:Scheduled Procedure Step ID`,
                     placeholder:$localize `:@@scheduled_procedure_step_id:Scheduled Procedure Step ID`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SendingHL7ApplicationOfSeries",
+                    description:$localize `:@@sending_hl7_application_of_series:Sending HL7 Application Of Series`,
+                    placeholder:$localize `:@@sending_hl7_application_of_series:Sending HL7 Application Of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SendingHL7FacilityOfSeries",
+                    description:$localize `:@@sending_hl7_facility_of_series:Sending HL7 Facility Of Series`,
+                    placeholder:$localize `:@@sending_hl7_facility_of_series:Sending HL7 Facility Of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingHL7ApplicationOfSeries",
+                    description:$localize `:@@receiving_hl7_application_of_series:Receiving HL7 Application Of Series`,
+                    placeholder:$localize `:@@receiving_hl7_application_of_series:Receiving HL7 Application Of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingHL7FacilityOfSeries",
+                    description:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`,
+                    placeholder:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`
                 }
             ];
         }
