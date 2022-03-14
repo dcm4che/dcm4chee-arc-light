@@ -160,13 +160,13 @@ export class PermissionService {
                 });
                 if(checkObject && checkObject[0]){
                     let check = this.comparePermissionObjectWithRoles(checkObject);
-                    if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1)
+                    if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1){
                         return true;
-                    else
-                    if(urlAction.nextCheck){
-                        this.router.navigate([urlAction.nextCheck]);
-                        return {redirect:urlAction.nextCheck};
                     }
+                }
+                if(urlAction.nextCheck){
+                    this.router.navigate([urlAction.nextCheck]);
+                    return {redirect:urlAction.nextCheck};
                 }
                 return false;
             }catch (e){
