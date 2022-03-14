@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7.psu;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -180,11 +181,12 @@ public class HL7PSUEJB {
         if (arcAE.hl7PSUMessageType() == HL7PSUMessageType.ORU_R01)
             hl7MsgFieldsFromStudy(arcAE, task, msg);
         else {
-            if (task.getMpps() != null)
-                setPIDPV1(msg, arcAE, task.getMpps().getPatient());
+            MPPS mpps = task.getMpps();
+            if (mpps != null)
+                setPIDPV1(msg, arcAE, mpps.getPatient(), mpps.getAttributes());
             else if (mwl != null) {
                 msg.setAttributes(mwl.getAttributes());
-                setPIDPV1(msg, arcAE, mwl.getPatient());
+                setPIDPV1(msg, arcAE, mwl.getPatient(), mwl.getAttributes());
             } else
                 hl7MsgFieldsFromStudy(arcAE, task, msg);
         }
@@ -196,7 +198,8 @@ public class HL7PSUEJB {
         if (series == null)
             return;
 
-        setPIDPV1(msg, arcAE, series.getStudy().getPatient());
+        Study study = series.getStudy();
+        setPIDPV1(msg, arcAE, study.getPatient(), study.getAttributes());
         msg.setStudySeriesAttrs(series, arcAE);
     }
 
@@ -212,12 +215,12 @@ public class HL7PSUEJB {
         return null;
     }
 
-    private void setPIDPV1(HL7PSUMessage msg, ArchiveAEExtension arcAE, Patient patient) {
+    private void setPIDPV1(HL7PSUMessage msg, ArchiveAEExtension arcAE, Patient patient, Attributes attrs) {
         if (!arcAE.hl7PSUPIDPV1() && arcAE.hl7PSUMessageType() != HL7PSUMessageType.ORU_R01)
             return;
 
         msg.setPIDSegment(patient);
-        msg.setPV1Segment();
+        msg.setPV1Segment(attrs);
     }
 
     private void scheduleMessage(String[] hl7PSUReceivingApplications, String hl7cs, HL7PSUMessage msg) {
