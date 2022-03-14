@@ -1286,16 +1286,16 @@ public class QueryBuilder {
             anyOf(y, series.get(Series_.receivingPresentationAddress),
                     keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingPresentationAddressOfSeries, VR.UR),
                     false);
-            anyOf(predicates, series.get(Series_.sendingHL7Application),
+            anyOf(y, series.get(Series_.sendingHL7Application),
                     keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.SendingHL7ApplicationOfSeries, VR.LO),
                     false);
-            anyOf(predicates, series.get(Series_.sendingHL7Facility),
+            anyOf(y, series.get(Series_.sendingHL7Facility),
                     keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.SendingHL7FacilityOfSeries, VR.LO),
                     false);
-            anyOf(predicates, series.get(Series_.receivingHL7Application),
+            anyOf(y, series.get(Series_.receivingHL7Application),
                     keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7ApplicationOfSeries, VR.LO),
                     false);
-            anyOf(predicates, series.get(Series_.receivingHL7Facility),
+            anyOf(y, series.get(Series_.receivingHL7Facility),
                     keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7FacilityOfSeries, VR.LO),
                     false);
             if (queryParam.isStorageVerificationFailed())
