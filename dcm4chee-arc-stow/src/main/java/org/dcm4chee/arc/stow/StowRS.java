@@ -559,6 +559,7 @@ public class StowRS {
                 case UID.EncapsulatedSTLStorage:
                 case UID.EncapsulatedOBJStorage:
                 case UID.EncapsulatedMTLStorage:
+                case UID.PrivateDcm4cheEncapsulatedGenozipStorage:
                     throw missingAttribute(Tag.EncapsulatedDocument);
             }
         }
