@@ -165,6 +165,12 @@ enum ObjectType {
             return null;
         }
     },
+    EncapsulatedGenozip(MediaTypes.APPLICATION_X_GENOZIP_TYPE, false, false){
+        @Override
+        public MediaType[] getRenderedContentTypes() {
+            return null;
+        }
+    },
     Other(MediaTypes.APPLICATION_DICOM_TYPE, false, false){
         @Override
         public MediaType[] getRenderedContentTypes() {
@@ -219,6 +225,12 @@ enum ObjectType {
                 return EncapsulatedCDA;
             case UID.EncapsulatedSTLStorage:
                 return EncapsulatedSTL;
+            case UID.EncapsulatedMTLStorage:
+                return EncapsulatedMTL;
+            case UID.EncapsulatedOBJStorage:
+                return EncapsulatedOBJ;
+            case UID.PrivateDcm4cheEncapsulatedGenozipStorage:
+                return EncapsulatedGenozip;
         }
         ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
         return arcDev.isWadoSupportedSRClass(inst.getSopClassUID())
