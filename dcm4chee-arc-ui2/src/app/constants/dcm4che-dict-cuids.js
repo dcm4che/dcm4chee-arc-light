@@ -300,6 +300,7 @@ DCM4CHE.SOPClass = (function (dictionary) {
 "1.2.840.10008.10.2":"Video Photographic Image Real-Time Communication",
 "1.2.840.10008.10.3":"Audio Waveform Real-Time Communication",
 "1.2.840.10008.10.4":"Rendition Selection Document Real-Time Communication",
+"1.2.40.0.13.1.5.1.4.1.1.104.1":"Private Dcm4che Encapsulated Genozip Storage",
 "1.2.124.113532.3500.7":"Private Agfa Basic Attribute Presentation State",
 "1.2.124.113532.3500.8.1":"Private Agfa Arrival Transaction",
 "1.2.124.113532.3500.8.2":"Private Agfa Dictation Transaction",
