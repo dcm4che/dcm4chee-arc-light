@@ -1085,8 +1085,22 @@ public class WadoRS {
         }
 
         public Response.ResponseBuilder response(WadoRS wadoRS, Date lastModified, Object entity) {
-            return Response.status(wadoRS.responseStatus).lastModified(lastModified)
-                    .tag(String.valueOf(lastModified.hashCode())).entity(entity);
+            Response.ResponseBuilder builder = Response.status(wadoRS.responseStatus)
+                    .lastModified(lastModified)
+                    .tag(String.valueOf(lastModified.hashCode()))
+                    .tag(String.valueOf(lastModified.hashCode()))
+                    .entity(entity);
+            if (entity instanceof MultipartRelatedOutput) {
+                Map<String, String> params = new TreeMap<>();
+                MediaType mediaType = ((MultipartRelatedOutput) entity).getRootPart().getMediaType();
+                params.put("type", mediaType.toString());
+                String ts = mediaType.getParameters().get("transfer-syntax");
+                if (ts != null) {
+                    params.put("transfer-syntax", ts);
+                }
+                builder.type(new MediaType("multipart", "related", params));
+            }
+            return builder;
         }
 
         public Output adjust(WadoRS wadoRS, int[] frameList, RetrieveContext ctx) throws IOException {
