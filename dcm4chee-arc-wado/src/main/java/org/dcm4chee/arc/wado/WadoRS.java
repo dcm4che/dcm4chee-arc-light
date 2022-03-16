@@ -507,9 +507,25 @@ public class WadoRS {
     }
 
     private List<String> transferSyntaxesOf(Stream<MediaType> mediaTypeStream) {
-        return mediaTypeStream
-                .map(m -> m.getParameters().getOrDefault("transfer-syntax", UID.ExplicitVRLittleEndian))
+        List<String> list = mediaTypeStream
+                .map(m -> m.isWildcardType()
+                        ? "*"
+                        : m.getParameters().getOrDefault("transfer-syntax", ""))
                 .collect(Collectors.toList());
+        if (list.remove("")) {
+            list.add(UID.ExplicitVRLittleEndian);
+            list.add(UID.MPEG2MPML);
+            list.add(UID.MPEG2MPHL);
+            list.add(UID.MPEG4HP41);
+            list.add(UID.MPEG4HP41BD);
+            list.add(UID.MPEG4HP422D);
+            list.add(UID.MPEG4HP41BD);
+            list.add(UID.MPEG4HP423D);
+            list.add(UID.MPEG4HP42STEREO);
+            list.add(UID.HEVCMP51);
+            list.add(UID.HEVCM10P51);
+        }
+        return list;
     }
 
     private void checkMultipartRelatedAcceptable() {
