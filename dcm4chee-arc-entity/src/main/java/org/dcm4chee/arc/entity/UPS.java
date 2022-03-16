@@ -304,7 +304,7 @@ public class UPS {
         expectedCompletionDateAndTime = attrs.getString(Tag.ExpectedCompletionDateTime, "*");
         inputReadinessState = InputReadinessState.valueOf(attrs.getString(Tag.InputReadinessState, "READY"));
         admissionID = attrs.getString(Tag.AdmissionID, "*");
-        Issuer admissionIDIssuer = Issuer.valueOf(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+        Issuer admissionIDIssuer = Issuer.valueOf(attrs.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
         if (admissionIDIssuer != null) {
             admissionIDLocalNamespaceEntityID = admissionIDIssuer.getLocalNamespaceEntityID();
             admissionIDUniversalEntityID = admissionIDIssuer.getUniversalEntityID();
