@@ -83,6 +83,7 @@ public enum QIDO {
     INSTANCE(
         Tag.SOPClassUID,
         Tag.SOPInstanceUID,
+        Tag.AvailableTransferSyntaxUID,
         Tag.InstanceNumber,
         Tag.Rows,
         Tag.Columns,
