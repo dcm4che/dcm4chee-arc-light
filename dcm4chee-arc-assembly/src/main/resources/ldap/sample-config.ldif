@@ -3095,6 +3095,8 @@ dcmTag: 00200011
 dcmTag: 00200060
 dcmTag: 00400244
 dcmTag: 00400245
+dcmTag: 00400250
+dcmTag: 00400251
 dcmTag: 00400260
 dcmTag: 00400275
 dcmEntity: Series

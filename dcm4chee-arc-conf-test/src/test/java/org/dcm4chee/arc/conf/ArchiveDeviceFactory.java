@@ -397,6 +397,8 @@ class ArchiveDeviceFactory {
             Tag.Laterality,
             Tag.PerformedProcedureStepStartDate,
             Tag.PerformedProcedureStepStartTime,
+            Tag.PerformedProcedureStepEndDate,
+            Tag.PerformedProcedureStepEndTime,
             Tag.PerformedProtocolCodeSequence,
             Tag.RequestAttributesSequence
     };
