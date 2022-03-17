@@ -392,16 +392,17 @@
   </xsl:template>
 
   <xsl:template match="OBX">
-    <xsl:variable name="patDemo" select="field[3]"/>
+    <xsl:variable name="observationIdentifier" select="field[3]/component[1]"/>
+    <xsl:variable name="units" select="field[6]"/>
     <xsl:choose>
-      <xsl:when test="$patDemo/text()='kg' and $patDemo/component[1] = 'Body Weight'">
+      <xsl:when test="$units/text()='kg' and $observationIdentifier = 'Body Weight'">
         <xsl:call-template name="attr">
           <xsl:with-param name="tag" select="'00101030'"/>
           <xsl:with-param name="vr" select="'DS'"/>
           <xsl:with-param name="val" select="field[5]"/>
         </xsl:call-template>
       </xsl:when>
-      <xsl:when test="$patDemo/text()='m' and $patDemo/component[1] = 'Body Height'">
+      <xsl:when test="$units/text()='m' and $observationIdentifier = 'Body Height'">
         <xsl:call-template name="attr">
           <xsl:with-param name="tag" select="'00101020'"/>
           <xsl:with-param name="vr" select="'DS'"/>
