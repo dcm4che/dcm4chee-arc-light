@@ -80,7 +80,7 @@ export class AeListService {
                 }),
                 showStar:true,
                 showSearchField:true,
-                filterKey:"remoteAET",
+                filterKey:"dicomAETitle",
                 description:$localize `:@@aetitle:AE Title`,
                 placeholder:$localize `:@@aetitle:AE Title`
             },{
