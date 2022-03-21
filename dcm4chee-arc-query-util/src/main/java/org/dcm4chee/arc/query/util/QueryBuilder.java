@@ -400,21 +400,23 @@ public class QueryBuilder {
     }
 
     public <T> List<Predicate> studyPredicates(CriteriaQuery<T> q,
-            From<Study, Patient> patient, Root<Study> study,
-            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
+           From<Study, Patient> patient, Root<Study> study,
+           IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
+           CodeEntity[] showInstancesRejectedByCodes) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.STUDY);
-        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.STUDY);
+        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.STUDY, showInstancesRejectedByCodes);
         return predicates;
     }
 
     public <T> List<Predicate> seriesPredicates(CriteriaQuery<T> q,
             From<Study, Patient> patient, From<Series, Study> study, Root<Series> series,
-            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
+            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
+            CodeEntity[] showInstancesRejectedByCodes) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.SERIES);
-        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.SERIES);
-        seriesLevelPredicates(predicates, q, series, keys, queryParam);
+        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
+        seriesLevelPredicates(predicates, q, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
         return predicates;
     }
 
@@ -424,8 +426,8 @@ public class QueryBuilder {
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.IMAGE);
-        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.IMAGE);
-        seriesLevelPredicates(predicates, q, series, keys, queryParam);
+        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.IMAGE, showInstancesRejectedByCodes);
+        seriesLevelPredicates(predicates, q, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
         instanceLevelPredicates(predicates, q, study, series, instance, keys, queryParam,
                 showInstancesRejectedByCodes, hideRejectionNoteWithCodes);
         return predicates;
@@ -645,7 +647,8 @@ public class QueryBuilder {
     }
 
     private <T, Z> List<Predicate> studyLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
+            From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel,
+            CodeEntity[] showInstancesRejectedByCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         accessControl(predicates, study, queryParam.getAccessControlIDs());
         anyOf(predicates, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
@@ -679,8 +682,6 @@ public class QueryBuilder {
             seriesAttributesInStudy(predicates, q, study, keys, queryParam, queryRetrieveLevel, modalitiesInStudy);
         }
         codes(predicates, q, study, Study_.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence));
-        if (queryParam.isHideNotRejectedInstances())
-            predicates.add(cb.notEqual(study.get(Study_.rejectionState), RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
         wildCard(predicates, study.get(Study_.studyCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);
@@ -697,6 +698,15 @@ public class QueryBuilder {
         if (queryParam.getExternalRetrieveAETNot() != null)
             predicates.add(cb.notEqual(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAETNot()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
+            if (queryParam.isHideNotRejectedInstances()) {
+                Subquery<RejectedInstance> sq = q.subquery(RejectedInstance.class);
+                Root<RejectedInstance> ri = sq.from(RejectedInstance.class);
+                Predicate y = cb.equal(ri.get(RejectedInstance_.studyInstanceUID), study.get(Study_.studyInstanceUID));
+                if (showInstancesRejectedByCodes.length > 0) {
+                    y = cb.and(y, ri.get(RejectedInstance_.rejectionNoteCode).in(showInstancesRejectedByCodes));
+                }
+                predicates.add(cb.exists(sq.select(ri).where(y)));
+            }
             if (queryParam.isIncomplete())
                 predicates.add(cb.notEqual(study.get(Study_.completeness), Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
@@ -739,7 +749,8 @@ public class QueryBuilder {
     }
 
     private <T, Z> List<Predicate> seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
-            From<Z, Series> series, Attributes keys, QueryParam queryParam) {
+             From<Series, Study> study, From<Z, Series> series, Attributes keys, QueryParam queryParam,
+             QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes) {
         anyOf(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID), false);
         numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
         anyOf(predicates, series.get(Series_.modality),
@@ -770,8 +781,16 @@ public class QueryBuilder {
         code(predicates,
                 series.get(Series_.institutionalDepartmentTypeCode),
                 keys.getNestedDataset(Tag.InstitutionalDepartmentTypeCodeSequence));
-        if (queryParam.isHideNotRejectedInstances())
-            predicates.add(cb.notEqual(series.get(Series_.rejectionState), RejectionState.NONE));
+        if (queryRetrieveLevel2 == QueryRetrieveLevel2.SERIES && queryParam.isHideNotRejectedInstances()) {
+            Subquery<RejectedInstance> sq = q.subquery(RejectedInstance.class);
+            Root<RejectedInstance> ri = sq.from(RejectedInstance.class);
+            Predicate y = cb.and(cb.equal(ri.get(RejectedInstance_.studyInstanceUID), study.get(Study_.studyInstanceUID)),
+                    cb.equal(ri.get(RejectedInstance_.seriesInstanceUID), series.get(Series_.seriesInstanceUID)));
+            if (showInstancesRejectedByCodes.length > 0) {
+                y = cb.and(y, ri.get(RejectedInstance_.rejectionNoteCode).in(showInstancesRejectedByCodes));
+            }
+            predicates.add(cb.exists(sq.select(ri).where(y)));
+        }
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Series);
         wildCard(predicates, series.get(Series_.seriesCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);

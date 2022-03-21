@@ -285,12 +285,12 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Query createStudyQuery(QueryContext ctx) {
-        return new StudyQuery(ctx, em);
+        return new StudyQuery(ctx, em, codeCache);
     }
 
     @Override
     public Query createSeriesQuery(QueryContext ctx) {
-        return new SeriesQuery(ctx, em);
+        return new SeriesQuery(ctx, em, codeCache);
     }
 
     @Override
