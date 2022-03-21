@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.wado;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.io.DicomInputStream;
@@ -135,8 +136,9 @@ public class UncompressedFramesOutput implements StreamingOutput, Closeable {
     private void initDicomInputStream() throws IOException {
         RetrieveService service = ctx.getRetrieveService();
         dis = service.openDicomInputStream(ctx, inst);
-        frameLength = new ImageDescriptor(dis.readDataset(-1, Tag.PixelData)).getFrameLength();
-        if (dis.tag() != Tag.PixelData) {
+        Attributes attrs = dis.readDataset(o -> o.tag() >= Tag.FloatPixelData);
+        frameLength = new ImageDescriptor(attrs).getFrameLength();
+        if (dis.tag() != Tag.PixelData && dis.tag() != Tag.FloatPixelData && dis.tag() != Tag.DoubleFloatPixelData) {
             throw new IOException("Missing pixel data in requested object");
         }
     }
