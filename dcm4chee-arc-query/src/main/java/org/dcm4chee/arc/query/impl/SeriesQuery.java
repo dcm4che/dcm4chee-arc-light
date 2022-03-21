@@ -45,6 +45,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
@@ -63,6 +64,7 @@ import java.util.List;
  */
 class SeriesQuery extends AbstractQuery {
 
+    private final CodeCache codeCache;
     private Root<Series> series;
     private Join<Series, Study> study;
     private Join<Study, Patient> patient;
@@ -75,8 +77,9 @@ class SeriesQuery extends AbstractQuery {
     private Long studyPk;
     private Attributes studyAttrs;
 
-    SeriesQuery(QueryContext context, EntityManager em) {
+    SeriesQuery(QueryContext context, EntityManager em, CodeCache codeCache) {
         super(context, em);
+        this.codeCache = codeCache;
     }
 
     @Override
@@ -216,7 +219,9 @@ class SeriesQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(),
+                codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()));
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         return q;
