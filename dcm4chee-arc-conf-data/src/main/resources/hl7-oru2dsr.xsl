@@ -13,6 +13,10 @@
     <NativeDicomModel>
       <xsl:call-template name="const-attrs"/>
       <xsl:variable name="valueType" select="OBX/field[2]"/>
+      <xsl:call-template name="institution">
+        <xsl:with-param name="performingOrganizationName" select="OBX/field[23]/text()"/>
+        <xsl:with-param name="sendingOrganization" select="MSH/field[2]/text()"/>
+      </xsl:call-template>
       <xsl:variable name="ed" select="OBX[field[2]/text()='ED']"/>
       <xsl:choose>
         <xsl:when test="$valueType = 'HD'">
@@ -52,6 +56,25 @@
         </xsl:otherwise>
       </xsl:choose>
     </NativeDicomModel>
+  </xsl:template>
+  
+  <xsl:template name="institution">
+    <xsl:param name="performingOrganizationName"/>
+    <xsl:param name="sendingOrganization"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080080'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val">
+        <xsl:choose>
+          <xsl:when test="$performingOrganizationName and string-length($performingOrganizationName) > 0">
+            <xsl:value-of select="$performingOrganizationName"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$sendingOrganization"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="rad28">
