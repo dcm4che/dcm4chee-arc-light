@@ -207,8 +207,7 @@ class PatientUpdateService extends DefaultHL7Service {
 
     private static boolean reject(Exception e, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg)
             throws HL7Exception {
-        Exception cause = (Exception) e.getCause();
-        if (cause instanceof PatientMergedException) {
+        if (e instanceof PatientMergedException) {
             if (arcHL7App.hl7ReferredMergedPatientPolicy() == HL7ReferredMergedPatientPolicy.REJECT
                     || (arcHL7App.hl7ReferredMergedPatientPolicy() == HL7ReferredMergedPatientPolicy.IGNORE_DUPLICATE_MERGE
                         && !msg.msh().getMessageType().equals("ADT^A40")))
