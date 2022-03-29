@@ -80,8 +80,11 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 @Typed(HL7Service.class)
 class ImportReportService extends DefaultHL7Service {
-
     private final Logger LOG = LoggerFactory.getLogger(ImportReportService.class);
+    private static final String ACCESSION_NUMBER = "OBR^1^18^1^1";
+    private static final String MIME_TYPE_ENCODING = "OBX^1^5^1^2";
+    private static final String ENCAPSULATED_DOC_DATA = "OBX^1^5^1^5";
+    private static final String STUDY_UID = "OBX^1^5^1^1";
 
     @Inject
     private PatientService patientService;
@@ -112,7 +115,7 @@ class ImportReportService extends DefaultHL7Service {
             } catch (Exception e) {
                 throw new HL7Exception(
                         new ERRSegment(msg.msh())
-                                .setHL7ErrorCode(ERRSegment.ApplicationRecordLocked)
+                                .setHL7ErrorCode(ERRSegment.APPLICATION_RECORD_LOCKED)
                                 .setUserMessage(e.getMessage()));
             }
         }
@@ -144,19 +147,19 @@ class ImportReportService extends DefaultHL7Service {
                 arcHL7App.importReportTemplateURI(),
                 tr -> arcHL7App.importReportTemplateParams().forEach(tr::setParameter));
 
-        if (attrs.getString(Tag.SOPClassUID) == null)
+        if (!attrs.contains(Tag.SOPClassUID) && !attrs.contains(Tag.MIMETypeOfEncapsulatedDocument))
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
-                            .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                            .setErrorLocation("OBX^5^2")
-                            .setUserMessage("Encapsulated document invalid encoding in OBX^5^2 to OBX^5^4"));
+                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                            .setErrorLocation(MIME_TYPE_ENCODING)
+                            .setUserMessage("Invalid encoding of encapsulated document in components 2 and/or 3 and/or 4 of field 5"));
 
-        if (attrs.contains(Tag.MIMETypeOfEncapsulatedDocument) && !adjustAttrs(attrs))
+        if (attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument) && !isEncapsulatedDoc(attrs))
             throw new HL7Exception(
                 new ERRSegment(msg.msh())
-                        .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                        .setErrorLocation("OBX^5^5")
-                        .setUserMessage("Encapsulated document missing in OBX^5^5"));
+                        .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                        .setErrorLocation(ENCAPSULATED_DOC_DATA)
+                        .setUserMessage("Encapsulated document data missing"));
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             String accNo = attrs.getString(Tag.AccessionNumber);
@@ -190,7 +193,7 @@ class ImportReportService extends DefaultHL7Service {
         processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
     }
 
-    private boolean adjustAttrs(Attributes attrs) {
+    private boolean isEncapsulatedDoc(Attributes attrs) {
         if (attrs.getString(Tag.MIMETypeOfEncapsulatedDocument).equals("text/xml")) {
             String cdaTxt = attrs.getString(Tag.TextValue);
             if (cdaTxt == null)
@@ -216,16 +219,16 @@ class ImportReportService extends DefaultHL7Service {
             case REJECT:
                 throw new HL7Exception(
                         new ERRSegment(msh)
-                                .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                                .setErrorLocation("OBX^3^1")
-                                .setUserMessage("Missing OBX segment with Study Instance UID text in OBX^3^1 and its value in OBX-5"));
+                                .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                .setErrorLocation(STUDY_UID)
+                                .setUserMessage("Missing Study Instance UID"));
             case ACCESSION_BASED:
                 if (accessionNum == null)
                     throw new HL7Exception(
                             new ERRSegment(msh)
-                                    .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                                    .setErrorLocation("OBR^1^18")
-                                    .setUserMessage("Missing OBR-18"));
+                                    .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                    .setErrorLocation(ACCESSION_NUMBER)
+                                    .setUserMessage("Missing accession number"));
                 else {
                     studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
                     LOG.info("Derived StudyInstanceUID from AccessionNumber[={}] : {}",

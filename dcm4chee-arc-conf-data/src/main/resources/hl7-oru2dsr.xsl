@@ -704,11 +704,13 @@
         <xsl:otherwise/>
       </xsl:choose>
     </xsl:variable>
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00420012'"/>
-      <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="val" select="$mimeType"/>
-    </xsl:call-template>
+    <xsl:if test="$mimeType and string-length($mimeType) > 0">
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00420012'"/>
+        <xsl:with-param name="vr" select="'LO'"/>
+        <xsl:with-param name="val" select="$mimeType"/>
+      </xsl:call-template>
+    </xsl:if>
     <xsl:call-template name="ed-const-attrs">
       <xsl:with-param name="mimeType" select="$mimeType"/>
     </xsl:call-template>
