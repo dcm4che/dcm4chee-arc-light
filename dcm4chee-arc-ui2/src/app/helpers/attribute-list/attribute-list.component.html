@@ -6,7 +6,10 @@
         <td *ngIf="row.el">{{row.el.vr}}</td>
         <td>
             <ng-container *ngIf="row.el && row.el.vr === 'PN' && _.hasIn(row,'el.Value.0')">
-                {{row.el.Value[0]  | personName:personNameFormat}}
+                <!--{{row.el.Value[0]  | personName:personNameFormat}}-->
+                <ng-container *ngIf="_.hasIn(row,'el.Value.0.Alphabetic')"><span>Alphabetic: </span><span>{{_.get(row,"el.Value.0.Alphabetic")}}</span><br></ng-container>
+                <ng-container *ngIf="_.hasIn(row,'el.Value.0.Ideographic')"><span>Ideographic: </span><span>{{_.get(row,"el.Value.0.Ideographic")}}</span><br></ng-container>
+                <ng-container *ngIf="_.hasIn(row,'el.Value.0.Phonetic')"><span>Phonetic: </span><span>{{_.get(row,"el.Value.0.Phonetic")}}</span><br></ng-container>
             </ng-container>
             <ng-container *ngIf="row.el && (row.el.vr === 'DA' || row.el.vr === 'TM' || row.el.vr === 'DT') && _.hasIn(row,'el.Value.0')">
                 {{row.el.Value[0]  | customDate:customDateTimeFormat}}
