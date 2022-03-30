@@ -82,6 +82,16 @@ import java.util.*;
 @Typed(HL7Service.class)
 public class ProcedureUpdateService extends DefaultHL7Service {
     private final Logger LOG = LoggerFactory.getLogger(ProcedureUpdateService.class);
+    private static final String QUANTITY_TIMING = "ORC^1^7^1^4";
+    private static final String START_DATE_TIME = "TQ1^1^7^1^1";
+    private static final String GENERAL_ORDER_MSG = "ORM^O01";
+    private static final String IMAGING_ORDER_MSG = "OMI^O23";
+    private static final String ORDER_CONTROL = "ORC^1^1^1^1";
+    private static final String STUDY_UID_IMAGING_ORDER = "IPC^1^3^1^1";
+    private static final String STUDY_UID_GENERAL_ORDER = "ZDS^1^1^1^1";
+    private static final String ACCESSION_NO_IMAGING_ORDER = "IPC^1^1^1^1";
+    private static final String ACCESSION_NO_GENERAL_ORDER = "OBR^1^18^1^1";
+
     @Inject
     private PatientService patientService;
 
@@ -146,7 +156,8 @@ public class ProcedureUpdateService extends DefaultHL7Service {
     }
 
     private void validateSPSStartDateTime(Attributes sps, HL7Segment msh) throws Exception {
-        String spsDTField = msh.getMessageType().equals("ORM^O01") ? "ORC^7^4" : "TQ1^7^1";
+        String spsDTField = msh.getMessageType().equals(GENERAL_ORDER_MSG)
+                                ? QUANTITY_TIMING : START_DATE_TIME;
         try {
             String spsStartDateTime = sps.getString(Tag.ScheduledProcedureStepStartDate);
             if (spsStartDateTime == null) {
@@ -157,9 +168,9 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         } catch (Exception e) {
             throw new HL7Exception(
                     new ERRSegment(msh)
-                            .setHL7ErrorCode(ERRSegment.DataTypeError)
+                            .setHL7ErrorCode(ERRSegment.DATA_TYPE_ERROR)
                             .setErrorLocation(spsDTField)
-                            .setUserMessage("Invalid SPS Start Date/Time"));
+                            .setUserMessage("Invalid scheduled procedure step start date and/or time"));
         }
     }
 
@@ -189,9 +200,9 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                         spsStatus);
                 throw new HL7Exception(
                         new ERRSegment(msh)
-                                .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                                .setErrorLocation("ORC^1^1 or ORC^1^5")
-                                .setUserMessage("Invalid Order Control Code or Order Status"));
+                                .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                .setErrorLocation(ORDER_CONTROL)
+                                .setUserMessage("Invalid order control in field 1 and/or invalid order status in field 5"));
             } else {
                 if (!sps.containsValue(Tag.ScheduledProcedureStepID)) {
                     LOG.info("Missing Scheduled ProcedureStep ID in HL7 message");
@@ -215,13 +226,13 @@ public class ProcedureUpdateService extends DefaultHL7Service {
     private boolean adjustIdentifiers(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh)
             throws HL7Exception {
         boolean uidsGenerated = false;
-        boolean omi = msh.getMessageType().startsWith("OMI");
+        String messageType = msh.getMessageType();
         String reqProcID = attrs.getString(Tag.RequestedProcedureID);
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         String accessionNum = attrs.getString(Tag.AccessionNumber);
 
         if (studyIUID == null) {
-            LOG.info("StudyInstanceUID missing in HL7 order message {}", msh.getMessageType());
+            LOG.info("StudyInstanceUID missing in HL7 order message {}", messageType);
             if (reqProcID != null) {
                 studyIUID = UIDUtils.createNameBasedUID(reqProcID.getBytes());
                 LOG.info("Derived StudyInstanceUID from RequestedProcedureID[={}] : {}",
@@ -230,16 +241,18 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                     case REJECT:
                         throw new HL7Exception(
                                 new ERRSegment(msh)
-                                        .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                                        .setErrorLocation(omi ? "IPC^1^3" : "ZDS^1^1")
-                                        .setUserMessage("Missing " + (omi ? "IPC-3" : "ZDS-1")));
+                                        .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                        .setErrorLocation(messageType.equals(IMAGING_ORDER_MSG)
+                                                                ? STUDY_UID_IMAGING_ORDER : STUDY_UID_GENERAL_ORDER)
+                                        .setUserMessage("Missing study instance uid"));
                     case ACCESSION_BASED:
                         if (accessionNum == null)
                             throw new HL7Exception(
                                     new ERRSegment(msh)
-                                            .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
-                                            .setErrorLocation(omi ? "IPC^1^1" : "OBR^1^18")
-                                            .setUserMessage("Missing " + (omi ? "IPC-1" : "OBR-18")));
+                                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                            .setErrorLocation(messageType.equals(IMAGING_ORDER_MSG)
+                                                                ? ACCESSION_NO_IMAGING_ORDER : ACCESSION_NO_GENERAL_ORDER)
+                                            .setUserMessage("Missing accession number"));
                         else {
                             studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
                             attrs.setString(Tag.RequestedProcedureID, VR.SH, accessionNum);
