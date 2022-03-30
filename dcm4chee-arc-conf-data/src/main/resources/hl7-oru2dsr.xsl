@@ -33,6 +33,10 @@
 
       <xsl:apply-templates select="PID"/>
       <xsl:apply-templates select="PV1"/>
+      <xsl:call-template name="admissionID">
+        <xsl:with-param name="visitNumber" select="PV1/field[19]"/>
+        <xsl:with-param name="patientAccountNumber" select="PID/field[18]"/>
+      </xsl:call-template>
 
       <xsl:choose>
         <xsl:when test="$ed">

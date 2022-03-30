@@ -664,10 +664,6 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
-    <!-- Admission ID, Issuer -->
-    <xsl:call-template name="admissionID">
-      <xsl:with-param name="ei" select="field[19]"/>
-    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="pregnancyStatus">
@@ -681,6 +677,23 @@
   </xsl:template>
 
   <xsl:template name="admissionID">
+    <xsl:param name="visitNumber"/>
+    <xsl:param name="patientAccountNumber"/>
+    <xsl:choose>
+      <xsl:when test="$visitNumber and string-length($visitNumber/text()) > 0">
+        <xsl:call-template name="entityIdentifier">
+          <xsl:with-param name="ei" select="$visitNumber"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="entityIdentifier">
+          <xsl:with-param name="ei" select="$patientAccountNumber"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="entityIdentifier">
     <xsl:param name="ei"/>
     <xsl:variable name="val" select="$ei/text()"/>
     <xsl:if test="$val">

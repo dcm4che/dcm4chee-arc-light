@@ -85,6 +85,7 @@ class ImportReportService extends DefaultHL7Service {
     private static final String MIME_TYPE_ENCODING = "OBX^1^5^1^2";
     private static final String ENCAPSULATED_DOC_DATA = "OBX^1^5^1^5";
     private static final String STUDY_UID = "OBX^1^5^1^1";
+    private static final String ADMISSION_ID = "PV1^1^19^1^1";
 
     @Inject
     private PatientService patientService;
@@ -160,6 +161,13 @@ class ImportReportService extends DefaultHL7Service {
                         .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
                         .setErrorLocation(ENCAPSULATED_DOC_DATA)
                         .setUserMessage("Encapsulated document data missing"));
+
+        if (!attrs.containsValue(Tag.AdmissionID))
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                            .setErrorLocation(ADMISSION_ID)
+                            .setUserMessage("Admission ID missing"));
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             String accNo = attrs.getString(Tag.AccessionNumber);

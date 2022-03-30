@@ -91,6 +91,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
     private static final String STUDY_UID_GENERAL_ORDER = "ZDS^1^1^1^1";
     private static final String ACCESSION_NO_IMAGING_ORDER = "IPC^1^1^1^1";
     private static final String ACCESSION_NO_GENERAL_ORDER = "OBR^1^18^1^1";
+    private static final String ADMISSION_ID = "PV1^1^19^1^1";
 
     @Inject
     private PatientService patientService;
@@ -187,6 +188,12 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         while (spsItems.hasNext()) {
             Attributes sps = spsItems.next();
             validateSPSStartDateTime(sps, msh);
+            if (!attrs.containsValue(Tag.AdmissionID))
+                throw new HL7Exception(
+                        new ERRSegment(msg.msh())
+                                .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                .setErrorLocation(ADMISSION_ID)
+                                .setUserMessage("Admission ID missing"));
             String spsStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
             for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
                 if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(spsStatus)) {
