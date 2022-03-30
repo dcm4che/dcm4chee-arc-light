@@ -193,7 +193,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                         new ERRSegment(msg.msh())
                                 .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
                                 .setErrorLocation(ADMISSION_ID)
-                                .setUserMessage("Admission ID missing"));
+                                .setUserMessage("Missing admission ID"));
             String spsStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
             for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
                 if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(spsStatus)) {

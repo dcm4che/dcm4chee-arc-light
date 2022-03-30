@@ -167,7 +167,7 @@ class ImportReportService extends DefaultHL7Service {
                     new ERRSegment(msg.msh())
                             .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
                             .setErrorLocation(ADMISSION_ID)
-                            .setUserMessage("Admission ID missing"));
+                            .setUserMessage("Missing admission ID"));
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             String accNo = attrs.getString(Tag.AccessionNumber);
