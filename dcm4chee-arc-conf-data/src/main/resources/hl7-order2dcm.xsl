@@ -19,6 +19,7 @@
       <xsl:apply-templates select="ZDS"/>
       <xsl:apply-templates select="NTE"/>
       <xsl:apply-templates select="OBX"/>
+      <!-- Admission ID, Issuer -->
       <xsl:call-template name="admissionID">
         <xsl:with-param name="visitNumber" select="PV1/field[19]"/>
         <xsl:with-param name="patientAccountNumber" select="PID/field[18]"/>
