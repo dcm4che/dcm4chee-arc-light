@@ -402,7 +402,9 @@
         </xsl:if>
       </xsl:for-each>
     </xsl:variable>
-    <xsl:value-of select="concat($streetAddr, '^', $addrComponents)"/>
+    <xsl:if test="string-length($streetAddr) > 0 or string-length($addrComponents) > 0">
+      <xsl:value-of select="concat($streetAddr, '^', $addrComponents)"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="PID">
