@@ -310,6 +310,12 @@ public class AuditService {
     }
 
     void spoolConnectionFailure(ConnectionEvent event) {
+        if (event.getRemoteConnection().getProtocol().name().startsWith("SYSLOG")) {
+            LOG.info("Suppress audits of connection failures to audit record repository : {}",
+                    event.getRemoteConnection().getDevice());
+            return;
+        }
+
         try {
             writeSpoolFile(
                     AuditUtils.EventType.CONN_FAILR,
