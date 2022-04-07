@@ -40,8 +40,6 @@
 
 package org.dcm4chee.arc.wado;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -165,7 +163,7 @@ enum ObjectType {
             return null;
         }
     },
-    EncapsulatedGenozip(MediaTypes.APPLICATION_X_GENOZIP_TYPE, false, false){
+    EncapsulatedGenozip(MediaTypes.APPLICATION_VND_GENOZIP_TYPE, false, false){
         @Override
         public MediaType[] getRenderedContentTypes() {
             return null;
