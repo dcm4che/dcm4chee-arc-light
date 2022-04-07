@@ -18,6 +18,7 @@ import {forkJoin} from "rxjs";
 import {map} from "rxjs/operators";
 import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
 import {Validators} from "@angular/forms";
+import {environment} from "../../../environments/environment";
 
 @Component({
     selector: 'diff-monitor',
@@ -35,6 +36,8 @@ export class DiffMonitorComponent implements OnInit {
     batchGrouped = false;
     tasks = [];
     config;
+    tableConfigNormal;
+    tableConfigGrouped;
     moreTasks;
     dialogRef: MatDialogRef<any>;
     count;
@@ -137,11 +140,13 @@ export class DiffMonitorComponent implements OnInit {
                     }
                 });
             this.initSchema();
+            this.setTableSchema();
         });
         this.onFormChange(this.filterObject);
     }
 
     onFormChange(filters){
+        this.setTableSchema();
 /*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
                 return o.value != 'reschedule';
@@ -157,6 +162,20 @@ export class DiffMonitorComponent implements OnInit {
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`,this.devices),3);
         if (this.urlParam)
             this.filterObject["orderby"] = '-updatedTime';
+    }
+    setTableSchema(){
+        this.tableConfigNormal = {
+            table:j4care.calculateWidthOfTable(this.service.getTableColumns(this, this.action, {filterObject: this.filterObject})),
+            filter:this.filterObject
+        };
+        this.tableConfigGrouped = {
+            table:j4care.calculateWidthOfTable(this.service.getTableBatchGroupedColumns((e)=>{
+                this.showDetails(e)
+            })),
+            filter:this.filterObject
+        };
+
+
     }
     allActionChanged(e){
         let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
@@ -236,14 +255,18 @@ export class DiffMonitorComponent implements OnInit {
         this.cfpLoadingBar.start();
         this.tasks = [];
         this.service.getDiffTask(filter,this.batchGrouped).subscribe(tasks=>{
+
+            if(!environment.production){
+                if(this.batchGrouped){
+                    tasks = [{"batchID":"test2","tasks":{"warning":"1"},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"PrimaryAET":["DCM4CHEE"],"SecondaryAET":["DEVJ4C"],"comparefield":["patient"],"checkMissing":["false"],"checkDifferent":["true"],"matches":31,"different":9,"createdTimeRange":["2022-03-25T10:17:29.723-0600","2022-03-25T10:17:29.723-0600"],"updatedTimeRange":["2022-03-25T10:17:30.995-0600","2022-03-25T10:17:30.995-0600"],"scheduledTimeRange":["2022-03-25T10:17:29.721-0600","2022-03-25T10:17:29.721-0600"],"processingStartTimeRange":["2022-03-25T10:17:29.790-0600","2022-03-25T10:17:29.790-0600"],"processingEndTimeRange":["2022-03-25T10:17:30.994-0600","2022-03-25T10:17:30.994-0600"]},{"batchID":"2221712246","tasks":{"warning":"1"},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"PrimaryAET":["DCM4CHEE"],"SecondaryAET":["DEVJ4C"],"comparefield":["patient"],"checkMissing":["false"],"checkDifferent":["true"],"matches":31,"different":9,"createdTimeRange":["2022-03-17T12:02:47.661-0600","2022-03-17T12:02:47.661-0600"],"updatedTimeRange":["2022-03-17T12:02:49.070-0600","2022-03-17T12:02:49.070-0600"],"scheduledTimeRange":["2022-03-17T12:02:47.661-0600","2022-03-17T12:02:47.661-0600"],"processingStartTimeRange":["2022-03-17T12:02:47.691-0600","2022-03-17T12:02:47.691-0600"],"processingEndTimeRange":["2022-03-17T12:02:49.069-0600","2022-03-17T12:02:49.069-0600"]}];
+                }else{
+                    tasks = [{"taskID":"63","dicomDeviceName":"dcm4chee-arc","queue":"DiffTasks","type":"DIFF","status":"WARNING","batchID":"2221712246","createdTime":"2022-03-17T12:02:47.661-0600","updatedTime":"2022-03-17T12:02:49.070-0600","scheduledTime":"2022-03-17T12:02:47.661-0600","processingStartTime":"2022-03-17T12:02:47.691-0600","processingEndTime":"2022-03-17T12:02:49.069-0600","outcomeMessage":"31 studies compared, different: 9","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/diff/DEVJ4C/studies","LocalAET":"DCM4CHEE","PrimaryAET":"DCM4CHEE","SecondaryAET":"DEVJ4C","QueryString":"queue=true&batchID=2221712246&comparefield=patient&priority=0","checkDifferent":true,"comparefield":"patient","matches":31,"different":9},
+                    {"taskID":"64","dicomDeviceName":"dcm4chee-arc","queue":"DiffTasks","type":"DIFF","status":"WARNING","batchID":"2221712243","createdTime":"2022-03-17T12:06:47.661-0600","updatedTime":"2022-03-17T12:07:49.070-0600","scheduledTime":"2022-03-17T12:08:47.661-0600","processingStartTime":"2022-03-17T12:08:47.691-0600","processingEndTime":"2022-03-17T12:08:49.069-0600","outcomeMessage":"31 studies compared, different: 9","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/diff/DEVJ4C/studies","LocalAET":"DCM4CHEE","PrimaryAET":"DCM4CHEE","SecondaryAET":"DEVJ4C","QueryString":"queue=true&batchID=2221712246&comparefield=patient&priority=0","checkDifferent":true,"comparefield":"patient","matches":31,"different":8}];
+                }
+            }
+
             if(tasks && tasks.length && tasks.length > 0){
                 if(this.batchGrouped){
-                    this.config = {
-                        table:j4care.calculateWidthOfTable(this.service.getTableBatchGroupedColumens((e)=>{
-                            this.showDetails(e)
-                        })),
-                        filter:filter
-                    };
                     this.tasks = tasks.map(taskObject=>{
                         if(_.hasIn(taskObject, 'tasks')){
                             let taskPrepared = [];
@@ -256,10 +279,6 @@ export class DiffMonitorComponent implements OnInit {
                         return taskObject;
                     });
                 }else{
-                    this.config = {
-                        table:j4care.calculateWidthOfTable(this.service.getTableColumens(this, this.action)),
-                        filter:filter
-                    };
                     this.tasks = tasks;
                 }
                 this.moreTasks = tasks.length > this.filterObject['limit'];

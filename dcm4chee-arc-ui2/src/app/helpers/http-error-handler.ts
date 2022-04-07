@@ -12,7 +12,7 @@ export class HttpErrorHandler {
         if ((error._body && error._body != '') || _.hasIn(error,"message") || _.hasIn(error,"error") || _.hasIn(error, "[00000902].Value[0]")) {
             try{
                 console.log("errorheaders", error.headers.get("Warning"));
-                let warningMessage = j4care.extractMessagFromWorningHeader(error.headers);
+                let warningMessage = j4care.extractMessageFromWarningHeader(error.headers);
                 if(warningMessage && warningMessage != ""){
                     this.mainservice.showError(warningMessage);
                 }else{

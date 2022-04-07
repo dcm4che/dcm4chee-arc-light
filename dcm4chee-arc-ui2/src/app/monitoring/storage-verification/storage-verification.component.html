@@ -58,7 +58,8 @@
             <div>
               <div class="left_arrow arrow"  *ngIf="storageVerifications && storageVerifications.length && storageVerifications.length > 0" [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
               <div class="right_arrow arrow" *ngIf="storageVerifications && storageVerifications.length && storageVerifications.length > 0" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-              <table-generator *ngIf="tableConfig && storageVerifications && storageVerifications.length && storageVerifications.length > 0" [config]="tableConfig" [models]="storageVerifications" [stringifyDetailAttributes]="true"></table-generator>
+              <table-generator *ngIf="!batchGrouped && tableConfigNormal && storageVerifications && storageVerifications.length && storageVerifications.length > 0" [config]="tableConfigNormal" [stringifyDetailAttributes]="true" [models]="storageVerifications" ></table-generator>
+              <table-generator *ngIf="batchGrouped && tableConfigGrouped && storageVerifications && storageVerifications.length && storageVerifications.length > 0" [config]="tableConfigGrouped" [stringifyDetailAttributes]="true" [models]="storageVerifications" ></table-generator>
             </div>
           </div>
         </div>

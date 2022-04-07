@@ -181,7 +181,8 @@ describe("DeviceConfiguratorService",()=> {
                 "dcmRetrieveLocationUID": "",
                 "dcmInstanceAvailability": "ONLINE",
                 "dcmSchedule": [""],
-                "dcmProperty": [""]
+                "dcmProperty": [""],
+                "dcmExportPriority":4
             },
             `${Globalvar.EXPORTER_CONFIG_PATH}[0]`,
             newDevice

@@ -7,7 +7,7 @@ describe('Pipe: PersonName', () => {
     let pipe = new PersonNamePipe();
     expect(pipe).toBeTruthy();
   });
-  it("Should format patient name based on UI Config person format",()=>{
+  it("Should format person name based on UI Config person format",()=>{
     const pipe = new PersonNamePipe();
     //{FAMILY-NAME}^{GIVEN-NAME}^{MIDDLE-NAME}^{NAME-PREFIX}^{NAME-SUFFIX}
     expect(pipe.transform({
@@ -56,6 +56,6 @@ describe('Pipe: PersonName', () => {
         .toBe("Dr. Shefki Xhevair Esadi PhD");
 
     expect(pipe.transform("Esadi^Shefki^Xhevair^Dr.^PhD",))
-        .toBe("Dr. Shefki Xhevair Esadi PhD");
+        .toBe("Dr. Shefki Xhevair Esadi, PhD");
   });
 });

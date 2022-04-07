@@ -44,13 +44,16 @@
                 </div>
             </div>
         </div>
-        <button class="left_arrow arrow no_style"   i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+<!--        <button class="left_arrow arrow no_style"   i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
             <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
         </button>
         <button class="right_arrow arrow no_style"  i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
             <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
-        </button>
-        <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
+        </button>-->
+        <div class="left_arrow arrow"  *ngIf="matches && matches.length && matches.length > 0" [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+        <div class="right_arrow arrow" *ngIf="matches && matches.length && matches.length > 0" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+        <table-generator *ngIf="tableConfig && matches && matches.length && matches.length > 0" [stringifyDetailAttributes]="true" [config]="tableConfig" [models]="matches"></table-generator>
+       <!-- <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr>
                 <th>
@@ -129,6 +132,6 @@
                 <tr [hidden]="true"></tr>
             </ng-container>
             </tbody>
-        </table>
+        </table>-->
     </div>
 </div>

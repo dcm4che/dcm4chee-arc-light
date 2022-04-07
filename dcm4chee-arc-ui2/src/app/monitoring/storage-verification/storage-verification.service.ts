@@ -6,6 +6,7 @@ import {AppService} from "../../app.service";
 import * as _ from 'lodash-es';
 import {DatePipe} from "@angular/common";
 import {HttpHeaders} from "@angular/common/http";
+import {TableService} from "../../table.service";
 
 @Injectable()
 export class StorageVerificationService {
@@ -14,7 +15,8 @@ export class StorageVerificationService {
       public $http:J4careHttpService,
       public mainservice: AppService,
       private dataPipe:DatePipe,
-      private deviceService:DevicesService
+      private deviceService:DevicesService,
+      private tableService:TableService
     ) { }
 
     statusValues(){
@@ -56,14 +58,15 @@ export class StorageVerificationService {
       delete filterClone.orderby;
       return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/count?${this.mainservice.param(filterClone)}`);
     };
-    getTableSchema($this, action){
+    getTableSchema($this, action, options){
       return [
           {
               type:"index",
               title:"#",
               description: $localize `:@@index:Index`,
               widthWeight:0.2,
-              calculatedWidth:"4%"
+              calculatedWidth:"4%",
+              pxWidth:30
           },{
               type:"buttons",
               title:"",
@@ -117,9 +120,30 @@ export class StorageVerificationService {
               ],
               description:$localize `:@@index:Index`,
               widthWeight:0.6,
-              calculatedWidth:"6%"
+              calculatedWidth:"6%",
+              pxWidth:105
           },
-          {
+          ...this.tableService.getTableSchema(_.concat(
+              [
+                  "dicomDeviceName",
+                  "queue",
+              ],
+              this.tableService.getTimeColumnBasedOnFilter(options.filterObject),
+              [
+                  "processingStartTime_scheduledTime",
+                  "processingEndTime_processingStartTime",
+                  "LocalAET",
+                  "StorageID",
+                  "StgCmtPolicy",
+                  "completed_failed",
+                  "status",
+                  "failures",
+                  "batchID"
+              ]
+          ))
+      ];
+    }
+    /*{
               type:"model",
               title:$localize `:@@localaet:Local AET`,
               key:"LocalAET",
@@ -166,9 +190,7 @@ export class StorageVerificationService {
               description:$localize `:@@storage-verification.outcome_message:Outcome Message`,
               widthWeight:4,
               calculatedWidth:"20%"
-          }
-      ];
-    }
+          }*/
     getTableBatchGroupedColumens(showDetails){
         return [
             {

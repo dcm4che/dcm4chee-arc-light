@@ -61,9 +61,6 @@ export class DcmDropDownComponent implements OnInit {
     @Input() showStar:boolean = false;
     @Input('model')
     set model(value){
-        console.log("this.selectedDropdown.value",this.selectedDropdown.value);
-        console.log("value",value);
-        console.log("==",this.selectedDropdown.value === value);
         if(!(this.selectedDropdown && this.selectedDropdown.value === value) && !this.multiSelectMode){
             if(value){
                 this.selectedValue = value;

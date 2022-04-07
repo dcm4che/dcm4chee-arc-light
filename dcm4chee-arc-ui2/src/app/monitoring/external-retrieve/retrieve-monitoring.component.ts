@@ -21,6 +21,7 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {forkJoin} from "rxjs";
 import {map} from "rxjs/operators";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'retrieve-monitoring',
@@ -70,6 +71,13 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     batchGrouped = false;
     urlParam;
     queueNames:SelectDropdown<string>[];
+    tableConfigNormal:any = {
+        search:""
+    };
+    tableConfigGrouped:any = {
+        search:""
+    };
+    moreTasks:boolean = false;
     constructor(
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
@@ -165,7 +173,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             this.filterObject = JSON.parse(savedFilters);
         else*/
         this.filterObject = {
-            limit:20
+            limit:20,
+            offset:0
         };
         forkJoin(
             this.aeListService.getAes().pipe(map(aet=> this.permissionService.filterAetDependingOnUiConfig(aet,'external'))),
@@ -254,7 +263,56 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             this.filterObject["orderby"] = '-updatedTime';
             // this.getTasks(0);
         }
+        this.setTableSchemas();
     }
+    setTableSchemas(){
+        this.tableConfigNormal = {
+            table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:false, filterObject:this.filterObject})),
+            filter:this.filterObject,
+            search:"",
+            showAttributes:false,
+            calculate:false
+        };
+        this.tableConfigGrouped = {
+            table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:true, filterObject:this.filterObject})),
+            filter:this.filterObject,
+            search:"",
+            showAttributes:false,
+            calculate:false
+        };
+    }
+
+
+    action(mode, match){
+        switch(mode){
+            case "cancel-selected":
+                this.executeAll('cancel');
+                break;
+            case "reschedule-selected":
+                this.executeAll('reschedule');
+                break;
+            case "delete-selected":
+                this.executeAll('delete');
+                break;
+            case "delete":
+                this.delete(match);
+                break;
+            case "cancel":
+                this.cancel(match);
+                break;
+            case "reschedule":
+                this.reschedule(match);
+                break;
+            case "task-detail":
+                this.showTaskDetail(match);
+                break;
+            case "delete-batched":
+                this.deleteBatchedTask(match);
+                break;
+        }
+
+    }
+
     confirm(confirmparameters){
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
@@ -460,9 +518,9 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             content: $localize `:@@task_delete_question:Are you sure you want to delete all tasks to this batch?`
         }).subscribe(ok=>{
             if(ok){
-                if(batchedTask.properties.batchID){
+                if(batchedTask.batchID){
                     let filter = Object.assign({},this.filterObject);
-                    filter["batchID"] = batchedTask.properties.batchID;
+                    filter["batchID"] = batchedTask.batchID;
                     delete filter["limit"];
                     delete filter["offset"];
                     this.service.deleteAll(filter).subscribe((res)=>{
@@ -491,10 +549,10 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.delete(match.properties.taskID)
+                this.service.delete(match.taskID)
                     .subscribe(
                         (res) => {
-                            // match.properties.status = 'CANCELED';
+                            // match.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
                             $this.getTasks(match.offset||0);
                             this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
@@ -514,10 +572,10 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.cancel(match.properties.taskID)
+                this.service.cancel(match.taskID)
                     .subscribe(
                         (res) => {
-                            match.properties.status = 'CANCELED';
+                            match.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
                             this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
                         },
@@ -530,6 +588,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         });
     };
     onFormChange(filters){
+        this.setTableSchemas();
  /*       this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(filters.status == "SCHEDULED" || filters.status == $localize `:@@retrieve-monitoring.in_process:IN PROCESS`){
                 return o.value != 'reschedule';
@@ -556,7 +615,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         filter["newQueueName"] = res.schema_model.newQueueName;
                     }
                     $this.cfpLoadingBar.start();
-                    this.service.reschedule(match.properties.taskID, filter)
+                    this.service.reschedule(match.taskID, filter)
                         .subscribe(
                             (res) => {
                                 $this.getTasks(match.offset||0);
@@ -587,8 +646,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             if (result){
                 this.cfpLoadingBar.start();
                 this.externalRetrieveEntries.forEach((match)=>{
-                    if(match.checked){
-                        this.service[mode](match.properties.taskID)
+                    if(match.selected){
+                        this.service[mode](match.taskID)
                             .subscribe((res) => {
                             console.log("execute result=",res);
                             },(err)=>{
@@ -615,7 +674,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         }
     }
     showTaskDetail(task){
-        this.filterObject.batchID = task.properties.batchID;
+        this.filterObject.batchID = task.batchID;
         this.batchGrouped = false;
         this.getTasks(0);
     }
@@ -625,6 +684,716 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.service.getExternalRetrieveEntries(this.filterObject,offset, this.batchGrouped).subscribe(
             res =>  {
                 $this.cfpLoadingBar.complete();
+
+                if(!environment.production){
+                    if(this.batchGrouped){
+                        res = [
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                "tasks": {
+                                    "failed": "32"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - QIDO Study Instances",
+                                    "ATS Prefetch NG - QIDO Study Series",
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-03-15T01:20:51.548+0100",
+                                    "2022-03-15T01:20:51.929+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-03-15T19:39:00.706+0100",
+                                    "2022-03-15T19:41:30.097+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-03-15T19:38:00.692+0100",
+                                    "2022-03-15T19:41:00.721+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-03-15T19:39:00.584+0100",
+                                    "2022-03-15T19:41:05.308+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-03-15T19:39:00.703+0100",
+                                    "2022-03-15T19:41:29.900+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                "tasks": {
+                                    "warning": "2"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-02-08T18:45:29.656+0100",
+                                    "2022-02-08T18:45:29.664+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.111+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-02-08T18:45:29.489+0100",
+                                    "2022-02-08T18:45:29.489+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-02-08T18:45:48.149+0100",
+                                    "2022-02-08T18:45:48.585+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.110+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "recreate-tasks-5.24.iuids",
+                                "tasks": {
+                                    "warning": "9"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "Export Objects to STORESCP"
+                                ],
+                                "createdTimeRange": [
+                                    "2021-09-24T16:17:16.929+0200",
+                                    "2021-09-24T16:17:17.092+0200"
+                                ],
+                                "updatedTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2021-09-24T16:27:46.633+0200",
+                                    "2021-09-24T16:27:46.633+0200"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2021-09-24T16:27:46.765+0200",
+                                    "2021-09-24T16:27:46.864+0200"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                "tasks": {
+                                    "failed": "32"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - QIDO Study Instances",
+                                    "ATS Prefetch NG - QIDO Study Series",
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-03-15T01:20:51.548+0100",
+                                    "2022-03-15T01:20:51.929+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-03-15T19:39:00.706+0100",
+                                    "2022-03-15T19:41:30.097+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-03-15T19:38:00.692+0100",
+                                    "2022-03-15T19:41:00.721+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-03-15T19:39:00.584+0100",
+                                    "2022-03-15T19:41:05.308+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-03-15T19:39:00.703+0100",
+                                    "2022-03-15T19:41:29.900+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                "tasks": {
+                                    "warning": "2"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-02-08T18:45:29.656+0100",
+                                    "2022-02-08T18:45:29.664+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.111+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-02-08T18:45:29.489+0100",
+                                    "2022-02-08T18:45:29.489+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-02-08T18:45:48.149+0100",
+                                    "2022-02-08T18:45:48.585+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.110+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "recreate-tasks-5.24.iuids",
+                                "tasks": {
+                                    "warning": "9"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "Export Objects to STORESCP"
+                                ],
+                                "createdTimeRange": [
+                                    "2021-09-24T16:17:16.929+0200",
+                                    "2021-09-24T16:17:17.092+0200"
+                                ],
+                                "updatedTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2021-09-24T16:27:46.633+0200",
+                                    "2021-09-24T16:27:46.633+0200"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2021-09-24T16:27:46.765+0200",
+                                    "2021-09-24T16:27:46.864+0200"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                "tasks": {
+                                    "failed": "32"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - QIDO Study Instances",
+                                    "ATS Prefetch NG - QIDO Study Series",
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-03-15T01:20:51.548+0100",
+                                    "2022-03-15T01:20:51.929+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-03-15T19:39:00.706+0100",
+                                    "2022-03-15T19:41:30.097+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-03-15T19:38:00.692+0100",
+                                    "2022-03-15T19:41:00.721+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-03-15T19:39:00.584+0100",
+                                    "2022-03-15T19:41:05.308+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-03-15T19:39:00.703+0100",
+                                    "2022-03-15T19:41:29.900+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                "tasks": {
+                                    "warning": "2"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-02-08T18:45:29.656+0100",
+                                    "2022-02-08T18:45:29.664+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.111+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-02-08T18:45:29.489+0100",
+                                    "2022-02-08T18:45:29.489+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-02-08T18:45:48.149+0100",
+                                    "2022-02-08T18:45:48.585+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.110+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "recreate-tasks-5.24.iuids",
+                                "tasks": {
+                                    "warning": "9"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "Export Objects to STORESCP"
+                                ],
+                                "createdTimeRange": [
+                                    "2021-09-24T16:17:16.929+0200",
+                                    "2021-09-24T16:17:17.092+0200"
+                                ],
+                                "updatedTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2021-09-24T16:27:46.633+0200",
+                                    "2021-09-24T16:27:46.633+0200"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2021-09-24T16:27:46.765+0200",
+                                    "2021-09-24T16:27:46.864+0200"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                "tasks": {
+                                    "failed": "32"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - QIDO Study Instances",
+                                    "ATS Prefetch NG - QIDO Study Series",
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-03-15T01:20:51.548+0100",
+                                    "2022-03-15T01:20:51.929+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-03-15T19:39:00.706+0100",
+                                    "2022-03-15T19:41:30.097+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-03-15T19:38:00.692+0100",
+                                    "2022-03-15T19:41:00.721+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-03-15T19:39:00.584+0100",
+                                    "2022-03-15T19:41:05.308+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-03-15T19:39:00.703+0100",
+                                    "2022-03-15T19:41:29.900+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                "tasks": {
+                                    "warning": "2"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-02-08T18:45:29.656+0100",
+                                    "2022-02-08T18:45:29.664+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.111+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-02-08T18:45:29.489+0100",
+                                    "2022-02-08T18:45:29.489+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-02-08T18:45:48.149+0100",
+                                    "2022-02-08T18:45:48.585+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.110+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "recreate-tasks-5.24.iuids",
+                                "tasks": {
+                                    "warning": "9"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "Export Objects to STORESCP"
+                                ],
+                                "createdTimeRange": [
+                                    "2021-09-24T16:17:16.929+0200",
+                                    "2021-09-24T16:17:17.092+0200"
+                                ],
+                                "updatedTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2021-09-24T16:27:46.633+0200",
+                                    "2021-09-24T16:27:46.633+0200"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2021-09-24T16:27:46.765+0200",
+                                    "2021-09-24T16:27:46.864+0200"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                "tasks": {
+                                    "failed": "32"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - QIDO Study Instances",
+                                    "ATS Prefetch NG - QIDO Study Series",
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-03-15T01:20:51.548+0100",
+                                    "2022-03-15T01:20:51.929+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-03-15T19:39:00.706+0100",
+                                    "2022-03-15T19:41:30.097+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-03-15T19:38:00.692+0100",
+                                    "2022-03-15T19:41:00.721+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-03-15T19:39:00.584+0100",
+                                    "2022-03-15T19:41:05.308+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-03-15T19:39:00.703+0100",
+                                    "2022-03-15T19:41:29.900+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                "tasks": {
+                                    "warning": "2"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-02-08T18:45:29.656+0100",
+                                    "2022-02-08T18:45:29.664+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.111+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-02-08T18:45:29.489+0100",
+                                    "2022-02-08T18:45:29.489+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-02-08T18:45:48.149+0100",
+                                    "2022-02-08T18:45:48.585+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.110+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "recreate-tasks-5.24.iuids",
+                                "tasks": {
+                                    "warning": "9"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "Export Objects to STORESCP"
+                                ],
+                                "createdTimeRange": [
+                                    "2021-09-24T16:17:16.929+0200",
+                                    "2021-09-24T16:17:17.092+0200"
+                                ],
+                                "updatedTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2021-09-24T16:27:46.633+0200",
+                                    "2021-09-24T16:27:46.633+0200"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2021-09-24T16:27:46.765+0200",
+                                    "2021-09-24T16:27:46.864+0200"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                "tasks": {
+                                    "failed": "32"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - QIDO Study Instances",
+                                    "ATS Prefetch NG - QIDO Study Series",
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-03-15T01:20:51.548+0100",
+                                    "2022-03-15T01:20:51.929+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-03-15T19:39:00.706+0100",
+                                    "2022-03-15T19:41:30.097+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-03-15T19:38:00.692+0100",
+                                    "2022-03-15T19:41:00.721+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-03-15T19:39:00.584+0100",
+                                    "2022-03-15T19:41:05.308+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-03-15T19:39:00.703+0100",
+                                    "2022-03-15T19:41:29.900+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                "tasks": {
+                                    "warning": "2"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-02-08T18:45:29.656+0100",
+                                    "2022-02-08T18:45:29.664+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.111+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-02-08T18:45:29.489+0100",
+                                    "2022-02-08T18:45:29.489+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-02-08T18:45:48.149+0100",
+                                    "2022-02-08T18:45:48.585+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.110+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "recreate-tasks-5.24.iuids",
+                                "tasks": {
+                                    "warning": "9"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "Export Objects to STORESCP"
+                                ],
+                                "createdTimeRange": [
+                                    "2021-09-24T16:17:16.929+0200",
+                                    "2021-09-24T16:17:17.092+0200"
+                                ],
+                                "updatedTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2021-09-24T16:27:46.633+0200",
+                                    "2021-09-24T16:27:46.633+0200"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2021-09-24T16:27:46.765+0200",
+                                    "2021-09-24T16:27:46.864+0200"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                "tasks": {
+                                    "failed": "32"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - QIDO Study Instances",
+                                    "ATS Prefetch NG - QIDO Study Series",
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-03-15T01:20:51.548+0100",
+                                    "2022-03-15T01:20:51.929+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-03-15T19:39:00.706+0100",
+                                    "2022-03-15T19:41:30.097+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-03-15T19:38:00.692+0100",
+                                    "2022-03-15T19:41:00.721+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-03-15T19:39:00.584+0100",
+                                    "2022-03-15T19:41:05.308+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-03-15T19:39:00.703+0100",
+                                    "2022-03-15T19:41:29.900+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                "tasks": {
+                                    "warning": "2"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "ATS Prefetch NG - Series Thumbnails",
+                                    "ATS Prefetch NG - Series WADO Metadata"
+                                ],
+                                "createdTimeRange": [
+                                    "2022-02-08T18:45:29.656+0100",
+                                    "2022-02-08T18:45:29.664+0100"
+                                ],
+                                "updatedTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.111+0100"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2022-02-08T18:45:29.489+0100",
+                                    "2022-02-08T18:45:29.489+0100"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2022-02-08T18:45:48.149+0100",
+                                    "2022-02-08T18:45:48.585+0100"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2022-02-08T18:45:49.821+0100",
+                                    "2022-02-08T18:45:50.110+0100"
+                                ]
+                            },
+                            {
+                                "batchID": "recreate-tasks-5.24.iuids",
+                                "tasks": {
+                                    "warning": "9"
+                                },
+                                "dicomDeviceName": [
+                                    "demoj4c"
+                                ],
+                                "ExporterID": [
+                                    "Export Objects to STORESCP"
+                                ],
+                                "createdTimeRange": [
+                                    "2021-09-24T16:17:16.929+0200",
+                                    "2021-09-24T16:17:17.092+0200"
+                                ],
+                                "updatedTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ],
+                                "scheduledTimeRange": [
+                                    "2021-09-24T16:27:46.633+0200",
+                                    "2021-09-24T16:27:46.633+0200"
+                                ],
+                                "processingStartTimeRange": [
+                                    "2021-09-24T16:27:46.765+0200",
+                                    "2021-09-24T16:27:46.864+0200"
+                                ],
+                                "processingEndTimeRange": [
+                                    "2021-09-24T16:27:46.787+0200",
+                                    "2021-09-24T16:27:46.884+0200"
+                                ]
+                            }
+                        ];
+                    }else{
+                        res = [{"taskID":"62","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.690-0600","updatedTime":"2022-03-17T11:52:14.100-0600","scheduledTime":"2022-03-17T11:52:05.689-0600","processingStartTime":"2022-03-17T11:52:14.019-0600","processingEndTime":"2022-03-17T11:52:14.100-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775772.5732.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775772.5732.0","completed":"1","statusCode":"0000"},{"taskID":"61","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.683-0600","updatedTime":"2022-03-17T11:52:14.013-0600","scheduledTime":"2022-03-17T11:52:05.681-0600","processingStartTime":"2022-03-17T11:52:13.869-0600","processingEndTime":"2022-03-17T11:52:14.013-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775771.5705.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775771.5705.0","completed":"1","statusCode":"0000"},{"taskID":"60","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.676-0600","updatedTime":"2022-03-17T11:52:13.859-0600","scheduledTime":"2022-03-17T11:52:05.675-0600","processingStartTime":"2022-03-17T11:52:13.778-0600","processingEndTime":"2022-03-17T11:52:13.859-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775771.5711.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775771.5711.0","completed":"1","statusCode":"0000"},{"taskID":"59","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.670-0600","updatedTime":"2022-03-17T11:52:13.770-0600","scheduledTime":"2022-03-17T11:52:05.669-0600","processingStartTime":"2022-03-17T11:52:13.692-0600","processingEndTime":"2022-03-17T11:52:13.769-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775771.5714.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775771.5714.0","completed":"1","statusCode":"0000"},{"taskID":"58","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.661-0600","updatedTime":"2022-03-17T11:52:13.684-0600","scheduledTime":"2022-03-17T11:52:05.660-0600","processingStartTime":"2022-03-17T11:52:13.622-0600","processingEndTime":"2022-03-17T11:52:13.683-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775771.5708.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775771.5708.0","completed":"1","statusCode":"0000"},{"taskID":"57","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.653-0600","updatedTime":"2022-03-17T11:52:13.614-0600","scheduledTime":"2022-03-17T11:52:05.651-0600","processingStartTime":"2022-03-17T11:52:13.549-0600","processingEndTime":"2022-03-17T11:52:13.614-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775772.5729.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775772.5729.0","completed":"1","statusCode":"0000"},{"taskID":"56","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.639-0600","updatedTime":"2022-03-17T11:52:13.541-0600","scheduledTime":"2022-03-17T11:52:05.638-0600","processingStartTime":"2022-03-17T11:52:13.471-0600","processingEndTime":"2022-03-17T11:52:13.540-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775772.5717.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775772.5717.0","completed":"1","statusCode":"0000"},{"taskID":"55","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.631-0600","updatedTime":"2022-03-17T11:52:13.463-0600","scheduledTime":"2022-03-17T11:52:05.629-0600","processingStartTime":"2022-03-17T11:52:13.384-0600","processingEndTime":"2022-03-17T11:52:13.463-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775772.5720.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775772.5720.0","completed":"1","statusCode":"0000"},{"taskID":"54","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.621-0600","updatedTime":"2022-03-17T11:52:13.374-0600","scheduledTime":"2022-03-17T11:52:05.620-0600","processingStartTime":"2022-03-17T11:52:13.291-0600","processingEndTime":"2022-03-17T11:52:13.373-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775772.5726.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775772.5726.0","completed":"1","statusCode":"0000"},{"taskID":"53","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.614-0600","updatedTime":"2022-03-17T11:52:13.280-0600","scheduledTime":"2022-03-17T11:52:05.612-0600","processingStartTime":"2022-03-17T11:52:13.185-0600","processingEndTime":"2022-03-17T11:52:13.280-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775771.5702.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775771.5702.0","completed":"1","statusCode":"0000"},{"taskID":"52","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.607-0600","updatedTime":"2022-03-17T11:52:13.176-0600","scheduledTime":"2022-03-17T11:52:05.606-0600","processingStartTime":"2022-03-17T11:52:13.047-0600","processingEndTime":"2022-03-17T11:52:13.176-0600","outcomeMessage":"Export STUDY[suid:1.3.6.1.4.1.5962.1.2.0.1175775772.5723.0] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.6.1.4.1.5962.1.2.0.1175775772.5723.0","completed":"1","statusCode":"0000"},{"taskID":"51","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.596-0600","updatedTime":"2022-03-17T11:52:13.031-0600","scheduledTime":"2022-03-17T11:52:05.594-0600","processingStartTime":"2022-03-17T11:52:12.770-0600","processingEndTime":"2022-03-17T11:52:13.031-0600","outcomeMessage":"Export STUDY[suid:1.3.12.2.1107.5.8.1.123456789.199507271758050705910] from DCM4CHEE to DCM4CHEE - completed:26","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.3.12.2.1107.5.8.1.123456789.199507271758050705910","completed":"26","statusCode":"0000"},{"taskID":"50","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.588-0600","updatedTime":"2022-03-17T11:52:12.764-0600","scheduledTime":"2022-03-17T11:52:05.587-0600","processingStartTime":"2022-03-17T11:52:12.718-0600","processingEndTime":"2022-03-17T11:52:12.764-0600","outcomeMessage":"Export STUDY[suid:1.2.840.113701.4.1.6653.3.264] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.2.840.113701.4.1.6653.3.264","completed":"1","statusCode":"0000"},{"taskID":"49","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.579-0600","updatedTime":"2022-03-17T11:52:12.713-0600","scheduledTime":"2022-03-17T11:52:05.576-0600","processingStartTime":"2022-03-17T11:52:12.524-0600","processingEndTime":"2022-03-17T11:52:12.712-0600","outcomeMessage":"Export STUDY[suid:1.2.840.113674.514.212.200] from DCM4CHEE to DCM4CHEE - completed:11","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.2.840.113674.514.212.200","completed":"11","statusCode":"0000"},{"taskID":"48","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.567-0600","updatedTime":"2022-03-17T11:52:12.516-0600","scheduledTime":"2022-03-17T11:52:05.566-0600","processingStartTime":"2022-03-17T11:52:11.394-0600","processingEndTime":"2022-03-17T11:52:12.516-0600","outcomeMessage":"Export STUDY[suid:1.2.840.113674.1140.196.200] from DCM4CHEE to DCM4CHEE - completed:94","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.2.840.113674.1140.196.200","completed":"94","statusCode":"0000"},{"taskID":"47","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.553-0600","updatedTime":"2022-03-17T11:52:11.386-0600","scheduledTime":"2022-03-17T11:52:05.549-0600","processingStartTime":"2022-03-17T11:52:11.294-0600","processingEndTime":"2022-03-17T11:52:11.386-0600","outcomeMessage":"Export STUDY[suid:1.2.840.113701.4.1.1.3.3477] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.2.840.113701.4.1.1.3.3477","completed":"1","statusCode":"0000"},{"taskID":"46","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.542-0600","updatedTime":"2022-03-17T11:52:11.288-0600","scheduledTime":"2022-03-17T11:52:05.541-0600","processingStartTime":"2022-03-17T11:52:11.067-0600","processingEndTime":"2022-03-17T11:52:11.287-0600","outcomeMessage":"Export STUDY[suid:1.2.840.113674.1242.214.200] from DCM4CHEE to DCM4CHEE - completed:16","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.2.840.113674.1242.214.200","completed":"16","statusCode":"0000"},{"taskID":"45","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.529-0600","updatedTime":"2022-03-17T11:52:11.055-0600","scheduledTime":"2022-03-17T11:52:05.527-0600","processingStartTime":"2022-03-17T11:52:10.298-0600","processingEndTime":"2022-03-17T11:52:11.055-0600","outcomeMessage":"Export STUDY[suid:2.16.840.1.113662.4.8796818069641.798806497.93296077602350.10] from DCM4CHEE to DCM4CHEE - completed:42","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"2.16.840.1.113662.4.8796818069641.798806497.93296077602350.10","completed":"42","statusCode":"0000"},{"taskID":"44","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"SCHEDULED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.522-0600","updatedTime":"2022-03-17T11:52:10.292-0600","scheduledTime":"2022-03-17T11:52:05.520-0600","processingStartTime":"2022-03-17T11:52:09.775-0600","processingEndTime":"2022-03-17T11:52:10.291-0600","outcomeMessage":"Export STUDY[suid:2.16.840.1.113662.4.8796818069641.798806497.93296077602350.30] from DCM4CHEE to DCM4CHEE - completed:41","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"2.16.840.1.113662.4.8796818069641.798806497.93296077602350.30","completed":"41","statusCode":"0000"},{"taskID":"43","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.508-0600","updatedTime":"2022-03-17T11:52:09.768-0600","scheduledTime":"2022-03-17T11:52:05.507-0600","processingStartTime":"2022-03-17T11:52:09.661-0600","processingEndTime":"2022-03-17T11:52:09.767-0600","outcomeMessage":"Export STUDY[suid:1.2.392.200036.9125.0.199212251200.28] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.2.392.200036.9125.0.199212251200.28","completed":"1","statusCode":"0000"},{"taskID":"43","dicomDeviceName":"dcm4chee-arc","queue":"Retrieve","type":"RETRIEVE","status":"COMPLETED","batchID":"2221711523","createdTime":"2022-03-17T11:52:05.508-0600","updatedTime":"2022-03-17T11:52:09.768-0600","scheduledTime":"2022-03-17T11:52:05.507-0600","processingStartTime":"2022-03-17T11:52:09.661-0600","processingEndTime":"2022-03-17T11:52:09.767-0600","outcomeMessage":"Export STUDY[suid:1.2.392.200036.9125.0.199212251200.28] from DCM4CHEE to DCM4CHEE - completed:1","RequesterUserID":"admin","RequesterHostName":"192.168.0.87","RequestURI":"http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/dimse/DCM4CHEE/query:DCM4CHEE/studies/export/dicom:DCM4CHEE","LocalAET":"DCM4CHEE","RemoteAET":"DCM4CHEE","DestinationAET":"DCM4CHEE","FindSCP":"DCM4CHEE","StudyInstanceUID":"1.2.392.200036.9125.0.199212251200.28","completed":"1","statusCode":"0000"}];
+                    }
+                }
+
                 if (res && res.length > 0){
                     this.externalRetrieveEntries =  res.map((properties, index) => {
                         if(this.batchGrouped){
@@ -639,12 +1408,13 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                             }
                             j4care.stringifyArrayOrObject(properties, ['tasks']);
                             j4care.stringifyArrayOrObject(propertiesAttr,[]);
-                            return {
+/*                            return {
                                 offset: offset + index,
                                 properties: properties,
                                 propertiesAttr: propertiesAttr,
                                 showProperties: false
-                            };
+                            };*/
+                            return properties;
                         }else{
                             if (_.hasIn(properties, 'Modality')){
                                 properties.Modality = properties.Modality.join(', ');
@@ -659,14 +1429,18 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                             }catch (e){
                                 properties.InstancePerSec = '';
                             }
-                            return {
+/*                            return {
                                 offset: offset + index,
                                 properties: properties,
                                 propertiesAttr: properties,
                                 showProperties: false
-                            };
+                            };*/
+                            return properties;
                         }
                     });
+                    this.moreTasks = res.length > this.filterObject['limit'];
+                    if(this.moreTasks)
+                        this.externalRetrieveEntries.splice(this.externalRetrieveEntries.length-1,1);
                     $this.count = undefined;
                 }else{
                     $this.cfpLoadingBar.complete();
@@ -705,6 +1479,26 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         }else{
             return duration.toString() + ' ms';
     }*/
+
+    next(){
+        if(this.moreTasks){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit']){
+                this.filterObject['offset'] = filter['offset'] = filter['offset']*1 + this.filterObject['limit']*1;
+                filter['limit']++;
+            }
+            this.getTasks(filter.offset);
+        }
+    }
+    prev(){
+        if(this.filterObject["offset"] > 0){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit'])
+                this.filterObject['offset'] = filter['offset'] = filter['offset']*1 - this.filterObject['limit']*1;
+            this.getTasks(filter.offset);
+        }
+    }
+
     secToMinSecString(rawSec){
         let min;
         let sec;

@@ -3,7 +3,7 @@ import {DcmWebApp} from "../../models/dcm-web-app";
 import {ConfiguredDateTameFormatObject, StudyPageConfig, StudyTagConfig} from "../../interfaces";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 
-export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy" | "progress" | "model" | "buttons" | "sub-table";
+export type TableSchemaElementType = "index"|"actions"|"value"|"pipe"|"actions-menu" | "dummy" | "progress" | "model" | "buttons" | "sub-table" | "stacked-progress";
 
 export interface DicomTableSchema{
     patient:TableSchemaElement[];

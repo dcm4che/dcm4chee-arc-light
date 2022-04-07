@@ -1,7 +1,9 @@
 import {j4care} from "./j4care.service";
-import {DicomNetworkConnection} from "../interfaces";
+import {DicomNetworkConnection, SelectDropdown} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
 import * as _  from "lodash-es";
+import {Device} from "../models/device";
+import {TableSchemaElement} from "../models/dicom-table-schema-element";
 
 const AETS1 = [{
         "dicomAETitle": "DCM4CHEE",
@@ -712,5 +714,125 @@ describe('j4care', () => {
                 "key4": "test*"
             }
         });
-    })
+    });
+
+    it("Should map devices to SelectDropdown", ()=>{
+        expect(j4care.mapDevicesToDropdown([
+            new Device({
+                "dicomDeviceName": "dcm4chee-arc",
+                "dicomManufacturer": "dcm4che.org",
+                "dicomManufacturerModelName": "dcm4chee-arc",
+                "dicomSoftwareVersion": [
+                    "5.25.2",
+                    "58cc8cb",
+                    "2022-02-14"
+                ],
+                "dicomPrimaryDeviceType": [
+                    "ARCHIVE"
+                ],
+                "dicomInstalled": true,
+                "hasArcDevExt": true,
+                "dicomDeviceDescription": "Test description"
+            }),
+            new Device({
+                "dicomDeviceName": "devj4c",
+                "dicomInstalled": true,
+                "hasArcDevExt": false
+            }),
+            new Device({
+                "dicomDeviceName": "keycloak",
+                "dicomPrimaryDeviceType": [
+                    "AUTH"
+                ],
+                "dicomInstalled": true,
+                "hasArcDevExt": false
+            })
+        ])).toEqual([
+            new SelectDropdown("dcm4chee-arc", "dcm4chee-arc", "Test description"),
+            new SelectDropdown("devj4c", "devj4c", ""),
+            new SelectDropdown("keycloak", "keycloak", "")
+        ]);
+
+        expect(j4care.mapDevicesToDropdown(<any>[
+            new SelectDropdown("dcm4chee-arc", "dcm4chee-arc", "Test description"),
+            new SelectDropdown("devj4c", "devj4c", ""),
+            new SelectDropdown("keycloak", "keycloak", "")
+        ])).toEqual([
+            new SelectDropdown("dcm4chee-arc", "dcm4chee-arc", "Test description"),
+            new SelectDropdown("devj4c", "devj4c", ""),
+            new SelectDropdown("keycloak", "keycloak", "")
+        ]);
+
+        expect(j4care.mapDevicesToDropdown(<any>[
+            {
+                text:"dcm4chee-arc",
+                value:"dcm4chee-arc"
+            },{
+                text:"devj4c",
+                value:"devj4c"
+            },{
+                text:"keycloak",
+                value:"keycloak"
+            }
+        ])).toEqual([
+            new SelectDropdown("dcm4chee-arc", "dcm4chee-arc"),
+            new SelectDropdown("devj4c", "devj4c"),
+            new SelectDropdown("keycloak", "keycloak")
+        ]);
+    });
+
+    it("Should calculate the width of the table columns", ()=>{
+        expect(j4care.calculateWidthOfTable([])).toEqual([])
+
+        expect(j4care.calculateWidthOfTable([
+            new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@status:Status`,
+                pathToValue:"status",
+                description:$localize `:@@status:Status`,
+                pxWidth:105
+            }),
+            new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@device_name:Device name`,
+                pathToValue:"dicomDeviceName",
+                description: $localize `:@@device_name:Device name`,
+                widthWeight:1,
+                calculatedWidth:"20%"
+            }),
+            new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@queue_name:Queue Name`,
+                pathToValue:"queue",
+                description: $localize `:@@queue_name:Queue Name`,
+                widthWeight:1,
+                calculatedWidth:"20%"
+            })
+        ])).toEqual([
+            new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@status:Status`,
+                pathToValue:"status",
+                description:$localize `:@@status:Status`,
+                pxWidth:105,
+                calculatedWidth: "105px"
+            }),
+            new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@device_name:Device name`,
+                pathToValue:"dicomDeviceName",
+                description: $localize `:@@device_name:Device name`,
+                widthWeight:1,
+                calculatedWidth:"calc(50% - 53px)"
+            }),
+            new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@queue_name:Queue Name`,
+                pathToValue:"queue",
+                description: $localize `:@@queue_name:Queue Name`,
+                widthWeight:1,
+                calculatedWidth:"calc(50% - 53px)"
+            })
+        ])
+    });
 });

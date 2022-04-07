@@ -1,6 +1,9 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as _ from 'lodash-es';
 import {j4care} from "../j4care.service";
+import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {PermissionService} from "../permissions/permission.service";
+import {TableAction} from "../dicom-studies-table/dicom-studies-table.interfaces";
 
 @Component({
     selector: 'table-generator',
@@ -9,34 +12,28 @@ import {j4care} from "../j4care.service";
 })
 export class TableGeneratorComponent implements OnInit {
 
-    @Input() config;
+    private _config;
     private _models;
     @Input() stringifyDetailAttributes;
     @Output() tableMouseEnter = new EventEmitter();
     @Output() tableMouseLeave = new EventEmitter();
     _ = _;
     Object = Object;
-    constructor() {
+    constructor(
+        public permissionService:PermissionService
+    ) {
         console.log("model",this._models);
     }
     ngOnInit() {
-        if(!this.config || !_.hasIn(this.config,"search")){
-            this.config = this.config || {};
-            this.config.search = "";
+        if(!this._config || !_.hasIn(this._config,"search")){
+            this._config = this._config || {};
+            this._config.search = "";
         }
-        if(!_.hasIn(this.config,"calculate") || this.config.calculate){
-            this.calculateWidthOfTable();
+        if(!_.hasIn(this._config,"calculate") || this._config.calculate){
+            this._config.table = j4care.calculateWidthOfTable(this._config.table);
         }
+        this._config.table = this.checkSchemaPermission(this._config.table);
     }
-    calculateWidthOfTable(){
-        let summ = 0;
-        this.config.table.forEach((m)=>{
-            summ += m.widthWeight;
-        });
-        this.config.table.forEach((m)=>{
-            m.calculatedWidth =  ((m.widthWeight * 100)/summ)+"%";
-        });
-    };
     tMousEnter(){
         this.tableMouseEnter.emit();
     }
@@ -70,5 +67,72 @@ export class TableGeneratorComponent implements OnInit {
                 return model;
             });
         }
+    }
+
+    checkSchemaPermission(schema: TableSchemaElement[]): TableSchemaElement[] {
+        // Object.keys(schema).forEach(levelKey => {
+            schema.forEach((element: TableSchemaElement) => {
+                if (element && element.type) {
+                    if (element.type === "actions" || element.type === "actions-menu" || element.type === "buttons") {
+                        let key = "actions";
+                        if (_.hasIn(element, "menu") && element.menu) {
+                            key = "menu.actions";
+                        }
+                        if (_.get(element, key) && (<any[]>_.get(element, key)).length > 0) {
+                            let result = (<any[]>_.get(element, key)).filter((menu: TableAction) => {
+                                if (menu.permission) {
+                                    return this.permissionService.checkVisibility(menu.permission);
+                                }
+                                return true
+                            });
+                            _.set(element, key, result);
+                        }
+                        if(_.hasIn(element,"headerActions")){
+                            key = "headerActions";
+                            let result = (<any[]>_.get(element, key)).filter((menu: TableAction) => {
+                                if (menu.permission) {
+                                    return this.permissionService.checkVisibility(menu.permission);
+                                }
+                                return true
+                            });
+                            _.set(element, key, result);
+                        }
+                    }
+                } else {
+                    return false;
+                }
+            })
+        // });
+        console.log("schema", schema);
+        return schema;
+    }
+
+
+    get config() {
+        return this._config;
+    }
+
+    @Input()
+    set config(value) {
+        console.log("in set config",value);
+        if(_.hasIn(value,"table")){
+            value.table.forEach(t=>{
+                console.log("t",t);
+                if(t.modifyData && (!t.hook || t.hook === "")){
+                    t["hook"] = t.modifyData;
+                }
+                if(t.header && (!t.title || t.title === "")){
+                    t["title"] = t.header;
+                }
+                if(t.type && t.type === "model"){
+                    t.type = "value";
+                }
+                if(t.key && (!t.pathToValue || t.pathToValue === "")){
+                    t.pathToValue = t.key;
+                }
+            })
+        }
+        console.log("in set config",value);
+        this._config = value;
     }
 }

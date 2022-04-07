@@ -920,7 +920,8 @@ export class Globalvar {
                 permissionsAction:"menu-study"
             },
             "/study/study":{
-                permissionsAction:"tab-study-study"
+                permissionsAction:"tab-study-study",
+                nextCheck:"/device/aelist"
             },
             "/study/patient":{
                 permissionsAction:"tab-study-patient"
@@ -998,15 +999,19 @@ export class Globalvar {
                 permissionsAction:"tab-correct_data->patient_data"
             },
         };
-        if(urlPermissions[url])
-            return urlPermissions[url];
-        else{
-            let actionObject;
-            Object.keys(urlPermissions).forEach(keys=>{
-                if ((m = regex.exec(keys)) !== null && url.indexOf(m[1]) > -1)
-                    actionObject = urlPermissions[keys];
-            });
-            return actionObject;
+        if(url === "*"){
+            return urlPermissions;
+        }else{
+            if(urlPermissions[url])
+                return urlPermissions[url];
+            else{
+                let actionObject;
+                Object.keys(urlPermissions).forEach(keys=>{
+                    if ((m = regex.exec(keys)) !== null && url.indexOf(m[1]) > -1)
+                        actionObject = urlPermissions[keys];
+                });
+                return actionObject;
+            }
         }
     }
 
@@ -2613,7 +2618,7 @@ export class Globalvar {
         return {
             flow: 'standard',
             responseMode: 'fragment',
-            checkLoginIframe: true,
+            checkLoginIframe: false,
             onLoad: 'login-required'
         };
     }

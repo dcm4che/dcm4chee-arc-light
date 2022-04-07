@@ -6,6 +6,8 @@ import {AppService} from "../../app.service";
 import {DatePipe} from "@angular/common";
 import {Router} from "@angular/router";
 import {HttpHeaders} from "@angular/common/http";
+import {TableService} from "../../table.service";
+import * as _ from 'lodash-es'
 
 @Injectable()
 export class DiffMonitorService {
@@ -16,7 +18,8 @@ export class DiffMonitorService {
         private mainservice:AppService,
         private $http:J4careHttpService,
         private dataPipe:DatePipe,
-        private router:Router
+        private router:Router,
+        private tableService:TableService
     ) { }
 
     statusValues(){
@@ -180,14 +183,15 @@ export class DiffMonitorService {
       ];
   }
 
-    getTableColumens($this, action){
+    getTableColumns($this, action, options){
         return [
             {
                 type:"index",
                 title:"#",
                 description:$localize `:@@index:Index`,
                 widthWeight:0.1,
-                calculatedWidth:"4%"
+                calculatedWidth:"4%",
+                pxWidth:30
             },{
                 type:"buttons",
                 title:"",
@@ -258,10 +262,32 @@ export class DiffMonitorService {
                         }
                     }
                 ],
-                description:$localize `:@@index:Index`,
-                widthWeight:0.3,
-                calculatedWidth:"6%"
-            },{
+                description:$localize `:@@actions:Actions`,
+                widthWeight:0.7,
+                pxWidth:105
+            },
+            ...this.tableService.getTableSchema(_.concat(
+                [
+                    "dicomDeviceName",
+                    "queue"
+                ],
+                this.tableService.getTimeColumnBasedOnFilter(options.filterObject),
+                [
+                    "processingStartTime_scheduledTime",
+                    "processingEndTime_processingStartTime",
+                    "LocalAET",
+                    "PrimaryAET",
+                    "SecondaryAET",
+                    "comparefield",
+                    "matches",
+                    "status",
+                    "failures",
+                    "batchID"
+                ]
+            ))
+        ];
+    }
+    /*,{
                 type:"model",
                 title:$localize `:@@primary_aet:Primary AET`,
                 key:"PrimaryAET",
@@ -314,17 +340,16 @@ export class DiffMonitorService {
                 widthWeight:1,
                 calculatedWidth:"20%",
                 cssClass:"hideOn800px"
-            }
-        ];
-    }
-    getTableBatchGroupedColumens(showDetails){
+            }*/
+    getTableBatchGroupedColumns(showDetails){
         return [
             {
                 type:"index",
                 title:"#",
                 description:$localize `:@@index:Index`,
                 widthWeight:0.1,
-                calculatedWidth:"4%"
+                calculatedWidth:"4%",
+                pxWidth:30
             },{
                 type:"buttons",
                 title:"",

@@ -14,6 +14,7 @@ import {AppService} from "../../app.service";
 import {HttpClient, HttpHandler} from "@angular/common/http";
 import {Router} from "@angular/router";
 import {StudyWebService} from "./study-web-service.model";
+import {j4care} from "../../helpers/j4care.service";
 
 class StudyServiceDependenc{
 }
@@ -32,7 +33,8 @@ describe('StudyService', () => {
           {provide:WebAppsListService, useClass:StudyServiceDependenc},
           {provide:RetrieveMonitoringService, useClass:StudyServiceDependenc},
           {provide:PermissionService, useClass:StudyServiceDependenc},
-          {provide:LargeIntFormatPipe, useClass:StudyServiceDependenc}
+          {provide:LargeIntFormatPipe, useClass:StudyServiceDependenc},
+          {provide:j4care, useClass:StudyServiceDependenc}
       ]
     });
   });

@@ -1,45 +1,73 @@
 <div class="dynamic_table " *ngIf="models">
   <div class="table_header">
     <div class="tr">
-      <div class="th {{header.cssClass||''}}" *ngFor="let header of config.table" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">{{header.title}}</div>
+        <ng-container *ngFor="let header of config.table">
+            <ng-container *ngIf="(header.type === 'buttons' || header.type === 'actions')">
+                <div class="th" [ngStyle]="{width: header.calculatedWidth}">
+                    <ng-container *ngIf="header.type === 'actions' && header.headerActions && header.headerActions.length && header.headerActions.length > 0">
+                        <ng-container *ngFor="let action of header.headerActions">
+                            <a *ngIf="!action.showIf || action.showIf(models, config)" class="text-white action-button"  (click)="$event.preventDefault();action.click(models, config)" title="{{action.title || ''}}">
+                                <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                                <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                            </a>
+                        </ng-container>
+                    </ng-container>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="!(header.type === 'buttons' || header.type === 'actions')">
+                <div class="th {{header.cssClass||''}}" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">{{header.title}}</div>
+            </ng-container>
+        </ng-container>
     </div>
   </div>
   <div class="table_body">
       <ng-container *ngFor="let model of models|search:config.search;let i = index">
-        <div class="tr" [ngClass]="{'selected':model.selected}">
+        <div class="tr" [ngClass]="{'selected':(model && model.selected)}">
             <div class="td {{table_element.cssClass||''}}" *ngFor="let table_element of config.table;let k = index" [ngStyle]="{width: table_element.calculatedWidth}">
                 <span *ngIf="table_element.type === 'index'">{{i+(config.filter.offset || 0)+1}}.</span>
-                <div *ngIf="table_element.type === 'buttons'" (mouseenter)="tMousEnter()" (mouseleave)="tMousLeave()">
-                    <a (click)="$event.preventDefault();button.click(model)" *ngFor="let button of table_element.buttons" [title]="button.title || ''">
-                        <div *ngIf="button.icon.tag === 'span'" class="{{button.icon.cssClass||''}}">{{button.icon.text||''}}</div>
-                    </a>
-                </div>
-                <span [ngClass]="{'pointer':table_element.onClick}" *ngIf="table_element.type === 'progress'">
+                <span [ngClass]="{'pointer':table_element.onClick}" *ngIf="table_element.type === 'progress' && _.hasIn(table_element,'key')">
                     <stacked-progress [model]="_.get(model,table_element.key)" [diffModel]="table_element.diffMode" (click)="onProgressClicked(table_element, model)"></stacked-progress>
                 </span>
-                <ng-container *ngIf="table_element.type === 'model'">
-                    <ng-container *ngIf="table_element.modifyData">
-                        <span *ngIf="_.hasIn(model,table_element.key)">{{table_element.modifyData(_.get(model,table_element.key),model)}}</span>
-                    </ng-container>
-                    <ng-container *ngIf="!table_element.modifyData">
-                        <span *ngIf="_.hasIn(model,table_element.key)" class="text_content" tooltip="{{_.get(model,table_element.key)}}">
-                            {{_.get(model,table_element.key)}}
-                        </span>
-                    </ng-container>
-                </ng-container>
+                <span [ngClass]="{'pointer':table_element.onClick}" *ngIf="table_element.type === 'progress' && _.hasIn(table_element,'pathToValue')">
+                    <stacked-progress [model]="_.get(model,table_element.pathToValue)" [diffModel]="table_element.diffMode" (click)="onProgressClicked(table_element, model)"></stacked-progress>
+                </span>
                 <ng-container *ngIf="table_element.type === 'value'">
-                    <ng-container *ngIf="table_element.modifyData">
-                        <span *ngIf="_.hasIn(model,table_element.pathToValue)">{{table_element.modifyData(_.get(model,table_element.pathToValue),model)}}</span>
-                    </ng-container>
-                    <ng-container *ngIf="!table_element.modifyData">
-                        <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content" tooltip="{{_.get(model,table_element.pathToValue)}}">
-                            {{_.get(model,table_element.pathToValue)}}
-                        </span>
+                    <ng-container *ngIf="table_element.hook">
+                        <ng-container *ngIf="!table_element.hoverHook">
+                            <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{_.get(model,table_element.pathToValue)}}">
+                                {{table_element.hook(_.get(model,table_element.pathToValue),model)}}
+                            </span>
+                        </ng-container>
+                        <ng-container *ngIf="table_element.hoverHook">
+                            <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{table_element.hoverHook(model)}}">
+                                {{table_element.hook(_.get(model,table_element.pathToValue),model)}}
+                            </span>
+                        </ng-container>
+                        </ng-container>
+                    <ng-container *ngIf="!table_element.hook">
+                        <ng-container *ngIf="!table_element.hoverHook">
+                            <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{_.get(model,table_element.pathToValue)}}">
+                                {{_.get(model,table_element.pathToValue)}}
+                            </span>
+                        </ng-container>
+                        <ng-container *ngIf="table_element.hoverHook">
+                            <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{table_element.hoverHook(model)}}">
+                                {{_.get(model,table_element.pathToValue)}}
+                            </span>
+                        </ng-container>
                     </ng-container>
                 </ng-container>
                 <ng-container *ngIf="table_element.type === 'actions'">
                     <ng-container  *ngFor="let action of table_element.actions">
-                        <a *ngIf="(!action.showIf || action.showIf(model, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(model)">
+                        <a *ngIf="(!action.showIf || action.showIf(model, config))" class="pointer action-button {{table_element.cssClass || ''}}" (click)="$event.preventDefault();action.click(model)">
+                            <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+                            <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                        </a>
+                    </ng-container>
+                </ng-container>
+                <ng-container *ngIf="table_element.type === 'buttons'">
+                    <ng-container  *ngFor="let action of table_element.buttons">
+                        <a *ngIf="(!action.showIf || action.showIf(model, config))" class="pointer action-button {{table_element.cssClass || ''}}" (click)="$event.preventDefault();action.click(model)">
                             <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                             <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                         </a>
@@ -47,7 +75,7 @@
                 </ng-container>
             </div>
         </div>
-        <div class="tr"  *ngIf="model.showAttributes">
+        <div class="tr"  *ngIf="model && model.showAttributes">
             <div class="td" style="width:100%">
               <table class="table table-bordered table-condensed attribute_list">
                   <ng-container *ngIf="stringifyDetailAttributes">
@@ -68,7 +96,7 @@
               </table>
             </div>
         </div>
-          <div class="tr"  *ngIf="model.showDicomAttributes">
+          <div class="tr"  *ngIf="model && model.showDicomAttributes">
               <div class="td" style="width:100%">
                   <attribute-list *ngIf="model" [attrs]="model"></attribute-list>
               </div>

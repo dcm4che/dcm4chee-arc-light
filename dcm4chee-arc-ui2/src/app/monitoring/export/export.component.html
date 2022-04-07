@@ -59,7 +59,7 @@
                 </div>
             </div>
         </div>
-        <ng-container *ngIf="batchGrouped">
+<!--        <ng-container *ngIf="batchGrouped">
             <button class="left_arrow arrow no_style"  i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(externalRetrieveEntries)" [ngClass]="{'active':hasNewer(externalRetrieveEntries)}" (click)="getCounts(newerOffset(externalRetrieveEntries))">
                 <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
             </button>
@@ -74,8 +74,13 @@
             <button class="right_arrow arrow no_style" i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
             </button>
-        </ng-container>
-        <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
+        </ng-container>-->
+        <div class="left_arrow arrow"  *ngIf="matches && matches.length && matches.length > 0" [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+        <div class="right_arrow arrow" *ngIf="matches && matches.length && matches.length > 0" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+        <table-generator *ngIf="!batchGrouped && tableConfigNormal && matches && matches.length && matches.length > 0" [stringifyDetailAttributes]="true" [config]="tableConfigNormal" [models]="matches"></table-generator>
+        <table-generator *ngIf="batchGrouped && tableConfigGrouped && matches && matches.length && matches.length > 0" [stringifyDetailAttributes]="true" [config]="tableConfigGrouped" [models]="matches"></table-generator>
+
+        <!--<table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr *ngIf="batchGrouped">
                 <th>
@@ -184,6 +189,6 @@
                 <tr [hidden]="true"></tr>
             </ng-container>
             </tbody>
-        </table>
+        </table>-->
     </div>
 </div>

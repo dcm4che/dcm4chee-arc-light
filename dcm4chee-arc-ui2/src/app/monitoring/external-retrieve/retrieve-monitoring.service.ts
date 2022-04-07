@@ -5,6 +5,8 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import * as _ from 'lodash-es';
 import {j4care} from "../../helpers/j4care.service";
 import {HttpHeaders} from "@angular/common/http";
+import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {TableService} from "../../table.service";
 
 @Injectable()
 export class RetrieveMonitoringService {
@@ -13,7 +15,8 @@ export class RetrieveMonitoringService {
     constructor(
       public $http:J4careHttpService,
       public mainservice: AppService,
-      private deviceService:DevicesService
+      private deviceService:DevicesService,
+      private tableService:TableService
     ) { }
 
     getExternalRetrieveEntries(filter, offset, batch){
@@ -270,6 +273,332 @@ export class RetrieveMonitoringService {
             ]
     ];
     }
+
+    getTableSchema($this, action, options){
+        if(_.hasIn(options,"grouped") && options.grouped){
+            return [
+                new TableSchemaElement({
+                    type:"index",
+                    title:"#",
+                    description:$localize `:@@index:Index`,
+                    widthWeight:0.2,
+                    calculatedWidth:"4%"
+                }),new TableSchemaElement({
+                    type:"actions",
+                    title:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            },
+                            title:$localize `:@@show_details:Show details`
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-list-alt',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                action.call($this,'task-detail', e);
+                            },
+                            title:$localize `:@@title.export.show_tasks_detail:Show Tasks Detail`
+                        },
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-remove-circle',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                action.call($this,'delete-batched', e);
+                            },
+                            permission: {
+                                id: 'action-monitoring->export-single_action',
+                                param: 'visible'
+                            },
+                            title:$localize `:@@title.delete_task_with_this_batchid:Delete Task with this BatchID`
+                        }
+                    ],
+                    description:$localize `:@@actions:Actions`,
+                    pxWidth:105
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@batch_id:Batch ID`,
+                    pathToValue:"batchID",
+                    description: $localize `:@@batch_id:Batch ID`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@remote_aet:Remote AET`,
+                    pathToValue:"RemoteAET",
+                    description: $localize `:@@remote_aet:Remote AET`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@destination_aet:Destination AET`,
+                    pathToValue:"DestinationAET",
+                    description: $localize `:@@destination_aet:Destination AET`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@scheduled_time_range:Scheduled Time Range`,
+                    pathToValue:"scheduledTimeRange",
+                    description: $localize `:@@scheduled_time_range:Scheduled Time Range`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@processing_start_time_range:Processing Start Time Range`,
+                    pathToValue:"processingStartTimeRange",
+                    description: $localize `:@@processing_start_time_range:Processing Start Time Range`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@processing_end_time_range:Processing End Time Range`,
+                    pathToValue:"processingEndTimeRange",
+                    description: $localize `:@@processing_end_time_range:Processing End Time Range`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"progress",
+                    title:$localize `:@@tasks:Tasks`,
+                    pathToValue:"tasks",
+                    description: $localize `:@@tasks:Tasks`,
+                    widthWeight:1.5,
+                    cssClass:"no-padding",
+                    calculatedWidth:"20%"
+                })
+            ]
+        }
+        return [
+            new TableSchemaElement({
+                type:"index",
+                title:"#",
+                description:$localize `:@@index:Index`,
+                widthWeight:0.2,
+                calculatedWidth:"4%"
+            }),new TableSchemaElement({
+                type:"actions",
+                title:"",
+                headerActions:[
+                    {
+                        icon: {
+                            tag: 'span',
+                            cssClass: 'glyphicon glyphicon-unchecked',
+                            text: ''
+                        },
+                        click: (models, config) => {
+                            models.forEach(m=>{
+                                m.selected = true;
+                            });
+                            config.allSelected = true;
+                        },
+                        title: $localize `:@@select:Select`,
+                        showIf: (e, config) => {
+                            return !config.allSelected;
+                        }
+                    }, {
+                        icon: {
+                            tag: 'span',
+                            cssClass: 'glyphicon glyphicon-check',
+                            text: ''
+                        },
+                        click: (models,config) => {
+                            models.forEach(m=>{
+                                m.selected = false;
+                            });
+                            config.allSelected = false;
+                        },
+                        title: $localize `:@@unselect:Unselect`,
+                        showIf: (e, config) => {
+                            return config.allSelected;
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-ban-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'cancel-selected', e);
+                        },
+                        permission: {
+                            id: 'action-monitoring->export-single_action',
+                            param: 'visible'
+                        },
+                        title:$localize `:@@title.cancel_selected:Cancel selected`
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-repeat',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'reschedule-selected', e);
+                        },
+                        permission: {
+                            id: 'action-monitoring->export-single_action',
+                            param: 'visible'
+                        },
+                        title:$localize `:@@title.reschedule_selected:Reschedule selected`
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-remove-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'delete-selected', e);
+                        },
+                        permission: {
+                            id: 'action-monitoring->export-single_action',
+                            param: 'visible'
+                        },
+                        title:$localize `:@@title.delete_selected:Delete selected`
+                    }
+                ],
+                actions:[
+                    {
+                        icon: {
+                            tag: 'span',
+                            cssClass: 'glyphicon glyphicon-unchecked',
+                            text: ''
+                        },
+                        click: (e) => {
+                            e.selected = !e.selected;
+                        },
+                        title: $localize `:@@select:Select`,
+                        showIf: (e, config) => {
+                            return !e.selected;
+                        }
+                    }, {
+                        icon: {
+                            tag: 'span',
+                            cssClass: 'glyphicon glyphicon-check',
+                            text: ''
+                        },
+                        click: (e) => {
+                            console.log("e", e);
+                            e.selected = !e.selected;
+                        },
+                        title: $localize `:@@unselect:Unselect`,
+                        showIf: (e, config) => {
+                            return e.selected;
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-ban-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'cancel', e);
+                        },
+                        title:$localize `:@@cancel_this_task:Cancel this task`,
+                        permission: {
+                            id: 'action-monitoring->export-single_action',
+                            param: 'visible'
+                        },
+                        showIf:(match, config) => {
+                            return ((match.status && match.status === 'SCHEDULED') || (match.status && match.status === 'IN PROCESS'));
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-repeat',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'reschedule', e);
+                        },
+                        title:$localize `:@@reschedule_this_task:Reschedule this task`,
+                        permission: {
+                            id: 'action-monitoring->export-single_action',
+                            param: 'visible'
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-remove-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'delete', e);
+                        },
+                        permission: {
+                            id: 'action-monitoring->export-single_action',
+                            param: 'visible'
+                        },
+                        title:$localize `:@@delete_this_task:Delete this task`
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-th-list',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            e.showAttributes = !e.showAttributes;
+                        },
+                        title:$localize `:@@show_details:Show details`
+                    }
+                ],
+                description:$localize `:@@actions:Actions`,
+                pxWidth:105
+            }),
+            ...this.tableService.getTableSchema(_.concat(
+                [
+                    "dicomDeviceName",
+                    "queue"
+                ],
+                this.tableService.getTimeColumnBasedOnFilter(options.filterObject),
+                [
+                    "processingStartTime_scheduledTime",
+                    "processingEndTime_processingStartTime",
+                    "LocalAET",
+                    "RemoteAET",
+                    "DestinationAET",
+                    "remaining",
+                    "status",
+                    "failures",
+                    "batchID"
+                ]
+            ))
+        ]
+    }
+
     getQueueNames(){
         return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}queue`);
     }

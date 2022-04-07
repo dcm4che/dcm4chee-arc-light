@@ -13,7 +13,7 @@ import {
     J4careDateTimeMode, LanguageConfig,
     LanguageProfile,
     RangeObject,
-    RangeUnit,
+    RangeUnit, SelectDropdown,
     StudyDateMode
 } from "../interfaces";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
@@ -24,6 +24,7 @@ import * as uuid from  'uuid/v4';
 import {User} from "../models/user";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Aet} from "../models/aet";
+import {Device} from "../models/device";
 declare const bigInt:Function;
 
 @Injectable()
@@ -1022,6 +1023,7 @@ export class j4care {
                     }
                 }
             });
+            console.log("calculated table",table);
             return table;
         }catch (e){
             this.log("Error on calculating width of table",e);
@@ -1231,12 +1233,86 @@ export class j4care {
         }
     }
 
+    static getDifferenceTime(starttime, endtime,mode?){
+        let start = new Date(starttime).getTime();
+        let end = new Date(endtime).getTime();
+        if (!start || !end || end < start){
+            return null;
+        }else{
+            return this.msToTimeSimple(new Date(endtime).getTime() - new Date(starttime).getTime(),mode);
+        }
+    };
 
+    static msToTimeSimple(duration,mode?) {
+        if(mode)
+            if(mode === "sec")
+                return ((duration*6 / 6000).toFixed(4)).toString() + ' s';
+            else
+                return ((duration / 60000).toFixed(4)).toString() + ' min';
+    }
+    static msToTime(duration) {
+        if (duration > 999){
+            let milliseconds: any = parseInt((((duration % 1000))).toString());
+            let seconds: any = parseInt(((duration / 1000) % 60).toString());
+            let minutes: any = parseInt(((duration / (1000 * 60)) % 60).toString());
+            let hours: any = parseInt(((duration / (1000 * 60 * 60))).toString());
+
+            if (hours === 0){
+                if (minutes === 0){
+                    return seconds.toString() + '.' + milliseconds.toString() + $localize `:@@storage-commitment._sec: sec`;
+                }else{
+                    seconds = (seconds < 10) ? '0' + seconds : seconds;
+                    return minutes.toString() + ':' + seconds.toString() + '.' + milliseconds.toString() + $localize `:@@storage-commitment._min: min`;
+                }
+            }else{
+                hours = (hours < 10) ? '0' + hours : hours;
+                minutes = (minutes < 10) ? '0' + minutes : minutes;
+                seconds = (seconds < 10) ? '0' + seconds : seconds;
+
+                return hours.toString() + ':' + minutes.toString() + ':' + seconds.toString() + '.' + milliseconds.toString() + $localize `:@@storage-commitment._h: h`;
+            }
+        }else{
+            return duration.toString() + $localize `:@@storage-commitment._ms: ms`;
+        }
+    }
 
     modal(schema, callBack){
         this.openDialog(schema).subscribe(callBack);
     }
     // getDevices = ()=>this.httpJ4car.get('./rs/devices');
+
+    static mapDevicesToDropdown(devices:Device[]):SelectDropdown<Device>[]|any{
+        try{
+            console.log("devices[0] instanceof SelectDropdown)", devices[0] instanceof SelectDropdown);
+            if(devices && devices.length && devices.length > 0 && !(devices[0] instanceof SelectDropdown)){
+                if(_.hasIn(devices, "0.value")){
+                    return devices.map((device:any)=>new SelectDropdown(device.value, device.text));
+                }else{
+                    return devices.map((device:Device)=>new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription));
+                }
+            }
+            return devices;
+        }catch(e){
+            this.log("Error on mapping devices", e);
+            return devices;
+        }
+    }
+    static mapAetToDropdown(aets:Aet[]):SelectDropdown<Aet>[]|any{
+        try{
+            console.log("aet[0] instanceof SelectDropdown)", aets[0] instanceof SelectDropdown);
+            if(aets && aets.length && aets.length > 0 && !(aets[0] instanceof SelectDropdown)){
+                if(_.hasIn(aets, "0.value")){
+                    return aets.map((device:any)=>new SelectDropdown(device.value, device.text));
+                }else{
+                    return aets.map((device:Aet)=>new SelectDropdown(device.dicomAETitle,device.dicomAETitle,device.dicomDescription));
+                }
+            }
+            return aets;
+        }catch(e){
+            this.log("Error on mapping aets", e);
+            return aets;
+        }
+    }
 
     openDialog(parameters, width?, height?){
         this.dialogRef = this.dialog.open(ConfirmComponent, {
@@ -1570,7 +1646,7 @@ export class j4care {
         }
     }
 
-    static extractMessagFromWorningHeader(header:HttpHeaders){
+    static extractMessageFromWarningHeader(header:HttpHeaders){
         const regex = /(\d{3}) ([\w:\/-]*) (.*)/;
         let m;
         try{
