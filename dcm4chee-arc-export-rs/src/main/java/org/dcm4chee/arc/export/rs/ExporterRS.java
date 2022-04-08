@@ -132,7 +132,7 @@ public class ExporterRS {
     public Response exportStudy(
             @PathParam("StudyUID") String studyUID,
             @PathParam("ExporterID") String exporterID) {
-        return export(studyUID, "*", "*", exporterID);
+        return export(studyUID, null, null, exporterID);
     }
 
     @POST
@@ -142,7 +142,7 @@ public class ExporterRS {
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ExporterID") String exporterID) {
-        return export(studyUID, seriesUID, "*", exporterID);
+        return export(studyUID, seriesUID, null, exporterID);
     }
 
     @POST
