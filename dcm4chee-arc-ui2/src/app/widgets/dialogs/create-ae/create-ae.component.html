@@ -63,12 +63,15 @@
                                 <div class="title">
                                     <label i18n="@@primary_device_type">Primary Device Type</label>
                                 </div>
-                                <div class="form_content arrayelement">
-                                    <div class="inputblock array_parent">
-                                        <div class="array_single" *ngFor="let el of newAetModel.dicomPrimaryDeviceType;let i = index;trackBy:trackByFn">
-                                            <input type="text" [(ngModel)]="newAetModel.dicomPrimaryDeviceType[i]"><span class="delete" (click)="removeElemnt(newAetModel.dicomPrimaryDeviceType,i)"><i class="material-icons">clear</i></span>
-                                        </div>
-                                        <div class="add" (click)="addArrayElement(newAetModel, 'dicomPrimaryDeviceType')"><i class="material-icons">add</i> <span i18n="@@Add">Add</span></div>
+                                <div class="form_content checkbox">
+                                    <div class="checkbox_parent long_mode">
+                                        <input type="text" i18n-placeholder="@@search_dot"  placeholder="Search..." [(ngModel)]="searchDeviceType"><br>
+                                        <ng-container *ngFor="let type of primaryDeviceType|search:searchDeviceType;let j = index">
+                                            <label class="checkbox" >
+                                                <input type="checkbox" value="{{type}}" (change)="togglePrimaryDeviceType(type)">
+                                                <span>{{type}}</span>
+                                            </label><br>
+                                        </ng-container>
                                     </div>
                                 </div>
                                 <div class="description_parent">

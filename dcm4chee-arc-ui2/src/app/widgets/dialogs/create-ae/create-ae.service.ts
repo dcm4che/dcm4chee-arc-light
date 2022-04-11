@@ -1,12 +1,82 @@
 import { Injectable } from '@angular/core';
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {AppService} from "../../../app.service";
+import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
+import {map} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CreateAeService {
 
-  constructor() { }
+  constructor(
+      public $http:J4careHttpService,
+      public appService:AppService,
+      private deviceConfigurator:DeviceConfiguratorService
+  ) { }
 
+  getPrimaryDeviceType(){
+      return this.deviceConfigurator.getSchema('device.schema.json').pipe(map((res:any)=>{
+          try{
+              return res.properties.dicomPrimaryDeviceType.items.enum;
+          }catch (e){
+              console.log("could not extract from schema",e);
+              return [
+                  "ARCHIVE",
+                  "COMP",
+                  "CAD",
+                  "DSS",
+                  "FILMD",
+                  "M3D",
+                  "MCD",
+                  "PRINT",
+                  "CAPTURE",
+                  "LOG",
+                  "RT",
+                  "WSD",
+                  "AR",
+                  "BMD",
+                  "BDUS",
+                  "EPS",
+                  "CR",
+                  "CT",
+                  "DX",
+                  "ECG",
+                  "ES",
+                  "XC",
+                  "GM",
+                  "HD",
+                  "IO",
+                  "IVOCT",
+                  "IVUS",
+                  "KER",
+                  "LEN",
+                  "MR",
+                  "MG",
+                  "NM",
+                  "OAM",
+                  "OCT",
+                  "OPM",
+                  "OP",
+                  "OPR",
+                  "OPT",
+                  "OPTBSV",
+                  "OPTENF",
+                  "OPV",
+                  "OSS",
+                  "PX",
+                  "PT",
+                  "RF",
+                  "RG",
+                  "SM",
+                  "SRF",
+                  "US",
+                  "VA",
+                  "XA"
+              ];
+          }
+      }));
+  }
   getWebAppsSchema(){
       return [
           [

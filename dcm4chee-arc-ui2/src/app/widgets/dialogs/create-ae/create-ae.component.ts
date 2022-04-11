@@ -43,6 +43,8 @@ export class CreateAeComponent implements OnInit{
     webApps = {};
     showWebApp = false;
     formObj;
+    primaryDeviceType:string[] = [];
+    searchDeviceType = "";
     constructor(
         public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateAeComponent>,
@@ -83,6 +85,10 @@ export class CreateAeComponent implements OnInit{
                 dicomPort: 11112
             },
         },  this.service.getSchema(), {},'attr');
+        this.service.getPrimaryDeviceType().subscribe(res=>{
+            console.log("create ae-res",res);
+            this.primaryDeviceType = res;
+        });
     }
 
     get dicomconn() {
@@ -171,6 +177,7 @@ export class CreateAeComponent implements OnInit{
         }
     }
     toggleReference(model, ref){
+        model = model || [];
         if (this.inArray(ref, model)){
           _.remove(model, (i) => {
               return i === ref;
@@ -394,5 +401,14 @@ export class CreateAeComponent implements OnInit{
     }
     submitFunction(e){
         console.log("e",e);
+    }
+
+    togglePrimaryDeviceType(type){
+        this.newAetModel.dicomPrimaryDeviceType = this.newAetModel.dicomPrimaryDeviceType || [];
+        if(this.newAetModel.dicomPrimaryDeviceType.indexOf(type) > -1){
+            this.newAetModel.dicomPrimaryDeviceType.splice(this.newAetModel.dicomPrimaryDeviceType.indexOf(type), 1);
+        }else{
+            this.newAetModel.dicomPrimaryDeviceType.push(type);
+        }
     }
 }
