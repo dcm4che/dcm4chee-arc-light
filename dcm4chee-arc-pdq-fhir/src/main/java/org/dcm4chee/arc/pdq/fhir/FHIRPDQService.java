@@ -1,3 +1,41 @@
+/*
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ *  The contents of this file are subject to the Mozilla Public License Version
+ *  1.1 (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *  http://www.mozilla.org/MPL/
+ *
+ *  Software distributed under the License is distributed on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ *  for the specific language governing rights and limitations under the
+ *  License.
+ *
+ *  The Original Code is part of dcm4che, an implementation of DICOM(TM) in
+ *  Java(TM), hosted at https://github.com/dcm4che.
+ *
+ *  The Initial Developer of the Original Code is
+ *  J4Care.
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2022
+ *  the Initial Developer. All Rights Reserved.
+ *
+ *  Contributor(s):
+ *  See @authors listed below
+ *
+ *  Alternatively, the contents of this file may be used under the terms of
+ *  either the GNU General Public License Version 2 or later (the "GPL"), or
+ *  the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ *  in which case the provisions of the GPL or the LGPL are applicable instead
+ *  of those above. If you wish to allow use of your version of this file only
+ *  under the terms of either the GPL or the LGPL, and not to allow others to
+ *  use your version of this file under the terms of the MPL, indicate your
+ *  decision by deleting the provisions above and replace them with the notice
+ *  and other provisions required by the GPL or the LGPL. If you do not delete
+ *  the provisions above, a recipient may use your version of this file under
+ *  the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ */
+
 package org.dcm4chee.arc.pdq.fhir;
 
 import org.dcm4che3.conf.api.ConfigurationException;
@@ -5,37 +43,43 @@ import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
-import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.util.Base64;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
+/**
+ * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Aug 2021
+ */
 public class FHIRPDQService extends AbstractPDQService {
     private static final Logger LOG = LoggerFactory.getLogger(FHIRPDQService.class);
     private static final String FHIR_PAT_2_DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/fhir-pat2dcm.xsl";
 
-    private final Device device;
     private final IWebApplicationCache webAppCache;
     private final AccessTokenRequestor accessTokenRequestor;
     private final Event<PDQServiceContext> pdqEvent;
 
     public FHIRPDQService(PDQServiceDescriptor descriptor,
-                          Device device,
                           IWebApplicationCache webAppCache,
                           AccessTokenRequestor accessTokenRequestor,
                           Event<PDQServiceContext> pdqEvent) {
         super(descriptor);
-        this.device = device;
         this.webAppCache = webAppCache;
         this.accessTokenRequestor = accessTokenRequestor;
         this.pdqEvent = pdqEvent;
@@ -54,13 +98,46 @@ public class FHIRPDQService extends AbstractPDQService {
         }
     }
 
-    private Attributes query(PDQServiceContext ctx, WebApplication webApp) {
-        //TODO
-        return null;
+    private Attributes query(PDQServiceContext ctx, WebApplication webApp) throws PDQServiceException {
+        Attributes attrs = ctx.getPatientID().exportPatientIDWithIssuer(null);
+        Map<String, String> props = webApp.getProperties();
+        String authorization;
+        try {
+            String url = webApp.getServiceURL().toString();
+            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
+                                                            url,
+                                                            Boolean.parseBoolean(props.get("allow-any-hostname")),
+                                                            Boolean.parseBoolean(props.get("disable-trust-manager")))
+                                                        .build();
+            ResteasyWebTarget target = client.target(url);
+            target = setQueryParameters(target, ctx.getPatientID());
+            Invocation.Builder request = target.request();
+            setHeaders(request);
+            if ((authorization = authorization(webApp)) != null)
+                request.header("Authorization", authorization);
+            LOG.info("Request invoked is : {}", target.getUri());
+            Response response = request.get();
+            if (response.getStatus() != Response.Status.OK.getStatusCode())
+                return null;
+
+            return SAXTransformer.transform(response,
+                                            descriptor.getProperties().getOrDefault("XSLStylesheetURI", FHIR_PAT_2_DCM_XSL),
+                                            null);
+        } catch (Exception e) {
+            LOG.info("Exception caught on querying FHIR Supplier {}", webApp);
+            throw new PDQServiceException(e);
+        }
     }
 
-    private String xslStylesheetURI() {
-        return descriptor.getProperties().getOrDefault("XSLStylesheetURI", FHIR_PAT_2_DCM_XSL);
+    private String authorization(WebApplication webApp) throws Exception {
+        Map<String, String> props = webApp.getProperties();
+        return webApp.getKeycloakClientID() != null
+                ? "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken()
+                : props.containsKey("bearer-token")
+                    ? "Bearer " + props.get("bearer-token")
+                    : props.containsKey("basic-auth")
+                        ? "Basic " + encodeBase64(props.get("basic-auth").getBytes(StandardCharsets.UTF_8))
+                        : null;
     }
 
     private WebApplication webApp() throws ConfigurationException {
@@ -100,12 +177,22 @@ public class FHIRPDQService extends AbstractPDQService {
                 .forEach(e -> request.header(e.getKey().substring(7), e.getValue()));
     }
 
-    private void setQueryParameters(WebTarget webTarget, IDWithIssuer pid) {
-        webTarget.queryParam("identifier", identifier(pid));
-        descriptor.getProperties().entrySet().stream()
-                .filter(e -> e.getKey().startsWith("search.")
-                        && !e.getKey().startsWith("identifier.", 7))
-                .forEach(e -> webTarget.queryParam(e.getKey().substring(7), e.getValue()));
+    private ResteasyWebTarget setQueryParameters(ResteasyWebTarget webTarget, IDWithIssuer pid) {
+        webTarget = webTarget.queryParam("identifier", identifier(pid));
+        for (Map.Entry<String, String> e : descriptor.getProperties().entrySet())
+            if (e.getKey().startsWith("search.")
+                    && !e.getKey().startsWith("identifier.", 7))
+                webTarget = webTarget.queryParam(e.getKey().substring(7), e.getValue());
+
+        LOG.info("Web Target is : {}", webTarget.getUri().toString());
+        return webTarget;
+    }
+
+    private static String encodeBase64(byte[] b) {
+        int len = (b.length * 4 / 3 + 3) & ~3;
+        char[] ch = new char[len];
+        Base64.encode(b, 0, b.length, ch, 0);
+        return new String(ch);
     }
 
 }

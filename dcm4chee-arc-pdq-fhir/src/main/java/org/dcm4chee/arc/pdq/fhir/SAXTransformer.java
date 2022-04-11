@@ -38,38 +38,35 @@
 
 package org.dcm4chee.arc.pdq.fhir;
 
-import org.dcm4che3.conf.api.IWebApplicationCache;
-import org.dcm4chee.arc.conf.PDQServiceDescriptor;
-import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
-import org.dcm4chee.arc.pdq.PDQService;
-import org.dcm4chee.arc.pdq.PDQServiceContext;
-import org.dcm4chee.arc.pdq.PDQServiceProvider;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.io.ContentHandlerAdapter;
+import org.dcm4che3.io.SAXTransformer.SetupTransformer;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.util.StringUtils;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
+import javax.ws.rs.core.Response;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.InputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Aug 2021
+ * @since Apr 2022
  */
-@ApplicationScoped
-@Named("pdq-fhir")
-public class FHIRPDQServiceProvider implements PDQServiceProvider {
+public class SAXTransformer {
 
-    @Inject
-    private IWebApplicationCache webAppCache;
+    public static Attributes transform(Response response, String uri, SetupTransformer setup)
+            throws TransformerException {
+        Templates tpl = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri));
+        Attributes attrs = new Attributes();
+        Transformer t = tpl.newTransformer();
+        if (setup != null)
+            setup.setup(t);
 
-    @Inject
-    private AccessTokenRequestor accessTokenRequestor;
-
-    @Inject
-    private Event<PDQServiceContext> pdqEvent;
-
-    @Override
-    public PDQService getPDQService(PDQServiceDescriptor descriptor) {
-        return new FHIRPDQService(descriptor, webAppCache, accessTokenRequestor, pdqEvent);
+        t.transform(new StreamSource((InputStream) response.getEntity()), new SAXResult(new ContentHandlerAdapter(attrs)));
+        return attrs;
     }
 }
