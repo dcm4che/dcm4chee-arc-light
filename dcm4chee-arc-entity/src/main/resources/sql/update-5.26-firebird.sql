@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.25
+-- can be applied on archive running archive 5.26
 alter table series
     add receiving_hl7_app       varchar(255);
 alter table series
@@ -114,7 +114,7 @@ create index UK_tkyjkkxxhnr0fem7m0h3844jk on patient_id (pat_id);
 create index UK_d1sdyupb0vwvx23jownjnyy72 on patient_id (entity_id);
 create index UK_m2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid, entity_uid_type);
 
--- part 2: shall be applied on stopped archive before starting 5.25
+-- part 2: shall be applied on stopped archive before starting 5.26
 update mpps
     set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
 where accno_issuer_fk is not null;
