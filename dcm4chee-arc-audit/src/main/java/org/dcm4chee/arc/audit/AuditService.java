@@ -123,7 +123,7 @@ public class AuditService {
     private void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws Exception {
         AuditUtils.EventType eventType = AuditUtils.EventType.fromFile(path);
         if (path.toFile().length() == 0) {
-            LOG.warn("Attempt to read from an empty file {} by {}.", path, eventType);
+            LOG.info("Attempt to read from an empty file {} by {}.", path, eventType);
             return;
         }
         switch (eventType.eventClass) {
@@ -184,7 +184,7 @@ public class AuditService {
             writeSpoolFile(AuditUtils.EventType.forApplicationActivity(event), null,
                     ApplicationActivityAuditService.auditInfo(event, device.getDeviceName()));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Application Activity [EventType={}]\n", event.getType(), e);
+            LOG.info("Failed to spool Application Activity [EventType={}]\n", event.getType(), e);
         }
     }
 
@@ -201,7 +201,7 @@ public class AuditService {
             writeSpoolFile(eventType,suffix,
                     DeletionAuditService.instancesDeletedAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Instances Deleted [AuditEventType={}]\n", eventType, e);
+            LOG.info("Failed to spool Instances Deleted [AuditEventType={}]\n", eventType, e);
         }
     }
 
@@ -211,7 +211,7 @@ public class AuditService {
             writeSpoolFile(eventType, null,
                     DeletionAuditService.studyDeletedAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Study Deleted for [StudyIUID={}, AuditEventType={}]\n",
+            LOG.info("Failed to spool Study Deleted for [StudyIUID={}, AuditEventType={}]\n",
                     ctx.getStudy().getStudyInstanceUID(), eventType, e);
         }
     }
@@ -222,7 +222,7 @@ public class AuditService {
             writeSpoolFile(eventType,null,
                     DeletionAuditService.externalRejectionAuditInfo(rejectionNoteSent, getArchiveDevice()));
         } catch (Exception e) {
-            LOG.warn("Failed to spool External Rejection [AuditEventType={}]\n", eventType, e);
+            LOG.info("Failed to spool External Rejection [AuditEventType={}]\n", eventType, e);
         }
     }
 
@@ -243,7 +243,7 @@ public class AuditService {
                     null,
                     TaskAuditService.queueMsgAuditInfo(taskEvent));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Task Event for [Operation={}] of [TaskID={}] "
+            LOG.info("Failed to spool Task Event for [Operation={}] of [TaskID={}] "
                             + "triggered by [User={}]\n",
                     taskEvent.getOperation(), taskEvent.getTask().getPk(), callingUser, e);
         }
@@ -258,7 +258,7 @@ public class AuditService {
                     null,
                     TaskAuditService.bulkQueueMsgAuditInfo(bulkQueueMsgEvent, callingUser));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Bulk Queue Message Event for [QueueOperation={}] triggered by [User={}]\n",
+            LOG.info("Failed to spool Bulk Queue Message Event for [QueueOperation={}] triggered by [User={}]\n",
                     bulkQueueMsgEvent.getOperation(), callingUser, e);
         }
     }
@@ -280,7 +280,7 @@ public class AuditService {
                     AuditUtils.EventType.LDAP_CHNGS,
                     softwareConfiguration.getLdapDiff().toString().getBytes());
         } catch (Exception e) {
-            LOG.warn("Failed to spool Software Configuration Changes for [Device={}] done by [CallingUser={}]\n",
+            LOG.info("Failed to spool Software Configuration Changes for [Device={}] done by [CallingUser={}]\n",
                     softwareConfiguration.getDeviceName(), callingUser, e);
         }
     }
@@ -297,7 +297,7 @@ public class AuditService {
             writeSpoolFile(AuditUtils.EventType.INST_RETRV, null,
                     ExternalRetrieveAuditService.auditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
-            LOG.warn("Failed to spool External Retrieve for [StudyIUID={}] triggered by [Requester={}]\n",
+            LOG.info("Failed to spool External Retrieve for [StudyIUID={}] triggered by [Requester={}]\n",
                     ctx.getStudyInstanceUID(), ctx.getRequesterUserID(), e);
         }
     }
@@ -322,7 +322,7 @@ public class AuditService {
                     null,
                     ConnectionEventsAuditService.connFailureAuditInfo(event));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Connection Failure for [EventType={}]\n", event.getType(), e);
+            LOG.info("Failed to spool Connection Failure for [EventType={}]\n", event.getType(), e);
         }
     }
 
@@ -342,7 +342,7 @@ public class AuditService {
                                                     .build();
             writeSpoolFile(AuditUtils.EventType.STUDY_READ, null, auditInfoBuilder);
         } catch (Exception e) {
-            LOG.warn("Failed to spool study size info for {}\n", event, e);
+            LOG.info("Failed to spool study size info for {}\n", event, e);
         }
     }
 
@@ -399,7 +399,7 @@ public class AuditService {
                             try (DicomOutputStream dos = new DicomOutputStream(out, UID.ImplicitVRLittleEndian)) {
                                 dos.writeDataset(null, ctx.getQueryKeys());
                             } catch (Exception e) {
-                                LOG.warn("Failed to create DicomOutputStream.\n", e);
+                                LOG.info("Failed to create DicomOutputStream.\n", e);
                             }
                         }
                     }
@@ -410,12 +410,12 @@ public class AuditService {
                     if (!getArchiveDevice().isAuditAggregate())
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
-                    LOG.warn("Failed to write to Query Audit Spool File at [AuditLogger={}]\n",
+                    LOG.info("Failed to write to Query Audit Spool File at [AuditLogger={}]\n",
                             auditLogger.getCommonName(), e);
                 }
             }
         } catch (Exception e) {
-            LOG.warn("Failed to spool Query.\n", e);
+            LOG.info("Failed to spool Query.\n", e);
         }
     }
 
@@ -446,12 +446,12 @@ public class AuditService {
             aggregateAuditMessage(auditLogger, file);
             Files.delete(file);
         } catch (Exception e) {
-            LOG.warn("Failed to process [AuditSpoolFile={}] of [AuditLogger={}].\n",
+            LOG.info("Failed to process [AuditSpoolFile={}] of [AuditLogger={}].\n",
                     file, auditLogger.getCommonName(), e);
             try {
                 Files.move(file, file.resolveSibling(file.getFileName().toString() + ".failed"));
             } catch (IOException e1) {
-                LOG.warn("Failed to mark [AuditSpoolFile={}] of [AuditLogger={}] as failed.\n",
+                LOG.info("Failed to mark [AuditSpoolFile={}] of [AuditLogger={}] as failed.\n",
                         file, auditLogger.getCommonName(), e1);
             }
         }
@@ -486,14 +486,14 @@ public class AuditService {
             }
 
             if (ctx.getAttributes() == null) {
-                LOG.warn("Instances stored is not audited as store context attributes are not set. "
+                LOG.info("Instances stored is not audited as store context attributes are not set. "
                         + (ctx.getException() != null ? ctx.getException().getMessage() : null));
                 return;
             }
 
             spoolInstancesStored(ctx);
         } catch (Exception e) {
-            LOG.warn("Failed to spool Store Event.\n", e);
+            LOG.info("Failed to spool Store Event.\n", e);
         }
     }
 
@@ -549,7 +549,7 @@ public class AuditService {
                 writeSpoolFile(AuditUtils.EventType.IMPAX_MISM, null, patMismatchInfo, instanceInfo);
             }
         } catch (Exception e) {
-            LOG.warn("Failed to spool Instances Stored for [StudyIUID={}] triggered by [CallingUser={}]\n",
+            LOG.info("Failed to spool Instances Stored for [StudyIUID={}] triggered by [CallingUser={}]\n",
                     ctx.getStudyInstanceUID(), callingUserID, e);
         }
     }
@@ -615,7 +615,7 @@ public class AuditService {
                     .build();
             writeSpoolFile(AuditUtils.EventType.WADO___URI, suffix, info, instanceInfo);
         } catch (Exception e) {
-            LOG.warn("Failed to spool Wado Retrieve for [StudyIUID={}] triggered by [User={}]\n",
+            LOG.info("Failed to spool Wado Retrieve for [StudyIUID={}] triggered by [User={}]\n",
                     ctx.getStudyInstanceUID(), req.requesterUserID, e);
         }
     }
@@ -723,7 +723,7 @@ public class AuditService {
             for (AuditInfoBuilder[] auditInfoBuilder : retrieveAuditService.getAuditInfoBuilder())
                 writeSpoolFile(eventType, null, auditInfoBuilder);
         } catch (Exception e) {
-            LOG.warn("Failed to spool Retrieve of [StudyIUID={}]\n", ctx.getStudyInstanceUID(), e);
+            LOG.info("Failed to spool Retrieve of [StudyIUID={}]\n", ctx.getStudyInstanceUID(), e);
         }
     }
 
@@ -778,7 +778,7 @@ public class AuditService {
                         AuditUtils.EventType.PAT_DELETE,
                         hl7ConnEvent);
         } catch (Exception e) {
-            LOG.warn("Failed to spool HL7 Incoming for [Message={}]\n", hl7ConnEvent.getHL7Message(), e);
+            LOG.info("Failed to spool HL7 Incoming for [Message={}]\n", hl7ConnEvent.getHL7Message(), e);
         }
 
     }
@@ -804,7 +804,7 @@ public class AuditService {
                 spoolOutgoingHL7OrderMsg(hl7ConnEvent);
 
         } catch (Exception e) {
-            LOG.warn("Failed to spool HL7 Outgoing for [Message={}]\n", hl7ConnEvent.getHL7Message(), e);
+            LOG.info("Failed to spool HL7 Outgoing for [Message={}]\n", hl7ConnEvent.getHL7Message(), e);
         }
     }
 
@@ -834,7 +834,7 @@ public class AuditService {
             if (ctx.getPreviousAttributes() != null)
                 writeSpoolFile(AuditUtils.EventType.PAT_DELETE, null, patRecAuditService.getPrevPatAuditInfo());
         } catch (Exception e) {
-            LOG.warn("Failed to spool Patient Record for [PatientID={}]\n", ctx.getPatientID(), e);
+            LOG.info("Failed to spool Patient Record for [PatientID={}]\n", ctx.getPatientID(), e);
         }
     }
 
@@ -855,7 +855,7 @@ public class AuditService {
                     null,
                     new ProcedureRecordAuditService(ctx, getArchiveDevice()).getProcUpdateAuditInfo());
         } catch (Exception e) {
-            LOG.warn("Failed to spool Procedure Update procedure record for [Attributes={}, EventActionCode={}]\n",
+            LOG.info("Failed to spool Procedure Update procedure record for [Attributes={}, EventActionCode={}]\n",
                     ctx.getAttributes(), ctx.getEventActionCode(), e);
         }
     }
@@ -867,7 +867,7 @@ public class AuditService {
                     null,
                     new StudyRecordAuditService(ctx, getArchiveDevice()).getStudyUpdateAuditInfo());
         } catch (Exception e) {
-            LOG.warn("Failed to spool Study Update procedure record for [StudyIUID={}, EventActionCode={}]\n",
+            LOG.info("Failed to spool Study Update procedure record for [StudyIUID={}, EventActionCode={}]\n",
                     ctx.getStudy(), ctx.getEventActionCode(), e);
         }
     }
@@ -897,7 +897,7 @@ public class AuditService {
                     null,
                     ProvideAndRegisterAuditService.provideRegisterAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
-            LOG.warn("Failed to spool Provide and Register for [SubmissionSetUID={}, XDSiManifest={}]\n",
+            LOG.info("Failed to spool Provide and Register for [SubmissionSetUID={}, XDSiManifest={}]\n",
                     ctx.getSubmissionSetUID(), ctx.getXDSiManifest(), e);
         }
     }
@@ -926,7 +926,7 @@ public class AuditService {
                         null,
                         StorageCommitAuditService.getFailedAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
-            LOG.warn("Failed to spool storage commitment.\n", e);
+            LOG.info("Failed to spool storage commitment.\n", e);
         }
     }
 
@@ -943,7 +943,7 @@ public class AuditService {
                     null,
                     AssociationEventsAuditService.associationFailureAuditInfo(associationEvent));
         } catch (Exception e) {
-            LOG.warn("Failed to spool association event failure for [AssociationEventType={}]\n",
+            LOG.info("Failed to spool association event failure for [AssociationEventType={}]\n",
                     associationEvent.getType(), e);
         }
     }
@@ -1004,7 +1004,7 @@ public class AuditService {
     private void writeSpoolFile(
             AuditInfoBuilder auditInfoBuilder, AuditUtils.EventType eventType, byte[]... data) {
         if (auditInfoBuilder == null) {
-            LOG.warn("Attempt to write empty file by : {}", eventType);
+            LOG.info("Attempt to write empty file by : {}", eventType);
             return;
         }
         FileTime eventTime = null;
@@ -1032,7 +1032,7 @@ public class AuditService {
                     if (!getArchiveDevice().isAuditAggregate())
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
-                    LOG.warn("Failed to write audit spool file for [AuditEventType={}] at [AuditLogger={}]\n",
+                    LOG.info("Failed to write audit spool file for [AuditEventType={}] at [AuditLogger={}]\n",
                             eventType, auditLogger.getCommonName(), e);
                 }
             }
@@ -1041,7 +1041,7 @@ public class AuditService {
     private void writeSpoolFile(AuditUtils.EventType eventType, String suffix, AuditInfoBuilder... auditInfoBuilders) {
         String file = suffix != null ? eventType.name().concat(suffix) : eventType.name();
         if (auditInfoBuilders == null) {
-            LOG.warn("Attempt to write empty file : " + file);
+            LOG.info("Attempt to write empty file : " + file);
             return;
         }
         FileTime eventTime = null;
@@ -1062,7 +1062,7 @@ public class AuditService {
                     if (!getArchiveDevice().isAuditAggregate())
                         auditAndProcessFile(auditLogger, filePath);
                 } catch (Exception e) {
-                    LOG.warn("Failed to write [AuditSpoolFile={}] at [AuditLogger={}]\n",
+                    LOG.info("Failed to write [AuditSpoolFile={}] at [AuditLogger={}]\n",
                             file, auditLogger.getCommonName(), e);
                 }
             }
@@ -1097,7 +1097,7 @@ public class AuditService {
         try {
             logger.write(logger.timeStamp(), msg);
         } catch (Exception e) {
-            LOG.warn("Failed to emit audit message for [AuditLogger={}]\n", logger.getCommonName(), e);
+            LOG.info("Failed to emit audit message for [AuditLogger={}]\n", logger.getCommonName(), e);
             throw e;
         }
     }
@@ -1121,7 +1121,7 @@ public class AuditService {
                     ? AuditMessages.userIDTypeCode(remoteUserID)
                     : AuditMessages.UserIDTypeCode.StationAETitle;
 
-        LOG.warn("Remote user ID was not set during spooling.");
+        LOG.info("Remote user ID was not set during spooling.");
         return null;
     }
 }
