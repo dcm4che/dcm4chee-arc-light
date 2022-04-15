@@ -169,7 +169,7 @@ public class StowTaskImpl implements StowTask {
             @Override
             public void failed(Throwable e) {
                 ctx.incrementFailed();
-                ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                ctx.addFailedMatch(inst);
                 LOG.warn("{}: failed to send {} to {}:\n", target, inst, ctx.getDestinationWebApp(), e);
                 if (semaphore != null) semaphore.release();
             }

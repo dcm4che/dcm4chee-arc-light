@@ -206,6 +206,10 @@ public interface RetrieveContext extends Closeable {
 
     String[] failedSOPInstanceUIDs();
 
+    void addFailedMatch(InstanceLocations match);
+
+    Collection<InstanceLocations> getFailedMatches();
+
     int remaining();
 
     int status();

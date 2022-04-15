@@ -76,6 +76,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -713,15 +714,27 @@ public class AuditService {
     }
 
     void spoolRetrieve(AuditUtils.EventType eventType, RetrieveContext ctx) {
-        if (ctx.getMatches().size() == 0 && ctx.getCStoreForwards().size() == 0) {
-            LOG.info("Retrieve context has no matches and no C-Store Forwards. Exit spooling retrieve event.");
+        if (ctx.getMatches().isEmpty() && ctx.getCStoreForwards().isEmpty()
+                && (ctx.failed() == 0 || ctx.getFailedMatches().isEmpty())) {
+            LOG.info("Neither matches nor C-Store Forwards nor failed matches present. Exit spooling retrieve event {}",
+                    eventType);
             return;
         }
 
         try {
             RetrieveAuditService retrieveAuditService = new RetrieveAuditService(ctx, getArchiveDevice());
-            for (AuditInfoBuilder[] auditInfoBuilder : retrieveAuditService.getAuditInfoBuilder())
-                writeSpoolFile(eventType, null, auditInfoBuilder);
+            if (ctx.failed() > 0) {
+                Collection<InstanceLocations> failedRetrieves = retrieveAuditService.failedMatches();
+                if (!failedRetrieves.isEmpty())
+                    writeSpoolFile(eventType, null,
+                            retrieveAuditService.createRetrieveFailureAuditInfo(failedRetrieves)
+                                    .toArray(new AuditInfoBuilder[0]));
+            }
+            Collection<InstanceLocations> completedMatches = retrieveAuditService.completedMatches();
+            if (!completedMatches.isEmpty())
+                writeSpoolFile(eventType, null,
+                        retrieveAuditService.createRetrieveSuccessAuditInfo(completedMatches)
+                                .toArray(new AuditInfoBuilder[0]));
         } catch (Exception e) {
             LOG.info("Failed to spool Retrieve of [StudyIUID={}]\n", ctx.getStudyInstanceUID(), e);
         }

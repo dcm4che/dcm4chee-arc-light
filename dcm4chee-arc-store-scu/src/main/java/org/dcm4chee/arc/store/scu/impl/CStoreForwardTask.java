@@ -151,7 +151,7 @@ class CStoreForwardTask implements Runnable {
             }
         } catch (Exception e) {
             ctx.incrementFailed();
-            ctx.addFailedSOPInstanceUID(iuid);
+            ctx.addFailedMatch(inst);
             LOG.info("{}: failed to send {} to {}:", rqas, inst, ctx.getDestinationAETitle(), e);
         }
     }
@@ -208,7 +208,7 @@ class CStoreForwardTask implements Runnable {
                 ctx.incrementWarning();
             } else {
                 ctx.incrementFailed();
-                ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                ctx.addFailedMatch(inst);
             }
         }
     }

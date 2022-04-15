@@ -53,9 +53,9 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -244,7 +243,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
         } catch (Exception e) {
             outstandingRSP.remove(inst);
             ctx.incrementFailed();
-            ctx.addFailedSOPInstanceUID(iuid);
+            ctx.addFailedMatch(inst);
             LOG.warn("{}: failed to send {} to {}:", rqas != null ? rqas : storeas, inst, ctx.getDestinationAETitle(), e);
         }
     }
@@ -394,7 +393,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
                 ctx.incrementWarning();
             else {
                 ctx.incrementFailed();
-                ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                ctx.addFailedMatch(inst);
             }
             if (pendingRSP)
                 writePendingRSP();
@@ -405,7 +404,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
         public void onClose(Association as) {
             super.onClose(as);
             ctx.incrementFailed();
-            ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+            ctx.addFailedMatch(inst);
             removeOutstandingRSP(inst, storeas, outstandingRSP);
         }
     }
