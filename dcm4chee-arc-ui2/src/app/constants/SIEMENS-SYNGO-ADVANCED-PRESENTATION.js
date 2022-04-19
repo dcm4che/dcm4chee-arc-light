@@ -145,7 +145,7 @@ DCM4CHE.elementName.addDictionary({
 "0029xxB2":"Image Text View Content Sequence",
 "0029xxB3":"Image Text Line Names",
 "0029xxB4":"ImageText Line Values",
-"0029xxB5":"Measurement Evaluation Text Position Sequence",
+"0029xxB5":"?",
 "0029xxB6":"Measurement Link Evaluation Text Flag",
 "0029xxB7":"Measurement Evaluation Text Position Vector",
 "0029xxB8":"Image Text Alpha Blending Line Value",
