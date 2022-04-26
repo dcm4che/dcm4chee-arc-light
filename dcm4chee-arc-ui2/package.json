@@ -41,7 +41,7 @@
     "keycloak-js": "^7.0.1",
     "lodash-es": "^4.17.15",
     "material-design-icons": "^3.0.1",
-    "moment": "^2.27.0",
+    "moment": "^2.29.2",
     "rxjs": "^6.6.0",
     "rxjs-compat": "^6.5.3",
     "tslib": "^1.10.0",
