@@ -190,9 +190,9 @@
     tslib "^2.0.0"
 
 "@angular/compiler-cli@^10.1.6":
-  version "10.2.4"
-  resolved "https://registry.yarnpkg.com/@angular/compiler-cli/-/compiler-cli-10.2.4.tgz#e90f943fc34edf3a2d65ef2d7fe27fafa0b365d7"
-  integrity sha512-gpw7Px6c2EaVUiDrU4PLaxf5zk8oJ72Yq62YZ8k4Jd7Vhl39Bhx9a9/I3GFQzZ8X6W/VJMWfZRs3E7bm1krRkw==
+  version "10.2.5"
+  resolved "https://registry.yarnpkg.com/@angular/compiler-cli/-/compiler-cli-10.2.5.tgz#adb65bb9ecea14762a501226fde7760b73c3ab1e"
+  integrity sha512-xddSpKudoPidEebIW3x1CvQdx69WEmnFg4DneeQi/tit7mtAKYTJemzYZmP6abdSYhtxovL0bPX5LxYlrtuxIw==
   dependencies:
     canonical-path "1.0.0"
     chokidar "^3.0.0"
@@ -230,14 +230,14 @@
     tslib "^2.0.0"
 
 "@angular/language-service@^10.1.6":
-  version "10.2.4"
-  resolved "https://registry.yarnpkg.com/@angular/language-service/-/language-service-10.2.4.tgz#0c533149c110445ae67a7fd833c5aa03182fcec0"
-  integrity sha512-WmaX2lst7LOPVdCLdgR2Yddvy+DrQ5fhaXexZ1mYFnWBwW8gDXcRP+sHAkvTu752mF5c0C4OEMR9UJdwrHntrg==
+  version "10.2.5"
+  resolved "https://registry.yarnpkg.com/@angular/language-service/-/language-service-10.2.5.tgz#dc869591684db32696f9973647f07355bdaf97ff"
+  integrity sha512-e9ug9TJG31SeSWl65TglXKWOIATGu/P0jVSGKxGF22vQYlAahdRoFXP56+B9P9k+6cDuYljkjH1rdyCaU3iOPg==
 
 "@angular/localize@^10.1.6":
-  version "10.2.4"
-  resolved "https://registry.yarnpkg.com/@angular/localize/-/localize-10.2.4.tgz#cb6aa5ed2a52afb64d31e5159b7a8820634cd755"
-  integrity sha512-vpmRM6XFK7ZD5wkc6h3fWFw3+6HOQQiV5iXcUQT4x9i18ktEHCRi85KsfJQovS8ggBivvTvykyXKMj8mP9guOQ==
+  version "10.2.5"
+  resolved "https://registry.yarnpkg.com/@angular/localize/-/localize-10.2.5.tgz#18d488f47381999db55df08b0fb59165a992b104"
+  integrity sha512-YgtVQDJLYAuSBMB4a8UBMbO+5g4IEkHszc6vU8P/G/hqWF6hj04uPqNoYqajVeoTTwPrM2If30/pNh15HjRG2A==
   dependencies:
     "@babel/core" "7.8.3"
     glob "7.1.2"
