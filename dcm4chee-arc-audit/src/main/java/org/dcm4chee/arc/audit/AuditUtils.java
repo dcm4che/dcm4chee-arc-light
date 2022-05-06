@@ -339,6 +339,14 @@ class AuditUtils {
                     : operation == TaskOperation.RescheduleTasks
                         ? RESCHD_TSK : DELETE_TSK;
         }
+
+        @Override
+        public String toString() {
+            return "Audit Event Type[EventID = " + eventID +
+                    ", EventActionCode = " + eventActionCode +
+                    ", EventTypeCode = " + eventTypeCode +
+                    "]";
+        }
     }
 
     static String findScpHost(String findScp, IApplicationEntityCache aeCache) {

@@ -49,9 +49,12 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -60,79 +63,90 @@ import java.util.*;
  */
 
 class RetrieveAuditService {
-
+    private final static Logger LOG = LoggerFactory.getLogger(RetrieveAuditService.class);
     private final RetrieveContext ctx;
     private final ArchiveDeviceExtension arcDev;
-    private HttpServletRequestInfo httpServletRequestInfo;
-    private AuditInfoBuilder[][] auditInfoBuilder;
+    private final HttpServletRequestInfo httpServletRequestInfo;
+    private final String warningMsg;
+    private final String failureMsg;
 
     RetrieveAuditService(RetrieveContext ctx, ArchiveDeviceExtension arcDev) {
         this.ctx = ctx;
         this.arcDev = arcDev;
-        httpServletRequestInfo = ctx.getHttpServletRequestInfo();
-        processRetrieve();
+        this.httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        this.warningMsg = warningMsg();
+        this.failureMsg = failureMsg();
     }
 
-    private void processRetrieve() {
-        if (someInstancesRetrieveFailed())
-            processPartialRetrieve();
-        else {
-            auditInfoBuilder = new AuditInfoBuilder[1][];
-            auditInfoBuilder[0] = buildAuditInfos(toBuildAuditInfo(true), ctx.getMatches());
+    Collection<InstanceLocations> failedMatches() {
+        if (ctx.getFailedMatches().isEmpty()) {
+            List<String> failedSOPIUIDs = Arrays.asList(ctx.failedSOPInstanceUIDs());
+            List<InstanceLocations> failedMatches = ctx.getMatches().stream()
+                                                        .filter(il -> failedSOPIUIDs.contains(il.getSopInstanceUID()))
+                                                        .collect(Collectors.toList());
+            if (failedMatches.isEmpty())
+                LOG.info("Instance information not available for instances failed to be retrieved {}. Exit spooling of retrieve failures",
+                        failedSOPIUIDs);
+
+            return failedMatches;
         }
+        return ctx.getFailedMatches();
     }
 
-    private void processPartialRetrieve() {
-        auditInfoBuilder = new AuditInfoBuilder[2][];
-        HashSet<InstanceLocations> failed = new HashSet<>();
-        List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
-        HashSet<InstanceLocations> success = new HashSet<>(ctx.getMatches());
-        ctx.getMatches().forEach(instanceLocation -> {
-            if (failedList.contains(instanceLocation.getSopInstanceUID())) {
-                failed.add(instanceLocation);
-                success.remove(instanceLocation);
-            }
-        });
-        auditInfoBuilder[0] = buildAuditInfos(toBuildAuditInfo(true), failed);
-        auditInfoBuilder[1] = buildAuditInfos(toBuildAuditInfo(false), success);
+    Collection<InstanceLocations> completedMatches() {
+        List<String> failedSOPIUIDs = Arrays.asList(ctx.failedSOPInstanceUIDs());
+        return ctx.getMatches().stream()
+                .filter(il -> !failedSOPIUIDs.contains(il.getSopInstanceUID()))
+                .collect(Collectors.toList());
     }
 
-    private AuditInfoBuilder[] buildAuditInfos(AuditInfoBuilder auditInfoBuilder, Collection<InstanceLocations> il) {
-        LinkedHashSet<AuditInfoBuilder> objs = new LinkedHashSet<>();
-        objs.add(auditInfoBuilder);
-        objs.addAll(buildInstanceInfos(ctx.getCStoreForwards()));
-        objs.addAll(buildInstanceInfos(il));
-        return objs.toArray(new AuditInfoBuilder[0]);
+    List<AuditInfoBuilder> createRetrieveSuccessAuditInfo(Collection<InstanceLocations> completedRetrieves) {
+        List<AuditInfoBuilder> retrieveSuccess = new ArrayList<>();
+        retrieveSuccess.add(createCompletedRetrieveInfo());
+        ctx.getCStoreForwards().forEach(cStoreFwd -> retrieveSuccess.add(createInstanceAuditInfo(cStoreFwd)));
+        completedRetrieves.forEach(completedRetrieve -> retrieveSuccess.add(createInstanceAuditInfo(completedRetrieve)));
+        return retrieveSuccess;
     }
 
-    private LinkedHashSet<AuditInfoBuilder> buildInstanceInfos(Collection<InstanceLocations> instanceLocations) {
-        LinkedHashSet<AuditInfoBuilder> objs = new LinkedHashSet<>();
-        instanceLocations.forEach(instanceLocation -> {
-            Attributes attrs = instanceLocation.getAttributes();
-            AuditInfoBuilder iI = new AuditInfoBuilder.Builder()
-                    .studyUIDAccNumDate(attrs, arcDev)
-                    .sopCUID(attrs.getString(Tag.SOPClassUID))
-                    .sopIUID(attrs.getString(Tag.SOPInstanceUID))
-                    .pIDAndName(attrs, arcDev)
-                    .build();
-            objs.add(iI);
-        });
-        return objs;
+    private AuditInfoBuilder createCompletedRetrieveInfo() {
+        AuditInfoBuilder.Builder retrieveInfo = new AuditInfoBuilder.Builder();
+        retrieveInfo.warning(warningMsg);
+        return addUserParticipantDetails(retrieveInfo);
     }
 
-    private AuditInfoBuilder toBuildAuditInfo(boolean checkForFailures) {
-        AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
-                .warning(warning())
-                .outcome(checkForFailures ? outcome() : null)
-                .failedIUIDShow(isFailedIUIDShow(checkForFailures));
+    List<AuditInfoBuilder> createRetrieveFailureAuditInfo(Collection<InstanceLocations> failedRetrieves) {
+        List<AuditInfoBuilder> retrieveFailure = new ArrayList<>();
+        retrieveFailure.add(createFailedRetrieveInfo());
+        ctx.getCStoreForwards().forEach(cStoreFwd -> retrieveFailure.add(createInstanceAuditInfo(cStoreFwd)));
+        failedRetrieves.forEach(failedRetrieve -> retrieveFailure.add(createInstanceAuditInfo(failedRetrieve)));
+        return retrieveFailure;
+    }
 
+    private AuditInfoBuilder createFailedRetrieveInfo() {
+        AuditInfoBuilder.Builder retrieveInfo = new AuditInfoBuilder.Builder();
+        retrieveInfo.outcome(outcomeDesc());
+        retrieveInfo.failedIUIDShow(true);
+        return addUserParticipantDetails(retrieveInfo);
+    }
+
+    private AuditInfoBuilder addUserParticipantDetails(AuditInfoBuilder.Builder retrieveInfo) {
         return isExportTriggered(ctx)
                 ? httpServletRequestInfo != null
-                    ? restfulTriggeredExport(infoBuilder)
-                    : schedulerTriggeredExport(infoBuilder)
+                    ? restfulTriggeredExport(retrieveInfo)
+                    : schedulerTriggeredExport(retrieveInfo)
                 : httpServletRequestInfo != null
-                    ? rad69OrWadoRS(infoBuilder)
-                    : cMoveCGet(infoBuilder);
+                    ? rad69OrWadoRS(retrieveInfo)
+                    : cMoveCGet(retrieveInfo);
+    }
+
+    private AuditInfoBuilder createInstanceAuditInfo(InstanceLocations il) {
+        Attributes attrs = il.getAttributes();
+        return new AuditInfoBuilder.Builder()
+                .studyUIDAccNumDate(attrs, arcDev)
+                .sopCUID(attrs.getString(Tag.SOPClassUID))
+                .sopIUID(attrs.getString(Tag.SOPInstanceUID))
+                .pIDAndName(attrs, arcDev)
+                .build();
     }
 
     private AuditInfoBuilder cMoveCGet(AuditInfoBuilder.Builder infoBuilder) {
@@ -174,46 +188,35 @@ class RetrieveAuditService {
             .build();
     }
 
-    private boolean isFailedIUIDShow(boolean checkForFailures) {
-        return checkForFailures && (allInstancesRetrieveFailed() || someInstancesRetrieveFailed());
-    }
-
     private boolean isExportTriggered(RetrieveContext ctx) {
         return (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() != null)
                 || (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() == null && ctx.getException() != null);
     }
 
-    private boolean someInstancesRetrieveFailed() {
-        return ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0;
-    }
-
-    private boolean allInstancesRetrieveCompleted() {
-        return (ctx.failedSOPInstanceUIDs().length == 0 && !ctx.getMatches().isEmpty())
-                || (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty());
-    }
-
-    private boolean allInstancesRetrieveFailed() {
-        return ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty();
-    }
-
-    private String warning() {
-        return allInstancesRetrieveCompleted() && ctx.warning() != 0
-                ? ctx.warning() == ctx.getMatches().size()
-                    ? "Warnings on retrieve of all instances"
-                    : "Warnings on retrieve of " + ctx.warning() + " instances"
+    private String warningMsg() {
+        return ctx.warning() > 0
+                ? "Warnings on retrieve of " + ctx.warning() + " instances"
                 : null;
     }
 
-    private String outcome() {
-        return ctx.getException() != null
-                ? ctx.getException().getMessage() != null
-                    ? ctx.getException().getMessage()
-                    : ctx.getException().toString()
-                : allInstancesRetrieveFailed()
-                    ? "Unable to perform sub-operations on all instances"
-                    : someInstancesRetrieveFailed()
-                        ? "Retrieve of " + ctx.failed() + " objects failed"
-                        : null;
+    private String failureMsg() {
+        return ctx.failed() > 0 || !ctx.getFailedMatches().isEmpty()
+                ? "Retrieve of " + ctx.failed() + " objects failed"
+                : null;
+    }
+
+    private String outcomeDesc() {
+        if (warningMsg == null && failureMsg == null && ctx.getException() == null)
+            return null;
+
+        StringBuilder sb = new StringBuilder();
+        if (warningMsg != null)
+            sb.append(warningMsg).append("\n");
+        if (failureMsg != null)
+            sb.append(failureMsg).append("\n");
+        if (ctx.getException() != null)
+            sb.append(ctx.getException().toString()).append("\n");
+        return sb.toString();
     }
 
     static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
@@ -349,9 +352,5 @@ class RetrieveAuditService {
 
     private static String getLocalHostName(AuditLogger auditLogger) {
         return auditLogger.getConnections().get(0).getHostname();
-    }
-
-    AuditInfoBuilder[][] getAuditInfoBuilder() {
-        return auditInfoBuilder;
     }
 }

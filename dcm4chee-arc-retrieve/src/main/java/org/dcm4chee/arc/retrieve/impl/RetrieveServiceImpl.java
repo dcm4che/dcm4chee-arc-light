@@ -646,7 +646,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                     ctx.decrementNumberOfMatches();
                 } else {
                     ctx.incrementFailed();
-                    ctx.addFailedSOPInstanceUID(match.getSopInstanceUID());
+                    ctx.addFailedMatch(match);
                 }
                 LOG.info("{}: failed to send {} to {} - no Presentation Context offered",
                         ctx.getRequestAssociation(), match, ctx.getDestinationAETitle());

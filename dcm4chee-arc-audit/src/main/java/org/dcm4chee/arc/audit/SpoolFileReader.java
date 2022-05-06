@@ -69,7 +69,7 @@ class SpoolFileReader {
             while ((line = reader.readLine()) != null)
                 this.instanceLines.add(line);
         } catch (Exception e) {
-            LOG.warn("Failed to read audit spool file", e);
+            LOG.info("Failed to read audit spool file", e);
         }
     }
 
@@ -121,7 +121,7 @@ class SpoolFileReader {
             mainInfo.close();
             data.close();
         } catch (Exception e) {
-            LOG.warn("Failed to read audit spool file", e);
+            LOG.info("Failed to read audit spool file", e);
         }
     }
 

@@ -103,7 +103,7 @@ class EventID {
         try {
             eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
         } catch (Exception e) {
-            LOG.warn("Failed to get Last Modified Time of [AuditSpoolFile={}] of [AuditLogger={}]\n",
+            LOG.info("Failed to get Last Modified Time of [AuditSpoolFile={}] of [AuditLogger={}]\n",
                     path, auditLogger.getCommonName(), e);
         }
         return eventTime;

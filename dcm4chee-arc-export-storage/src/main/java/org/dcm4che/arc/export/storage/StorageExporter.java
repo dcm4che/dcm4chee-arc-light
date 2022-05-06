@@ -139,7 +139,7 @@ public class StorageExporter extends AbstractExporter {
                     } catch (Exception e) {
                         LOG.warn("Failed to copy {} to {}:\n", instanceLocations, storage.getStorageDescriptor(), e);
                         retrieveContext.incrementFailed();
-                        retrieveContext.addFailedSOPInstanceUID(instanceLocations.getSopInstanceUID());
+                        retrieveContext.addFailedMatch(instanceLocations);
                         if (location != null)
                             try {
                                 storage.revokeStorage(writeCtx);

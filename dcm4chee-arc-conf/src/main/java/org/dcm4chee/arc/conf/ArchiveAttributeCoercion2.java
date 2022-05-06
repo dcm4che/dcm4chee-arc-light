@@ -302,7 +302,7 @@ public class ArchiveAttributeCoercion2 {
                 + ", sufficient=" + sufficient
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy.name()
                 + ", mergeAttributes=" + Stream.of(mergeAttributes)
-                + ", deviceCoercionParam=" + otherDevice.getDeviceName()
+                + ", deviceCoercionParam=" + (otherDevice != null ? otherDevice.getDeviceName() : null)
                 + ", otherCoercionParams=" + params
                 + "]";
     }

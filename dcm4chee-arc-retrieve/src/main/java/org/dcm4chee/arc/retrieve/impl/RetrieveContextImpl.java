@@ -105,6 +105,8 @@ class RetrieveContextImpl implements RetrieveContext {
             Collections.synchronizedCollection(new ArrayList<InstanceLocations>());
     private final Collection<String> failedSOPInstanceUIDs =
             Collections.synchronizedCollection(new ArrayList<String>());
+    private final Collection<InstanceLocations> failedMatches =
+            Collections.synchronizedCollection(new ArrayList<InstanceLocations>());
     private final HashMap<String, Storage> storageMap = new HashMap<>();
     private ScheduledFuture<?> writePendingRSP;
     private volatile Attributes fallbackMoveRSPCommand;
@@ -505,6 +507,17 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public void addFailedMatch(InstanceLocations match) {
+        failedSOPInstanceUIDs.add(match.getSopInstanceUID());
+        failedMatches.add(match);
+    }
+
+    @Override
+    public Collection<InstanceLocations> getFailedMatches() {
+        return failedMatches;
+    }
+
+    @Override
     public int remaining() {
          return Math.max(0,
                  Math.max(numberOfMatches, fallbackMoveRSPNumberOfMatches) - completed() - warning() - failed());
@@ -531,10 +544,10 @@ class RetrieveContextImpl implements RetrieveContext {
         return (failed() == 0 && warning() == 0)
                 ? "Success"
                 : (completed() == 0 && warning() == 0)
-                ? "Unable to perform sup-operations"
-                : (failed() == 0)
-                ? "Warnings on retrieve of " + warning() + " objects"
-                : "Retrieve of " + failed() + " objects failed";
+                    ? "Unable to perform sup-operations"
+                    : (failed() == 0)
+                        ? "Warnings on retrieve of " + warning() + " objects"
+                        : "Retrieve of " + failed() + " objects failed";
 
     }
 

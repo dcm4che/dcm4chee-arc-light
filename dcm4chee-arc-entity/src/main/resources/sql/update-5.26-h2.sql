@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.25
+-- can be applied on archive running archive 5.26
 alter table series
     add receiving_hl7_app       varchar(255);
 alter table series
@@ -117,7 +117,7 @@ create index FK_9f0l4glqwpq12d11w9osd475m on rel_ups_station_location_code (ups_
 create index FK_jtv4r8f88f6gfte0fa36w5y9o on rel_ups_station_name_code (station_name_code_fk) ;
 create index FK_8jf5xe8ot2yammv3ksd5xrgif on rel_ups_station_name_code (ups_fk) ;
 
--- part 2: shall be applied on stopped archive before starting 5.25
+-- part 2: shall be applied on stopped archive before starting 5.26
 update mpps
 set (accno_entity_id, accno_entity_uid, accno_entity_uid_type) =
         (select issuer.entity_id, issuer.entity_uid, issuer.entity_uid_type

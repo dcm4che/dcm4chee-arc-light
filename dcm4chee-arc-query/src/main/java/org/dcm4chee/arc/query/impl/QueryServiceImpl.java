@@ -454,14 +454,16 @@ class QueryServiceImpl implements QueryService {
         int retries = arcDev().getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                if (exportTask.getSeriesInstanceUID().equals("*")) {
+                String seriesInstanceUID = exportTask.getSeriesInstanceUID();
+                if (seriesInstanceUID == null || seriesInstanceUID.equals("*")) {
                     return ejb.queryStudyExportTaskInfo(exportTask.getStudyInstanceUID(), qrView);
                 }
                 Attributes attrs = ejb.querySeriesExportTaskInfo(
                         exportTask.getStudyInstanceUID(),
-                        exportTask.getSeriesInstanceUID(),
+                        seriesInstanceUID,
                         qrView);
-                if (!exportTask.getSOPInstanceUID().equals("*")) {
+                String sopInstanceUID = exportTask.getSOPInstanceUID();
+                if (sopInstanceUID != null && !sopInstanceUID.equals("*")) {
                     attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 1);
                 }
                 return attrs;

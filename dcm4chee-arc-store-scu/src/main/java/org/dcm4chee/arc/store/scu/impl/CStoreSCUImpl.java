@@ -93,7 +93,7 @@ public class CStoreSCUImpl implements CStoreSCU {
                     if (storeas.getTransferSyntaxesFor(inst.getSopClassUID()).isEmpty()) {
                         iter.remove();
                         ctx.incrementFailed();
-                        ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                        ctx.addFailedMatch(inst);
                         LOG.info("{}: failed to send {} to {} - no Presentation Context accepted",
                                 ctx.getRequestAssociation(), inst, ctx.getDestinationAETitle());
                     }

@@ -98,7 +98,7 @@ create index FK_9f0l4glqwpq12d11w9osd475m on rel_ups_station_location_code (ups_
 create index FK_jtv4r8f88f6gfte0fa36w5y9o on rel_ups_station_name_code (station_name_code_fk) ;
 create index FK_8jf5xe8ot2yammv3ksd5xrgif on rel_ups_station_name_code (ups_fk) ;
 
--- part 2: shall be applied on stopped archive before starting 5.25
+-- part 2: shall be applied on stopped archive before starting 5.26
 update mpps
     set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
 where accno_issuer_fk is not null;
@@ -332,7 +332,7 @@ where accno_issuer_fk is not null
   and accno_entity_id is null
   and accno_entity_uid is null;
 
--- part 3: can be applied on already running archive 5.25
+-- part 3: can be applied on already running archive 5.26
 alter table mpps
     drop constraint FK_grl2idmms10qq4lhmh909jxtj;
 alter table mpps
