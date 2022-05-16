@@ -176,6 +176,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         if (actionTypeID != 1)
             throw new DicomServiceException(Status.NoSuchActionType)
                     .setActionTypeID(actionTypeID);
+        validateActionInfo(actionInfo);
 
         String localAET = as.getLocalAET();
         String remoteAET = as.getRemoteAET();
@@ -192,6 +193,20 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         } catch (Exception e) {
             LOG.warn("{} << N-ACTION-RSP failed: {}", as, e.getMessage());
         }
+    }
+
+    private void validateActionInfo(Attributes actionInfo) throws DicomServiceException {
+        if (actionInfo.containsValue(Tag.TransactionUID))
+            throw new DicomServiceException(Status.InvalidArgumentValue,
+                    "Missing Transaction UID (0008,1195)", false);
+        Sequence refSopSeq = actionInfo.getSequence( Tag.ReferencedSOPSequence );
+        if (refSopSeq == null || refSopSeq.isEmpty())
+            throw new DicomServiceException(Status.InvalidArgumentValue,
+                    "Missing Referenced SOP Sequence (0008,1199)", false);
+        if (!refSopSeq.stream().allMatch(refSop -> refSop.containsValue(Tag.ReferencedSOPInstanceUID)))
+            throw new DicomServiceException(Status.InvalidArgumentValue,
+                    "Missing Referenced SOP Instance UID (0008,1155) in item of Referenced SOP Sequence (0008,1199)",
+                    false);
     }
 
     private void onNEventReportRQ(Association as, PresentationContext pc, Attributes rq, Attributes eventInfo) {
