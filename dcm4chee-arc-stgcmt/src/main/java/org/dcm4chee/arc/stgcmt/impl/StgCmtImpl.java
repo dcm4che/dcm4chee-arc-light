@@ -196,7 +196,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     private void validateActionInfo(Attributes actionInfo) throws DicomServiceException {
-        if (actionInfo.containsValue(Tag.TransactionUID))
+        if (!actionInfo.containsValue(Tag.TransactionUID))
             throw new DicomServiceException(Status.InvalidArgumentValue,
                     "Missing Transaction UID (0008,1195)", false);
         Sequence refSopSeq = actionInfo.getSequence( Tag.ReferencedSOPSequence );
