@@ -4748,7 +4748,7 @@ export class StudyService {
     getWebAppRoles(webApp):string[]{
         try{
             const regex = /roles=(.*)/gm;
-            const regex2 = /(\w+)/gm;
+            const regex2 = /([\w-]+)/gm;
             let roles = [];
             let m,m2;
             while ((m = regex.exec(webApp.dcmProperty)) !== null) {
