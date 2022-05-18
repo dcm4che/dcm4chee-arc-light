@@ -3357,7 +3357,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             result: {
                 schema_model: {}
             },
-            saveButton: $localize `:@@CANCEL:CANCEL`
+            saveButton: $localize `:@@CANCEL_UPS:Cancel UPS`
         }).subscribe((ok)=> {
             if(ok){
                 this.service.cancelUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model.requester).subscribe(res => {
