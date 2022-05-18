@@ -397,17 +397,17 @@
   </xsl:template>
 
   <xsl:template match="OBX">
-    <xsl:variable name="observationIdentifier" select="field[3]/component[1]"/>
+    <xsl:variable name="observationIdentifier" select="translate(field[3]/component[1],'bodywheight','BODYWHEIGHT')"/>
     <xsl:variable name="units" select="field[6]"/>
     <xsl:choose>
-      <xsl:when test="$units/text()='kg' and $observationIdentifier = 'Body Weight'">
+      <xsl:when test="$units/text()='kg' and $observationIdentifier = 'BODY WEIGHT'">
         <xsl:call-template name="attr">
           <xsl:with-param name="tag" select="'00101030'"/>
           <xsl:with-param name="vr" select="'DS'"/>
           <xsl:with-param name="val" select="field[5]"/>
         </xsl:call-template>
       </xsl:when>
-      <xsl:when test="$units/text()='m' and $observationIdentifier = 'Body Height'">
+      <xsl:when test="$units/text()='m' and $observationIdentifier = 'BODY HEIGHT'">
         <xsl:call-template name="attr">
           <xsl:with-param name="tag" select="'00101020'"/>
           <xsl:with-param name="vr" select="'DS'"/>
