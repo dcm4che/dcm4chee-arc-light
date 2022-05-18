@@ -4086,7 +4086,17 @@ export class StudyService {
 
     getUPSIod(mode:UPSModifyMode) {
         if(mode && (mode === "create" || mode === "clone")){
-            return this.getIod("upsCreate");
+            let iodFileNames = [
+                "patient",
+                "upsCreate"
+            ]
+            return forkJoin(iodFileNames.map(m=>this.getIod(m))).pipe(map(res=>{
+                let merged = {};
+                res.forEach(o=>{
+                    merged = Object.assign(merged,o)
+                });
+                return merged;
+            }));
         }
         return this.getIod("upsUpdate");
     };
