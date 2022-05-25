@@ -203,6 +203,9 @@ public class Location {
     @Column(name = "multi_ref", updatable = true)
     private Integer multiReference;
 
+    @Column(name = "uidmap_fk", insertable = false, updatable = false)
+    private Long uidMapFk;
+
     @ManyToOne
     @JoinColumn(name = "uidmap_fk", updatable = false)
     private UIDMap uidMap;

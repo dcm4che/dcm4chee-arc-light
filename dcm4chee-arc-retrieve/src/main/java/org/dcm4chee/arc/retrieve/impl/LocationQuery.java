@@ -77,7 +77,6 @@ class LocationQuery {
     private final Join<Instance, Series> series;
     private final Join<Series, Study> study;
     private final CollectionJoin<Instance, Location> locationPath;
-    private final Join<Location, UIDMap> uidMap;
     private final Path<byte[]> instanceAttrBlob;
     private final List<Predicate> predicates = new ArrayList<>();
     private Predicate[] iuidPredicates;
@@ -94,7 +93,6 @@ class LocationQuery {
         if (ctx.getObjectType() != null) {
             locationPath.on(cb.equal(locationPath.get(Location_.objectType), ctx.getObjectType()));
         }
-        this.uidMap = locationPath.join(Location_.uidMap, JoinType.LEFT);
         this.instanceAttrBlob = instance.join(Instance_.attributesBlob).get(AttributesBlob_.encodedAttributes);
 
         if (ctx.getSeriesMetadataUpdate() != null) {
@@ -137,6 +135,7 @@ class LocationQuery {
                 locationPath.get(Location_.digest),
                 locationPath.get(Location_.size),
                 locationPath.get(Location_.status),
+                locationPath.get(Location_.uidMapFk),
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),
                 instance.get(Instance_.retrieveAETs),
@@ -144,8 +143,6 @@ class LocationQuery {
                 instance.get(Instance_.availability),
                 instance.get(Instance_.createdTime),
                 instance.get(Instance_.updatedTime),
-                uidMap.get(UIDMap_.pk),
-                uidMap.get(UIDMap_.encodedMap),
                 instanceAttrBlob
         );
     }
@@ -173,6 +170,7 @@ class LocationQuery {
         HashMap<Long,InstanceLocations> instMap = new HashMap<>();
         HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
         HashMap<Long,Map<String, CodeEntity>> rejectedInstancesOfSeriesMap = new HashMap<>();
+        HashMap<Long,UIDMap> uidMap = new HashMap<>();
         for (Tuple tuple : em.createQuery(q.where(predicates)).getResultList()) {
             Long instPk = tuple.get(instance.get(Instance_.pk));
             InstanceLocations match = instMap.get(instPk);
@@ -199,7 +197,10 @@ class LocationQuery {
                 ctx.getMatches().add(match);
                 instMap.put(instPk, match);
             }
-            addLocation(match, tuple);
+            Long uidMapFk = tuple.get(locationPath.get(Location_.uidMapFk));
+            addLocation(match, tuple, uidMapFk != null
+                    ? uidMap.computeIfAbsent(uidMapFk, uidMapPk -> em.find(UIDMap.class, uidMapPk))
+                    : null);
         }
     }
 
@@ -224,7 +225,7 @@ class LocationQuery {
                 .collect(Collectors.toMap(RejectedInstance::getSopInstanceUID, RejectedInstance::getRejectionNoteCode));
     }
 
-    private void addLocation(InstanceLocations match, Tuple tuple) {
+    private void addLocation(InstanceLocations match, Tuple tuple, UIDMap uidMap) {
         Long pk = tuple.get(locationPath.get(Location_.pk));
         if (pk == null)
             return;
@@ -239,10 +240,7 @@ class LocationQuery {
                 .size(tuple.get(locationPath.get(Location_.size)))
                 .status(tuple.get(locationPath.get(Location_.status)))
                 .build();
-        Long uidMapPk = tuple.get(uidMap.get(UIDMap_.pk));
-        if (uidMapPk != null) {
-            location.setUidMap(new UIDMap(uidMapPk, tuple.get(uidMap.get(UIDMap_.encodedMap))));
-        }
+        location.setUidMap(uidMap);
         match.getLocations().add(location);
     }
 }
