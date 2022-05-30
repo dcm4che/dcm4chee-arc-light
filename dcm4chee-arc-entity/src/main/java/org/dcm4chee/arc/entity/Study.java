@@ -137,7 +137,10 @@ import java.util.*;
         @NamedQuery(
                 name=Study.CLAIM_UNKNOWN_SIZE_STUDY,
                 query="update Study st set st.size = -2 " +
-                        "where st.size = -1 and st.pk = ?1")
+                        "where st.size = -1 and st.pk = ?1"),
+        @NamedQuery(
+                name=Study.SET_STUDY_SIZE_IF_CLAIMED,
+                query="update Study st set st.size = ?2 where st.size = -2 and st.pk = ?1")
 })
 @Entity
 @Table(name = "study",
@@ -183,6 +186,7 @@ public class Study {
     public static final String UPDATE_ACCESS_CONTROL_ID = "Study.updateAccessControlID";
     public static final String FIND_PK_STUDY_UID_PID_BY_UPDATE_TIME_AND_UNKNOWN_SIZE = "Study.findPkStudyUIDPIDByUpdateTimeAndUnknownSize";
     public static final String CLAIM_UNKNOWN_SIZE_STUDY = "Study.claimUnknownSizeStudy";
+    public static final String SET_STUDY_SIZE_IF_CLAIMED = "Study.setStudySizeIfClaimed";
 
     public static class PKUID {
         public final Long pk;

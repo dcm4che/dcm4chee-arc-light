@@ -66,7 +66,7 @@ public class QuerySizeEJB {
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
 
-    public long calculateStudySize(Long studyPk) {
+    public long calculateStudySize(Long studyPk, String updateStudySize) {
         for (Long seriesPk : em.createNamedQuery(Series.SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE, Long.class)
                 .setParameter(1, studyPk)
                 .getResultList()) {
@@ -77,11 +77,10 @@ public class QuerySizeEJB {
                     .setParameter(1, studyPk)
                     .getSingleResult(),
                 ZERO);
-        em.createNamedQuery(Study.SET_STUDY_SIZE)
+        return em.createNamedQuery(updateStudySize)
                 .setParameter(1, studyPk)
                 .setParameter(2, size)
-                .executeUpdate();
-        return size;
+                .executeUpdate() > 0 ? size : 0;
     }
 
     public long calculateSeriesSize(Long seriesPk) {
@@ -102,7 +101,7 @@ public class QuerySizeEJB {
             if (em.createNamedQuery(Study.CLAIM_UNKNOWN_SIZE_STUDY)
                     .setParameter(1, studyPk)
                     .executeUpdate() > 0)
-                return calculateStudySize(studyPk);
+                return calculateStudySize(studyPk, Study.SET_STUDY_SIZE_IF_CLAIMED);
         } catch (Exception e) {
             LOG.info(e.getMessage());
         }

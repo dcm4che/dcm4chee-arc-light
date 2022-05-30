@@ -170,7 +170,7 @@ public class QueryServiceEJB {
 
         Long studySize = result.get(study.get(Study_.size));
         if (studySize < 0)
-            studySize = querySizeEJB.calculateStudySize(result.get(study.get(Study_.pk)));
+            studySize = querySizeEJB.calculateStudySize(result.get(study.get(Study_.pk)), Study.SET_STUDY_SIZE);
         Integer numberOfSeriesRelatedInstances =
                 result.get(seriesQueryAttributesPath.get(SeriesQueryAttributes_.numberOfInstances));
         if (numberOfSeriesRelatedInstances == null) {

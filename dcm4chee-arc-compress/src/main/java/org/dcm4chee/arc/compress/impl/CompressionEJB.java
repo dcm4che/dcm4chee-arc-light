@@ -82,7 +82,7 @@ public class CompressionEJB {
     public void updateDB(Series.Compression compr, int completed, int failures) {
         if (completed > 0) {
             querySizeEJB.calculateSeriesSize(compr.seriesPk);
-            querySizeEJB.calculateStudySize(compr.studyPk);
+            querySizeEJB.calculateStudySize(compr.studyPk, Study.SET_STUDY_SIZE);
             em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
                     .setParameter(1, compr.seriesPk);
             em.createNamedQuery(failures > 0

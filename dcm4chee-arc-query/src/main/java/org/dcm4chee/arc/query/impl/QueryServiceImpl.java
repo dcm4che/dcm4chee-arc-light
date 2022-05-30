@@ -333,7 +333,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public long calculateStudySize(Long studyPk) {
-        return querySizeEJB.calculateStudySize(studyPk);
+        return querySizeEJB.calculateStudySize(studyPk, Study.SET_STUDY_SIZE);
     }
 
     @Override
