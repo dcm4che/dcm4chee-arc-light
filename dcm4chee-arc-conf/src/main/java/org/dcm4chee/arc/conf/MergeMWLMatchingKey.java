@@ -45,5 +45,5 @@ package org.dcm4chee.arc.conf;
  * @since Nov 2016
  */
 public enum MergeMWLMatchingKey {
-    PatientID, AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID
+    PatientID, PatientIDOnly, PatientIDAccessionNumber, AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID
 }

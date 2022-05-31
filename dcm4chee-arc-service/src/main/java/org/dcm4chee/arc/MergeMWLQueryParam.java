@@ -75,8 +75,15 @@ public class MergeMWLQueryParam {
         String accessionNumber = null;
         String studyIUID = null;
         String spsID = null;
-        switch (matchingKey) {
-            case PatientID:
+        switch (matchingKey == MergeMWLMatchingKey.PatientID
+                ? attrs.containsValue(Tag.AccessionNumber)
+                ? MergeMWLMatchingKey.PatientIDAccessionNumber
+                : MergeMWLMatchingKey.PatientIDOnly
+                : matchingKey) {
+            case PatientIDOnly:
+                patientID = attrs.getString(Tag.PatientID);
+                break;
+            case PatientIDAccessionNumber:
                 patientID = attrs.getString(Tag.PatientID);
             case AccessionNumber:
                 accessionNumber = attrs.getString(Tag.AccessionNumber);
