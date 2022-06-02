@@ -59,19 +59,22 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
-import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.MergeMWLCache;
+import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.coerce.CoercionFactory;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.entity.Instance;
+import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
-import org.dcm4chee.arc.store.*;
 import org.dcm4chee.arc.storage.*;
+import org.dcm4chee.arc.store.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -115,6 +118,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private StoreServiceEJB ejb;
+
+    @Inject
+    private QueryService queryService;
 
     @Inject
     private Event<StoreContext> storeEvent;
@@ -653,7 +659,7 @@ class StoreServiceImpl implements StoreService {
 
         List<Attributes> mwlItems;
         if (queryParam.mwlSCP == null) {
-            mwlItems = ejb.queryMWL(ctx, queryParam);
+            mwlItems = queryService.queryMWL(queryParam);
         } else
             try {
                 mwlItems = findMWL(ctx, queryParam, rule.isFilterBySCU());

@@ -901,28 +901,29 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public List<Attributes> queryMWL(MergeMWLQueryParam queryParam) {
-        TypedQuery<Tuple> namedQuery = queryParam.localMwlSCPs.length > 0 ?
-                queryParam.accessionNumber != null
-                        ? em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_ACCESSION_NO, Tuple.class)
-                        .setParameter(1, queryParam.localMwlSCPs)
-                        .setParameter(2, queryParam.accessionNumber)
-                        : queryParam.spsID != null
-                        ? em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_STUDY_UID_AND_SPS_ID, Tuple.class)
-                        .setParameter(1, queryParam.localMwlSCPs)
-                        .setParameter(2, queryParam.studyIUID)
-                        .setParameter(3, queryParam.spsID)
-                        : em.createNamedQuery(MWLItem.ATTRS_BY_AET_AND_STUDY_IUID, Tuple.class)
-                        .setParameter(1, queryParam.localMwlSCPs)
-                        .setParameter(2, queryParam.studyIUID)
-                : queryParam.accessionNumber != null
-                ? em.createNamedQuery(MWLItem.ATTRS_BY_ACCESSION_NO, Tuple.class)
-                .setParameter(1, queryParam.accessionNumber)
-                : queryParam.spsID != null
-                ? em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, Tuple.class)
-                .setParameter(1, queryParam.studyIUID)
-                .setParameter(2, queryParam.spsID)
-                : em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_IUID, Tuple.class)
-                .setParameter(1, queryParam.studyIUID);
+        LOG.info("Query for MWL Items with {}", queryParam);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        Root<MWLItem> mwlItem = q.from(MWLItem.class);
+        Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        List<Predicate> predicates = new ArrayList<>();
+        if (queryParam.localMwlSCPs.length > 0)
+            predicates.add(cb.or(mwlItem.get(MWLItem_.localAET).in(queryParam.localMwlSCPs)));
+        if (queryParam.patientID != null)
+            predicates.add(cb.equal(patientID.get(PatientID_.id), queryParam.patientID));
+        if (queryParam.accessionNumber != null)
+            predicates.add(cb.equal(mwlItem.get(MWLItem_.accessionNumber), queryParam.accessionNumber));
+        if (queryParam.studyIUID != null)
+            predicates.add(cb.equal(mwlItem.get(MWLItem_.studyInstanceUID), queryParam.studyIUID));
+        if (queryParam.spsID != null)
+            predicates.add(cb.equal(mwlItem.get(MWLItem_.scheduledProcedureStepID), queryParam.spsID));
+        if (!predicates.isEmpty())
+            q.where(predicates.toArray(new Predicate[0]));
+        q.multiselect(
+                mwlItem.get(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes),
+                patient.get(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes));
+        TypedQuery<Tuple> namedQuery = em.createQuery(q);
         try (Stream<Tuple> resultStream = namedQuery.getResultStream()) {
             return resultStream.map(result -> {
                 Attributes mwlAttrs = AttributesBlob.decodeAttributes(result.get(0, byte[].class), null);
