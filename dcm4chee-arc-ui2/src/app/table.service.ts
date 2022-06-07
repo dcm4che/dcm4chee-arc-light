@@ -52,6 +52,15 @@ export class TableService {
                 calculatedWidth:"20%",
                 pipe: new DynamicPipe(CustomDatePipe, [this.dateTimeFormat])
             }),
+            createdDate: new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@created_date:Created date`,
+                pathToValue:"createdDate",
+                description:$localize `:@@created_date:Created date`,
+                widthWeight:1,
+                calculatedWidth:"20%",
+                pipe: new DynamicPipe(CustomDatePipe, [this.dateTimeFormat])
+            }),
             updateTime: new TableSchemaElement({
                 type:"value",
                 title:$localize `:@@updated_time:Updated time`,
@@ -73,7 +82,11 @@ export class TableService {
                 type:"value",
                 title:$localize `:@@process_delay:Process Delay`,
                 description: $localize `:@@process_delay:Process Delay`,
-                hook:(data)=> j4care.getDifferenceTime(data['processingStartTime'],data['scheduledTime']),
+                hook:(data)=> {
+                    if(data)
+                        return j4care.getDifferenceTime(data['processingStartTime'],data['scheduledTime']);
+                    return "";
+                },
                 widthWeight:1.4,
                 calculatedWidth:"20%"
             }),
@@ -81,7 +94,11 @@ export class TableService {
                 type:"value",
                 title:$localize `:@@process_time:Process Time`,
                 description: $localize `:@@process_time:Process Time`,
-                hook:(data)=> j4care.getDifferenceTime(data['processingEndTime'],data['processingStartTime']),
+                hook:(data)=> {
+                    if(data)
+                        return j4care.getDifferenceTime(data['processingEndTime'],data['processingStartTime']);
+                    return "";
+                },
                 widthWeight:1.4,
                 calculatedWidth:"20%"
             }),
@@ -139,7 +156,11 @@ export class TableService {
                 type:"value",
                 title:$localize `:@@amount_i:#I`,
                 description: $localize `:@@completed_warning_failed:Completed / Warning / Failed`,
-                hook:(data)=>`${data.completed || 0} / ${data.warning || 0} / ${data.failed || 0}`,
+                hook:(data)=>{
+                    if(data)
+                        return `${data.completed || 0} / ${data.warning || 0} / ${data.failed || 0}`;
+                    return "";
+                },
                 widthWeight:1,
                 calculatedWidth:"20%"
             }),
@@ -240,6 +261,20 @@ export class TableService {
                 widthWeight:1,
                 calculatedWidth:"20%",
                 cssClass:"hideOn800px"
+            }),
+            id: new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@id:Id`,
+                header:$localize `:@@id:Id`,
+                widthWeight:1,
+                pathToValue:"id"
+            }),
+            name: new TableSchemaElement({
+                type:"value",
+                title:$localize `:@@name:Name`,
+                header:$localize `:@@name:Name`,
+                widthWeight:1.5,
+                pathToValue:"name"
             })
         };
         if(toReturnElements){
@@ -303,4 +338,30 @@ export interface MappedTableSchemaElement{
     key:TableSchemaElementKey;
     overwrite?:TableSchemaElement;
 }
-export type TableSchemaElementKey = "dicomDeviceName" | "queue" |  "createdTime" | "updateTime" | "scheduledTime" | "processingStartTime_scheduledTime" | "processingEndTime_processingStartTime" | "LocalAET" | "RemoteAET" | "ExporterID" | "Modality" | "NumberOfInstances" | "DestinationAET" | "remaining" | "PrimaryAET" | "SecondaryAET" | "comparefield" | "matches" | "StorageID" | "StgCmtPolicy" | "completed_failed" | "status" | "failures" | "batchID";
+export type TableSchemaElementKey = "dicomDeviceName" |
+    "queue" |
+    "createdTime" |
+    "createdDate" |
+    "updateTime" |
+    "scheduledTime" |
+    "processingStartTime_scheduledTime" |
+    "processingEndTime_processingStartTime" |
+    "LocalAET" |
+    "RemoteAET" |
+    "ExporterID" |
+    "Modality" |
+    "NumberOfInstances" |
+    "DestinationAET" |
+    "remaining" |
+    "PrimaryAET" |
+    "SecondaryAET" |
+    "comparefield" |
+    "matches" |
+    "StorageID" |
+    "StgCmtPolicy" |
+    "completed_failed" |
+    "status" |
+    "failures" |
+    "id" |
+    "name" |
+    "batchID";
