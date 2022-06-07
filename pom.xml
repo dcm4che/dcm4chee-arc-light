@@ -46,7 +46,7 @@
 
   <groupId>org.dcm4che.dcm4chee-arc</groupId>
   <artifactId>dcm4chee-arc-parent</artifactId>
-  <version>5.26.0</version>
+  <version>5.26.1</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -55,13 +55,13 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-jakartaee8.version>24.0.1.Final</wildfly-jakartaee8.version>
+    <wildfly-jakartaee8.version>26.1.1.Final</wildfly-jakartaee8.version>
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
-    <keycloak.version>15.1.0</keycloak.version>
+    <keycloak.version>18.0.0</keycloak.version>
     <jbossws-cxf-client.version>5.4.4.Final</jbossws-cxf-client.version>
     <jaxb-xjc.version>2.3.3-b02</jaxb-xjc.version>
-    <apache-cxf.version>3.3.10</apache-cxf.version>
+    <apache-cxf.version>3.4.5</apache-cxf.version>
     <apache-commons-csv.version>1.9.0</apache-commons-csv.version>
     <jclouds.version>2.5.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
