@@ -67,6 +67,7 @@ dcmuiAction: tab-dashboard_ats
 dcmuiPermissionName: Tab - Dashboard - Ats
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
+dcmuiActionParam: accessible
 
 dn: dcmuiPermissionName=Tab - Dashboard - Home,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -74,6 +75,7 @@ dcmuiAction: tab-dashboard_home
 dcmuiPermissionName: Tab - Dashboard - Home
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
+dcmuiActionParam: accessible
 
 dn: dcmuiPermissionName=Tab - Correct Data Diff,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -97,6 +99,7 @@ dcmuiAction: tab-dashboard_queue
 dcmuiPermissionName: Tab - Dashboard - Queue
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
+dcmuiActionParam: accessible
 
 dn: dcmuiPermissionName=Tab - Dashboard - Compare,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -104,6 +107,7 @@ dcmuiAction: tab-dashboard_compare
 dcmuiPermissionName: Tab - Dashboard - Compare
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
+dcmuiActionParam: accessible
 
 dn: dcmuiPermissionName=Tab - Dashboard - Hardware,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
@@ -111,6 +115,7 @@ dcmuiAction: tab-dashboard_hardware
 dcmuiPermissionName: Tab - Dashboard - Hardware
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
+dcmuiActionParam: accessible
 
 dn: dcmuiPermissionName=Tab - Exchange Data Export,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
