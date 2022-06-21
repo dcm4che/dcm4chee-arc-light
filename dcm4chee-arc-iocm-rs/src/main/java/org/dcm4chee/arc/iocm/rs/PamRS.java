@@ -272,7 +272,8 @@ public class PamRS {
                 }
             }
 
-            if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read))
+            if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read)
+                    && rsOp != RSOperation.MergePatient2)
                 return;
 
             rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
