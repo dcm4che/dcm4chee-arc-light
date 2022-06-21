@@ -129,6 +129,7 @@ public class StudyServiceEJB {
             throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
                     series.getStudy().getPatient() + " in existing " + series.getStudy());
 
+        Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
         series.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
