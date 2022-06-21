@@ -97,7 +97,6 @@ public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor 
         supplementValue(attrs, Tag.InstitutionalDepartmentName, VR.LO, device.getInstitutionalDepartmentNames());
         supplementValue(attrs, Tag.InstitutionAddress, VR.ST, device.getInstitutionAddresses());
         supplementIssuers(device, attrs);
-        supplementRequestIssuers(device, attrs);
         supplementRequestIssuers(device, attrs.getSequence(Tag.RequestAttributesSequence));
         LOG.info("Supplement composite object from device: {} using coercion {}", device.getDeviceName(), coercion);
     }
@@ -119,7 +118,6 @@ public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor 
     private void supplementQuery(ArchiveAttributeCoercion2 coercion, Attributes attrs) {
         Device device = coercion.getOtherDevice();
         supplementIssuers(device, attrs);
-        supplementRequestIssuers(device, attrs);
         supplementRequestIssuers(device, attrs.getSequence(Tag.RequestAttributesSequence));
         LOG.info("Supplement composite query from device: {} using coercion {}", device.getDeviceName(), coercion);
     }
@@ -158,6 +156,8 @@ public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor 
 
     private void supplementIssuers(Device device, Attributes attrs) {
         supplementIssuerOfPatientID(device, attrs);
+        supplementIssuer(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence,
+                device.getIssuerOfAccessionNumber());
         supplementIssuer(attrs, Tag.AdmissionID, Tag.IssuerOfAdmissionIDSequence,
                 device.getIssuerOfAdmissionID());
         supplementIssuer(attrs, Tag.ServiceEpisodeID, Tag.IssuerOfServiceEpisodeID,

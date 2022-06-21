@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2017
  */
 public class SupplementAssigningAuthorities implements AttributesCoercion {
@@ -130,7 +131,6 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
         supplementValue(attrs, Tag.InstitutionalDepartmentName, VR.LO, device.getInstitutionalDepartmentNames());
         supplementValue(attrs, Tag.InstitutionAddress, VR.ST, device.getInstitutionAddresses());
         supplementIssuers(attrs);
-        supplementRequestIssuers(attrs);
         supplementRequestIssuers(attrs.getSequence(Tag.RequestAttributesSequence));
         LOG.info("Supplement composite object from device: {}", device.getDeviceName());
     }
@@ -149,7 +149,6 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
 
     private void supplementQuery(Attributes attrs) {
         supplementIssuers(attrs);
-        supplementRequestIssuers(attrs);
         supplementRequestIssuers(attrs.getSequence(Tag.RequestAttributesSequence));
         LOG.info("Supplement composite query from device: {}", device.getDeviceName());
     }
@@ -188,6 +187,8 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
 
     private void supplementIssuers(Attributes attrs) {
         supplementIssuerOfPatientID(attrs);
+        supplementIssuer(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence,
+                device.getIssuerOfAccessionNumber());
         supplementIssuer(attrs, Tag.AdmissionID, Tag.IssuerOfAdmissionIDSequence,
                 device.getIssuerOfAdmissionID());
         supplementIssuer(attrs, Tag.ServiceEpisodeID, Tag.IssuerOfServiceEpisodeID,
