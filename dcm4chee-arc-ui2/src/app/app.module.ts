@@ -240,7 +240,7 @@ import { CustomDatePipe } from './pipes/custom-date.pipe';
             { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
             { path: '**', component: PageNotFoundComponent }
       ],
-            { useHash: true })
+            { useHash: false })
     ],
     entryComponents: [WidgetsComponents],
     providers: [

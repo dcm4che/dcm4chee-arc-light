@@ -61,7 +61,7 @@ public class Resource {
     @Path("keycloak.json")
     @Produces("application/json")
     public String keycloakJSON() {
-        String authServerURL = System.getProperty("auth-server-url");
+        String authServerURL = System.getProperty("ui-auth-server-url", System.getProperty("auth-server-url"));
         return authServerURL == null ? "{}" :
                 "{\"realm\":\"" + System.getProperty("realm-name", "dcm4che") +
                 "\",\"resource\":\"" + System.getProperty("ui-client-id","dcm4chee-arc-ui") +

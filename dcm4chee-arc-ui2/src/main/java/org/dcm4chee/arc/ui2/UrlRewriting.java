@@ -51,14 +51,20 @@ import java.io.IOException;
  * @since Jun 2022
  */
 @WebFilter(asyncSupported = true, urlPatterns = {
-        "/study/*",
-        "/device/*",
-        "/monitoring/*",
-        "/configuration/*",
-        "/correct-data/*",
-        "/migration/*",
         "/statistics/*",
-        "/agfa-migration/*"
+        "/dicom-route",
+        "/workflow-management",
+        "/xds",
+        "/lifecycle-management",
+        "/monitoring/*",
+        "/correct-data/*",
+        "/audit-record-repository/*",
+        "/migration/*",
+        "/agfa-migration/*",
+        "/study/*",
+        "/permission-denied",
+        "/device/*",
+        "/configuration/*"
 })
 public class UrlRewriting implements Filter {
     @Override
