@@ -139,6 +139,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration hl7PSUTimeout;
     private Boolean hl7PSUOnTimeout;
     private Boolean hl7PSUMWL;
+    private HL7PSUMWLMatchingKey hl7PSUMWLMatchingKey;
     private Boolean hl7PSUForRequestedProcedure;
     private Boolean hl7PSUPIDPV1;
     private String hl7PSURequestedProcedureID;
@@ -1372,6 +1373,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isHL7PSUMWL();
     }
 
+    public HL7PSUMWLMatchingKey getHL7PSUMWLMatchingKey() {
+        return hl7PSUMWLMatchingKey;
+    }
+
+    public void setHL7PSUMWLMatchingKey(HL7PSUMWLMatchingKey hl7PSUMWLMatchingKey) {
+        this.hl7PSUMWLMatchingKey = hl7PSUMWLMatchingKey;
+    }
+
+    public HL7PSUMWLMatchingKey hl7PSUMWLMatchingKey() {
+        return hl7PSUMWLMatchingKey != null
+                ? hl7PSUMWLMatchingKey
+                : getArchiveDeviceExtension().getHL7PSUMWLMatchingKey();
+    }
+
     public Boolean getHl7PSUForRequestedProcedure() {
         return hl7PSUForRequestedProcedure;
     }
@@ -1911,6 +1926,7 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUTimeout = aeExt.hl7PSUTimeout;
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
         hl7PSUMWL = aeExt.hl7PSUMWL;
+        hl7PSUMWLMatchingKey = aeExt.hl7PSUMWLMatchingKey;
         hl7PSUForRequestedProcedure = aeExt.hl7PSUForRequestedProcedure;
         hl7PSUPIDPV1 = aeExt.hl7PSUPIDPV1;
         hl7PSURequestedProcedureID = aeExt.hl7PSURequestedProcedureID;

@@ -222,6 +222,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int hl7PSUTaskFetchSize = 100;
     private volatile Duration hl7PSUTaskPollingInterval;
     private volatile boolean hl7PSUMWL = false;
+    private volatile HL7PSUMWLMatchingKey hl7PSUMWLMatchingKey = HL7PSUMWLMatchingKey.StudyInstanceUID;
     private volatile boolean hl7PSUForRequestedProcedure = false;
     private volatile boolean hl7PSUPIDPV1 = false;
     private volatile String hl7PSURequestedProcedureID;
@@ -1542,6 +1543,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHL7PSUMWL(boolean hl7PSUMWL) {
         this.hl7PSUMWL = hl7PSUMWL;
+    }
+
+    public HL7PSUMWLMatchingKey getHL7PSUMWLMatchingKey() {
+        return hl7PSUMWLMatchingKey;
+    }
+
+    public void setHL7PSUMWLMatchingKey(HL7PSUMWLMatchingKey hl7PSUMWLMatchingKey) {
+        this.hl7PSUMWLMatchingKey = hl7PSUMWLMatchingKey;
     }
 
     public boolean isHl7PSUForRequestedProcedure() {
@@ -3321,6 +3330,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUTaskPollingInterval = arcdev.hl7PSUTaskPollingInterval;
         hl7PSUTaskFetchSize = arcdev.hl7PSUTaskFetchSize;
         hl7PSUMWL = arcdev.hl7PSUMWL;
+        hl7PSUMWLMatchingKey = arcdev.hl7PSUMWLMatchingKey;
         hl7PSUForRequestedProcedure = arcdev.hl7PSUForRequestedProcedure;
         hl7PSUPIDPV1 = arcdev.hl7PSUPIDPV1;
         hl7PSURequestedProcedureID = arcdev.hl7PSURequestedProcedureID;

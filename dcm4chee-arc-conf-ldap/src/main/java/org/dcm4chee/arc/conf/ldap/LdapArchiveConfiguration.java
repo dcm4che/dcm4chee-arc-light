@@ -324,6 +324,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHL7PSUTaskPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUTaskFetchSize", ext.getHL7PSUTaskFetchSize(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUMWL", ext.isHL7PSUMWL(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMWLMatchingKey",
+                ext.getHL7PSUMWLMatchingKey(), HL7PSUMWLMatchingKey.StudyInstanceUID);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUForRequestedProcedure",
                 ext.isHl7PSUForRequestedProcedure(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUPIDPV1", ext.isHl7PSUPIDPV1(), false);
@@ -682,6 +684,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7PSUTaskPollingInterval(toDuration(attrs.get("hl7PSUTaskPollingInterval"), null));
         ext.setHL7PSUTaskFetchSize(LdapUtils.intValue(attrs.get("hl7PSUTaskFetchSize"), 100));
         ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), false));
+        ext.setHL7PSUMWLMatchingKey(LdapUtils.enumValue(HL7PSUMWLMatchingKey.class,
+                attrs.get("hl7PSUMWLMatchingKey"), HL7PSUMWLMatchingKey.StudyInstanceUID));
         ext.setHl7PSUForRequestedProcedure(LdapUtils.booleanValue(attrs.get("hl7PSUForRequestedProcedure"), false));
         ext.setHl7PSUPIDPV1(LdapUtils.booleanValue(attrs.get("hl7PSUPIDPV1"), false));
         ext.setHl7PSURequestedProcedureID(LdapUtils.stringValue(attrs.get("hl7PSURequestedProcedureID"), null));
@@ -1154,6 +1158,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUTaskFetchSize",
                 aa.getHL7PSUTaskFetchSize(), bb.getHL7PSUTaskFetchSize(), 100);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUMWL", aa.isHL7PSUMWL(), bb.isHL7PSUMWL(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMWLMatchingKey",
+                aa.getHL7PSUMWLMatchingKey(), bb.getHL7PSUMWLMatchingKey(), HL7PSUMWLMatchingKey.StudyInstanceUID);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUForRequestedProcedure",
                 aa.isHl7PSUForRequestedProcedure(), bb.isHl7PSUForRequestedProcedure(), false);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUPIDPV1", aa.isHl7PSUPIDPV1(), bb.isHl7PSUPIDPV1(), false);
@@ -1697,6 +1703,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHL7PSUTimeout(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUOnTimeout", ext.getHL7PSUOnTimeout(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMWL", ext.getHL7PSUMWL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMWLMatchingKey", ext.getHL7PSUMWLMatchingKey(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUForRequestedProcedure",
                 ext.getHl7PSUForRequestedProcedure(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUPIDPV1", ext.getHl7PSUPIDPV1(), null);
@@ -1860,6 +1867,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout"), null));
         ext.setHL7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
         ext.setHL7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
+        ext.setHL7PSUMWLMatchingKey(LdapUtils.enumValue(HL7PSUMWLMatchingKey.class,
+                attrs.get("hl7PSUMWLMatchingKey"), null));
         ext.setHl7PSUForRequestedProcedure(LdapUtils.booleanValue(attrs.get("hl7PSUForRequestedProcedure"), null));
         ext.setHl7PSUPIDPV1(LdapUtils.booleanValue(attrs.get("hl7PSUPIDPV1"), null));
         ext.setHl7PSURequestedProcedureID(LdapUtils.stringValue(attrs.get("hl7PSURequestedProcedureID"), null));
@@ -2093,6 +2102,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHL7PSUOnTimeout(), bb.getHL7PSUOnTimeout(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMWL",
                 aa.getHL7PSUMWL(), bb.getHL7PSUMWL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMWLMatchingKey",
+                aa.getHL7PSUMWLMatchingKey(), bb.getHL7PSUMWLMatchingKey(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUForRequestedProcedure",
                 aa.getHl7PSUForRequestedProcedure(), bb.getHl7PSUForRequestedProcedure(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUPIDPV1",
