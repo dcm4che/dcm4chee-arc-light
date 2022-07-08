@@ -17,6 +17,19 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template name="attrEmptyOrPresent">
+    <xsl:param name="tag"/>
+    <xsl:param name="vr"/>
+    <xsl:param name="val"/>
+    <DicomAttribute tag="{$tag}" vr="{$vr}">
+      <xsl:if test="$val and $val != '&quot;&quot;'">
+        <Value number="1">
+          <xsl:value-of select="$val"/>
+        </Value>
+      </xsl:if>
+    </DicomAttribute>
+  </xsl:template>
+
   <xsl:template name="sex">
     <xsl:param name="val"/>
     <xsl:if test="$val">
