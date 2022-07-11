@@ -263,6 +263,65 @@
     <DicomAttribute tag="0040A504" vr="SQ"/>
   </xsl:template>
 
+  <xsl:template name="requestAttrs">
+    <xsl:param name="studyUID"/>
+    <xsl:param name="requestingPhysician"/>
+    <xsl:param name="accessionNo"/>
+    <xsl:param name="reqProcDescCode"/>
+    <xsl:param name="reqProcID"/>
+    <xsl:param name="placerNo"/>
+    <xsl:param name="fillerNo"/>
+    <xsl:param name="sqTag"/>
+    <!--Referenced Request Sequence-->
+    <DicomAttribute tag="{$sqTag}" vr="SQ">
+      <Item number="1">
+        <!-- Study Instance UID -->
+        <xsl:call-template name="attrEmptyOrPresent">
+          <xsl:with-param name="tag" select="'0020000D'"/>
+          <xsl:with-param name="vr" select="'UI'"/>
+          <xsl:with-param name="val" select="$studyUID"/>
+        </xsl:call-template>
+        <!-- Requesting Physician -->
+        <xsl:call-template name="cn2pnAttr">
+          <xsl:with-param name="tag" select="'00321032'"/>
+          <xsl:with-param name="cn" select="$requestingPhysician"/>
+        </xsl:call-template>
+        <!--Accession Number-->
+        <xsl:call-template name="attrEmptyOrPresent">
+          <xsl:with-param name="tag" select="'00080050'"/>
+          <xsl:with-param name="vr" select="'SH'"/>
+          <xsl:with-param name="val" select="$accessionNo"/>
+        </xsl:call-template>
+        <!--Referenced Study Sequence-->
+        <DicomAttribute tag="00081110" vr="SQ"/>
+        <!--Requested Procedure Description and Code Sequence-->
+        <xsl:call-template name="ce2codeItemWithDesc">
+          <xsl:with-param name="descTag" select="'00321060'"/>
+          <xsl:with-param name="seqTag" select="'00321064'"/>
+          <xsl:with-param name="codedEntry" select="$reqProcDescCode"/>
+        </xsl:call-template>
+        <!-- Requested Procedure ID -->
+        <xsl:call-template name="attrEmptyOrPresent">
+          <xsl:with-param name="tag" select="'00401001'"/>
+          <xsl:with-param name="vr" select="'SH'"/>
+          <xsl:with-param name="val" select="$reqProcID"/>
+        </xsl:call-template>
+        <!--Placer Order Number / Imaging Service Request-->
+        <xsl:call-template name="attrEmptyOrPresent">
+          <xsl:with-param name="tag" select="'00402016'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="$placerNo"/>
+        </xsl:call-template>
+        <!--Filler Order Number / Imaging Service Request-->
+        <xsl:call-template name="attrEmptyOrPresent">
+          <xsl:with-param name="tag" select="'00402017'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="$fillerNo"/>
+        </xsl:call-template>
+      </Item>
+    </DicomAttribute>
+  </xsl:template>
+
   <xsl:template match="OBR">
     <xsl:param name="ed"/>
     <xsl:param name="studyUID"/>
@@ -278,47 +337,32 @@
       <xsl:with-param name="vr" select="'SH'"/>
       <xsl:with-param name="val" select="field[18]"/>
     </xsl:call-template>
-    <xsl:if test="not($ed)">
-      <!--Referenced Request Sequence-->
-      <DicomAttribute tag="0040A370" vr="SQ">
-        <Item number="1">
-          <!-- Study Instance UID -->
-          <xsl:call-template name="attr">
-            <xsl:with-param name="tag" select="'0020000D'"/>
-            <xsl:with-param name="vr" select="'UI'"/>
-            <xsl:with-param name="val" select="$studyUID"/>
-          </xsl:call-template>
-          <!--Accession Number-->
-          <DicomAttribute tag="00080050" vr="SH"/>
-          <!--Referenced Study Sequence-->
-          <DicomAttribute tag="00081110" vr="SQ"/>
-          <!--Requested Procedure Description and Code Sequence-->
-          <xsl:call-template name="ce2codeItemWithDesc">
-            <xsl:with-param name="descTag" select="'00321060'"/>
-            <xsl:with-param name="seqTag" select="'00321064'"/>
-            <xsl:with-param name="codedEntry" select="field[4]"/>
-          </xsl:call-template>
-          <!-- Requested Procedure ID -->
-          <xsl:call-template name="attr">
-            <xsl:with-param name="tag" select="'00401001'"/>
-            <xsl:with-param name="vr" select="'SH'"/>
-            <xsl:with-param name="val" select="string(field[19]/text())"/>
-          </xsl:call-template>
-          <!--Placer Order Number / Imaging Service Request-->
-          <xsl:call-template name="attr">
-            <xsl:with-param name="tag" select="'00402016'"/>
-            <xsl:with-param name="vr" select="'LO'"/>
-            <xsl:with-param name="val" select="field[2]"/>
-          </xsl:call-template>
-          <!--Filler Order Number / Imaging Service Request-->
-          <xsl:call-template name="attr">
-            <xsl:with-param name="tag" select="'00402017'"/>
-            <xsl:with-param name="vr" select="'LO'"/>
-            <xsl:with-param name="val" select="field[3]"/>
-          </xsl:call-template>
-        </Item>
-      </DicomAttribute>
-    </xsl:if>
+    <xsl:variable name="requestingPhysician" select="field[16]"/>
+    <xsl:variable name="accessionNo" select="field[18]"/>
+    <xsl:variable name="reqProcDescCode" select="field[4]"/>
+    <xsl:variable name="reqProcID" select="field[19]"/>
+    <xsl:variable name="placerNo" select="field[2]"/>
+    <xsl:variable name="fillerNo" select="field[3]"/>
+    <xsl:call-template name="requestAttrs">
+      <xsl:with-param name="studyUID" select="$studyUID"/>
+      <xsl:with-param name="requestingPhysician" select="$requestingPhysician"/>
+      <xsl:with-param name="accessionNo" select="$accessionNo"/>
+      <xsl:with-param name="reqProcDescCode" select="$reqProcDescCode"/>
+      <xsl:with-param name="reqProcID" select="$reqProcID"/>
+      <xsl:with-param name="placerNo" select="$placerNo"/>
+      <xsl:with-param name="fillerNo" select="$fillerNo"/>
+      <xsl:with-param name="sqTag" select="'00400275'"/>
+    </xsl:call-template>
+    <xsl:call-template name="requestAttrs">
+      <xsl:with-param name="studyUID" select="$studyUID"/>
+      <xsl:with-param name="requestingPhysician" select="$requestingPhysician"/>
+      <xsl:with-param name="accessionNo" select="$accessionNo"/>
+      <xsl:with-param name="reqProcDescCode" select="$reqProcDescCode"/>
+      <xsl:with-param name="reqProcID" select="$reqProcID"/>
+      <xsl:with-param name="placerNo" select="$placerNo"/>
+      <xsl:with-param name="fillerNo" select="$fillerNo"/>
+      <xsl:with-param name="sqTag" select="'0040A370'"/>
+    </xsl:call-template>
     <!-- Verifying Observer Sequence -->
     <DicomAttribute tag="0040A073" vr="SQ">
       <Item number="1">

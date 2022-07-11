@@ -203,6 +203,9 @@ export class AeListComponent implements OnInit{
             saveButton: $localize `:@@DELETE:DELETE`,
             cssClass: 'deleteaet'
         };
+        if(this.mainservice.archiveDeviceName === device){
+            delete parameters.input;
+        }
         console.log('parameters', parameters);
         let $this = this;
         this.confirm(parameters).subscribe(result => {
