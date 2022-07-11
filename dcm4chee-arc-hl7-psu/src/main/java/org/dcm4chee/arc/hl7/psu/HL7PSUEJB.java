@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.hl7.psu;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -109,6 +110,7 @@ public class HL7PSUEJB {
             task.setAETitle(arcAE.getApplicationEntity().getAETitle());
             task.setStudyInstanceUID(ctx.getStudyInstanceUID());
             task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
+            task.setAccessionNumber(ctx.getAttributes().getString(Tag.AccessionNumber));
             task.setScheduledTime(scheduledTime(arcAE.hl7PSUDelay()));
             em.persist(task);
             LOG.info("{}: Created {}", ctx, task);
@@ -144,15 +146,15 @@ public class HL7PSUEJB {
         if ((arcAE.hl7PSUForRequestedProcedure() && arcAE.hl7PSUSendingApplication() != null
                 && arcAE.hl7PSUReceivingApplications().length > 0)
                 || arcAE.hl7PSUMWL())
-            mwl = updateMWLStatus(task);
+            mwl = updateMWLStatus(arcAE, task);
 
         scheduleHL7Msg(arcAE, task, mwl);
         removeHL7PSUTask(task);
     }
 
-    private MWLItem updateMWLStatus(HL7PSUTask task) {
+    private MWLItem updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask task) {
         SPSStatus status = spsStatus(task);
-        List<MWLItem> mwlItems = procedureService.updateMWLStatus(task.getStudyInstanceUID(), status);
+        List<MWLItem> mwlItems = procedureService.updateMWLStatus(arcAE, task, status);
         if (mwlItems.size() > 0)
             LOG.info("{} MWL Items status updated to {} by HL7 PSU task {}.", mwlItems.size(), status, task);
         else

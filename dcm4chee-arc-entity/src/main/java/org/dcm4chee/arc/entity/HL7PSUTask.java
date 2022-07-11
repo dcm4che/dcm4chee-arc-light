@@ -103,6 +103,9 @@ public class HL7PSUTask {
     @Column(name = "series_iuid")
     private String seriesInstanceUID;
 
+    @Column(name = "accession_no")
+    private String accessionNumber;
+
     @Column(name = "pps_status")
     private MPPS.Status pps_status;
 
@@ -163,6 +166,14 @@ public class HL7PSUTask {
         this.seriesInstanceUID = seriesInstanceUID;
     }
 
+    public String getAccessionNumber() {
+        return accessionNumber;
+    }
+
+    public void setAccessionNumber(String accessionNumber) {
+        this.accessionNumber = accessionNumber;
+    }
+
     public MPPS getMpps() {
         return mpps;
     }
@@ -180,8 +191,11 @@ public class HL7PSUTask {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("HL7PSUTask[pk=").append(pk).append(", deviceName=").append(deviceName);
-        if (mpps == null)
+        if (mpps == null) {
             sb.append(", studyInstanceUID=").append(studyInstanceUID);
+            sb.append(", seriesInstanceUID=").append(seriesInstanceUID);
+            sb.append(", accessionNumber=").append(accessionNumber);
+        }
         else {
             sb.append(", mppsInstanceUID=").append(mpps.getSopInstanceUID());
             sb.append(", mppsStatus=").append(mpps.getStatus());

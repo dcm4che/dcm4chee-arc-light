@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2020
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,49 +38,12 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.procedure;
-
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.MWLImport;
-import org.dcm4chee.arc.conf.SPSStatus;
-import org.dcm4chee.arc.entity.HL7PSUTask;
-import org.dcm4chee.arc.entity.MWLItem;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.query.util.QueryParam;
-
-import java.util.List;
+package org.dcm4chee.arc.conf;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jun 2016
+ * @since Jun 2022
  */
-public interface ProcedureService {
-    ProcedureContext createProcedureContext();
-
-    void updateProcedure(ProcedureContext ctx);
-
-    void deleteProcedure(ProcedureContext ctx);
-
-    void updateStudySeriesAttributes(ProcedureContext ctx);
-
-    List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status);
-
-    List<MWLItem> updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask hl7PSUTask, SPSStatus status);
-
-    void updateMWLStatus(ProcedureContext ctx);
-
-    void updateMWLStatus(ProcedureContext ctx, SPSStatus from);
-
-    int updateMatchingSPS(SPSStatus spsStatus, Attributes queryKeys, QueryParam queryParam, int mwlFetchSize);
-
-    MWLItem findMWLItem(ProcedureContext ctx);
-
-    ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET,
-            int priority, Attributes filter, Attributes keys, boolean fuzzymatching, boolean filterbyscu,
-            boolean delete, boolean simulate)
-            throws Exception;
-
-    ImportResult importMWL(MWLImport rule) throws Exception;
+public enum HL7PSUMWLMatchingKey {
+    AccessionNumber, StudyInstanceUID
 }
