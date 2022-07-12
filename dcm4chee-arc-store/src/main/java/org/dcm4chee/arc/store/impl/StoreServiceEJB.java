@@ -1559,6 +1559,7 @@ public class StoreServiceEJB {
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
         Instance instance = new Instance();
         instance.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Instance), true, fuzzyStr);
+        setRequestAttributes(instance, attrs, fuzzyStr);
         setVerifyingObservers(instance, attrs, fuzzyStr);
         instance.setConceptNameCode(conceptNameCode);
         setContentItems(session, instance, attrs);
@@ -1727,6 +1728,17 @@ public class StoreServiceEJB {
         if (seq != null)
             for (Attributes item : seq) {
                 SeriesRequestAttributes request = new SeriesRequestAttributes(item, fuzzyStr);
+                requestAttributes.add(request);
+            }
+    }
+
+    private void setRequestAttributes(Instance instance, Attributes attrs, FuzzyStr fuzzyStr) {
+        Sequence seq = attrs.getSequence(Tag.RequestAttributesSequence);
+        Collection<InstanceRequestAttributes> requestAttributes = instance.getRequestAttributes();
+        requestAttributes.clear();
+        if (seq != null)
+            for (Attributes item : seq) {
+                InstanceRequestAttributes request = new InstanceRequestAttributes(item, fuzzyStr);
                 requestAttributes.add(request);
             }
     }

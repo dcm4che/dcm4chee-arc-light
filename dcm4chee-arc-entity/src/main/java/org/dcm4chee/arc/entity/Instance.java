@@ -301,6 +301,10 @@ public class Instance {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "instance_fk")
+    private Collection<InstanceRequestAttributes> requestAttributes;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "instance_fk")
     private Collection<VerifyingObserver> verifyingObservers;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -433,6 +437,12 @@ public class Instance {
 
     public void setConceptNameCode(CodeEntity conceptNameCode) {
         this.conceptNameCode = conceptNameCode;
+    }
+
+    public Collection<InstanceRequestAttributes> getRequestAttributes() {
+        if (requestAttributes == null)
+            requestAttributes = new ArrayList<>();
+        return requestAttributes;
     }
 
     public Collection<VerifyingObserver> getVerifyingObservers() {

@@ -856,6 +856,8 @@ public class QueryBuilder {
         if (!code(predicates, instance.get(Instance_.conceptNameCode),
                 keys.getNestedDataset(Tag.ConceptNameCodeSequence)))
             hideRejectionNote(predicates, instance, hideRejectionNoteWithCodes);
+        Attributes reqAttrs = keys.getNestedDataset(Tag.ReferencedRequestSequence);
+        instanceRequestAttributes(predicates, q, instance, reqAttrs, queryParam);
         verifyingObserver(predicates, q, instance, keys.getNestedDataset(Tag.VerifyingObserverSequence), queryParam);
         Sequence contentSeq = keys.getSequence(Tag.ContentSequence);
         if (contentSeq != null)
@@ -1423,6 +1425,48 @@ public class QueryBuilder {
             predicates.add(cb.isNotEmpty(series.get(Series_.requestAttributes)));
         else
             predicates.add(cb.isEmpty(series.get(Series_.requestAttributes)));
+    }
+
+    private <T, Z> void instanceRequestAttributes(
+            List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Instance> instance, Attributes item,
+            QueryParam queryParam) {
+        if (isUniversalMatching(item))
+            return;
+
+        Subquery<InstanceRequestAttributes> sq = q.subquery(InstanceRequestAttributes.class);
+        From<Z, Instance> sqSeries = correlate(sq, instance);
+        Join<Instance, InstanceRequestAttributes> request = sqSeries.join(Instance_.requestAttributes);
+        List<Predicate> requestPredicates = new ArrayList<>();
+        String accNo = item.getString(Tag.AccessionNumber, "*");
+        if (!isUniversalMatching(accNo)) {
+            Issuer issuerOfAccessionNumber = Issuer.valueOf(item
+                    .getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+            if (issuerOfAccessionNumber == null)
+                issuerOfAccessionNumber = queryParam.getDefaultIssuerOfAccessionNumber();
+            if (wildCard(requestPredicates, request.get(InstanceRequestAttributes_.accessionNumber), accNo) && issuerOfAccessionNumber != null) {
+                issuer(requestPredicates,
+                        request.get(InstanceRequestAttributes_.accessionNumberLocalNamespaceEntityID),
+                        request.get(InstanceRequestAttributes_.accessionNumberUniversalEntityID),
+                        request.get(InstanceRequestAttributes_.accessionNumberUniversalEntityIDType),
+                        issuerOfAccessionNumber);
+            }
+        }
+        anyOf(requestPredicates,
+                request.get(InstanceRequestAttributes_.requestingService),
+                item.getStrings(Tag.RequestingService), true);
+        personName(requestPredicates, q, request, InstanceRequestAttributes_.requestingPhysician,
+                item.getString(Tag.RequestingPhysician, "*"), queryParam);
+        anyOf(requestPredicates,
+                request.get(InstanceRequestAttributes_.requestedProcedureID),
+                item.getStrings(Tag.RequestedProcedureID), false);
+        anyOf(requestPredicates, request.get(InstanceRequestAttributes_.studyInstanceUID),
+                item.getStrings(Tag.StudyInstanceUID), false);
+        anyOf(requestPredicates,
+                request.get(InstanceRequestAttributes_.scheduledProcedureStepID),
+                item.getStrings(Tag.ScheduledProcedureStepID), false);
+        if (!requestPredicates.isEmpty()) {
+            predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
+        }
     }
 
     private <T> void upsRequestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, Root<UPS> ups,
