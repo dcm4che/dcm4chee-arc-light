@@ -1733,7 +1733,7 @@ public class StoreServiceEJB {
     }
 
     private void setRequestAttributes(Instance instance, Attributes attrs, FuzzyStr fuzzyStr) {
-        Sequence seq = attrs.getSequence(Tag.RequestAttributesSequence);
+        Sequence seq = attrs.getSequence(Tag.ReferencedRequestSequence);
         Collection<InstanceRequestAttributes> requestAttributes = instance.getRequestAttributes();
         requestAttributes.clear();
         if (seq != null)
