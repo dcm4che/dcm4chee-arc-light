@@ -50,14 +50,14 @@
                             <div class="td_block" *ngFor="let connection of device.dicomNetworkConnection">
                                 <input type="text" [(ngModel)]="connection.cn" disabled>
                                 <input type="text" [(ngModel)]="connection.dicomHostname" disabled>
-                                <input type="text" [(ngModel)]="connection.dicomPort" disabled>
+                                <input type="number" [(ngModel)]="connection.dicomPort" disabled>
                             </div>
                         </div>
                         <div class="td">
                             <div class="td_block" *ngFor="let connection of clonedDevice.dicomNetworkConnection">
                                 <input type="text" [(ngModel)]="connection.cn">
                                 <input type="text" [(ngModel)]="connection.dicomHostname">
-                                <input type="text" [(ngModel)]="connection.dicomPort">
+                                <input type="number" [(ngModel)]="connection.dicomPort">
                             </div>
                         </div>
                     </div>
