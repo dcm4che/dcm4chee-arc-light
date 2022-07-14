@@ -104,6 +104,7 @@ class SeriesQuery extends AbstractQuery {
                 patient.get(Patient_.failedVerifications),
                 study.get(Study_.createdTime),
                 study.get(Study_.updatedTime),
+                study.get(Study_.modifiedTime),
                 study.get(Study_.accessTime),
                 study.get(Study_.expirationState),
                 study.get(Study_.expirationDate),
@@ -116,6 +117,7 @@ class SeriesQuery extends AbstractQuery {
                 study.get(Study_.size),
                 series.get(Series_.createdTime),
                 series.get(Series_.updatedTime),
+                series.get(Series_.modifiedTime),
                 series.get(Series_.expirationState),
                 series.get(Series_.expirationDate),
                 series.get(Series_.expirationExporterID),
@@ -242,6 +244,8 @@ class SeriesQuery extends AbstractQuery {
                 results.get(series.get(Series_.createdTime)));
         setDTwTZ(attrs, PrivateTag.SeriesUpdateDateTime,
                 results.get(series.get(Series_.updatedTime)));
+        setDTwTZ(attrs, PrivateTag.SeriesModifiedDateTime,
+                results.get(series.get(Series_.modifiedTime)));
         if (results.get(series.get(Series_.expirationState)) != ExpirationState.UPDATEABLE)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationState, VR.CS,
                     results.get(series.get(Series_.expirationState)).toString());

@@ -95,6 +95,7 @@ class StudyQuery extends AbstractQuery {
                 patient.get(Patient_.failedVerifications),
                 study.get(Study_.createdTime),
                 study.get(Study_.updatedTime),
+                study.get(Study_.modifiedTime),
                 study.get(Study_.accessTime),
                 study.get(Study_.expirationState),
                 study.get(Study_.expirationDate),
@@ -241,6 +242,8 @@ class StudyQuery extends AbstractQuery {
                 results.get(study.get(Study_.createdTime)));
         setDTwTZ(attrs, PrivateTag.StudyUpdateDateTime,
                 results.get(study.get(Study_.updatedTime)));
+        setDTwTZ(attrs, PrivateTag.StudyModifiedDateTime,
+                results.get(study.get(Study_.modifiedTime)));
         setDTwTZ(attrs, PrivateTag.StudyAccessDateTime,
                 results.get(study.get(Study_.accessTime)));
         if (results.get(study.get(Study_.expirationState)) != ExpirationState.UPDATEABLE)
