@@ -330,8 +330,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (!ignorePatientUpdates && lastModified.compareTo(ctx.getPatientUpdatedTime()) < 0)
             lastModified = ctx.getPatientUpdatedTime();
         for (SeriesInfo si : ctx.getSeriesInfos())
-            if (lastModified.compareTo(si.getUpdatedTime()) < 0)
-                lastModified = si.getUpdatedTime();
+            if (lastModified.compareTo(si.getModifiedTime()) < 0)
+                lastModified = si.getModifiedTime();
         for (InstanceLocations il : ctx.getMatches())
             if (il.getUpdatedTime() != null && lastModified.compareTo(il.getUpdatedTime()) < 0)
                 lastModified = il.getUpdatedTime();
@@ -339,18 +339,31 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private List<Object[]> queryLastModified(String studyIUID, String seriesIUID, String[] sopIUIDs) {
-        return (sopIUIDs.length > 0 // sopIUIDs.length == 1, because WADO-RS does not support multiple sopIUIDs
-                    ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
-                        .setParameter(1, studyIUID)
-                        .setParameter(2, seriesIUID)
-                        .setParameter(3, sopIUIDs[0])
-                    : seriesIUID != null
-                    ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
-                        .setParameter(1, studyIUID)
-                        .setParameter(2, seriesIUID)
-                    : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
-                        .setParameter(1, studyIUID)
+        boolean purgeInstanceRecords = getArchiveDeviceExtension().isPurgeInstanceRecords();
+        List<Object[]> resultList = (!purgeInstanceRecords && sopIUIDs.length > 0 // sopIUIDs.length == 1, because WADO-RS does not support multiple sopIUIDs
+                ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
+                .setParameter(1, studyIUID)
+                .setParameter(2, seriesIUID)
+                .setParameter(3, sopIUIDs[0])
+                : seriesIUID != null
+                ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
+                .setParameter(1, studyIUID)
+                .setParameter(2, seriesIUID)
+                : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
+                .setParameter(1, studyIUID)
         ).getResultList();
+        if (purgeInstanceRecords) {
+            resultList.addAll((seriesIUID != null
+                    ? em.createNamedQuery(Series.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
+                    .setParameter(1, studyIUID)
+                    .setParameter(2, seriesIUID)
+                    .setParameter(3, Series.InstancePurgeState.PURGED)
+                    : em.createNamedQuery(Series.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
+                    .setParameter(1, studyIUID)
+                    .setParameter(2, Series.InstancePurgeState.PURGED))
+                    .getResultList());
+        }
+        return resultList;
     }
 
     @Override

@@ -579,6 +579,7 @@ public class DeletionServiceEJB {
             return false;
         }
         calculateMissingSeriesQueryAttributes(seriesPk);
+        series.setModifiedTime(maxInstanceUpdatedTimeOfSeries(series));
         Map<String,Long> sizeOfInst = new HashMap<>();
         for (Location location : locations) {
             switch (location.getObjectType()) {
@@ -598,6 +599,12 @@ public class DeletionServiceEJB {
         series.setInstancePurgeTime(null);
         series.setInstancePurgeState(Series.InstancePurgeState.PURGED);
         return true;
+    }
+
+    private Date maxInstanceUpdatedTimeOfSeries(Series series) {
+        return em.createNamedQuery(Instance.MAX_UPDATED_TIME_OF_SERIES, Date.class)
+                .setParameter(1, series)
+                .getSingleResult();
     }
 
     private boolean verifyMetadata(Map<String, List<Location>> locationsFromMetadata, List<Location> locations) {

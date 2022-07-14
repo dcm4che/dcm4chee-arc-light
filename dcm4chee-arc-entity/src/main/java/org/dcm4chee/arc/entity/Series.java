@@ -269,7 +269,23 @@ import java.util.stream.Stream;
 @NamedQuery(
         name=Series.CLAIM_PURGE_INSTANCE_RECORDS,
         query = "update Series se set se.instancePurgeTime = null " +
-                "where se.pk = ?1 and se.instancePurgeTime = ?2")
+                "where se.pk = ?1 and se.instancePurgeTime = ?2"),
+@NamedQuery(
+        name=Series.FIND_LAST_MODIFIED_STUDY_LEVEL,
+        query="SELECT p.updatedTime, st.modifiedTime, MAX(se.modifiedTime) from Series se " +
+                "JOIN se.study st " +
+                "JOIN st.patient p " +
+                "where st.studyInstanceUID = ?1 " +
+                "and se.instancePurgeState = ?2 " +
+                "GROUP BY p, st" ),
+@NamedQuery(
+        name=Series.FIND_LAST_MODIFIED_SERIES_LEVEL,
+        query="SELECT p.updatedTime, st.modifiedTime, se.modifiedTime from Series se " +
+                "JOIN se.study st " +
+                "JOIN st.patient p " +
+                "where st.studyInstanceUID = ?1 " +
+                "and se.seriesInstanceUID = ?2 " +
+                "and se.instancePurgeState = ?3")
 })
 @Entity
 @Table(name = "series",
@@ -355,6 +371,8 @@ public class Series {
     public static final String UPDATE_COMPRESSION_FAILURES = "Series.updateCompressionFailures";
     public static final String UPDATE_COMPRESSION_FAILURES_AND_TSUID = "Series.updateCompressionFailuresAndTSUID";
     public static final String UPDATE_COMPRESSION_COMPLETED = "Series.updateCompressionCompleted";
+    public static final String FIND_LAST_MODIFIED_STUDY_LEVEL = "Series.findLastModifiedStudyLevel";
+    public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Series.findLastModifiedSeriesLevel";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -456,6 +474,11 @@ public class Series {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_time")
     private Date updatedTime;
+
+    @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "modified_time")
+    private Date modifiedTime;
 
     @Basic(optional = false)
     @Column(name = "completeness")
@@ -667,6 +690,7 @@ public class Series {
         Date now = new Date();
         createdTime = now;
         updatedTime = now;
+        modifiedTime = now;
     }
 
     @PreUpdate
@@ -684,6 +708,14 @@ public class Series {
 
     public Date getUpdatedTime() {
         return updatedTime;
+    }
+
+    public Date getModifiedTime() {
+        return modifiedTime;
+    }
+
+    public void setModifiedTime(Date modifiedTime) {
+        this.modifiedTime = modifiedTime;
     }
 
     public String getSeriesInstanceUID() {
@@ -1094,7 +1126,7 @@ public class Series {
             attributesBlob = new AttributesBlob(blobAttrs);
         else
             attributesBlob.setAttributes(blobAttrs);
-        updatedTime = new Date();
+        modifiedTime = new Date();
     }
 
     private Integer getInt(Attributes attrs, int tag) {

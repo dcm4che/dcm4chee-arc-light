@@ -56,7 +56,7 @@ public class SeriesInfoImpl implements SeriesInfo {
     private final String seriesInstanceUID;
     private final int failedRetrieves;
     private final Completeness completeness;
-    private final Date updatedTime;
+    private final Date modifiedTime;
     private final String expirationDate;
     private final String sendingAET;
     private final String receivingAET;
@@ -66,14 +66,14 @@ public class SeriesInfoImpl implements SeriesInfo {
     private final long seriesPk;
 
     public SeriesInfoImpl(String studyInstanceUID, String seriesInstanceUID, int failedRetrieves,
-            Completeness completeness, Date updatedTime, String expirationDate, String sendingAET,
-            String receivingAET, String sendingPresentationAddress, String receivingPresentationAddress,
-            long seriesSize, long seriesPk) {
+                          Completeness completeness, Date modifiedTime, String expirationDate, String sendingAET,
+                          String receivingAET, String sendingPresentationAddress, String receivingPresentationAddress,
+                          long seriesSize, long seriesPk) {
         this.studyInstanceUID = studyInstanceUID;
         this.seriesInstanceUID = seriesInstanceUID;
         this.failedRetrieves = failedRetrieves;
         this.completeness = completeness;
-        this.updatedTime = updatedTime;
+        this.modifiedTime = modifiedTime;
         this.expirationDate = expirationDate;
         this.sendingAET = sendingAET;
         this.receivingAET = receivingAET;
@@ -109,8 +109,8 @@ public class SeriesInfoImpl implements SeriesInfo {
     }
 
     @Override
-    public Date getUpdatedTime() {
-        return updatedTime;
+    public Date getModifiedTime() {
+        return modifiedTime;
     }
 
     @Override

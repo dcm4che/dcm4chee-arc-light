@@ -77,7 +77,7 @@ import java.util.*;
             "where i.sopInstanceUID = ?1"),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_STUDY_LEVEL,
-        query="SELECT p.updatedTime, st.modifiedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
+        query="SELECT p.updatedTime, st.modifiedTime, MAX(se.modifiedTime), MAX(i.updatedTime) from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
@@ -86,7 +86,7 @@ import java.util.*;
 ),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_SERIES_LEVEL,
-        query="SELECT p.updatedTime, st.modifiedTime, se.updatedTime, MAX(i.updatedTime) from Instance i " +
+        query="SELECT p.updatedTime, st.modifiedTime, se.modifiedTime, MAX(i.updatedTime) from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
@@ -96,7 +96,7 @@ import java.util.*;
 ),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL,
-        query="SELECT p.updatedTime, st.modifiedTime, se.updatedTime, i.updatedTime from Instance i " +
+        query="SELECT p.updatedTime, st.modifiedTime, se.modifiedTime, i.updatedTime from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
@@ -104,6 +104,10 @@ import java.util.*;
                 "and se.seriesInstanceUID = ?2 " +
                 "and i.sopInstanceUID = ?3"
 ),
+@NamedQuery(
+        name=Instance.MAX_UPDATED_TIME_OF_SERIES,
+        query="SELECT MAX(i.updatedTime) from Instance i " +
+                "where i.series = ?1"),
 @NamedQuery(
     name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID_EAGER,
     query="select i from Instance i " +
@@ -215,6 +219,7 @@ public class Instance {
     public static final String FIND_LAST_MODIFIED_STUDY_LEVEL = "Instance.findLastModifiedStudyLevel";
     public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Instance.findLastModifiedSeriesLevel";
     public static final String FIND_LAST_MODIFIED_INSTANCE_LEVEL = "Instance.findLastModifiedInstanceLevel";
+    public static final String MAX_UPDATED_TIME_OF_SERIES = "Instance.maxUpdateTimeOfSeries";
     public static final String UPDATE_AVAILABILITY_OF_STUDY = "Instance.updateAvailabilityOfStudy";
     public static final String UPDATE_AVAILABILITY_BY_STUDY_IUID = "Instance.updateAvailabilityByStudyIUID";
     public static final String UPDATE_AVAILABILITY_BY_SERIES_IUID = "Instance.updateAvailabilityBySeriesIUID";
