@@ -242,18 +242,21 @@ class SeriesQuery extends AbstractQuery {
                 results.get(series.get(Series_.createdTime)));
         setDTwTZ(attrs, PrivateTag.SeriesUpdateDateTime,
                 results.get(series.get(Series_.updatedTime)));
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationState, VR.CS,
-                results.get(series.get(Series_.expirationState)).toString());
+        if (results.get(series.get(Series_.expirationState)) != ExpirationState.UPDATEABLE)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationState, VR.CS,
+                    results.get(series.get(Series_.expirationState)).toString());
         if (results.get(series.get(Series_.expirationDate)) != null)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationDate, VR.DA,
                     results.get(series.get(Series_.expirationDate)));
         if (results.get(series.get(Series_.expirationExporterID)) != null)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationExporterID, VR.LO,
                     results.get(series.get(Series_.expirationExporterID)));
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesRejectionState, VR.CS,
-                results.get(series.get(Series_.rejectionState)).toString());
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesCompleteness, VR.CS,
-                results.get(series.get(Series_.completeness)).toString());
+        if (results.get(series.get(Series_.rejectionState)) != RejectionState.NONE)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesRejectionState, VR.CS,
+                    results.get(series.get(Series_.rejectionState)).toString());
+        if (results.get(series.get(Series_.completeness)) != Completeness.COMPLETE)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesCompleteness, VR.CS,
+                    results.get(series.get(Series_.completeness)).toString());
         if (results.get(series.get(Series_.failedRetrieves)) != 0)
             attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailedRetrievesOfSeries, VR.US,
                     results.get(series.get(Series_.failedRetrieves)));
@@ -282,8 +285,9 @@ class SeriesQuery extends AbstractQuery {
         if (results.get(series.get(Series_.instancePurgeTime)) != null)
             setDTwTZ(attrs, PrivateTag.ScheduledInstanceRecordPurgeDateTimeOfSeries,
                     results.get(series.get(Series_.instancePurgeTime)));
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.InstanceRecordPurgeStateOfSeries, VR.CS,
-                results.get(series.get(Series_.instancePurgeState)).name());
+        if (results.get(series.get(Series_.instancePurgeState)) != Series.InstancePurgeState.NO)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.InstanceRecordPurgeStateOfSeries, VR.CS,
+                    results.get(series.get(Series_.instancePurgeState)).name());
         if (results.get(series.get(Series_.storageVerificationTime)) != null)
             setDTwTZ(attrs, PrivateTag.ScheduledStorageVerificationDateTimeOfSeries,
                     results.get(series.get(Series_.storageVerificationTime)));
