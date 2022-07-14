@@ -60,6 +60,7 @@ export class AppComponent implements OnInit {
     languageSwitcher:LanguageSwitcher;
     dateTimeFormat:ConfiguredDateTameFormatObject;
     personNameFormat:string;
+    dcm4cheeArch;
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -112,6 +113,7 @@ export class AppComponent implements OnInit {
             if(_.hasIn(res, "dcm4chee-arc-urls[0]")){
                 this.mainservice.baseUrl = _.get(res, "dcm4chee-arc-urls[0]");
             }
+            this.dcm4cheeArch = res;
             console.log("baseUrl=",this.mainservice.baseUrl);
         },err=>{
             console.log("Error on /dcm4chee-arc/ui2/rs/dcm4chee-arc",err);
@@ -132,6 +134,10 @@ export class AppComponent implements OnInit {
         }
     }
 
+    switchBaseUrl(url){
+        this.mainservice.baseUrl = url;
+        this.myDeviceName = this.dcm4cheeArch['deviceNameUrlMap'][url];
+    }
 
     initLanguage(){
         let languageConfig:any = localStorage.getItem('languageConfig');

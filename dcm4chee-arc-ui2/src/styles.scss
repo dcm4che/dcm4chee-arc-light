@@ -598,10 +598,9 @@ p-calendar{
   right: 3px;
   top: 0;
   z-index: 9999;
-  width: 130px;
+  width: 150px;
   height: 61px;
   box-sizing: border-box;
-  padding: 5px 0px;
   text-align: center;
   -webkit-transition:  0.5s;
   -moz-transition:  0.5s;
@@ -620,9 +619,43 @@ p-calendar{
   }
   &.extend{
     height: 33px;
-    padding: 0px 10px;
     .text{
       display: none;
+    }
+    .base_url_switcher {
+      //margin-left:0;
+    }
+  }
+  .base_url_switcher{
+    float: left;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    margin-top: 7px;
+    margin-left: 7px;
+    position: relative;
+    border-right: 1px solid #ffffff6b;
+    padding-right: 7px;
+    &:hover{
+      cursor: pointer;
+    }
+    .base_url_dropdown{
+      margin-top: 0;
+      margin-bottom: 10px;
+      position: absolute;
+      left: -109px;
+      background: rgba(6, 29, 47, 0.88);
+      list-style: none;
+      padding: 0;
+      -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+      -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+      box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+      color:white;
+      li{
+        padding:2px 7px;
+        border-bottom:1px solid white;
+        font-weight: normal;
+      }
     }
   }
 }

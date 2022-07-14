@@ -1,5 +1,5 @@
 import {Injectable, OnInit, OnDestroy} from '@angular/core';
-import {Observable, Subject, Subscription, of} from 'rxjs';
+import {Observable, Subject, Subscription, of, forkJoin} from 'rxjs';
 import {User} from './models/user';
 import * as _ from 'lodash-es';
 import {WindowRefService} from "./helpers/window-ref.service";
@@ -9,9 +9,10 @@ import {j4care} from "./helpers/j4care.service";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {Router} from "@angular/router";
 import {Error} from "tslint/lib/error";
-import {first, map, switchMap} from "rxjs/operators";
+import {first, map, combineLatest, switchMap} from "rxjs/operators";
 import { loadTranslations } from '@angular/localize';
 import {ConfiguredDateTameFormatObject, DateTimeFormatMode, TimeRange} from "./interfaces";
+import {environment} from "../environments/environment";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
@@ -443,16 +444,52 @@ export class AppService implements OnInit, OnDestroy{
     }
 
     getDcm4cheeArc(){
+        let tempDcm4cheeArch;
         if(this._dcm4cheeArcConfig){
             return of(this._dcm4cheeArcConfig);
         }else{
-            return this.$httpClient.get("./rs/dcm4chee-arc").pipe(map(dcm4cheeArc=>{
-                if(_.hasIn(dcm4cheeArc, "dcm4chee-arc-urls[0]")){
-                    this.baseUrl = _.get(dcm4cheeArc, "dcm4chee-arc-urls[0]");
-                }
-                this._dcm4cheeArcConfig = dcm4cheeArc;
-                return dcm4cheeArc;
-            }));
+            return this.$httpClient.get("./rs/dcm4chee-arc").pipe(
+                map(dcm4cheeArc=>{
+/*                    if(!environment.production){
+                        dcm4cheeArc["dcm4chee-arc-urls"] = [
+                            "http://shefki-lifebook:8080/dcm4chee-arc",
+                            "http://192.168.0.111:8080/dcm4chee-arc"
+                        ]
+                    }*/
+                    tempDcm4cheeArch = dcm4cheeArc;
+                    if(_.hasIn(dcm4cheeArc, "dcm4chee-arc-urls[0]")){
+                        this.baseUrl = _.get(dcm4cheeArc, "dcm4chee-arc-urls[0]");
+                    }
+                    return dcm4cheeArc;
+                }),
+                switchMap(dcm4cheeArc=>{
+                    let services:Observable<any>[] = _.get(dcm4cheeArc, "dcm4chee-arc-urls").map(url=>{
+                        return this.$httpClient.get(`${url}/devicename`);
+                    });
+                    return forkJoin(services);
+                }),
+                map(res=>{
+                    try{
+                        console.log("devicenames of urls",res);
+                        let deviceNameUrlMap = {};
+                        tempDcm4cheeArch["dcm4chee-arc-urls"].forEach((url,i)=>{
+                            deviceNameUrlMap[url] = res[i].dicomDeviceName;
+                            if(!environment.production){
+                                deviceNameUrlMap[url] = `${res[i].dicomDeviceName}_${i}`;
+                            }
+                            if(i > 0){
+                                tempDcm4cheeArch["hasMoreThanOneBaseUrl"] = true;
+                            }
+                        });
+                        tempDcm4cheeArch["deviceNameUrlMap"] = deviceNameUrlMap;
+
+                    }catch(e){
+
+                    }
+                    this._dcm4cheeArcConfig = tempDcm4cheeArch;
+                    return tempDcm4cheeArch;
+                })
+            );
         }
     }
 
