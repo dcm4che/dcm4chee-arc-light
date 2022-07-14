@@ -340,7 +340,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private List<Object[]> queryLastModified(String studyIUID, String seriesIUID, String[] sopIUIDs) {
         boolean purgeInstanceRecords = getArchiveDeviceExtension().isPurgeInstanceRecords();
-        List<Object[]> resultList = (!purgeInstanceRecords && sopIUIDs.length > 0 // sopIUIDs.length == 1, because WADO-RS does not support multiple sopIUIDs
+        List<Object[]> resultList = (sopIUIDs.length > 0 // sopIUIDs.length == 1, because WADO-RS does not support multiple sopIUIDs
                 ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
                 .setParameter(1, studyIUID)
                 .setParameter(2, seriesIUID)
