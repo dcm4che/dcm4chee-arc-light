@@ -61,6 +61,10 @@ export class AppComponent implements OnInit {
     dateTimeFormat:ConfiguredDateTameFormatObject;
     personNameFormat:string;
     dcm4cheeArch;
+    changeDeviceText = {
+        label:$localize `:@@available_devices:Available devices`,
+        title:$localize `:@@here_you_can_change_the_archive_device_to_which_the_calls_are_made:Here you can change the archive device to which the calls are made`
+    }
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -137,6 +141,7 @@ export class AppComponent implements OnInit {
     switchBaseUrl(url){
         this.mainservice.baseUrl = url;
         this.myDeviceName = this.dcm4cheeArch['deviceNameUrlMap'][url];
+        this.dcm4cheeArch.open = false;
     }
 
     initLanguage(){

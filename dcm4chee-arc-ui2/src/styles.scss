@@ -599,7 +599,6 @@ p-calendar{
   top: 0;
   z-index: 9999;
   width: 150px;
-  height: 61px;
   box-sizing: border-box;
   text-align: center;
   -webkit-transition:  0.5s;
@@ -611,11 +610,14 @@ p-calendar{
     text-align: center;
     font-weight: bold;
     font-size: 23px;
+    border-bottom:1px solid #ffffff4d;
   }
   .text{
     text-align: center;
     font-size: 12px;
     font-weight: 100;
+    height: 30px;
+    line-height: 30px;
   }
   &.extend{
     height: 33px;
@@ -643,7 +645,7 @@ p-calendar{
       margin-top: 0;
       margin-bottom: 10px;
       position: absolute;
-      left: -109px;
+      right: 10px;
       background: rgba(6, 29, 47, 0.88);
       list-style: none;
       padding: 0;
@@ -652,9 +654,13 @@ p-calendar{
       box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
       color:white;
       li{
-        padding:2px 7px;
+        padding:5px 10px;
         border-bottom:1px solid white;
         font-weight: normal;
+        min-width: 144px;
+        &.header{
+          background: rgb(28 36 43 / 52%);
+        }
       }
     }
   }
