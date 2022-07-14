@@ -19,6 +19,9 @@ alter table instance_req
     add constraint FK_cqmmps9maltjybl44t4cck404 foreign key (req_phys_name_fk) references person_name;
 alter table instance_req
     add constraint FK_47n586hkafgp9m1etqohgfybl foreign key (instance_fk) references instance;
+alter table series
+    add modified_time timestamp;
+update series set modified_time = updated_time;
 
 create index UK_cqpv94ky100d0eguhrxpyplmv on instance_req (accession_no);
 create index UK_n32ktg5h9xc1ex9x8g69w1s10 on instance_req (req_service);
@@ -31,5 +34,7 @@ create index FK_47n586hkafgp9m1etqohgfybl on instance_req (instance_fk) ;
 
 create sequence instance_req_pk_seq;
 -- part 2: shall be applied on stopped archive before starting 5.26
+update series set modified_time = updated_time where modified_time is null;
 
 -- part 3: can be applied on already running archive 5.26
+alter table series modify modified_time not null;
