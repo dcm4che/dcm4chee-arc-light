@@ -630,11 +630,8 @@ p-calendar{
   }
   .base_url_switcher{
     float: left;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    margin-top: 7px;
-    margin-left: 7px;
+    width: 30px;
+    height: 30px;
     position: relative;
     border-right: 1px solid #ffffff6b;
     padding-right: 7px;
@@ -662,6 +659,13 @@ p-calendar{
           background: rgb(28 36 43 / 52%);
         }
       }
+    }
+    .config{
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      display: block;
+      line-height: 30px;
     }
   }
 }
