@@ -598,10 +598,8 @@ p-calendar{
   right: 3px;
   top: 0;
   z-index: 9999;
-  width: 130px;
-  height: 61px;
+  width: 150px;
   box-sizing: border-box;
-  padding: 5px 0px;
   text-align: center;
   -webkit-transition:  0.5s;
   -moz-transition:  0.5s;
@@ -612,17 +610,65 @@ p-calendar{
     text-align: center;
     font-weight: bold;
     font-size: 23px;
+    border-bottom:1px solid #ffffff4d;
   }
   .text{
     text-align: center;
     font-size: 12px;
     font-weight: 100;
+    height: 30px;
+    line-height: 30px;
   }
   &.extend{
     height: 33px;
-    padding: 0px 10px;
     .text{
       display: none;
+    }
+    .base_url_switcher {
+      //margin-left:0;
+    }
+  }
+  .base_url_switcher{
+    float: left;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    border-right: 1px solid #ffffff6b;
+    padding-right: 7px;
+    &:hover{
+      cursor: pointer;
+    }
+    .base_url_dropdown{
+      margin-top: 0;
+      margin-bottom: 10px;
+      position: absolute;
+      right: 10px;
+      background: rgba(6, 29, 47, 0.88);
+      list-style: none;
+      padding: 0;
+      -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+      -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+      box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+      color:white;
+      li{
+        padding:5px 10px;
+        border-bottom:1px solid white;
+        font-weight: normal;
+        min-width: 144px;
+        &.header{
+          background: rgb(28 36 43 / 52%);
+        }
+        &.selected{
+          font-weight: bold;
+        }
+      }
+    }
+    .config{
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      display: block;
+      line-height: 30px;
     }
   }
 }

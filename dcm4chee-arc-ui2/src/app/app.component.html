@@ -40,9 +40,25 @@
         </ul>
     </div>
 </div>
-<div class="clock" [ngClass]="{'extend':!clockUnExtended}" *ngIf="currentServerTime" (mouseenter)="clockUnExtended = true" (mouseleave)="hideExtendedClock()">
-    <div class="time" i18n-title="@@title.app.server_time_param" title="Server time: {{j4care.fullDateToString(currentServerTime)}}">{{currentServerTime.getHours() < 10 ? '0'+currentServerTime.getHours():currentServerTime.getHours()}}:{{currentServerTime.getMinutes() < 10 ? '0'+currentServerTime.getMinutes():currentServerTime.getMinutes()}}:{{currentServerTime.getSeconds() < 10 ? '0'+currentServerTime.getSeconds():currentServerTime.getSeconds()}}</div>
-    <div class="text">{{myDeviceName}}</div>
+<div class="overlay" *ngIf="dcm4cheeArch.open" (click)="dcm4cheeArch.open = false"></div>
+<div class="clock" [ngClass]="{'extend':!clockUnExtended}" *ngIf="currentServerTime || (dcm4cheeArch && dcm4cheeArch.hasMoreThanOneBaseUrl)" (mouseenter)="clockUnExtended = true" (mouseleave)="hideExtendedClock()">
+    <div class="base_url_switcher" *ngIf="dcm4cheeArch && dcm4cheeArch.hasMoreThanOneBaseUrl">
+        <i class="config glyphicon glyphicon-cog" (click)="dcm4cheeArch.open = !dcm4cheeArch.open"></i>
+        <ul *ngIf="dcm4cheeArch.open" class="base_url_dropdown">
+            <li class="header" title="{{changeDeviceText.title}}">{{changeDeviceText.label}}:</li>
+            <li *ngFor="let url of dcm4cheeArch['dcm4chee-arc-urls']" (click)="switchBaseUrl(url)" title="{{url}}" [ngClass]="{'selected':dcm4cheeArch['deviceNameUrlMap'][url] === myDeviceName}">
+                {{dcm4cheeArch['deviceNameUrlMap'][url]}}
+            </li>
+        </ul>
+    </div>
+<!--    <div class="default_block" >
+        <span>{{dcm4cheeArch['deviceNameUrlMap'][mainservice.baseUrl]}}</span>
+    </div>-->
+
+    <ng-container *ngIf="currentServerTime">
+        <div class="time" i18n-title="@@title.app.server_time_param" title="Server time: {{j4care.fullDateToString(currentServerTime)}}">{{currentServerTime.getHours() < 10 ? '0'+currentServerTime.getHours():currentServerTime.getHours()}}:{{currentServerTime.getMinutes() < 10 ? '0'+currentServerTime.getMinutes():currentServerTime.getMinutes()}}:{{currentServerTime.getSeconds() < 10 ? '0'+currentServerTime.getSeconds():currentServerTime.getSeconds()}}</div>
+        <div class="text">{{myDeviceName}}</div>
+    </ng-container>
 </div>
 <div class="background"></div>
 <!--<app-widgets></app-widgets>-->
