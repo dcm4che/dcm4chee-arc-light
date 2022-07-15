@@ -249,7 +249,7 @@ class InstanceQuery extends AbstractQuery {
         Attributes keys = context.getQueryKeys();
         String studyInstanceUID = keys.getString(Tag.StudyInstanceUID);
         String seriesInstanceUID = keys.getString(Tag.SeriesInstanceUID);
-        if (studyInstanceUID == null || seriesInstanceUID == null)
+        if (studyInstanceUID == null && seriesInstanceUID == null)
             return Collections.emptyList();
 
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
