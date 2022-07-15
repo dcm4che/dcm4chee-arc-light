@@ -139,9 +139,13 @@ export class AppComponent implements OnInit {
     }
 
     switchBaseUrl(url){
-        this.mainservice.baseUrl = url;
-        this.myDeviceName = this.dcm4cheeArch['deviceNameUrlMap'][url];
-        this.dcm4cheeArch.open = false;
+        if(url){
+            this.mainservice.baseUrl = url;
+            if(this.dcm4cheeArch && _.hasIn(this.dcm4cheeArch,`deviceNameUrlMap.${url}`)){
+                this.myDeviceName = this.dcm4cheeArch['deviceNameUrlMap'][url];
+            }
+            this.dcm4cheeArch.open = false;
+        }
     }
 
     initLanguage(){
