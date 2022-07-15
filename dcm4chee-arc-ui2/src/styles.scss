@@ -658,6 +658,9 @@ p-calendar{
         &.header{
           background: rgb(28 36 43 / 52%);
         }
+        &.selected{
+          font-weight: bold;
+        }
       }
     }
     .config{

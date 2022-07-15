@@ -46,7 +46,7 @@
         <i class="config glyphicon glyphicon-cog" (click)="dcm4cheeArch.open = !dcm4cheeArch.open"></i>
         <ul *ngIf="dcm4cheeArch.open" class="base_url_dropdown">
             <li class="header" title="{{changeDeviceText.title}}">{{changeDeviceText.label}}:</li>
-            <li *ngFor="let url of dcm4cheeArch['dcm4chee-arc-urls']" (click)="switchBaseUrl(url)" title="{{url}}">
+            <li *ngFor="let url of dcm4cheeArch['dcm4chee-arc-urls']" (click)="switchBaseUrl(url)" title="{{url}}" [ngClass]="{'selected':dcm4cheeArch['deviceNameUrlMap'][url] === myDeviceName}">
                 {{dcm4cheeArch['deviceNameUrlMap'][url]}}
             </li>
         </ul>

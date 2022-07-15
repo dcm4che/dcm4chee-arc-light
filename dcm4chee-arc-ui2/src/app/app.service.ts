@@ -450,12 +450,6 @@ export class AppService implements OnInit, OnDestroy{
         }else{
             return this.$httpClient.get("./rs/dcm4chee-arc").pipe(
                 map(dcm4cheeArc=>{
-                    if(!environment.production){
-                        dcm4cheeArc["dcm4chee-arc-urls"] = [
-                            "http://shefki-lifebook:8080/dcm4chee-arc",
-                            "http://192.168.0.111:8080/dcm4chee-arc"
-                        ]
-                    }
                     tempDcm4cheeArch = dcm4cheeArc;
                     if(_.hasIn(dcm4cheeArc, "dcm4chee-arc-urls[0]")){
                         this.baseUrl = _.get(dcm4cheeArc, "dcm4chee-arc-urls[0]");
@@ -470,13 +464,9 @@ export class AppService implements OnInit, OnDestroy{
                 }),
                 map(res=>{
                     try{
-                        console.log("devicenames of urls",res);
                         let deviceNameUrlMap = {};
                         tempDcm4cheeArch["dcm4chee-arc-urls"].forEach((url,i)=>{
                             deviceNameUrlMap[url] = res[i].dicomDeviceName;
-                            if(!environment.production){
-                                deviceNameUrlMap[url] = `${res[i].dicomDeviceName}_${i}`;
-                            }
                             if(i > 0){
                                 tempDcm4cheeArch["hasMoreThanOneBaseUrl"] = true;
                             }
