@@ -42,9 +42,9 @@
 </div>
 <div class="overlay" *ngIf="dcm4cheeArch.open" (click)="dcm4cheeArch.open = false"></div>
 <div class="clock" [ngClass]="{'extend':!clockUnExtended}" *ngIf="currentServerTime || (dcm4cheeArch && dcm4cheeArch.hasMoreThanOneBaseUrl)" (mouseenter)="clockUnExtended = true" (mouseleave)="hideExtendedClock()">
-    <div class="base_url_switcher" *ngIf="dcm4cheeArch && dcm4cheeArch.hasMoreThanOneBaseUrl">
+    <div class="base_url_switcher" *ngIf="dcm4cheeArch && dcm4cheeArch && dcm4cheeArch.hasMoreThanOneBaseUrl">
         <i class="config glyphicon glyphicon-cog" (click)="dcm4cheeArch.open = !dcm4cheeArch.open"></i>
-        <ul *ngIf="dcm4cheeArch.open" class="base_url_dropdown">
+        <ul *ngIf="dcm4cheeArch && dcm4cheeArch.open" class="base_url_dropdown">
             <li class="header" title="{{changeDeviceText.title}}">{{changeDeviceText.label}}:</li>
             <li *ngFor="let url of dcm4cheeArch['dcm4chee-arc-urls']" (click)="switchBaseUrl(url)" title="{{url}}" [ngClass]="{'selected':dcm4cheeArch['deviceNameUrlMap'][url] === myDeviceName}">
                 {{dcm4cheeArch['deviceNameUrlMap'][url]}}
