@@ -77,7 +77,7 @@ public class Resource {
     public String dcm4cheeArc() {
         StringBuilder sb = new StringBuilder(256);
         sb.append('{');
-        String arcURLs = System.getProperty("dcm4chee-arc-urls");
+        String arcURLs = System.getProperty("dcm4chee-arc-urls", "/dcm4chee-arc");
         if (arcURLs != null) {
             StringTokenizer urls = new StringTokenizer(arcURLs, " ");
             sb.append("\"dcm4chee-arc-urls\":[\"").append(urls.nextToken());
