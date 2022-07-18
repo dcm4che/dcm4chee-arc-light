@@ -40,7 +40,7 @@
         </ul>
     </div>
 </div>
-<div class="overlay" *ngIf="dcm4cheeArch.open" (click)="dcm4cheeArch.open = false"></div>
+<div class="overlay" *ngIf="dcm4cheeArch && dcm4cheeArch.open" (click)="dcm4cheeArch.open = false"></div>
 <div class="clock" [ngClass]="{'extend':!clockUnExtended}" *ngIf="currentServerTime || (dcm4cheeArch && dcm4cheeArch.hasMoreThanOneBaseUrl)" (mouseenter)="clockUnExtended = true" (mouseleave)="hideExtendedClock()">
     <div class="base_url_switcher" *ngIf="dcm4cheeArch && dcm4cheeArch && dcm4cheeArch.hasMoreThanOneBaseUrl">
         <i class="config glyphicon glyphicon-cog" (click)="dcm4cheeArch.open = !dcm4cheeArch.open"></i>
