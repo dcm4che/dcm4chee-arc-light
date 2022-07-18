@@ -61,7 +61,7 @@ public interface SeriesInfo {
 
     int getFailedRetrieves();
 
-    Date getUpdatedTime();
+    Date getModifiedTime();
 
     String getExpirationDate();
 

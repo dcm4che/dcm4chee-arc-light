@@ -338,7 +338,8 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
-        int retries = arcDev().getStoreUpdateDBMaxRetries();
+        ArchiveDeviceExtension arcDev = arcDev();
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
                 return queryAttributesEJB.findOrCalculateStudyQueryAttributes(studyPk, qrView);
@@ -351,7 +352,7 @@ class QueryServiceImpl implements QueryService {
                 }
             }
             try {
-                Thread.sleep(arcDev().storeUpdateDBRetryDelay());
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
             } catch (InterruptedException e) {
                 LOG.info("Failed to delay retry to calculate Query Attributes for Study[pk={}] and View[{}]:\n",
                         studyPk, qrView.getViewID(), e);
@@ -890,13 +891,25 @@ class QueryServiceImpl implements QueryService {
     }
 
     private List<Object[]> queryLastModified(String studyIUID, String seriesIUID) {
-        return (seriesIUID != null
+        List<Object[]> resultList = (seriesIUID != null
                 ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
                 .setParameter(1, studyIUID)
                 .setParameter(2, seriesIUID)
                 : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
                 .setParameter(1, studyIUID))
                 .getResultList();
+        if (arcDev().isPurgeInstanceRecords()) {
+            resultList.addAll((seriesIUID != null
+                    ? em.createNamedQuery(Series.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
+                    .setParameter(1, studyIUID)
+                    .setParameter(2, seriesIUID)
+                    .setParameter(3, Series.InstancePurgeState.PURGED)
+                    : em.createNamedQuery(Series.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
+                    .setParameter(1, studyIUID)
+                    .setParameter(2, Series.InstancePurgeState.PURGED))
+                    .getResultList());
+        }
+        return resultList;
     }
 
     @Override

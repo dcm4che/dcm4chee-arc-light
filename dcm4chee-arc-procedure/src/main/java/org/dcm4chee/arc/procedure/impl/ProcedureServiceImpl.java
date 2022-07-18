@@ -49,6 +49,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -263,6 +264,11 @@ public class ProcedureServiceImpl implements ProcedureService {
     @Override
     public List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status) {
         return ejb.updateMWLStatus(studyIUID, status);
+    }
+
+    @Override
+    public List<MWLItem> updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask task, SPSStatus status) {
+        return ejb.updateMWLStatus(arcAE, task, status);
     }
 
     @Override

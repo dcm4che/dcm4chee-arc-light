@@ -95,6 +95,7 @@ class StudyQuery extends AbstractQuery {
                 patient.get(Patient_.failedVerifications),
                 study.get(Study_.createdTime),
                 study.get(Study_.updatedTime),
+                study.get(Study_.modifiedTime),
                 study.get(Study_.accessTime),
                 study.get(Study_.expirationState),
                 study.get(Study_.expirationDate),
@@ -241,20 +242,25 @@ class StudyQuery extends AbstractQuery {
                 results.get(study.get(Study_.createdTime)));
         setDTwTZ(attrs, PrivateTag.StudyUpdateDateTime,
                 results.get(study.get(Study_.updatedTime)));
+        setDTwTZ(attrs, PrivateTag.StudyModifiedDateTime,
+                results.get(study.get(Study_.modifiedTime)));
         setDTwTZ(attrs, PrivateTag.StudyAccessDateTime,
                 results.get(study.get(Study_.accessTime)));
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationState, VR.CS,
-                results.get(study.get(Study_.expirationState)).toString());
+        if (results.get(study.get(Study_.expirationState)) != ExpirationState.UPDATEABLE)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationState, VR.CS,
+                    results.get(study.get(Study_.expirationState)).toString());
         if (results.get(study.get(Study_.expirationDate)) != null)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate, VR.DA,
                     results.get(study.get(Study_.expirationDate)));
         if (results.get(study.get(Study_.expirationExporterID)) != null)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationExporterID, VR.LO,
                     results.get(study.get(Study_.expirationExporterID)));
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyRejectionState, VR.CS,
-                results.get(study.get(Study_.rejectionState)).toString());
-        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyCompleteness, VR.CS,
-                results.get(study.get(Study_.completeness)).toString());
+        if (results.get(study.get(Study_.rejectionState)) != RejectionState.NONE)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyRejectionState, VR.CS,
+                    results.get(study.get(Study_.rejectionState)).toString());
+        if (results.get(study.get(Study_.completeness)) != Completeness.COMPLETE)
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyCompleteness, VR.CS,
+                    results.get(study.get(Study_.completeness)).toString());
         if (results.get(study.get(Study_.failedRetrieves)) != 0)
             attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailedRetrievesOfStudy, VR.US,
                     results.get(study.get(Study_.failedRetrieves)));

@@ -6,6 +6,8 @@ create index FK_pev4urgkk7id2h1ijhv8domjx on hl7psu_task (mpps_fk) ;
 create index FK_1fuh251le2hid2byw90hd1mly on ian_task (mpps_fk) ;
 create index FK_7w6f9bi2w91qr2abl6ddxnrwq on instance (srcode_fk) ;
 create index FK_s4tgrew4sh4qxoupmk3gihtrk on instance (series_fk) ;
+create index FK_cqmmps9maltjybl44t4cck404 on instance_req (req_phys_name_fk) ;
+create index FK_47n586hkafgp9m1etqohgfybl on instance_req (instance_fk) ;
 create index FK_hjtlcwsvwihs4khh961d423e7 on location (instance_fk) ;
 create index FK_bfk5vl6eoxaf0hhwiu3rbgmkn on location (uidmap_fk) ;
 create index FK_nrigpgue611m33rao03nnfe5l on mpps (discreason_code_fk) ;

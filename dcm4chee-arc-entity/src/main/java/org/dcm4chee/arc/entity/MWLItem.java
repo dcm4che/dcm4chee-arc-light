@@ -94,7 +94,12 @@ import java.util.*;
         query = "select new org.dcm4chee.arc.entity.MWLItem$IDs(mwl.scheduledProcedureStepID, mwl.studyInstanceUID) " +
                 "from MWLItem mwl " +
                 "where mwl.patient = ?1 " +
-                "and mwl.status = ?2")
+                "and mwl.status = ?2"),
+@NamedQuery(
+        name = MWLItem.FIND_BY_ACCESSION_NO_EAGER,
+        query = "select mwl from MWLItem mwl " +
+                "join fetch mwl.attributesBlob " +
+                "where mwl.accessionNumber = ?1")
 })
 @Entity
 @Table(name = "mwl_item",
@@ -123,6 +128,7 @@ public class MWLItem {
     public static final String FIND_PK_BY_STATUS_AND_UPDATED_BEFORE = "MWLItem.findPkByStatusAndUpdatedBefore";
     public static final String FIND_BY_PK = "MWLItem.findByPk";
     public static final String IDS_BY_PATIENT_AND_STATUS = "MWLItem.idsByPatientAndStatus";
+    public static final String FIND_BY_ACCESSION_NO_EAGER = "MWLItem.findByAccessionNoEager";
 
     public static class IDs {
         public final String scheduledProcedureStepID;

@@ -2532,6 +2532,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.433 NAME 'dcmIPAddressPattern'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.434 NAME 'hl7PSUMWLMatchingKey'
+  DESC 'Specifies attribute of received object to lookup MWL Item whose status is to be updated to COMPLETED. Only applicable is "HL7 Procedure Status Update MWL" is configured as or implicitly set to true. Enumerated values: AccessionNumber, StudyInstanceUID. If absent, StudyInstanceUID is applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2784,6 +2790,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PSUMessageType $
     hl7PSUPIDPV1 $
     hl7PSUMWL $
+    hl7PSUMWLMatchingKey $
     hl7PSUTimeout $
     hl7PSUOnTimeout $
     hl7PSUTaskPollingInterval $
@@ -2915,6 +2922,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     hl7PSUMessageType $
     hl7PSUPIDPV1 $
     hl7PSUMWL $
+    hl7PSUMWLMatchingKey $
     hl7PSUTimeout $
     hl7PSUOnTimeout $
     hl7PSUReceivingApplication $

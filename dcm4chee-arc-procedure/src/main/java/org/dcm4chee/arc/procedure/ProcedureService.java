@@ -41,11 +41,12 @@
 package org.dcm4chee.arc.procedure;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.MWLImport;
 import org.dcm4chee.arc.conf.SPSStatus;
+import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import java.util.List;
@@ -65,6 +66,8 @@ public interface ProcedureService {
     void updateStudySeriesAttributes(ProcedureContext ctx);
 
     List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status);
+
+    List<MWLItem> updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask hl7PSUTask, SPSStatus status);
 
     void updateMWLStatus(ProcedureContext ctx);
 
