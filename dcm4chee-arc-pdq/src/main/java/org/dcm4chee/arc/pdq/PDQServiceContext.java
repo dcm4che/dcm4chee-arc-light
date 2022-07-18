@@ -66,6 +66,8 @@ public class PDQServiceContext {
     private String sendingAppFacility;
     private String receivingAppFacility;
     private Attributes patientAttrs;
+    private String fhirWebAppName;
+    private String fhirQueryParams;
 
     public PDQServiceContext(IDWithIssuer patientID) {
         this.patientID = patientID;
@@ -121,6 +123,22 @@ public class PDQServiceContext {
 
     public void setReceivingAppFacility(String receivingAppFacility) {
         this.receivingAppFacility = receivingAppFacility;
+    }
+
+    public String getFhirWebAppName() {
+        return fhirWebAppName;
+    }
+
+    public void setFhirWebAppName(String fhirWebAppName) {
+        this.fhirWebAppName = fhirWebAppName;
+    }
+
+    public String getFhirQueryParams() {
+        return fhirQueryParams;
+    }
+
+    public void setFhirQueryParams(String fhirQueryParams) {
+        this.fhirQueryParams = fhirQueryParams;
     }
 
     public Attributes getPatientAttrs() {

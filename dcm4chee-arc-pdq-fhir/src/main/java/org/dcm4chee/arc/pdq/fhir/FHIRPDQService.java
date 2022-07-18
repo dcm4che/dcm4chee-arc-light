@@ -99,7 +99,7 @@ public class FHIRPDQService extends AbstractPDQService {
     }
 
     private Attributes query(PDQServiceContext ctx, WebApplication webApp) throws PDQServiceException {
-        Attributes attrs = ctx.getPatientID().exportPatientIDWithIssuer(null);
+        ctx.setFhirWebAppName(webApp.getApplicationName());
         Map<String, String> props = webApp.getProperties();
         String authorization;
         try {
@@ -110,7 +110,7 @@ public class FHIRPDQService extends AbstractPDQService {
                                                             Boolean.parseBoolean(props.get("disable-trust-manager")))
                                                         .build();
             ResteasyWebTarget target = client.target(url);
-            target = setQueryParameters(target, ctx.getPatientID());
+            target = setQueryParameters(target, ctx);
             Invocation.Builder request = target.request();
             setHeaders(request);
             if ((authorization = authorization(webApp)) != null)
@@ -177,14 +177,16 @@ public class FHIRPDQService extends AbstractPDQService {
                 .forEach(e -> request.header(e.getKey().substring(7), e.getValue()));
     }
 
-    private ResteasyWebTarget setQueryParameters(ResteasyWebTarget webTarget, IDWithIssuer pid) {
-        webTarget = webTarget.queryParam("identifier", identifier(pid));
+    private ResteasyWebTarget setQueryParameters(ResteasyWebTarget webTarget, PDQServiceContext ctx) {
+        webTarget = webTarget.queryParam("identifier", identifier(ctx.getPatientID()));
         for (Map.Entry<String, String> e : descriptor.getProperties().entrySet())
             if (e.getKey().startsWith("search.")
                     && !e.getKey().startsWith("identifier.", 7))
                 webTarget = webTarget.queryParam(e.getKey().substring(7), e.getValue());
 
-        LOG.info("Web Target is : {}", webTarget.getUri().toString());
+        String targetURI = webTarget.getUri().toString();
+        LOG.info("Web Target is : {}", targetURI);
+        ctx.setFhirQueryParams(targetURI.substring(targetURI.indexOf('?') + 1));
         return webTarget;
     }
 

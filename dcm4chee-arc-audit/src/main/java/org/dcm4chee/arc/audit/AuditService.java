@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
@@ -117,6 +118,9 @@ public class AuditService {
 
     @Inject
     private IHL7ApplicationCache hl7AppCache;
+
+    @Inject
+    private IWebApplicationCache webAppCache;
 
     @Inject
     private IApplicationEntityCache aeCache;
@@ -371,10 +375,14 @@ public class AuditService {
 
     void spoolPDQ(PDQServiceContext ctx) {
         try {
-            writeSpoolFile(PDQAuditService.auditInfo(ctx, getArchiveDevice()),
-                    AuditUtils.EventType.PAT_DEMO_Q,
-                    ctx.getHl7Msg().data(),
-                    ctx.getRsp().data());
+            if (ctx.getFhirWebAppName() == null)
+                writeSpoolFile(PDQAuditService.auditInfo(ctx, getArchiveDevice()),
+                        AuditUtils.EventType.PAT_DEMO_Q,
+                        ctx.getHl7Msg().data(),
+                        ctx.getRsp().data());
+            else
+                writeSpoolFile(PDQAuditService.auditInfoFHIR(ctx, getArchiveDevice()),
+                        AuditUtils.EventType.FHIR___PDQ);
         } catch (Exception e) {
             LOG.info("Failed to spool PDQ for {}", ctx);
         }
@@ -459,11 +467,10 @@ public class AuditService {
     }
 
     private void auditQuery(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        emitAuditMessage(
-                eventType.eventTypeCode == AuditMessages.EventTypeCode.ITI_21_PatientDemographicsQuery
-                        ? PDQAuditService.auditMsg(auditLogger, path, eventType, hl7AppCache)
-                        : QueryAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
+        AuditMessage msg = eventType.eventTypeCode == null
+                            ? QueryAuditService.auditMsg(auditLogger, path, eventType)
+                            : PDQAuditService.auditMsg(auditLogger, path, eventType, hl7AppCache, webAppCache);
+        emitAuditMessage(msg, auditLogger);
     }
 
     void spoolStoreEvent(StoreContext ctx) {

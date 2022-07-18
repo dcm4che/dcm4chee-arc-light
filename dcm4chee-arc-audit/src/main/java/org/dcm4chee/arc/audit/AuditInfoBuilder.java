@@ -96,6 +96,7 @@ class AuditInfoBuilder {
     final String expirationDate;
     final String queueName;
     final String status;
+    final String fhirWebAppName;
 
     static class Builder {
         private String callingHost;
@@ -138,6 +139,7 @@ class AuditInfoBuilder {
         private String expirationDate;
         private String queueName;
         private String status;
+        private String fhirWebAppName;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -318,6 +320,10 @@ class AuditInfoBuilder {
             status = val;
             return this;
         }
+        Builder fhirWebAppName(String val) {
+            fhirWebAppName = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -364,6 +370,7 @@ class AuditInfoBuilder {
         expirationDate = builder.expirationDate;
         queueName = builder.queueName;
         status = builder.status;
+        fhirWebAppName = builder.fhirWebAppName;
     }
 
     private static IDWithIssuer idWithIssuer(ArchiveDeviceExtension arcDev, String cx) {

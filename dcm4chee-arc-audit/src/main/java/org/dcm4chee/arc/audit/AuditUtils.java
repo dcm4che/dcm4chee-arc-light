@@ -184,7 +184,10 @@ class AuditUtils {
 
         PAT_DEMO_Q(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination,
-                AuditMessages.EventTypeCode.ITI_21_PatientDemographicsQuery);
+                AuditMessages.EventTypeCode.ITI_21_PatientDemographicsQuery),
+        FHIR___PDQ(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination,
+                AuditMessages.EventTypeCode.ITI_78_MobilePDQ);
 
 
         final EventClass eventClass;
