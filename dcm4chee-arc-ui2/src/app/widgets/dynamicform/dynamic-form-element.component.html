@@ -9,6 +9,7 @@
             <div class="download_content" *ngIf="formelement.show || partSearch != ''">
                 <a class="vendordata_button" *ngSwitchCase="'filedownload'" (click)="$event.preventDefault();downloadFile(formelement.downloadUrl)" i18n="@@download">Download</a>
                 <a class="vendordata_delete" *ngSwitchCase="'filedownload'"  (click)="$event.preventDefault();deleteFile(formelement.deviceName,formelement)" i18n-title="@@title.dynamic-form-element.delete_file" title="Delete File"><i class="material-icons">clear</i></a>
+                <a class="vendordata_replace" *ngSwitchCase="'filedownload'"  (click)="$event.preventDefault();replaceFile(formelement.deviceName)" i18n-title="@@title.dynamic-form-element.replace_file" title="Replace File"><i class="material-icons">edit</i></a>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <a class="vendordata_button" *ngSwitchCase="'fileupload'" (click)="$event.preventDefault();uploadVendor(formelement.deviceName);" i18n="@@upload">Upload</a>
