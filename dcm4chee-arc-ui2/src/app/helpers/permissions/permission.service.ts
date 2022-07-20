@@ -9,6 +9,7 @@ import {KeycloakService} from "../keycloak-service/keycloak.service";
 import {User} from "../../models/user";
 import UserInfo = KeycloakModule.UserInfo;
 import {map, switchMap} from "rxjs/operators";
+import {AppRequestsService} from "../../app-requests.service";
 
 @Injectable()
 export class PermissionService {
@@ -20,7 +21,8 @@ export class PermissionService {
         private $http:J4careHttpService,
         private mainservice:AppService,
         private router: Router,
-        private _keycloakService:KeycloakService
+        private _keycloakService:KeycloakService,
+        private appRequest:AppRequestsService
     ) { }
 
     getPermission(url){
@@ -50,7 +52,7 @@ export class PermissionService {
             let deviceName;
         let archiveDeviceName;
         if(!this.uiConfig && !this.configChecked)
-            return this.mainservice.getDcm4cheeArc()
+            return this.appRequest.getDcm4cheeArc()
                 .pipe(
                     switchMap((res:any) => {
                         deviceName = (res.UIConfigurationDeviceName || res.dicomDeviceName);
@@ -99,7 +101,7 @@ export class PermissionService {
                 map(user=>{
                     userInfo = user; //Extracting userInfo from KeyCloak
                 }),
-                switchMap(res => this.mainservice.getDcm4cheeArc()),
+                switchMap(res => this.appRequest.getDcm4cheeArc()),
                 map(dcm4cheeArc=>{
                     if(userInfo){
                         const roles:Array<string> = _.get(userInfo,"tokenParsed.realm_access.roles");

@@ -83,37 +83,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit(){
 
-        // const savedLanguageCode = localStorage.getItem('language_code');
-/*        let languageConfig:any = localStorage.getItem('languageConfig');
-        console.log("global",this.mainservice.global);
-        console.log("this.user1",this.mainservice.user);
-        console.log("_keycloakService",this._keycloakService.getUserInfo())
-        this._keycloakService.getUserInfo().subscribe(user=>{
-            console.log("user",user);
-            if(languageConfig){
-                this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig));
-            }
-            this.mainservice.globalSet$.subscribe(global=>{
-                if(_.hasIn(global,"uiConfig")){
-                    if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
-                        console.log("this.user",this.mainservice.user);
-                        if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) {
-                            localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
-                            languageConfig = _.get(global, "uiConfig.dcmuiLanguageConfig[0]");
-                            if(languageConfig){
-                                this.languageSwitcher = new LanguageSwitcher(languageConfig);
-                            }
-                        }
-                    }
-                }
-            });
-        });*/
-/*        this.mainservice.getUiConfig().subscribe(res=>{
-            console.log("uiconfgi",res);
-        },err=>{
-            this.httpErrorHandler.handleError(err);
-        });*/
-        this.mainservice.getDcm4cheeArc().subscribe(res=>{
+/*        this.appRequests.getDcm4cheeArc().subscribe(res=>{
             if(_.hasIn(res, "dcm4chee-arc-urls[0]")){
                 this.mainservice.baseUrl = _.get(res, "dcm4chee-arc-urls[0]");
             }
@@ -121,8 +91,7 @@ export class AppComponent implements OnInit {
             console.log("baseUrl=",this.mainservice.baseUrl);
         },err=>{
             console.log("Error on /dcm4chee-arc/ui2/rs/dcm4chee-arc",err);
-        });
-        //this.mainservice.baseUrl = "http://shefki-lifebook:8080/dcm4chee-arc";
+        });*/
 
 
 
@@ -190,8 +159,7 @@ export class AppComponent implements OnInit {
         this.initGetDevicename(2);
 /*        this.setServerTime(()=>{
         });*/
-        this.initGetPDQServices();
-        this.startTime();
+
         document.addEventListener("visibilitychange", () => {
             if(document.visibilityState === "visible"){
                 this.startTime();
@@ -455,6 +423,9 @@ export class AppComponent implements OnInit {
             .subscribe(
                 (res) => {
                     // $this.mainservice["deviceName"] = res.dicomDeviceName;
+                    this.initGetPDQServices();
+                    this.startTime();
+                    this.dcm4cheeArch = res;
                     $this.mainservice["xRoad"] = res.xRoad || false;
                     $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
                     $this.mainservice["management-https-port"] = res["management-https-port"] || 9993;

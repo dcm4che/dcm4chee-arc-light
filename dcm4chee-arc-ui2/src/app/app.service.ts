@@ -13,6 +13,7 @@ import {first, map, combineLatest, switchMap} from "rxjs/operators";
 import { loadTranslations } from '@angular/localize';
 import {ConfiguredDateTameFormatObject, DateTimeFormatMode, TimeRange} from "./interfaces";
 import {environment} from "../environments/environment";
+import {AppRequestsService} from "./app-requests.service";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
@@ -336,25 +337,7 @@ export class AppService implements OnInit, OnDestroy{
     }
 
 
-    getMyWebApps(){
-        if(_.hasIn(this.global,"myDevice")){
-            return of((<DcmWebApp[]>_.get(this.global.myDevice,"dcmDevice.dcmWebApp")).map((dcmWebApp:DcmWebApp)=>{
-                dcmWebApp.dcmKeycloakClientID = (<any[]>_.get(this.global.myDevice,"dcmDevice.dcmKeycloakClient")).filter(keycloakClient=>{
-                    return keycloakClient.dcmKeycloakClientID === dcmWebApp.dcmKeycloakClientID;
-                })[0];
-                return dcmWebApp;
-            }));
-        }else{
-            return this.getMyDevice().pipe(map(res=>{
-                return (<DcmWebApp[]>_.get(res,"dcmDevice.dcmWebApp")).map((dcmWebApp:DcmWebApp)=>{
-                    dcmWebApp.dcmKeycloakClientID = (<any[]>_.get(this.global.myDevice,"dcmDevice.dcmKeycloakClient")).filter(keycloakClient=>{
-                        return keycloakClient.dcmKeycloakClientID === dcmWebApp.dcmKeycloakClientID;
-                    })[0];
-                    return dcmWebApp;
-                });
-            }))
-        }
-    }
+
     getServerTime():Observable<Date>{
         if(this._serverTime){
             return of(this._serverTime);
@@ -375,44 +358,8 @@ export class AppService implements OnInit, OnDestroy{
             return new TimeRange(d, new Date(serverTime));
         }));
     }
-    getUiConfig(){
-        if(_.hasIn(this.global,"uiConfig")){
-            return of(this.global.uiConfig);
-        }else{
-            return this.getMyDevice().pipe(map(res=>{
-                return _.get(res,"dcmDevice.dcmuiConfig[0]");
-            }))
-        }
-    }
-    getMyDevice(){
-        if(_.hasIn(this.global,"myDevice")){
-            return of(this.global.myDevice);
-        }else{
-            let deviceName;
-            let archiveDeviceName;
-            return this.getDcm4cheeArc()
-                .pipe(
-                    switchMap(res => {
-                        deviceName = (_.get(res,"UIConfigurationDeviceName") || _.get(res,"dicomDeviceName"));
-                        archiveDeviceName = _.get(res,"dicomDeviceName");
-                        return this.$httpClient.get(`${j4care.addLastSlash(this.baseUrl)}devices/${deviceName}`)
-                    }),
-                    map((res)=>{
-                        try{
-                            let global = _.cloneDeep(this.global) || {};
-                            global["uiConfig"] = _.get(res,"dcmDevice.dcmuiConfig[0]");
-                            global["myDevice"] = res;
-                            this.deviceName = deviceName;
-                            this.archiveDeviceName = archiveDeviceName;
-                            this.setGlobal(global);
-                        }catch(e){
-                            console.warn("Permission not found!",e);
-                            this.showError($localize `:@@permission_not_found:Permission not found!`);
-                        }
-                        return res;
-                    }));
-        }
-    }
+
+
     getKeycloakJson(){
         if(!this.global || !this.global.notSecure){
             return this.$httpClient.get("./rs/keycloak.json")
@@ -443,12 +390,12 @@ export class AppService implements OnInit, OnDestroy{
         }
     }
 
-    getDcm4cheeArc(){
+/*    getDcm4cheeArc(){
         let tempDcm4cheeArch;
         if(this._dcm4cheeArcConfig){
             return of(this._dcm4cheeArcConfig);
         }else{
-            return this.$httpClient.get("./rs/dcm4chee-arc").pipe(
+/!*            return this.$httpClient.get("./rs/dcm4chee-arc").pipe(
                 map(dcm4cheeArc=>{
                     tempDcm4cheeArch = dcm4cheeArc;
                     if(_.hasIn(dcm4cheeArc, "dcm4chee-arc-urls[0]")){
@@ -458,7 +405,7 @@ export class AppService implements OnInit, OnDestroy{
                 }),
                 switchMap(dcm4cheeArc=>{
                     let services:Observable<any>[] = _.get(dcm4cheeArc, "dcm4chee-arc-urls").map(url=>{
-                        return this.$httpClient.get(`${url}/devicename`);
+                        return this.appRequests.getDeviceNameFromURL(url);
                     });
                     return forkJoin(services);
                 }),
@@ -479,9 +426,9 @@ export class AppService implements OnInit, OnDestroy{
                     this._dcm4cheeArcConfig = tempDcm4cheeArch;
                     return tempDcm4cheeArch;
                 })
-            );
+            );*!/
         }
-    }
+    }*/
 
     formatBasedOnConfig(date:Date, mode:DateTimeFormatMode):string{
         try{
