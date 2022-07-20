@@ -446,6 +446,7 @@ export class AppComponent implements OnInit {
                             }
                         );
                 },(err)=>{
+                    console.log("---------err",err);
                     if (retries)
                         $this.initGetDevicename(retries - 1);
                 }

@@ -4,7 +4,7 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import {AppService} from "./app.service";
 import {j4care} from "./helpers/j4care.service";
 import {forkJoin, of} from "rxjs";
-import {map, switchMap} from "rxjs/operators";
+import {catchError, combineLatest, map, switchMap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import * as _ from 'lodash-es';
 import {DcmWebApp} from "./models/dcm-web-app";
@@ -46,7 +46,11 @@ export class AppRequestsService {
     }
 
     getDeviceNameFromURL(url){
-      return this.$http.get(`${url}/devicename`);
+      return this.$http.get(`${url}/devicename`).pipe(
+          catchError(error => {
+              return of({dicomDeviceName:"NOT_FOUND"})
+          })
+      );
     }
     getDcm4cheeArc(){
         let tempDcm4cheeArch;
@@ -58,7 +62,7 @@ export class AppRequestsService {
                     if(!environment.production){
                         dcm4cheeArc["dcm4chee-arc-urls"] = [
                             "http://shefki-lifebook:8080/dcm4chee-arc",
-                            "http://192.168.0.111:8080/dcm4chee-arc"
+                            "http://192.168.1.117:8080/dcm4chee-arc"
                         ];
                     }
                     tempDcm4cheeArch = dcm4cheeArc;
@@ -70,15 +74,15 @@ export class AppRequestsService {
                 }),
                 switchMap(dcm4cheeArc=>{
                     let services:Observable<any>[] = _.get(dcm4cheeArc, "dcm4chee-arc-urls").map(url=>{
-                        return this.getDeviceNameFromURL(url);
+                        return this.getDeviceNameFromURL(url).pipe(catchError(error => of(error)));
                     });
                     return forkJoin(services);
                 }),
                 map(res=>{
                     try{
                         let deviceNameUrlMap = {};
-                        tempDcm4cheeArch["dcm4chee-arc-urls"].forEach((url,i)=>{
-                            deviceNameUrlMap[url] = res[i].dicomDeviceName;
+                        tempDcm4cheeArch["dcm4chee-arc-urls"].forEach((url:any,i)=>{
+                            deviceNameUrlMap[url] = _.get(res,`${i}.dicomDeviceName`);
                             if(i > 0){
                                 tempDcm4cheeArch["hasMoreThanOneBaseUrl"] = true;
                             }
@@ -91,6 +95,9 @@ export class AppRequestsService {
                     this._dcm4cheeArcConfig = tempDcm4cheeArch;
                     this.appService.dcm4cheeArcConfig = tempDcm4cheeArch;
                     return tempDcm4cheeArch;
+                }),
+                catchError(err=>{
+                    return err;
                 })
             );
         }
