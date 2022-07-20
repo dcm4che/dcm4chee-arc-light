@@ -1931,7 +1931,7 @@ mat-form-field{
     }
   }
   .filter{
-    select,input, button, .filter_checkbox{
+    select,input:not(.dcm_input_checkbox), button, .filter_checkbox{
       height:26px;
       line-height:26px;
       padding: 0px 7px;
