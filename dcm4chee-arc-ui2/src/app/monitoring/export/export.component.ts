@@ -1249,7 +1249,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                                     tag:"select",
                                     options:this.exporters.map(exporter=>{
                                         return {
-                                            text:exporter.description,
+                                            text:exporter.description || exporter.id,
                                             value:exporter.id
                                         }
                                     }),
