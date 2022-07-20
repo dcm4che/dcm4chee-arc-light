@@ -8,6 +8,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {HttpHeaders} from "@angular/common/http";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {TableService} from "../../table.service";
+import {SelectDropdown} from "../../interfaces";
 
 @Injectable()
 export class ExportService {
@@ -201,14 +202,13 @@ export class ExportService {
             [
                 [
                     {
-                        tag:"html-select",
+                        tag:"multi-select",
                         options:exporters.map(d=>{
                             return{
                                 text:d.description || d.id,
                                 value:d.id
                             }
                         }),
-                        showStar:true,
                         showSearchField:true,
                         filterKey:"ExporterID",
                         description:$localize `:@@exporter_id:Exporter ID`,
