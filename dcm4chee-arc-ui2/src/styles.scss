@@ -2211,8 +2211,40 @@ mat-form-field{
         background: $lightBlue;
       }
     }
+    .vendordata_replace{
+      position: absolute;
+      width: 9%;
+      visibility: hidden;
+      opacity: 0;
+      float: left;
+      text-align: center;
+      border: 1px solid #ccc;
+      height: 30px;
+      margin-left: 10%;
+      color: #777;
+      top:2px;
+      -webkit-transition: 0.2s visibility, opacity 0.2s linear;
+      -moz-transition: 0.2s visibility, opacity 0.2s linear ;
+      -ms-transition: 0.2s visibility, opacity 0.2s linear ;
+      -o-transition: 0.2s visibility, opacity 0.2s linear ;
+      transition: 0.2s visibility, opacity 0.2s linear ;
+      &:hover{
+        color:white;
+        cursor: pointer;
+        background: $lightBlue;
+      }
+    }
     &:hover {
       .vendordata_delete{
+        -webkit-transition-delay: 0.2s;
+        -moz-transition-delay: 0.2s;
+        -ms-transition-delay: 0.2s;
+        -o-transition-delay: 0.2s;
+        transition-delay: 0.2s;
+        visibility: visible;
+        opacity:1;
+      }
+      .vendordata_replace{
         -webkit-transition-delay: 0.2s;
         -moz-transition-delay: 0.2s;
         -ms-transition-delay: 0.2s;
@@ -2226,7 +2258,7 @@ mat-form-field{
         cursor: pointer;
         background: $lightBlue;
         color: white;
-        width:90%;
+        width:80%;
       }
     }
   }

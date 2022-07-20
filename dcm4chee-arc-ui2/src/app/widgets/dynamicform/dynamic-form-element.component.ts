@@ -157,6 +157,18 @@ export class DynamicFormElementComponent implements OnDestroy{
             });
         }
     }
+    replaceFile(deviceName){
+        if(!this.readOnlyMode) {
+            let $this = this;
+            this.confirm({
+                content: $localize `:@@are_you_sure_you_want_to_replace_vendor:Are you sure you want to replace the vendor data of this device?`
+            }).subscribe(result => {
+                if (result) {
+                    this.uploadVendor(deviceName);
+                }
+            });
+        }
+    }
     uploadVendor(deviceName){
         if(!this.readOnlyMode) {
             let $this = this;
