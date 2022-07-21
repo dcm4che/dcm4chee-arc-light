@@ -188,34 +188,7 @@ export class UploadFilesComponent implements OnInit {
                 };
             }
             if (this.fileList[0].type === "application/pdf") {
-                this._dicomObject.attrs["00420011"] = {
-                    "vr": "OB",
-                    "BulkDataURI": "file/" + this.fileList[0].name
-                };
-                this._dicomObject.attrs["00080016"] = {
-                    "vr": "UI",
-                    "Value": [
-                        "1.2.840.10008.5.1.4.1.1.104.1"
-                    ]
-                }
-                this._dicomObject.attrs["00280301"] = {
-                    "vr": "CS",
-                    "Value": [
-                        "YES"
-                    ]
-                };
-                this._dicomObject.attrs["00420012"] = {
-                    "vr": "LO",
-                    "Value": [
-                        "application/pdf"
-                    ]
-                };
-                this._dicomObject.attrs["00420010"] = {
-                    "vr": "ST",
-                    "Value": [
-                        ""
-                    ]
-                };
+                this.supplementEncapsulatedPDFAttrs();
             } else {
                 if (this.fileList[0].type.indexOf("video") > -1) {
                     this._dicomObject.attrs["00080016"] = {
@@ -289,6 +262,50 @@ export class UploadFilesComponent implements OnInit {
         //pdf   /encapsulatedPDF.iod.json*/
 
     }
+
+    private supplementEncapsulatedPDFAttrs() {
+        this._dicomObject.attrs["00420011"] = {
+            "vr": "OB",
+            "BulkDataURI": "file/" + this.fileList[0].name
+        };
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.840.10008.5.1.4.1.1.104.1"
+            ]
+        }
+        this._dicomObject.attrs["00280301"] = {
+            "vr": "CS",
+            "Value": [
+                "YES"
+            ]
+        };
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                "application/pdf"
+            ]
+        };
+        this._dicomObject.attrs["00420010"] = {
+            "vr": "ST",
+            "Value": [
+                ""
+            ]
+        };
+        this._dicomObject.attrs["00080064"] = {
+            "vr": "CS",
+            "Value": [
+                "SD"
+            ]
+        };
+        this._dicomObject.attrs["00080070"] = {
+            "vr": "LO",
+            "Value": [
+                ""
+            ]
+        };
+    }
+
     showMoreAttributes(){
         console.log("this.dicomObject",this.dicomObject);
         if(!this._dicomObject){
