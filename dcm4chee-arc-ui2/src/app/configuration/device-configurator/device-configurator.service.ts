@@ -558,6 +558,12 @@ export class DeviceConfiguratorService{
         if (_.hasIn(m, 'maximum')){
             validation['maximum'] = m.maximum;
         }
+        if (_.hasIn(m, 'exclusiveMinimum')){
+            validation['exclusiveMinimum'] = m.exclusiveMinimum;
+        }
+        if (_.hasIn(m, 'exclusiveMaximum')){
+            validation['exclusiveMaximum'] = m.exclusiveMaximum;
+        }
         if (_.hasIn(m, 'pattern')){
             validation['pattern'] = m.pattern;
         }

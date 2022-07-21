@@ -39,6 +39,26 @@ export class CustomValidatorDirective{
                 null;
         };
     }
+    static exclusiveMin(min: number, exclusiveMin: boolean): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} => {
+            if (!control.value && control.value != "0") {
+                return null;  // don't validate empty values to allow optional controls
+            }
+            return exclusiveMin && exclusiveMin === true && control.value == min
+                        ? {'msg': $localize `:@@given_value_equal_to_exclusive_min:The given value ${control.value} should be greater than the allowed exclusive minimum value ${min}!`}
+                        : null;
+        };
+    }
+    static exclusiveMax(max: number, exclusiveMax: boolean): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} => {
+            if (!control.value && control.value != "0") {
+                return null;  // don't validate empty values to allow optional controls
+            }
+            return exclusiveMax && control.value == max
+                ? {'msg': $localize `:@@given_value_equal_to_exclusive_max:The given value ${control.value} should be lesser than the allowed exclusive maximum value ${max}!`}
+                : null;
+        };
+    }
     static min(min: number): ValidatorFn {
         return (control: AbstractControl): {[key: string]: any} => {
             if (!control.value && control.value != "0") {

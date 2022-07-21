@@ -28,13 +28,23 @@ export class FormService{
             if (_.hasIn(element, 'validation')){
                 if (_.size(element['validation']) > 1){
                     let validationArray = [];
+                    let min = 0;
+                    let max = 0;
                     _.forEach(element['validation'], (m, i) => {
                         switch (i){
                             case 'minimum':
+                                min = m;
                                 validationArray.push(CustomValidatorDirective.min(m));
                                 break;
+                            case 'exclusiveMinimum':
+                                validationArray.push(CustomValidatorDirective.exclusiveMin(min, m));
+                                break;
                             case 'maximum':
+                                max = m;
                                 validationArray.push(CustomValidatorDirective.max(m));
+                                break;
+                            case 'exclusiveMaximum':
+                                validationArray.push(CustomValidatorDirective.exclusiveMax(max, m));
                                 break;
                             case 'pattern':
                                 validationArray.push(CustomValidatorDirective.regExp(m));
