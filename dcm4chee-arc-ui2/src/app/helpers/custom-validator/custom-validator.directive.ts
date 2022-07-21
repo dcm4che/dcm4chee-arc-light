@@ -54,7 +54,7 @@ export class CustomValidatorDirective{
             if (!control.value && control.value != "0") {
                 return null;  // don't validate empty values to allow optional controls
             }
-            return exclusiveMax && control.value == max
+            return exclusiveMax && exclusiveMax === true && control.value == max
                 ? {'msg': $localize `:@@given_value_equal_to_exclusive_max:The given value ${control.value} should be lesser than the allowed exclusive maximum value ${max}!`}
                 : null;
         };
