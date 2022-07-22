@@ -1,6 +1,6 @@
 <div class="vex vex-theme-os upload" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
-        <h5 i18n="@@upload-file.title">Upload image,video, pdf or cda to study</h5>
+        <h5 i18n="@@upload-file.title">Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to study</h5>
         <div class="content">
 <!--            <label>Select the ae title:</label>
             <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
@@ -13,7 +13,7 @@
                 </mat-select>
             </ng-container>
             <label i18n="@@chose_a_file_to_upload">Choose a File to upload:</label><br>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" i18n-placeholder="@@upload_file" placeholder="Upload file"  accept="image/jpeg, image/png, image/gif, image/tiff ,video/mpeg,video/mp4,video/quicktime,application/pdf,text/xml" multiple>
+            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" i18n-placeholder="@@upload_file" placeholder="Upload file"  accept="image/jpeg, image/png, image/gif, image/tiff ,video/mpeg,video/mp4,video/quicktime,application/pdf,text/xml,model/mtl,model/obj,application/vnd.genozip,model/stl,model/x.stl-binary,application/sla" multiple>
             <ng-container *ngIf="isImage">
                 <label i18n="@@captured_image_type">Captured Image Type:</label>
                 <mat-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">

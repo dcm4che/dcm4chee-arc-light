@@ -109,11 +109,13 @@ export class UploadFilesComponent implements OnInit {
 
     fileChange(event){
         this.fileList = event.target.files;
-        if(this.fileList[0] && (this.fileList[0].type === "image/jpeg" || this.fileList[0].type === "image/png" || this.fileList[0].type === "image/gif" || this.fileList[0].type === "image/tiff")){
+        let file0 = this.fileList[0];
+        let fileTypeOrExt = this.fileTypeOrExt(file0);
+        if(file0 && (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif" || file0.type === "image/tiff")){
             this.isImage = true;
         }
 
-        this.studyService.getIodFromContext(this.fileList[0].type, this.mode).subscribe(iods=>{
+        this.studyService.getIodFromContext(fileTypeOrExt, this.mode).subscribe(iods=>{
             console.log("iods",iods);
             if(!this._dicomObject){
                 this._dicomObject = {
@@ -187,12 +189,37 @@ export class UploadFilesComponent implements OnInit {
                     "Value": [""]
                 };
             }
-            if (this.fileList[0].type === "application/pdf")
+            if (fileTypeOrExt === "application/pdf" || fileTypeOrExt === "pdf") {
+               this.supplementEncapsulatedDocumentAttrs();
                this.supplementEncapsulatedPDFAttrs();
-            else if (this.fileList[0].type === "text/xml")
+            }
+            else if (fileTypeOrExt === "text/xml" || fileTypeOrExt === "xml") {
+                this.supplementEncapsulatedDocumentAttrs();
                 this.supplementEncapsulatedCDAAttrs();
+            }
+            else if (fileTypeOrExt === "mtl"
+                        || fileTypeOrExt === "model/mtl") {
+                this.supplementEncapsulated3DAttrs();
+                this.supplementEncapsulatedMTLAttrs();
+            }
+            else if (fileTypeOrExt === "obj"
+                        || fileTypeOrExt === "application/x-tgif"
+                        || fileTypeOrExt === "model/obj") {
+                this.supplementEncapsulated3DAttrs();
+                this.supplementEncapsulatedOBJAttrs();
+            }
+            else if (fileTypeOrExt === "model/stl"
+                        || fileTypeOrExt === "model/x.stl-binary"
+                        || fileTypeOrExt === "application/sla"
+                        || fileTypeOrExt === "stl") {
+                this.supplementEncapsulated3DAttrs();
+                this.supplementEncapsulatedSTLAttrs(file0.type);
+            }
+            else if (fileTypeOrExt === "genozip"
+                        || fileTypeOrExt === "application/vnd.genozip")
+                this.supplementEncapsulatedGENOZIPAttrs();
             else {
-                if (this.fileList[0].type.indexOf("video") > -1) {
+                if (file0.type.indexOf("video") > -1) {
                     this._dicomObject.attrs["00080016"] = {
                         "vr": "UI",
                         "Value": [
@@ -209,11 +236,11 @@ export class UploadFilesComponent implements OnInit {
                 }
                 this._dicomObject.attrs["7FE00010"] = {
                     "vr": "OB",
-                    "BulkDataURI": "file/" + this.fileList[0].name
+                    "BulkDataURI": "file/" + file0.name
                 }
                 // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
             }
-            if (this.fileList[0].type === "image/jpeg" || this.fileList[0].type === "image/png" || this.fileList[0].type === "image/gif"|| this.fileList[0].type === "image/tiff") {
+            if (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif"|| file0.type === "image/tiff") {
                 this._dicomObject.attrs["00080008"] = {
                     "vr": "CS",
                     "Value": [
@@ -265,39 +292,21 @@ export class UploadFilesComponent implements OnInit {
 
     }
 
-    private supplementEncapsulatedPDFAttrs() {
+    private supplementEncapsulatedDocumentAttrs() {
         this._dicomObject.attrs["00420011"] = {
             "vr": "OB",
             "BulkDataURI": "file/" + this.fileList[0].name
         };
-        this._dicomObject.attrs["00080016"] = {
-            "vr": "UI",
-            "Value": [
-                "1.2.840.10008.5.1.4.1.1.104.1"
-            ]
-        }
         this._dicomObject.attrs["00280301"] = {
             "vr": "CS",
             "Value": [
                 "YES"
             ]
         };
-        this._dicomObject.attrs["00420012"] = {
-            "vr": "LO",
-            "Value": [
-                "application/pdf"
-            ]
-        };
         this._dicomObject.attrs["00420010"] = {
             "vr": "ST",
             "Value": [
                 ""
-            ]
-        };
-        this._dicomObject.attrs["00080064"] = {
-            "vr": "CS",
-            "Value": [
-                "SD"
             ]
         };
         this._dicomObject.attrs["00080070"] = {
@@ -308,21 +317,32 @@ export class UploadFilesComponent implements OnInit {
         };
     }
 
-    private supplementEncapsulatedCDAAttrs() {
-        this._dicomObject.attrs["00420011"] = {
-            "vr": "OB",
-            "BulkDataURI": "file/" + this.fileList[0].name
+    private supplementEncapsulatedPDFAttrs() {
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.840.10008.5.1.4.1.1.104.1"
+            ]
         };
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                "application/pdf"
+            ]
+        };
+        this._dicomObject.attrs["00080064"] = {
+            "vr": "CS",
+            "Value": [
+                "SD"
+            ]
+        };
+    }
+
+    private supplementEncapsulatedCDAAttrs() {
         this._dicomObject.attrs["00080016"] = {
             "vr": "UI",
             "Value": [
                 "1.2.840.10008.5.1.4.1.1.104.2"
-            ]
-        }
-        this._dicomObject.attrs["00280301"] = {
-            "vr": "CS",
-            "Value": [
-                "YES"
             ]
         };
         this._dicomObject.attrs["00420012"] = {
@@ -331,16 +351,132 @@ export class UploadFilesComponent implements OnInit {
                 "text/XML"
             ]
         };
+        this._dicomObject.attrs["00080064"] = {
+            "vr": "CS",
+            "Value": [
+                "WSD"
+            ]
+        };
+    }
+
+    private supplementEncapsulated3DAttrs() {
+        this._dicomObject.attrs["00420011"] = {
+            "vr": "OB",
+            "BulkDataURI": "file/" + this.fileList[0].name
+        };
+        this._dicomObject.attrs["00280301"] = {
+            "vr": "CS",
+            "Value": [
+                "YES"
+            ]
+        };
         this._dicomObject.attrs["00420010"] = {
             "vr": "ST",
             "Value": [
                 ""
             ]
         };
-        this._dicomObject.attrs["00080064"] = {
-            "vr": "CS",
+        this._dicomObject.attrs["00201040"] = {
+            "vr": "LO",
             "Value": [
-                "WSD"
+                ""
+            ]
+        };
+        this._dicomObject.attrs["00080070"] = {
+            "vr": "LO",
+            "Value": [
+                ""
+            ]
+        };
+        let item = {
+            attrs:[]
+        }
+        item.attrs["00080100"] = {
+            "vr": "SH",
+            "Value": [
+                "mm"
+            ]
+        };
+        item.attrs["00080102"] = {
+            "vr": "SH",
+            "Value": [
+                "UCUM"
+            ]
+        };
+        item.attrs["00080104"] = {
+            "vr": "LO",
+            "Value": [
+                "mm"
+            ]
+        };
+        // this._dicomObject.attrs["004008EA"] = {
+        //     "vr": "SQ",
+        //     "Value": [
+        //         item.attrs
+        //     ]
+        // };
+    }
+
+    private supplementEncapsulatedMTLAttrs() {
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.840.10008.5.1.4.1.1.104.5"
+            ]
+        };
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                "model/mtl"
+            ]
+        };
+    }
+
+    private supplementEncapsulatedOBJAttrs() {
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.840.10008.5.1.4.1.1.104.4"
+            ]
+        };
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                "model/obj"
+            ]
+        };
+    }
+
+    private supplementEncapsulatedSTLAttrs(fileType: string) {
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.840.10008.5.1.4.1.1.104.3"
+            ]
+        };
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                fileType
+            ]
+        };
+    }
+
+    private supplementEncapsulatedGENOZIPAttrs() {
+        this._dicomObject.attrs["00420011"] = {
+            "vr": "OB",
+            "BulkDataURI": "file/" + this.fileList[0].name
+        };
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.40.0.13.1.5.1.4.1.1.104.1"
+            ]
+        }
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                "application/vnd.genozip"
             ]
         };
         this._dicomObject.attrs["00080070"] = {
@@ -401,6 +537,28 @@ export class UploadFilesComponent implements OnInit {
         }
     }
 
+    private fileTypeOrExt(file: File) {
+        let fileType = file.type;
+        let fileExt = file.name.substr(file.name.lastIndexOf(".") + 1);
+        return fileType.length == 0
+                ? fileExt : fileType;
+    }
+
+    private fileTypeFromExt(fileTypeOrExt:string) {
+        switch (fileTypeOrExt) {
+            case "mtl":
+                return "model/mtl";
+            case "stl":
+                return "model/stl";
+            case "obj":
+                return "model/obj";
+            case "genozip":
+                return "application/vnd.genozip";
+            default:
+                return fileTypeOrExt;
+        }
+    }
+
     upload() {
         let $this = this;
         let boundary = Math.random().toString().substr(2);
@@ -433,7 +591,8 @@ export class UploadFilesComponent implements OnInit {
             if (this.fileList) {
                 seriesInstanceUID = j4care.generateOIDFromUUID();
                 _.forEach(this.fileList, (file, i) => {
-                    switch (file.type) {
+                    let fileTypeOrExt = this.fileTypeOrExt(file);
+                    switch (fileTypeOrExt) {
                         case "image/jpeg":
                             $this.modality = $this.selectedSopClass.modality;
                             descriptionPart = "Image";
@@ -469,6 +628,29 @@ export class UploadFilesComponent implements OnInit {
                         case "text/xml":
                             descriptionPart = "CDA";
                             $this.modality = "SR";
+                            break;
+                        case "model/mtl":
+                        case "mtl":
+                            descriptionPart = "MTL";
+                            $this.modality = "M3D";
+                            break;
+                        case "model/obj":
+                        case "application/x-tgif":
+                        case "obj":
+                            descriptionPart = "OBJ";
+                            $this.modality = "M3D";
+                            break;
+                        case "stl":
+                        case "model/stl":
+                        case "model/x.stl-binary":
+                        case "application/sla":
+                            descriptionPart = "STL";
+                            $this.modality = "M3D";
+                            break;
+                        case "genozip":
+                        case "application/vnd.genozip":
+                            descriptionPart = "GENOZIP";
+                            $this.modality = "DNA";
                             break;
                     }
 
@@ -581,7 +763,7 @@ export class UploadFilesComponent implements OnInit {
                                 });
                                 const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])) + crlf;
 
-                                const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
+                                const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + this.fileTypeFromExt(fileTypeOrExt) + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                                 const postDataEnd = crlf + dashes + boundary + dashes;
 
                                 xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
