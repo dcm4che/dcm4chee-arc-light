@@ -4064,7 +4064,7 @@ export class StudyService {
                 "vlImageAcquisitionContext"
             ]
         }
-        if(fileType.indexOf("pdf") > -1) {
+        if(fileType.indexOf("pdf") > -1 || fileType.indexOf("xml") > -1) {
             //"patient"
             iodFileNames = [
                 "study",

@@ -187,9 +187,11 @@ export class UploadFilesComponent implements OnInit {
                     "Value": [""]
                 };
             }
-            if (this.fileList[0].type === "application/pdf") {
-                this.supplementEncapsulatedPDFAttrs();
-            } else {
+            if (this.fileList[0].type === "application/pdf")
+               this.supplementEncapsulatedPDFAttrs();
+            else if (this.fileList[0].type === "text/xml")
+                this.supplementEncapsulatedCDAAttrs();
+            else {
                 if (this.fileList[0].type.indexOf("video") > -1) {
                     this._dicomObject.attrs["00080016"] = {
                         "vr": "UI",
@@ -296,6 +298,49 @@ export class UploadFilesComponent implements OnInit {
             "vr": "CS",
             "Value": [
                 "SD"
+            ]
+        };
+        this._dicomObject.attrs["00080070"] = {
+            "vr": "LO",
+            "Value": [
+                ""
+            ]
+        };
+    }
+
+    private supplementEncapsulatedCDAAttrs() {
+        this._dicomObject.attrs["00420011"] = {
+            "vr": "OB",
+            "BulkDataURI": "file/" + this.fileList[0].name
+        };
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.840.10008.5.1.4.1.1.104.2"
+            ]
+        }
+        this._dicomObject.attrs["00280301"] = {
+            "vr": "CS",
+            "Value": [
+                "YES"
+            ]
+        };
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                "text/XML"
+            ]
+        };
+        this._dicomObject.attrs["00420010"] = {
+            "vr": "ST",
+            "Value": [
+                ""
+            ]
+        };
+        this._dicomObject.attrs["00080064"] = {
+            "vr": "CS",
+            "Value": [
+                "WSD"
             ]
         };
         this._dicomObject.attrs["00080070"] = {
@@ -420,6 +465,10 @@ export class UploadFilesComponent implements OnInit {
                         case "application/pdf":
                             descriptionPart = "PDF";
                             $this.modality = "DOC";
+                            break;
+                        case "text/xml":
+                            descriptionPart = "CDA";
+                            $this.modality = "SR";
                             break;
                     }
 
