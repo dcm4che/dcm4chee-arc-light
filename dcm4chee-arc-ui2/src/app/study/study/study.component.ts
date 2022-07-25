@@ -1610,13 +1610,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
 
     applyRetentionPolicyMatchingSeries() {
-        console.log("in applyRetentionPolicyMatchingSeries - main.................")
         this.confirm({
             content:$localize `:@@study.apply_retention_policy_all_matching_series:Apply retention policy to all matching series`,
             cancelButton:$localize `:@@CANCEL:CANCEL`,
             saveButton: $localize `:@@APPLY:APPLY`
         }).subscribe(()=>{
-            console.log("in applyRetentionPolicyMatchingSeries - subscribe.................")
             this.cfpLoadingBar.start();
             this.service.applyRetentionPolicyMatchingSeries(
                 this.studyWebService.selectedWebService,
