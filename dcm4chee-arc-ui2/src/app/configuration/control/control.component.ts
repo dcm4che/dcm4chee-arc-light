@@ -23,6 +23,17 @@ export class ControlComponent implements OnInit{
     allDevices;
     Object = Object;
     tableSchema;
+    iconTexts = {
+        activations:{
+            hoverText:(device)=>{
+                try{
+                    return (this.appService['dcm4cheeArcConfig']['deviceNameUrlMap'][device.dcmuiDeviceURL] === this.appService.archiveDeviceName) ? $localize `:@@this_device_is_currently_active:This device is currently active`: $localize `:@@activate_this_device:Activate this device`
+                }catch (e){
+                    return $localize `:@@activate_this_device:Activate this device`;
+                }
+            }
+        }
+    }
     constructor(
         public $http:J4careHttpService,
         public appService: AppService,
