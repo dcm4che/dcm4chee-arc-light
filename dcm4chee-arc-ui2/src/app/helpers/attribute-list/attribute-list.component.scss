@@ -1,0 +1,13 @@
+.attribute_list{
+  tr{
+    td{
+      word-break: break-word;
+      &.attr_tag{
+        min-width: 90px;
+      }
+      &.attr_vr{
+        min-width: 40px;
+      }
+    }
+  }
+}

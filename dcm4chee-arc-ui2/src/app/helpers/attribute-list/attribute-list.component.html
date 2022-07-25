@@ -1,10 +1,10 @@
 <table class="table table-bordered table-condensed attribute_list">
     <tr *ngFor="let row of rows">
         <td>{{row.level}}</td>
-        <td *ngIf="row.el">{{row.name}}</td>
-        <td *ngIf="row.el">{{row.tag | formatTag}}</td>
-        <td *ngIf="row.el">{{row.el.vr}}</td>
-        <td>
+        <td class="attr_name" *ngIf="row.el">{{row.name}}</td>
+        <td class="attr_tag" *ngIf="row.el">{{row.tag | formatTag}}</td>
+        <td class="attr_vr" *ngIf="row.el">{{row.el.vr}}</td>
+        <td class="attr_value">
             <ng-container *ngIf="row.el && row.el.vr === 'PN' && _.hasIn(row,'el.Value.0')">
                 <!--{{row.el.Value[0]  | personName:personNameFormat}}-->
                 <ng-container *ngIf="_.hasIn(row,'el.Value.0.Alphabetic')"><span>{{_.get(row,"el.Value.0.Alphabetic")}}</span></ng-container>

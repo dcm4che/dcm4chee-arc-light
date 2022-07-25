@@ -12,8 +12,9 @@ import {j4care} from "../j4care.service";
 declare var DCM4CHE: any;
 
 @Component({
-  selector: 'attribute-list',
-  templateUrl: './attribute-list.component.html'
+    selector: 'attribute-list',
+    templateUrl: './attribute-list.component.html',
+    styleUrls: ['./attribute-list.component.scss']
 })
 export class AttributeListComponent implements OnInit {
 
