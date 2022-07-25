@@ -207,8 +207,9 @@ public class ApplyRetentionPolicy {
                     String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
 
                     if (retentionPolicy == null
-                            || (ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN
-                            && (studyExpirationDate == null || !retentionPolicy.protectStudy()))) {
+                            || ((studyExpirationState != null
+                                    && ExpirationState.valueOf(studyExpirationState) == ExpirationState.FROZEN)
+                                && (studyExpirationDate == null || !retentionPolicy.protectStudy()))) {
                         LOG.info("Skip applying {} to Study[UID={}, ExpirationDate={}, ExpirationState={}]",
                                 retentionPolicy, studyInstanceUID, studyExpirationDate, studyExpirationState);
                         continue;
