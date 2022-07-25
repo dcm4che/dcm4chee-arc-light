@@ -4026,8 +4026,7 @@ export class StudyService {
         Image IE	                editable	editable	editable	editable	editable
         Encapsulated Document IE	editable	editable	editable	editable	editable
     * */
-    getIodFromContext(fileType:string, context:("patient"|"study"|"series"|"mwl")){
-
+    getIodFromContext(fileTypeOrExt:string, context:("patient"|"study"|"series"|"mwl")){
         let level;
         let iodFileNames = [];
         if(context === "patient"){
@@ -4039,32 +4038,10 @@ export class StudyService {
         if(context === "series"){
             level = 2;
         }
-        if(fileType.indexOf("video") > -1){
-            //VIDEO
-            //"patient"
-            iodFileNames = [
-                "study",
-                "series",
-                "equipment",
-                "image",
-                "sop",
-                "vlImageAcquisitionContext",
-                "multiFrame"
-            ]
-        }
-        if(fileType.indexOf("image") > -1) {
-            //"patient"
-            iodFileNames = [
-                "study",
-                "series",
-                "equipment",
-                "photographicEquipment",
-                "image",
-                "sop",
-                "vlImageAcquisitionContext"
-            ]
-        }
-        if(fileType.indexOf("pdf") > -1) {
+        if(fileTypeOrExt === "mtl"
+            || fileTypeOrExt === "obj"
+            || fileTypeOrExt === "stl"
+            || fileTypeOrExt === "genozip") {
             //"patient"
             iodFileNames = [
                 "study",
@@ -4074,6 +4051,51 @@ export class StudyService {
                 "sop",
                 "encapsulatedDocument"
             ]
+        } else {
+            if(fileTypeOrExt.indexOf("video") > -1){
+                //VIDEO
+                //"patient"
+                iodFileNames = [
+                    "study",
+                    "series",
+                    "equipment",
+                    "image",
+                    "sop",
+                    "vlImageAcquisitionContext",
+                    "multiFrame"
+                ]
+            }
+            if(fileTypeOrExt.indexOf("image") > -1) {
+                //"patient"
+                iodFileNames = [
+                    "study",
+                    "series",
+                    "equipment",
+                    "photographicEquipment",
+                    "image",
+                    "sop",
+                    "vlImageAcquisitionContext"
+                ]
+            }
+            if(fileTypeOrExt.indexOf("pdf") > -1
+                || fileTypeOrExt.indexOf("xml") > -1
+                || fileTypeOrExt.indexOf("model/mtl") > -1
+                || fileTypeOrExt.indexOf("model/obj") > -1
+                || fileTypeOrExt.indexOf("application/x-tgif") > -1
+                || fileTypeOrExt.indexOf("application/vnd.genozip") > -1
+                || fileTypeOrExt.indexOf("application/sla") > -1
+                || fileTypeOrExt.indexOf("model/x.stl-binary") > -1
+                || fileTypeOrExt.indexOf("model/stl") > -1) {
+                //"patient"
+                iodFileNames = [
+                    "study",
+                    "series",
+                    "equipment",
+                    "scEquipment",
+                    "sop",
+                    "encapsulatedDocument"
+                ]
+            }
         }
         return forkJoin(iodFileNames.filter((m,i)=> i >= level).map(m=>this.getIod(m))).pipe(map(res=>{
             let merged = {};

@@ -792,7 +792,7 @@
     "/stgcmt/{transactionUID}": {
       "$ref": "paths/stgcmt.json#/stgcmt"
     },
-    "/aets/{aet}/rs/expire/series": {
+    "/aets/{aet}/rs/series/expire": {
       "$ref": "paths/iocm.json#/series.expire"
     },
     "/aets/{aet}/dimse/{storescp}/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
