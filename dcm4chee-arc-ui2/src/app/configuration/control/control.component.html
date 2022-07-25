@@ -16,6 +16,7 @@
                                 <div (click)="toggleState(devices[key])" [ngClass]="{'running':devices[key].status === 'STARTED','not-running':devices[key].status === 'STOPPED'}" class="pointer action_button glyphicon glyphicon-off"></div>
                                 <div i18n-title="@@title.control.reload_archive" title="Reload archive" (click)="reload(devices[key])" class="pointer action_button glyphicon glyphicon-repeat"></div>
                                 <div i18n-title="@@title.control.fetch_status" title="Fetch status" (click)="fetchStatus(devices[key])" class="pointer action_button glyphicon glyphicon-refresh"></div>
+                                <div i18n-title="@@title.control.fetch_status" title="Fetch status" (click)="setAsDefaultDevice(devices[key])" [ngClass]="{'active':appService['dcm4cheeArcConfig']['deviceNameUrlMap'][devices[key].dcmuiDeviceURL] === appService.archiveDeviceName}" class="pointer action_button glyphicon glyphicon-ok-circle"></div>
                             </div>
                         </ng-container>
                         <ng-container *ngIf="table.code != 'actions'">

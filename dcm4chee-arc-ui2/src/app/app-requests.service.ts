@@ -62,7 +62,7 @@ export class AppRequestsService {
                     if(!environment.production){
                         dcm4cheeArc["dcm4chee-arc-urls"] = [
                             "http://shefki-lifebook:8080/dcm4chee-arc",
-                            "http://192.168.1.117:8080/dcm4chee-arc"
+                            "http://192.168.0.111:8080/dcm4chee-arc"
                         ];
                     }
                     tempDcm4cheeArch = dcm4cheeArc;
@@ -83,6 +83,10 @@ export class AppRequestsService {
                         let deviceNameUrlMap = {};
                         tempDcm4cheeArch["dcm4chee-arc-urls"].forEach((url:any,i)=>{
                             deviceNameUrlMap[url] = _.get(res,`${i}.dicomDeviceName`);
+                            if(!environment.production){
+                                if(i === 1)
+                                    deviceNameUrlMap[url] = `stowrsd`;
+                            }
                             if(i > 0){
                                 tempDcm4cheeArch["hasMoreThanOneBaseUrl"] = true;
                             }

@@ -1415,7 +1415,7 @@ export class j4care {
             if(withoutServicePath){
                 return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || ''}`;
             }
-            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || (baseUrl === "../" ? '': baseUrl)}${dcmWebApp.dcmWebServicePath}`.replace("/dcm4chee-arc/dcm4chee-arc","/dcm4chee-arc");;
+            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || (baseUrl === "../" ? '': baseUrl)}${dcmWebApp.dcmWebServicePath}`.replace("/dcm4chee-arc/dcm4chee-arc","/dcm4chee-arc");
         }catch (e) {
             this.log("Error on getting Url from DcmWebApplication",e);
             this.logObject("getUrlFromDcmWebApplication input:",{

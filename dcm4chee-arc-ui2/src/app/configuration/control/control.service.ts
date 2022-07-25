@@ -27,7 +27,7 @@ export class ControlService {
 
     getUrl(url, mode){
         if(url){
-            return `${this.removeSlashOnTheEndOfUrl(url)}/dcm4chee-arc/ctrl/${mode}`;
+            return `${this.removeSlashOnTheEndOfUrl(url)}/dcm4chee-arc/ctrl/${mode}`.replace("/dcm4chee-arc/dcm4chee-arc","/dcm4chee-arc");
         }else{
             return `${j4care.addLastSlash(this.appService.baseUrl)}ctrl/${mode}`;
         }
@@ -37,7 +37,7 @@ export class ControlService {
             {
                 title:"&nbsp;",
                 code:"actions",
-                widthWeight:0.6,
+                pxWidth:123,
                 calculatedWidth:"20%"
             },
             {
@@ -101,12 +101,7 @@ export class ControlService {
                 });
             });
         }catch (e) {
-            if($this.appService && ($this.appService.archiveDeviceName || _.hasIn($this.appService,"archiveDevice.dicomDeviceName"))){
-                const deviceName = $this.appService.archiveDeviceName || _.get($this.appService,"archiveDevice.dicomDeviceName");
-                devices[deviceName] = {
-                    dcmuiDeviceURLName:deviceName
-                }
-            }
+            devices = this.getArchiveDevices(devices);
         }
         allDevices.forEach(device=>{
             if(_.hasIn(devices,device.dicomDeviceName)){
@@ -115,5 +110,27 @@ export class ControlService {
             }
         });
         callBack.call($this, devices);
+    }
+    getArchiveDevices(devices){
+        try{
+            if(j4care.is(this.appService,"dcm4cheeArcConfig.hasMoreThanOneBaseUrl",true)){
+                const dcm4cheeArcConfig = _.get(this.appService,"dcm4cheeArcConfig");
+                _.get(dcm4cheeArcConfig,"dcm4chee-arc-urls").forEach(deviceUrl=>{
+                    const deviceName = dcm4cheeArcConfig.deviceNameUrlMap[deviceUrl];
+                    devices[deviceName] = {
+                        dcmuiDeviceURLName:deviceName,
+                        dcmuiDeviceURL: deviceUrl
+                    }
+                });
+            }else if(this.appService && (this.appService.archiveDeviceName || _.hasIn(this.appService,"archiveDevice.dicomDeviceName"))){
+                const deviceName = this.appService.archiveDeviceName || _.get(this.appService,"archiveDevice.dicomDeviceName");
+                devices[deviceName] = {
+                    dcmuiDeviceURLName:deviceName
+                }
+            }
+        }catch (e){
+            console.error(e);
+        }
+        return devices;
     }
 }
