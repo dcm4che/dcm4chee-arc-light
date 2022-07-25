@@ -87,7 +87,7 @@ import java.util.Collections;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2018
  */
-@Path("aets/{AETitle}/rs/expire")
+@Path("aets/{AETitle}/rs")
 @RequestScoped
 @InvokeValidate(type = ApplyRetentionPolicy.class)
 public class ApplyRetentionPolicy {
@@ -139,7 +139,7 @@ public class ApplyRetentionPolicy {
     }
 
     @POST
-    @Path("/series")
+    @Path("/series/expire")
     @Produces("application/json")
     public Response applyRetentionPolicy() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
