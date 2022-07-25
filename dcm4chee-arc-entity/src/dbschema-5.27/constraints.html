@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>pacsdb Database</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="bower/html5shiv/html5shiv.min.js"></script>
+        <script src="bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="index.html" class="navbar-brand"><b>pacsdb</b> Database</a>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>Constraints</h1>
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="ion ion-key"></i>
+                            <h3 class="box-title">62 Foreign Key Constraints</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="fk_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead align='left'>
+                                    <tr>
+                                        <th>Constraint Name</th>
+                                        <th>Child Column</th>
+                                        <th>Parent Column</th>
+                                        <th>Delete Rule</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>fk_bfk5vl6eoxaf0hhwiu3rbgmkn</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/location.html'>location</a><span>.uidmap_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/uidmap.html'>uidmap</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_hjtlcwsvwihs4khh961d423e7</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/location.html'>location</a><span>.instance_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance.html'>instance</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_f1l196ykcnh7s2pwo6qnmltw7</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/global_subscription.html'>global_subscription</a><span>.matchkeys_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_o49fec996jvdo31o7ysmsn9s2</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mpps.html'>mpps</a><span>.dicomattrs_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_ofg0lvfxad6r5oigw3y6da27u</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mpps.html'>mpps</a><span>.patient_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_nrigpgue611m33rao03nnfe5l</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mpps.html'>mpps</a><span>.discreason_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_pyrd1nhijag5ct0ee9xqq4h78</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/content_item.html'>content_item</a><span>.name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_gudw6viy7lrf5t5hetw7mbgh5</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/content_item.html'>content_item</a><span>.code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_9kpe6whsov3ur9rph4ih2vi5a</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/content_item.html'>content_item</a><span>.instance_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance.html'>instance</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_1fuh251le2hid2byw90hd1mly</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ian_task.html'>ian_task</a><span>.mpps_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mpps.html'>mpps</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_5w0oynbw061mwu1rr9mrb6kj4</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/study.html'>study</a><span>.dicomattrs_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_49eet5qgcsb32ktsqrf1mj3x2</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/study.html'>study</a><span>.ref_phys_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_e3fdaqhw7u60trs5aspf4sna9</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/study.html'>study</a><span>.patient_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_js5xqyw5qa9rpttwmck14duow</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/sps_station_aet.html'>sps_station_aet</a><span>.mwl_item_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mwl_item.html'>mwl_item</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_vkxtls2wr17wgxnxj7b2fe32</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mwl_item.html'>mwl_item</a><span>.patient_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_44qwwvs50lgpog2cqmicxgt1f</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mwl_item.html'>mwl_item</a><span>.perf_phys_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_hqecoo67sflk190dxyc0hnf0c</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mwl_item.html'>mwl_item</a><span>.dept_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_6qj8tkh6ib9w2pjqwvqe23ko</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mwl_item.html'>mwl_item</a><span>.dicomattrs_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_t4vpsywvy0axeutmdgc0ye3nk</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mwl_item.html'>mwl_item</a><span>.inst_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_8xiqdli1p8cyw1y4hwyqhimcx</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.patient_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_3frtpy5cstsoxk5jxw9cutr33</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.dicomattrs_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_1retecpk22a2tysmi5o6xcpbh</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.ups_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_qjgrn9rfyyt6sv14utk9ijcfq</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/verify_observer.html'>verify_observer</a><span>.instance_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance.html'>instance</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_105wt9hglqsmtnoxgma9x18vj</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/verify_observer.html'>verify_observer</a><span>.observer_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_dh7lahwi99hk6bttrk75x4ckc</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/soundex_code.html'>soundex_code</a><span>.person_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_pev4urgkk7id2h1ijhv8domjx</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/hl7psu_task.html'>hl7psu_task</a><span>.mpps_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/mpps.html'>mpps</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_eiwosf6pcc97n6y282cv1n54k</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series_query_attrs.html'>series_query_attrs</a><span>.series_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_6asj28yy5se9mp443b6ryefd2</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_ups_perf_code.html'>rel_ups_perf_code</a><span>.perf_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_6m06tt8ku376qxkro94xpteus</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_ups_perf_code.html'>rel_ups_perf_code</a><span>.ups_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_pu4p7k1o9hleuk9rmxvw2ybj6</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.metadata_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/metadata.html'>metadata</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_5n4bxxb2xa7bvvq26ao7wihky</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.perf_phys_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_1og1krtgxfh207rtqjg0r7pbd</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.study_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/study.html'>study</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_bdj2kuutidekc2en6dckev7l6</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.dicomattrs_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_oiq81nulcmtg6p85iu31igtf5</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.inst_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_avp2oeuufo8axv5j184cchrop</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.dept_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_7vt6m05r0hertks2fcngd5wn1</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups_req.html'>ups_req</a><span>.ups_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_kocdb2pxx2fymu1modhneb4xm</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups_req.html'>ups_req</a><span>.req_phys_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_jadcs2aho4ijh639r67qgk0g0</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/subscription.html'>subscription</a><span>.ups_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_jxfu47kwjk3kkkyrwewjw8a4n</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance.html'>instance</a><span>.dicomattrs_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_s4tgrew4sh4qxoupmk3gihtrk</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance.html'>instance</a><span>.series_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_7w6f9bi2w91qr2abl6ddxnrwq</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance.html'>instance</a><span>.srcode_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_jtv4r8f88f6gfte0fa36w5y9o</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_ups_station_name_code.html'>rel_ups_station_name_code</a><span>.station_name_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_8jf5xe8ot2yammv3ksd5xrgif</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_ups_station_name_code.html'>rel_ups_station_name_code</a><span>.ups_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_9f0l4glqwpq12d11w9osd475m</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_ups_station_location_code.html'>rel_ups_station_location_code</a><span>.ups_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_kl60ab0k5c1p8qii9ya16424x</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_ups_station_location_code.html'>rel_ups_station_location_code</a><span>.station_location_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_47n586hkafgp9m1etqohgfybl</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance_req.html'>instance_req</a><span>.instance_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance.html'>instance</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_cqmmps9maltjybl44t4cck404</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/instance_req.html'>instance_req</a><span>.req_phys_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_bcn0jtvurqutw865pwp34pejb</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series_req.html'>series_req</a><span>.req_phys_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_bdkjk6ww0ulrb0nhf41c7liwt</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series_req.html'>series_req</a><span>.series_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/series.html'>series</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_pwaoih2f4ay4c00avvt79de7h</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_task_dicomattrs.html'>rel_task_dicomattrs</a><span>.task_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/task.html'>task</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_e0gtunmen48q8imxggunt7gt7</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_task_dicomattrs.html'>rel_task_dicomattrs</a><span>.dicomattrs_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_sxccj81423w8o6w2tsb7nshy9</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/study_query_attrs.html'>study_query_attrs</a><span>.study_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/study.html'>study</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_fryhnb2ppb6fcop3jrrfwvnfy</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_study_pcode.html'>rel_study_pcode</a><span>.pcode_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_mnahh8fh77d365m6w2x4x3f4q</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_study_pcode.html'>rel_study_pcode</a><span>.study_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/study.html'>study</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_e1ioaswm010jlsq6kl7y3um1c</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_ups_station_class_code.html'>rel_ups_station_class_code</a><span>.ups_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/ups.html'>ups</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_q26e06qk9gwviwe2ug0f86doa</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rel_ups_station_class_code.html'>rel_ups_station_class_code</a><span>.station_class_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_39gahcxyursxfxe2ucextr65s</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.patient_id_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient_id.html'>patient_id</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_rj42ffdtimnrcwmqqlvj24gi2</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.pat_name_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_5lgndn3gn7iug3kuewiy9q124</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.dicomattrs_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/dicomattrs.html'>dicomattrs</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_sk77bwjgaoetvy1pbcgqf08g</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.merge_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_56r2g5ggptqgcvb3hl11adke2</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/patient.html'>patient</a><span>.resp_person_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/person_name.html'>person_name</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>fk_iafiq2ugv5rd6fonwd0vd7xdx</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/rejected_instance.html'>rejected_instance</a><span>.reject_code_fk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                <tr>
+                                                    <td><a href='tables/code.html'>code</a><span>.pk</span></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>Restrict delete</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 class="box-title">Check Constraints</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="check_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead align='left'>
+                                    <tr>
+                                        <th>Table</th>
+                                        <th>Constraint Name</th>
+                                        <th>Constraint</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: true
+                    }
+                </script>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.1.0</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="bower/pdfmake/pdfmake.min.js"></script>
+        <script src="bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="bower/codemirror/codemirror.js"></script>
+        <script src="bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="constraint.js"></script>
+        <script src="schemaSpy.js"></script>
+    </body>
+</html>

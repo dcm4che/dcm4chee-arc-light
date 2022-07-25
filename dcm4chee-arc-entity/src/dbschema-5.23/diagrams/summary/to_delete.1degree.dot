@@ -1,0 +1,31 @@
+// dot 2.43.0 on Linux 5.8.0-33-generic
+// SchemaSpy rev 590
+digraph "to_delete" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "to_delete" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">to_delete</TD></TR>
+      <TR><TD PORT="pat_name_fk" COLSPAN="3" ALIGN="LEFT">pat_name_fk</TD></TR>
+      <TR><TD PORT="dicomattrs_fk" COLSPAN="3" ALIGN="LEFT">dicomattrs_fk</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/to_delete.html"
+    tooltip="to_delete"
+  ];
+}

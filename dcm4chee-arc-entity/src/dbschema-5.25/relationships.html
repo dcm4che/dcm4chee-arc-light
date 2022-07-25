@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>pacsdb Database</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="bower/html5shiv/html5shiv.min.js"></script>
+        <script src="bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="index.html" class="navbar-brand"><b>pacsdb</b> Database</a>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>All Relationships</h1>
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-code-fork"></i>
+                            <h3 class="box-title">Diagrams</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="nav-tabs-custom">
+                                <!-- Tabs within a box -->
+                                <h5>By default only columns that are primary keys, foreign keys or indexes are shown.</h5>
+                                <ul class="nav nav-tabs pull-left ui-sortable-handle">
+                                    <li class="active"><a href="#compactDegreeImg-chart" data-toggle="tab" aria-expanded="true">Compact</a></li>
+                                    <li class=""><a href="#largeDegreeImg-chart" data-toggle="tab" aria-expanded="true">Large</a></li>
+                                    <li class=""><a href="#compactimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Compact Implied</a></li>
+                                    <li class=""><a href="#largeimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Large Implied</a></li>
+                                </ul>
+                                <div class="tab-content no-padding">
+                                    <div class="chart tab-pane active" id="compactDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="compactRelationshipsDiagram" name="compactRelationshipsDiagram">
+<area shape="rect" id="node1" href="tables/code.html" target="_top" title="code" alt="" coords="564,1121,761,1327">
+<area shape="rect" id="node2" href="tables/content_item.html" target="_top" title="content_item" alt="" coords="1769,5,1967,245">
+<area shape="rect" id="node7" href="tables/instance.html" target="_top" title="instance" alt="" coords="1497,1361,1691,1860">
+<area shape="rect" id="node3" href="tables/dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="275,2033,454,2151">
+<area shape="rect" id="node4" href="tables/global_subscription.html" target="_top" title="global_subscription" alt="" coords="539,1880,787,2056">
+<area shape="rect" id="node5" href="tables/hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="1193,1420,1383,1625">
+<area shape="rect" id="node11" href="tables/mpps.html" target="_top" title="mpps" alt="" coords="856,2109,1079,2373">
+<area shape="rect" id="node6" href="tables/ian_task.html" target="_top" title="ian_task" alt="" coords="1193,1643,1383,1848">
+<area shape="rect" id="node20" href="tables/series.html" target="_top" title="series" alt="" coords="1147,2321,1429,3583">
+<area shape="rect" id="node8" href="tables/issuer.html" target="_top" title="issuer" alt="" coords="5,2659,192,2840">
+<area shape="rect" id="node9" href="tables/location.html" target="_top" title="location" alt="" coords="1785,3513,1951,3777">
+<area shape="rect" id="node29" href="tables/uidmap.html" target="_top" title="uidmap" alt="" coords="1519,4001,1669,4119">
+<area shape="rect" id="node10" href="tables/metadata.html" target="_top" title="metadata" alt="" coords="883,2660,1052,2836">
+<area shape="rect" id="node13" href="tables/patient.html" target="_top" title="patient" alt="" coords="553,2277,773,2776">
+<area shape="rect" id="node12" href="tables/mwl_item.html" target="_top" title="mwl_item" alt="" coords="857,1352,1077,2056">
+<area shape="rect" id="node15" href="tables/person_name.html" target="_top" title="person_name" alt="" coords="258,3381,471,3563">
+<area shape="rect" id="node14" href="tables/patient_id.html" target="_top" title="patient_id" alt="" coords="263,2600,466,2776">
+<area shape="rect" id="node16" href="tables/rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="850,927,1085,1191">
+<area shape="rect" id="node17" href="tables/rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1177,2181,1399,2304">
+<area shape="rect" id="node25" href="tables/study.html" target="_top" title="study" alt="" coords="841,2853,1093,3704">
+<area shape="rect" id="node18" href="tables/rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="537,945,788,1068">
+<area shape="rect" id="node28" href="tables/task.html" target="_top" title="task" alt="" coords="236,945,493,1561">
+<area shape="rect" id="node19" href="tables/rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1171,607,1405,729">
+<area shape="rect" id="node30" href="tables/ups.html" target="_top" title="ups" alt="" coords="832,199,1103,873">
+<area shape="rect" id="node21" href="tables/series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1473,2263,1715,2439">
+<area shape="rect" id="node22" href="tables/series_req.html" target="_top" title="series_req" alt="" coords="1487,3656,1701,3984">
+<area shape="rect" id="node23" href="tables/soundex_code.html" target="_top" title="soundex_code" alt="" coords="561,3493,765,3704">
+<area shape="rect" id="node24" href="tables/sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="1179,1244,1397,1367">
+<area shape="rect" id="node26" href="tables/study_query_attrs.html" target="_top" title="study_query_attrs" alt="" coords="1169,3600,1407,3776">
+<area shape="rect" id="node27" href="tables/subscription.html" target="_top" title="subscription" alt="" coords="1193,199,1383,375">
+<area shape="rect" id="node31" href="tables/ups_req.html" target="_top" title="ups_req" alt="" coords="1181,1865,1395,2164">
+<area shape="rect" id="node32" href="tables/verify_observer.html" target="_top" title="verify_observer" alt="" coords="1759,1953,1977,2135">
+</map>
+                                        <a name='diagram'><img id="compactDegreeImg" src="diagrams/summary/relationships.real.compact.png" usemap="#compactRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="largeDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="largeRelationshipsDiagram" name="largeRelationshipsDiagram">
+<area shape="rect" id="node1" href="tables/code.html" target="_top" title="code" alt="" coords="564,1196,761,1407">
+<area shape="rect" id="node2" href="tables/content_item.html" target="_top" title="content_item" alt="" coords="1769,5,1967,245">
+<area shape="rect" id="node7" href="tables/instance.html" target="_top" title="instance" alt="" coords="1497,1309,1691,1989">
+<area shape="rect" id="node3" href="tables/dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="275,2293,454,2416">
+<area shape="rect" id="node4" href="tables/global_subscription.html" target="_top" title="global_subscription" alt="" coords="539,2135,787,2316">
+<area shape="rect" id="node5" href="tables/hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="1193,1519,1383,1817">
+<area shape="rect" id="node11" href="tables/mpps.html" target="_top" title="mpps" alt="" coords="856,2243,1079,2717">
+<area shape="rect" id="node6" href="tables/ian_task.html" target="_top" title="ian_task" alt="" coords="1193,1835,1383,2104">
+<area shape="rect" id="node20" href="tables/series.html" target="_top" title="series" alt="" coords="1147,2577,1429,4108">
+<area shape="rect" id="node8" href="tables/issuer.html" target="_top" title="issuer" alt="" coords="5,3036,192,3217">
+<area shape="rect" id="node9" href="tables/location.html" target="_top" title="location" alt="" coords="1785,3711,1951,4127">
+<area shape="rect" id="node29" href="tables/uidmap.html" target="_top" title="uidmap" alt="" coords="1519,4679,1669,4801">
+<area shape="rect" id="node10" href="tables/metadata.html" target="_top" title="metadata" alt="" coords="883,3121,1052,3391">
+<area shape="rect" id="node13" href="tables/patient.html" target="_top" title="patient" alt="" coords="553,2537,773,3129">
+<area shape="rect" id="node12" href="tables/mwl_item.html" target="_top" title="mwl_item" alt="" coords="857,1451,1077,2189">
+<area shape="rect" id="node15" href="tables/person_name.html" target="_top" title="person_name" alt="" coords="258,4059,471,4240">
+<area shape="rect" id="node14" href="tables/patient_id.html" target="_top" title="patient_id" alt="" coords="263,2919,466,3129">
+<area shape="rect" id="node16" href="tables/rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="850,1020,1085,1289">
+<area shape="rect" id="node17" href="tables/rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1177,2437,1399,2560">
+<area shape="rect" id="node25" href="tables/study.html" target="_top" title="study" alt="" coords="841,3408,1093,4381">
+<area shape="rect" id="node18" href="tables/rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="537,755,788,877">
+<area shape="rect" id="node28" href="tables/task.html" target="_top" title="task" alt="" coords="236,673,493,2028">
+<area shape="rect" id="node19" href="tables/rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1171,656,1405,779">
+<area shape="rect" id="node30" href="tables/ups.html" target="_top" title="ups" alt="" coords="832,199,1103,967">
+<area shape="rect" id="node21" href="tables/series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1473,2401,1715,2671">
+<area shape="rect" id="node22" href="tables/series_req.html" target="_top" title="series_req" alt="" coords="1487,4333,1701,4661">
+<area shape="rect" id="node23" href="tables/soundex_code.html" target="_top" title="soundex_code" alt="" coords="561,4171,765,4381">
+<area shape="rect" id="node24" href="tables/sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="1179,1343,1397,1465">
+<area shape="rect" id="node26" href="tables/study_query_attrs.html" target="_top" title="study_query_attrs" alt="" coords="1169,4125,1407,4453">
+<area shape="rect" id="node27" href="tables/subscription.html" target="_top" title="subscription" alt="" coords="1193,199,1383,380">
+<area shape="rect" id="node31" href="tables/ups_req.html" target="_top" title="ups_req" alt="" coords="1181,2121,1395,2420">
+<area shape="rect" id="node32" href="tables/verify_observer.html" target="_top" title="verify_observer" alt="" coords="1759,1865,1977,2047">
+</map>
+                                        <a name='diagram'><img id="largeDegreeImg" src="diagrams/summary/relationships.real.large.png" usemap="#largeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="compactimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="compactImpliedRelationshipsDiagram" name="compactImpliedRelationshipsDiagram">
+<area shape="rect" id="node1" href="tables/code.html" target="_top" title="code" alt="" coords="839,1424,1036,1629">
+<area shape="rect" id="node2" href="tables/content_item.html" target="_top" title="content_item" alt="" coords="2044,532,2241,772">
+<area shape="rect" id="node8" href="tables/instance.html" target="_top" title="instance" alt="" coords="1771,1389,1966,1888">
+<area shape="rect" id="node3" href="tables/dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="572,1803,751,1920">
+<area shape="rect" id="node4" href="tables/global_subscription.html" target="_top" title="global_subscription" alt="" coords="813,1649,1061,1825">
+<area shape="rect" id="node5" href="tables/hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="1468,5,1657,211">
+<area shape="rect" id="node7" href="tables/id_sequence.html" target="_top" title="id_sequence" alt="" coords="5,2137,196,2255">
+<area shape="rect" id="node12" href="tables/mpps.html" target="_top" title="mpps" alt="" coords="1131,372,1353,636">
+<area shape="rect" id="node6" href="tables/ian_task.html" target="_top" title="ian_task" alt="" coords="1468,275,1657,480">
+<area shape="rect" id="node22" href="tables/series.html" target="_top" title="series" alt="" coords="1421,1947,1704,3208">
+<area shape="rect" id="node9" href="tables/issuer.html" target="_top" title="issuer" alt="" coords="282,2208,469,2389">
+<area shape="rect" id="node10" href="tables/location.html" target="_top" title="location" alt="" coords="2059,3185,2226,3449">
+<area shape="rect" id="node32" href="tables/uidmap.html" target="_top" title="uidmap" alt="" coords="1793,3877,1944,3995">
+<area shape="rect" id="node11" href="tables/metadata.html" target="_top" title="metadata" alt="" coords="1157,1951,1327,2127">
+<area shape="rect" id="node14" href="tables/patient.html" target="_top" title="patient" alt="" coords="827,2344,1047,2843">
+<area shape="rect" id="node13" href="tables/mwl_item.html" target="_top" title="mwl_item" alt="" coords="1132,2144,1352,2848">
+<area shape="rect" id="node17" href="tables/person_name.html" target="_top" title="person_name" alt="" coords="555,3193,768,3375">
+<area shape="rect" id="node16" href="tables/patient_id.html" target="_top" title="patient_id" alt="" coords="560,2792,763,2968">
+<area shape="rect" id="node15" href="tables/patient_demographics.html" target="_top" title="patient_demographics" alt="" coords="240,2407,511,2553">
+<area shape="rect" id="node18" href="tables/rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="1125,1453,1359,1717">
+<area shape="rect" id="node19" href="tables/rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1452,1807,1673,1929">
+<area shape="rect" id="node28" href="tables/study.html" target="_top" title="study" alt="" coords="1116,2865,1368,3716">
+<area shape="rect" id="node20" href="tables/rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="812,1212,1063,1335">
+<area shape="rect" id="node31" href="tables/task.html" target="_top" title="task" alt="" coords="247,1575,504,2191">
+<area shape="rect" id="node21" href="tables/rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1445,1292,1680,1415">
+<area shape="rect" id="node33" href="tables/ups.html" target="_top" title="ups" alt="" coords="1107,725,1377,1400">
+<area shape="rect" id="node23" href="tables/series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1748,1905,1989,2081">
+<area shape="rect" id="node24" href="tables/series_req.html" target="_top" title="series_req" alt="" coords="1762,2099,1975,2427">
+<area shape="rect" id="node25" href="tables/soundex_code.html" target="_top" title="soundex_code" alt="" coords="835,3877,1039,4088">
+<area shape="rect" id="node26" href="tables/sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="1454,3225,1671,3348">
+<area shape="rect" id="node27" href="tables/stgcmt_result.html" target="_top" title="stgcmt_result" alt="" coords="274,2679,477,3031">
+<area shape="rect" id="node29" href="tables/study_query_attrs.html" target="_top" title="study_query_attrs" alt="" coords="1444,3365,1681,3541">
+<area shape="rect" id="node30" href="tables/subscription.html" target="_top" title="subscription" alt="" coords="1467,725,1658,901">
+<area shape="rect" id="node34" href="tables/ups_req.html" target="_top" title="ups_req" alt="" coords="1456,919,1669,1217">
+<area shape="rect" id="node35" href="tables/verify_observer.html" target="_top" title="verify_observer" alt="" coords="2033,1863,2252,2044">
+</map>
+                                        <a name='diagram'><img id="compactimpliedDegreeImg" src="diagrams/summary/relationships.implied.compact.png" usemap="#compactImpliedRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="largeimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="largeImpliedRelationshipsDiagram" name="largeImpliedRelationshipsDiagram">
+<area shape="rect" id="node1" href="tables/code.html" target="_top" title="code" alt="" coords="839,1819,1036,2029">
+<area shape="rect" id="node2" href="tables/content_item.html" target="_top" title="content_item" alt="" coords="2044,836,2241,1076">
+<area shape="rect" id="node8" href="tables/instance.html" target="_top" title="instance" alt="" coords="1771,1572,1966,2252">
+<area shape="rect" id="node3" href="tables/dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="572,2205,751,2328">
+<area shape="rect" id="node4" href="tables/global_subscription.html" target="_top" title="global_subscription" alt="" coords="813,2047,1061,2228">
+<area shape="rect" id="node5" href="tables/hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="1468,5,1657,304">
+<area shape="rect" id="node7" href="tables/id_sequence.html" target="_top" title="id_sequence" alt="" coords="5,2495,196,2647">
+<area shape="rect" id="node12" href="tables/mpps.html" target="_top" title="mpps" alt="" coords="1131,465,1353,940">
+<area shape="rect" id="node6" href="tables/ian_task.html" target="_top" title="ian_task" alt="" coords="1468,357,1657,627">
+<area shape="rect" id="node22" href="tables/series.html" target="_top" title="series" alt="" coords="1421,2349,1704,3880">
+<area shape="rect" id="node9" href="tables/issuer.html" target="_top" title="issuer" alt="" coords="282,2685,469,2867">
+<area shape="rect" id="node10" href="tables/location.html" target="_top" title="location" alt="" coords="2059,3600,2226,4016">
+<area shape="rect" id="node32" href="tables/uidmap.html" target="_top" title="uidmap" alt="" coords="1793,4531,1944,4653">
+<area shape="rect" id="node11" href="tables/metadata.html" target="_top" title="metadata" alt="" coords="1157,2353,1327,2623">
+<area shape="rect" id="node14" href="tables/patient.html" target="_top" title="patient" alt="" coords="827,2821,1047,3413">
+<area shape="rect" id="node13" href="tables/mwl_item.html" target="_top" title="mwl_item" alt="" coords="1132,2640,1352,3379">
+<area shape="rect" id="node17" href="tables/person_name.html" target="_top" title="person_name" alt="" coords="555,3803,768,3984">
+<area shape="rect" id="node16" href="tables/patient_id.html" target="_top" title="patient_id" alt="" coords="560,3373,763,3584">
+<area shape="rect" id="node15" href="tables/patient_demographics.html" target="_top" title="patient_demographics" alt="" coords="240,2884,511,3065">
+<area shape="rect" id="node18" href="tables/rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="1125,1851,1359,2120">
+<area shape="rect" id="node19" href="tables/rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1452,2209,1673,2332">
+<area shape="rect" id="node28" href="tables/study.html" target="_top" title="study" alt="" coords="1116,3396,1368,4369">
+<area shape="rect" id="node20" href="tables/rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="812,1607,1063,1729">
+<area shape="rect" id="node31" href="tables/task.html" target="_top" title="task" alt="" coords="247,1313,504,2668">
+<area shape="rect" id="node21" href="tables/rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1445,1645,1680,1768">
+<area shape="rect" id="node33" href="tables/ups.html" target="_top" title="ups" alt="" coords="1107,1029,1377,1797">
+<area shape="rect" id="node23" href="tables/series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1748,2269,1989,2539">
+<area shape="rect" id="node24" href="tables/series_req.html" target="_top" title="series_req" alt="" coords="1762,2556,1975,2884">
+<area shape="rect" id="node25" href="tables/soundex_code.html" target="_top" title="soundex_code" alt="" coords="835,4531,1039,4741">
+<area shape="rect" id="node26" href="tables/sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="1454,3897,1671,4020">
+<area shape="rect" id="node27" href="tables/stgcmt_result.html" target="_top" title="stgcmt_result" alt="" coords="274,3191,477,3665">
+<area shape="rect" id="node29" href="tables/study_query_attrs.html" target="_top" title="study_query_attrs" alt="" coords="1444,4037,1681,4365">
+<area shape="rect" id="node30" href="tables/subscription.html" target="_top" title="subscription" alt="" coords="1467,1029,1658,1211">
+<area shape="rect" id="node34" href="tables/ups_req.html" target="_top" title="ups_req" alt="" coords="1456,1228,1669,1527">
+<area shape="rect" id="node35" href="tables/verify_observer.html" target="_top" title="verify_observer" alt="" coords="2033,2123,2252,2304">
+</map>
+                                        <a name='diagram'><img id="largeimpliedDegreeImg" src="diagrams/summary/relationships.implied.large.png" usemap="#largeImpliedRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                </section>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.1.0</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="bower/pdfmake/pdfmake.min.js"></script>
+        <script src="bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="bower/codemirror/codemirror.js"></script>
+        <script src="bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="relationships.js"></script>
+        <script src="schemaSpy.js"></script>
+    </body>
+</html>

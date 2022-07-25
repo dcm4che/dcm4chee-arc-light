@@ -1,0 +1,1544 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<database name="pacsdb" schema="public" type="PostgreSQL - 14.2 (Debian 14.2-1.pgdg110+1)">
+   <sequences>
+      <sequence increment="1" name="code_pk_seq" startValue="1"/>
+      <sequence increment="1" name="content_item_pk_seq" startValue="1"/>
+      <sequence increment="1" name="dicomattrs_pk_seq" startValue="1"/>
+      <sequence increment="1" name="global_subscription_pk_seq" startValue="1"/>
+      <sequence increment="1" name="hl7psu_task_pk_seq" startValue="1"/>
+      <sequence increment="1" name="ian_task_pk_seq" startValue="1"/>
+      <sequence increment="1" name="instance_pk_seq" startValue="1"/>
+      <sequence increment="1" name="location_pk_seq" startValue="1"/>
+      <sequence increment="1" name="metadata_pk_seq" startValue="1"/>
+      <sequence increment="1" name="mpps_pk_seq" startValue="1"/>
+      <sequence increment="1" name="mwl_item_pk_seq" startValue="1"/>
+      <sequence increment="1" name="patient_id_pk_seq" startValue="1"/>
+      <sequence increment="1" name="patient_pk_seq" startValue="1"/>
+      <sequence increment="1" name="person_name_pk_seq" startValue="1"/>
+      <sequence increment="1" name="rejected_instance_pk_seq" startValue="1"/>
+      <sequence increment="1" name="series_pk_seq" startValue="1"/>
+      <sequence increment="1" name="series_query_attrs_pk_seq" startValue="1"/>
+      <sequence increment="1" name="series_req_pk_seq" startValue="1"/>
+      <sequence increment="1" name="soundex_code_pk_seq" startValue="1"/>
+      <sequence increment="1" name="stgcmt_result_pk_seq" startValue="1"/>
+      <sequence increment="1" name="study_pk_seq" startValue="1"/>
+      <sequence increment="1" name="study_query_attrs_pk_seq" startValue="1"/>
+      <sequence increment="1" name="subscription_pk_seq" startValue="1"/>
+      <sequence increment="1" name="task_pk_seq" startValue="1"/>
+      <sequence increment="1" name="uidmap_pk_seq" startValue="1"/>
+      <sequence increment="1" name="ups_pk_seq" startValue="1"/>
+      <sequence increment="1" name="ups_request_pk_seq" startValue="1"/>
+      <sequence increment="1" name="verify_observer_pk_seq" startValue="1"/>
+   </sequences>
+   <tables>
+      <table name="code" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="code_fk" foreignKey="fk_gudw6viy7lrf5t5hetw7mbgh5" implied="false" onDeleteCascade="false" schema="public" table="content_item"/>
+            <child column="name_fk" foreignKey="fk_pyrd1nhijag5ct0ee9xqq4h78" implied="false" onDeleteCascade="false" schema="public" table="content_item"/>
+            <child column="srcode_fk" foreignKey="fk_7w6f9bi2w91qr2abl6ddxnrwq" implied="false" onDeleteCascade="false" schema="public" table="instance"/>
+            <child column="discreason_code_fk" foreignKey="fk_nrigpgue611m33rao03nnfe5l" implied="false" onDeleteCascade="false" schema="public" table="mpps"/>
+            <child column="dept_code_fk" foreignKey="fk_hqecoo67sflk190dxyc0hnf0c" implied="false" onDeleteCascade="false" schema="public" table="mwl_item"/>
+            <child column="inst_code_fk" foreignKey="fk_t4vpsywvy0axeutmdgc0ye3nk" implied="false" onDeleteCascade="false" schema="public" table="mwl_item"/>
+            <child column="reject_code_fk" foreignKey="fk_iafiq2ugv5rd6fonwd0vd7xdx" implied="false" onDeleteCascade="false" schema="public" table="rejected_instance"/>
+            <child column="pcode_fk" foreignKey="fk_fryhnb2ppb6fcop3jrrfwvnfy" implied="false" onDeleteCascade="false" schema="public" table="rel_study_pcode"/>
+            <child column="perf_code_fk" foreignKey="fk_6asj28yy5se9mp443b6ryefd2" implied="false" onDeleteCascade="false" schema="public" table="rel_ups_perf_code"/>
+            <child column="station_class_code_fk" foreignKey="fk_q26e06qk9gwviwe2ug0f86doa" implied="false" onDeleteCascade="false" schema="public" table="rel_ups_station_class_code"/>
+            <child column="station_location_code_fk" foreignKey="fk_kl60ab0k5c1p8qii9ya16424x" implied="false" onDeleteCascade="false" schema="public" table="rel_ups_station_location_code"/>
+            <child column="station_name_code_fk" foreignKey="fk_jtv4r8f88f6gfte0fa36w5y9o" implied="false" onDeleteCascade="false" schema="public" table="rel_ups_station_name_code"/>
+            <child column="dept_code_fk" foreignKey="fk_avp2oeuufo8axv5j184cchrop" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+            <child column="inst_code_fk" foreignKey="fk_oiq81nulcmtg6p85iu31igtf5" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+            <child column="ups_code_fk" foreignKey="fk_1retecpk22a2tysmi5o6xcpbh" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="code_meaning" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="code_value" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="code_designator" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="code_version" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="code_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="uk_sb4oc9lkns36wswku831c33w6" unique="true">
+            <column ascending="true" name="code_value"/>
+            <column ascending="true" name="code_designator"/>
+            <column ascending="true" name="code_version"/>
+         </index>
+      </table>
+      <table name="content_item" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rel_type" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="text_value" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="code_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_gudw6viy7lrf5t5hetw7mbgh5" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="name_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_pyrd1nhijag5ct0ee9xqq4h78" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="instance_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_9kpe6whsov3ur9rph4ih2vi5a" implied="false" onDeleteCascade="false" schema="public" table="instance"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="content_item_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_9kpe6whsov3ur9rph4ih2vi5a" unique="false">
+            <column ascending="true" name="instance_fk"/>
+         </index>
+         <index name="fk_gudw6viy7lrf5t5hetw7mbgh5" unique="false">
+            <column ascending="true" name="code_fk"/>
+         </index>
+         <index name="fk_pyrd1nhijag5ct0ee9xqq4h78" unique="false">
+            <column ascending="true" name="name_fk"/>
+         </index>
+         <index name="uk_6iism30y000w85v649ju968sv" unique="false">
+            <column ascending="true" name="text_value"/>
+         </index>
+         <index name="uk_i715nk4mi378f9bxflvfroa5a" unique="false">
+            <column ascending="true" name="rel_type"/>
+         </index>
+      </table>
+      <table name="dicomattrs" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="matchkeys_fk" foreignKey="fk_f1l196ykcnh7s2pwo6qnmltw7" implied="false" onDeleteCascade="false" schema="public" table="global_subscription"/>
+            <child column="dicomattrs_fk" foreignKey="fk_jxfu47kwjk3kkkyrwewjw8a4n" implied="false" onDeleteCascade="false" schema="public" table="instance"/>
+            <child column="dicomattrs_fk" foreignKey="fk_o49fec996jvdo31o7ysmsn9s2" implied="false" onDeleteCascade="false" schema="public" table="mpps"/>
+            <child column="dicomattrs_fk" foreignKey="fk_6qj8tkh6ib9w2pjqwvqe23ko" implied="false" onDeleteCascade="false" schema="public" table="mwl_item"/>
+            <child column="dicomattrs_fk" foreignKey="fk_5lgndn3gn7iug3kuewiy9q124" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+            <child column="dicomattrs_fk" foreignKey="fk_e0gtunmen48q8imxggunt7gt7" implied="false" onDeleteCascade="false" schema="public" table="rel_task_dicomattrs"/>
+            <child column="dicomattrs_fk" foreignKey="fk_bdj2kuutidekc2en6dckev7l6" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+            <child column="dicomattrs_fk" foreignKey="fk_5w0oynbw061mwu1rr9mrb6kj4" implied="false" onDeleteCascade="false" schema="public" table="study"/>
+            <child column="dicomattrs_fk" foreignKey="fk_3frtpy5cstsoxk5jxw9cutr33" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="attrs" nullable="false" remarks="" size="2147483647" type="bytea" typeCode="-2"/>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="dicomattrs_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+      </table>
+      <table name="global_subscription" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="deletion_lock" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="subscriber_aet" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="matchkeys_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_f1l196ykcnh7s2pwo6qnmltw7" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="global_subscription_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_f1l196ykcnh7s2pwo6qnmltw7" unique="false">
+            <column ascending="true" name="matchkeys_fk"/>
+         </index>
+         <index name="uk_4n26cxir6d3tksb2cd1kd86ch" unique="true">
+            <column ascending="true" name="subscriber_aet"/>
+         </index>
+      </table>
+      <table name="hl7psu_task" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="aet" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="2" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="device_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="pps_status" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="scheduled_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="series_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="study_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="mpps_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_pev4urgkk7id2h1ijhv8domjx" implied="false" onDeleteCascade="false" schema="public" table="mpps"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="hl7psu_task_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_pev4urgkk7id2h1ijhv8domjx" unique="false">
+            <column ascending="true" name="mpps_fk"/>
+         </index>
+         <index name="uk_1t3jge4o2fl1byp3y8ljmkb3m" unique="true">
+            <column ascending="true" name="study_iuid"/>
+            <column ascending="true" name="pps_status"/>
+         </index>
+         <index name="uk_t0y05h07d9dagn9a4a9s4a5a4" unique="false">
+            <column ascending="true" name="device_name"/>
+         </index>
+      </table>
+      <table name="ian_task" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="calling_aet" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="device_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="ian_dests" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="4" name="scheduled_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="study_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="mpps_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_1fuh251le2hid2byw90hd1mly" implied="false" onDeleteCascade="false" schema="public" table="mpps"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="ian_task_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_1fuh251le2hid2byw90hd1mly" unique="false">
+            <column ascending="true" name="mpps_fk"/>
+         </index>
+         <index name="uk_5shiir23exao1xpy2n5gvasrh" unique="false">
+            <column ascending="true" name="device_name"/>
+         </index>
+         <index name="uk_dq88edcjjxh7h92f89y5ueast" unique="true">
+            <column ascending="true" name="study_iuid"/>
+         </index>
+      </table>
+      <table name="id_sequence" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <child column="device_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="hl7psu_task"/>
+            <child column="device_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="ian_task"/>
+            <child column="pat_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="patient_demographics"/>
+            <child column="alphabetic_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="person_name"/>
+            <child column="ideographic_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="person_name"/>
+            <child column="phonetic_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="person_name"/>
+            <child column="station_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="series"/>
+            <child column="device_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="stgcmt_result"/>
+            <child column="device_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="task"/>
+            <child column="queue_name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="task"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="next_value" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <primaryKey column="name" sequenceNumberInPK="1"/>
+         <index name="id_sequence_pkey" unique="true">
+            <column ascending="true" name="name"/>
+         </index>
+      </table>
+      <table name="instance" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="instance_fk" foreignKey="fk_9kpe6whsov3ur9rph4ih2vi5a" implied="false" onDeleteCascade="false" schema="public" table="content_item"/>
+            <child column="instance_fk" foreignKey="fk_hjtlcwsvwihs4khh961d423e7" implied="false" onDeleteCascade="false" schema="public" table="location"/>
+            <child column="instance_fk" foreignKey="fk_qjgrn9rfyyt6sv14utk9ijcfq" implied="false" onDeleteCascade="false" schema="public" table="verify_observer"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="availability" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="sr_complete" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="content_date" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="content_time" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="ext_retrieve_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="inst_custom1" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="inst_custom2" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="inst_custom3" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="inst_no" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="num_frames" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="retrieve_aets" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="sop_cuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="sop_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="15" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="sr_verified" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="dicomattrs_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_jxfu47kwjk3kkkyrwewjw8a4n" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="srcode_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_7w6f9bi2w91qr2abl6ddxnrwq" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="series_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_s4tgrew4sh4qxoupmk3gihtrk" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="instance_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_7w6f9bi2w91qr2abl6ddxnrwq" unique="false">
+            <column ascending="true" name="srcode_fk"/>
+         </index>
+         <index name="fk_s4tgrew4sh4qxoupmk3gihtrk" unique="false">
+            <column ascending="true" name="series_fk"/>
+         </index>
+         <index name="uk_247lgirehl8i2vuanyfjnuyjb" unique="true">
+            <column ascending="true" name="series_fk"/>
+            <column ascending="true" name="sop_iuid"/>
+         </index>
+         <index name="uk_5ikkfk17vijvsvtyied2xa225" unique="false">
+            <column ascending="true" name="content_date"/>
+         </index>
+         <index name="uk_dglm8ndp9y9i0uo6fgaa5rhbb" unique="false">
+            <column ascending="true" name="sop_cuid"/>
+         </index>
+         <index name="uk_eg0khesxr81gdimwhjiyrylw7" unique="false">
+            <column ascending="true" name="sop_iuid"/>
+         </index>
+         <index name="uk_fncb1s641rrnoek7j47k0j06n" unique="false">
+            <column ascending="true" name="inst_custom1"/>
+         </index>
+         <index name="uk_gisd09x31lphi4437hwgh7ihg" unique="false">
+            <column ascending="true" name="sr_complete"/>
+         </index>
+         <index name="uk_jxfu47kwjk3kkkyrwewjw8a4n" unique="true">
+            <column ascending="true" name="dicomattrs_fk"/>
+         </index>
+         <index name="uk_ouh6caecancvsa05lknojy30j" unique="false">
+            <column ascending="true" name="inst_no"/>
+         </index>
+         <index name="uk_pck1ovyd4t96mjkbbw6f8jiam" unique="false">
+            <column ascending="true" name="content_time"/>
+         </index>
+         <index name="uk_q5i0hxt1iyahxjiroux2h8imm" unique="false">
+            <column ascending="true" name="inst_custom3"/>
+         </index>
+         <index name="uk_qh8jqpe8ulsb5t7iv24scho00" unique="false">
+            <column ascending="true" name="sr_verified"/>
+         </index>
+         <index name="uk_rr1ro1oxv6s4riib9hjkcuvuo" unique="false">
+            <column ascending="true" name="inst_custom2"/>
+         </index>
+      </table>
+      <table name="location" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="1" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="digest" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="multi_ref" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="object_type" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="object_size" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="status" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="storage_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="storage_path" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="tsuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="instance_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_hjtlcwsvwihs4khh961d423e7" implied="false" onDeleteCascade="false" schema="public" table="instance"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="uidmap_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_bfk5vl6eoxaf0hhwiu3rbgmkn" implied="false" onDeleteCascade="false" schema="public" table="uidmap"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="location_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_bfk5vl6eoxaf0hhwiu3rbgmkn" unique="false">
+            <column ascending="true" name="uidmap_fk"/>
+         </index>
+         <index name="fk_hjtlcwsvwihs4khh961d423e7" unique="false">
+            <column ascending="true" name="instance_fk"/>
+         </index>
+         <index name="uk_i1lnahmehau3r3j9pdyxg3p3y" unique="false">
+            <column ascending="true" name="multi_ref"/>
+         </index>
+         <index name="uk_r3oh859i9osv3aluoc8dcx9wk" unique="false">
+            <column ascending="true" name="storage_id"/>
+            <column ascending="true" name="status"/>
+         </index>
+      </table>
+      <table name="metadata" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="metadata_fk" foreignKey="fk_pu4p7k1o9hleuk9rmxvw2ybj6" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="1" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="digest" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="object_size" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="status" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="storage_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="storage_path" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="metadata_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="uk_f7c9hmq8pfypohkgkp5vkbhxp" unique="false">
+            <column ascending="true" name="storage_id"/>
+            <column ascending="true" name="status"/>
+         </index>
+      </table>
+      <table name="mpps" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="mpps_fk" foreignKey="fk_pev4urgkk7id2h1ijhv8domjx" implied="false" onDeleteCascade="false" schema="public" table="hl7psu_task"/>
+            <child column="mpps_fk" foreignKey="fk_1fuh251le2hid2byw90hd1mly" implied="false" onDeleteCascade="false" schema="public" table="ian_task"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="accession_no" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="accno_entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="accno_entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="accno_entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="pps_start_date" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="pps_start_time" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="sop_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="pps_status" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="study_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="11" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="dicomattrs_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_o49fec996jvdo31o7ysmsn9s2" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="discreason_code_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_nrigpgue611m33rao03nnfe5l" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="patient_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_ofg0lvfxad6r5oigw3y6da27u" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="mpps_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_nrigpgue611m33rao03nnfe5l" unique="false">
+            <column ascending="true" name="discreason_code_fk"/>
+         </index>
+         <index name="fk_ofg0lvfxad6r5oigw3y6da27u" unique="false">
+            <column ascending="true" name="patient_fk"/>
+         </index>
+         <index name="uk_cyqglxijg7kebbj6oj821yx4d" unique="true">
+            <column ascending="true" name="sop_iuid"/>
+         </index>
+         <index name="uk_o49fec996jvdo31o7ysmsn9s2" unique="true">
+            <column ascending="true" name="dicomattrs_fk"/>
+         </index>
+      </table>
+      <table name="mwl_item" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="mwl_item_fk" foreignKey="fk_js5xqyw5qa9rpttwmck14duow" implied="false" onDeleteCascade="false" schema="public" table="sps_station_aet"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="accession_no" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="accno_entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="accno_entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="accno_entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="admission_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="admid_entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="admid_entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="admid_entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="9" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="institution" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="department" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="local_aet" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="modality" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="req_proc_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="sps_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="sps_start_date" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="sps_start_time" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="sps_status" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="study_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="20" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="dicomattrs_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_6qj8tkh6ib9w2pjqwvqe23ko" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="inst_code_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_t4vpsywvy0axeutmdgc0ye3nk" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="24" name="dept_code_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_hqecoo67sflk190dxyc0hnf0c" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="25" name="patient_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_vkxtls2wr17wgxnxj7b2fe32" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="26" name="perf_phys_name_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_44qwwvs50lgpog2cqmicxgt1f" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="mwl_item_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_44qwwvs50lgpog2cqmicxgt1f" unique="false">
+            <column ascending="true" name="perf_phys_name_fk"/>
+         </index>
+         <index name="fk_hqecoo67sflk190dxyc0hnf0c" unique="false">
+            <column ascending="true" name="dept_code_fk"/>
+         </index>
+         <index name="fk_t4vpsywvy0axeutmdgc0ye3nk" unique="false">
+            <column ascending="true" name="inst_code_fk"/>
+         </index>
+         <index name="fk_vkxtls2wr17wgxnxj7b2fe32" unique="false">
+            <column ascending="true" name="patient_fk"/>
+         </index>
+         <index name="uk_2odo3oah39o400thy9bf0rgv0" unique="false">
+            <column ascending="true" name="sps_id"/>
+         </index>
+         <index name="uk_3oigo76r1a7et491bkci96km8" unique="false">
+            <column ascending="true" name="sps_status"/>
+         </index>
+         <index name="uk_6qj8tkh6ib9w2pjqwvqe23ko" unique="true">
+            <column ascending="true" name="dicomattrs_fk"/>
+         </index>
+         <index name="uk_8qkftk7n30hla3v1frep9vg2q" unique="false">
+            <column ascending="true" name="institution"/>
+         </index>
+         <index name="uk_9ockpkbetj7a97for0s1jhasi" unique="false">
+            <column ascending="true" name="local_aet"/>
+         </index>
+         <index name="uk_9oh3yd4prp9sfys4n0p2kd69y" unique="false">
+            <column ascending="true" name="sps_start_date"/>
+         </index>
+         <index name="uk_d0v5hjn1crha2nqbws4wj0yoj" unique="false">
+            <column ascending="true" name="updated_time"/>
+         </index>
+         <index name="uk_fpfq8q514gsime2dl8oo773d4" unique="false">
+            <column ascending="true" name="study_iuid"/>
+         </index>
+         <index name="uk_kedi0qimmvs83af3jxk471uxn" unique="false">
+            <column ascending="true" name="req_proc_id"/>
+         </index>
+         <index name="uk_ksy3uy0rvpis1sqqeojlet7lb" unique="false">
+            <column ascending="true" name="department"/>
+         </index>
+         <index name="uk_lerlqlaghhcs0oaj5irux4qig" unique="true">
+            <column ascending="true" name="study_iuid"/>
+            <column ascending="true" name="sps_id"/>
+         </index>
+         <index name="uk_m20xnkg1iqetifvuegehbhekm" unique="false">
+            <column ascending="true" name="sps_start_time"/>
+         </index>
+         <index name="uk_pw8h1b4sac2sr9estyqr82pcf" unique="false">
+            <column ascending="true" name="accession_no"/>
+         </index>
+         <index name="uk_q28149iaxebyt3de2h5sm2bgl" unique="false">
+            <column ascending="true" name="modality"/>
+         </index>
+         <index name="uk_tlkw80b7pbutfj19vh6et2vs7" unique="false">
+            <column ascending="true" name="admission_id"/>
+         </index>
+      </table>
+      <table name="patient" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="patient_fk" foreignKey="fk_ofg0lvfxad6r5oigw3y6da27u" implied="false" onDeleteCascade="false" schema="public" table="mpps"/>
+            <child column="patient_fk" foreignKey="fk_vkxtls2wr17wgxnxj7b2fe32" implied="false" onDeleteCascade="false" schema="public" table="mwl_item"/>
+            <child column="merge_fk" foreignKey="fk_sk77bwjgaoetvy1pbcgqf08g" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+            <child column="patient_fk" foreignKey="fk_e3fdaqhw7u60trs5aspf4sna9" implied="false" onDeleteCascade="false" schema="public" table="study"/>
+            <child column="patient_fk" foreignKey="fk_8xiqdli1p8cyw1y4hwyqhimcx" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="1" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="failed_verifications" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="num_studies" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="pat_birthdate" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="pat_custom1" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="pat_custom2" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="pat_custom3" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="pat_sex" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="9" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="verification_status" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="11" name="verification_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="dicomattrs_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_5lgndn3gn7iug3kuewiy9q124" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="merge_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_sk77bwjgaoetvy1pbcgqf08g" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="patient_id_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_39gahcxyursxfxe2ucextr65s" implied="false" onDeleteCascade="false" schema="public" table="patient_id"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="pat_name_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_rj42ffdtimnrcwmqqlvj24gi2" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="resp_person_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_56r2g5ggptqgcvb3hl11adke2" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="patient_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_39gahcxyursxfxe2ucextr65s" unique="false">
+            <column ascending="true" name="patient_id_fk"/>
+         </index>
+         <index name="fk_56r2g5ggptqgcvb3hl11adke2" unique="false">
+            <column ascending="true" name="resp_person_fk"/>
+         </index>
+         <index name="fk_rj42ffdtimnrcwmqqlvj24gi2" unique="false">
+            <column ascending="true" name="pat_name_fk"/>
+         </index>
+         <index name="fk_sk77bwjgaoetvy1pbcgqf08g" unique="false">
+            <column ascending="true" name="merge_fk"/>
+         </index>
+         <index name="uk_1ho1jyofty54ip8aqpuhi4mu1" unique="false">
+            <column ascending="true" name="pat_birthdate"/>
+         </index>
+         <index name="uk_296rccryifu6d8byisl2f4dvq" unique="false">
+            <column ascending="true" name="num_studies"/>
+         </index>
+         <index name="uk_39gahcxyursxfxe2ucextr65s" unique="true">
+            <column ascending="true" name="patient_id_fk"/>
+         </index>
+         <index name="uk_3ioui3yamjf01yny98bliqfgs" unique="false">
+            <column ascending="true" name="pat_custom3"/>
+         </index>
+         <index name="uk_545wp9un24fhgcy2lcfu1o04y" unique="false">
+            <column ascending="true" name="pat_sex"/>
+         </index>
+         <index name="uk_5lgndn3gn7iug3kuewiy9q124" unique="true">
+            <column ascending="true" name="dicomattrs_fk"/>
+         </index>
+         <index name="uk_9f2m2lkijm7wi0hpjsime069n" unique="false">
+            <column ascending="true" name="pat_custom1"/>
+         </index>
+         <index name="uk_bay8wkvwegw3pmyeypv2v93k1" unique="false">
+            <column ascending="true" name="verification_time"/>
+         </index>
+         <index name="uk_dwp6no1c4624yii6sbo59fedg" unique="false">
+            <column ascending="true" name="pat_custom2"/>
+         </index>
+         <index name="uk_e7rsyrt9n2mccyv1fcd2s6ikv" unique="false">
+            <column ascending="true" name="verification_status"/>
+         </index>
+      </table>
+      <table name="patient_demographics" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pat_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <child column="pat_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="patient_id"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pat_birthdate" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="pat_name" nullable="true" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="pat_sex" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <primaryKey column="pat_id" sequenceNumberInPK="1"/>
+         <index name="patient_demographics_pkey" unique="true">
+            <column ascending="true" name="pat_id"/>
+         </index>
+      </table>
+      <table name="patient_id" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="patient_id_fk" foreignKey="fk_39gahcxyursxfxe2ucextr65s" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pat_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="pat_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="patient_demographics"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="pat_id_type_code" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="patient_id_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="uk_d1sdyupb0vwvx23jownjnyy72" unique="false">
+            <column ascending="true" name="entity_id"/>
+         </index>
+         <index name="uk_m2jq6xe87vegohf6g10t5ptew" unique="false">
+            <column ascending="true" name="entity_uid"/>
+            <column ascending="true" name="entity_uid_type"/>
+         </index>
+         <index name="uk_tkyjkkxxhnr0fem7m0h3844jk" unique="false">
+            <column ascending="true" name="pat_id"/>
+         </index>
+      </table>
+      <table name="person_name" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="perf_phys_name_fk" foreignKey="fk_44qwwvs50lgpog2cqmicxgt1f" implied="false" onDeleteCascade="false" schema="public" table="mwl_item"/>
+            <child column="pat_name_fk" foreignKey="fk_rj42ffdtimnrcwmqqlvj24gi2" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+            <child column="resp_person_fk" foreignKey="fk_56r2g5ggptqgcvb3hl11adke2" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+            <child column="perf_phys_name_fk" foreignKey="fk_5n4bxxb2xa7bvvq26ao7wihky" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+            <child column="req_phys_name_fk" foreignKey="fk_bcn0jtvurqutw865pwp34pejb" implied="false" onDeleteCascade="false" schema="public" table="series_req"/>
+            <child column="person_name_fk" foreignKey="fk_dh7lahwi99hk6bttrk75x4ckc" implied="false" onDeleteCascade="false" schema="public" table="soundex_code"/>
+            <child column="ref_phys_name_fk" foreignKey="fk_49eet5qgcsb32ktsqrf1mj3x2" implied="false" onDeleteCascade="false" schema="public" table="study"/>
+            <child column="req_phys_name_fk" foreignKey="fk_kocdb2pxx2fymu1modhneb4xm" implied="false" onDeleteCascade="false" schema="public" table="ups_req"/>
+            <child column="observer_name_fk" foreignKey="fk_105wt9hglqsmtnoxgma9x18vj" implied="false" onDeleteCascade="false" schema="public" table="verify_observer"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="alphabetic_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="ideographic_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="phonetic_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="person_name_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="alphabetic_name_upper_idx" unique="false"/>
+         <index name="uk_9nr8ddkp8enufvbn72esyw3n1" unique="false">
+            <column ascending="true" name="phonetic_name"/>
+         </index>
+         <index name="uk_ala4l4egord8i2tjvjidoqd1s" unique="false">
+            <column ascending="true" name="ideographic_name"/>
+         </index>
+         <index name="uk_gs2yshbwu0gkd33yxyv13keoh" unique="false">
+            <column ascending="true" name="alphabetic_name"/>
+         </index>
+      </table>
+      <table name="rejected_instance" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="1" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="series_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sop_cuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="sop_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="study_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="reject_code_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_iafiq2ugv5rd6fonwd0vd7xdx" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="rejected_instance_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_iafiq2ugv5rd6fonwd0vd7xdx" unique="false">
+            <column ascending="true" name="reject_code_fk"/>
+         </index>
+         <index name="uk_6liqevdmi0spifxf2vrh18wkp" unique="true">
+            <column ascending="true" name="study_iuid"/>
+            <column ascending="true" name="series_iuid"/>
+            <column ascending="true" name="sop_iuid"/>
+         </index>
+         <index name="uk_owm55at56tdjitsncsrhr93xj" unique="false">
+            <column ascending="true" name="created_time"/>
+         </index>
+      </table>
+      <table name="rel_study_pcode" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="study_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_mnahh8fh77d365m6w2x4x3f4q" implied="false" onDeleteCascade="false" schema="public" table="study"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pcode_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_fryhnb2ppb6fcop3jrrfwvnfy" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <index name="fk_fryhnb2ppb6fcop3jrrfwvnfy" unique="false">
+            <column ascending="true" name="pcode_fk"/>
+         </index>
+         <index name="fk_mnahh8fh77d365m6w2x4x3f4q" unique="false">
+            <column ascending="true" name="study_fk"/>
+         </index>
+      </table>
+      <table name="rel_task_dicomattrs" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="task_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_pwaoih2f4ay4c00avvt79de7h" implied="false" onDeleteCascade="false" schema="public" table="task"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="dicomattrs_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_e0gtunmen48q8imxggunt7gt7" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <index name="fk_pwaoih2f4ay4c00avvt79de7h" unique="false">
+            <column ascending="true" name="task_fk"/>
+         </index>
+         <index name="uk_e0gtunmen48q8imxggunt7gt7" unique="true">
+            <column ascending="true" name="dicomattrs_fk"/>
+         </index>
+      </table>
+      <table name="rel_ups_perf_code" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="ups_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_6m06tt8ku376qxkro94xpteus" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="perf_code_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_6asj28yy5se9mp443b6ryefd2" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <index name="fk_6asj28yy5se9mp443b6ryefd2" unique="false">
+            <column ascending="true" name="perf_code_fk"/>
+         </index>
+         <index name="fk_6m06tt8ku376qxkro94xpteus" unique="false">
+            <column ascending="true" name="ups_fk"/>
+         </index>
+      </table>
+      <table name="rel_ups_station_class_code" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="ups_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_e1ioaswm010jlsq6kl7y3um1c" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="station_class_code_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_q26e06qk9gwviwe2ug0f86doa" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <index name="fk_e1ioaswm010jlsq6kl7y3um1c" unique="false">
+            <column ascending="true" name="ups_fk"/>
+         </index>
+         <index name="fk_q26e06qk9gwviwe2ug0f86doa" unique="false">
+            <column ascending="true" name="station_class_code_fk"/>
+         </index>
+      </table>
+      <table name="rel_ups_station_location_code" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="ups_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_9f0l4glqwpq12d11w9osd475m" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="station_location_code_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_kl60ab0k5c1p8qii9ya16424x" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <index name="fk_9f0l4glqwpq12d11w9osd475m" unique="false">
+            <column ascending="true" name="ups_fk"/>
+         </index>
+         <index name="fk_kl60ab0k5c1p8qii9ya16424x" unique="false">
+            <column ascending="true" name="station_location_code_fk"/>
+         </index>
+      </table>
+      <table name="rel_ups_station_name_code" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="ups_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_8jf5xe8ot2yammv3ksd5xrgif" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="station_name_code_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_jtv4r8f88f6gfte0fa36w5y9o" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <index name="fk_8jf5xe8ot2yammv3ksd5xrgif" unique="false">
+            <column ascending="true" name="ups_fk"/>
+         </index>
+         <index name="fk_jtv4r8f88f6gfte0fa36w5y9o" unique="false">
+            <column ascending="true" name="station_name_code_fk"/>
+         </index>
+      </table>
+      <table name="series" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="series_fk" foreignKey="fk_s4tgrew4sh4qxoupmk3gihtrk" implied="false" onDeleteCascade="false" schema="public" table="instance"/>
+            <child column="series_fk" foreignKey="fk_eiwosf6pcc97n6y282cv1n54k" implied="false" onDeleteCascade="false" schema="public" table="series_query_attrs"/>
+            <child column="series_fk" foreignKey="fk_bdkjk6ww0ulrb0nhf41c7liwt" implied="false" onDeleteCascade="false" schema="public" table="series_req"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="body_part" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="completeness" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="compress_failures" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="compress_params" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="compress_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="compress_tsuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="expiration_date" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="expiration_exporter_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="expiration_state" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="ext_retrieve_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="failed_retrieves" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="stgver_failures" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="inst_purge_state" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="15" name="inst_purge_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="institution" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="department" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="laterality" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="19" name="metadata_update_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="metadata_update_failures" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="modality" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="pps_cuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="pps_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="24" name="pps_start_date" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="25" name="pps_start_time" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="26" name="receiving_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="27" name="receiving_hl7_app" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="28" name="receiving_hl7_facility" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="29" name="receiving_pres_addr" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="30" name="rejection_state" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="31" name="sending_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="32" name="sending_hl7_app" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="33" name="sending_hl7_facility" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="34" name="sending_pres_addr" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="35" name="series_custom1" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="36" name="series_custom2" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="37" name="series_custom3" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="38" name="series_desc" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="39" name="series_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="40" name="series_no" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="41" name="series_size" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="42" name="sop_cuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="43" name="station_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="44" name="stgver_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="45" name="tsuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="46" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="47" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="48" name="dicomattrs_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_bdj2kuutidekc2en6dckev7l6" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="49" name="inst_code_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_oiq81nulcmtg6p85iu31igtf5" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="50" name="dept_code_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_avp2oeuufo8axv5j184cchrop" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="51" name="metadata_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_pu4p7k1o9hleuk9rmxvw2ybj6" implied="false" onDeleteCascade="false" schema="public" table="metadata"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="52" name="perf_phys_name_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_5n4bxxb2xa7bvvq26ao7wihky" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="53" name="study_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_1og1krtgxfh207rtqjg0r7pbd" implied="false" onDeleteCascade="false" schema="public" table="study"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="series_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_1og1krtgxfh207rtqjg0r7pbd" unique="false">
+            <column ascending="true" name="study_fk"/>
+         </index>
+         <index name="fk_5n4bxxb2xa7bvvq26ao7wihky" unique="false">
+            <column ascending="true" name="perf_phys_name_fk"/>
+         </index>
+         <index name="fk_avp2oeuufo8axv5j184cchrop" unique="false">
+            <column ascending="true" name="dept_code_fk"/>
+         </index>
+         <index name="fk_oiq81nulcmtg6p85iu31igtf5" unique="false">
+            <column ascending="true" name="inst_code_fk"/>
+         </index>
+         <index name="fk_pu4p7k1o9hleuk9rmxvw2ybj6" unique="false">
+            <column ascending="true" name="metadata_fk"/>
+         </index>
+         <index name="series_desc_upper_idx" unique="false"/>
+         <index name="uk_1e4aqxc5w1557hr3fb3lqm2qb" unique="false">
+            <column ascending="true" name="sending_hl7_facility"/>
+         </index>
+         <index name="uk_38mfgfnjhan2yhnwqtcrawe4" unique="false">
+            <column ascending="true" name="compress_time"/>
+         </index>
+         <index name="uk_4lnegvfs65fbkjn7nmg9s8usy" unique="false">
+            <column ascending="true" name="completeness"/>
+         </index>
+         <index name="uk_6xqpk4cvy49wj41p2qwixro8w" unique="false">
+            <column ascending="true" name="metadata_update_failures"/>
+         </index>
+         <index name="uk_75oc6w5ootkuwyvmrhe3tbown" unique="false">
+            <column ascending="true" name="series_no"/>
+         </index>
+         <index name="uk_82qea56c0kdhod3b1wu8wbrny" unique="false">
+            <column ascending="true" name="institution"/>
+         </index>
+         <index name="uk_83y2fx8cou17h3xggxspgikna" unique="true">
+            <column ascending="true" name="study_fk"/>
+            <column ascending="true" name="series_iuid"/>
+         </index>
+         <index name="uk_889438ocqfrvybu3k2eo65lpa" unique="false">
+            <column ascending="true" name="compress_failures"/>
+         </index>
+         <index name="uk_9fi64g5jjycg9dp24jjk5txg1" unique="false">
+            <column ascending="true" name="series_iuid"/>
+         </index>
+         <index name="uk_a8vyikwd972jomyb3f6brcfh5" unique="false">
+            <column ascending="true" name="inst_purge_time"/>
+         </index>
+         <index name="uk_achxn1rtfm3fbkkswlsyr75t0" unique="false">
+            <column ascending="true" name="series_desc"/>
+         </index>
+         <index name="uk_amr00xwlatxewgj1sjp5mnf76" unique="false">
+            <column ascending="true" name="pps_start_time"/>
+         </index>
+         <index name="uk_b126hub0dc1o9dqp6awoispx2" unique="false">
+            <column ascending="true" name="modality"/>
+         </index>
+         <index name="uk_b9e2bptvail8xnmb62h30h4d2" unique="false">
+            <column ascending="true" name="sending_aet"/>
+         </index>
+         <index name="uk_bdj2kuutidekc2en6dckev7l6" unique="true">
+            <column ascending="true" name="dicomattrs_fk"/>
+         </index>
+         <index name="uk_bqu32v5v76p4qi0etptnrm0pc" unique="false">
+            <column ascending="true" name="department"/>
+         </index>
+         <index name="uk_d8b8irasiw8eh9tsigmwkbvae" unique="false">
+            <column ascending="true" name="series_custom3"/>
+         </index>
+         <index name="uk_e15a6qnq8jcq931agc2v48nvt" unique="false">
+            <column ascending="true" name="receiving_pres_addr"/>
+         </index>
+         <index name="uk_er4ife08f6eaki91gt3hxt5e" unique="false">
+            <column ascending="true" name="inst_purge_state"/>
+         </index>
+         <index name="uk_ffpftwfkijejj09tlbxr7u5g8" unique="false">
+            <column ascending="true" name="sending_hl7_app"/>
+         </index>
+         <index name="uk_ftv3ijh2ud6ogoknneyqc6t9i" unique="false">
+            <column ascending="true" name="stgver_time"/>
+         </index>
+         <index name="uk_gj0bxgi55bhjic9s3i4dp2aee" unique="false">
+            <column ascending="true" name="receiving_hl7_app"/>
+         </index>
+         <index name="uk_gwp46ofa26am9ohhccq1ohdj" unique="false">
+            <column ascending="true" name="body_part"/>
+         </index>
+         <index name="uk_gxun7s005k8qf7qwhjhkkkkng" unique="false">
+            <column ascending="true" name="sending_pres_addr"/>
+         </index>
+         <index name="uk_hm39592a9n7m54dgso17irlhv" unique="false">
+            <column ascending="true" name="series_custom1"/>
+         </index>
+         <index name="uk_hwkcpd7yv0nca7o918wm4bn69" unique="false">
+            <column ascending="true" name="metadata_update_time"/>
+         </index>
+         <index name="uk_ih49lthl3udoca5opvgsdcerj" unique="false">
+            <column ascending="true" name="expiration_state"/>
+         </index>
+         <index name="uk_j6aadbh7u93bpmv18s1inrl1r" unique="false">
+            <column ascending="true" name="failed_retrieves"/>
+         </index>
+         <index name="uk_jlgy9ifvqak4g2bxkchismw8x" unique="false">
+            <column ascending="true" name="rejection_state"/>
+         </index>
+         <index name="uk_lnck3a2qjo1vc430n1sy51vbr" unique="false">
+            <column ascending="true" name="receiving_aet"/>
+         </index>
+         <index name="uk_mrn00m45lkq1xbehmbw5d9jbl" unique="false">
+            <column ascending="true" name="sop_cuid"/>
+         </index>
+         <index name="uk_pbay159cdhwbtjvlmel6d6em2" unique="false">
+            <column ascending="true" name="receiving_hl7_facility"/>
+         </index>
+         <index name="uk_pq1yi70ftxhh391lhcq3e08nf" unique="false">
+            <column ascending="true" name="station_name"/>
+         </index>
+         <index name="uk_q3wayt2ke25fdcghaohhrjiu7" unique="false">
+            <column ascending="true" name="series_custom2"/>
+         </index>
+         <index name="uk_rvlxc150uexwmr1l9ojp8fgd" unique="false">
+            <column ascending="true" name="pps_start_date"/>
+         </index>
+         <index name="uk_s1vceb8cu9c45j0q8tbldgol9" unique="false">
+            <column ascending="true" name="stgver_failures"/>
+         </index>
+         <index name="uk_ta3pi6exqft5encv389hwjytw" unique="false">
+            <column ascending="true" name="expiration_date"/>
+         </index>
+         <index name="uk_tahx0q1ejidnsam40ans7oecx" unique="false">
+            <column ascending="true" name="tsuid"/>
+         </index>
+         <index name="uk_tbdrfrmkmifsqhpf43065jrbs" unique="false">
+            <column ascending="true" name="laterality"/>
+         </index>
+      </table>
+      <table name="series_query_attrs" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="availability" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="num_instances" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="retrieve_aets" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="cuids_in_series" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="view_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="series_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_eiwosf6pcc97n6y282cv1n54k" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="series_query_attrs_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_eiwosf6pcc97n6y282cv1n54k" unique="false">
+            <column ascending="true" name="series_fk"/>
+         </index>
+         <index name="uk_t1uhb1suiiqffhsv9eaopeevs" unique="true">
+            <column ascending="true" name="view_id"/>
+            <column ascending="true" name="series_fk"/>
+         </index>
+      </table>
+      <table name="series_req" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="accession_no" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="accno_entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="accno_entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="accno_entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="req_proc_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="req_service" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="sps_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="study_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="req_phys_name_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_bcn0jtvurqutw865pwp34pejb" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="series_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_bdkjk6ww0ulrb0nhf41c7liwt" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="series_req_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_bcn0jtvurqutw865pwp34pejb" unique="false">
+            <column ascending="true" name="req_phys_name_fk"/>
+         </index>
+         <index name="fk_bdkjk6ww0ulrb0nhf41c7liwt" unique="false">
+            <column ascending="true" name="series_fk"/>
+         </index>
+         <index name="uk_4uq79j30ind90jjs68gb24j6e" unique="false">
+            <column ascending="true" name="sps_id"/>
+         </index>
+         <index name="uk_crnpneoalwq25p795xtrhbx2" unique="false">
+            <column ascending="true" name="study_iuid"/>
+         </index>
+         <index name="uk_l1fg3crmk6pjeu1x36e25h6p4" unique="false">
+            <column ascending="true" name="req_service"/>
+         </index>
+         <index name="uk_m4wanupyq3yldxgh3pbo7t68h" unique="false">
+            <column ascending="true" name="accession_no"/>
+         </index>
+         <index name="uk_p9w1wg4031w6y66w4xhx1ffay" unique="false">
+            <column ascending="true" name="req_proc_id"/>
+         </index>
+      </table>
+      <table name="soundex_code" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="sx_code_value" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="sx_pn_comp_part" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sx_pn_comp" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="person_name_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_dh7lahwi99hk6bttrk75x4ckc" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="soundex_code_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_dh7lahwi99hk6bttrk75x4ckc" unique="false">
+            <column ascending="true" name="person_name_fk"/>
+         </index>
+         <index name="uk_3dxkqfajcytiwjjb5rgh4nu1l" unique="false">
+            <column ascending="true" name="sx_code_value"/>
+         </index>
+         <index name="uk_fjwlo6vk0gxp78eh2i7j04a5t" unique="false">
+            <column ascending="true" name="sx_pn_comp"/>
+         </index>
+         <index name="uk_nlv8hnjxmb7pobdfl094ud14u" unique="false">
+            <column ascending="true" name="sx_pn_comp_part"/>
+         </index>
+      </table>
+      <table name="sps_station_aet" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="mwl_item_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_js5xqyw5qa9rpttwmck14duow" implied="false" onDeleteCascade="false" schema="public" table="mwl_item"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="station_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <index name="fk_js5xqyw5qa9rpttwmck14duow" unique="false">
+            <column ascending="true" name="mwl_item_fk"/>
+         </index>
+         <index name="uk_tm93u8kuxnasoguns5asgdx4a" unique="false">
+            <column ascending="true" name="station_aet"/>
+         </index>
+      </table>
+      <table name="stgcmt_result" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="batch_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="2" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="device_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="exporter_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="num_failures" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="num_instances" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="series_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="sop_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="stgcmt_status" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="study_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="task_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="transaction_uid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="13" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="stgcmt_result_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="uk_7ltjgxoijy15rrwihl8euv7vh" unique="false">
+            <column ascending="true" name="device_name"/>
+         </index>
+         <index name="uk_ey6qpep2qtiwayou7pd0vj22w" unique="true">
+            <column ascending="true" name="transaction_uid"/>
+         </index>
+         <index name="uk_f718gnu5js0mdg39q6j7fklia" unique="false">
+            <column ascending="true" name="batch_id"/>
+         </index>
+         <index name="uk_gu96kxnbf2p84d1katepo0btq" unique="false">
+            <column ascending="true" name="exporter_id"/>
+         </index>
+         <index name="uk_j292rvji1d7hintidhgkkcbpw" unique="false">
+            <column ascending="true" name="task_fk"/>
+         </index>
+         <index name="uk_nyoefler7agcmxc8t8yfngq7e" unique="false">
+            <column ascending="true" name="stgcmt_status"/>
+         </index>
+         <index name="uk_p65blcj4h0uh2itb0bp49mc07" unique="false">
+            <column ascending="true" name="study_iuid"/>
+         </index>
+         <index name="uk_qko59fn9pb87j1eu070ilfkhm" unique="false">
+            <column ascending="true" name="updated_time"/>
+         </index>
+      </table>
+      <table name="study" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="study_fk" foreignKey="fk_mnahh8fh77d365m6w2x4x3f4q" implied="false" onDeleteCascade="false" schema="public" table="rel_study_pcode"/>
+            <child column="study_fk" foreignKey="fk_1og1krtgxfh207rtqjg0r7pbd" implied="false" onDeleteCascade="false" schema="public" table="series"/>
+            <child column="study_fk" foreignKey="fk_sxccj81423w8o6w2tsb7nshy9" implied="false" onDeleteCascade="false" schema="public" table="study_query_attrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="access_control_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="2" name="access_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="accession_no" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="accno_entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="accno_entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="accno_entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="admission_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="admid_entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="admid_entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="admid_entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="completeness" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="12" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="expiration_date" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="expiration_exporter_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="expiration_state" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="ext_retrieve_aet" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="failed_retrieves" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="18" name="modified_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="rejection_state" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="study_size" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="storage_ids" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="study_custom1" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="study_custom2" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="24" name="study_custom3" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="25" name="study_date" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="26" name="study_desc" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="27" name="study_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="28" name="study_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="29" name="study_time" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="30" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="31" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="32" name="dicomattrs_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_5w0oynbw061mwu1rr9mrb6kj4" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="33" name="patient_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_e3fdaqhw7u60trs5aspf4sna9" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="34" name="ref_phys_name_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_49eet5qgcsb32ktsqrf1mj3x2" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="study_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_49eet5qgcsb32ktsqrf1mj3x2" unique="false">
+            <column ascending="true" name="ref_phys_name_fk"/>
+         </index>
+         <index name="fk_e3fdaqhw7u60trs5aspf4sna9" unique="false">
+            <column ascending="true" name="patient_fk"/>
+         </index>
+         <index name="study_desc_upper_idx" unique="false"/>
+         <index name="uk_16t2xvj9ttyvbwh1ijeve01ii" unique="false">
+            <column ascending="true" name="study_time"/>
+         </index>
+         <index name="uk_24av2ewa70e7cykl340n63aqd" unique="false">
+            <column ascending="true" name="access_control_id"/>
+         </index>
+         <index name="uk_2ofn5q0fdfc6941e5j34bplmv" unique="false">
+            <column ascending="true" name="accession_no"/>
+         </index>
+         <index name="uk_5w0oynbw061mwu1rr9mrb6kj4" unique="true">
+            <column ascending="true" name="dicomattrs_fk"/>
+         </index>
+         <index name="uk_6ry2squ4qcv129lxpae1oy93m" unique="false">
+            <column ascending="true" name="created_time"/>
+         </index>
+         <index name="uk_8xolm3oljt08cuheepwq3fls7" unique="false">
+            <column ascending="true" name="study_custom3"/>
+         </index>
+         <index name="uk_9qvng5j8xnli8yif7p0rjngb2" unique="false">
+            <column ascending="true" name="failed_retrieves"/>
+         </index>
+         <index name="uk_a1rewlmf8uxfgshk25f6uawx2" unique="false">
+            <column ascending="true" name="study_date"/>
+         </index>
+         <index name="uk_cl9dmi0kb97ov1cjh7rn3dhve" unique="false">
+            <column ascending="true" name="ext_retrieve_aet"/>
+         </index>
+         <index name="uk_fyasyw3wco6hoj2entr7l6d09" unique="false">
+            <column ascending="true" name="expiration_state"/>
+         </index>
+         <index name="uk_fypbtohf5skbd3bkyd792a6dt" unique="false">
+            <column ascending="true" name="storage_ids"/>
+         </index>
+         <index name="uk_gl5rq54a0tr8nreu27c2t04rb" unique="false">
+            <column ascending="true" name="completeness"/>
+         </index>
+         <index name="uk_hwu9omd369ju3nufufxd3vof2" unique="false">
+            <column ascending="true" name="rejection_state"/>
+         </index>
+         <index name="uk_j3q7fkhhiu4bolglyve3lv385" unique="false">
+            <column ascending="true" name="study_desc"/>
+         </index>
+         <index name="uk_j63d3ip6x4xslkmyks1l89aay" unique="false">
+            <column ascending="true" name="study_custom2"/>
+         </index>
+         <index name="uk_ksy103xef0hokd33y8ux7afxl" unique="false">
+            <column ascending="true" name="study_custom1"/>
+         </index>
+         <index name="uk_mlk5pdi8une92kru8g2ppappx" unique="false">
+            <column ascending="true" name="expiration_date"/>
+         </index>
+         <index name="uk_n5froudmhk14pbhgors43xi68" unique="false">
+            <column ascending="true" name="admission_id"/>
+         </index>
+         <index name="uk_pt5qn20x278wb1f7p2t3lcxv" unique="true">
+            <column ascending="true" name="study_iuid"/>
+         </index>
+         <index name="uk_q7vxiaj1q6ojfxdq1g9jjxgqv" unique="false">
+            <column ascending="true" name="study_size"/>
+         </index>
+         <index name="uk_q8k2sl3kjl18qg1nr19l47tl1" unique="false">
+            <column ascending="true" name="access_time"/>
+         </index>
+      </table>
+      <table name="study_query_attrs" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="availability" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="mods_in_study" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="num_instances" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="num_series" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="retrieve_aets" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="cuids_in_study" nullable="true" remarks="" size="4000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="view_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="study_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_sxccj81423w8o6w2tsb7nshy9" implied="false" onDeleteCascade="false" schema="public" table="study"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="study_query_attrs_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_sxccj81423w8o6w2tsb7nshy9" unique="false">
+            <column ascending="true" name="study_fk"/>
+         </index>
+         <index name="uk_prn4qt6d42stw0gfi1yce1fap" unique="true">
+            <column ascending="true" name="view_id"/>
+            <column ascending="true" name="study_fk"/>
+         </index>
+      </table>
+      <table name="subscription" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="deletion_lock" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="subscriber_aet" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="ups_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_jadcs2aho4ijh639r67qgk0g0" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="subscription_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_jadcs2aho4ijh639r67qgk0g0" unique="false">
+            <column ascending="true" name="ups_fk"/>
+         </index>
+         <index name="uk_co8q5hn46dehb35qsrtwyys96" unique="true">
+            <column ascending="true" name="subscriber_aet"/>
+            <column ascending="true" name="ups_fk"/>
+         </index>
+      </table>
+      <table name="task" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="task_fk" foreignKey="fk_pwaoih2f4ay4c00avvt79de7h" implied="false" onDeleteCascade="false" schema="public" table="rel_task_dicomattrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="batch_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="check_different" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="check_missing" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="compare_fields" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="completed" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="6" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="destination_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="device_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="different" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="error_comment" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="error_msg" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="exporter_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="failed" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="local_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="matches" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="missing" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="modalities" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="num_failures" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="num_instances" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="outcome_msg" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="payload" nullable="true" remarks="" size="2147483647" type="bytea" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="22" name="proc_end_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="23" name="proc_start_time" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="24" name="query_str" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="25" name="queue_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
+            <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="26" name="remaining" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="27" name="remote_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="28" name="rq_uri" nullable="true" remarks="" size="4000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="29" name="rq_host" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="30" name="rq_user_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="31" name="scheduled_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="32" name="series_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="33" name="sop_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="34" name="task_status" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="35" name="status_code" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="36" name="storage_ids" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="37" name="stgcmt_policy" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="38" name="study_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="39" name="task_type" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="40" name="update_location_status" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="41" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="42" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="43" name="warning" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="task_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="uk_17gcm1xo6fkujauguyjfxfb2k" unique="false">
+            <column ascending="true" name="local_aet"/>
+         </index>
+         <index name="uk_1lchdfbbwkjbg7a6coy5t8iq7" unique="false">
+            <column ascending="true" name="check_different"/>
+         </index>
+         <index name="uk_6a0y0rsssms4mtm9bpkw8vgl6" unique="false">
+            <column ascending="true" name="study_iuid"/>
+            <column ascending="true" name="series_iuid"/>
+            <column ascending="true" name="sop_iuid"/>
+         </index>
+         <index name="uk_76hkd9mjludoohse4g0ru1mg8" unique="false">
+            <column ascending="true" name="created_time"/>
+         </index>
+         <index name="uk_7y5ucdiygunyg2nh7qrs70e7k" unique="false">
+            <column ascending="true" name="task_status"/>
+         </index>
+         <index name="uk_81xi6wnv5b10x3723fxt5bmew" unique="false">
+            <column ascending="true" name="remote_aet"/>
+         </index>
+         <index name="uk_9htwq4ofarp6m88r3ao0grt8j" unique="false">
+            <column ascending="true" name="updated_time"/>
+         </index>
+         <index name="uk_a582by7kuyuhk8hi41tkelhrw" unique="false">
+            <column ascending="true" name="task_type"/>
+         </index>
+         <index name="uk_f7c43c242ybnvcn3o50lrcpkh" unique="false">
+            <column ascending="true" name="destination_aet"/>
+         </index>
+         <index name="uk_k6dxmm1gu6u23xq03hbk80m4r" unique="false">
+            <column ascending="true" name="batch_id"/>
+         </index>
+         <index name="uk_m47ruxpag7pq4gtn12lc63yfe" unique="false">
+            <column ascending="true" name="device_name"/>
+         </index>
+         <index name="uk_ow0nufrtniev7nkh7d0uv5mxe" unique="false">
+            <column ascending="true" name="compare_fields"/>
+         </index>
+         <index name="uk_pknlk8ggf8lnq38lq3gacvvpt" unique="false">
+            <column ascending="true" name="check_missing"/>
+         </index>
+         <index name="uk_r2bcfyreh4n9h392iik1aa6sh" unique="false">
+            <column ascending="true" name="queue_name"/>
+         </index>
+         <index name="uk_xwqht1afwe7k27iulvggnwwl" unique="false">
+            <column ascending="true" name="scheduled_time"/>
+         </index>
+      </table>
+      <table name="uidmap" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="uidmap_fk" foreignKey="fk_bfk5vl6eoxaf0hhwiu3rbgmkn" implied="false" onDeleteCascade="false" schema="public" table="location"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uidmap" nullable="false" remarks="" size="2147483647" type="bytea" typeCode="-2"/>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="uidmap_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+      </table>
+      <table name="ups" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <child column="ups_fk" foreignKey="fk_6m06tt8ku376qxkro94xpteus" implied="false" onDeleteCascade="false" schema="public" table="rel_ups_perf_code"/>
+            <child column="ups_fk" foreignKey="fk_e1ioaswm010jlsq6kl7y3um1c" implied="false" onDeleteCascade="false" schema="public" table="rel_ups_station_class_code"/>
+            <child column="ups_fk" foreignKey="fk_9f0l4glqwpq12d11w9osd475m" implied="false" onDeleteCascade="false" schema="public" table="rel_ups_station_location_code"/>
+            <child column="ups_fk" foreignKey="fk_8jf5xe8ot2yammv3ksd5xrgif" implied="false" onDeleteCascade="false" schema="public" table="rel_ups_station_name_code"/>
+            <child column="ups_fk" foreignKey="fk_jadcs2aho4ijh639r67qgk0g0" implied="false" onDeleteCascade="false" schema="public" table="subscription"/>
+            <child column="ups_fk" foreignKey="fk_7vt6m05r0hertks2fcngd5wn1" implied="false" onDeleteCascade="false" schema="public" table="ups_req"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="admission_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="admid_entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="admid_entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="admid_entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="expected_end_date_time" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="input_readiness_state" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="performer_aet" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="ups_state" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="replaced_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="expiration_date_time" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="start_date_time" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="transaction_iuid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="14" name="updated_time" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="ups_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="ups_label" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="ups_priority" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="worklist_label" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="dicomattrs_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_3frtpy5cstsoxk5jxw9cutr33" implied="false" onDeleteCascade="false" schema="public" table="dicomattrs"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="patient_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_8xiqdli1p8cyw1y4hwyqhimcx" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="ups_code_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_1retecpk22a2tysmi5o6xcpbh" implied="false" onDeleteCascade="false" schema="public" table="code"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="ups_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_1retecpk22a2tysmi5o6xcpbh" unique="false">
+            <column ascending="true" name="ups_code_fk"/>
+         </index>
+         <index name="fk_8xiqdli1p8cyw1y4hwyqhimcx" unique="false">
+            <column ascending="true" name="patient_fk"/>
+         </index>
+         <index name="uk_1hdr3ml1rwugwkmo3eks4no5p" unique="false">
+            <column ascending="true" name="expected_end_date_time"/>
+         </index>
+         <index name="uk_1umoxe7ig9n21q885mncxeq9" unique="false">
+            <column ascending="true" name="updated_time"/>
+         </index>
+         <index name="uk_3frtpy5cstsoxk5jxw9cutr33" unique="true">
+            <column ascending="true" name="dicomattrs_fk"/>
+         </index>
+         <index name="uk_7e44lxlg0m2l2wfdo3k2tec7o" unique="false">
+            <column ascending="true" name="worklist_label"/>
+         </index>
+         <index name="uk_brtgc3vpnoaq1xm80m568r16y" unique="false">
+            <column ascending="true" name="input_readiness_state"/>
+         </index>
+         <index name="uk_c8obxmqpdcy37r3pjga2pukac" unique="false">
+            <column ascending="true" name="ups_state"/>
+         </index>
+         <index name="uk_crl67piqoxiccp3i6ckktphdd" unique="false">
+            <column ascending="true" name="replaced_iuid"/>
+         </index>
+         <index name="uk_d3ejkrtcim0q3cbwpq4n9skes" unique="false">
+            <column ascending="true" name="ups_label"/>
+         </index>
+         <index name="uk_e57ifctiig366oq9mhab8law3" unique="false">
+            <column ascending="true" name="expiration_date_time"/>
+         </index>
+         <index name="uk_kgwfwmxj3i0n7c404uvhsav1g" unique="false">
+            <column ascending="true" name="ups_priority"/>
+         </index>
+         <index name="uk_kh194du6g35fi5l80vbj18nnp" unique="false">
+            <column ascending="true" name="start_date_time"/>
+         </index>
+         <index name="uk_qck03rlxht9myv77sc79a480t" unique="true">
+            <column ascending="true" name="ups_iuid"/>
+         </index>
+         <index name="uk_sqoo5rr8pu2qe4gtdne3xh031" unique="false">
+            <column ascending="true" name="admission_id"/>
+         </index>
+      </table>
+      <table name="ups_req" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="accession_no" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="accno_entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="accno_entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="accno_entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="req_proc_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="req_service" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="study_iuid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="req_phys_name_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_kocdb2pxx2fymu1modhneb4xm" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="ups_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_7vt6m05r0hertks2fcngd5wn1" implied="false" onDeleteCascade="false" schema="public" table="ups"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="ups_req_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_7vt6m05r0hertks2fcngd5wn1" unique="false">
+            <column ascending="true" name="ups_fk"/>
+         </index>
+         <index name="fk_kocdb2pxx2fymu1modhneb4xm" unique="false">
+            <column ascending="true" name="req_phys_name_fk"/>
+         </index>
+         <index name="uk_524vr0q4c0kvyjwov74eru44x" unique="false">
+            <column ascending="true" name="req_proc_id"/>
+         </index>
+         <index name="uk_emsk27nclko11ph2tcj5vk7hg" unique="false">
+            <column ascending="true" name="req_service"/>
+         </index>
+         <index name="uk_hf0tly8umknn77civcsi0tdih" unique="false">
+            <column ascending="true" name="study_iuid"/>
+         </index>
+         <index name="uk_rfium2ybikqm1f4xmi24mnv4u" unique="false">
+            <column ascending="true" name="accession_no"/>
+         </index>
+      </table>
+      <table name="verify_observer" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="pk" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="verify_datetime" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="observer_name_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_105wt9hglqsmtnoxgma9x18vj" implied="false" onDeleteCascade="false" schema="public" table="person_name"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="instance_fk" nullable="true" remarks="" size="19" type="int8" typeCode="-5">
+            <parent column="pk" foreignKey="fk_qjgrn9rfyyt6sv14utk9ijcfq" implied="false" onDeleteCascade="false" schema="public" table="instance"/>
+         </column>
+         <primaryKey column="pk" sequenceNumberInPK="1"/>
+         <index name="verify_observer_pkey" unique="true">
+            <column ascending="true" name="pk"/>
+         </index>
+         <index name="fk_105wt9hglqsmtnoxgma9x18vj" unique="false">
+            <column ascending="true" name="observer_name_fk"/>
+         </index>
+         <index name="fk_qjgrn9rfyyt6sv14utk9ijcfq" unique="false">
+            <column ascending="true" name="instance_fk"/>
+         </index>
+         <index name="uk_5btv5autls384ulwues8lym4p" unique="false">
+            <column ascending="true" name="verify_datetime"/>
+         </index>
+      </table>
+   </tables>
+</database>
