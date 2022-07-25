@@ -4302,8 +4302,22 @@ export class StudyService {
     }
 
     rejectMatchingSeries(webApp:DcmWebApp, rejectionCode, params:any){
+        console.log("in rejectMatchingSeries..........");
+        let url = `${this.getDicomURL("series", webApp)}/reject/${rejectionCode}${j4care.param(params)}`;
+        console.log("in rejectMatchingSeries - url..........", url);
         return this.$http.post(
             `${this.getDicomURL("series", webApp)}/reject/${rejectionCode}${j4care.param(params)}`,
+            {},
+            this.jsonHeader
+        )
+    }
+
+    applyRetentionPolicyMatchingSeries(webApp:DcmWebApp, params:any){
+        console.log("in applyRetentionPolicyMatchingSeries..........");
+        let url = `${this.getDicomURL("series", webApp)}/expire${j4care.param(params)}`;
+        console.log("in applyRetentionPolicyMatchingSeries - url..........", url);
+        return this.$http.post(
+            `${this.getDicomURL("series", webApp)}/expire${j4care.param(params)}`,
             {},
             this.jsonHeader
         )

@@ -191,6 +191,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
             new SelectDropdown("export_multiple_study",$localize `:@@study.export_multiple:Export matching studies`),
+            new SelectDropdown("apply_retention_multiple_series",$localize `:@@study.apply_retention_multiple_series:Apply retention policy to matching series`),
             new SelectDropdown("export_multiple_series",$localize `:@@study.export_multiple_series:Export matching series`),
             new SelectDropdown("reject_multiple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
             new SelectDropdown("reject_multiple_series",$localize `:@@study.reject_multiple_series:Reject matching series`),
@@ -452,6 +453,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                break;
             case "export_multiple_study":
                 this.exportMultipleStudies();
+               break;
+            case "apply_retention_multiple_series":
+                this.applyRetentionPolicyMatchingSeries();
                break;
             case "export_multiple_series":
                 this.exportMatchingSeries();
@@ -1604,6 +1608,35 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             // window.open(this.renderURL(inst));
         });
     };
+
+    applyRetentionPolicyMatchingSeries() {
+        console.log("in applyRetentionPolicyMatchingSeries - main.................")
+        this.confirm({
+            content:$localize `:@@study.apply_retention_policy_all_matching_series:Apply retention policy to all matching series`,
+            cancelButton:$localize `:@@CANCEL:CANCEL`,
+            saveButton: $localize `:@@APPLY:APPLY`
+        }).subscribe(()=>{
+            console.log("in applyRetentionPolicyMatchingSeries - subscribe.................")
+            this.cfpLoadingBar.start();
+            this.service.applyRetentionPolicyMatchingSeries(
+                this.studyWebService.selectedWebService,
+                this.createStudyFilterParams(true,true)
+            ).subscribe(res=>{
+                console.log("res",res);
+                this.cfpLoadingBar.complete();
+                try{
+                    let count = res["count"] || "";
+                    this.appService.showMsg(`Objects export successfully:<br>Count: ${count}`);
+                }catch (e) {
+                    j4care.log("Could not get count from res=",e);
+                }
+            },err=>{
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+            });
+        })
+    }
+
     downloadCSV(attr?, mode?){
         let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
         this.confirm({
@@ -4392,9 +4425,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         });
     }
+
     exportMatchingSeries(){
         this.confirm({
-            content: $localize `:@@export_all_matching_studies:Export all matching studies`,
+            content: $localize `:@@study.export_all_matching_series:Export all matching series`,
             doNotSave:true,
             form_schema:this.service.exportMatchingSeriesDialogSchema(this.exporters),
             result: {
