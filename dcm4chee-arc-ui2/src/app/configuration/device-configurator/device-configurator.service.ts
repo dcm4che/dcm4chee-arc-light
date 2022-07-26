@@ -19,6 +19,7 @@ import {DevicesService} from "../devices/devices.service";
 import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
 import {LocalLanguageObject} from "../../interfaces";
 import {map, switchMap} from "rxjs/operators";
+import {ControlService} from "../control/control.service";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -34,7 +35,8 @@ export class DeviceConfiguratorService{
         private deviceService:DevicesService,
         private aeListService:AeListService,
         private hl7service:Hl7ApplicationsService,
-        private webAppListService:WebAppsListService
+        private webAppListService:WebAppsListService,
+        private controlService:ControlService
     ) {
         this.breadcrumbs = [
             {
@@ -1351,5 +1353,23 @@ export class DeviceConfiguratorService{
             console.error(e);
             return path;
         }
+    }
+
+    reloadArchive(){
+        let archiveUrl;
+        try{
+            const deviceName = _.get(this.device, 'dicomDeviceName');
+            if(_.hasIn(this.mainservice,'dcm4cheeArcConfig.deviceNameUrlMap')){
+                const mappedArchiveDevices = this.mainservice['dcm4cheeArcConfig']['deviceNameUrlMap'];
+                Object.keys(mappedArchiveDevices).forEach(url=>{
+                    if(mappedArchiveDevices[url] === deviceName){
+                        archiveUrl = url;
+                    }
+                });
+            }
+        }catch (e){
+            console.error(e);
+        }
+        return this.controlService.reloadArchive(archiveUrl);
     }
 }

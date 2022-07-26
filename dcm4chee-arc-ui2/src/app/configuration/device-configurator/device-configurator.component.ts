@@ -134,7 +134,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 }catch (e){
                                     console.warn('error on chagning breadcrumbs', e);
                                 }
-                                $this.controlService.reloadArchive().subscribe((res) => {
+                                $this.service.reloadArchive().subscribe((res) => {
                                     console.log('res', res);
                                     // $this.message = 'Reload successful';
                                     $this.mainservice.showMsg( $localize `:@@reload_successful:Reload successful`);
@@ -182,7 +182,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                         });
                                     }
                                 }
-                                $this.controlService.reloadArchive().subscribe((res) => {
+                                $this.service.reloadArchive().subscribe((res) => {
                                     console.log('res', res);
                                     // $this.message = 'Reload successful';
                                     $this.mainservice.showMsg($localize `:@@reload_successful:Reload successful`);
