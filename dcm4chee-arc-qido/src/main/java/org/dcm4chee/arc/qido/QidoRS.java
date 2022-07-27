@@ -890,14 +890,16 @@ public class QidoRS {
         final List<Attributes> matches =  matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-            int[] tags = tagsFrom(model, matches.get(0));
-            if (tags.length != 0) {
-                CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180.builder()
-                                            .setHeader(csvHeader(matches.get(0), tags))
-                                            .setDelimiter(csvDelimiter)
-                                            .setQuoteMode(QuoteMode.ALL)
-                                            .build());
-                matches.forEach(match -> printRecord(printer, match, tags));
+            if (matches.size() > 0) {
+                int[] tags = tagsFrom(model, matches.get(0));
+                if (tags.length != 0) {
+                    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180.builder()
+                            .setHeader(csvHeader(matches.get(0), tags))
+                            .setDelimiter(csvDelimiter)
+                            .setQuoteMode(QuoteMode.ALL)
+                            .build());
+                    matches.forEach(match -> printRecord(printer, match, tags));
+                }
             }
             writer.flush();
         };
