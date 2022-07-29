@@ -130,11 +130,7 @@ public class StudyMgtRS {
     }
 
     public void validate() {
-        LOG.info("Process {} {} from {}@{}",
-                request.getMethod(),
-                toString(),
-                request.getRemoteUser(),
-                request.getRemoteHost());
+        logRequest();
         new QueryAttributes(uriInfo, null);
     }
 
@@ -143,7 +139,6 @@ public class StudyMgtRS {
     public void deleteStudy(
             @PathParam("StudyUID") String studyUID,
             @QueryParam("retainObj") @Pattern(regexp = "true|false") @DefaultValue("false") String retainObj) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             deletionService.deleteStudy(
@@ -166,7 +161,6 @@ public class StudyMgtRS {
     public StreamingOutput updateStudy(
             @PathParam("study") String studyUID,
             InputStream in) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
@@ -211,7 +205,6 @@ public class StudyMgtRS {
             @PathParam("study") String studyUID,
             @PathParam("series") String seriesUID,
             InputStream in) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
@@ -259,7 +252,6 @@ public class StudyMgtRS {
     public Response updateStudyAccessControlID(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("accessControlID") String accessControlID) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
@@ -283,7 +275,6 @@ public class StudyMgtRS {
             @QueryParam("updatePolicy")
             @ValidValueOf(type = Attributes.UpdatePolicy.class, message = "Invalid attribute update policy")
                     String updatePolicy) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes queryKeys = queryAttrs.getQueryKeys();
@@ -336,7 +327,6 @@ public class StudyMgtRS {
 
     private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate,
                                           String expirationExporterID, String freezeExpirationDate) {
-        logRequest();
         boolean updateSeriesExpirationDate = seriesUID != null;
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
