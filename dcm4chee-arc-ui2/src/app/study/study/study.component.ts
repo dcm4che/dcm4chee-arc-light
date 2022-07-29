@@ -1624,7 +1624,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.complete();
                 try{
                     let count = res["count"] || "";
-                    this.appService.showMsg(`Objects export successfully:<br>Count: ${count}`);
+                    this.appService.showMsg(`Retention policy applied successfully to <br>Count: ${count}`);
                 }catch (e) {
                     j4care.log("Could not get count from res=",e);
                 }
