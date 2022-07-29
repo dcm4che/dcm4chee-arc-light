@@ -4240,8 +4240,8 @@ export class StudyService {
                 ];
             }
         } else {
-            if (_.hasIn(study, "77771023.Value.0") && study["77771023"].Value[0] != "") {
-                let expiredDateString = study["77771023"].Value[0];
+            if (_.hasIn(study.attrs, "77771023.Value.0") && study.attrs["77771023"].Value[0] != "") {
+                let expiredDateString = study.attrs["77771023"].Value[0];
                 expiredDate = new Date(expiredDateString.substring(0, 4) + '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
             } else {
                 expiredDate = new Date();
