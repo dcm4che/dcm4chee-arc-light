@@ -179,6 +179,7 @@ public class QueryAttributes {
                 case "test":
                 case "requested":
                 case "merged":
+                case "ExporterID":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
