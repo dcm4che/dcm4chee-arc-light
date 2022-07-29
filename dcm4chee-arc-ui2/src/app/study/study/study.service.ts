@@ -4237,18 +4237,51 @@ export class StudyService {
             schemaModel = {
                 expiredDate: j4care.formatDate(expiredDate, 'yyyyMMdd')
             };
-            title += "<p>Set exporter if you wan't to export on expiration date too.";
-            schema[0].push([
-                {
-                    tag: "label",
-                    text: $localize `:@@exporter:Exporter`
-                },
-                {
-                    tag: "select",
-                    filterKey: "exporter",
-                    description: $localize `:@@exporter:Exporter`,
-                    options: exporters.map(exporter => new SelectDropdown(exporter.id, exporter.description || exporter.id))
-                }])
+            title += $localize `:@@studies.set_exporter_if_you_want_to_export_on_expiration_date_too:<p>Set exporter if you want to export on expiration date too.`;
+            schema = [
+                [
+                    [
+                        {
+                            tag: "label",
+                            text: $localize `:@@expired_date:Expired date`
+                        },
+                        {
+                            tag: "p-calendar",
+                            filterKey: "expiredDate",
+                            description: $localize `:@@expired_date:Expired Date`
+                        }
+                    ],
+                    [
+                        {
+                            tag: "label",
+                            text: $localize `:@@exporter:Exporter`
+                        },
+                        {
+                            tag: "select",
+                            filterKey: "exporter",
+                            description: $localize `:@@exporter:Exporter`,
+                            options: exporters.map(exporter => new SelectDropdown(exporter.id, exporter.description || exporter.id))
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@freeze_expiration_date:Freeze Expiration Date`
+                        },
+                        {
+                            tag:"select",
+                            options:[
+                                new SelectDropdown(null, "-"),
+                                new SelectDropdown("true", $localize `:@@FREEZE:FREEZE`, $localize `:@@freeze_expiration_date_state:Freeze expiration date and set expiration state to FROZEN`),
+                                new SelectDropdown("false", $localize `:@@UNFREEZE:UNFREEZE`, $localize `:@@unfreeze_expiration_date_state:Unfreeze expiration date and set expiration state to UPDATEABLE`)
+                            ],
+                            filterKey:"freezeExpirationDate",
+                            description:$localize `:@@freeze_expiration_date_options:Freeze Expiration Date Options`,
+                            placeholder:$localize `:@@freeze_expiration_date:Freeze Expiration Date`
+                        }
+                    ]
+                ]
+            ];
         }
         return {
             content: title,
@@ -4260,11 +4293,16 @@ export class StudyService {
         };
     }
 
-    setExpiredDate(deviceWebservice: StudyWebService, studyUID, expiredDate, exporter, params?: any) {
+    setExpiredDate(deviceWebservice: StudyWebService, studyUID, expiredDate, exporter, freezeExpirationDate, params?: any) {
         const url = this.getModifyStudyUrl(deviceWebservice);
         let localParams = "";
         if (exporter) {
-            localParams = `?ExporterID=${exporter}`
+            localParams = `?ExporterID=${exporter}`;
+            if (freezeExpirationDate != null)
+                localParams += `&FreezeExpirationDate=${freezeExpirationDate}`;
+        } else {
+            if (freezeExpirationDate != null)
+                localParams += `?FreezeExpirationDate=${freezeExpirationDate}`;
         }
         if (params && Object.keys(params).length > 0) {
             if (localParams) {

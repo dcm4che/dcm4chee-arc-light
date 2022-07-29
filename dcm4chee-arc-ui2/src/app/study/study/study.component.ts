@@ -4181,8 +4181,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(result){
                 this.cfpLoadingBar.start();
                 if(result.schema_model.expiredDate){
-                    this.service.setExpiredDate(this.studyWebService, _.get(study,"attrs.0020000D.Value[0]"), result.schema_model.expiredDate, result.schema_model.exporter).subscribe(
-                        (res)=>{
+                    this.service.setExpiredDate(this.studyWebService,
+                                                _.get(study,"attrs.0020000D.Value[0]"),
+                                                result.schema_model.expiredDate,
+                                                result.schema_model.exporter,
+                                                result.schema_model.freezeExpirationDate)
+                        .subscribe((res)=>{
                             _.set(study,"attrs.77771023.Value[0]",result.schema_model.expiredDate);
                             _.set(study,"attrs.77771023.vr","DA");
                             this.appService.showMsg( $localize `:@@expired_date_set:Expired date set successfully!`);
