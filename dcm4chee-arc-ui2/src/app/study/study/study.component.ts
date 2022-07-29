@@ -2837,6 +2837,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "instance_availability_notification_for_matching_studies":
                                     return studyConfig && studyConfig.tab === "study"
                                         && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
+                                case "apply_retention_multiple_series":
                                 case "export_multiple_series":
                                 case "reject_multiple_series":
                                 case "download_series":
