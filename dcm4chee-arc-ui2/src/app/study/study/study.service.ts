@@ -4176,6 +4176,18 @@ export class StudyService {
                                 filterKey: "expiredDate",
                                 description: $localize `:@@expired_date:Expired Date`
                             }
+                        ],
+                        [
+                            {
+                                tag: "label",
+                                text: $localize `:@@exporter:Exporter`
+                            },
+                            {
+                                tag: "select",
+                                filterKey: "exporter",
+                                description: $localize `:@@exporter:Exporter`,
+                                options: exporters.map(exporter => new SelectDropdown(exporter.id, exporter.description || exporter.id))
+                            }
                         ]
                     ]
                 ];
