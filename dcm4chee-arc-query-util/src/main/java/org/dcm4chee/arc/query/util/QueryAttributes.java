@@ -180,6 +180,7 @@ public class QueryAttributes {
                 case "requested":
                 case "merged":
                 case "ExporterID":
+                case "FreezeExpirationDate":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
