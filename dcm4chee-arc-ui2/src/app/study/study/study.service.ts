@@ -4291,6 +4291,17 @@ export class StudyService {
                             description:$localize `:@@freeze_expiration_date_options:Freeze Expiration Date Options`,
                             placeholder:$localize `:@@freeze_expiration_date:Freeze Expiration Date`
                         }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@protect_study:Protect Study`
+                        },
+                        {
+                            tag: "checkbox",
+                            filterKey: "protectStudy",
+                            description: $localize `:@@set_expiration_date_to_never_to_protect_the_study:Existing / new Expiration Date will be nullified and study expiration state will be set to FROZEN to protect the study from being expired or rejected`,
+                        }
                     ]
                 ]
             ];

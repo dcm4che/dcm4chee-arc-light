@@ -4180,10 +4180,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.confirm(this.service.getPrepareParameterForExpiriationDialog(study,this.exporters, infinit)).subscribe(result => {
             if(result){
                 this.cfpLoadingBar.start();
-                if(result.schema_model.expiredDate){
+                if(result.schema_model.expiredDate || result.schema_model.protectStudy){
                     this.service.setExpiredDate(this.studyWebService,
                                                 _.get(study,"attrs.0020000D.Value[0]"),
-                                                result.schema_model.expiredDate,
+                                                result.schema_model.protectStudy ? "never" : result.schema_model.expiredDate,
                                                 result.schema_model.exporter,
                                                 result.schema_model.freezeExpirationDate)
                         .subscribe((res)=>{
