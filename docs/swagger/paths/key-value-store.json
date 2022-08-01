@@ -1,0 +1,106 @@
+{
+  "values": {
+    "get": {
+      "tags": [
+        "KEY-VALUE-STORE"
+      ],
+      "summary": "Get Value",
+      "operationId": "GetValue",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/keyPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Found Value with specified Key.",
+          "content": {
+            "<content-type-of-value>": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "There is no Value with the specified Key."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "KEY-VALUE-STORE"
+      ],
+      "summary": "Set Value",
+      "operationId": "SetValue",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/keyPathParam"
+        }
+      ],
+      "requestBody": {
+        "description": "Value of any content-type",
+        "content": {
+          "<content-type-of-value>": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "KEY-VALUE-STORE"
+      ],
+      "summary": "Delete Value",
+      "operationId": "DeleteValue",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/keyPathParam"
+        }
+      ],
+      "requestBody": {
+        "description": "Value of any content-type",
+        "content": {
+          "<content-type-of-value>": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "keyPathParam": {
+    "name": "key",
+    "in": "path",
+    "description": "Key",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  }
+}

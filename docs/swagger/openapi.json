@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.25.0"
+    "version": "5.28.0"
   },
   "servers": [
     {
@@ -130,6 +130,10 @@
     {
       "name": "STGVER-RS",
       "description": "Storage Verification"
+    },
+    {
+      "name": "KEY-VALUE-STORE",
+      "description": "Key Value Store"
     },
     {
       "name": "IMPAX-REPORT-RS",
@@ -836,6 +840,9 @@
     },
     "/queue/{queueName}/{taskID}": {
       "$ref": "paths/monitor.json#/queueTask"
+    },
+    "/values/{key}": {
+      "$ref": "paths/key-value-store.json#/values"
     },
     "/aets/{aet}/dimse/{movescp}/studies/{study}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/studies"
