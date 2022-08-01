@@ -52,7 +52,11 @@
                       [multiSelectMode]="false"
                       (modelChange)="actionsSelectionsChanged($event)"
                       [showStar]="false"
-                      *ngIf="studyWebService && studyWebService.selectedWebService && (( patients && patients.length > 0) || (patients1 && patients1.length > 0) )&& !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps'))"
+                      *ngIf="studyWebService
+                                && studyWebService.selectedWebService
+                                && ((patients && patients.length > 0)
+                                    || (patients1 && patients1.length > 0))
+                                && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps'))"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
 <!--              <dcm-drop-down
@@ -88,14 +92,32 @@
             </div>
         </div>
       </div>
-    <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+      <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') > -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+          <ul class="selection_functions">
+              <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
+              <li *ngIf='studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1'><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>
+              <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>
+              <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>
+              <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title="@@title.study.mark_selected_patient_for_merge" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>
+              <li><button (click)="selectionAction('paste')"  i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge" title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>
+          </ul>
+          <ul *ngIf="checkboxFunctions" class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions' [clickOutsideExceptionClass]="['ignore_click_outside']">
+              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('remove_selection')" i18n="@@remove_all_selections">Remove all selections</button></li>
+              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('check_selection_study')" i18n="@@select_all_studies">Select all studies</button></li>
+              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_study')" i18n="@@unselect_all_studies">Unselect all studies</button></li>
+              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('check_selection_patient')" i18n="@@select_all_patients">Select all patients</button></li>
+              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_patient')" i18n="@@unselect_all_patients">Unselect all patients</button></li>
+              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')" i18n="@@hide_checkboxes">Hide checkboxes</button></li>
+          </ul>
+      </div>
+    <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') == -1 && studyConfig && studyConfig.tab === 'study'" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
         <ul class="selection_functions">
             <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
-            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>
-            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>
-            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>
-            <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title="@@title.study.mark_selected_patient_for_merge" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>
-            <li><button (click)="selectionAction('paste')"  i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge" title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>
+<!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>-->
+<!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>-->
+<!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>-->
+<!--            <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title="@@title.study.mark_selected_patient_for_merge" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>-->
+<!--            <li><button (click)="selectionAction('paste')"  i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge" title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>-->
         </ul>
         <ul *ngIf="checkboxFunctions" class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions' [clickOutsideExceptionClass]="['ignore_click_outside']">
             <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('remove_selection')" i18n="@@remove_all_selections">Remove all selections</button></li>
