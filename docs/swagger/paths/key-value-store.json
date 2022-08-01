@@ -93,14 +93,5 @@
         }
       }
     }
-  },
-  "keyPathParam": {
-    "name": "key",
-    "in": "path",
-    "description": "Key",
-    "required": true,
-    "schema": {
-      "type": "string"
-    }
   }
 }
