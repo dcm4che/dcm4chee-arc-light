@@ -161,6 +161,16 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.KeyValue">
+    <sequence-generator name="key_value_pk_seq" sequence-name="key_value_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="key_value_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.Patient">
     <sequence-generator name="patient_pk_seq" sequence-name="patient_pk_seq" allocation-size="1"/>
     <attributes>

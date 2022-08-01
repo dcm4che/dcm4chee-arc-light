@@ -550,6 +550,8 @@
     <module>dcm4chee-arc-mpps-scu</module>
     <module>dcm4chee-arc-mwl-rs</module>
     <module>dcm4chee-arc-mwl-scp</module>
+    <module>dcm4chee-arc-keyvalue</module>
+    <module>dcm4chee-arc-keyvalue-rs</module>
     <module>dcm4chee-arc-patient</module>
     <module>dcm4chee-arc-pdq</module>
     <module>dcm4chee-arc-pdq-db</module>
