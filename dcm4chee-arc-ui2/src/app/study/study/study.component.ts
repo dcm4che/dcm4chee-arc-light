@@ -213,14 +213,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         ],
         model:undefined
     };
-    internal = true;
     actionsSelections = {
         placeholder: $localize `:@@actions_for_selections:Actions for selections`,
         options:[
             new SelectDropdown("toggle_checkboxes", $localize `:@@toggle_checkboxes:Toggle checkboxes`, $localize `:@@toggle_checkboxes_for_selection:Toggle checkboxes for selection`),
-            new SelectDropdown("export_object",
-                this.internal ? $localize `:@@study.short_export_object:Export selections`:$localize `:@@retrieve_selections:Retrieve selections`,
-                this.internal ? $localize `:@@study.export_object:Export selected studies, series or instances`: $localize `:@@retrieve_selected_objects:Retrieve selected studies, series or instances`),
+            new SelectDropdown("export_object", $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),
+            new SelectDropdown("retrieve_object", $localize `:@@retrieve_selections:Retrieve selections`, $localize `:@@retrieve_selected_objects:Retrieve selected studies, series or instances`),
             new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
             new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
             new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
@@ -232,6 +230,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         ],
         model:undefined
     };
+    internal = true;
     exporters;
     testShow = true;
     fixedHeader = false;
@@ -359,6 +358,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
         this.moreFunctionConfig.options.filter(option=>{
             if(option.value === "retrieve_multiple" || option.value === "import_matching_sps_to_archive"){
+                return !this.internal;
+            }else{
+                return true;
+            }
+        });
+        this.actionsSelections.options.filter(option=>{
+            if(option.value === "retrieve_object"){
                 return !this.internal;
             }else{
                 return true;
@@ -519,19 +525,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.tableParam.tableSchema  = this.getSchema();
         }
         if(e === "export_object"){
-            if(this.internal){
-                this.exporter(
-                        undefined,
-                    $localize `:@@study.export_selected_object:Export selected objects`,
-                    $localize `:@@single:single`,
-                        undefined,
-                        undefined,
-                       this.selectedElements
-                );
-            }else{
-                this.retrieveObject(undefined,undefined,this.selectedElements);
-            }
+            this.exporter(
+                undefined,
+                $localize `:@@study.export_selected_object:Export selected objects`,
+                $localize `:@@single:single`,
+                undefined,
+                undefined,
+                this.selectedElements
+            );
         }
+        if (e === "retrieve_object")
+            this.retrieveObject(undefined,undefined,this.selectedElements);
         if(e === "reject_object" || e === "restore_object"){
             this.rejectRestoreMultipleObjects();
         }
@@ -2868,24 +2872,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let trashActive = args[1];
         let studyConfig = args[2];
         return value.filter(option=>{
-            if(option.value === "delete_object"){
-                return internal && trashActive;
+            switch (option.value) {
+                case "delete_object":
+                    return internal && trashActive;
+                case "restore_object":
+                    return internal && trashActive;
+                case "reject_object":
+                    return !trashActive && studyConfig && (studyConfig.tab === "study" || studyConfig.tab === "series");
+                case "change_sps_status_on_selections":
+                    return studyConfig && studyConfig.tab === "mwl";
+                case "update_access_control_id_to_selections":
+                case "send_storage_commitment_request_for_selections":
+                case "send_ian_request_for_selections":
+                case "storage_verification_for_selections":
+                case "export_object":
+                    return internal && studyConfig && (studyConfig.tab === "study" || studyConfig.tab === "series");
+                case "retrieve_object":
+                    return !internal && studyConfig && studyConfig.tab === "study";
+                default:
+                    return true;
             }
-            if(option.value === "restore_object"){
-                return internal && trashActive;
-            }
-            if(option.value === "reject_object"){
-                return !trashActive && studyConfig && (studyConfig.tab === "study" || studyConfig.tab === "series");
-            }
-            if(option.value === "update_access_control_id_to_selections" || option.value === "send_ian_request_for_selections"
-                || option.value === "send_storage_commitment_request_for_selections" || option.value === "export_object"
-                || option.value === "storage_verification_for_selections"){
-                return studyConfig && (studyConfig.tab === "study" || studyConfig.tab === "series");
-            }
-            if(option.value === "change_sps_status_on_selections"){
-                return studyConfig && studyConfig.tab === "mwl";
-            }
-            return true;
         });
     }
 
@@ -5698,6 +5704,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.initRjNotes(retries - 1);
                 });
     }
+
     // aets;
     initWebApps(){
         let aetsTemp;
