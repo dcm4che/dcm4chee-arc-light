@@ -406,6 +406,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmFilterByIssuerOfPatientID", arcDev.isFilterByIssuerOfPatientID(), false);
         writer.writeNotDef("dcmAuditHL7MsgLimit", arcDev.getAuditHL7MsgLimit(), 1000);
         writer.writeNotDef("dcmMatchSOPClassOnInstanceLevel", arcDev.isMatchSOPClassOnInstanceLevel(), false);
+        writer.writeNotDef("dcmUPSUpdateWithoutTransactionUID", arcDev.isUPSUpdateWithoutTransactionUID(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1306,6 +1307,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcAE.getChangeRequesterAET(), null);
         writer.writeNotNull("dcmFilterByIssuerOfPatientID", arcAE.getFilterByIssuerOfPatientID());
         writer.writeNotNull("dcmMatchSOPClassOnInstanceLevel", arcAE.getMatchSOPClassOnInstanceLevel());
+        writer.writeNotNull("dcmUPSUpdateWithoutTransactionUID", arcAE.getUPSUpdateWithoutTransactionUID());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeMPPSForwardRule(writer, arcAE.getMPPSForwardRules());
@@ -2055,6 +2057,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMatchSOPClassOnInstanceLevel":
                     arcDev.setMatchSOPClassOnInstanceLevel(reader.booleanValue());
+                    break;
+                case "dcmUPSUpdateWithoutTransactionUID":
+                    arcDev.setUPSUpdateWithoutTransactionUID(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -4160,6 +4165,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMatchSOPClassOnInstanceLevel":
                     arcAE.setMatchSOPClassOnInstanceLevel(reader.booleanValue());
+                    break;
+                case "dcmUPSUpdateWithoutTransactionUID":
+                    arcAE.setUPSUpdateWithoutTransactionUID(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
