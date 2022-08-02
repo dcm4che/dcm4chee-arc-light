@@ -6,7 +6,7 @@ create table key_value
     created_time timestamp     not null,
     key          varchar(255)  not null,
     updated_time timestamp     not null,
-    user         varchar(255),
+    username     varchar(255),
     value        varchar(4000) not null,
     primary key (pk)
 );
@@ -14,7 +14,7 @@ create table key_value
 alter table key_value
     add constraint UK_gvyp924rq0a5y8u3emjs35g2q unique (key);
 
-create index UK_apy4vqmy3asbet0nmqhag6lgt on key_value (user);
+create index UK_o92kvbnsf2cnttpubgfpd6p01 on key_value (username);
 create index UK_51ia14mc4pabswlvaqnt43clb on key_value (updated_time);
 
 -- part 2: shall be applied on stopped archive before starting 5.27

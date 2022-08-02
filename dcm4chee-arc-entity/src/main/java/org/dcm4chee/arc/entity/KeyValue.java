@@ -53,7 +53,7 @@ import java.util.Date;
         query = "select kv from KeyValue kv where kv.key = ?1")
 @NamedQuery(
         name = KeyValue.FIND_BY_KEY_AND_USER,
-        query = "select kv from KeyValue kv where kv.key = ?1 and (kv.user is null or kv.user = ?2)")
+        query = "select kv from KeyValue kv where kv.key = ?1 and (kv.username is null or kv.username = ?2)")
 @NamedQuery(
         name = KeyValue.PK_UPDATED_BEFORE,
         query = "select kv.pk from KeyValue kv where kv.updatedTime < ?1")
@@ -64,7 +64,7 @@ import java.util.Date;
 @Table(name = "key_value",
         uniqueConstraints = @UniqueConstraint(columnNames = "key" ),
         indexes = {
-                @Index(columnList = "user"),
+                @Index(columnList = "username"),
                 @Index(columnList = "updated_time")
         })
 public class KeyValue {
@@ -86,8 +86,8 @@ public class KeyValue {
     private Date updatedTime;
 
     @Basic
-    @Column(name = "user", updatable = false)
-    private String user;
+    @Column(name = "username", updatable = false)
+    private String username;
 
     @Basic(optional = false)
     @Column(name = "key", updatable = false)
@@ -113,8 +113,8 @@ public class KeyValue {
         return updatedTime;
     }
 
-    public String getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
     public String getKey() {
@@ -129,9 +129,9 @@ public class KeyValue {
         return value;
     }
 
-    public void setKeyAsUser(String key, String user) {
+    public void setKeyAsUser(String key, String username) {
         this.key = key;
-        this.user = user;
+        this.username = username;
     }
 
     public void setValueWithContentType(String value, String contentType) {
