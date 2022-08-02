@@ -109,14 +109,18 @@ export class AppComponent implements OnInit {
     }
 
     switchBaseUrl(url){
-        if(url){
-            this.mainservice.baseUrl = url;
-            if(_.hasIn(this.mainservice,'dcm4cheeArcConfig.deviceNameUrlMap') && this.mainservice.dcm4cheeArcConfig.deviceNameUrlMap[url]){
-                //this.myDeviceName = this.dcm4cheeArch['deviceNameUrlMap'][url];
-                this.mainservice.archiveDeviceName = this.mainservice.dcm4cheeArcConfig.deviceNameUrlMap[url];
+        try{
+            if(url){
+                if(_.hasIn(this.mainservice,'dcm4cheeArcConfig.deviceNameUrlMap') && this.mainservice.dcm4cheeArcConfig.deviceNameUrlMap[url] && this.mainservice.dcm4cheeArcConfig.deviceNameUrlMap[url] != 'NOT_FOUND'){
+                    this.mainservice.baseUrl = url;
+                    //this.myDeviceName = this.dcm4cheeArch['deviceNameUrlMap'][url];
+                    this.mainservice.archiveDeviceName = this.mainservice.dcm4cheeArcConfig.deviceNameUrlMap[url];
+                }
+                this.mainservice.dcm4cheeArcConfig.open = false;
+                //this.dcm4cheeArch.open = false;
             }
-            this.mainservice.dcm4cheeArcConfig.open = false;
-            //this.dcm4cheeArch.open = false;
+        }catch (e) {
+            console.error(e);
         }
     }
 
