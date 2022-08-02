@@ -757,7 +757,7 @@ export class StudyService {
         );
     }
 
-    getSeries(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
+    getSeries(filterModel, dcmWebApp: DcmWebApp, isDimseSeries: boolean, responseType?: DicomResponseType): Observable<any> {
         let header: HttpHeaders;
         if (!responseType || responseType === "object") {
             header = this.dicomHeader
@@ -765,8 +765,11 @@ export class StudyService {
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}` : params;
 
+        let url = isDimseSeries
+                ? `${this.getDicomURLDimseSeries(filterModel, dcmWebApp)}${params || ''}`
+                : `${this.getDicomURL("series", dcmWebApp, responseType)}${params || ''}`;
         return this.$http.get(
-            `${this.getDicomURL("series", dcmWebApp, responseType)}${params || ''}`,
+            url,
             header,
             false,
             dcmWebApp
@@ -826,6 +829,20 @@ export class StudyService {
             return _.get(model, "0020000E.Value[0]");
         }catch (e) {
             return undefined;
+        }
+    }
+
+    getDicomURLDimseSeries(filterModel, dcmWebApp: DcmWebApp) {
+        try {
+            let url = j4care.getUrlFromDcmWebApplication(dcmWebApp, this.appService.baseUrl);
+            if(url){
+                url += '/studies/' + _.get(filterModel, "StudyInstanceUID") + '/series';
+                return url;
+            } else{
+                j4care.log('Url is undefined');
+            }
+        } catch (e) {
+            j4care.log("Error on getting dicomURL in study.service.ts", e);
         }
     }
 

@@ -160,6 +160,15 @@ dcmuiActionParam: edit
 dcmuiActionParam: delete
 dcmuiActionParam: upload
 
+dn: dcmuiPermissionName=Action - Studies - UWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: action-studies-uwl
+dcmuiPermissionName: Action - Studies - UWL
+dcmAcceptedUserRole: admin
+dcmuiActionParam: create
+dcmuiActionParam: edit
+dcmuiActionParam: delete
+
 dn: dcmuiPermissionName=Tab - Configuration Ae List,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: tab-configuration->ae_list
