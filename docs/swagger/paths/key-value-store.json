@@ -40,6 +40,9 @@
       "parameters": [
         {
           "$ref": "../parameters.json#/keyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/shareKeyValue"
         }
       ],
       "requestBody": {
@@ -57,6 +60,12 @@
         "204": {
           "description": "successful operation"
         },
+        "403": {
+          "description": "There is already a Value set for the specified Key by a different user."
+        },
+        "409": {
+          "description": "There is already a Value set for the specified Key with a different content type."
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -73,20 +82,12 @@
           "$ref": "../parameters.json#/keyPathParam"
         }
       ],
-      "requestBody": {
-        "description": "Value of any content-type",
-        "content": {
-          "<content-type-of-value>": {
-            "schema": {
-              "type": "string",
-              "format": "binary"
-            }
-          }
-        }
-      },
       "responses": {
         "204": {
           "description": "successful operation"
+        },
+        "403": {
+          "description": "The Value for the specified Key was set by a different user."
         },
         "500": {
           "description": "Internal Server Error."
