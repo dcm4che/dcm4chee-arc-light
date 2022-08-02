@@ -2113,11 +2113,6 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.434 NAME 'hl7PSUMWLMatchingKey'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.435 NAME 'dcmKeyValueUnauthorizedUser'
-  DESC 'User Name associated with Key Value requests if RESTful services are not secured by OIDC; ANONYMOUS if absent'
-  EQUALITY caseExactMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.436 NAME 'dcmKeyValueRetentionPollingInterval'
   DESC 'Polling Interval for Key Value pairs which retention period expired in ISO-8601 duration format PnDTnHnMnS. If absent, Key Value pairs will not get deleted automatically.'
   EQUALITY caseExactIA5Match
@@ -2179,7 +2174,6 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDeleteUPSFetchSize $
     dcmDeleteUPSCompletedDelay $
     dcmDeleteUPSCanceledDelay $
-    dcmKeyValueUnauthorizedUser $
     dcmKeyValueRetentionPollingInterval $
     dcmKeyValueRetentionFetchSize $
     dcmKeyValueRetentionPeriod $

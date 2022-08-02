@@ -38,26 +38,43 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.keyvalue;
+package org.dcm4chee.arc.keyvalue.impl;
 
-import org.dcm4chee.arc.entity.KeyValue;
+import org.dcm4chee.arc.Scheduler;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.List;
+import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Aug 2022
  */
-public interface KeyValueService {
-    KeyValue getKeyValue(String key, String user);
+public class KeyValueScheduler extends Scheduler {
+    private static final Logger LOG = LoggerFactory.getLogger(KeyValueScheduler.class);
 
-    boolean setKeyValue(String key, String user, boolean share, String value, String contentType)
-            throws UserMismatchException, ContentTypeMismatchException;
+    protected KeyValueScheduler() {
+        super(Mode.scheduleWithFixedDelay);
+    }
 
-    KeyValue deleteKeyValue(String key, String user) throws UserMismatchException;
+    @Inject
+    private KeyValueServiceEJB ejb;
 
-    List<Long> keyValuePKs(Date before);
+    @Override
+    protected Logger log() {
+        return LOG;
+    }
 
-    long deleteKeyValues(List<Long> pks);
+    @Override
+    protected Duration getPollingInterval() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        return arcDev.getKeyValueRetentionPeriod() != null ?  arcDev.getKeyValueRetentionPollingInterval() : null;
+    }
+
+    @Override
+    protected void execute() {
+        //TODO
+    }
 }

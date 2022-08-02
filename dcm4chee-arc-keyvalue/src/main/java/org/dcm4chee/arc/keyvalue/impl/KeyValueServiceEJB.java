@@ -42,10 +42,13 @@ package org.dcm4chee.arc.keyvalue.impl;
 
 import org.dcm4chee.arc.entity.KeyValue;
 import org.dcm4chee.arc.keyvalue.KeyValueService;
+import org.dcm4chee.arc.keyvalue.UserMismatchException;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -54,14 +57,33 @@ import javax.ejb.TransactionAttributeType;
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class KeyValueServiceEJB implements KeyValueService {
+
     @Override
-    public void setValue(String key, String user, String value, String contentType) {
+    public KeyValue getKeyValue(String user, String key) {
         //TODO
+        return null;
     }
 
     @Override
-    public KeyValue getValue(String user, String key) {
+    public boolean setKeyValue(String key, String user, boolean share, String value, String contentType) {
+        //TODO
+        return false;
+    }
+
+    @Override
+    public KeyValue deleteKeyValue(String key, String user) throws UserMismatchException {
         //TODO
         return null;
+    }
+
+    @Override
+    public List<Long> keyValuePKs(Date before) {
+        return null;
+    }
+
+    @Override
+    public long deleteKeyValues(List<Long> pks) {
+        //TODO
+        return 0;
     }
 }

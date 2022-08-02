@@ -49,24 +49,29 @@ import javax.persistence.*;
 import java.util.Date;
 
 @NamedQuery(
-        name = KeyValue.FIND_BY_KEY_AS_USER,
-        query = "select kv from KeyValue kv where kv.key = ?1 and kv.user = ?2")
+        name = KeyValue.FIND_BY_KEY,
+        query = "select kv from KeyValue kv where kv.key = ?1")
 @NamedQuery(
-        name = KeyValue.VALUE_BY_KEY_AS_USER,
-        query = "select kv.value from KeyValue kv where kv.key = ?1 and kv.user = ?2")
+        name = KeyValue.FIND_BY_KEY_AND_USER,
+        query = "select kv from KeyValue kv where kv.key = ?1 and (kv.user is null or kv.user = ?2)")
 @NamedQuery(
-        name = KeyValue.DELETE_UPDATED_BEFORE,
-        query = "delete from KeyValue kv where kv.updatedTime < ?2")
+        name = KeyValue.PK_UPDATED_BEFORE,
+        query = "select kv.pk from KeyValue kv where kv.updatedTime < ?1")
+@NamedQuery(
+        name = KeyValue.DELETE_BY_PKS,
+        query = "delete from KeyValue kv where kv.pk in ?1")
 @Entity
 @Table(name = "key_value",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "key", "user" }),
+        uniqueConstraints = @UniqueConstraint(columnNames = "key" ),
         indexes = {
-                @Index(columnList = "updated_time"),
+                @Index(columnList = "user"),
+                @Index(columnList = "updated_time")
         })
 public class KeyValue {
-    public static final String FIND_BY_KEY_AS_USER = "KeyValue.FindByKeyAsUser";
-    public static final String VALUE_BY_KEY_AS_USER = "KeyValue.ValueByKeyAsUser";
-    public static final String DELETE_UPDATED_BEFORE = "KeyValue.DeleteUpdatedBefore";
+    public static final String FIND_BY_KEY = "KeyValue.FindByKey";
+    public static final String FIND_BY_KEY_AND_USER = "KeyValue.FindByKeyAndUser";
+    public static final String PK_UPDATED_BEFORE = "KeyValue.PkUpdatedBefore";
+    public static final String DELETE_BY_PKS = "KeyValue.DeleteByPKs";
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")
@@ -80,7 +85,7 @@ public class KeyValue {
     @Column(name = "updated_time")
     private Date updatedTime;
 
-    @Basic(optional = false)
+    @Basic
     @Column(name = "user", updatable = false)
     private String user;
 

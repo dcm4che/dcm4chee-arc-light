@@ -85,7 +85,7 @@ public class KeyValueRS {
 
     @PUT
     @Path("/{key}")
-    public Response setValue(@PathParam("key") String key, InputStream in) {
+    public Response setValue(@PathParam("key") String key, @QueryParam("share") boolean share, InputStream in) {
         //TODO
         return null;
     }

@@ -40,24 +40,15 @@
 
 package org.dcm4chee.arc.keyvalue;
 
-import org.dcm4chee.arc.entity.KeyValue;
-
-import java.util.Date;
-import java.util.List;
+import javax.ejb.ApplicationException;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Aug 2022
  */
-public interface KeyValueService {
-    KeyValue getKeyValue(String key, String user);
-
-    boolean setKeyValue(String key, String user, boolean share, String value, String contentType)
-            throws UserMismatchException, ContentTypeMismatchException;
-
-    KeyValue deleteKeyValue(String key, String user) throws UserMismatchException;
-
-    List<Long> keyValuePKs(Date before);
-
-    long deleteKeyValues(List<Long> pks);
+@ApplicationException(rollback = true)
+public class ContentTypeMismatchException extends Exception {
+    public ContentTypeMismatchException(String message) {
+        super(message);
+    }
 }

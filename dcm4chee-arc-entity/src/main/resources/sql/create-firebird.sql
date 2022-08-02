@@ -7,7 +7,7 @@ create table ian_task (pk numeric(18,0) not null, calling_aet varchar(255) not n
 create table id_sequence (name varchar(255) not null, next_value integer not null, version numeric(18,0), primary key (name));
 create table instance (pk numeric(18,0) not null, availability integer not null, sr_complete varchar(255) not null, content_date varchar(255) not null, content_time varchar(255) not null, created_time timestamp not null, ext_retrieve_aet varchar(255), inst_custom1 varchar(255) not null, inst_custom2 varchar(255) not null, inst_custom3 varchar(255) not null, inst_no integer, num_frames integer, retrieve_aets varchar(255), sop_cuid varchar(255) not null, sop_iuid varchar(255) not null, updated_time timestamp not null, sr_verified varchar(255) not null, version numeric(18,0), dicomattrs_fk numeric(18,0) not null, srcode_fk numeric(18,0), series_fk numeric(18,0) not null, primary key (pk));
 create table instance_req (pk numeric(18,0) not null, accession_no varchar(255) not null, accno_entity_id varchar(255), accno_entity_uid varchar(255), accno_entity_uid_type varchar(255), req_proc_id varchar(255) not null, req_service varchar(255) not null, sps_id varchar(255) not null, study_iuid varchar(255) not null, req_phys_name_fk numeric(18,0), instance_fk numeric(18,0), primary key (pk));
-create table key_value (pk numeric(18,0) not null, content_type varchar(255) not null, created_time timestamp not null, key varchar(255) not null, updated_time timestamp not null, user varchar(255) not null, value varchar(4000) not null, primary key (pk));
+create table key_value (pk numeric(18,0) not null, content_type varchar(255) not null, created_time timestamp not null, key varchar(255) not null, updated_time timestamp not null, user varchar(255), value varchar(4000) not null, primary key (pk));
 create table location (pk numeric(18,0) not null, created_time timestamp not null, digest varchar(255), multi_ref integer, object_type integer not null, object_size numeric(18,0) not null, status integer not null, storage_id varchar(255) not null, storage_path varchar(255) not null, tsuid varchar(255), uidmap_fk numeric(18,0), instance_fk numeric(18,0), primary key (pk));
 create table metadata (pk numeric(18,0) not null, created_time timestamp not null, digest varchar(255), object_size numeric(18,0) not null, status integer not null, storage_id varchar(255) not null, storage_path varchar(255) not null, primary key (pk));
 create table mpps (pk numeric(18,0) not null, accession_no varchar(255) not null, accno_entity_id varchar(255), accno_entity_uid varchar(255), accno_entity_uid_type varchar(255), created_time timestamp not null, pps_start_date varchar(255) not null, pps_start_time varchar(255) not null, sop_iuid varchar(255) not null, pps_status integer not null, study_iuid varchar(255) not null, updated_time timestamp not null, version numeric(18,0), dicomattrs_fk numeric(18,0) not null, discreason_code_fk numeric(18,0), patient_fk numeric(18,0) not null, primary key (pk));
@@ -62,7 +62,8 @@ create index UK_n32ktg5h9xc1ex9x8g69w1s10 on instance_req (req_service);
 create index UK_7pudwdgrg9wwc73wo65hpg517 on instance_req (req_proc_id);
 create index UK_43h9ogidkcnex0e14q6u0c3jn on instance_req (sps_id);
 create index UK_1typgaxhn4d0pt1f0vlp18wvb on instance_req (study_iuid);
-alter table key_value add constraint UK_pbdnrclnbwmbsbruwe0avqbh  unique (key, user);
+alter table key_value add constraint UK_gvyp924rq0a5y8u3emjs35g2q  unique (key);
+create index UK_apy4vqmy3asbet0nmqhag6lgt on key_value (user);
 create index UK_51ia14mc4pabswlvaqnt43clb on key_value (updated_time);
 create index UK_r3oh859i9osv3aluoc8dcx9wk on location (storage_id, status);
 create index UK_i1lnahmehau3r3j9pdyxg3p3y on location (multi_ref);

@@ -470,6 +470,15 @@
       "type": "string"
     }
   },
+  "keyValueShare": {
+    "name": "share",
+    "in": "query",
+    "description": "Specifies if other users can access the value.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
+  },
   "requestType": {
     "name": "requestType",
     "in": "query",

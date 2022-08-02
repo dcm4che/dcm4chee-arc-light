@@ -170,6 +170,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeTaskPollingInterval;
     private volatile Duration purgeStgCmtPollingInterval;
     private volatile Duration purgeStgCmtCompletedDelay;
+    private volatile Duration keyValueRetentionPollingInterval;
+    private volatile int keyValueRetentionFetchSize = 100;
+    private volatile Duration keyValueRetentionPeriod;
     private volatile Duration mwlPollingInterval;
     private volatile int mwlFetchSize = 100;
     private volatile Duration mwlImportInterval;
@@ -1268,6 +1271,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPurgeStgCmtCompletedDelay(Duration purgeStgCmtCompletedDelay) {
         this.purgeStgCmtCompletedDelay = purgeStgCmtCompletedDelay;
+    }
+
+    public Duration getKeyValueRetentionPollingInterval() {
+        return keyValueRetentionPollingInterval;
+    }
+
+    public void setKeyValueRetentionPollingInterval(Duration keyValueRetentionPollingInterval) {
+        this.keyValueRetentionPollingInterval = keyValueRetentionPollingInterval;
+    }
+
+    public int getKeyValueRetentionFetchSize() {
+        return keyValueRetentionFetchSize;
+    }
+
+    public void setKeyValueRetentionFetchSize(int keyValueRetentionFetchSize) {
+        this.keyValueRetentionFetchSize = keyValueRetentionFetchSize;
+    }
+
+    public Duration getKeyValueRetentionPeriod() {
+        return keyValueRetentionPeriod;
+    }
+
+    public void setKeyValueRetentionPeriod(Duration keyValueRetentionPeriod) {
+        this.keyValueRetentionPeriod = keyValueRetentionPeriod;
     }
 
     public SPSStatus[] getHideSPSWithStatusFrom() {
@@ -3289,6 +3316,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeTaskPollingInterval = arcdev.purgeTaskPollingInterval;
         purgeStgCmtPollingInterval = arcdev.purgeStgCmtPollingInterval;
         purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
+        keyValueRetentionPollingInterval = arcdev.keyValueRetentionPollingInterval;
+        keyValueRetentionFetchSize = arcdev.keyValueRetentionFetchSize;
+        keyValueRetentionPeriod = arcdev.keyValueRetentionPeriod;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         hideSPSWithStatusFromMWLRS = arcdev.hideSPSWithStatusFromMWLRS;
         hl7ORUAction = arcdev.hl7ORUAction;
