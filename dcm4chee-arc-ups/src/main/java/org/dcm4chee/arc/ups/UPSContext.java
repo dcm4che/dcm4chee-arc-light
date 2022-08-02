@@ -109,6 +109,8 @@ public interface UPSContext {
 
     void setTemplate(boolean template);
 
+    boolean isUPSUpdateWithoutTransactionUID();
+
     List<UPSEvent> getUPSEvents();
 
     void addUPSEvent(UPSEvent.Type cancelRequested, String upsInstanceUID, Attributes eventInformation,

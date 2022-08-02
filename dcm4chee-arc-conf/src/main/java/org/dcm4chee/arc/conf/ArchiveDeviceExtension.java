@@ -79,6 +79,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String upsWorklistLabel;
     private volatile String[] upsEventSCUs = {};
     private volatile int upsEventSCUKeepAlive;
+    private volatile boolean upsUpdateWithoutTransactionUID;
     private volatile String fuzzyAlgorithmClass;
     private volatile String bulkDataDescriptorID;
     private volatile String[] seriesMetadataStorageIDs = {};
@@ -385,6 +386,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setUPSEventSCUKeepAlive(int upsEventSCUKeepAlive) {
         this.upsEventSCUKeepAlive = upsEventSCUKeepAlive;
+    }
+
+    public boolean isUPSUpdateWithoutTransactionUID() {
+        return upsUpdateWithoutTransactionUID;
+    }
+
+    public void setUPSUpdateWithoutTransactionUID(boolean upsUpdateWithoutTransactionUID) {
+        this.upsUpdateWithoutTransactionUID = upsUpdateWithoutTransactionUID;
     }
 
     public String getFuzzyAlgorithmClass() {
@@ -3190,6 +3199,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         upsWorklistLabel = arcdev.upsWorklistLabel;
         upsEventSCUs = arcdev.upsEventSCUs;
         upsEventSCUKeepAlive = arcdev.upsEventSCUKeepAlive;
+        upsUpdateWithoutTransactionUID = arcdev.upsUpdateWithoutTransactionUID;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
         bulkDataDescriptorID = arcdev.bulkDataDescriptorID;
