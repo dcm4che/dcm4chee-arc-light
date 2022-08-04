@@ -346,14 +346,10 @@ public class UpsRS {
     private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
         KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
         if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
-            arcAE.getAcceptedUserRoles1()
-                    .stream()
-                    .filter(keycloakContext::isUserInRole)
-                    .findAny()
-                    .orElseThrow(() -> new WebApplicationException(
-                            "Application Entity " + arcAE.getApplicationEntity().getAETitle()
-                                    + " does not list role of accessing user",
-                            Response.Status.FORBIDDEN));
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
         }
     }
 

@@ -1074,10 +1074,6 @@ public class ArchiveAEExtension extends AEExtension {
         return acceptedMoveDestinations.isEmpty() || acceptedMoveDestinations.contains(aet);
     }
 
-    public LinkedHashSet<String> getAcceptedUserRoles1() {
-        return acceptedUserRoles;
-    }
-
     public String[] getAcceptedUserRoles() {
         return acceptedUserRoles.toArray(
                 new String[acceptedUserRoles.size()]);
