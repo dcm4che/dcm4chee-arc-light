@@ -47,17 +47,18 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2022
  */
 public interface KeyValueService {
     KeyValue getKeyValue(String key, String user);
 
-    boolean setKeyValue(String key, String user, boolean share, String value, String contentType)
+    void setKeyValue(String key, String user, boolean share, String value, String contentType)
             throws UserMismatchException, ContentTypeMismatchException;
 
     KeyValue deleteKeyValue(String key, String user) throws UserMismatchException;
 
-    List<Long> keyValuePKs(Date before);
+    List<Long> keyValuePKs(Date before, int fetchSize);
 
-    long deleteKeyValues(List<Long> pks);
+    int deleteKeyValues(List<Long> pks);
 }

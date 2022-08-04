@@ -43,15 +43,20 @@ package org.dcm4chee.arc.keyvalue.impl;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.keyvalue.KeyValueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2022
  */
+@ApplicationScoped
 public class KeyValueScheduler extends Scheduler {
     private static final Logger LOG = LoggerFactory.getLogger(KeyValueScheduler.class);
 
@@ -60,7 +65,7 @@ public class KeyValueScheduler extends Scheduler {
     }
 
     @Inject
-    private KeyValueServiceEJB ejb;
+    private KeyValueService service;
 
     @Override
     protected Logger log() {
@@ -70,11 +75,21 @@ public class KeyValueScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getKeyValueRetentionPeriod() != null ?  arcDev.getKeyValueRetentionPollingInterval() : null;
+        return arcDev.getKeyValueRetentionPeriod() != null ? arcDev.getKeyValueRetentionPollingInterval() : null;
     }
 
     @Override
     protected void execute() {
-        //TODO
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        Date before = new Date(System.currentTimeMillis() - arcDev.getKeyValueRetentionPeriod().getSeconds() * 1000);
+        int keyValueRetentionFetchSize = arcDev.getKeyValueRetentionFetchSize();
+        List<Long> keyValuePKs;
+        int count = 0;
+        do {
+            keyValuePKs = service.keyValuePKs(before, keyValueRetentionFetchSize);
+            count += service.deleteKeyValues(keyValuePKs);
+        } while (keyValuePKs.size() == keyValueRetentionFetchSize && getPollingInterval() != null);
+        if (count > 0)
+            log().info("Deleted {} key value records", count);
     }
 }

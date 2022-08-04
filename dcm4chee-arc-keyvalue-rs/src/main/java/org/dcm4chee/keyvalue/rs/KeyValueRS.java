@@ -40,22 +40,29 @@
 
 package org.dcm4chee.keyvalue.rs;
 
-import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.entity.KeyValue;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.keyvalue.ContentTypeMismatchException;
 import org.dcm4chee.arc.keyvalue.KeyValueService;
+import org.dcm4chee.arc.keyvalue.UserMismatchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2022
  */
 @Path("values")
@@ -73,27 +80,96 @@ public class KeyValueRS {
     @Context
     private HttpHeaders headers;
 
-    @Inject
-    private Device device;
-
     @GET
     @Path("/{key}")
     public Response getValue(@PathParam("key") String key) {
-        //TODO
+        logRequest();
+        KeyValue keyValue = service.getKeyValue(key, username());
+        if (keyValue == null)
+            return errResponse("There is no Value with the specified Key.", Response.Status.NOT_FOUND);
+        Response.ok(keyValue.getValue(), keyValue.getContentType());
         return null;
     }
 
     @PUT
     @Path("/{key}")
-    public Response setValue(@PathParam("key") String key, @QueryParam("share") boolean share, InputStream in) {
-        //TODO
-        return null;
+    public Response setValue(@PathParam("key") String key,
+                             @QueryParam("share") @Pattern(regexp = "true|false") String share,
+                             InputStream in) {
+        logRequest();
+        try {
+            String contentType = request.getContentType();
+            String value = new BufferedReader(new InputStreamReader(in, charset(contentType)))
+                                .lines()
+                                .collect(Collectors.joining("\n"));
+            service.setKeyValue(key, username(), Boolean.parseBoolean(share), value, contentType);
+            return Response.noContent().build();
+        } catch (UserMismatchException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (ContentTypeMismatchException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DELETE
     @Path("/{key}")
     public Response deleteValue(@PathParam("key") String key) {
-        //TODO
-        return null;
+        logRequest();
+        try {
+            KeyValue keyValue = service.deleteKeyValue(key, username());
+            if (keyValue == null)
+                return errResponse("There is no Value with the specified Key.", Response.Status.NOT_FOUND);
+
+            return Response.noContent().build();
+        } catch (UserMismatchException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String charset(String contentType) {
+        if (contentType.contains("charset")) {
+            String[] split = contentType.split(";");
+            for (String s : split)
+                if (s.contains("charset"))
+                    return s.substring(s.indexOf("=") + 1);
+        }
+        return StandardCharsets.UTF_8.name();
+    }
+
+    private String username() {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        return keycloakContext.isSecured()
+                ? keycloakContext.getUserName()
+                : null;
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}",
+                request.getMethod(),
+                toString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
+    }
+
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + errorMessage + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }
+

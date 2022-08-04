@@ -512,6 +512,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isMatchSOPClassOnInstanceLevel(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSUpdateWithoutTransactionUID",
                 ext.isUPSUpdateWithoutTransactionUID(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeyValueRetentionPollingInterval",
+                ext.getKeyValueRetentionPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmKeyValueRetentionFetchSize",
+                ext.getKeyValueRetentionFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeyValueRetentionPeriod",
+                ext.getKeyValueRetentionPeriod(), null);
     }
 
     @Override
@@ -835,6 +841,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditHL7MsgLimit(LdapUtils.intValue(attrs.get("dcmAuditHL7MsgLimit"), 1000));
         ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), false));
         ext.setUPSUpdateWithoutTransactionUID(LdapUtils.booleanValue(attrs.get("dcmUPSUpdateWithoutTransactionUID"), false));
+        ext.setKeyValueRetentionPollingInterval(toDuration(attrs.get("dcmKeyValueRetentionPollingInterval"), null));
+        ext.setKeyValueRetentionFetchSize(LdapUtils.intValue(attrs.get("dcmKeyValueRetentionFetchSize"), 100));
+        ext.setKeyValueRetentionPeriod(toDuration(attrs.get("dcmKeyValueRetentionPeriod"), null));
     }
 
     @Override
@@ -1449,6 +1458,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isUPSUpdateWithoutTransactionUID(),
                 bb.isUPSUpdateWithoutTransactionUID(),
                 false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeyValueRetentionPollingInterval",
+                aa.getKeyValueRetentionPollingInterval(), bb.getKeyValueRetentionPollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmKeyValueRetentionFetchSize",
+                aa.getKeyValueRetentionFetchSize(),
+                bb.getKeyValueRetentionFetchSize(),
+                100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeyValueRetentionPeriod",
+                aa.getKeyValueRetentionPeriod(), bb.getKeyValueRetentionPeriod(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

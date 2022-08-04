@@ -41,49 +41,113 @@
 package org.dcm4chee.arc.keyvalue.impl;
 
 import org.dcm4chee.arc.entity.KeyValue;
+import org.dcm4chee.arc.keyvalue.ContentTypeMismatchException;
 import org.dcm4chee.arc.keyvalue.KeyValueService;
 import org.dcm4chee.arc.keyvalue.UserMismatchException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
 import java.util.Date;
 import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2022
  */
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class KeyValueServiceEJB implements KeyValueService {
+    private static final Logger LOG = LoggerFactory.getLogger(KeyValueServiceEJB.class);
+
+    @PersistenceContext(unitName="dcm4chee-arc")
+    private EntityManager em;
 
     @Override
     public KeyValue getKeyValue(String user, String key) {
-        //TODO
-        return null;
+        try {
+            return findByKeyAndUser(key, user);
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
-    public boolean setKeyValue(String key, String user, boolean share, String value, String contentType) {
-        //TODO
-        return false;
+    public void setKeyValue(String key, String user, boolean share, String value, String contentType)
+            throws UserMismatchException, ContentTypeMismatchException {
+        try {
+            KeyValue keyValue = findByKey(key);
+            if (!keyValue.getContentType().equals(contentType))
+                throw new ContentTypeMismatchException("There is already a Value set for the specified Key with a different content type.");
+
+            if (!share && keyValue.getUsername() != null && !keyValue.getUsername().equals(user))
+                throw new UserMismatchException("There is already a Value set for the specified Key by a different user.");
+
+            updateKeyValue(keyValue, share ? null : user, value, contentType);
+        } catch (NoResultException e) {
+            createKeyValue(key, share ? null : user, value, contentType);
+        }
     }
 
     @Override
     public KeyValue deleteKeyValue(String key, String user) throws UserMismatchException {
-        //TODO
-        return null;
+        try {
+            KeyValue keyValue = findByKey(key);
+            if (keyValue.getUsername() != null && !keyValue.getUsername().equals(user))
+                throw new UserMismatchException("The Value for the specified Key was set by a different user.");
+            em.remove(keyValue);
+            return keyValue;
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
-    public List<Long> keyValuePKs(Date before) {
-        return null;
+    public List<Long> keyValuePKs(Date before, int fetchSize) {
+        return em.createNamedQuery(KeyValue.PK_UPDATED_BEFORE, Long.class)
+                .setParameter(1, before)
+                .setMaxResults(fetchSize)
+                .getResultList();
     }
 
     @Override
-    public long deleteKeyValues(List<Long> pks) {
-        //TODO
-        return 0;
+    public int deleteKeyValues(List<Long> pks) {
+        return em.createNamedQuery(KeyValue.DELETE_BY_PKS)
+                .setParameter(1, pks)
+                .executeUpdate();
+    }
+
+    private KeyValue findByKey(String key) {
+        return em.createNamedQuery(KeyValue.FIND_BY_KEY, KeyValue.class)
+                .setParameter(1, key)
+                .getSingleResult();
+    }
+
+    private KeyValue findByKeyAndUser(String key, String user) {
+        return em.createNamedQuery(KeyValue.FIND_BY_KEY_AND_USER, KeyValue.class)
+                .setParameter(1, key)
+                .setParameter(2, user)
+                .getSingleResult();
+    }
+
+    private void updateKeyValue(KeyValue keyValue, String user, String value, String contentType) {
+        keyValue.setKeyAsUser(keyValue.getKey(), user);
+        keyValue.setValueWithContentType(value, contentType);
+        LOG.debug("Update {}", keyValue);
+    }
+
+    private void createKeyValue(String key, String user, String value, String contentType) {
+        KeyValue kv = new KeyValue();
+        kv.setKeyAsUser(key, user);
+        kv.setValueWithContentType(value, contentType);
+        em.persist(kv);
+        LOG.debug("Create {}", kv);
     }
 }
+

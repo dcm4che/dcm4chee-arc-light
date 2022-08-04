@@ -40,26 +40,29 @@
 
 package org.dcm4chee.arc.entity;
 
-/**
- * @author Gunter Zeilinger (gunterze@protonmail.com)
- * @since Aug 2022
- */
-
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Aug 2022
+ */
+@NamedQueries({
 @NamedQuery(
         name = KeyValue.FIND_BY_KEY,
-        query = "select kv from KeyValue kv where kv.key = ?1")
+        query = "select kv from KeyValue kv where kv.key = ?1"),
 @NamedQuery(
         name = KeyValue.FIND_BY_KEY_AND_USER,
-        query = "select kv from KeyValue kv where kv.key = ?1 and (kv.username is null or kv.username = ?2)")
+        query = "select kv from KeyValue kv where kv.key = ?1 and (kv.username is null or kv.username = ?2)"),
 @NamedQuery(
         name = KeyValue.PK_UPDATED_BEFORE,
-        query = "select kv.pk from KeyValue kv where kv.updatedTime < ?1")
+        query = "select kv.pk from KeyValue kv where kv.updatedTime < ?1"),
 @NamedQuery(
-        name = KeyValue.DELETE_BY_PKS,
-        query = "delete from KeyValue kv where kv.pk in ?1")
+        name=KeyValue.DELETE_BY_PKS,
+        query="delete from KeyValue kv where kv.pk in (?1)")
+})
+
 @Entity
 @Table(name = "key_value",
         uniqueConstraints = @UniqueConstraint(columnNames = "key" ),
@@ -86,7 +89,7 @@ public class KeyValue {
     private Date updatedTime;
 
     @Basic
-    @Column(name = "username", updatable = false)
+    @Column(name = "username")
     private String username;
 
     @Basic(optional = false)
@@ -149,5 +152,12 @@ public class KeyValue {
     @PreUpdate
     public void onPreUpdate() {
         updatedTime = new Date();
+    }
+
+    @Override
+    public String toString() {
+        return "KeyValue[key=" + key
+                + ", username=" + username
+                + "]";
     }
 }

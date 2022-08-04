@@ -17,6 +17,7 @@ alter table key_value
 create index UK_o92kvbnsf2cnttpubgfpd6p01 on key_value (username);
 create index UK_51ia14mc4pabswlvaqnt43clb on key_value (updated_time);
 
+create sequence key_value_pk_seq;
 -- part 2: shall be applied on stopped archive before starting 5.27
 
 -- part 3: can be applied on already running archive 5.27

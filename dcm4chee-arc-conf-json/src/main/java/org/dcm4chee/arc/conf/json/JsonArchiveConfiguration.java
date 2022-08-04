@@ -407,6 +407,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmAuditHL7MsgLimit", arcDev.getAuditHL7MsgLimit(), 1000);
         writer.writeNotDef("dcmMatchSOPClassOnInstanceLevel", arcDev.isMatchSOPClassOnInstanceLevel(), false);
         writer.writeNotDef("dcmUPSUpdateWithoutTransactionUID", arcDev.isUPSUpdateWithoutTransactionUID(), false);
+        writer.writeNotNullOrDef("dcmKeyValueRetentionPollingInterval",
+                arcDev.getKeyValueRetentionPollingInterval(), null);
+        writer.writeNotDef("dcmKeyValueRetentionFetchSize", arcDev.getKeyValueRetentionFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmKeyValueRetentionPeriod", arcDev.getKeyValueRetentionPeriod(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -2060,6 +2064,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSUpdateWithoutTransactionUID":
                     arcDev.setUPSUpdateWithoutTransactionUID(reader.booleanValue());
+                    break;
+                case "dcmKeyValueRetentionPollingInterval":
+                    arcDev.setKeyValueRetentionPollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmKeyValueRetentionFetchSize":
+                    arcDev.setKeyValueRetentionFetchSize(reader.intValue());
+                    break;
+                case "dcmKeyValueRetentionPeriod":
+                    arcDev.setKeyValueRetentionPeriod(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
