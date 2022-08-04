@@ -66,6 +66,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String upsWorklistLabel;
     private String[] upsEventSCUs = {};
     private int upsEventSCUKeepAlive;
+    private Boolean upsUpdateWithoutTransactionUID;
     private String[] objectStorageIDs = {};
     private int objectStorageCount = 1;
     private String[] metadataStorageIDs = {};
@@ -241,6 +242,19 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getUPSEventSCUKeepAlive();
     }
 
+    public Boolean getUPSUpdateWithoutTransactionUID() {
+        return upsUpdateWithoutTransactionUID;
+    }
+
+    public void setUPSUpdateWithoutTransactionUID(Boolean upsUpdateWithoutTransactionUID) {
+        this.upsUpdateWithoutTransactionUID = upsUpdateWithoutTransactionUID;
+    }
+
+    public boolean upsUpdateWithoutTransactionUID() {
+        return upsUpdateWithoutTransactionUID != null
+                ? upsUpdateWithoutTransactionUID
+                : getArchiveDeviceExtension().isUPSUpdateWithoutTransactionUID();
+    }
 
     public String[] getObjectStorageIDs() {
         return objectStorageIDs;
@@ -1852,6 +1866,7 @@ public class ArchiveAEExtension extends AEExtension {
         upsWorklistLabel = aeExt.upsWorklistLabel;
         upsEventSCUs = aeExt.upsEventSCUs;
         upsEventSCUKeepAlive = aeExt.upsEventSCUKeepAlive;
+        upsUpdateWithoutTransactionUID = aeExt.upsUpdateWithoutTransactionUID;
         objectStorageIDs = aeExt.objectStorageIDs;
         objectStorageCount = aeExt.objectStorageCount;
         metadataStorageIDs = aeExt.metadataStorageIDs;

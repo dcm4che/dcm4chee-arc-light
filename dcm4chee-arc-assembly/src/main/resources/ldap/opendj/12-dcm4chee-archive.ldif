@@ -2114,6 +2114,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.434 NAME 'hl7PSUMWLMatchingKey'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.435 NAME 'dcmUPSUpdateWithoutTransactionUID'
+  DESC 'Indicates to permit an UPS Pull SCU or UPS-RS Web client to update or change the state of an UPS workitem in state IN PROCESS without specifying a Transaction UID; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.436 NAME 'dcmKeyValueRetentionPollingInterval'
   DESC 'Polling Interval for Key Value pairs which retention period expired in ISO-8601 duration format PnDTnHnMnS. If absent, Key Value pairs will not get deleted automatically.'
   EQUALITY caseExactIA5Match
@@ -2154,6 +2159,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmUPSEventWebSocketQueueSize $
     dcmUPSEventSCU $
     dcmUPSEventSCUKeepAlive $
+    dcmUPSUpdateWithoutTransactionUID $
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $
@@ -2410,6 +2416,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmUPSWorklistLabel $
     dcmUPSEventSCU $
     dcmUPSEventSCUKeepAlive $
+    dcmUPSUpdateWithoutTransactionUID $
     dcmStorageID $
     dcmObjectStorageID $
     dcmObjectStorageCount $

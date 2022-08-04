@@ -159,10 +159,11 @@ public class UPSServiceEJB {
                             "The submitted request is inconsistent with the current state of the UPS Instance.", false);
                 break;
             case IN_PROGRESS:
-                if (transactionUID == null)
-                    throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
-                            "The Transaction UID is missing.", false);
-                if (!transactionUID.equals(ups.getTransactionUID()))
+                if (transactionUID == null) {
+                    if (!ctx.isUPSUpdateWithoutTransactionUID())
+                        throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
+                                "The Transaction UID is missing.", false);
+                } else if (!transactionUID.equals(ups.getTransactionUID()))
                     throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
                             "The Transaction UID is incorrect.", false);
                 break;
@@ -358,7 +359,7 @@ public class UPSServiceEJB {
                                 "The submitted request is inconsistent with the current state of the UPS Instance.",
                                 false);
                 }
-                if (!transactionUID.equals(ups.getTransactionUID()))
+                if (transactionUID != null && !transactionUID.equals(ups.getTransactionUID()))
                     throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
                             "The Transaction UID is incorrect.", false);
                 supplementDiscontinuationReasonCode(ensureProgressInformation(attrs));
@@ -378,7 +379,7 @@ public class UPSServiceEJB {
                        ctx.setStatus(Status.UPSAlreadyInRequestedStateOfCompleted);
                        return ups;
                }
-               if (!transactionUID.equals(ups.getTransactionUID()))
+               if (transactionUID != null && !transactionUID.equals(ups.getTransactionUID()))
                    throw new DicomServiceException(Status.UPSTransactionUIDNotCorrect,
                            "The Transaction UID is incorrect.", false);
                if (!meetFinalStateRequirementsOfCompleted(attrs))

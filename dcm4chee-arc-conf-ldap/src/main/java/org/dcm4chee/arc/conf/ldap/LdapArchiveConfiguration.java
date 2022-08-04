@@ -510,6 +510,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditHL7MsgLimit", ext.getAuditHL7MsgLimit(), 1000);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMatchSOPClassOnInstanceLevel",
                 ext.isMatchSOPClassOnInstanceLevel(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSUpdateWithoutTransactionUID",
+                ext.isUPSUpdateWithoutTransactionUID(), false);
     }
 
     @Override
@@ -832,6 +834,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), false));
         ext.setAuditHL7MsgLimit(LdapUtils.intValue(attrs.get("dcmAuditHL7MsgLimit"), 1000));
         ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), false));
+        ext.setUPSUpdateWithoutTransactionUID(LdapUtils.booleanValue(attrs.get("dcmUPSUpdateWithoutTransactionUID"), false));
     }
 
     @Override
@@ -1442,6 +1445,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isMatchSOPClassOnInstanceLevel(),
                 bb.isMatchSOPClassOnInstanceLevel(),
                 false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSUpdateWithoutTransactionUID",
+                aa.isUPSUpdateWithoutTransactionUID(),
+                bb.isUPSUpdateWithoutTransactionUID(),
+                false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1764,6 +1771,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getFilterByIssuerOfPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMatchSOPClassOnInstanceLevel",
                 ext.getMatchSOPClassOnInstanceLevel(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSUpdateWithoutTransactionUID",
+                ext.getUPSUpdateWithoutTransactionUID(), null);
     }
 
     @Override
@@ -1921,6 +1930,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
         ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), null));
         ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), null));
+        ext.setUPSUpdateWithoutTransactionUID(LdapUtils.booleanValue(attrs.get("dcmUPSUpdateWithoutTransactionUID"), null));
     }
 
     @Override
@@ -2176,6 +2186,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getFilterByIssuerOfPatientID(), bb.getFilterByIssuerOfPatientID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMatchSOPClassOnInstanceLevel",
                 aa.getMatchSOPClassOnInstanceLevel(), bb.getMatchSOPClassOnInstanceLevel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSUpdateWithoutTransactionUID",
+                aa.getUPSUpdateWithoutTransactionUID(), bb.getUPSUpdateWithoutTransactionUID(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

@@ -197,10 +197,6 @@ public class UPSServiceImpl implements UPSService {
     @Override
     public UPS changeUPSState(UPSContext ctx) throws DicomServiceException {
         Attributes attrs = ctx.getAttributes();
-        String transactionUID = attrs.getString(Tag.TransactionUID);
-        if (transactionUID == null)
-            throw new DicomServiceException(Status.InvalidArgumentValue,
-                    "The Transaction UID is missing.", false);
         UPSState upsState;
         try {
             upsState = UPSState.fromString(attrs.getString(Tag.ProcedureStepState));
@@ -215,6 +211,10 @@ public class UPSServiceImpl implements UPSService {
             throw new DicomServiceException(Status.UPSStateMayNotChangedToScheduled,
                     "The submitted request is inconsistent with the current state of the UPS Instance.", false);
         }
+        String transactionUID = attrs.getString(Tag.TransactionUID);
+        if (transactionUID == null && (upsState == UPSState.IN_PROGRESS || !ctx.isUPSUpdateWithoutTransactionUID()))
+            throw new DicomServiceException(Status.InvalidArgumentValue,
+                    "The Transaction UID is missing.", false);
         try {
             UPS ups = ejb.changeUPSState(ctx, upsState, transactionUID);
             fireUPSEvents(ctx);

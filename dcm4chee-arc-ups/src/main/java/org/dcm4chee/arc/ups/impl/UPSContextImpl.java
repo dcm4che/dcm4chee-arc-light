@@ -260,6 +260,11 @@ public class UPSContextImpl implements UPSContext {
     }
 
     @Override
+    public boolean isUPSUpdateWithoutTransactionUID() {
+        return archiveAEExtension.upsUpdateWithoutTransactionUID();
+    }
+
+    @Override
     public ArchiveHL7ApplicationExtension getArchiveHL7AppExtension() {
         return archiveHL7AppExtension;
     }
