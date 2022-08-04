@@ -70,7 +70,7 @@ public class KeyValueServiceEJB implements KeyValueService {
     private EntityManager em;
 
     @Override
-    public KeyValue getKeyValue(String user, String key) {
+    public KeyValue getKeyValue(String key, String user) {
         try {
             return findByKeyAndUser(key, user);
         } catch (NoResultException e) {

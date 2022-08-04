@@ -58,7 +58,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -87,21 +86,17 @@ public class KeyValueRS {
         KeyValue keyValue = service.getKeyValue(key, username());
         if (keyValue == null)
             return errResponse("There is no Value with the specified Key.", Response.Status.NOT_FOUND);
-        Response.ok(keyValue.getValue(), keyValue.getContentType());
-        return null;
+        return Response.ok(keyValue.getValue(), keyValue.getContentType()).build();
     }
 
     @PUT
     @Path("/{key}")
     public Response setValue(@PathParam("key") String key,
                              @QueryParam("share") @Pattern(regexp = "true|false") String share,
-                             InputStream in) {
+                             String value) {
         logRequest();
         try {
             String contentType = request.getContentType();
-            String value = new BufferedReader(new InputStreamReader(in, charset(contentType)))
-                                .lines()
-                                .collect(Collectors.joining("\n"));
             service.setKeyValue(key, username(), Boolean.parseBoolean(share), value, contentType);
             return Response.noContent().build();
         } catch (UserMismatchException e) {
