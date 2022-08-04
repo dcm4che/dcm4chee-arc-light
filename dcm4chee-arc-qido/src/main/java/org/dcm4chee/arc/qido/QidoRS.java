@@ -97,6 +97,7 @@ import java.util.stream.Stream;
 public class QidoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(QidoRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private QueryService service;
@@ -454,8 +455,9 @@ public class QidoRS {
                             boolean etag) {
         ApplicationEntity ae = getApplicationEntity();
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        validateAcceptedUserRoles(arcAE);
         if (aet.equals(ae.getAETitle()))
-            validateWebApp();
+            validateWebAppServiceClass();
         Output output = selectMediaType();
         try {
             QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
@@ -561,8 +563,22 @@ public class QidoRS {
                 request.getRemoteHost());
     }
 
-    private void validateWebApp() {
-        WebApplication webApplication = device.getWebApplications().stream()
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            arcAE.getAcceptedUserRoles1()
+                    .stream()
+                    .filter(keycloakContext::isUserInRole)
+                    .findAny()
+                    .orElseThrow(() -> new WebApplicationException(errResponse(
+                            "Application Entity " + arcAE.getApplicationEntity().getAETitle()
+                                            + " does not list role of accessing user",
+                            Response.Status.FORBIDDEN)));
+        }
+    }
+    
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
                 .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
                                     && Arrays.asList(webApp.getServiceClasses())
                                         .contains(WebApplication.ServiceClass.QIDO_RS))
@@ -570,16 +586,6 @@ public class QidoRS {
                 .orElseThrow(() -> new WebApplicationException(errResponse(
                         "No Web Application with QIDO_RS service class found for Application Entity: " + aet,
                         Response.Status.NOT_FOUND)));
-
-        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
-        if (keycloakContext.isSecured()
-                && webApplication.getProperties().containsKey("roles"))
-            Arrays.stream(webApplication.getProperties().get("roles").split(","))
-                .filter(keycloakContext::isUserInRole)
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "Web Application with QIDO_RS service class does not list role of accessing user",
-                        Response.Status.FORBIDDEN)));
     }
 
     private Output selectMediaType() {

@@ -48,11 +48,13 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.ups.UPSContext;
@@ -86,6 +88,7 @@ import java.util.function.IntFunction;
 public class UpsRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpsRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     private static final int[] EXCLUDE_FROM_REPLACEMENT = {
             Tag.SOPClassUID,
@@ -131,6 +134,10 @@ public class UpsRS {
             @QueryParam("workitem") String iuid,
             @QueryParam("template") @Pattern(regexp = "true|false") String template,
             InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         InputType inputType = InputType.valueOf(headers.getMediaType());
         if (inputType == null)
             return notAcceptable();
@@ -141,6 +148,10 @@ public class UpsRS {
     @POST
     @Path("/workitems/{workitem}")
     public Response updateUPS(@PathParam("workitem") String iuid, InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         InputType inputType = InputType.valueOf(headers.getMediaType());
         if (inputType == null)
             return notAcceptable();
@@ -154,6 +165,10 @@ public class UpsRS {
             @PathParam("workitem") String iuid,
             @PathParam("requester") String requester,
             InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         InputType inputType = InputType.valueOf(headers.getMediaType());
         if (inputType == null)
             return notAcceptable();
@@ -165,8 +180,12 @@ public class UpsRS {
     @NoCache
     @Path("/workitems/{workitem}")
     public Response retrieveUPS(@PathParam("workitem") String iuid) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         ResponseMediaType responseMediaType = getResponseMediaType();
-        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), arcAE);
         ctx.setUPSInstanceUID(iuid);
         try {
             service.findUPS(ctx);
@@ -203,6 +222,10 @@ public class UpsRS {
     public Response subscribe(
             @PathParam("workitem") String iuid,
             @PathParam("SubscriberAET") String subscriber) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUPSInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
@@ -221,6 +244,10 @@ public class UpsRS {
     public Response unsubscribe(
             @PathParam("workitem") String iuid,
             @PathParam("SubscriberAET") String subscriber) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUPSInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
@@ -237,6 +264,10 @@ public class UpsRS {
     public Response suspendSubscription(
             @PathParam("workitem") String iuid,
             @PathParam("SubscriberAET") String subscriber) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUPSInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
@@ -254,6 +285,10 @@ public class UpsRS {
             @PathParam("workitem") String iuid,
             @QueryParam("newWorkitem") String newIUID,
             @QueryParam("upsScheduledTime") String upsScheduledTime) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUPSInstanceUID(iuid);
         try {
@@ -306,6 +341,31 @@ public class UpsRS {
                 && !uriInfo.getPath().endsWith("/suspend")) {
             matchKeys = new QueryAttributes(uriInfo, null).getQueryKeys();
         }
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            arcAE.getAcceptedUserRoles1()
+                    .stream()
+                    .filter(keycloakContext::isUserInRole)
+                    .findAny()
+                    .orElseThrow(() -> new WebApplicationException(
+                            "Application Entity " + arcAE.getApplicationEntity().getAETitle()
+                                    + " does not list role of accessing user",
+                            Response.Status.FORBIDDEN));
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.UPS_RS))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(
+                        "No Web Application with UPS_RS service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND));
     }
 
     private Response createUPS(String iuid, boolean template, Attributes attrs) {
@@ -364,6 +424,10 @@ public class UpsRS {
     }
 
     private Response requestUPSCancel(String iuid, String requester, Attributes attrs) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUPSInstanceUID(iuid);
         ctx.setRequesterAET(requester);

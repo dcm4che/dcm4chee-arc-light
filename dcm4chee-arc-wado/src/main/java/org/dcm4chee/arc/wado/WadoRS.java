@@ -60,14 +60,16 @@ import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
-import org.dcm4chee.arc.retrieve.*;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveEnd;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.retrieve.stream.DicomObjectOutput;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +112,7 @@ public class WadoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadoRS.class);
     private static final RecordFactory RECORD_FACTORY = new RecordFactory();
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private RetrieveService service;
@@ -473,8 +476,22 @@ public class WadoRS {
         return headerValues.toString();
     }
 
-    private void validateWebApp() {
-        WebApplication webApplication = device.getWebApplications().stream()
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            arcAE.getAcceptedUserRoles1()
+                    .stream()
+                    .filter(keycloakContext::isUserInRole)
+                    .findAny()
+                    .orElseThrow(() -> new WebApplicationException(errResponse(
+                            "Application Entity " + arcAE.getApplicationEntity().getAETitle()
+                                    + " does not list role of accessing user",
+                            Response.Status.FORBIDDEN)));
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
                 .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
                         && Arrays.asList(webApp.getServiceClasses())
                         .contains(WebApplication.ServiceClass.WADO_RS))
@@ -482,16 +499,6 @@ public class WadoRS {
                 .orElseThrow(() -> new WebApplicationException(errResponse(
                         "No Web Application with WADO_RS service class found for Application Entity: " + aet,
                         Response.Status.NOT_FOUND)));
-
-        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
-        if (keycloakContext.isSecured()
-                && webApplication.getProperties().containsKey("roles"))
-            Arrays.stream(webApplication.getProperties().get("roles").split(","))
-                    .filter(keycloakContext::isUserInRole)
-                    .findFirst()
-                    .orElseThrow(() -> new WebApplicationException(errResponse(
-                            "Web Application with WADO_RS service class does not list role of accessing user",
-                            Response.Status.FORBIDDEN)));
     }
 
     private void initAcceptableMediaTypes() {
@@ -616,8 +623,9 @@ public class WadoRS {
                           int[] attributePath, AsyncResponse ar) {
         logRequest();
         ApplicationEntity ae = getApplicationEntity();
+        validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
         if (aet.equals(ae.getAETitle()))
-            validateWebApp();
+            validateWebAppServiceClass();
         Output output = target.output(this);
         try {
             final RetrieveContext ctx = service.newRetrieveContextWADO(

@@ -1243,6 +1243,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getStorePermissionServiceResponsePattern(), null);
         writer.writeNotNullOrDef("dcmAllowRejectionForDataRetentionPolicyExpired",
                 arcAE.getAllowRejectionForDataRetentionPolicyExpired(), null);
+        writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
         writer.writeNotNullOrDef("dcmAcceptMissingPatientID", arcAE.getAcceptMissingPatientID(), null);
         writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcAE.getAllowDeleteStudyPermanently(), null);
         writer.writeNotNullOrDef("dcmAllowDeletePatient", arcAE.getAllowDeletePatient(), null);
@@ -4000,6 +4001,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmAllowRejectionForDataRetentionPolicyExpired":
                     arcAE.setAllowRejectionForDataRetentionPolicyExpired(
                             AllowRejectionForDataRetentionPolicyExpired.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAcceptedUserRole":
+                    arcAE.setAcceptedUserRoles(reader.stringArray());
                     break;
                 case "dcmAcceptMissingPatientID":
                     arcAE.setAcceptMissingPatientID(AcceptMissingPatientID.valueOf(reader.stringValue()));
