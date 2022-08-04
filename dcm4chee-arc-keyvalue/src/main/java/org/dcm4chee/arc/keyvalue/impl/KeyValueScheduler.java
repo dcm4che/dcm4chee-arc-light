@@ -87,7 +87,8 @@ public class KeyValueScheduler extends Scheduler {
         int count = 0;
         do {
             keyValuePKs = service.keyValuePKs(before, keyValueRetentionFetchSize);
-            count += service.deleteKeyValues(keyValuePKs);
+            if (keyValuePKs.size() > 0)
+                count += service.deleteKeyValues(keyValuePKs);
         } while (keyValuePKs.size() == keyValueRetentionFetchSize && getPollingInterval() != null);
         if (count > 0)
             log().info("Deleted {} key value records", count);

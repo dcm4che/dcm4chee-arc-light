@@ -139,7 +139,7 @@ public class KeyValueServiceEJB implements KeyValueService {
     private void updateKeyValue(KeyValue keyValue, String user, String value, String contentType) {
         keyValue.setKeyAsUser(keyValue.getKey(), user);
         keyValue.setValueWithContentType(value, contentType);
-        LOG.debug("Update {}", keyValue);
+        LOG.info("Update {}", keyValue);
     }
 
     private void createKeyValue(String key, String user, String value, String contentType) {
@@ -147,7 +147,7 @@ public class KeyValueServiceEJB implements KeyValueService {
         kv.setKeyAsUser(key, user);
         kv.setValueWithContentType(value, contentType);
         em.persist(kv);
-        LOG.debug("Create {}", kv);
+        LOG.info("Create {}", kv);
     }
 }
 
