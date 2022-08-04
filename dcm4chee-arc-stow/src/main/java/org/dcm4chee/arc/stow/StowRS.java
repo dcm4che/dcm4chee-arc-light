@@ -125,6 +125,7 @@ public class StowRS {
     };
 
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private StoreService service;
@@ -305,8 +306,9 @@ public class StowRS {
 
     private void store(AsyncResponse ar, InputStream in, final Input input, OutputType output)  throws Exception {
         ApplicationEntity ae = getApplicationEntity();
+        validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
         if (aet.equals(ae.getAETitle()))
-            validateWebApp();
+            validateWebAppServiceClass();
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(
                 HttpServletRequestInfo.valueOf(request), ae, aet, null);
@@ -360,6 +362,31 @@ public class StowRS {
                 request.getRemoteUser(),
                 request.getRemoteHost(),
                 request.getRemotePort());
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            arcAE.getAcceptedUserRoles1()
+                    .stream()
+                    .filter(keycloakContext::isUserInRole)
+                    .findAny()
+                    .orElseThrow(() -> new WebApplicationException(errResponse(
+                            "Application Entity " + arcAE.getApplicationEntity().getAETitle()
+                                    + " does not list role of accessing user",
+                            Response.Status.FORBIDDEN)));
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.STOW_RS))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with STOW_RS service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 
     private void validateWebApp() {

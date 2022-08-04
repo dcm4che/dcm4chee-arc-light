@@ -107,6 +107,7 @@ import java.util.stream.Stream;
 public class WadoURI {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadoURI.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private RetrieveService service;
@@ -215,8 +216,10 @@ public class WadoURI {
         if (contentType != null)
             contentTypes = new ContentTypes(contentType);
         logRequest();
-        if (aet.equals(getApplicationEntity().getAETitle()))
-            validateWebApp();
+        ApplicationEntity ae = getApplicationEntity();
+        validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
         try {
             final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
 
@@ -284,8 +287,22 @@ public class WadoURI {
         return headerValues.toString();
     }
 
-    private void validateWebApp() {
-        WebApplication webApplication = device.getWebApplications().stream()
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            arcAE.getAcceptedUserRoles1()
+                    .stream()
+                    .filter(keycloakContext::isUserInRole)
+                    .findAny()
+                    .orElseThrow(() -> new WebApplicationException(errResponse(
+                            "Application Entity " + arcAE.getApplicationEntity().getAETitle()
+                                    + " does not list role of accessing user",
+                            Response.Status.FORBIDDEN)));
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
                 .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
                         && Arrays.asList(webApp.getServiceClasses())
                         .contains(WebApplication.ServiceClass.WADO_URI))
@@ -293,16 +310,6 @@ public class WadoURI {
                 .orElseThrow(() -> new WebApplicationException(errResponse(
                         "No Web Application with WADO_URI service class found for Application Entity: " + aet,
                         Response.Status.NOT_FOUND)));
-
-        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
-        if (keycloakContext.isSecured()
-                && webApplication.getProperties().containsKey("roles"))
-            Arrays.stream(webApplication.getProperties().get("roles").split(","))
-                    .filter(keycloakContext::isUserInRole)
-                    .findFirst()
-                    .orElseThrow(() -> new WebApplicationException(errResponse(
-                            "Web Application with WADO_URI service class does not list role of accessing user",
-                            Response.Status.FORBIDDEN)));
     }
 
     private void buildResponse(@Suspended AsyncResponse ar, final RetrieveContext ctx, Date lastModified) throws IOException {
