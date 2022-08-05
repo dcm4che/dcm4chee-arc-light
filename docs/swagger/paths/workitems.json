@@ -969,7 +969,7 @@
   "external.studies": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-DIMSE-RS"
       ],
       "summary": "Create Workitems for external matching Studies",
       "operationId": "CreateWorkitemsForExternalMatchingStudies",
@@ -1027,7 +1027,7 @@
   "external.series": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-DIMSE-RS"
       ],
       "summary": "Create Workitem for external matching Series of Study",
       "operationId": "CreateWorkitemForExternalMatchingSeries",
@@ -1088,7 +1088,7 @@
   "external.instances": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-DIMSE-RS"
       ],
       "summary": "Create Workitem for external matching Instances of Series",
       "operationId": "CreateWorkitemForExternalMatchingInstancesOfSeries",
@@ -1152,7 +1152,7 @@
   "external2.studies": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-DIMSE-RS"
       ],
       "summary": "Create Workitems for external matching Studies queried from C-FIND SCP",
       "operationId": "CreateWorkitemsForExternalMatchingStudies2",
@@ -1213,7 +1213,7 @@
   "external2.series": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-DIMSE-RS"
       ],
       "summary": "Create Workitem for external matching Series of Study queried from C-FIND SCP",
       "operationId": "CreateWorkitemForExternalMatchingSeriesOfStudy2",
@@ -1277,7 +1277,7 @@
   "external2.instances": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-DIMSE-RS"
       ],
       "summary": "Create Workitem for external matching Instances of Series queried from C-FIND SCP",
       "operationId": "CreateWorkitemForExternalMatchingInstancesOfSeries2",
@@ -1344,7 +1344,7 @@
   "external.studies.csv": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-DIMSE-RS"
       ],
       "summary": "Create Workitems for external Studies specified in CSV",
       "operationId": "CreateWorkitemsExternalStudiesCSV",

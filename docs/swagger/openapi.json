@@ -52,6 +52,10 @@
       }
     },
     {
+      "name": "UPS-DIMSE-RS",
+      "description": "Invoke N-CREATE, N-SET, N-GET, C-FIND requests on external SCP providing UPS SOP Class services"
+    },
+    {
       "name": "AUTH-RS",
       "description": "Authentication/Authorization services"
     },

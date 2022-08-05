@@ -86,7 +86,7 @@ import java.util.function.IntFunction;
  * @since July 2020
  */
 @RequestScoped
-@Path("aets/{AETitle}/dimse/{moveSCP}")
+@Path("aets/{AETitle}/dimse/{upsSCP}")
 @InvokeValidate(type = UpsDimseRS.class)
 public class UpsDimseRS {
     private static final Logger LOG = LoggerFactory.getLogger(UpsDimseRS.class);
@@ -115,8 +115,8 @@ public class UpsDimseRS {
     @PathParam("AETitle")
     private String aet;
 
-    @PathParam("moveSCP")
-    private String moveSCP;
+    @PathParam("upsSCP")
+    private String upsSCP;
 
     @QueryParam("upsLabel")
     private String upsLabel;
@@ -204,7 +204,7 @@ public class UpsDimseRS {
 
     private Response upsMatching(
             QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID, InputStream in) {
-        return upsMatching(level, moveSCP, studyInstanceUID, seriesInstanceUID, in);
+        return upsMatching(level, upsSCP, studyInstanceUID, seriesInstanceUID, in);
     }
 
     private Response upsMatching(QueryRetrieveLevel2 level, String queryAET,
@@ -214,14 +214,14 @@ public class UpsDimseRS {
             return notAcceptable();
 
         try {
-            aeCache.findApplicationEntity(moveSCP);
+            aeCache.findApplicationEntity(upsSCP);
             ArchiveAEExtension arcAE = getArchiveAE();
             Attributes upsTemplateAttrs = inputType.parse(in);
             upsTemplateAttrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, scheduledTime());
             if (upsLabel != null)
                 upsTemplateAttrs.setString(Tag.ProcedureStepLabel, VR.LO, upsLabel);
 
-            if (queryAET != null && !queryAET.equals(moveSCP))
+            if (queryAET != null && !queryAET.equals(upsSCP))
                 aeCache.findApplicationEntity(queryAET);
 
             Attributes keys = queryKeys(level, studyInstanceUID, seriesInstanceUID);
@@ -250,7 +250,7 @@ public class UpsDimseRS {
                     if (Status.isPending(status)) {
                         ups = studyInstanceUID == null ? new Attributes(upsTemplateAttrs) : ups;
                         UPSUtils.updateUPSAttributes(ups, findSCU.coerceCFindRSP(as, dimseRSP.getDataset()),
-                                studyInstanceUID, seriesInstanceUID, moveSCP);
+                                studyInstanceUID, seriesInstanceUID, upsSCP);
                         matches++;
                         if (studyInstanceUID == null)
                             createUPS(arcAE, ups, count);
@@ -317,13 +317,13 @@ public class UpsDimseRS {
                     "CSV field for Patient ID should be greater than or equal to 1");
 
         try {
-            aeCache.findApplicationEntity(moveSCP);
+            aeCache.findApplicationEntity(upsSCP);
             ArchiveAEExtension arcAE = getArchiveAE();
             UpsCSV upsCSV = new UpsCSV(upsService,
                                         HttpServletRequestInfo.valueOf(request).setContentType(headers),
                                         arcAE,
                                         upsTemplateAttrs(upsTemplateUID, arcAE));
-            return upsCSV.createWorkitems(studyUIDField, patientIDField, moveSCP, in);
+            return upsCSV.createWorkitems(studyUIDField, patientIDField, upsSCP, in);
         } catch (DicomServiceException e) {
             return errResponse(UpsDimseRS::createFailed, e);
         } catch (IllegalStateException | ConfigurationException e) {
