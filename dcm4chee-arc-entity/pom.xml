@@ -112,13 +112,7 @@
             <configuration>
               <classifier>${db}-sql</classifier>
               <includes>
-                <include>sql/create-${db}.sql</include>
-                <include>sql/update-*-${db}.sql</include>
-                <include>sql/drop-${db}.sql</include>
-                <include>sql/create-index.sql</include>
-                <include>sql/create-case-insensitive-index.sql</include>
-                <include>sql/create-fk-index.sql</include>
-                <include>META-INF/maven/remote-resources.xml</include>
+                <include>sql/${db}/*</include>
               </includes>
             </configuration>
           </execution>
@@ -155,8 +149,7 @@
               <databaseMajorVersion>${databaseMajorVersion}</databaseMajorVersion>
               <databaseMinorVersion>${databaseMinorVersion}</databaseMinorVersion>
               <scriptAction>drop-and-create</scriptAction>
-              <outputDirectory>${project.build.outputDirectory}/sql</outputDirectory>
-              <createOutputFileName>${createOutputFileName}</createOutputFileName>
+              <createOutputFileName>create-${db}.sql</createOutputFileName>
               <dropOutputFileName>drop-${db}.sql</dropOutputFileName>
             </configuration>
           </execution>
