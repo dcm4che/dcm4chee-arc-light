@@ -1069,6 +1069,7 @@ class ArchiveDeviceFactory {
                     new Code[0],
                     true);
 
+    static final String USER = "user";
     static final String ONLY_ADMIN = "admin";
 
     static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
@@ -1477,27 +1478,27 @@ class ArchiveDeviceFactory {
         device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
                 true, true, true, true, true, null,
-                configType));
+                configType, ONLY_ADMIN, USER));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
                 false, true, true, false, false, null,
-                configType));
+                configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
                 dicom, dicomTLS, IOCM_EXPIRED_VIEW,
                 false, false, false, false, false, null,
-                configType));
+                configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_QUALITY", IOCM_QUALITY_DESC,
                 dicom, dicomTLS, IOCM_QUALITY_VIEW,
                 false, false, false, false, false, null,
-                configType));
+                configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
                 dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW,
                 false, false, false, false, false, null,
-                configType));
+                configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
                 dicom, dicomTLS, IOCM_WRONG_MWL_VIEW,
                 false, false, false, false, false, null,
-                configType));
+                configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
                 false, true, false, false, false,
@@ -1506,7 +1507,7 @@ class ArchiveDeviceFactory {
                         .setDIMSE(Dimse.C_STORE_RQ)
                         .setRole(SCP)
                         .setRetrieveAsReceived(true),
-                configType));
+                configType, ONLY_ADMIN));
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, null,
@@ -2222,7 +2223,7 @@ class ArchiveDeviceFactory {
     private static ApplicationEntity createAE(String aet, String description,
             Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
             boolean storeSCP, boolean storeSCU, boolean ianSCU, boolean mwlSCP, boolean upsSCP,
-            ArchiveAttributeCoercion coercion, ConfigType configType) {
+            ArchiveAttributeCoercion coercion, ConfigType configType, String... acceptedUserRoles) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -2277,6 +2278,7 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCU, UID.InstanceAvailabilityNotification, UID.ImplicitVRLittleEndian);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
+        aeExt.setAcceptedUserRoles(acceptedUserRoles);
         if (coercion != null)
             aeExt.addAttributeCoercion(coercion);
         return ae;

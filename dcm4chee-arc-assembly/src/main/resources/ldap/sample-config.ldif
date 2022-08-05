@@ -3434,6 +3434,8 @@ objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
 dcmMetadataStorageID: metadata
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
 
 dn: cn=Forward to STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: STORESCP
@@ -3645,6 +3647,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: AS_RECEIVED
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: cn=Leading DCMQRSCP STORE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
@@ -3692,6 +3695,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_EXPIRED
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
@@ -3704,6 +3708,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_QUALITY
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dcmWebAppName=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Data Retention Expired
@@ -3769,6 +3774,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_WRONG_MWL
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7OrderScheduledStationDeviceReference: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3822,6 +3828,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_PAT_SAFETY
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: cn=Coerce MWL Agfa to Archive,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSOPClass: 1.2.840.10008.5.1.4.31
@@ -3878,6 +3885,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_REGULAR_USE
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dcmMetricsName=delete-from-fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Object Delete Time on fs1

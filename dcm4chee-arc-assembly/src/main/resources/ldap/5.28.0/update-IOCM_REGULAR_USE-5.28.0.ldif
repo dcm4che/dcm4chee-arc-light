@@ -1,0 +1,6 @@
+version: 1
+
+dn: dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmAcceptedUserRole
+dcmAcceptedUserRole: admin

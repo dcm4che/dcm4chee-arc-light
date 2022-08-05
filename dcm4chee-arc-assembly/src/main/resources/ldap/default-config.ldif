@@ -2916,6 +2916,8 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: DCM4CHEE
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
 
 dn: dcmQueueName=DiffTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmPurgeQueueMessageCompletedDelay: P1D
@@ -3015,6 +3017,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: AS_RECEIVED
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dcmSPSStatus=DISCONTINUED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: DISCONTINUED
@@ -3044,6 +3047,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_EXPIRED
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
@@ -3056,6 +3060,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_QUALITY
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dcmWebAppName=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Data Retention Expired
@@ -3113,6 +3118,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_WRONG_MWL
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7OrderScheduledStationDeviceReference: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3153,6 +3159,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_PAT_SAFETY
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Quality
@@ -3184,6 +3191,7 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_REGULAR_USE
 dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dcmMetricsName=delete-from-fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Object Delete Time on fs1
