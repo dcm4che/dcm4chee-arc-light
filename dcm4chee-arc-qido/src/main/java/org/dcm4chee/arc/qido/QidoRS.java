@@ -395,11 +395,19 @@ public class QidoRS {
     @Path("/studies/size")
     @Produces("application/json")
     public Response sizeOfStudies() {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
+
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         try {
             QueryContext ctx = newQueryContext(
-                    "SizeOfStudies", queryAttrs, null, null, Model.STUDY,
-                    getApplicationEntity());
+                    "SizeOfStudies", queryAttrs, null, null, Model.STUDY, ae);
             if (ctx.getQueryParam().noMatches()) {
                 return Response.ok("{\"size\":0}").build();
             }
@@ -418,13 +426,21 @@ public class QidoRS {
     }
 
     private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass(WebApplication.ServiceClass.QIDO_COUNT);
+
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         try {
-            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model,
-                                                getApplicationEntity());
-            if (ctx.getQueryParam().noMatches()) {
+            QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
+            if (ctx.getQueryParam().noMatches())
                 return Response.ok("{\"count\":0}").build();
-            }
+
             try (Query query = model.createQuery(service, ctx)) {
                 return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
             }
@@ -453,11 +469,15 @@ public class QidoRS {
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                             boolean etag) {
-        ApplicationEntity ae = getApplicationEntity();
-        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
         validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
         if (aet.equals(ae.getAETitle()))
-            validateWebAppServiceClass();
+            validateWebAppServiceClass(WebApplication.ServiceClass.QIDO_RS);
+
         Output output = selectMediaType();
         try {
             QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
@@ -573,14 +593,15 @@ public class QidoRS {
         }
     }
     
-    private void validateWebAppServiceClass() {
+    private void validateWebAppServiceClass(WebApplication.ServiceClass serviceClass) {
         device.getWebApplications().stream()
                 .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
                                     && Arrays.asList(webApp.getServiceClasses())
-                                        .contains(WebApplication.ServiceClass.QIDO_RS))
+                                        .contains(serviceClass))
                 .findFirst()
                 .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with QIDO_RS service class found for Application Entity: " + aet,
+                        "No Web Application with " + serviceClass.name()
+                                + "service class found for Application Entity: " + aet,
                         Response.Status.NOT_FOUND)));
     }
 
@@ -668,13 +689,9 @@ public class QidoRS {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private ApplicationEntity getApplicationEntity() {
+    private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponse(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND));
-        return ae;
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private enum Model {
@@ -874,15 +891,16 @@ public class QidoRS {
         final List<Attributes> matches = matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
                 LOG.debug("Enter StreamingOutput.write");
-                JsonGenerator gen = Json.createGenerator(out);
-                JSONWriter writer = getApplicationEntity()
-                                        .getAEExtensionNotNull(ArchiveAEExtension.class)
-                                        .encodeAsJSONNumber(new JSONWriter(gen));
-                gen.writeStartArray();
-                for (Attributes match : matches)
-                    writer.write(match);
-                gen.writeEnd();
-                gen.flush();
+                ArchiveAEExtension arcAE = getArchiveAE();
+                if (arcAE != null) {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    JSONWriter writer = arcAE.encodeAsJSONNumber(new JSONWriter(gen));
+                    gen.writeStartArray();
+                    for (Attributes match : matches)
+                        writer.write(match);
+                    gen.writeEnd();
+                    gen.flush();
+                }
                 LOG.debug("Leave StreamingOutput.write");
         };
     }

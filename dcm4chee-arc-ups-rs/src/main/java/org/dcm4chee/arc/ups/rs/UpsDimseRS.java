@@ -55,6 +55,7 @@ import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.ups.UPSContext;
@@ -76,6 +77,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,6 +92,7 @@ import java.util.function.IntFunction;
 @InvokeValidate(type = UpsDimseRS.class)
 public class UpsDimseRS {
     private static final Logger LOG = LoggerFactory.getLogger(UpsDimseRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -213,9 +216,16 @@ public class UpsDimseRS {
         if (inputType == null)
             return notAcceptable();
 
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             aeCache.findApplicationEntity(upsSCP);
-            ArchiveAEExtension arcAE = getArchiveAE();
             Attributes upsTemplateAttrs = inputType.parse(in);
             upsTemplateAttrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, scheduledTime());
             if (upsLabel != null)
@@ -307,6 +317,14 @@ public class UpsDimseRS {
 
     private Response createWorkitemsFromCSV(
             int studyUIDField, String upsTemplateUID, String csvPatientIDField, InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(Response.Status.NOT_FOUND,"No such Application Entity: " + aet);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         if (studyUIDField < 1)
             return errResponse(Response.Status.BAD_REQUEST,
                     "CSV field for Study Instance UID should be greater than or equal to 1");
@@ -318,7 +336,6 @@ public class UpsDimseRS {
 
         try {
             aeCache.findApplicationEntity(upsSCP);
-            ArchiveAEExtension arcAE = getArchiveAE();
             UpsCSV upsCSV = new UpsCSV(upsService,
                                         HttpServletRequestInfo.valueOf(request).setContentType(headers),
                                         arcAE,
@@ -367,10 +384,7 @@ public class UpsDimseRS {
 
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException("No such Archive Application Entity: " + aet, Response.Status.NOT_FOUND);
-
-        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private Duration splitStudyDateRange() {
@@ -471,5 +485,25 @@ public class UpsDimseRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.UPS_MATCHING))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(Response.Status.NOT_FOUND,
+                        "No Web Application with UPS_MATCHING service class found for Application Entity: " + aet)));
     }
 }

@@ -47,6 +47,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.delete.DeletionService;
@@ -54,6 +55,7 @@ import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.client.RSForward;
@@ -86,6 +88,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -97,6 +100,7 @@ import java.time.format.DateTimeParseException;
 @InvokeValidate(type = StudyMgtRS.class)
 public class StudyMgtRS {
     private static final Logger LOG = LoggerFactory.getLogger(StudyMgtRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private Device device;
@@ -136,21 +140,28 @@ public class StudyMgtRS {
 
     @DELETE
     @Path("/studies/{StudyUID}")
-    public void deleteStudy(
+    public Response deleteStudy(
             @PathParam("StudyUID") String studyUID,
             @QueryParam("retainObj") @Pattern(regexp = "true|false") @DefaultValue("false") String retainObj) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             deletionService.deleteStudy(
                     studyUID, HttpServletRequestInfo.valueOf(request), arcAE, Boolean.parseBoolean(retainObj));
             rsForward.forward(RSOperation.DeleteStudy, arcAE, null, request);
+            return Response.noContent().build();
         } catch (StudyNotFoundException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (StudyNotEmptyException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.FORBIDDEN));
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -158,22 +169,27 @@ public class StudyMgtRS {
     @Path("/studies/{study}")
     @Consumes("application/dicom+json,application/json")
     @Produces("application/json")
-    public StreamingOutput updateStudy(
+    public Response updateStudy(
             @PathParam("study") String studyUID,
             InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID == null || !attrs.containsValue(Tag.StudyInstanceUID)
                 || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
-            throw new WebApplicationException(
-                    errResponse("Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload",
-                            Response.Status.BAD_REQUEST));
+            return errResponse("Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload",
+                            Response.Status.BAD_REQUEST);
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException(
-                    errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND));
+            return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
 
         try {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
@@ -182,18 +198,18 @@ public class StudyMgtRS {
             ctx.setAttributes(attrs);
             studyService.updateStudy(ctx);
             rsForward.forward(RSOperation.UpdateStudy, arcAE, attrs, request);
-            return out -> {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
-                }
-            };
+            return Response.ok((StreamingOutput) out -> {
+                                    try (JsonGenerator gen = Json.createGenerator(out)) {
+                                        arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
+                                    }
+                                })
+                            .build();
         } catch (StudyMissingException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (PatientMismatchException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -201,27 +217,31 @@ public class StudyMgtRS {
     @Path("/studies/{study}/series/{series}")
     @Consumes("application/dicom+json,application/json")
     @Produces("application/json")
-    public StreamingOutput updateSeries(
+    public Response updateSeries(
             @PathParam("study") String studyUID,
             @PathParam("series") String seriesUID,
             InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID == null || !attrs.containsValue(Tag.SeriesInstanceUID))
-            throw new WebApplicationException(
-                    errResponse("Missing Patient ID or Series Instance UID in request payload",
-                            Response.Status.BAD_REQUEST));
+            return errResponse("Missing Patient ID or Series Instance UID in request payload",
+                            Response.Status.BAD_REQUEST);
 
         if (!seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID)))
-            throw new WebApplicationException(
-                    errResponse("Series UID in request does not match Series UID in request payload",
-                            Response.Status.BAD_REQUEST));
+            return errResponse("Series UID in request does not match Series UID in request payload",
+                            Response.Status.BAD_REQUEST);
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException(
-                    errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND));
+            return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
 
         try {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
@@ -232,18 +252,18 @@ public class StudyMgtRS {
             ctx.setSeriesInstanceUID(seriesUID);
             studyService.updateSeries(ctx);
             rsForward.forward(RSOperation.UpdateSeries, arcAE, attrs, request);
-            return out -> {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
-                }
-            };
+            return Response.ok((StreamingOutput)out -> {
+                                    try (JsonGenerator gen = Json.createGenerator(out)) {
+                                        arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
+                                    }
+                                })
+                            .build();
         } catch (StudyMissingException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (PatientMismatchException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -253,6 +273,13 @@ public class StudyMgtRS {
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("accessControlID") String accessControlID) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
@@ -276,6 +303,13 @@ public class StudyMgtRS {
             @ValidValueOf(type = Attributes.UpdatePolicy.class, message = "Invalid attribute update policy")
                     String updatePolicy) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes queryKeys = queryAttrs.getQueryKeys();
         if (queryKeys.getString(Tag.PatientID) == null)
@@ -329,6 +363,13 @@ public class StudyMgtRS {
                                           String expirationExporterID, String freezeExpirationDate) {
         boolean updateSeriesExpirationDate = seriesUID != null;
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
@@ -373,10 +414,7 @@ public class StudyMgtRS {
 
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private void logRequest() {
@@ -403,5 +441,26 @@ public class StudyMgtRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

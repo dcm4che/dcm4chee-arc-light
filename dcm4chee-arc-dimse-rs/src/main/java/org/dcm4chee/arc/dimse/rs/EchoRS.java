@@ -39,7 +39,6 @@
 package org.dcm4chee.arc.dimse.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.UID;
@@ -47,6 +46,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAbort;
 import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4che3.net.pdu.AAssociateRQ;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +65,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,6 +76,7 @@ import java.io.StringWriter;
 @Path("aets/{AETitle}/dimse/{RemoteAET}")
 public class EchoRS {
     private static final Logger LOG = LoggerFactory.getLogger(EchoRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private DicomConfiguration conf;
@@ -104,12 +107,9 @@ public class EchoRS {
         return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
-    private ApplicationEntity getApplicationEntity() {
+    private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae;
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private ApplicationEntity getRemoteApplicationEntity() {
@@ -150,7 +150,16 @@ public class EchoRS {
     public StreamingOutput echo() {
         logRequest();
         int remotePort = parseInt(port);
-        ApplicationEntity ae = getApplicationEntity();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            throw new WebApplicationException(errResponse(
+                    "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
+
         ApplicationEntity remote = host != null && remotePort > 0 ? createRemoteAE(remotePort) : getRemoteApplicationEntity();
         try {
             Association as = null;
@@ -193,7 +202,8 @@ public class EchoRS {
             }
             return result;
         } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -279,5 +289,26 @@ public class EchoRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

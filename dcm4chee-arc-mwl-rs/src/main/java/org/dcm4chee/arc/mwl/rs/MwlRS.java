@@ -50,11 +50,13 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -78,6 +80,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -91,6 +94,7 @@ import java.util.List;
 public class MwlRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(MwlRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private Device device;
@@ -117,25 +121,29 @@ public class MwlRS {
     @Path("/mwlitems")
     @Consumes("application/dicom+json,application/json")
     @Produces("application/dicom+json,application/json")
-    public StreamingOutput updateSPS(InputStream in) {
+    public Response updateSPS(InputStream in) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         final Attributes attrs = toAttributes(in);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID == null)
-            throw new WebApplicationException(
-                    errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+            return errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST);
 
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (spsItem == null)
-            throw new WebApplicationException(
-                    errResponse("Missing or empty (0040,0100) Scheduled Procedure Step Sequence",
-                    Response.Status.BAD_REQUEST));
+            return errResponse("Missing or empty (0040,0100) Scheduled Procedure Step Sequence",
+                    Response.Status.BAD_REQUEST);
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException(
-                    errResponse("Patient[id=" + patientID + "] does not exists", Response.Status.NOT_FOUND));
+            return errResponse("Patient[id=" + patientID + "] does not exists", Response.Status.NOT_FOUND);
 
         try {
             if (!attrs.containsValue(Tag.AccessionNumber))
@@ -160,22 +168,29 @@ public class MwlRS {
             RSOperation rsOp = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                                 ? RSOperation.CreateMWL : RSOperation.UpdateMWL;
             rsForward.forward(rsOp, arcAE, attrs, request);
-            return out -> {
-                    try (JsonGenerator gen = Json.createGenerator(out)) {
-                        arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
-                    }
-            };
+            return Response.ok((StreamingOutput) out -> {
+                                        try (JsonGenerator gen = Json.createGenerator(out)) {
+                                            arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
+                                        }
+                                })
+                            .build();
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DELETE
     @Path("/mwlitems/{studyIUID}/{spsID}")
-    public void deleteSPS(@PathParam("studyIUID") String studyIUID, @PathParam("spsID") String spsID) {
+    public Response deleteSPS(@PathParam("studyIUID") String studyIUID, @PathParam("spsID") String spsID) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             ProcedureContext ctx = procedureService.createProcedureContext()
                     .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
@@ -183,14 +198,13 @@ public class MwlRS {
             ctx.setSpsID(spsID);
             procedureService.deleteProcedure(ctx);
             if (ctx.getEventActionCode() == null)
-                throw new WebApplicationException(
-                        errResponse("MWLItem with study instance UID : " + studyIUID + " and SPS ID : "
+                return errResponse("MWLItem with study instance UID : " + studyIUID + " and SPS ID : "
                                 + spsID + " not found.",
-                        Response.Status.NOT_FOUND));
+                        Response.Status.NOT_FOUND);
             rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
+            return Response.noContent().build();
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -242,10 +256,7 @@ public class MwlRS {
 
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae.getAEExtension(ArchiveAEExtension.class);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private Response errResponse(String msg, Response.Status status) {
@@ -281,5 +292,26 @@ public class MwlRS {
                                                     .toArray(String[]::new);
         if (ssNames.length > 0)
             sps.setString(Tag.ScheduledStationName, VR.SH, ssNames);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

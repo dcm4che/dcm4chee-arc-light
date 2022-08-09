@@ -46,12 +46,14 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.impax.report.ImpaxReportConverter;
 import org.dcm4chee.arc.impax.report.ReportServiceProvider;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -72,17 +74,20 @@ import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2018
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
 public class ImportImpaxReportRS {
     private static final Logger LOG = LoggerFactory.getLogger(ImportImpaxReportRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -108,7 +113,15 @@ public class ImportImpaxReportRS {
     @Produces("application/dicom+json")
     public Response importReportsOfStudy(@PathParam("studyUID") String studyUID) {
         logRequest();
-        ApplicationEntity ae = getApplicationEntity();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
+
         Attributes studyAttrs = queryService.getStudyAttributes(studyUID);
         if (studyAttrs == null)
             return errResponse("No such Study: " + studyUID, Response.Status.NOT_FOUND);
@@ -151,13 +164,9 @@ public class ImportImpaxReportRS {
                 request.getRemoteHost());
     }
 
-    private ApplicationEntity getApplicationEntity() {
+    private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-
-        return ae;
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private List<String> queryReports(String studyUID) {
@@ -254,5 +263,26 @@ public class ImportImpaxReportRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

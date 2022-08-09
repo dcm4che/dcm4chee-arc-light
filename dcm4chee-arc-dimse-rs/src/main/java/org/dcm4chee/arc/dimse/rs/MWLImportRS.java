@@ -40,12 +40,14 @@ package org.dcm4chee.arc.dimse.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.Status;
-import org.dcm4che3.util.TagUtils;
+import org.dcm4che3.net.WebApplication;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.procedure.ImportResult;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.util.QIDO;
@@ -65,6 +67,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -76,6 +79,7 @@ import java.io.StringWriter;
 public class MWLImportRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(MWLImportRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -137,6 +141,14 @@ public class MWLImportRS {
     @Path("/mwlitems/import/{destination}")
     @Produces("application/json")
     public Response mwlImport(@PathParam("destination") String destAET) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             Attributes filter = new Attributes(queryAttributes.getQueryKeys());
             QIDO.MWL.addReturnTags(queryAttributes);
@@ -215,18 +227,29 @@ public class MWLImportRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
-    private static String warning(int status) {
-        switch (status) {
-            case Status.Success:
-                return null;
-            case Status.OutOfResources:
-                return "A700: Refused: Out of Resources";
-            case Status.IdentifierDoesNotMatchSOPClass:
-                return "A900: Identifier does not match SOP Class";
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
         }
-        return TagUtils.shortToHexString(status)
-                + ((status & Status.UnableToProcess) == Status.UnableToProcess
-                ? ": Unable to Process"
-                : ": Unexpected status code");
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.MWL_RS))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with MWL_RS service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

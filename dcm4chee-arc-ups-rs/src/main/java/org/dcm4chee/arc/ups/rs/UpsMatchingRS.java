@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.UIDUtils;
@@ -54,6 +55,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -75,6 +77,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntFunction;
@@ -89,6 +92,7 @@ import java.util.function.IntFunction;
 public class UpsMatchingRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpsMatchingRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @PathParam("AETitle")
     private String aet;
@@ -222,9 +226,16 @@ public class UpsMatchingRS {
         if (inputType == null)
             return notAcceptable();
 
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            ArchiveAEExtension arcAE = getArchiveAE();
             Attributes upsTemplateAttrs = inputType.parse(in);
             upsTemplateAttrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, scheduledTime());
             if (upsLabel != null)
@@ -301,6 +312,14 @@ public class UpsMatchingRS {
 
     private Response createWorkitemsFromCSV(
             int studyUIDField, String upsTemplateUID, String csvPatientIDField, InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         Response.Status status = Response.Status.BAD_REQUEST;
         if (studyUIDField < 1)
             return errResponse(status, "CSV field for Study Instance UID should be greater than or equal to 1");
@@ -310,7 +329,6 @@ public class UpsMatchingRS {
             return errResponse(status, "CSV field for Patient ID should be greater than or equal to 1");
 
         try {
-            ArchiveAEExtension arcAE = getArchiveAE();
             UpsCSV upsCSV = new UpsCSV(upsService,
                                         HttpServletRequestInfo.valueOf(request).setContentType(headers),
                                         arcAE,
@@ -460,5 +478,27 @@ public class UpsMatchingRS {
         String requestURI = request.getRequestURI();
         String queryString = request.getQueryString();
         return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(
+                        errResponse(Response.Status.NOT_FOUND,
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: "
+                                + aet)));
     }
 }

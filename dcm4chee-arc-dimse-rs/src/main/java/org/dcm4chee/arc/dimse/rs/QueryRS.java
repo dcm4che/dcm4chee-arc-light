@@ -45,6 +45,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -71,10 +72,12 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2017
  */
 @RequestScoped
@@ -83,6 +86,7 @@ import java.util.EnumSet;
 public class QueryRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -243,9 +247,15 @@ public class QueryRS {
 
     private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                         boolean count) {
-        ApplicationEntity localAE = device.getApplicationEntity(aet, true);
-        if (localAE == null || !localAE.isInstalled())
-            throw new WebApplicationException(errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            throw new WebApplicationException(errResponse(
+                    "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity localAE = arcAE.getApplicationEntity();
+        if (aet.equals(localAE.getAETitle()))
+            validateWebAppServiceClass(count, qido);
 
         try {
             aeCache.findApplicationEntity(externalAET);
@@ -418,5 +428,37 @@ public class QueryRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass(boolean count, QIDO qido) {
+        WebApplication.ServiceClass serviceClass = qido == QIDO.MWL
+                ? WebApplication.ServiceClass.MWL_RS
+                : count
+                    ? WebApplication.ServiceClass.QIDO_COUNT
+                    : WebApplication.ServiceClass.QIDO_RS;
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(serviceClass))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with " + serviceClass
+                                + "service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

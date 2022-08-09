@@ -47,9 +47,11 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.event.RejectionNoteSent;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.KOSBuilder;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
@@ -70,6 +72,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -82,6 +85,7 @@ import java.util.List;
 public class RejectRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(RejectRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -201,9 +205,15 @@ public class RejectRS {
 
     private Response reject(String studyUID, String seriesUID, String objectUID, String findscp, String codeValue, String designator) {
         logRequest();
-        ApplicationEntity localAE = device.getApplicationEntity(aet, true);
-        if (localAE == null || !localAE.isInstalled())
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity localAE = arcAE.getApplicationEntity();
+        if (aet.equals(localAE.getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             ApplicationEntity storescpAE = aeCache.findApplicationEntity(storescp);
             ArchiveDeviceExtension arcDev = localAE.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
@@ -336,5 +346,31 @@ public class RejectRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.REJECT))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with REJECT service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

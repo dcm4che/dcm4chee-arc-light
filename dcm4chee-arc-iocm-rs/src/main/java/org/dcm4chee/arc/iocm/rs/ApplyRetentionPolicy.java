@@ -49,6 +49,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -56,6 +57,7 @@ import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.StudyRetentionPolicy;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -80,6 +82,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -93,6 +96,7 @@ import java.util.Collections;
 public class ApplyRetentionPolicy {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplyRetentionPolicy.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -142,16 +146,20 @@ public class ApplyRetentionPolicy {
     @Path("/series/expire")
     @Produces("application/json")
     public Response applyRetentionPolicy() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
 
         try {
             int count;
-            ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
             QueryContext ctx = queryContext(ae);
             try (Query query = queryService.createQuery(ctx)) {
-                int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
+                int queryMaxNumberOfResults = arcAE.queryMaxNumberOfResults();
                 if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
                         && query.fetchCount() > queryMaxNumberOfResults)
                     return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
@@ -295,5 +303,31 @@ public class ApplyRetentionPolicy {
         ctx.setExpirationExporterID(policy.getExporterID());
         ctx.setFreezeExpirationDate(policy.isFreezeExpirationDate());
         studyService.updateExpirationDate(ctx);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtensionNotNull(ArchiveAEExtension.class);
     }
 }

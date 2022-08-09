@@ -41,13 +41,16 @@ package org.dcm4chee.arc.export.rs;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.qmgt.impl.TaskScheduler;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -71,6 +74,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -84,6 +88,7 @@ import java.util.Date;
 public class ExportMatchingRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportMatchingRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @PathParam("AETitle")
     private String aet;
@@ -263,9 +268,14 @@ public class ExportMatchingRS {
 
     private Response exportMatching(String exporterID, String aet,
                             String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
 
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
@@ -458,5 +468,31 @@ public class ExportMatchingRS {
                 status = Response.Status.INTERNAL_SERVER_ERROR;
             }
         }
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(
+                        errResponse(Response.Status.NOT_FOUND,
+                                "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet)));
     }
 }

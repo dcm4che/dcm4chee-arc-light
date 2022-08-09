@@ -49,9 +49,11 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -76,10 +78,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -92,6 +91,7 @@ import java.util.List;
 public class QueryRetrieveRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryRetrieveRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -233,7 +233,15 @@ public class QueryRetrieveRS {
     }
 
     private Response processCSV(int field, String destAET, InputStream in) {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
         try {
+            validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
+            if (aet.equals(ae.getAETitle()))
+                validateWebAppServiceClass(device);
+
             validate(null);
             Response.Status status = Response.Status.BAD_REQUEST;
             if (field < 1)
@@ -354,6 +362,10 @@ public class QueryRetrieveRS {
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         try {
+            validateAcceptedUserRoles(localAE.getAEExtensionNotNull(ArchiveAEExtension.class));
+            if (aet.equals(localAE.getAETitle()))
+                validateWebAppServiceClass(device);
+
             validate(queryAET);
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             queryAttributes.addReturnTags(level.uniqueKey());
@@ -433,6 +445,10 @@ public class QueryRetrieveRS {
             if (ae == null || !ae.isInstalled())
                 throw new ConfigurationException("No such Application Entity: " + aet + " found in device: " + deviceName);
 
+            validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
+            if (aet.equals(ae.getAETitle()))
+                validateWebAppServiceClass(device);
+
             validateQueue(device);
         } else
             validateQueue(device);
@@ -498,5 +514,26 @@ public class QueryRetrieveRS {
                 + ((status & Status.UnableToProcess) == Status.UnableToProcess
                 ? ": Unable to Process"
                 : ": Unexpected status code");
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass(Device device) {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.MOVE_MATCHING))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with MOVE_MATCHING service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

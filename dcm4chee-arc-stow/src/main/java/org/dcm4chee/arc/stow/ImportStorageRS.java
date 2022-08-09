@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -56,6 +57,7 @@ import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -91,6 +93,7 @@ import java.util.stream.Collectors;
 public class ImportStorageRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImportStorageRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private StorageFactory storageFactory;
@@ -154,7 +157,39 @@ public class ImportStorageRS {
             @PathParam("StorageID") String storageID,
             @Suspended AsyncResponse ar,
             InputStream in) {
-        importInstanceOnStorage(ar, in, storageID, selectMediaType());
+        Output output = selectMediaType();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            throw new WebApplicationException(errResponse("No such Application Entity: " + aet,
+                    Response.Status.NOT_FOUND));
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
+
+        Storage storage = storageFactory.getStorage(getStorageDesc(storageID));
+        final StoreSession session = service.newStoreSession(
+                        HttpServletRequestInfo.valueOf(request), ae, aet, null)
+                .withObjectStorageID(storageID);
+        Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
+        Date now = reasonForModification != null && !coerce.isEmpty() ? new Date() : null;
+        Attributes.UpdatePolicy updatePolicy = Attributes.UpdatePolicy.valueOf(this.updatePolicy);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            reader.lines().forEach(storagePath ->
+                    importInstanceOnStorage(
+                            storage, service.newStoreContext(session), coerce, updatePolicy, now, storagePath));
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e),
+                    Response.Status.INTERNAL_SERVER_ERROR));
+        }
+
+        response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
+        Response.ResponseBuilder responseBuilder = Response.status(status());
+        ar.resume(responseBuilder
+                .entity(output.entity(response, ae))
+                .header("Warning", response.getString(Tag.ErrorComment))
+                .build());
     }
 
     public void validate() {
@@ -166,9 +201,17 @@ public class ImportStorageRS {
     @Path("/studies/{study}/reimport")
     public void reimportStudy(@Suspended AsyncResponse ar, @PathParam("study") String studyUID) {
         Output output = selectMediaType();
-        ApplicationEntity ae = getApplicationEntity();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            throw new WebApplicationException(errResponse("No such Application Entity: " + aet,
+                    Response.Status.NOT_FOUND));
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
+
         try {
-            ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
             List<Location> locations = deletionService.reimportStudy(
                                             studyUID, HttpServletRequestInfo.valueOf(request), arcAE);
             Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
@@ -189,38 +232,13 @@ public class ImportStorageRS {
             }
             rsForward.forward(RSOperation.ReimportStudy, arcAE, null, request);
         } catch (StudyNotFoundException e) {
-            throw new WebApplicationException(e.getMessage(), Response.Status.NOT_FOUND);
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (StudyNotEmptyException e) {
-            throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.FORBIDDEN));
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
-        response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
-        Response.ResponseBuilder responseBuilder = Response.status(status());
-        ar.resume(responseBuilder
-                .entity(output.entity(response, ae))
-                .header("Warning", response.getString(Tag.ErrorComment))
-                .build());
-    }
-
-    private void importInstanceOnStorage(AsyncResponse ar, InputStream in, String storageID, Output output) {
-        ApplicationEntity ae = getApplicationEntity();
-        Storage storage = storageFactory.getStorage(getStorageDesc(storageID));
-        final StoreSession session = service.newStoreSession(
-                HttpServletRequestInfo.valueOf(request), ae, aet, null)
-                .withObjectStorageID(storageID);
-        Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
-        Date now = reasonForModification != null && !coerce.isEmpty() ? new Date() : null;
-        Attributes.UpdatePolicy updatePolicy = Attributes.UpdatePolicy.valueOf(this.updatePolicy);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            reader.lines().forEach(storagePath ->
-                    importInstanceOnStorage(
-                            storage, service.newStoreContext(session), coerce, updatePolicy, now, storagePath));
-        } catch (Exception e) {
-            throw new WebApplicationException(errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
-        }
-
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
         Response.ResponseBuilder responseBuilder = Response.status(status());
         ar.resume(responseBuilder
@@ -334,12 +352,9 @@ public class ImportStorageRS {
                 request.getRemoteHost());
     }
 
-    private ApplicationEntity getApplicationEntity() {
+    private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(errResponse(
-                    "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae;
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private StorageDescriptor getStorageDesc(String storageID) {
@@ -421,5 +436,26 @@ public class ImportStorageRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

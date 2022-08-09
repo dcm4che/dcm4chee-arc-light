@@ -43,11 +43,14 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
@@ -64,6 +67,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -76,6 +80,7 @@ import java.util.List;
 public class ExportCSVRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportCSVRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @PathParam("AETitle")
     private String aet;
@@ -136,6 +141,14 @@ public class ExportCSVRS {
 
     Response exportFromCSV(String aet, String exporterID, int studyUIDField, Integer seriesUIDField, InputStream in) {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         Response.Status status = Response.Status.BAD_REQUEST;
         try {
             if (studyUIDField < 1)
@@ -150,10 +163,6 @@ public class ExportCSVRS {
                     return errResponse(status,
                             "CSV field for Series Instance UID should be greater than or equal to 1");
             }
-
-            ApplicationEntity ae = device.getApplicationEntity(aet, true);
-            if (ae == null || !ae.isInstalled())
-                return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
             ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
@@ -322,5 +331,31 @@ public class ExportCSVRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(
+                        errResponse(Response.Status.NOT_FOUND,
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet)));
     }
 }

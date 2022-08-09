@@ -46,11 +46,13 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
@@ -68,6 +70,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -78,6 +81,7 @@ import java.io.StringWriter;
 @Path("aets/{AETitle}/rs")
 public class UpdatePatientDemographics {
     private static final Logger LOG = LoggerFactory.getLogger(UpdatePatientDemographics.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -111,8 +115,16 @@ public class UpdatePatientDemographics {
     public Response update(@PathParam("PDQServiceID") String pdqServiceID,
                        @PathParam("PatientID") IDWithIssuer patientID) {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
+
         try {
-            ArchiveAEExtension arcAE = getArchiveAE();
             PDQServiceDescriptor descriptor = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                                 .getPDQServiceDescriptorNotNull(pdqServiceID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
@@ -179,10 +191,7 @@ public class UpdatePatientDemographics {
 
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private Response errResponse(String msg, Response.Status status) {
@@ -201,5 +210,26 @@ public class UpdatePatientDemographics {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

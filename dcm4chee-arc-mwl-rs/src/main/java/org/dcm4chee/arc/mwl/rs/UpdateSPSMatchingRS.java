@@ -45,8 +45,11 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.SPSStatus;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
@@ -57,15 +60,13 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -77,6 +78,7 @@ import java.util.stream.Stream;
 @InvokeValidate(type = UpdateSPSMatchingRS.class)
 public class UpdateSPSMatchingRS {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateSPSMatchingRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @PathParam("AETitle")
     private String aet;
@@ -115,9 +117,14 @@ public class UpdateSPSMatchingRS {
             @PathParam("status")
             @Pattern(regexp = "SCHEDULED|ARRIVED|READY|STARTED|DEPARTED|CANCELED|DISCONTINUED|COMPLETED")
             String spsStatus) {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
 
         int updated = 0;
         int count;
@@ -198,4 +205,29 @@ public class UpdateSPSMatchingRS {
         return sw.toString();
     }
 
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
 }

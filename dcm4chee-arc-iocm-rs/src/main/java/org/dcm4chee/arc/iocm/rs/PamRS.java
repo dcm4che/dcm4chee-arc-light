@@ -49,6 +49,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -65,6 +66,7 @@ import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.hl7.HL7SenderUtils;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -106,6 +108,7 @@ import java.util.stream.Collectors;
 @InvokeValidate(type = PamRS.class)
 public class PamRS {
     private static final Logger LOG = LoggerFactory.getLogger(PamRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private Device device;
@@ -156,13 +159,19 @@ public class PamRS {
 
     @DELETE
     @Path("/patients/{PatientID}")
-    public void deletePatient(@PathParam("PatientID") IDWithIssuer patientID) {
+    public Response deletePatient(@PathParam("PatientID") IDWithIssuer patientID) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException(
-                    errResponse("Patient having patient ID : " + patientID + " not found.",
-                            Response.Status.NOT_FOUND));
+            return errResponse("Patient having patient ID : " + patientID + " not found.",
+                            Response.Status.NOT_FOUND);
         AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
         String patientDeleteForbidden = allowDeletePatient == AllowDeletePatient.NEVER
                 ? "Patient deletion as per configuration is never allowed."
@@ -170,7 +179,7 @@ public class PamRS {
                 ? "Patient having patient ID : " + patientID + " has non empty studies."
                 : null;
         if (patientDeleteForbidden != null)
-            throw new WebApplicationException(errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN));
+            return errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN);
 
         try {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
@@ -181,12 +190,11 @@ public class PamRS {
             ctx.setPatient(patient);
             deletionService.deletePatient(ctx, arcAE);
             rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
+            return Response.noContent().build();
         } catch (NonUniquePatientException | PatientMergedException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.CONFLICT));
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -194,8 +202,15 @@ public class PamRS {
     @Path("/patients")
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
-    public String createPatient(InputStream in) {
+    public Response createPatient(InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             PatientMgtContext ctx = patientMgtCtx(in);
             ctx.setArchiveAEExtension(arcAE);
@@ -206,14 +221,13 @@ public class PamRS {
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
             notifyHL7Receivers("ADT^A28^ADT_A05", ctx);
-            return "{\"PatientID\":\"" + IDWithIssuer.pidOf(ctx.getAttributes()) + "\"}";
+            return Response.ok("{\"PatientID\":\"" + IDWithIssuer.pidOf(ctx.getAttributes()) + "\"}").build();
         } catch (NonUniquePatientException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.FORBIDDEN));
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -232,23 +246,28 @@ public class PamRS {
     @PUT
     @Path("/patients/{priorPatientID}")
     @Consumes("application/dicom+json,application/json")
-    public void updatePatient(
+    public Response updatePatient(
             @PathParam("priorPatientID") IDWithIssuer priorPatientID,
             @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
             InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         PatientMgtContext ctx = patientMgtCtx(in);
         ctx.setArchiveAEExtension(arcAE);
         IDWithIssuer targetPatientID = ctx.getPatientID();
         if (targetPatientID == null)
-            throw new WebApplicationException(
-                    errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+            return errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST);
 
         boolean mergePatients = Boolean.parseBoolean(merge);
         boolean patientMatch = priorPatientID.equals(targetPatientID);
         if (patientMatch && mergePatients)
-            throw new WebApplicationException(
-                    errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST));
+            return errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST);
 
         RSOperation rsOp = RSOperation.CreatePatient;
         String msgType = "ADT^A28^ADT_A05";
@@ -272,28 +291,35 @@ public class PamRS {
                 }
             }
 
-            if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read)
-                    && rsOp != RSOperation.MergePatient2)
-                return;
+            if (!ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read)
+                    || rsOp == RSOperation.MergePatient2) {
+                rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
+                notifyHL7Receivers(msgType, ctx);
+            }
 
-            rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
-            notifyHL7Receivers(msgType, ctx);
+            return Response.noContent().build();
         } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
                 | CircularPatientMergeException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.FORBIDDEN));
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch(Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     @POST
     @Path("/patients/{patientID}/merge")
     @Consumes("application/json")
-    public void mergePatients(@PathParam("patientID") IDWithIssuer patientID, InputStream in) {
+    public Response mergePatients(@PathParam("patientID") IDWithIssuer patientID, InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         final Attributes attrs;
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[8192];
@@ -307,24 +333,29 @@ public class PamRS {
                 mergePatient(patientID, otherPID, arcAE);
 
             rsForward.forward(RSOperation.MergePatient, arcAE, baos.toByteArray(), null, request);
+            return Response.noContent().build();
         } catch (JsonParsingException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
+            return errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST);
         } catch (NonUniquePatientException | PatientMergedException | CircularPatientMergeException e) {
-            throw new WebApplicationException(
-                    errResponse(e.getMessage(), Response.Status.CONFLICT));
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     @POST
     @Path("/patients/{priorPatientID}/merge/{patientID}")
-    public void mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
+    public Response mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
                              @PathParam("patientID") IDWithIssuer patientID,
                              @QueryParam("verify") String findSCP) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             if (findSCP != null)
                 verifyMergePatient(priorPatientID, patientID, findSCP, cfindscu, arcAE.getApplicationEntity());
@@ -332,14 +363,14 @@ public class PamRS {
                     priorPatientID.exportPatientIDWithIssuer(null),
                     arcAE);
             rsForward.forward(RSOperation.MergePatient, arcAE, null, request);
+            return Response.noContent().build();
         } catch (NonUniquePatientException
                 | PatientMergedException
                 | CircularPatientMergeException
                 | VerifyMergePatientException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -347,6 +378,13 @@ public class PamRS {
     @Path("/patients/{PatientID}/unmerge")
     public Response unmergePatient(@PathParam("PatientID") IDWithIssuer patientID) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             patMgtCtx.setArchiveAEExtension(arcAE);
@@ -371,6 +409,13 @@ public class PamRS {
             @PathParam("issuer") AttributesFormat issuer,
             @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         Set<IDWithIssuer> success = new HashSet<>();
         Map<IDWithIssuer, Long> ambiguous = new HashMap<>();
         Map<String, String> failures = new HashMap<>();
@@ -579,9 +624,16 @@ public class PamRS {
 
     @POST
     @Path("/patients/{priorPatientID}/changeid/{patientID}")
-    public void changePatientID(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
+    public Response changePatientID(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
                                 @PathParam("patientID") IDWithIssuer patientID) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             Patient prevPatient = patientService.findPatient(priorPatientID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
@@ -592,23 +644,20 @@ public class PamRS {
             patientService.changePatientID(ctx);
             notifyHL7Receivers("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
+            return Response.noContent().build();
         } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
                 | CircularPatientMergeException e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.CONFLICT));
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
-            throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch(Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private void logRequest() {
@@ -747,6 +796,13 @@ public class PamRS {
             @PathParam("charset") String charset,
             @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         boolean update = !Boolean.parseBoolean(test);
         int updated = 0;
         List<IDWithIssuer> failures = new ArrayList<>();
@@ -805,4 +861,24 @@ public class PamRS {
         gen.flush();
     }
 
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+    }
 }

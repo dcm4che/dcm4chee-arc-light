@@ -45,11 +45,10 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.DimseRSP;
-import org.dcm4che3.net.Status;
+import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.slf4j.Logger;
@@ -67,6 +66,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -76,6 +76,7 @@ import java.io.StringWriter;
 @Path("aets/{aet}/rs")
 public class StgCmtSCURS {
     private static final Logger LOG = LoggerFactory.getLogger(StgCmtSCURS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private Device device;
@@ -127,9 +128,14 @@ public class StgCmtSCURS {
 
     private Response storageCommit(String studyUID, String seriesUID, String sopUID, String externalAET) {
         logRequest();
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
 
         try {
             aeCache.findApplicationEntity(externalAET);
@@ -207,4 +213,31 @@ public class StgCmtSCURS {
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
 }

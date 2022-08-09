@@ -47,12 +47,14 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.RejectionService;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.QueryService;
@@ -81,6 +83,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.function.IntFunction;
 
@@ -95,6 +98,7 @@ import java.util.function.IntFunction;
 public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private Device device;
@@ -208,6 +212,12 @@ public class IocmRS {
                                               @PathParam("codingSchemeDesignator") String designator,
                                               InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         try {
             ProcedureContext ctx = procedureService.createProcedureContext()
@@ -275,10 +285,7 @@ public class IocmRS {
 
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND));
-        return ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtensionNotNull(ArchiveAEExtension.class);
     }
 
     private void logRequest() {
@@ -292,7 +299,12 @@ public class IocmRS {
     private Response reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
                         String codeValue, String designator) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         try {
             RejectionNote rjNote = toRejectionNote(codeValue, designator);
             if (queue)
@@ -332,6 +344,12 @@ public class IocmRS {
 
     private Response copyOrMoveInstances(String studyUID, InputStream in, String codeValue, String designator) {
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         try {
             String changeRequesterAET = arcAE.changeRequesterAET();
@@ -457,5 +475,26 @@ public class IocmRS {
                 return Response.Status.FORBIDDEN;
         }
         return Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }

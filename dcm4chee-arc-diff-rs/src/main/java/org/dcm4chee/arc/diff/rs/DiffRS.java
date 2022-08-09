@@ -60,6 +60,7 @@ import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
@@ -80,6 +81,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -93,6 +95,7 @@ import java.util.List;
 public class DiffRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiffRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private DiffService diffService;
@@ -174,6 +177,15 @@ public class DiffRS {
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
     public void compareStudies(@Suspended AsyncResponse ar) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            throw new WebApplicationException(errResponse(
+                    "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             DiffContext ctx = createDiffContext();
             ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
@@ -214,6 +226,15 @@ public class DiffRS {
     @Path("/studies/count")
     @Produces("application/json")
     public void countDiffs(@Suspended AsyncResponse ar) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            throw new WebApplicationException(errResponse(
+                    "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         try {
             DiffContext ctx = createDiffContext();
             ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
@@ -248,6 +269,14 @@ public class DiffRS {
     public Response compareStudiesFromCSV(
             @PathParam("field") int field,
             InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         Response.Status status = Response.Status.BAD_REQUEST;
         if (field < 1)
             return errResponse(
@@ -431,5 +460,31 @@ public class DiffRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
     }
 }

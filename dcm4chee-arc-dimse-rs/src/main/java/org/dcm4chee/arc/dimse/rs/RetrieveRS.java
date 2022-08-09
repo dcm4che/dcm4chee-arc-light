@@ -49,9 +49,11 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.qmgt.TaskManager;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -74,6 +76,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -86,6 +89,7 @@ import java.util.Date;
 public class RetrieveRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(RetrieveRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Context
     private HttpServletRequest request;
@@ -181,6 +185,14 @@ public class RetrieveRS {
 
     private Response export(String destAET, String... uids) {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
         if (uids[0].startsWith("csv"))
             return errResponse("Missing Content-type Header in 'Retrieve Studies specified in CSV from external archive' service " +
                             "causes invocation of 'Retrieve Study from external archive' service.",
@@ -366,6 +378,32 @@ public class RetrieveRS {
                 gen.writeEnd();
                 gen.flush();
         };
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.MOVE))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with MOVE service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 
 }

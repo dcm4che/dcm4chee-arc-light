@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -53,6 +54,7 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.pdq.PDQService;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
@@ -78,6 +80,7 @@ import javax.ws.rs.core.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -92,6 +95,7 @@ import java.util.List;
 public class DiffPatientDemographicsRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiffPatientDemographicsRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private QueryService queryService;
@@ -165,9 +169,14 @@ public class DiffPatientDemographicsRS {
     @Path("/patients")
     @Produces("application/dicom+json,application/json")
     public Response comparePatients() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
 
         ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         if (arcdev == null)
@@ -222,7 +231,7 @@ public class DiffPatientDemographicsRS {
            try {
                PDQService service = serviceFactory.getPDQService(descriptor);
                query.executeQuery(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize());
-               if ((hasMoreMatches = query.hasMoreMatches()))
+               if ((hasMoreMatches == query.hasMoreMatches()))
                    result = calculateDiffs(query, service);
            } catch (DicomServiceException e) {
                throw new WebApplicationException(e);
@@ -379,5 +388,31 @@ public class DiffPatientDemographicsRS {
         item.setString(Tag.ModifyingSystem, VR.LO, aet);
         item.setString(Tag.ReasonForTheAttributeModification, VR.CS, "DIFFS");
         return match;
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET_DIFF))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET_DIFF service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }
