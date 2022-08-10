@@ -252,11 +252,14 @@ public class UpsRS {
         ctx.setUPSInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
         try {
-            service.deleteSubscription(ctx);
+            return service.deleteSubscription(ctx) > 0
+                    ? Response.ok().build()
+                    : Response.status(Response.Status.NOT_FOUND)
+                                .header("Warning", "The target Subscription was not found.")
+                                .build();
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::internalServerError, e);
         }
-        return Response.ok().build();
     }
 
     @POST
@@ -272,11 +275,14 @@ public class UpsRS {
         ctx.setUPSInstanceUID(iuid);
         ctx.setSubscriberAET(subscriber);
         try {
-            service.suspendSubscription(ctx);
+            return service.suspendSubscription(ctx) > 0
+                    ? Response.ok().build()
+                    : Response.status(Response.Status.NOT_FOUND)
+                              .header("Warning", "The target Subscription was not found.")
+                              .build();
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::internalServerError, e);
         }
-        return Response.ok().build();
     }
 
     @POST
