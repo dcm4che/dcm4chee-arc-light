@@ -9,7 +9,7 @@
         <div mat-dialog-content>
             <iod-form-generator [externalInternalAetMode]="externalInternalAetMode" [object]="ups.attrs" [prefix]="" [mode]="mode" [iod]="iod" (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
         </div>
-        <div class="template_checkboxes">
+        <div class="template_checkboxes" *ngIf="mode === 'create' || mode === 'clone'">
             <label for="no_template">
                 <input id="no_template" type="radio" name="template_radio" [(ngModel)]="templateParameter" value="no_template"> Don't create template
             </label>
