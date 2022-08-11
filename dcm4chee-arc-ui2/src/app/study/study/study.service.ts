@@ -3287,6 +3287,42 @@ export class StudyService {
                                     id: 'action-studies-uwl',
                                     param: 'edit'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon calendar_step_black`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "change_ups_state"
+                                    }, e);
+                                },
+                                title: $localize `:@@uwl.change_ups_state:Change UPS state`,
+                                permission: {
+                                    id: 'action-studies-uwl',
+                                    param: 'edit'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-trash',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "unsubscribe_ups"
+                                    }, e);
+                                },
+                                title: $localize `:@@uwl.unsubscribe_ups:Unsubscribe UPS`,
+                                permission: {
+                                    id: 'action-studies-uwl',
+                                    param: 'edit'
+                                }
                             }
                             /*                            ,
                                                         {
@@ -3849,18 +3885,71 @@ export class StudyService {
                         return this.$http.post(`${url}/${workitemUID}/reschedule${j4care.objToUrlParams(model,true)}`,{});
                     }
                 }
-                return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
             }))
     }
+
+    changeUPSState(workitemUID, deviceWebservice: StudyWebService, requester, changeUPSStateAttrs) {
+        let xmlHttpRequest = new XMLHttpRequest();
+        let url;
+        return this.getModifyUPSUrl(deviceWebservice)
+            .pipe(
+                switchMap((returnedUrl:string)=>{
+                    url = returnedUrl
+                    return this.getTokenService(deviceWebservice);
+                }),
+                map(token=>{
+                    console.log("token1",token);
+                    if(_.hasIn(token,"token")){
+                        return _.get(token,"token");
+                    }
+                    return
+                }),
+                switchMap((token)=>{
+                    console.log("token",token);
+                    if (url) {
+                        xmlHttpRequest.open('PUT', `${url}/${workitemUID}/state/${requester}`, false);
+                        if(token){
+                            xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+                        }
+                        xmlHttpRequest.setRequestHeader("Content-Type","application/dicom+json");
+                        xmlHttpRequest.setRequestHeader("Accept","application/dicom+json");
+                        xmlHttpRequest.send(changeUPSStateAttrs);
+                        let status = xmlHttpRequest.status;
+                        if (status === 200) {
+                            this.appService.showMsg($localize `:@@ups_workitem_state_changed_successfully:UPS Workitem state was changed successfully!`);
+                        } else {
+                            this.appService.showError($localize `:@@ups_workitem_change_state_failed:UPS workitem change state failed with status `
+                                + status
+                                + `\n- ` + xmlHttpRequest.getResponseHeader('Warning'));
+                        }
+                    }
+                    return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
+                }))
+    }
+
+    unsubscribeUPS(workitemUID, deviceWebservice: StudyWebService, subscriber) {
+        return this.getModifyUPSUrl(deviceWebservice)
+            .pipe(switchMap((url:string)=>{
+                if (url) {
+                    if (subscriber) {
+                        return this.$http.delete(`${url}/${workitemUID}/subscribers/${subscriber}`,{});
+                    }
+                }
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
+            }))
+    }
+
     cancelUPS(workitemUID, deviceWebservice: StudyWebService, requester){
         return this.getModifyUPSUrl(deviceWebservice)
             .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (requester) {
                         return this.$http.post(`${url}/${workitemUID}/cancelrequest/${requester}`,{});
-                    }
+                    } else
+                        this.appService.showWarning($localize `:@@requester_aet_warning_msg:Requester AET should be set`);
                 }
-                return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
             }))
     }
     modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService, msg:string, mode:UPSModifyMode, template?:boolean) {

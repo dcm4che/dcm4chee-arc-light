@@ -830,6 +830,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "cancel_uwl"){
                 this.cancelUPS(model);
             }
+            if(id.action === "change_ups_state"){
+                this.changeUPSState(model);
+            }
+            if(id.action === "unsubscribe_ups"){
+                this.unsubscribeUPS(model);
+            }
             if(id.action === "delete_patient"){
                 this.deletePatient(model);
             }
@@ -3375,6 +3381,135 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.httpErrorHandler.handleError(err);
                 });
             }
+        });
+    }
+
+    unsubscribeUPS(workitem) {
+        this.confirm({
+            content: $localize `:@@unsubscribe_workitem:Unsubscribe UPS Workitem`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+
+                        {
+                            tag:"label",
+                            text:$localize `:@@subscriber_aet:Subscriber AET`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes,
+                            filterKey:"subscriber",
+                            description:$localize `:@@subscriber_aet:Subscriber AET`,
+                            placeholder:$localize `:@@subscriber_aet:Subscriber AET`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@UNSUBSCRIBE:UNSUBSCRIBE`
+        }).subscribe((ok)=> {
+            if (ok) {
+                if (ok.schema_model.subscriber === undefined)
+                    this.appService.showWarning($localize `:@@subscriber_aet_warning_msg:Subscriber AET should be set`);
+                else {
+                    this.service.unsubscribeUPS(this.service.getUpsWorkitemUID(workitem.attrs),
+                        this.studyWebService,
+                        ok.schema_model.subscriber)
+                        .subscribe(res => {
+                            this.appService.showMsg($localize `:@@ups_workitem_unsubscribed_successfully:UPS Workitem was unsubscribed successfully!`);
+                        }, err => {
+                            this.httpErrorHandler.handleError(err);
+                        });
+                }
+            }
+        });
+    }
+
+    changeUPSState(workitem) {
+        this.confirm({
+            content: $localize `:@@change_workitem_state:Change Workitem State`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+
+                        {
+                            tag:"label",
+                            text:$localize `:@@aet_of_a_requester:AET of a Requester`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes,
+                            filterKey:"requester",
+                            description:$localize `:@@aet_of_a_requester:AET of a Requester`,
+                            placeholder:$localize `:@@aet_of_a_requester:AET of a Requester`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@transaction_uid:Transaction UID`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"transactionUID",
+                            description:$localize `:@@transaction_uid:Transaction UID`,
+                            placeholder:$localize `:@@transaction_uid:Transaction UID`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@procedure_step_state:Procedure Step State`
+                        },
+                        {
+                            tag:"select",
+                            options:[
+                                new SelectDropdown("IN PROGRESS", $localize `:@@IN_PROGRESS:IN PROGRESS`),
+                                new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
+                                new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
+                            ],
+                            filterKey:"upsState",
+                            description:$localize `:@@ups_procedure_step_state:UPS Procedure Step State`,
+                            placeholder:$localize `:@@procedure_step_state:Procedure Step State`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@APPLY:APPLY`
+        }).subscribe((ok)=> {
+            if(ok){
+                if (ok.schema_model.requester === undefined)
+                    this.appService.showWarning($localize `:@@requester_aet_warning_msg:Requester AET should be set`);
+                else if (ok.schema_model.upsState === undefined)
+                    this.appService.showWarning($localize `:@@ups_state_warning_msg:Procedure Step State should be set`);
+                else if (ok.schema_model.upsState === "IN PROGRESS" && ok.schema_model.transactionUID === undefined)
+                    this.appService.showWarning($localize `:@@transaction_uid_warning_msg:Transaction UID must be set to change UPS state to IN PROGRESS`);
+                else if (ok.schema_model.requester && ok.schema_model.upsState) {
+                    let changeUPSStateAttrsAsStr = '{"00741000":{"vr":"CS","Value":["' + ok.schema_model.upsState;
+                    if (ok.schema_model.transactionUID === undefined)
+                        changeUPSStateAttrsAsStr += '"]}}';
+                    else
+                        changeUPSStateAttrsAsStr += '"]},"00081195":{"vr":"UI","Value":["' + ok.schema_model.transactionUID + '"]}}';
+                    this.service.changeUPSState(this.service.getUpsWorkitemUID(workitem.attrs),
+                        this.studyWebService,
+                        ok.schema_model.requester,
+                        changeUPSStateAttrsAsStr)
+                        .subscribe(res => {
+                            this.appService.showMsg($localize`:@@ups_workitem_state_changed_successfully:UPS Workitem state was changed successfully!`);
+                        });
+                }
+            }
+
         });
     }
 
