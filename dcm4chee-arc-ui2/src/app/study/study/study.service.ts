@@ -3928,12 +3928,14 @@ export class StudyService {
                 }))
     }
 
-    unsubscribeUPS(workitemUID, deviceWebservice: StudyWebService, subscriber) {
+    unsubscribeOrSuspendUPS(suspend:boolean, workitemUID, deviceWebservice: StudyWebService, subscriber) {
         return this.getModifyUPSUrl(deviceWebservice)
             .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (subscriber) {
-                        return this.$http.delete(`${url}/${workitemUID}/subscribers/${subscriber}`,{});
+                        return suspend === true
+                            ? this.$http.post(`${url}/${workitemUID}/subscribers/${subscriber}/suspend`,{})
+                            : this.$http.delete(`${url}/${workitemUID}/subscribers/${subscriber}`,{});
                     }
                 }
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});

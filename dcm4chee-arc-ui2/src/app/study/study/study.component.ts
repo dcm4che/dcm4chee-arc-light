@@ -188,6 +188,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("supplement_issuer",$localize `:@@supplement_issuer:Supplement Issuer`),
             new SelectDropdown("update_charset",$localize `:@@update_charset:Update Character Set of patients`),
             new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
+            new SelectDropdown("unsubscribe_uwl",$localize `:@@unsubscribe_uwl:Unsubscribe from Unified Worklist`),
+            new SelectDropdown("suspend_uwl",$localize `:@@suspend_uwl:Suspend Unified Worklist`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
             new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
             new SelectDropdown("export_multiple_study",$localize `:@@study.export_multiple:Export matching studies`),
@@ -450,6 +452,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 break;
             case "create_ups":
                 this.createUPS();
+                break;
+            case "unsubscribe_uwl":
+                this.unsubscribeOrSuspendUWL(false);
+                break;
+            case "suspend_uwl":
+                this.unsubscribeOrSuspendUWL(true);
                 break;
             case "permanent_delete":
                 this.deleteRejectedInstances();
@@ -2837,7 +2845,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                  }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
                         if(studyConfig && studyConfig.tab === "uwl"){
-                            return option.value === "create_ups";
+                            return option.value === "create_ups" || option.value === "unsubscribe_uwl" || option.value === "suspend_uwl";
                         }else{
                             switch (option.value) {
                                 case "retrieve_multiple":
@@ -2870,6 +2878,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "download_mwl":
                                 case "import_matching_sps_to_archive":
                                 case "create_ups":
+                                case "unsubscribe_uwl":
+                                case "suspend_uwl":
                                     return false;
                             }
                         }
@@ -3384,6 +3394,76 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
+    unsubscribeOrSuspendUWL(suspend:boolean){
+        this.confirm({
+            content: suspend === true
+                        ? $localize `:@@suspend_uwl:Suspend Unified Worklist`
+                        : $localize `:@@unsubscribe_uwl:Unsubscribe from Unified Worklist`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@subscriber_aet:Subscriber AET`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.applicationEntities.aes,
+                            filterKey:"subscriber",
+                            description:$localize `:@@subscriber_aet:Subscriber AET`,
+                            placeholder:$localize `:@@subscriber_aet:Subscriber AET`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@uwl_type:Unified Worklist Type`
+                        },
+                        {
+                            tag:"select",
+                            options:[
+                                new SelectDropdown("1.2.840.10008.5.1.4.34.5", $localize `:@@global_worklist:Global Worklist`),
+                                new SelectDropdown("1.2.840.10008.5.1.4.34.5.1", $localize `:@@filtered_worklist:Filtered Worklist`)
+                            ],
+                            filterKey:"uwlType",
+                            description:suspend === true
+                                            ? $localize `:@@suspend_uwl_desc:Select Unified Worklist to suspend`
+                                            : $localize `:@@unsubscribe_uwl_desc:Select Unified Worklist to unsubscribe from`,
+                            placeholder:$localize `:@@uwl_type:Unified Worklist Type`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: suspend === true ? $localize `:@@SUSPEND:SUSPEND` : $localize `:@@UNSUBSCRIBE:UNSUBSCRIBE`
+        }).subscribe((ok)=> {
+            if (ok) {
+                if (ok.schema_model.subscriber === undefined)
+                    this.appService.showWarning($localize `:@@subscriber_aet_warning_msg:Subscriber AET should be set`);
+                if (ok.schema_model.uwlType === undefined)
+                    this.appService.showWarning(suspend === true
+                        ? $localize `:@@uwl_type_warning_msg_suspend:Unified Worklist to suspend should be set`
+                        : $localize `:@@uwl_type_warning_msg:Unified Worklist to unsubscribe from should be set`);
+                else {
+                    this.service.unsubscribeOrSuspendUPS(suspend, ok.schema_model.uwlType,
+                                                            this.studyWebService,
+                                                            ok.schema_model.subscriber)
+                        .subscribe(res => {
+                            this.appService.showMsg(suspend === true
+                                ? $localize `:@@uwl_suspended_successfully:Unified Worklist was suspended successfully!`
+                                : $localize `:@@uwl_unsubscribed_successfully:Unified Worklist was unsubscribed successfully!`);
+                        }, err => {
+                            this.httpErrorHandler.handleError(err);
+                        });
+                }
+            }
+        });
+    }
+
     unsubscribeUPS(workitem) {
         this.confirm({
             content: $localize `:@@unsubscribe_workitem:Unsubscribe UPS Workitem`,
@@ -3416,9 +3496,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if (ok.schema_model.subscriber === undefined)
                     this.appService.showWarning($localize `:@@subscriber_aet_warning_msg:Subscriber AET should be set`);
                 else {
-                    this.service.unsubscribeUPS(this.service.getUpsWorkitemUID(workitem.attrs),
-                        this.studyWebService,
-                        ok.schema_model.subscriber)
+                    this.service.unsubscribeOrSuspendUPS(false, this.service.getUpsWorkitemUID(workitem.attrs),
+                                                            this.studyWebService,
+                                                            ok.schema_model.subscriber)
                         .subscribe(res => {
                             this.appService.showMsg($localize `:@@ups_workitem_unsubscribed_successfully:UPS Workitem was unsubscribed successfully!`);
                         }, err => {
