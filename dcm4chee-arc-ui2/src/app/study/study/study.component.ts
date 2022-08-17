@@ -15,7 +15,7 @@ import {
     SelectDropdown,
     DicomLevel,
     Quantity,
-    DicomResponseType, DiffAttributeSet, StorageSystems, AccessControlIDMode, UPSModifyMode, ModifyConfig,
+    DicomResponseType, DiffAttributeSet, StorageSystems, AccessControlIDMode, UPSModifyMode, UPSSubscribeType, ModifyConfig,
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -188,6 +188,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("supplement_issuer",$localize `:@@supplement_issuer:Supplement Issuer`),
             new SelectDropdown("update_charset",$localize `:@@update_charset:Update Character Set of patients`),
             new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
+            new SelectDropdown("subscribe_uwl",$localize `:@@subscribe_uwl:Subscribe to Unified Worklist`),
             new SelectDropdown("unsubscribe_uwl",$localize `:@@unsubscribe_uwl:Unsubscribe from Unified Worklist`),
             new SelectDropdown("suspend_uwl",$localize `:@@suspend_uwl:Suspend Unified Worklist`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
@@ -452,6 +453,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 break;
             case "create_ups":
                 this.createUPS();
+                break;
+            case "subscribe_uwl":
+                this.subscribeUWL(undefined, "uwl",
+                    $localize `:@@subscribe_uwl:Subscribe to Unified Worklist`,
+                    $localize `:@@uwl_subscribed_successfully:Unified Worklist subscribed successfully!`);
                 break;
             case "unsubscribe_uwl":
                 this.unsubscribeOrSuspendUWL(false);
@@ -840,6 +846,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             if(id.action === "change_ups_state"){
                 this.changeUPSState(model);
+            }
+            if(id.action === "subscribe_ups"){
+                this.subscribeUWL(model, "ups",
+                    $localize `:@@subscribe_ups:Subscribe to Unified Procedure Step`,
+                    $localize `:@@ups_subscribed_successfully:Unified Procedure Step subscribed successfully!`);
             }
             if(id.action === "unsubscribe_ups"){
                 this.unsubscribeUPS(model);
@@ -2845,7 +2856,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                  }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
                         if(studyConfig && studyConfig.tab === "uwl"){
-                            return option.value === "create_ups" || option.value === "unsubscribe_uwl" || option.value === "suspend_uwl";
+                            return option.value === "create_ups" || option.value === "subscribe_uwl" || option.value === "unsubscribe_uwl" || option.value === "suspend_uwl";
                         }else{
                             switch (option.value) {
                                 case "retrieve_multiple":
@@ -2878,6 +2889,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "download_mwl":
                                 case "import_matching_sps_to_archive":
                                 case "create_ups":
+                                case "subscribe_uwl":
                                 case "unsubscribe_uwl":
                                 case "suspend_uwl":
                                     return false;
@@ -3231,10 +3243,23 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
+    subscribeUWL(workitem, subscribeType:UPSSubscribeType, title:string, msg:string){
+        this.modifyUPS(
+            workitem,
+            "subscribe",
+            subscribeType,
+            {
+                saveLabel: $localize `:@@SUBSCRIBE:SUBSCRIBE`,
+                titleLabel: title
+            },
+            msg
+        )
+    }
     createUPS(){
         this.modifyUPS(
             undefined,
             "create",
+            undefined,
             {
                 saveLabel: $localize `:@@CREATE:CREATE`,
                 titleLabel: $localize `:@@create_new_ups:Create new UPS Workitem`
@@ -3246,6 +3271,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.modifyUPS(
             workitem,
             "clone",
+            undefined,
             {
                 saveLabel: $localize `:@@CLONE:CLONE`,
                 titleLabel: $localize `:@@clone_ups_workitem:Clone UPS Workitem`
@@ -3257,6 +3283,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.modifyUPS(
             workitem,
             "edit",
+            undefined,
             {
                 saveLabel: $localize `:@@SAVE:SAVE`,
                 titleLabel: $localize `:@@edit_ups_workitem:Edit UPS Workitem`
@@ -3265,15 +3292,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         )
     }
 
-    modifyUPS(workitem, mode:UPSModifyMode,config:ModifyConfig, msg:string){
+    modifyUPS(workitem, mode:UPSModifyMode,subscribeType:UPSSubscribeType,config:ModifyConfig, msg:string){
         let originalWorkitemObject;
         this.service.getUPSIod(mode).subscribe(iod=>{
-            if(mode === "edit" || mode === "clone"){
+            if(mode === "edit" || mode === "clone" || (mode === "subscribe" && subscribeType === "ups")){
                 originalWorkitemObject = _.cloneDeep(workitem);
                 workitem.attrs = j4care.intersection(workitem.attrs,iod);
             }
-            console.log("iod",iod);
-            if(mode === "create" && !workitem){
+            if((mode === "create" && !workitem) || (mode === "subscribe" && subscribeType === "uwl")){
                 workitem = {
                     "attrs":{}
                 };
@@ -3282,7 +3308,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         workitem["attrs"][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
                     }
                 });
-                _.set(workitem.attrs, "00741000.Value[0]","SCHEDULED")
+                if (mode === "create") {
+                    delete workitem.attrs["00741000"];
+                    _.set(workitem.attrs, "00741000.Value[0]","SCHEDULED")
+                }
             }
             this.service.initEmptyValue(workitem.attrs);
             this.dialogRef = this.dialog.open(ModifyUpsComponent, {
@@ -3291,6 +3320,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
 
             this.dialogRef.componentInstance.mode = mode;
+            this.dialogRef.componentInstance.subscribeType = subscribeType;
             this.dialogRef.componentInstance.ups = workitem;
             this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
             this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
@@ -3298,7 +3328,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.titleLabel = config.titleLabel;
             this.dialogRef.afterClosed().subscribe(ok => {
                 if (ok){
-                    console.log("ok",ok);
                     j4care.removeKeyFromObject(workitem.attrs, ["required","enum", "multi"]);
                     let createUPS = (template?:boolean)=>{
                         let object = _.cloneDeep(workitem);
@@ -3310,33 +3339,55 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                         this.service.modifyUPS(undefined,object.attrs,this.studyWebService, msg, mode, template).subscribe(res=>{
                             this.appService.showMsg(msg);
-                        }
-                        // ,err=>{
-                        //     if(!template){
-                        //         workitem = undefined;
-                        //     }
-                        //     this.httpErrorHandler.handleError(err);
-                        // }
-                        );
+                        });
                     };
-                    if(ok.templateParameter && (ok.templateParameter === "no_template" || ok.templateParameter === "template_too")){
-                        if(mode === "create" || mode === "clone"){
-                            createUPS();
-                        }else{
-                            this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService, msg, mode).subscribe(res=>{
-                                this.appService.showMsg(msg);
-                            }
-                            // ,err=>{
-                            //     _.assign(workitem, originalWorkitemObject);
-                            //     this.httpErrorHandler.handleError(err);
-                            // }
-                            );
-                        }
-                        if(ok.templateParameter === "template_too"){
+                    if (mode === "edit") {
+                        this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService, msg, mode).subscribe(res=>{
+                            this.appService.showMsg(msg);
+                        });
+                    }
+                    if((mode === "create" || mode === "clone") && ok.templateParameter){
+                        if (ok.templateParameter === "template_too") {
                             createUPS(true);
-                        }
-                    }else{
-                        createUPS(true);
+                            createUPS();
+                        } else
+                            createUPS(ok.templateParameter != "no_template");
+                    }
+                    if (mode === "subscribe") {
+                        let params = '';
+                        if (ok.result.subscribeMode === "filtered" || subscribeType === "ups")
+                            Object.keys(iod).forEach(dicomAttr=>{
+                                if (_.hasIn(workitem.attrs, dicomAttr) && workitem.attrs[dicomAttr].Value[0] != '') {
+                                    if (workitem.attrs[dicomAttr].vr === 'PN') {
+                                        let alphabetic = workitem.attrs[dicomAttr].Value[0].Alphabetic;
+                                        params += dicomAttr + "=" + _.replace(alphabetic,"^","%5E") + "&";
+                                    } else if (workitem.attrs[dicomAttr].vr === 'SQ') {
+                                        let item = workitem.attrs[dicomAttr].Value[0];
+                                        params += dicomAttr + ".00080100=" + item['00080100'].Value[0] + "&";
+                                        params += dicomAttr + ".00080102=" + item['00080102'].Value[0] + "&";
+                                        let codeMeaning = item['00080104'].Value[0];
+                                        if (codeMeaning && codeMeaning != '')
+                                            params += dicomAttr + ".00080104=" + _.replace(codeMeaning, " ", "%20") + "&";
+                                    } else {
+                                        let val = workitem.attrs[dicomAttr].Value[0];
+                                        params += dicomAttr + "=" + _.replace(val," ","%20") + "&";
+                                    }
+                                }
+                            });
+                        if (ok.result.deletionlock === true)
+                            params += "deletionlock=true";
+
+                        let workitemUID = subscribeType === "ups"
+                                        ? this.service.getUpsWorkitemUID(originalWorkitemObject.attrs)
+                                        : ok.result.subscribeMode === "global"
+                                            ? '1.2.840.10008.5.1.4.34.5'
+                                            : '1.2.840.10008.5.1.4.34.5.1';
+                        this.service.subscribeUPS(workitemUID, params, this.studyWebService, ok.result.subscriberAET)
+                            .subscribe(res => {
+                            this.appService.showMsg(msg);
+                            }, err => {
+                                this.httpErrorHandler.handleError(err);
+                            });
                     }
                 }else{
                     _.assign(workitem, originalWorkitemObject);

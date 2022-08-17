@@ -6,7 +6,10 @@ import * as _ from 'lodash-es';
 import {AppService} from '../../../app.service';
 import {SearchPipe} from '../../../pipes/search.pipe';
 import {WindowRefService} from "../../../helpers/window-ref.service";
-import {UPSModifyMode} from "../../../interfaces";
+import {SelectDropdown, UPSModifyMode, UPSSubscribeType} from "../../../interfaces";
+import {j4care} from "../../../helpers/j4care.service";
+import {Aet} from "../../../models/aet";
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
 
 @Component({
     selector: 'modify-ups',
@@ -17,11 +20,13 @@ export class ModifyUpsComponent {
 
 
     opendropdown = false;
+    private _aes;
     addPatientAttribut = '';
     lastPressedCode;
     options = Globalvar.OPTIONS;
     DCM4CHE = DCM4CHE;
     private _mode:UPSModifyMode;
+    private _subscribeType:UPSSubscribeType;
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
@@ -31,7 +36,13 @@ export class ModifyUpsComponent {
     iod: any;
     templateParameter:string = "no_template";
 
-    constructor(public dialogRef: MatDialogRef<ModifyUpsComponent>, public mainservice: AppService) {
+    private _result = {
+        subscribeMode: 'filtered',
+        subscriberAET: undefined,
+        deletionlock:false
+    };
+
+    constructor(public dialogRef: MatDialogRef<ModifyUpsComponent>, private $http:J4careHttpService, public mainservice: AppService) {
     }
     onChange(newValue, model) {
         _.set(this, model, newValue);
@@ -44,6 +55,13 @@ export class ModifyUpsComponent {
         this._mode = value;
     }
 
+    get subscribeType(): UPSSubscribeType {
+        return this._subscribeType;
+    }
+
+    set subscribeType(value: UPSSubscribeType) {
+        this._subscribeType = value;
+    }
 
     get dropdown() {
         return this._dropdown;
@@ -285,4 +303,54 @@ export class ModifyUpsComponent {
                 break;
         }
     };
+
+    get aes() {
+        return this._aes;
+    }
+
+    set aes(value) {
+        this._aes = value;
+    }
+
+    aesOption:SelectDropdown<Aet>[];
+    ngOnInit() {
+        this.getAes();
+    }
+
+
+    get result(){
+        return this._result;
+    }
+
+    set result(value: any) {
+        this._result = value;
+    }
+
+    getAes(){
+        let $this = this;
+        this.$http.get(
+            `${j4care.addLastSlash(this.mainservice.baseUrl)}aes`
+        )
+            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+            .subscribe((response) => {
+                $this.aes = response;
+                this.aesOption = this.aes.map((ae:Aet)=>{
+                    return new SelectDropdown<Aet>(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription);
+                });
+                $this._result.subscriberAET = $this._result.subscriberAET || $this.aes[0].dicomAETitle;
+                if ($this.mainservice.global && !$this.mainservice.global.aes){
+                    let global = _.cloneDeep($this.mainservice.global);
+                    global.aes = response;
+                    $this.mainservice.setGlobal(global);
+                }else{
+                    if ($this.mainservice.global && $this.mainservice.global.aes){
+                        $this.mainservice.global.aes = response;
+                    }else{
+                        $this.mainservice.setGlobal({aes: response});
+                    }
+                }
+            }, (response) => {
+                // vex.dialog.alert("Error loading aes, please reload the page and try again!");
+            });
+    }
 }

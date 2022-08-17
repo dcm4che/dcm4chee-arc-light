@@ -338,7 +338,8 @@ export interface LocalLanguageObject{
     username:string
 }
 
-export type UPSModifyMode = "create"|"edit"|"clone";
+export type UPSModifyMode = "create"|"edit"|"clone"|"subscribe";
+export type UPSSubscribeType = "ups"|"uwl";
 
 export interface ModifyConfig {
     saveLabel:string;

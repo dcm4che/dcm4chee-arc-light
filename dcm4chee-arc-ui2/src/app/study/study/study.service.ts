@@ -3305,7 +3305,27 @@ export class StudyService {
                                     id: 'action-studies-uwl',
                                     param: 'edit'
                                 }
-                            },{
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'glyphicon glyphicon-bell',
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "uwl",
+                                        action: "subscribe_ups"
+                                    }, e);
+                                },
+                                title: $localize `:@@subscribe_ups_short:Subscribe UPS`,
+                                permission: {
+                                    id: 'action-studies-uwl',
+                                    param: 'edit'
+                                }
+                            },
+                            {
                                 icon: {
                                     tag: 'span',
                                     cssClass: 'glyphicon glyphicon-trash',
@@ -3954,6 +3974,19 @@ export class StudyService {
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
             }))
     }
+
+    subscribeUPS(workitemUID: string, params, deviceWebservice: StudyWebService, subscriber) {
+        return this.getModifyUPSUrl(deviceWebservice)
+            .pipe(switchMap((url:string)=>{
+                if (url) {
+                    if (subscriber) {
+                        return this.$http.post(`${url}/${workitemUID}/subscribers/${subscriber}?${params}`,{});
+                    }
+                }
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
+            }))
+    }
+
     modifyUPS(workitemUID: string, object, deviceWebservice: StudyWebService, msg:string, mode:UPSModifyMode, template?:boolean) {
         let xmlHttpRequest = new XMLHttpRequest();
         let url;
@@ -4215,7 +4248,7 @@ export class StudyService {
     }
 
     getUPSIod(mode:UPSModifyMode) {
-        if(mode && (mode === "create" || mode === "clone")){
+        if(mode && (mode === "create" || mode === "clone" || mode === "subscribe")){
             let iodFileNames = [
                 "patient",
                 "upsCreate"
