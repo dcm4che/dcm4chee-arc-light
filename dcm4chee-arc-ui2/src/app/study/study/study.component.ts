@@ -3298,6 +3298,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(mode === "edit" || mode === "clone" || (mode === "subscribe" && subscribeType === "ups")){
                 originalWorkitemObject = _.cloneDeep(workitem);
                 workitem.attrs = j4care.intersection(workitem.attrs,iod);
+                if (mode === "clone") {
+                    delete workitem.attrs["00741000"];
+                    _.set(workitem.attrs, "00741000.Value[0]","SCHEDULED")
+                }
             }
             if((mode === "create" && !workitem) || (mode === "subscribe" && subscribeType === "uwl")){
                 workitem = {
