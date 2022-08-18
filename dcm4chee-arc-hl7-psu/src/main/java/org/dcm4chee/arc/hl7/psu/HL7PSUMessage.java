@@ -145,6 +145,7 @@ class HL7PSUMessage {
         setFillerOrder(new AttributesFormat(arcAE.hl7PSUFillerOrderNumber()).format(studyAttrs));
         setAccessionNumber(new AttributesFormat(arcAE.hl7PSUAccessionNumber()).format(studyAttrs));
         setRequestedProcedureID(new AttributesFormat(arcAE.hl7PSURequestedProcedureID()).format(studyAttrs));
+        setOBX(studyAttrs);
         if (arcAE.hl7PSUMessageType() == HL7PSUMessageType.ORU_R01)
             setORUSpecificFields(series);
     }
@@ -160,6 +161,7 @@ class HL7PSUMessage {
         setFillerOrder(idWithIssuer(attrs, Tag.FillerOrderNumberImagingServiceRequest, Tag.OrderFillerIdentifierSequence));
         setAccessionNumber(idWithIssuer(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence));
         setRequestedProcedureID(attrs.getString(Tag.RequestedProcedureID));
+        setOBX(attrs);
     }
 
     private void setStartDateTime(Date dt) {
@@ -203,7 +205,6 @@ class HL7PSUMessage {
         tq1.setField(9, "R^Routine^HL70078");
         pv1.setField(19, idWithIssuer(studyAttrs, Tag.AdmissionID, Tag.IssuerOfAdmissionIDSequence));
         pv1.setField(51, "V");
-        setOBX(studyAttrs);
     }
 
     private void setUniversalServiceIDAndProcedureCode(Attributes studyAttrs, Attributes seriesAttrs) {
