@@ -471,6 +471,7 @@ public class UPSServiceEJB {
         if ("CANCELED".equals(state)) {
             Attributes item = attrs.getNestedDataset(Tag.ProcedureStepProgressInformationSequence);
             if (item != null) {
+                Attributes.unifyCharacterSets(eventInformation, attrs);
                 eventInformation.addSelected(item,
                         Tag.ProcedureStepDiscontinuationReasonCodeSequence,
                         Tag.ReasonForCancellation);
