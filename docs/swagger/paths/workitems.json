@@ -241,43 +241,6 @@
       }
     }
   },
-  "reschedule": {
-    "post": {
-      "tags": [
-        "UPS-RS"
-      ],
-      "summary": "Reschedule Workitem",
-      "operationId": "RescheduleWorkitem",
-      "parameters": [
-        {
-          "$ref": "../parameters.json#/archiveAETPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/workitemPathParam"
-        },
-        {
-          "$ref": "../parameters.json#/newWorkitem"
-        },
-        {
-          "$ref": "../parameters.json#/upsScheduledTime"
-        }
-      ],
-      "responses": {
-        "201": {
-          "description": "The Target Workitem was successfully rescheduled."
-        },
-        "404": {
-          "description": "The Target Workitem was not found."
-        },
-        "409": {
-          "description": "A Workitem with the specified UID for the new Workitem exists."
-        },
-        "500": {
-          "description": "Internal Server Error."
-        }
-      }
-    }
-  },
   "subscriber" : {
     "post": {
       "tags": [
@@ -572,10 +535,47 @@
       }
     }
   },
+  "reschedule": {
+    "post": {
+      "tags": [
+        "UPS-ARC-RS"
+      ],
+      "summary": "Reschedule Workitem",
+      "operationId": "RescheduleWorkitem",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/workitemPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/newWorkitem"
+        },
+        {
+          "$ref": "../parameters.json#/upsScheduledTime"
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "The Target Workitem was successfully rescheduled."
+        },
+        "404": {
+          "description": "The Target Workitem was not found."
+        },
+        "409": {
+          "description": "A Workitem with the specified UID for the new Workitem exists."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "local.studies": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-ARC-RS"
       ],
       "summary": "Create Workitems for local matching Study",
       "operationId": "CreateWorkitemsForLocalMatchingStudy",
@@ -684,7 +684,7 @@
   "local.series": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-ARC-RS"
       ],
       "summary": "Create Workitem for local matching Series of Study",
       "operationId": "CreateWorkitemForLocalMatchingSeriesOfStudy",
@@ -796,7 +796,7 @@
   "local.instances": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-ARC-RS"
       ],
       "summary": "Create Workitem for local matching Instances of Series",
       "operationId": "CreateWorkitemForLocalMatchingInstancesOfSeries",
@@ -911,7 +911,7 @@
   "local.studies.csv": {
     "post": {
       "tags": [
-        "UPS-RS"
+        "UPS-ARC-RS"
       ],
       "summary": "Create Workitems for local Studies specified in CSV",
       "operationId": "CreateWorkitemsLocalStudiesCSV",

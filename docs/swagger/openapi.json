@@ -52,6 +52,10 @@
       }
     },
     {
+      "name": "UPS-ARC-RS",
+      "description": "DCM4CHEE Archive 5.x proprietary RESTful interface to the Unified Procedure Step Service SOP Classes"
+    },
+    {
       "name": "UPS-DIMSE-RS",
       "description": "Invoke N-CREATE, N-SET, N-GET, C-FIND requests on external SCP providing UPS SOP Class services"
     },
