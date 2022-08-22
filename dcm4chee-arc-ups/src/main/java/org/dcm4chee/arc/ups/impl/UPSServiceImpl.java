@@ -69,10 +69,7 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
-import org.dcm4chee.arc.ups.UPSContext;
-import org.dcm4chee.arc.ups.UPSEvent;
-import org.dcm4chee.arc.ups.UPSService;
-import org.dcm4chee.arc.ups.UPSUtils;
+import org.dcm4chee.arc.ups.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -284,10 +281,10 @@ public class UPSServiceImpl implements UPSService {
     private void createUPSOnUPSCompleted(UPSContext ctx, UPS prevUPS, UPSOnUPSCompleted rule, Calendar now) {
         UPSContext upsCtx = newUPSContext(ctx);
         upsCtx.setUPSInstanceUID(rule.getInstanceUID(prevUPS.getAttributes()));
-        upsCtx.setAttributes(upsOnCompleted(upsCtx, prevUPS, now, rule));
         try {
+            upsCtx.setAttributes(upsOnCompleted(upsCtx, prevUPS, now, rule));
             createUPS(upsCtx);
-        } catch (DicomServiceException e) {
+        } catch (UPSConfigurationException | DicomServiceException e) {
             LOG.info("Failed to apply {} create on completion of {}", rule, prevUPS, e);
         }
     }
@@ -616,7 +613,8 @@ public class UPSServiceImpl implements UPSService {
         }
     }
 
-    private Attributes upsOnCompleted(UPSContext upsCtx, UPS prevUPS, Calendar now, UPSOnUPSCompleted rule) {
+    private Attributes upsOnCompleted(UPSContext upsCtx, UPS prevUPS, Calendar now, UPSOnUPSCompleted rule)
+            throws UPSConfigurationException {
         Attributes prevUPSAttrs = prevUPS.getAttributes();
         Attributes attrs = applyXSLT(rule, prevUPS);
         if (rule.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID))
@@ -645,9 +643,16 @@ public class UPSServiceImpl implements UPSService {
         if (!attrs.contains(Tag.InputReadinessState))
             attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());
         if (!attrs.contains(Tag.ReferencedRequestSequence)) {
-            if (rule.isIncludeReferencedRequest())
-                attrs.newSequence(Tag.ReferencedRequestSequence, 1)
-                        .add(prevUPSAttrs.getNestedDataset(Tag.ReferencedRequestSequence));
+            if (rule.isIncludeReferencedRequest()) {
+                Attributes refReqSq = prevUPSAttrs.getNestedDataset(Tag.ReferencedRequestSequence);
+                if (refReqSq == null)
+                    throw new UPSConfigurationException(
+                            rule + " configured to include Referenced Request, but previous UPS "
+                                 + prevUPS
+                                 + " attributes does not contain Referenced Request Sequence");
+
+                attrs.newSequence(Tag.ReferencedRequestSequence, 1).add(refReqSq);
+            }
             else
                 attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
         }
@@ -662,7 +667,7 @@ public class UPSServiceImpl implements UPSService {
         if (!attrs.contains(Tag.ProcedureStepLabel))
             attrs.setString(Tag.ProcedureStepLabel, VR.LO, rule.getProcedureStepLabel(prevUPSAttrs));
         if (!attrs.contains(Tag.InputInformationSequence))
-            updateIncludeInputInformation(attrs, prevUPSAttrs, rule);
+            updateIncludeInputInformation(attrs, prevUPS, rule);
         UPSUtils.addScheduledProcessingParameter(attrs, ScopeOfAccumulation.CODE, rule.getScopeOfAccumulation());
         if (rule.isIncludePatient())
             attrs.addAll(prevUPS.getPatient().getAttributes());
@@ -693,7 +698,9 @@ public class UPSServiceImpl implements UPSService {
         return worklistLabel != null ? worklistLabel : ctx.getArchiveAEExtension().upsWorklistLabel();
     }
 
-    private void updateIncludeInputInformation(Attributes attrs, Attributes prevUPSAttrs, UPSOnUPSCompleted rule) {
+    private void updateIncludeInputInformation(Attributes attrs, UPS prevUPS, UPSOnUPSCompleted rule)
+            throws UPSConfigurationException {
+        Attributes prevUPSAttrs = prevUPS.getAttributes();
         if (rule.getIncludeInputInformation() == UPSOnUPSCompleted.IncludeInputInformation.NO)
             return;
 
@@ -708,6 +715,12 @@ public class UPSServiceImpl implements UPSService {
 
         Sequence prevUPSOutputInfoSeq = prevUPSAttrs.getNestedDataset(Tag.UnifiedProcedureStepPerformedProcedureSequence)
                                                     .getSequence(Tag.OutputInformationSequence);
+        if (prevUPSOutputInfoSeq == null)
+            throw new UPSConfigurationException(
+                    rule + " configured to include Output Information of previous UPS. "
+                         + "Missing Output Information Sequence in previous UPS "
+                         + prevUPS);
+
         attrs.newSequence(Tag.InputInformationSequence, prevUPSOutputInfoSeq.size())
                 .addAll(prevUPSOutputInfoSeq.stream()
                         .map(Attributes::new)
