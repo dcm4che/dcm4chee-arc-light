@@ -15,7 +15,8 @@
   <xsl:template match="PV1">
     <!-- Admission ID, Issuer -->
     <xsl:call-template name="admissionID">
-      <xsl:with-param name="ei" select="field[19]"/>
+      <xsl:with-param name="visitNumber" select="PV1/field[19]"/>
+      <xsl:with-param name="patientAccountNumber" select="PID/field[18]"/>
     </xsl:call-template>
   </xsl:template>
 
