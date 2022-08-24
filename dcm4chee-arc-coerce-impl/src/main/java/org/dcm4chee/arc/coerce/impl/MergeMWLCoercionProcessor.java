@@ -137,6 +137,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
         LOG.info("Query for MWL Items with {}", queryParam);
         if (queryParam.mwlSCP == null) {
             mwlItems = queryService.queryMWL(queryParam);
+            LOG.info("Found {} matching MWL Items in {}", mwlItems.size(), localAET);
         } else {
             mwlItems = cfindscu.findMWLItems(
                     device.getApplicationEntity(localAET, true), queryParam, Priority.NORMAL);
@@ -144,8 +145,8 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
                 mwlItems.removeIf(item -> !item.matches(
                         queryParam.setMatchingKeys(new Attributes()), false, false));
             }
+            LOG.info("Found {} matching MWL Items in {}", mwlItems.size(), queryParam.mwlSCP);
         }
-        LOG.info("Found {} matching MWL Items in {}", mwlItems.size(), localAET);
         if (mwlItems.isEmpty()) {
             mergeMWLCache.put(queryParam, null);
             return null;
