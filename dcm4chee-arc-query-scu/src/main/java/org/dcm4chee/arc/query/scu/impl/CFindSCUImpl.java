@@ -139,6 +139,7 @@ public class CFindSCUImpl implements CFindSCU {
                 Tag.PatientSex,
                 Tag.PatientSize,
                 Tag.PatientWeight,
+                Tag.PatientAddress,
                 Tag.PatientSexNeutered,
                 Tag.StudyInstanceUID,
                 Tag.RequestingPhysicianIdentificationSequence,

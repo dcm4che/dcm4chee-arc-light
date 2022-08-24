@@ -26,12 +26,20 @@
           <xsl:copy-of select="DicomAttribute[@tag='00400100']/Item/DicomAttribute[@tag='00400006']/PersonName"/>
         </DicomAttribute>
       </xsl:if>
+      <!-- Patient Name -->
+      <xsl:copy-of select="DicomAttribute[@tag='00100010']"/>
       <!-- Patient ID -->
       <xsl:copy-of select="DicomAttribute[@tag='00100020']"/>
       <!-- Issuer of Patient ID -->
       <xsl:copy-of select="DicomAttribute[@tag='00100021']"/>
       <!-- Issuer of Patient ID Qualifiers Sequence -->
       <xsl:copy-of select="DicomAttribute[@tag='00100024']"/>
+      <!-- Patient BirthDate -->
+      <xsl:copy-of select="DicomAttribute[@tag='00100030']"/>
+      <!-- Patient Sex -->
+      <xsl:copy-of select="DicomAttribute[@tag='00100040']"/>
+      <!-- Patient Address -->
+      <xsl:copy-of select="DicomAttribute[@tag='00101040']"/>
       <!-- Patient's Size -->
       <xsl:copy-of select="DicomAttribute[@tag='00101020']"/>
       <!-- Patient's Weight -->
