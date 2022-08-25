@@ -156,10 +156,6 @@ public class EchoRS {
                     "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
 
         validateAcceptedUserRoles(arcAE);
-        ApplicationEntity ae = arcAE.getApplicationEntity();
-        if (aet.equals(ae.getAETitle()))
-            validateWebAppServiceClass();
-
         ApplicationEntity remote = host != null && remotePort > 0 ? createRemoteAE(remotePort) : getRemoteApplicationEntity();
         try {
             Association as = null;
@@ -167,7 +163,7 @@ public class EchoRS {
             Result result = new Result();
             try {
                 t1 = System.currentTimeMillis();
-                as = ae.connect(remote, createAARQ());
+                as = arcAE.getApplicationEntity().connect(remote, createAARQ());
                 t2 = System.currentTimeMillis();
                 result.connectionTime = Long.toString(t2 - t1);
                 try {
@@ -299,16 +295,5 @@ public class EchoRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass() {
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
-                        Response.Status.NOT_FOUND)));
     }
 }
