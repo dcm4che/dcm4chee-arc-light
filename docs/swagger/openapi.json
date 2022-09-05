@@ -555,7 +555,7 @@
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/mwlitems.json#/linkInstancesWithExternalMWL"
     },
-    "metadata/storage/{storageID}": {
+    "/metadata/storage/{storageID}": {
       "$ref": "paths/misc.json#/restoreFromMetadata"
     },
     "/devices": {
