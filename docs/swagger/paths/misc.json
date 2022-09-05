@@ -532,7 +532,7 @@
       }
     }
   },
-  "restore": {
+  "restoreFromMetadata": {
     "post": {
       "tags": [
         "IMPORT-RS"
