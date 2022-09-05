@@ -302,6 +302,36 @@
       }
     }
   },
+  "RestoreFromMetadataSuccessful": {
+    "description": "Successfully restored DB records from Series Metadata ZIP Archives.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/restoreFromMetadataResult"
+        }
+      }
+    }
+  },
+  "RestoreFromMetadataFailures": {
+    "description": "Successfully restored DB records from Series Metadata ZIP Archives, but failures exists.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/restoreFromMetadataResult"
+        }
+      }
+    }
+  },
+  "RestoreFromMetadataFailed": {
+    "description": "Failed to restored DB records from Series Metadata ZIP Archives.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/restoreFromMetadataResult"
+        }
+      }
+    }
+  },
   "createUpdateSPSSuccessful": {
     "description": "Create Update SPS completed successfully, and the attributes are contained in the payload",
     "content": {

@@ -571,6 +571,8 @@
     <module>dcm4chee-arc-query-scu</module>
     <module>dcm4chee-arc-query-scp</module>
     <module>dcm4chee-arc-query-util</module>
+    <module>dcm4chee-arc-restore</module>
+    <module>dcm4chee-arc-restore-rs</module>
     <module>dcm4chee-arc-retrieve</module>
     <module>dcm4chee-arc-retrieve-mgt</module>
     <module>dcm4chee-arc-retrieve-rs</module>

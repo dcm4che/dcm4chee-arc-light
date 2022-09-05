@@ -40,9 +40,13 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 
 import javax.persistence.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -140,6 +144,17 @@ public class SeriesQueryAttributes {
         this.sopClassesInSeries = sopClassesInSeries;
     }
 
+    public void addSOPClassInSeries(String cuid) {
+        if (cuid.equals(this.sopClassesInSeries)) return;
+        if (this.sopClassesInSeries == null) {
+            this.sopClassesInSeries = cuid;
+        } else {
+            for (String s : StringUtils.split(this.sopClassesInSeries, '\\'))
+                if (cuid.equals(s)) return;
+            this.sopClassesInSeries = this.sopClassesInSeries + '\\' + cuid;
+        }
+    }
+
     public String getRetrieveAETs() {
         return retrieveAETs;
     }
@@ -148,12 +163,28 @@ public class SeriesQueryAttributes {
         this.retrieveAETs = retrieveAETs;
     }
 
+    public void retainRetrieveAETs(String[] retrieveAETs) {
+        String s = StringUtils.concat(retrieveAETs, '\\');
+        if (this.retrieveAETs == null) {
+            this.retrieveAETs = s;
+        } else if (!s.equals(this.retrieveAETs)) {
+            Set<String> set = new HashSet<>(Arrays.asList(StringUtils.split(this.retrieveAETs, '\\')));
+            if (set.retainAll(Arrays.asList(retrieveAETs)))
+                this.retrieveAETs = StringUtils.concat(set.toArray(StringUtils.EMPTY_STRING), '\\');
+        }
+    }
+
     public Availability getAvailability() {
         return availability;
     }
 
     public void setAvailability(Availability availability) {
         this.availability = availability;
+    }
+
+    public void floorAvailability(Availability availability) {
+        if (this.availability == null || this.availability.compareTo(availability) > 0)
+            this.availability = availability;
     }
 
     public Series getSeries() {

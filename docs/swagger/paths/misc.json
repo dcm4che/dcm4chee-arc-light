@@ -531,5 +531,42 @@
         }
       }
     }
+  },
+  "restore": {
+    "post": {
+      "tags": [
+        "IMPORT-RS"
+      ],
+      "summary": "Restore DB records from Series Metadata ZIP Archives",
+      "operationId": "restoreFromMetadata",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/storageIDPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/restoreFromMetadata"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/restoreFromMetadataSuccessful"
+        },
+        "204": {
+          "$ref": "../responses.json#/restoreFromMetadataFailures"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "There is no Storage with the specified StorageID."
+        },
+        "409": {
+          "$ref": "../responses.json#/restoreFromMetadataFailed"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
   }
 }

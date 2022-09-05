@@ -38,6 +38,18 @@
  * *** END LICENSE BLOCK *****
  */
 
-alter table dicomattrs alter column attrs varbinary(MAX);
-alter table queue_msg alter column msg_body varbinary(MAX);
-alter table uidmap alter column uidmap varbinary(MAX);
+package org.dcm4chee.arc.restore;
+
+import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.storage.ReadContext;
+
+import java.util.List;
+
+/**
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Sep 2022
+ */
+public interface RestoreFromMetadata {
+    void restore(ReadContext readContext, List<Attributes> seriesMetadata, HttpServletRequestInfo httpRequest);
+}

@@ -2641,6 +2641,85 @@
       }
     }
   },
+  "restoreFromMetadataResult": {
+    "title": "Restore from Metadata Result",
+    "type": "object",
+    "required": [
+      "completed"
+    ],
+    "properties": {
+      "completed": {
+        "title": "Completed",
+        "description": "Number of successfully restored Series from Metadata ZIP Archives.",
+        "type": "integer"
+      },
+      "failed": {
+        "title": "Failed",
+        "description": "Number of Series failed to restore from Metadata ZIP Archives.",
+        "type": "integer"
+      },
+      "series": {
+        "title": "Series",
+        "description": "Successfuly restored Series from Metadata ZIP Archives.",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "storagePath",
+            "studyInstanceUID",
+            "seriesInstanceUID",
+            "numberOfSeriesRelatedInstances"
+          ],
+          "properties": {
+            "storagePath": {
+              "title": "Storage Path",
+              "description": "Storage paths of Series Metadata ZIP archive.",
+              "type": "string"
+            },
+            "studyInstanceUID": {
+              "title": "Study Instance UID",
+              "description": "Study Instance UID.",
+              "type": "string"
+            },
+            "seriesInstanceUID": {
+              "title": "Series Instance UID",
+              "description": "Series Instance UID.",
+              "type": "string"
+            },
+            "numberOfSeriesRelatedInstances": {
+              "title": "Number of restored Instances",
+              "description": "Number of restored Instances.",
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "failures": {
+        "title": "Failures",
+        "description": "Metadata ZIP Archives failed to restore Series from.",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "storagePath",
+            "errorMessage"
+          ],
+          "properties": {
+            "storagePath": {
+              "title": "Storage Path",
+              "description": "Storage paths of Series Metadata ZIP archive.",
+              "type": "string"
+            },
+            "errorMessage": {
+              "title": "Error Message",
+              "description": "Error Message.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
   "stgverBatchList": {
     "title": "StorageVerificationBatchList",
     "type": "array",

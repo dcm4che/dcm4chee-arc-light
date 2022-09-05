@@ -31,6 +31,17 @@
       }
     }
   },
+  "restoreFromMetadata": {
+    "description": "List of storage paths of Series Metadata ZIP archives delimited by line breaks (CRLF)",
+    "content": {
+      "text/*": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
   "createUpdateSPS": {
     "description": "MWL Item Attributes",
     "content": {
