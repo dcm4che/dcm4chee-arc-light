@@ -73,5 +73,10 @@ export class SelectionActionElement {
             }
         }
     }
+    resetByDicomLevel(dicomLevel, prePostMode?:("preActionElements"|"postActionElements")){
+        if(prePostMode){
+            this[prePostMode] = new SelectionsDicomObjects();
+        }
+    }
 
 }

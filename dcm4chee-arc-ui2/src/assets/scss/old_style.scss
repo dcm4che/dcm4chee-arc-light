@@ -3589,6 +3589,7 @@ input.ng-invalid, .has-error .form-control{
 			    width: 55%;
 			}
 	    }
+
 	}
 	.vex-dialog-message > h5 {
 	    font-size: 25px;
@@ -3638,6 +3639,16 @@ input.ng-invalid, .has-error .form-control{
 			color: white;
 	    	cursor: pointer;
 	    }
+		.selected_size{
+			position: absolute;
+			left: 50%;
+			top: 37%;
+			font-size: 10px;
+			color: #061d2f;
+			border-radius: 15px;
+			text-align: center;
+			z-index: 1;
+		}
 	}
     .header .study_block.haspatient{
       margin-left:10px;
