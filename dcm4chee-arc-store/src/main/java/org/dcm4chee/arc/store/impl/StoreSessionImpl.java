@@ -259,14 +259,14 @@ class StoreSessionImpl implements StoreSession {
     }
 
     private static String toReceivingPresentationAddress(HttpServletRequestInfo httpRequest) {
-        int studiesPos = httpRequest.requestURI.indexOf("/studies");
+        int rsPos = httpRequest.requestURI.indexOf("/rs/");
         return httpRequest.requestURI.startsWith("https")
-                ? "http" + (studiesPos < 0
+                ? "http" + (rsPos < 0
                     ? httpRequest.requestURI.substring(5)
-                    : httpRequest.requestURI.substring(5, studiesPos+1))
-                : (studiesPos < 0
+                    : httpRequest.requestURI.substring(5, rsPos+4))
+                : (rsPos < 0
                     ? httpRequest.requestURI
-                    : httpRequest.requestURI.substring(0, studiesPos+1));
+                    : httpRequest.requestURI.substring(0, rsPos+4));
     }
 
     @Override
