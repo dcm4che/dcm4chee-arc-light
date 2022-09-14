@@ -236,7 +236,10 @@
                                             [showStar]="true"
                                     ></dcm-drop-down>
                                 </div>
-                                <span class="description" i18n="@@create-ae.already_available_aets">Already available AETs</span>
+                                <span class="description">
+                                    <span  i18n="@@create-ae.already_available_aets">Already available AETs</span><br>
+                                    <span class="warning" i18n="@@warning_if_configured_vna_will_reject_ates">Warning: If configured, the VNA will reject associations from all other AETs apart from the configured ones!</span>
+                                </span>
                             </div>
                         </div>
                     </div>
