@@ -302,7 +302,7 @@
       }
     }
   },
-  "RestoreFromMetadataSuccessful": {
+  "restoreFromMetadataSuccessful": {
     "description": "Successfully restored DB records from Series Metadata ZIP Archives.",
     "content": {
       "application/json": {
@@ -312,7 +312,7 @@
       }
     }
   },
-  "RestoreFromMetadataFailures": {
+  "restoreFromMetadataFailures": {
     "description": "Successfully restored DB records from Series Metadata ZIP Archives, but failures exists.",
     "content": {
       "application/json": {
@@ -322,7 +322,7 @@
       }
     }
   },
-  "RestoreFromMetadataFailed": {
+  "restoreFromMetadataFailed": {
     "description": "Failed to restored DB records from Series Metadata ZIP Archives.",
     "content": {
       "application/json": {
