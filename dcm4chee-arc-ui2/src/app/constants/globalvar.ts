@@ -519,6 +519,11 @@ export class Globalvar {
                     action: 'disable'
                 }
             },
+            '0020000E': {
+                'edit': {
+                    action: 'disable'
+                }
+            },
             '00400009': {
                 'create': {
                     placeholder: $localize `:@@leave_it_blank_to_generate_it_automatically:Leave it blank to generate it automatically!`,
@@ -529,6 +534,1614 @@ export class Globalvar {
                 }
             }
         };
+    };
+
+    public static get HISTOGRAMCOLORS(): any{
+        return [
+            {
+                backgroundColor: 'rgba(62, 83, 98, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(0, 32, 57, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(97, 142, 181, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(38, 45, 51, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(0, 123, 90, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(56, 38, 109, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(109, 41, 41, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(20, 55, 16, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(54, 111, 121, 0.84)'
+            },
+            {
+                backgroundColor: 'rgba(249,168,37 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(3,169,244 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(40,53,147 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(142,36,170 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(183,28,28 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(240,98,146 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(121,85,72 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(33,33,33 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(144,164,174 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(38,166,154 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(159,168,218 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(213,0,0 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(24,255,255 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(0,188,212,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(63,81,181,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(213,0,249 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(156,204,101 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(255,111,0 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(109,135,100 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(255,82,82 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(229,115,140 ,0.84)'
+            },
+            {
+                backgroundColor: 'rgba(21,45,115 ,0.84)'
+            }
+        ]
+    }
+    public static get ELASTICSEARCHDOMAIN(): any{
+        return "http://localhost:9200";
+    };
+
+    public static get STUDIESSTOREDCOUNTS_PARAMETERS(): any{
+        return {
+            "size": 0,
+            "aggs": {
+                "1": {
+                    "cardinality": {
+                        "field": "Study.ParticipantObjectID"
+                    }
+                }
+            },
+            "highlight": {
+                "fields": {
+                    "*": {}
+                },
+                "require_field_match": false,
+                "fragment_size": 2147483647
+            },
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "EventID.csd-code:110104 AND Event.EventActionCode:C",
+                                "analyze_wildcard": true
+                            }
+                        },
+                        {
+                            "query_string": {
+                                "analyze_wildcard": true,
+                                "query": "*"
+                            }
+                        }
+                    ],
+                    "must_not": []
+                }
+            },
+            "_source": {
+                "excludes": []
+            }
+        };
+    };
+
+    public static get QUERIESUSERID_PARAMETERS(): any{
+        return (aets)=>{
+            return {
+                "size": 0,
+                "aggs": {
+                    "2": {
+                        "date_histogram": {
+                            "field": "Event.EventDateTime",
+                            "interval": "3h",
+                            "time_zone": "Europe/Berlin",
+                            "min_doc_count": 1
+                        },
+                        "aggs": {
+                            "3": {
+                                "terms": {
+                                    "field": "Source.UserID",
+                                    "size": 15,
+                                    "order": {
+                                        "_count": "desc"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "query_string": {
+                                    "query": `EventID.csd-code:110112 AND (${aets})`,
+                                    "analyze_wildcard": true
+                                }
+                            }
+                        ],
+                        "must_not": []
+                    }
+                },
+                "_source": {
+                    "excludes": []
+                }
+            }
+        };
+    }
+    public static get WILDFLYERRORCOUNTS_PARAMETERS(): any{
+        return {
+            "size": 0,
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "Severity:ERROR",
+                                "analyze_wildcard": true
+                            }
+                        },
+                        {
+                            "query_string": {
+                                "analyze_wildcard": true,
+                                "query": "*"
+                            }
+                        }
+                    ]
+                }
+            }
+        };
+    }
+    public static get WILDFLYWARNINGCOUNTS_PARAMETERS(): any{
+        return {
+            "size": 0,
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "Severity:WARN",
+                                "analyze_wildcard": true
+                            }
+                        },
+                        {
+                            "query_string": {
+                                "analyze_wildcard": true,
+                                "query": "*"
+                            }
+                        }
+                    ]
+                }
+            }
+        };
+    }
+    public static get ERRORSCOUNTS_PARAMETERS(): any{
+        return {
+            "aggs": {},
+            "highlight": {
+                "fields": {
+                    "*": {}
+                },
+                "require_field_match": false,
+                "fragment_size": 2147483647
+            },
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "NOT Event.EventOutcomeIndicator:0",
+                                "analyze_wildcard": true
+                            }
+                        },
+                        {
+                            "query_string": {
+                                "analyze_wildcard": true,
+                                "query": "*"
+                            }
+                        }
+                    ],
+                    "must_not": []
+                }
+            },
+            "_source": {
+                "excludes": []
+            }
+        }
+    }
+    public static get QUERIESCOUNTS_PARAMETERS(): any{
+        return {
+            "track_total_hits": true,
+            "size":0,
+            "query": {
+                "bool": {
+                    "must":[
+                        {
+                            "query_string": {
+                                "query": "EventID.csd-code:110112",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                    ,
+                    "must_not": [{
+                        "wildcard":{"Destination.UserID":"*/*"} //Get all entries but thous who have slashes in there in Destination.UserID
+                    }]
+                }
+            },
+            "aggs" :{
+                "2":{
+                    "date_histogram": {
+                        "field": "Event.EventDateTime",
+                        "interval": "1D",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs":{
+                        "3" : {
+                            "terms" : {
+                                "field" : "Destination.UserID"
+                            }
+                        }
+                    }
+                }}
+        }
+    }
+    public static get STUDIESSTOREDRECIVINGAET_PARAMETERS(): any{
+        return {
+            "track_total_hits": true,
+            "size": 0,
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "Event.EventDateTime",
+                        "interval": "30m",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "Destination.UserID",
+                                "size": 5,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "cardinality": {
+                                        "field": "Study.ParticipantObjectID"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "EventID.csd-code:110104 AND Event.EventActionCode:C",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                    ,
+                    "must_not": [{
+                        "wildcard":{"Destination.UserID":"*/*"}
+                    }]
+                }
+            }
+        }
+
+    }
+    public static get STUDIESSTOREDUSERID_PARAMETERS(): any{
+        return {
+            "size": 0,
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "Event.EventDateTime",
+                        "interval": "12h",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "Source.UserID",
+                                "size": 15,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "cardinality": {
+                                        "field": "Study.ParticipantObjectID"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "EventID.csd-code:110104 AND Event.EventActionCode:C",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+
+    public static CPU_PARAMETERS(version?):any{
+        switch (version) {
+            case "5":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "query": "*",
+                                        "analyze_wildcard": true
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "containerName",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "cpu.totalUsage"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            case "7":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "event.module:docker AND metricset.name:cpu"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "fixed_interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "container.name",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.cpu.total.pct",
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            default:
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "metricset.module:docker AND metricset.name:cpu",
+                                        "default_field": "*"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "docker.container.name",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.cpu.total.pct",
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+        }
+    }
+    public static MEMORY_RSS_PARAMETERS(version?):any{
+        switch (version) {
+            case "5":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "query": "*",
+                                        "analyze_wildcard": true
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "containerName",
+                                        "size": 20,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "memory.totalRss"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+            };
+            case "7":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "event.module:docker"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "fixed_interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "container.name",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.memory.rss.total"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+            };
+            default:
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "metricset.module:docker",
+                                        "default_field": "*"
+                                    }
+                                },
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "docker.container.name",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.memory.rss.total"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+        }
+    }
+    public static MEMORY_USAGE_PARAMETERS(version?):any{
+        switch(version){
+            case "5":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "query": "*",
+                                        "analyze_wildcard": true
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "containerName",
+                                        "size": 20,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "memory.usage"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+            };
+            case "7":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "event.module:docker"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "fixed_interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "container.name",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.memory.usage.pct"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+            };
+            default:
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "metricset.module:docker",
+                                        "default_field": "*"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "docker.container.name",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.memory.usage.pct"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                };
+        }
+    }
+    public static WRITE_PER_SECOND_PARAMETERS(version?):any{
+        switch (version) {
+            case "5":{
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "query": "*",
+                                        "analyze_wildcard": true
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "containerName",
+                                        "size": 20,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "blkio.write_ps"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            case "7":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "event.module:docker"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "fixed_interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "container.name",
+                                        "size": 20,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.diskio.write.ops"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            default:
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "metricset.module:docker",
+                                        "default_field": "*"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "docker.container.name",
+                                        "size": 20,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.diskio.write.ops"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+    }
+    public static READ_PER_SECOND_PARAMETERS(version?):any{
+        switch (version) {
+            case "5":{
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "query": "*",
+                                        "analyze_wildcard": true
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "containerName",
+                                        "size": 20,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "blkio.read_ps"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            case "7":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "event.module:docker"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "fixed_interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "container.name",
+                                        "size": 20,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.diskio.read.ops"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            default:
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "metricset.module:docker",
+                                        "default_field": "*"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "docker.container.name",
+                                        "size": 20,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.diskio.read.ops"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+    }
+    public static NETWORK_TRANSMITTED_PACKETS_PARAMETERS(version?):any{
+        switch (version){
+            case "5":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "query": "*",
+                                        "analyze_wildcard": true
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "containerName",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "net.txPackets_ps"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            case "7":
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "event.module:docker"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "fixed_interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "container.name",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.network.in.packets"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            default:
+                return {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "query_string": {
+                                        "analyze_wildcard": true,
+                                        "query": "metricset.module:docker",
+                                        "default_field": "*"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0,
+                    "_source": {
+                        "excludes": []
+                    },
+                    "aggs": {
+                        "2": {
+                            "date_histogram": {
+                                "field": "@timestamp",
+                                "interval": "20s",
+                                "time_zone": "Europe/Berlin",
+                                "min_doc_count": 1
+                            },
+                            "aggs": {
+                                "3": {
+                                    "terms": {
+                                        "field": "docker.container.name",
+                                        "size": 30,
+                                        "order": {
+                                            "1": "desc"
+                                        }
+                                    },
+                                    "aggs": {
+                                        "1": {
+                                            "max": {
+                                                "field": "docker.network.in.packets"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+    }
+    public static get AUTHENTIFICATION_QUEURY(): any{
+        return {
+            "size":300,
+            "sort": [
+                {
+                    "Event.EventDateTime": {
+                        "order": "desc",
+                        "unmapped_type": "boolean"
+                    }
+                }
+            ],
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "EventID.csd-code:110114 AND EventID.codeSystemName:DCM AND EventTypeCode.codeSystemName:DCM",
+                                "analyze_wildcard": true
+                            }
+                        },
+                        {
+                            "bool": {
+                                "should": [
+                                    {
+                                        "query_string": {
+                                            "query": "EventTypeCode.csd-code:110122",
+                                            "analyze_wildcard": true
+                                        }
+                                    },
+                                    {
+                                        "query_string": {
+                                            "query": "EventTypeCode.csd-code:110123",
+                                            "analyze_wildcard": true
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "query_string": {
+                                "analyze_wildcard": true,
+                                "query": "*"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+    public static get STUDIESSTOREDSOPCLASS_PARAMETERS(): any{
+        return {
+            "size": 0,
+            "aggregations": {
+                "2": {
+                    "date_histogram": {
+                        "field": "Event.EventDateTime",
+                        "interval": "3h",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "Study.ParticipantObjectDescription.SOPClass.UID",
+                                "size": 5,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "cardinality": {
+                                        "field": "Study.ParticipantObjectID"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "EventID.csd-code:110104 AND Event.EventActionCode:C",
+                                "analyze_wildcard": true
+                            }
+                        }
+                    ]
+                }
+            }
+        };
+    }
+    public static get RETRIEVESUSERID_PARAMETERS(): any{
+        return {
+            "size": 0,
+            "aggs": {
+                "2": {
+                    "date_histogram": {
+                        "field": "Event.EventDateTime",
+                        "interval": "1w",
+                        "time_zone": "Europe/Berlin",
+                        "min_doc_count": 1
+                    },
+                    "aggs": {
+                        "3": {
+                            "terms": {
+                                "field": "Destination.UserID",
+                                "size": 5,
+                                "order": {
+                                    "1": "desc"
+                                }
+                            },
+                            "aggs": {
+                                "1": {
+                                    "cardinality": {
+                                        "field": "Study.ParticipantObjectID"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "EventID.csd-code:110104 AND Event.EventActionCode:R",
+                                "analyze_wildcard": true
+                            }
+                        },
+                        {
+                            "query_string": {
+                                "analyze_wildcard": true,
+                                "query": "*"
+                            }
+                        }
+                    ],
+                    "must_not": []
+                }
+            },
+            "_source": {
+                "excludes": []
+            }
+        };
+    }
+    public static get RETRIEVE_TASK_ELASTICSEARCH_PARAMETERS():any{
+        return {
+            "query":
+                {
+                    "bool":
+                        {
+                            "must": [
+                                { "match": { "EventID.csd-code": "110104" }}
+                            ]
+                        }
+                }
+        }
+    }
+    public static get RETRIEVCOUNTS_PARAMETERS(): any{
+        return {
+            "track_total_hits": true,
+            "size": 0,
+            "aggs": {},
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "EventID.csd-code:110104 AND Event.EventActionCode:R",
+                                "analyze_wildcard": true
+                            },
+                        },
+                        {
+                            "query_string": {
+                                "analyze_wildcard": true,
+                                "query": "*"
+                            }
+                        }
+                    ],
+                    "must_not": []
+                }
+            },
+            "_source": {
+                "excludes": []
+            }
+        };
+    }
+    public static get AUDITEVENTS_PARAMETERS(): any{
+        return {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "*",
+                                "analyze_wildcard": true
+                            }
+                        },{
+                            "match": {
+                                "type": {
+                                    "query": "audit",
+                                    "fuzziness": "AUTO",
+                                    "operator":  "and"
+                                }
+                            }
+                        }
+                    ],
+                    "must_not": []
+                }
+            },
+            "size": 300,
+            "sort": [
+                {
+                    "Event.EventDateTime": {
+                        "order": "desc",
+                        "unmapped_type": "boolean"
+                    }
+                }
+            ],
+            "_source": {
+                "excludes": []
+            },
+            "stored_fields": [
+                "*"
+            ],
+            "script_fields": {}
+        };
+    }
+
+    public static get AUDIT_RECORD_REPOSITORY_DROPDOWNS():any{
+        return {
+            "size": "0",
+            "aggs": {
+                "eventTypeCode": {
+                    "terms": {
+                        "field": "EventTypeCode.originalText"
+                    }
+                },
+                "auditEnterpriseSiteID": {
+                    "terms": {
+                        "field": "AuditSource.AuditEnterpriseSiteID"
+                    }
+                },
+                "participantObjectID": {
+                    "terms": {
+                        "field": "Device.ParticipantObjectID"
+                    }
+                },
+                "eventID": {
+                    "terms": {
+                        "field": "EventID.originalText"
+                    }
+                },
+                "eventOutcomeDescription":{
+                    "terms":{
+                        "field": "Event.EventOutcomeDescription"
+                    }
+                }
+
+            }
+        }
+    }
+
+    public static get EVENT_IDS():any{
+        return {
+            "size":"0",
+            "aggs" : {
+                "eventIDs":{
+                    "terms" : { "field" : "EventID.originalText"}
+                }
+
+            }
+        };
+    }
+
+    public static get EVENT_TYPE_CODES():any{
+        return {
+            "size":"0",
+            "aggs" : {
+                "eventIDs":{
+                    "terms" : { "field" : "EventTypeCode.originalText"}
+                }
+
+            }
+        };
+    }
+    public static get ENTERPRISE_SITE_IDS():any{
+        return {
+            "size":"0",
+            "aggs" : {
+                "siteIDs":{
+                    "terms" : { "field" : "AuditSource.AuditEnterpriseSiteID"}
+                }
+
+            }
+        };
+    }
+
+    public static HL7MESSAGE_FOR_A_TASK(MessageControlID:string):any{
+        return {
+            "query": {
+                "wildcard" : { "HL7v2Message" : `*${MessageControlID}*`  }
+            }
+        }
+    }
+
+    public static ATS_TRAFF():any{
+        return {
+            "sort": { "@timestamp": "desc"}
+        }
+    }
+
+    public static get EXPORT_STUDY_EXTERNAL_URL(): any{
+        ///aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/export/dicom:{destinationAET}
+        return (aet,externalAET,StudyInstanceUID,destinationAET) => `../aets/${aet}/dimse/${externalAET}/studies/${StudyInstanceUID}/export/dicom:${destinationAET}`; //Retrieve Study from external C-MOVE SCP
     }
 
     public static get HL7_SPECIFIC_CHAR(): any{
@@ -768,6 +2381,7 @@ export class Globalvar {
     }
     public static get TASK_NAMES(): any{
         return [
+            "to-schedule",
             "completed",
             "warning",
             "failed",
@@ -892,54 +2506,174 @@ export class Globalvar {
         const regex = /^(\/[\S\/]*)\*$/m;
         let m;
         let urlPermissions = {
-            "/studies":{
-                permissionsAction:"menu-studies"
-            },
-            "/device/edit/*":{
-                permissionsAction:"action-devicelist-device_configuration"
-            },
             "/monitoring/dashboard/*":{
-                permissionsAction:"menu-dashboard",
-                nextCheck:"/study/study"
+                permissionsAction:"menu-dashboard"
             },
-            "/lifecycle-management":{
-                permissionsAction:"menu-lifecycle_management",
-                nextCheck:"/study/study"
+            "/monitoring/dashboard/home":{
+                permissionsAction:"tab-dashboard_home",
+                nextCheck:"/monitoring/dashboard/hardware"
             },
-            "/migration/retrieve":{
-                permissionsAction:"tab-move_data->retrieve",
-                nextCheck:"/migration/export"
+            "/monitoring/dashboard/hardware":{
+                permissionsAction:"tab-dashboard_hardware",
+                nextCheck:"/monitoring/dashboard/queue"
             },
-            "/migration/export":{
-                permissionsAction:"tab-move_data->export"
+            "/monitoring/dashboard/queue":{
+                permissionsAction:"tab-dashboard_queue",
+                nextCheck:"/monitoring/dashboard/ats"
             },
-            "/audit-record-repository/*":{
-                permissionsAction:"menu-audit_record_repository"
+            "/monitoring/dashboard/ats":{
+                permissionsAction:"tab-dashboard_ats",
+                nextCheck:"/monitoring/dashboard/compare"
+            },
+            "/monitoring/dashboard/compare":{
+                permissionsAction:"tab-dashboard_compare",
+                nextCheck:"/monitoring/associations"
+            },
+            "/monitoring/associations":{
+                permissionsAction:"tab-monitoring->associations",
+                nextCheck:"/monitoring/queues"
+            },
+            "/monitoring/queues":{
+                permissionsAction:"tab-monitoring->queues",
+                nextCheck:"/monitoring/storage-commitment"
+            },
+            "/monitoring/storage-commitment":{
+                permissionsAction:"tab-monitoring->storage_commitments",
+                nextCheck:"/monitoring/storage-systems"
+            },
+            "/monitoring/storage-systems":{
+                permissionsAction:"tab-monitoring->storage_systems",
+                nextCheck:"/monitoring/metrics"
+            },
+            "/monitoring/metrics":{
+                permissionsAction:"tab-monitoring->metrics",
+                nextCheck:"/study/patient"
             },
             "/study/*":{
                 permissionsAction:"menu-study"
             },
+            "/study/patient":{
+                permissionsAction:"tab-study-patient",
+                nextCheck:"/study/study"
+            },
             "/study/study":{
                 permissionsAction:"tab-study-study",
-                nextCheck:"/device/aelist"
-            },
-            "/study/patient":{
-                permissionsAction:"tab-study-patient"
+                nextCheck:"/study/series"
             },
             "/study/series":{
-                permissionsAction:"tab-study-series"
+                permissionsAction:"tab-study-series",
+                nextCheck:"/study/mwl"
             },
             "/study/mwl":{
-                permissionsAction:"tab-study-mwl"
+                permissionsAction:"tab-study-mwl",
+                nextCheck:"/study/mpps"
             },
             "/study/mpps":{
-                permissionsAction:"tab-study-mpps"
+                permissionsAction:"tab-study-mpps",
+                nextCheck:"/study/uwl"
             },
             "/study/uwl":{
-                permissionsAction:"tab-study-uwl"
+                permissionsAction:"tab-study-uwl",
+                nextCheck:"/study/diff"
             },
             "/study/diff":{
-                permissionsAction:"tab-study-diff"
+                permissionsAction:"tab-study-diff",
+                nextCheck:"/correct-data/patient-data"
+            },
+            "/correct-data/patient-data":{
+                permissionsAction:"tab-correct_data->patient_data",
+                nextCheck:"/correct-data/diff"
+            },
+            "/correct-data/diff":{
+                permissionsAction:"tab-correct_data->diff",
+                nextCheck:"/correct-data/storage-verification"
+            },
+            "/correct-data/storage-verification":{
+                permissionsAction:"tab-monitoring->storage_verification",
+                nextCheck:"/correct-data/worklist-entries"
+            },
+            "/correct-data/worklist-entries":{
+                permissionsAction:"tab-correct_data->worklist_entries",
+                nextCheck:"/correct-data/corrupted-studies"
+            },
+            "/correct-data/corrupted-studies":{
+                permissionsAction:"tab-correct_data->corrupted_studies",
+                nextCheck:"/lifecycle-management"
+            },
+            "/lifecycle-management":{
+                permissionsAction:"menu-lifecycle_management",
+                nextCheck:"/migration/export"
+            },
+            "/migration/export":{
+                permissionsAction:"tab-move_data->export",
+                nextCheck:"/migration/retrieve"
+            },
+            "/migration/retrieve":{
+                permissionsAction:"tab-move_data->retrieve",
+                nextCheck:"/migration/cd_import"
+            },
+            "/migration/cd_import":{
+                permissionsAction:"tab-move_data->cd_import",
+                nextCheck:"/agfa-migration"
+            },
+            "/agfa-migration":{
+                permissionsAction:"tab-move_data->agfa-migration",
+                nextCheck:"/statistics/studies-stored/simple"
+            },
+            "/statistics/studies-stored/simple":{
+                permissionsAction:"tab-statistics->studies-stored-simple",
+                nextCheck:"/statistics/studies-stored/detailed"
+            },
+            "/statistics/studies-stored/detailed":{
+                permissionsAction:"tab-statistics->studies-stored-detailed",
+                nextCheck:"/xds"
+            },
+            "/xds":{
+                permissionsAction:"menu-xds",
+                nextCheck:"/dicom-route"
+            },
+            "/dicom-route":{
+                permissionsAction:"dicom-route",
+                nextCheck:"/workflow-management"
+            },
+            "/workflow-management":{
+                permissionsAction:"workflow-management",
+                nextCheck:"/audit-record-repository/all"
+            },
+            "/audit-record-repository/*":{
+                permissionsAction:"menu-audit_record_repository"
+            },
+            "/audit-record-repository/all":{
+                permissionsAction:"tab-audit-record-repository->all",
+                nextCheck:"/audit-record-repository/authentication"
+            },
+            "/audit-record-repository/authentication":{
+                permissionsAction:"tab-audit-record-repository->authentication",
+                nextCheck:"/audit-record-repository/audit-error"
+            },
+            "/audit-record-repository/audit-error":{
+                permissionsAction:"tab-audit-record-repository->audit_errors",
+                nextCheck:"/audit-record-repository/application-error"
+            },
+            "/audit-record-repository/application-error":{
+                permissionsAction:"tab-audit-record-repository->app_errors",
+                nextCheck:"/audit-record-repository/software-configuration"
+            },
+            "/audit-record-repository/software-configuration":{
+                permissionsAction:"tab-audit-record-repository->software_configuration",
+                nextCheck:"/audit-record-repository/patients"
+            },
+            "/audit-record-repository/patients":{
+                permissionsAction:"tab-audit-record-repository->patients",
+                nextCheck:"/audit-record-repository/rejections"
+            },
+            "/audit-record-repository/rejections":{
+                permissionsAction:"tab-audit-record-repository->rejections",
+                nextCheck:"/audit-record-repository/hl7"
+            },
+            "/audit-record-repository/hl7":{
+                permissionsAction:"tab-audit-record-repository->hl7",
+                nextCheck:"/device/devicelist"
             },
             "/device/devicelist":{
                 permissionsAction:"tab-configuration->devices",
@@ -954,50 +2688,20 @@ export class Globalvar {
                 nextCheck:"/device/hl7applications"
             },
             "/device/hl7applications":{
-                permissionsAction:"tab-configuration->hl7_applications"
+                permissionsAction:"tab-configuration->hl7_applications",
+                nextCheck:"/configuration/permission"
             },
-            "/monitoring/queues":{
-                permissionsAction:"tab-monitoring->queues",
-                nextCheck:"/monitoring/export"
-            },
-            "/monitoring/export":{
-                permissionsAction:"tab-monitoring->export",
-                nextCheck:"/monitoring/external"
-            },
-            "/monitoring/external":{
-                permissionsAction:"tab-monitoring->external_retrieve",
+            "/configuration/permission":{
+                permissionsAction:"tab-configuration->permission",
                 nextCheck:"/monitoring/control"
             },
             "/monitoring/control":{
                 permissionsAction:"tab-monitoring->control",
-                nextCheck:"/monitoring/associations"
+                nextCheck:"/monitoring/dashboard/home"
             },
-            "/monitoring/associations":{
-                permissionsAction:"tab-monitoring->associations",
-                nextCheck:"/monitoring/storage-commitment"
-            },
-            "/monitoring/storage-commitment":{
-                permissionsAction:"tab-monitoring->storage_commitments",
-                nextCheck:"/monitoring/storage-systems"
-            },
-            "/monitoring/storage-systems":{
-                permissionsAction:"tab-monitoring->storage_systems"
-            },
-            "/monitoring/metrics":{
-                permissionsAction:"tab-monitoring->metrics"
-            },
-            "/statistics/studies-stored/simple":{
-                permissionsAction:"tab-statistics->studies-stored-simple"
-            },
-            "/statistics/studies-stored/detailed":{
-                permissionsAction:"tab-statistics->studies-stored-detailed"
-            },
-            "/correct-data/diff":{
-                permissionsAction:"tab-correct_data->diff"
-            },
-            "/correct-data/patient-data":{
-                permissionsAction:"tab-correct_data->patient_data"
-            },
+            "/device/edit/*":{
+                permissionsAction:"action-devicelist-device_configuration"
+            }
         };
         if(url === "*"){
             return urlPermissions;
@@ -1013,6 +2717,623 @@ export class Globalvar {
                 return actionObject;
             }
         }
+    }
+    public static get PERMISSION_ACTION_PARAM(): {}{
+        return {
+            "menu-dashboard":{
+                type:"menu",
+                hasUrl:false,
+                title:"Menu - dashboard",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "menu-monitoring":{
+                type:"menu",
+                hasUrl:false,
+                title:"Menu - Monitoring",
+                params:{
+                    "visible":undefined
+                }
+            },
+            "menu-study":{
+                type:"menu",
+                hasUrl:false,
+                title:"Menu - Navigation",
+                params: {
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "menu-correct_data":{
+                type:"menu",
+                title:"Menu - Correct Data",
+                hasUrl:false,
+                params:{
+                    "visible":undefined
+                }
+            },
+            "menu-lifecycle_management":{
+                type:"menu",
+                title:"Menu - Lifecycle Management",
+                hasUrl:true,
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "menu-move_data":{
+                type:"menu",
+                title:"Menu - Data Exchange",
+                hasUrl:false,
+                params:{
+                    "visible":undefined
+                }
+            },
+            "menu-statistics":{
+                type:"menu",
+                title:"Menu - Statistics",
+                hasUrl:false,
+                params:{
+                    "visible":undefined
+                }
+            },
+            "menu-xds":{
+                type:"menu",
+                title:"Menu - XDS",
+                hasUrl:true,
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "dicom-route":{
+                type:"menu",
+                title:"Menu - DICOM Router",
+                hasUrl:true,
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "workflow-management":{
+                type:"menu",
+                title:"Menu - Workflow Management",
+                hasUrl:true,
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "menu-audit_record_repository":{
+                type:"menu",
+                title:"Menu - Audit Record Repository",
+                hasUrl:false,
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "menu-configuration":{
+                type:"menu",
+                title:"Menu - Configuration",
+                hasUrl:false,
+                params:{
+                    "visible":undefined
+                }
+            },
+            "tab-dashboard_home":{
+                type:"tab",
+                title:"Tab - Dashboard - Home",
+                hasUrl:true,
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-dashboard_hardware":{
+                type:"tab",
+                title:"Tab - Dashboard - Hardware",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-dashboard_ats":{
+                type:"tab",
+                title:"Tab - Dashboard - Ats",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-dashboard_queue":{
+                type:"tab",
+                title:"Tab - Dashboard - Queue",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-dashboard_compare":{
+                type:"tab",
+                title:"Tab - Dashboard - Compare",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-study-study":{
+                type:"tab",
+                title:"Tab - Study - Study",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-study-patient":{
+                type:"tab",
+                title:"Tab - Study - Patient",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-study-series":{
+                type:"tab",
+                title:"Tab - Study - Series",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-study-mwl":{
+                type:"tab",
+                title:"Tab - Study - Mwl",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-study-uwl":{
+                type:"tab",
+                title:"Tab - Study - Uwl",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-study-mpps":{
+                type:"tab",
+                title:"Tab - Study - Mpps",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-study-diff":{
+                type:"tab",
+                title:"Tab - Study - Diff",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-monitoring->associations":{
+                type:"tab",
+                title:"Tab - Monitoring Associations",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-monitoring->queues":{
+                type:"tab",
+                title:"Tab - Monitoring Queues",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-monitoring->storage_commitments":{
+                type:"tab",
+                title:"Tab - Monitoring Storage Commitments",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-monitoring->storage_systems":{
+                type:"tab",
+                title:"Tab - Monitoring Storage Systems",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-correct_data->patient_data":{
+                type:"tab",
+                title:"Tab - Correct Data - Patient Data",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-correct_data->diff":{
+                type:"tab",
+                title:"Tab - Correct Data Diff",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-monitoring->storage_verification":{
+                type:"tab",
+                title:"Tab - Correct Data Storage Verification",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },"tab-correct_data->corrupted_studies":{
+                type:"tab",
+                title:"Tab - Corrupted Studies",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },"tab-correct_data->worklist_entries":{
+                type:"tab",
+                title:"Tab - Correct Data - Worklist Entries",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-move_data->export":{
+                type:"tab",
+                title:"Tab - Exchange Data Export",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-move_data->retrieve":{
+                type:"tab",
+                title:"Tab - Exchange Data Retrieve",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-move_data->cd_import":{
+                type:"tab",
+                title:"Tab - CD Import",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-move_data->agfa-migration":{
+                type:"tab",
+                title:"Tab - Agfa Migration",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+/*            "tab-statistics->statistics":{
+                type:"tab",
+                title:"Tab - Statistics",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },*/
+            "tab-statistics->studies-stored-simple":{
+                type:"tab",
+                title:"Tab - Statistics Studies Stored Simple",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-statistics->studies-stored-detailed":{
+                type:"tab",
+                title:"Tab - Statistics Studies Stored Detailed",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-monitoring->metrics":{
+                type:"tab",
+                title:"Tab - Monitoring Metrics",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-audit-record-repository->all":{
+                type:"tab",
+                title:"Tab - Audit Record Repository All",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-audit-record-repository->authentication":{
+                type:"tab",
+                title:"Tab - Audit Record Repository Authentication",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-audit-record-repository->audit_errors":{
+                type:"tab",
+                title:"Tab - Audit Record Repository Audit Errors",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-audit-record-repository->app_errors":{
+                type:"tab",
+                title:"Tab - Audit Record Repository App Errors",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-audit-record-repository->software_configuration":{
+                type:"tab",
+                title:"Tab - Audit Record Repository Software Configuration",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-audit-record-repository->patients":{
+                type:"tab",
+                title:"Tab - Audit Record Repository Patients",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-audit-record-repository->hl7":{
+                type:"tab",
+                title:"Tab - Audit Record Repository HL7",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-audit-record-repository->rejections":{
+                type:"tab",
+                title:"Tab - Audit Record Repository Rejections",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-configuration->devices":{
+                type:"tab",
+                title:"Tab - Configuration Devices",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-configuration->ae_list":{
+                type:"tab",
+                title:"Tab - Configuration Ae List",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-configuration->hl7_applications":{
+                type:"tab",
+                title:"Tab - Configuration Hl7 Applications",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-configuration->permission":{
+                type:"tab",
+                title:"Tab - Configuration Permission",
+                params:{
+                    "visible":undefined,
+                "accessible":undefined
+                }
+            },
+            "tab-configuration->web_apps_list":{
+                type:"tab",
+                title:"Tab - Configuration - Web App List",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-monitoring->control":{
+                type:"tab",
+                title:"Tab - Config Control",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "action-monitoring->queues-all_action":{
+                type:"action",
+                title:"Action - Monitoring Queues All Actions",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-monitoring->export-all_action":{
+                type:"action",
+                title:"Action - Data Exchange Monitoring Export All Actions",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-monitoring->external_retrieve-all_action":{
+                type:"action",
+                title:"Action - Monitoring - External Retrieve All Actions",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-monitoring->queues-single_action":{
+                type:"action",
+                title:"Action - Monitoring Queues Single Actions",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-monitoring->export-single_action":{
+                type:"action",
+                title:"Action - Monitoring Export Single Action",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-monitoring->diff_monitor-all_action":{
+                type:"action",
+                title:"Action - Monitoring - Diff Monitor All Action",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-monitoring->external_retrieve-single_action":{
+                type:"action",
+                title:"Action - Retrieve - Single Action",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-studies-patient":{
+                type:"action",
+                title:"Action - Studies - Patient",
+                params:{
+                    "edit":undefined,
+                    "delete":undefined
+                }
+            },
+            "action-studies-mwl":{
+                type:"action",
+                title:"Action - Studies - MWL",
+                params:{
+                    "create":undefined,
+                    "edit":undefined,
+                    "delete":undefined,
+                    "upload":undefined
+                }
+            },
+            "action-studies-study":{
+                type:"action",
+                title:"Action - Studies - Studies",
+                params:{
+                    "edit":undefined,
+                    "export":undefined,
+                    "upload":undefined,
+                    "reject":undefined,
+                    "delete":undefined,
+                    "restore":undefined,
+                }
+            },
+            "action-studies-serie":{
+                type:"action",
+                title:"Action - Studies - Series",
+                params:{
+                    "visible":undefined,
+                    "export":undefined,
+                    "reject":undefined,
+                    "restore":undefined,
+                    "edit":undefined
+                }
+            },
+            "action-studies-instance":{
+                type:"action",
+                title:"Action - Studies - Instance",
+                params:{
+                    "export":undefined,
+                    "reject":undefined,
+                    "restore":undefined,
+                }
+            },
+            "action-studies-copy_merge_move":{
+                type:"action",
+                title:"Action - Studies - Copy Merge Move",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-studies-more_function":{
+                type:"action",
+                title:"Action - Studies - More Function",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-studies-show-attributes":{
+                type:"action",
+                title:"Action - Studies - Show Attributes",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-studies-count":{
+                type:"action",
+                title:"Action - Studies - Count",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-studies-size":{
+                type:"action",
+                title:"Action - Studies - Size",
+                params:{
+                "visible":undefined,
+                }
+            },
+            "action-studies-viewer":{
+                type:"action",
+                title:"Action - Studies - Open Viewer",
+                params:{
+                "visible":undefined,
+                }
+            },
+            "action-studies-verify_storage_commitment":{
+                type:"action",
+                title:"Action - Studies - Verify Storage Commitment",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-studies-download":{
+                type:"action",
+                title:"Action - Studies - Download study",
+                params:{
+                    "visible":undefined,
+                }
+            },
+            "action-devicelist-device_configuration":{
+                type:"action",
+                title:"Action - Device Configuration",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            }
+        }
+    }
+
+    static get DEFAULT_ELASTICSEARCH_VERSION(){
+        return "6";
     }
 
     static MWL_FILTER_SCHEMA(hidden?):FilterSchema{
@@ -1564,14 +3885,14 @@ export class Globalvar {
                     description:$localize `:@@study_id:Study ID`,
                     placeholder:$localize `:@@study_id:Study ID`
                 },{
-                    tag:"select",
+                    tag:"editable-select",
                     options:aets,
                     showStar:true,
                     filterKey:"ExternalRetrieveAET",
                     description:$localize `:@@retrievable_from_external_retrieve_aet:Retrievable from external retrieve AET`,
                     placeholder:$localize `:@@external_retrieve_aet:External retrieve AET`
                 },{
-                    tag:"select",
+                    tag:"editable-select",
                     options:aets,
                     showStar:true,
                     filterKey:"ExternalRetrieveAET!",
@@ -1744,7 +4065,7 @@ export class Globalvar {
         }
         return [
             {
-                tag:"select",
+                tag:"editable-select",
                 options:aets,
                 showStar:true,
                 filterKey:"aet",
@@ -1913,14 +4234,14 @@ export class Globalvar {
                     description:$localize `:@@study_description:Study Description`,
                     placeholder:$localize `:@@study_description:Study Description`
                 },{
-                    tag:"select",
+                    tag:"editable-select",
                     options:aets,
                     showStar:true,
                     filterKey:"ExternalRetrieveAET",
                     description:$localize `:@@retrievable_from_external_retrieve_aet:Retrievable from external retrieve AET`,
                     placeholder:$localize `:@@external_retrieve_aet:External retrieve AET`
                 },{
-                    tag:"select",
+                    tag:"editable-select",
                     options:aets,
                     showStar:true,
                     filterKey:"ExternalRetrieveAET!",
@@ -2571,7 +4892,7 @@ export class Globalvar {
         }
         return [
             {
-                tag:"select",
+                tag:"editable-select",
                 options:aets,
                 showStar:true,
                 filterKey:"aet",
@@ -2613,7 +4934,95 @@ export class Globalvar {
             }
         ]
     }
-
+    static FOR_GROUP_STUDY_FILTER_SCHEMA(aets:SelectDropdown<any>[], modalities:any[], applicationCluster:any[]):FilterSchema{
+        return [
+            {
+                tag:"multi-select",
+                type:"text",
+                options:modalities,
+                maxSelectedLabels:4,
+                filterKey:"ModalitiesInStudy",
+                placeholder:"Modality",
+            },
+            {
+                tag:"multi-select",
+                options:aets,
+                filterKey:"SendingApplicationEntityTitleOfSeries",
+                description:"Sending Application Entity Title of Series",
+                placeholder:"Sending Series AET"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"InstitutionName",
+                description:"Institution name",
+                placeholder:"Institution name"
+            }
+            ,
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"InstitutionalDepartmentName",
+                description:"Institutional Department Name",
+                placeholder:"Institutional Department Name"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"PatientID",
+                description:"Patient ID",
+                placeholder:"Patient ID"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"AccessionNumber",
+                description:"Accession number",
+                placeholder:"Accession number"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"PatientName",
+                description:"Patient name",
+                placeholder:"Patient name"
+            },{
+                tag:"input",
+                type:"text",
+                filterKey:"SOPClassesInStudy",
+                description:"SOP classes in study",
+                placeholder:"SOP classes in study"
+            },
+            {
+                tag:"multi-select",
+                type:"text",
+                options:applicationCluster,
+                maxSelectedLabels:1,
+                showSearchField:true,
+                showStar:true,
+                filterKey:"applicationClusters",
+                placeholder:"Application Cluster",
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"IssuerOfPatientID",
+                description:"Issuer of patient",
+                placeholder:"Issuer of patient"
+            },
+            {
+                tag:"input",
+                type:"text",
+                filterKey:"ReferringPhysicianName",
+                description:"Referring physician name",
+                placeholder:"Referring physician name"
+            },
+            {
+                tag:"checkbox",
+                filterKey:"expired",
+                text:"Only expired studies"
+            }
+        ]
+    }
     static KEYCLOAK_OPTIONS():any{
         return {
             flow: 'standard',
