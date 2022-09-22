@@ -3,6 +3,8 @@ BEGIN { FS = "[ )]" }
 {
     if ($3 == "id_sequence") {
             print "create table id_sequence (name varchar(64) not null, next_value integer not null, version bigint, primary key (name));"
+    } else if ($3 == "key_value") {
+            print "create table key_value (pk bigint not null auto_increment, content_type varchar(255) not null, created_time datetime not null, `key` varchar(255) not null, updated_time datetime not null, username varchar(255), value varchar(4000) not null, primary key (pk));"
     } else if ($3 == "UK_6a0y0rsssms4mtm9bpkw8vgl6") {
             print "create index UK_6a0y0rsssms4mtm9bpkw8vgl6 on task (study_iuid(64), series_iuid(64), sop_iuid(64));"
     } else if ($3 == "UK_r3oh859i9osv3aluoc8dcx9wk") {
@@ -11,6 +13,8 @@ BEGIN { FS = "[ )]" }
             print "create index UK_f7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id(64), status);"
     } else if ($3 == "UK_m2jq6xe87vegohf6g10t5ptew") {
             print "create index UK_m2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid(64), entity_uid_type(64));"
+    } else if ($3 == "UK_gvyp924rq0a5y8u3emjs35g2q") {
+            print "alter table key_value add constraint UK_gvyp924rq0a5y8u3emjs35g2q unique (`key`);"
     } else if ($2 == "index" \
             && $6 != "(created_time" \
             && $6 != "(updated_time" \
