@@ -3359,28 +3359,58 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     }
                     if (mode === "subscribe") {
                         let params = '';
-                        if (ok.result.subscribeMode === "filtered" || subscribeType === "ups")
-                            Object.keys(iod).forEach(dicomAttr=>{
-                                if (_.hasIn(workitem.attrs, dicomAttr) && workitem.attrs[dicomAttr].Value[0] != '') {
-                                    if (workitem.attrs[dicomAttr].vr === 'PN') {
+                        if (ok.result.subscribeMode === "filtered" || subscribeType === "ups") {
+                            Object.keys(iod).forEach(dicomAttr => {
+                                if (_.hasIn(workitem.attrs, dicomAttr) && _.hasIn(workitem.attrs[dicomAttr], 'Value') && workitem.attrs[dicomAttr].Value[0] != '') {
+                                    console.log("ups iod dicom attr is ", dicomAttr, "   ", workitem.attrs[dicomAttr].Value[0]);
+                                    let vr = workitem.attrs[dicomAttr].vr;
+                                    if (vr === 'PN') {
                                         let alphabetic = workitem.attrs[dicomAttr].Value[0].Alphabetic;
-                                        params += dicomAttr + "=" + _.replace(alphabetic,"^","%5E") + "&";
-                                    } else if (workitem.attrs[dicomAttr].vr === 'SQ') {
-                                        let item = workitem.attrs[dicomAttr].Value[0];
-                                        params += dicomAttr + ".00080100=" + item['00080100'].Value[0] + "&";
-                                        params += dicomAttr + ".00080102=" + item['00080102'].Value[0] + "&";
-                                        let codeMeaning = item['00080104'].Value[0];
-                                        if (codeMeaning && codeMeaning != '')
-                                            params += dicomAttr + ".00080104=" + _.replace(codeMeaning, " ", "%20") + "&";
-                                    } else {
+                                        params += dicomAttr + "=" + _.replace(alphabetic, "^", "%5E") + "&";
+                                    } else if (vr != 'SQ') {
                                         let val = workitem.attrs[dicomAttr].Value[0];
-                                        params += dicomAttr + "=" + _.replace(val," ","%20") + "&";
+                                        params += dicomAttr + "=" + _.replace(val, " ", "%20") + "&";
+                                    } else {
+                                        if (dicomAttr === '00404034') {
+                                            let scheduledHumanPerformerItem = workitem.attrs[dicomAttr].Value[0];
+                                            if (_.hasIn(scheduledHumanPerformerItem['00404009'], 'Value')) {
+                                                let humanPerformerCodeItem = scheduledHumanPerformerItem['00404009'].Value[0];
+                                                params += dicomAttr + ".00404009.00080100=" + humanPerformerCodeItem['00080100'].Value[0] + "&";
+                                                params += dicomAttr + ".00404009.00080102=" + humanPerformerCodeItem['00080102'].Value[0] + "&";
+                                                let codeMeaning = humanPerformerCodeItem['00080104'].Value[0];
+                                                if (codeMeaning && codeMeaning != '')
+                                                    params += dicomAttr + ".00404009.00080104=" + _.replace(codeMeaning, " ", "%20") + "&";
+                                            }
+                                            if (_.hasIn(scheduledHumanPerformerItem['00404036'], 'Value')) {
+                                                let humanPerformerOrganization = scheduledHumanPerformerItem['00404036'].Value[0];
+                                                if (humanPerformerOrganization && humanPerformerOrganization != '')
+                                                    params += dicomAttr + ".00404036=" + _.replace(humanPerformerOrganization, " ", "%20") + "&";
+                                            }
+                                            if (_.hasIn(scheduledHumanPerformerItem['00404037'], 'Value')) {
+                                                let humanPerformerNameAlphabetic = scheduledHumanPerformerItem['00404037'].Value[0].Alphabetic;
+                                                if (humanPerformerNameAlphabetic && humanPerformerNameAlphabetic != '')
+                                                    params += dicomAttr + ".00404037=" + _.replace(humanPerformerNameAlphabetic, "^", "%5E") + "&";
+                                            }
+                                        } else if (dicomAttr === '00404021' || dicomAttr === '0040A370') {
+                                            //ignore input information sequence / referenced request sequence
+                                        } else {
+                                            let item = workitem.attrs[dicomAttr].Value[0];
+                                            if (item && item != '') {
+                                                params += dicomAttr + ".00080100=" + item['00080100'].Value[0] + "&";
+                                                params += dicomAttr + ".00080102=" + item['00080102'].Value[0] + "&";
+                                                let codeMeaning = item['00080104'].Value[0];
+                                                if (codeMeaning && codeMeaning != '')
+                                                    params += dicomAttr + ".00080104=" + _.replace(codeMeaning, " ", "%20") + "&";
+                                            }
+                                        }
                                     }
                                 }
                             });
+                        }
                         if (ok.result.deletionlock === true)
                             params += "deletionlock=true";
 
+                        console.log("ups params for subscription is ", params);
                         let workitemUID = subscribeType === "ups"
                                         ? this.service.getUpsWorkitemUID(originalWorkitemObject.attrs)
                                         : ok.result.subscribeMode === "global"
