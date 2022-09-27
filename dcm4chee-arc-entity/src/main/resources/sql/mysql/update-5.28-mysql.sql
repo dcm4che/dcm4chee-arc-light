@@ -4,7 +4,7 @@ create table key_value
     pk bigint not null auto_increment,
     content_type varchar(255) not null,
     created_time datetime not null,
-    `key` varchar(255) not null,
+    key varchar(255) not null,
     updated_time datetime not null,
     username varchar(255),
     value varchar(4000) not null,
@@ -12,7 +12,7 @@ create table key_value
 );
 
 alter table key_value
-    add constraint UK_gvyp924rq0a5y8u3emjs35g2q unique (`key`);
+    add constraint UK_gvyp924rq0a5y8u3emjs35g2q unique (key);
 
 create index UK_o92kvbnsf2cnttpubgfpd6p01 on key_value (username(64));
 create index UK_51ia14mc4pabswlvaqnt43clb on key_value (updated_time);
