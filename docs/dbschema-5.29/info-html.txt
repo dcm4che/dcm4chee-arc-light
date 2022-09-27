@@ -1,0 +1,5 @@
+date=2022-09-27 14:52:45+0200
+os=Linux 5.15.0-48-generic
+schemaspy-version=6.1.0
+schemaspy-build=6.1.0.41 2019-09-17 21:52:57
+diagramImplementation=Graphviz dot 2.43
