@@ -162,11 +162,11 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.KeyValue">
-    <sequence-generator name="key_value_pk_seq" sequence-name="key_value_pk_seq" allocation-size="1"/>
+    <sequence-generator name="key_value2_pk_seq" sequence-name="key_value2_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="key_value_pk_seq"/>
+        <generated-value strategy="SEQUENCE" generator="key_value2_pk_seq"/>
       </id>
     </attributes>
   </entity>

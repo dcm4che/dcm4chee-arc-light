@@ -69,7 +69,7 @@ drop table ian_task if exists;
 drop table id_sequence if exists;
 drop table instance if exists;
 drop table instance_req if exists;
-drop table key_value if exists;
+drop table key_value2 if exists;
 drop table location if exists;
 drop table metadata if exists;
 drop table mpps if exists;

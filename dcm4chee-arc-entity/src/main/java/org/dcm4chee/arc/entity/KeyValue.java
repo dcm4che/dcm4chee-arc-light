@@ -64,8 +64,8 @@ import java.util.Date;
 })
 
 @Entity
-@Table(name = "key_value",
-        uniqueConstraints = @UniqueConstraint(columnNames = "key" ),
+@Table(name = "key_value2",
+        uniqueConstraints = @UniqueConstraint(columnNames = "key_name" ),
         indexes = {
                 @Index(columnList = "username"),
                 @Index(columnList = "updated_time")
@@ -93,7 +93,7 @@ public class KeyValue {
     private String username;
 
     @Basic(optional = false)
-    @Column(name = "key", updatable = false)
+    @Column(name = "key_name", updatable = false)
     private String key;
 
     @Basic(optional = false)
@@ -101,7 +101,7 @@ public class KeyValue {
     private String contentType;
 
     @Basic(optional = false)
-    @Column(name = "value", length = 4000)
+    @Column(name = "key_value", length = 4000)
     private String value;
 
     public long getPk() {

@@ -7,7 +7,7 @@ drop table ian_task;
 drop table id_sequence;
 drop table instance;
 drop table instance_req;
-drop table key_value;
+drop table key_value2;
 drop table location;
 drop table metadata;
 drop table mpps;
