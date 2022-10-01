@@ -222,10 +222,11 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     }
 
     private boolean supplementIssuerOfPID(Attributes attrs) {
+        Attributes issuerOfPIDQualifier = attrs.getNestedDataset(Tag.IssuerOfPatientIDQualifiersSequence);
         return !attrs.containsValue(Tag.PatientID)
                 || device.getIssuerOfPatientID() == null
                 || attrs.containsValue(Tag.IssuerOfPatientID)
-                || attrs.containsValue(Tag.IssuerOfPatientIDQualifiersSequence);
+                || (issuerOfPIDQualifier != null && !issuerOfPIDQualifier.isEmpty());
     }
 
 

@@ -191,10 +191,11 @@ public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor 
     }
 
     private boolean supplementIssuerOfPID(Device device, Attributes attrs) {
+        Attributes issuerOfPIDQualifier = attrs.getNestedDataset(Tag.IssuerOfPatientIDQualifiersSequence);
         return !attrs.containsValue(Tag.PatientID)
                 || device.getIssuerOfPatientID() == null
                 || attrs.containsValue(Tag.IssuerOfPatientID)
-                || attrs.containsValue(Tag.IssuerOfPatientIDQualifiersSequence);
+                || (issuerOfPIDQualifier != null && !issuerOfPIDQualifier.isEmpty());
     }
 
 
