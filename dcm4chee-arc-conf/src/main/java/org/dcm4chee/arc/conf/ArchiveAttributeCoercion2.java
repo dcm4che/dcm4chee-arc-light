@@ -49,7 +49,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -301,7 +300,7 @@ public class ArchiveAttributeCoercion2 {
                 + ", onFailure=" + onFailure.name()
                 + ", sufficient=" + sufficient
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy.name()
-                + ", mergeAttributes=" + Stream.of(mergeAttributes)
+                + ", mergeAttributes=" + Arrays.toString(mergeAttributes)
                 + ", deviceCoercionParam=" + (otherDevice != null ? otherDevice.getDeviceName() : null)
                 + ", otherCoercionParams=" + params
                 + "]";
