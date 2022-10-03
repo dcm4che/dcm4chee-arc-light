@@ -763,7 +763,7 @@ class QueryServiceImpl implements QueryService {
                                 ctx.getCallingAET(),
                                 ctx.getLocalHostName(),
                                 ctx.getCalledAET(),
-                                ctx.getQueryKeys(), modified)
+                                attrs, modified)
                                 && coercion.isCoercionSufficient()) break;
                     } catch (Exception e) {
                         LOG.info("Failed to apply {}:\n", coercion, e);
