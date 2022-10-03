@@ -39,9 +39,13 @@
 package org.dcm4chee.arc.retrieve.xdsi;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
 
 import javax.activation.DataHandler;
@@ -49,6 +53,7 @@ import javax.enterprise.event.Event;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,19 +78,31 @@ public class DicomDataHandler extends DataHandler {
 
     @Override
     public void writeTo(OutputStream os) throws IOException {
-        try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
-            transcoder.transcode(new Transcoder.Handler() {
-                @Override
-                public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                    try {
-                        ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
-                    } catch (IOException e) {
-                        throw e;
-                    } catch (Exception e) {
-                        throw new IOException(e);
+        RetrieveService service = ctx.getRetrieveService();
+        try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, true)) {
+            transcoder.transcode((transcoder1, dataset) -> {
+                try {
+                    List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
+                    AttributesCoercion coerce;
+                    if (coercions.isEmpty()) {
+                        ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+                        if (rule != null) {
+                            transcoder1.setNullifyPixelData(rule.isNullifyPixelData());
+                        }
+                        coerce = service.getAttributesCoercion(ctx, inst, rule);
+                    } else {
+                        transcoder1.setNullifyPixelData(ArchiveAttributeCoercion2.containsScheme(
+                                coercions, ArchiveAttributeCoercion2.NULLIFY_PIXEL_DATA));
+                        coerce = service.getAttributesCoercion(ctx, inst, coercions);
                     }
-                    return os;
+                    coerce.coerce(dataset, null);
+                    ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
+                } catch (IOException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new IOException(e);
                 }
+                return os;
             });
         }
         if (retrieveEnd != null) {
