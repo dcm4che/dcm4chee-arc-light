@@ -515,13 +515,9 @@ public class QidoRS {
                 }
             }
             ctx.setReturnPrivate(queryAttrs.isIncludePrivate());
-            if (output == Output.CSV) {
-                model.setIncludeAll(queryAttrs.isIncludeAll());
-                model.setReturnKeys(ctx.getReturnKeys());
-            }
             if (ctx.getQueryParam().noMatches()) {
                 return Response.ok(
-                        output.entity(this, method, null, model, null))
+                        output.entity(this, method, null, model, null, ctx))
                         .type(output.type())
                         .build();
             }
@@ -560,7 +556,7 @@ public class QidoRS {
                     builder.header("Cache-Control", "no-cache");
                 }
                 Response response = builder.entity(
-                        output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
+                        output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx), ctx))
                         .type(output.type())
                         .build();
                 LOG.debug("Writing response {}, {}", response.getStatus(), response.getHeaders());
@@ -774,9 +770,6 @@ public class QidoRS {
 
         final QueryRetrieveLevel2 qrLevel;
         final String sopClassUID;
-        Attributes returnKeys;
-        boolean includeAll;
-
         Model(QueryRetrieveLevel2 qrLevel, String sopClassUID) {
             this.qrLevel = qrLevel;
             this.sopClassUID = sopClassUID;
@@ -808,20 +801,13 @@ public class QidoRS {
         String getSOPClassUID() {
             return sopClassUID;
         }
-
-        void setIncludeAll(boolean includeAll) {
-            this.includeAll = includeAll;
-        }
-
-        void setReturnKeys(Attributes returnKeys) {
-            this.returnKeys = returnKeys;
-        }
     }
 
     private enum Output {
         DICOM_XML {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion,
+                          QueryContext ctx)
                     throws Exception {
                 return service.writeXML(method, query, model, coercion);
             }
@@ -833,7 +819,8 @@ public class QidoRS {
         },
         JSON {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion,
+                          QueryContext ctx)
                     throws Exception {
                 return service.writeJSON(method, query, model, coercion);
             }
@@ -845,9 +832,10 @@ public class QidoRS {
         },
         CSV {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion,
+                          QueryContext ctx)
                     throws Exception {
-                return service.writeCSV(method, query, model, coercion);
+                return service.writeCSV(method, query, model, coercion, ctx);
             }
 
             @Override
@@ -856,7 +844,8 @@ public class QidoRS {
             }
         };
 
-        abstract Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+        abstract Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion,
+                               QueryContext ctx)
                 throws Exception;
 
         abstract MediaType type();
@@ -905,13 +894,13 @@ public class QidoRS {
         };
     }
 
-    private Object writeCSV(String method, Query query, Model model, AttributesCoercion coercion)
+    private Object writeCSV(String method, Query query, Model model, AttributesCoercion coercion, QueryContext ctx)
             throws Exception {
         final List<Attributes> matches =  matches(method, query, model, coercion);
         return (StreamingOutput) out -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
             if (matches.size() > 0) {
-                int[] tags = tagsFrom(model, matches.get(0));
+                int[] tags = tagsFrom(model, matches.get(0), ctx);
                 if (tags.length != 0) {
                     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.RFC4180.builder()
                             .setHeader(csvHeader(matches.get(0), tags))
@@ -944,10 +933,11 @@ public class QidoRS {
         return matches;
     }
 
-    private int[] tagsFrom(Model model, Attributes match) {
-        return model.includeAll
+    private int[] tagsFrom(Model model, Attributes match, QueryContext ctx) {
+        Attributes returnKeys = ctx.getReturnKeys();
+        return returnKeys == null
                 ? allFieldsOf(model, match)
-                : nonSeqTagsFrom(model.returnKeys);
+                : nonSeqTagsFrom(returnKeys);
     }
 
     private int[] allFieldsOf(Model model, Attributes match) {
