@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.slf4j.Logger;
@@ -57,14 +58,38 @@ import javax.inject.Named;
  * @since Oct 2022
  */
 @ApplicationScoped
-@Named("filter-mwl-by-calling-aet")
-public class FilterMWLByCallingAETCoercionProcessor implements CoercionProcessor {
-    static final Logger LOG = LoggerFactory.getLogger(FilterMWLByCallingAETCoercionProcessor.class);
+@Named("use-calling-aet-as")
+public class UseCallingAETAsCoercionProcessor implements CoercionProcessor {
+    static final Logger LOG = LoggerFactory.getLogger(UseCallingAETAsCoercionProcessor.class);
 
     @Override
     public boolean coerce(ArchiveAttributeCoercion2 coercion, String sopClassUID, String sendingHost,
                           String sendingAET, String receivingHost, String receivingAET, Attributes attrs,
                           Attributes coercedAttributes) throws Exception {
+        String type = coercion.getSchemeSpecificPart();
+        switch (type) {
+            case "ScheduledStationAETitle":
+                return addScheduledStationAETitle(coercion, sendingAET, attrs);
+            case "SendingApplicationEntityTitleOfSeries":
+                return addSendingApplicationEntityTitleOfSeries(coercion, sendingAET, attrs);
+        }
+        LOG.warn("Ignore unsupported {}", coercion);
+        return false;
+    }
+
+    private boolean addSendingApplicationEntityTitleOfSeries(ArchiveAttributeCoercion2 coercion, String sendingAET,
+                                                             Attributes attrs) {
+        if (attrs.containsValue(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries)) {
+            return false;
+        }
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries,
+                VR.AE, sendingAET);
+        LOG.info("Filter by Calling AET as Sending Application Entity Title Of Series by {}", coercion);
+        return true;
+    }
+
+    private boolean addScheduledStationAETitle(ArchiveAttributeCoercion2 coercion, String sendingAET,
+                                               Attributes attrs) {
         Sequence sq = attrs.ensureSequence(Tag.ScheduledProcedureStepSequence, 1);
         if (sq.isEmpty()) {
             sq.add(new Attributes(20));
