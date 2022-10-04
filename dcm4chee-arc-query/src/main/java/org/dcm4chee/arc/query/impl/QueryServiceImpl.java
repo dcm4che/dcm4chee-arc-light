@@ -728,33 +728,21 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public AttributesCoercion getAttributesCoercion(QueryContext ctx) {
-        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
-        List<ArchiveAttributeCoercion2> coercions = aeExt.attributeCoercions2()
-                .filter(descriptor -> descriptor.match(
-                        TransferCapability.Role.SCU,
-                        Dimse.C_FIND_RSP,
-                        ctx.getSOPClassUID(),
-                        ctx.getRemoteHostName(),
-                        ctx.getCallingAET(),
-                        ctx.getLocalHostName(),
-                        ctx.getCalledAET(),
-                        ctx.getQueryKeys()))
-                .collect(Collectors.toList());
-        if (coercions.isEmpty()) {
-            ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
-                    Dimse.C_FIND_RSP,
-                    TransferCapability.Role.SCU,
-                    ctx.getSOPClassUID(),
-                    ctx.getRemoteHostName(),
-                    ctx.getCallingAET(),
-                    ctx.getLocalHostName(),
-                    ctx.getCalledAET(),
-                    ctx.getQueryKeys());
-            return rule != null ? getAttributesCoercion(ctx, rule) : null;
-        }
         return new AttributesCoercion() {
             @Override
             public void coerce(Attributes attrs, Attributes modified) throws Exception {
+                ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
+                List<ArchiveAttributeCoercion2> coercions = aeExt.attributeCoercions2()
+                        .filter(descriptor -> descriptor.match(
+                                TransferCapability.Role.SCU,
+                                Dimse.C_FIND_RSP,
+                                ctx.getSOPClassUID(),
+                                ctx.getRemoteHostName(),
+                                ctx.getCallingAET(),
+                                ctx.getLocalHostName(),
+                                ctx.getCalledAET(),
+                                attrs))
+                        .collect(Collectors.toList());
                 for (ArchiveAttributeCoercion2 coercion : coercions) {
                     try {
                         if (coercionFactory.getCoercionProcessor(coercion).coerce(coercion,
@@ -767,7 +755,7 @@ class QueryServiceImpl implements QueryService {
                                 && coercion.isCoercionSufficient()) break;
                     } catch (Exception e) {
                         LOG.info("Failed to apply {}:\n", coercion, e);
-                        switch(coercion.getCoercionOnFailure()){
+                        switch (coercion.getCoercionOnFailure()) {
                             case RETHROW:
                                 throw e;
                             case CONTINUE:
@@ -775,6 +763,19 @@ class QueryServiceImpl implements QueryService {
                         }
                         break;
                     }
+                }
+                if (coercions.isEmpty()) {
+                    ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
+                            Dimse.C_FIND_RSP,
+                            TransferCapability.Role.SCU,
+                            ctx.getSOPClassUID(),
+                            ctx.getRemoteHostName(),
+                            ctx.getCallingAET(),
+                            ctx.getLocalHostName(),
+                            ctx.getCalledAET(),
+                            attrs);
+                    if (rule != null)
+                        getAttributesCoercion(ctx, rule).coerce(attrs, modified);
                 }
             }
 
