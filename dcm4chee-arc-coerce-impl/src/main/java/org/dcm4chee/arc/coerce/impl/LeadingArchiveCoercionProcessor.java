@@ -42,6 +42,7 @@ package org.dcm4chee.arc.coerce.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.TransferCapability;
@@ -84,6 +85,11 @@ public class LeadingArchiveCoercionProcessor implements CoercionProcessor {
                           String receivingHost, String receivingAET,
                           Attributes attrs, Attributes modified)
             throws Exception {
+        if (sopClassUID.equals(UID.PatientRootQueryRetrieveInformationModelFind)
+                || sopClassUID.equals(UID.ModalityWorklistInformationModelFind)) {
+            LOG.info("Leading C-FIND coercion not intended for Patient / MWL queries.");
+            return false;
+        }
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         String findSCP = coercion.getSchemeSpecificPart();
         Attributes newAttrs = queryStudy(

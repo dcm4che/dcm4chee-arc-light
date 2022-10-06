@@ -47,6 +47,7 @@ import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
@@ -802,8 +803,14 @@ class QueryServiceImpl implements QueryService {
         coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         String leadingCFindSCP = rule.getLeadingCFindSCP();
         if (leadingCFindSCP != null) {
-            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
-                    rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
+            if (ctx.getQueryRetrieveLevel() == QueryRetrieveLevel2.PATIENT
+                    || (ctx.getQueryRetrieveLevel() == null
+                        && ctx.getSOPClassUID().equals(UID.ModalityWorklistInformationModelFind))) {
+                LOG.info("Leading C-FIND coercion not intended for Patient / MWL queries.");
+            } else {
+                coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
+                        rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
+            }
         }
         LOG.info("Coerce Attributes from rule: {}", rule);
         return coercion;
