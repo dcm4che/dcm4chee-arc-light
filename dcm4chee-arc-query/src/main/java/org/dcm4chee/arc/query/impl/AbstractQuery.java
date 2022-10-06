@@ -151,6 +151,11 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
+    public void incrementLimit() {
+        rejected++;
+    }
+
+    @Override
     public Attributes adjust(Attributes match) {
         if (match == null)
             return null;

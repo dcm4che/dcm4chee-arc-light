@@ -1177,7 +1177,27 @@
     "in": "query",
     "description": "return Studies/Series/Instances with(requested=true)/without(requested=false) non-empty Request Attributes Sequence of Series",
     "schema": {
-      "type": "Boolean"
+      "type": "boolean"
+    }
+  },
+  "modified": {
+    "name": "modified",
+    "in": "query",
+    "description": "return only Studies/Series/Instances which one or all of the specified attributes current value differs from its original value as received",
+    "schema": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allmodified": {
+    "name": "allmodified",
+    "in": "query",
+    "description": "indicates if the values of all multiple attributes specified by query parameter 'modified' has to differ from their original values as received to match",
+    "schema": {
+      "type": "boolean",
+      "default": false
     }
   },
   "newDeviceName": {

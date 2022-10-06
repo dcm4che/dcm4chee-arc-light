@@ -44,11 +44,13 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
 import org.dcm4che3.data.*;
+import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -64,7 +66,10 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -83,6 +88,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -101,6 +107,9 @@ public class QidoRS {
 
     @Inject
     private QueryService service;
+
+    @Inject
+    private RetrieveService retrieveService;
 
     @Context
     private HttpServletRequest request;
@@ -211,7 +220,13 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String requested;
 
+    @QueryParam("allmodified")
+    @Pattern(regexp = "true|false")
+    private String allmodifiedAsString;
+    private boolean allmodified;
+
     private char csvDelimiter = ',';
+    private QueryAttributes queryAttrs;
 
     @Override
     public String toString() {
@@ -222,7 +237,8 @@ public class QidoRS {
 
     public void validate() {
         logRequest();
-        new QueryAttributes(uriInfo, attributeSetMap());
+        queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
+        allmodified = Boolean.parseBoolean(allmodifiedAsString);
     }
 
     @GET
@@ -404,7 +420,6 @@ public class QidoRS {
         if (aet.equals(ae.getAETitle()))
             validateWebAppServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
 
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         try {
             QueryContext ctx = newQueryContext(
                     "SizeOfStudies", queryAttrs, null, null, Model.STUDY, ae);
@@ -435,7 +450,6 @@ public class QidoRS {
         if (aet.equals(ae.getAETitle()))
             validateWebAppServiceClass(WebApplication.ServiceClass.QIDO_COUNT);
 
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         try {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
             if (ctx.getQueryParam().noMatches())
@@ -480,7 +494,6 @@ public class QidoRS {
 
         Output output = selectMediaType();
         try {
-            QueryAttributes queryAttrs = new QueryAttributes(uriInfo, attributeSetMap());
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
             ctx.setReturnKeys(queryAttrs.isIncludeAll()
                     ? null
@@ -701,21 +714,21 @@ public class QidoRS {
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
         },
-        STUDY(QueryRetrieveLevel2.STUDY, UID.StudyRootQueryRetrieveInformationModelFind) {
+        STUDY(QueryRetrieveLevel2.STUDY, UID.StudyRootQueryRetrieveInformationModelFind, QidoRS::acceptStudyMatch) {
             @Override
             public StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return super.retrieveURL(qidoRS, match)
                         .append("/studies/").append(match.getString(Tag.StudyInstanceUID));
             }
         },
-        SERIES(QueryRetrieveLevel2.SERIES, UID.StudyRootQueryRetrieveInformationModelFind) {
+        SERIES(QueryRetrieveLevel2.SERIES, UID.StudyRootQueryRetrieveInformationModelFind, QidoRS::acceptSeriesMatch) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return STUDY.retrieveURL(qidoRS, match)
                         .append("/series/").append(match.getString(Tag.SeriesInstanceUID));
             }
         },
-        INSTANCE(QueryRetrieveLevel2.IMAGE, UID.StudyRootQueryRetrieveInformationModelFind) {
+        INSTANCE(QueryRetrieveLevel2.IMAGE, UID.StudyRootQueryRetrieveInformationModelFind, QidoRS::acceptInstanceMatch) {
             @Override
             StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
                 return SERIES.retrieveURL(qidoRS, match)
@@ -770,9 +783,15 @@ public class QidoRS {
 
         final QueryRetrieveLevel2 qrLevel;
         final String sopClassUID;
+        final BiPredicate<QidoRS, Attributes> acceptMatch;
         Model(QueryRetrieveLevel2 qrLevel, String sopClassUID) {
+            this(qrLevel, sopClassUID, (qidoRS, match) -> true);
+        }
+
+        Model(QueryRetrieveLevel2 qrLevel, String sopClassUID, BiPredicate<QidoRS, Attributes> acceptMatch) {
             this.qrLevel = qrLevel;
             this.sopClassUID = sopClassUID;
+            this.acceptMatch = acceptMatch;
         }
 
         QueryRetrieveLevel2 getQueryRetrieveLevel() {
@@ -801,6 +820,69 @@ public class QidoRS {
         String getSOPClassUID() {
             return sopClassUID;
         }
+    }
+
+    private boolean acceptStudyMatch(Attributes match) {
+        return queryAttrs.getModified().isEmpty() || isModified(match, readObject(
+                match.getString(Tag.StudyInstanceUID),
+                null, null));
+    }
+
+    private boolean acceptSeriesMatch(Attributes match) {
+        return queryAttrs.getModified().isEmpty() || isModified(match, readObject(
+                match.getString(Tag.StudyInstanceUID),
+                match.getString(Tag.SeriesInstanceUID),
+                null));
+    }
+
+    private boolean acceptInstanceMatch(Attributes match) {
+        return queryAttrs.getModified().isEmpty() || isModified(match, readObject(
+                match.getString(Tag.StudyInstanceUID),
+                match.getString(Tag.SeriesInstanceUID),
+                match.getString(Tag.SOPInstanceUID)));
+    }
+
+    private Attributes readObject(String studyUID, String seriesUID, String objectUID) {
+        final RetrieveContext ctx = retrieveService.newRetrieveContextWADO(
+                HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
+        try {
+            retrieveService.calculateMatches(ctx);
+            try (DicomInputStream din = retrieveService.openDicomInputStream(ctx, ctx.getMatches().get(0))) {
+                return din.readDatasetUntilPixelData();
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean isModified(Attributes match, Attributes attrs) {
+        return allmodified ? isAllModified(match, attrs) : isAnyModified(match, attrs);
+    }
+
+    private boolean isAllModified(Attributes match, Attributes attrs) {
+        for (int[] tagPath : queryAttrs.getModified()) {
+            if (Objects.equals(getString(match, tagPath), getString(attrs, tagPath)))
+                return false;
+        }
+        return true;
+    }
+
+    private boolean isAnyModified(Attributes match, Attributes attrs) {
+        for (int[] tagPath : queryAttrs.getModified()) {
+            if (!Objects.equals(getString(match, tagPath), getString(attrs, tagPath)))
+                return true;
+        }
+        return false;
+    }
+
+    private static String getString(Attributes item, int[] tagPath) {
+        int last = tagPath.length - 1;
+        for (int i  = 0; i < last; i++)
+            if ((item = item.getNestedDataset(tagPath[i])) == null)
+                return null;
+        return item.getString(tagPath[last]);
     }
 
     private enum Output {
@@ -860,6 +942,10 @@ public class QidoRS {
             if (tmp == null)
                 continue;
 
+            if (!model.acceptMatch.test(this, tmp)) {
+                query.incrementLimit();
+                continue;
+            }
             final Attributes match = adjust(tmp, model, query, coercion);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
             output.addPart((StreamingOutput) out -> {
@@ -925,6 +1011,10 @@ public class QidoRS {
             Attributes tmp = query.nextMatch();
             if (tmp == null)
                 continue;
+            if (!model.acceptMatch.test(this, tmp)) {
+                query.incrementLimit();
+                continue;
+            }
             Attributes match = adjust(tmp, model, query, coercion);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
             matches.add(match);

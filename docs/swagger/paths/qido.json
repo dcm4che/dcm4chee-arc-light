@@ -99,6 +99,12 @@
         },
         {
           "$ref": "../parameters.json#/requested"
+        },
+        {
+          "$ref": "../parameters.json#/modified"
+        },
+        {
+          "$ref": "../parameters.json#/allmodified"
         }
       ],
       "responses": {
@@ -270,6 +276,12 @@
         },
         {
           "$ref": "../parameters.json#/requested"
+        },
+        {
+          "$ref": "../parameters.json#/modified"
+        },
+        {
+          "$ref": "../parameters.json#/allmodified"
         }
       ],
       "responses": {
@@ -391,6 +403,12 @@
         },
         {
           "$ref": "../parameters.json#/requested"
+        },
+        {
+          "$ref": "../parameters.json#/modified"
+        },
+        {
+          "$ref": "../parameters.json#/allmodified"
         }
       ],
       "responses": {
@@ -518,6 +536,12 @@
         },
         {
           "$ref": "../parameters.json#/requested"
+        },
+        {
+          "$ref": "../parameters.json#/modified"
+        },
+        {
+          "$ref": "../parameters.json#/allmodified"
         }
       ],
       "responses": {
@@ -544,7 +568,7 @@
       "tags": [
         "QIDO-RS"
       ],
-      "summary": "Search for Instances of of Study",
+      "summary": "Search for Instances of Study",
       "operationId": "SearchForStudyInstances",
       "parameters": [
         {
@@ -642,6 +666,12 @@
         },
         {
           "$ref": "../parameters.json#/requested"
+        },
+        {
+          "$ref": "../parameters.json#/modified"
+        },
+        {
+          "$ref": "../parameters.json#/allmodified"
         }
       ],
       "responses": {
@@ -763,6 +793,12 @@
         },
         {
           "$ref": "../parameters.json#/requested"
+        },
+        {
+          "$ref": "../parameters.json#/modified"
+        },
+        {
+          "$ref": "../parameters.json#/allmodified"
         }
       ],
       "responses": {

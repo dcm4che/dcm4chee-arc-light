@@ -70,6 +70,8 @@ public class QueryAttributes {
     private final AttributesBuilder builder = new AttributesBuilder(keys);
     private boolean includeAll;
 
+    private List<int[]> modified = new ArrayList(2);
+
     private final ArrayList<OrderByTag> orderByTags = new ArrayList<>();
 
     public QueryAttributes(UriInfo info, Map<String, AttributeSet> attributeSetMap) {
@@ -181,6 +183,7 @@ public class QueryAttributes {
                 case "merged":
                 case "ExporterID":
                 case "FreezeExpirationDate":
+                case "allmodified":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
@@ -222,9 +225,24 @@ public class QueryAttributes {
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessDateTime, VR.DT,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
+                case "modified":
+                    addModified(entry.getValue());
+                    break;
                 default:
                     addQueryKey(key, entry.getValue());
                     break;
+            }
+        }
+    }
+
+    private void addModified(List<String> values) {
+        for (String s : values) {
+            for (String value : StringUtils.split(s, ',')) {
+                try {
+                    modified.add(TagUtils.parseTagPath(value));
+                } catch (IllegalArgumentException e2) {
+                    throw new IllegalArgumentException("modified=" + s);
+                }
             }
         }
     }
@@ -312,6 +330,10 @@ public class QueryAttributes {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(attrPath + "=" + values.get(0));
         }
+    }
+
+    public List<int[]> getModified() {
+        return modified;
     }
 
 }

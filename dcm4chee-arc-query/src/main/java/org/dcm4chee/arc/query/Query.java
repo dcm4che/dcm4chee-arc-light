@@ -70,6 +70,8 @@ public interface Query extends Closeable {
 
     Attributes nextMatch();
 
+    void incrementLimit();
+
     Attributes adjust(Attributes match);
 
     QueryContext getQueryContext();
