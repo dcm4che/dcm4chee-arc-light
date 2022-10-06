@@ -4822,32 +4822,36 @@ export class StudyService {
     getMsgFromResponse(res, defaultMsg = null) {
         let msg;
         let endMsg = '';
-        try {
-            //TODO information could be in res.error too
-            msg = res.json();
-            if (_.hasIn(msg, "completed")) {
-                endMsg = `Completed: ${msg.completed}<br>`;
-            }
-            if (_.hasIn(msg, "warning")) {
-                endMsg = endMsg + `Warning: ${msg.warning}<br>`;
-            }
-            if (_.hasIn(msg, "failed")) {
-                endMsg = endMsg + `Failed: ${msg.failed}<br>`;
-            }
-            if (_.hasIn(msg, "errorMessage")) {
-                endMsg = endMsg + `${msg.errorMessage}<br>`;
-            }
-            if (_.hasIn(msg, "error")) {
-                endMsg = endMsg + `${msg.error}<br>`;
-            }
-            if (endMsg === "") {
-                endMsg = defaultMsg;
-            }
-        } catch (e) {
-            if (defaultMsg) {
-                endMsg = defaultMsg;
-            } else {
-                endMsg = res.statusText;
+        if (_.hasIn(res, "error") && _.hasIn(res.error, "errorMessage")) {
+            endMsg = endMsg + `${res.error.errorMessage}<br>`;
+        } else {
+            try {
+                //TODO information could be in res.error too
+                msg = res.json();
+                if (_.hasIn(msg, "completed")) {
+                    endMsg = `Completed: ${msg.completed}<br>`;
+                }
+                if (_.hasIn(msg, "warning")) {
+                    endMsg = endMsg + `Warning: ${msg.warning}<br>`;
+                }
+                if (_.hasIn(msg, "failed")) {
+                    endMsg = endMsg + `Failed: ${msg.failed}<br>`;
+                }
+                if (_.hasIn(msg, "errorMessage")) {
+                    endMsg = endMsg + `${msg.errorMessage}<br>`;
+                }
+                if (_.hasIn(msg, "error")) {
+                    endMsg = endMsg + `${msg.error}<br>`;
+                }
+                if (endMsg === "") {
+                    endMsg = defaultMsg;
+                }
+            } catch (e) {
+                if (defaultMsg) {
+                    endMsg = defaultMsg;
+                } else {
+                    endMsg = res.statusText;
+                }
             }
         }
         return endMsg;
