@@ -49,6 +49,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -204,9 +205,10 @@ public class ExporterRS {
                     scheduledTime(),
                     HttpServletRequestInfo.valueOf(request));
             if (scheduledTime == null) {
-                taskScheduler.process(
-                        arcDev.getQueueDescriptorNotNull(exporter.getQueueName()),
-                        arcDev.getTaskFetchSize());
+                QueueDescriptor queue = arcDev.getQueueDescriptor(exporter.getQueueName());
+                if (queue == null)
+                    return errResponse("No queue configured for Exporter: " + exporterID, Response.Status.NOT_FOUND);
+                taskScheduler.process(queue, arcDev.getTaskFetchSize());
             }
             return Response.accepted().entity(writeJSON(exportTask)).build();
         } catch (Exception e) {
