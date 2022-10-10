@@ -283,6 +283,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
+    private volatile HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy = HL7OrderMissingAdmissionIDPolicy.ACCEPT;
     private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy =
             HL7ImportReportMissingStudyIUIDPolicy.GENERATE;
     private volatile String hl7ImportReportMissingStudyIUIDCFindSCP;
@@ -2962,6 +2963,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7OrderMissingStudyIUIDPolicy = hl7OrderMissingStudyIUIDPolicy;
     }
 
+    public HL7OrderMissingAdmissionIDPolicy getHl7OrderMissingAdmissionIDPolicy() {
+        return hl7OrderMissingAdmissionIDPolicy;
+    }
+
+    public void setHl7OrderMissingAdmissionIDPolicy(HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy) {
+        this.hl7OrderMissingAdmissionIDPolicy = hl7OrderMissingAdmissionIDPolicy;
+    }
+
     public HL7ImportReportMissingStudyIUIDPolicy getHl7ImportReportMissingStudyIUIDPolicy() {
         return hl7ImportReportMissingStudyIUIDPolicy;
     }
@@ -3432,6 +3441,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         csvUploadChunkSize = arcdev.csvUploadChunkSize;
         validateUID = arcdev.validateUID;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
+        hl7OrderMissingAdmissionIDPolicy = arcdev.hl7OrderMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;
         hl7ImportReportMissingStudyIUIDCFindSCP = arcdev.hl7ImportReportMissingStudyIUIDCFindSCP;
         hl7ReferredMergedPatientPolicy = arcdev.hl7ReferredMergedPatientPolicy;

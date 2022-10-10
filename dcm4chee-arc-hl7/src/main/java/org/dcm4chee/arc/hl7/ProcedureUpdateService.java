@@ -57,6 +57,7 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
+import org.dcm4chee.arc.conf.HL7OrderMissingAdmissionIDPolicy;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
@@ -189,11 +190,8 @@ public class ProcedureUpdateService extends DefaultHL7Service {
             Attributes sps = spsItems.next();
             validateSPSStartDateTime(sps, msh);
             if (!attrs.containsValue(Tag.AdmissionID))
-                throw new HL7Exception(
-                        new ERRSegment(msg.msh())
-                                .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                                .setErrorLocation(ADMISSION_ID)
-                                .setUserMessage("Missing admission ID"));
+                adjustAdmissionID(arcHL7App, attrs, msg);
+
             String spsStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
             for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
                 if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(spsStatus)) {
@@ -227,6 +225,30 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 if (!sps.containsValue(Tag.ScheduledStationAETitle))
                     adjustScheduledStations(hl7OrderScheduledStations, sps);
             }
+        }
+    }
+
+    private void adjustAdmissionID(ArchiveHL7ApplicationExtension arcHL7App, Attributes attrs, UnparsedHL7Message msg)
+            throws HL7Exception {
+        HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy = arcHL7App.hl7OrderMissingAdmissionIDPolicy();
+        HL7Segment msh = msg.msh();
+        switch (hl7OrderMissingAdmissionIDPolicy) {
+            case REJECT:
+                throw new HL7Exception(
+                        new ERRSegment(msh)
+                                .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                .setErrorLocation(ADMISSION_ID)
+                                .setUserMessage("Missing admission ID"));
+            case ACCESSION_AS_ADMISSION:
+                String accNo = attrs.getString(Tag.AccessionNumber);
+                if (accNo == null)
+                    throw new HL7Exception(
+                            new ERRSegment(msh)
+                                    .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                    .setErrorLocation(msh.getMessageType().equals(IMAGING_ORDER_MSG)
+                                            ? ACCESSION_NO_IMAGING_ORDER : ACCESSION_NO_GENERAL_ORDER)
+                                    .setUserMessage("Failed to derive Admission ID from accession number"));
+                attrs.setString(Tag.AdmissionID, VR.LO, accNo);
         }
     }
 

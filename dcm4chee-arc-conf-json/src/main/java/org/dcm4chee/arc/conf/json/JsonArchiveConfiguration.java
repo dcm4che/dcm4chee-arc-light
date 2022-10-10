@@ -347,6 +347,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPatientVerificationMaxStaleness(), null);
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", arcDev.getHl7OrderMissingStudyIUIDPolicy(),
                 HL7OrderMissingStudyIUIDPolicy.GENERATE);
+        writer.writeNotNullOrDef("hl7OrderMissingAdmissionIDPolicy", arcDev.getHl7OrderMissingAdmissionIDPolicy(),
+                HL7OrderMissingAdmissionIDPolicy.ACCEPT);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy",
                 arcDev.getHl7ImportReportMissingStudyIUIDPolicy(), HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDCFindSCP",
@@ -1947,6 +1949,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     arcDev.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7OrderMissingAdmissionIDPolicy":
+                    arcDev.setHl7OrderMissingAdmissionIDPolicy(HL7OrderMissingAdmissionIDPolicy.valueOf(reader.stringValue()));
                     break;
                 case "hl7ImportReportMissingStudyIUIDPolicy":
                     arcDev.setHl7ImportReportMissingStudyIUIDPolicy(

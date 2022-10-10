@@ -77,6 +77,7 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", ext.getHL7OrderMissingStudyIUIDPolicy(), null);
+        writer.writeNotNullOrDef("hl7OrderMissingAdmissionIDPolicy", ext.getHl7OrderMissingAdmissionIDPolicy(), null);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy",
                 ext.getHl7ImportReportMissingStudyIUIDPolicy(), null);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDCFindSCP",
@@ -161,6 +162,9 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     ext.setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7OrderMissingAdmissionIDPolicy":
+                    ext.setHl7OrderMissingAdmissionIDPolicy(HL7OrderMissingAdmissionIDPolicy.valueOf(reader.stringValue()));
                     break;
                 case "hl7ImportReportMissingStudyIUIDPolicy":
                     ext.setHl7ImportReportMissingStudyIUIDPolicy(
