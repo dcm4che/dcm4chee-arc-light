@@ -351,6 +351,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 HL7OrderMissingAdmissionIDPolicy.ACCEPT);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy",
                 arcDev.getHl7ImportReportMissingStudyIUIDPolicy(), HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
+        writer.writeNotNullOrDef("hl7ImportReportMissingAdmissionIDPolicy",
+                arcDev.getHl7ImportReportMissingAdmissionIDPolicy(), HL7ImportReportMissingAdmissionIDPolicy.ACCEPT);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDCFindSCP",
                 arcDev.getHl7ImportReportMissingStudyIUIDCFindSCP(), null);
         writer.writeNotNullOrDef("hl7DicomCharacterSet", arcDev.getHl7DicomCharacterSet(), null);
@@ -1956,6 +1958,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "hl7ImportReportMissingStudyIUIDPolicy":
                     arcDev.setHl7ImportReportMissingStudyIUIDPolicy(
                             HL7ImportReportMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7ImportReportMissingAdmissionIDPolicy":
+                    arcDev.setHl7ImportReportMissingAdmissionIDPolicy(
+                            HL7ImportReportMissingAdmissionIDPolicy.valueOf(reader.stringValue()));
                     break;
                 case "hl7ImportReportMissingStudyIUIDCFindSCP":
                     arcDev.setHl7ImportReportMissingStudyIUIDCFindSCP(reader.stringValue());

@@ -66,6 +66,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
     private HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy;
     private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
+    private HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy;
     private String hl7ImportReportMissingStudyIUIDCFindSCP;
     private HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy;
     private String hl7DicomCharacterSet;
@@ -112,6 +113,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
         hl7OrderMissingAdmissionIDPolicy = arcapp.hl7OrderMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
+        hl7ImportReportMissingAdmissionIDPolicy = arcapp.hl7ImportReportMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDCFindSCP = arcapp.hl7ImportReportMissingStudyIUIDCFindSCP;
         hl7ReferredMergedPatientPolicy = arcapp.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
@@ -528,6 +530,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setHl7ImportReportMissingStudyIUIDPolicy(HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy) {
         this.hl7ImportReportMissingStudyIUIDPolicy = hl7ImportReportMissingStudyIUIDPolicy;
+    }
+
+    public HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy() {
+        return hl7ImportReportMissingAdmissionIDPolicy != null
+                ? hl7ImportReportMissingAdmissionIDPolicy
+                : getArchiveDeviceExtension().getHl7ImportReportMissingAdmissionIDPolicy();
+    }
+
+    public HL7ImportReportMissingAdmissionIDPolicy getHl7ImportReportMissingAdmissionIDPolicy() {
+        return hl7ImportReportMissingAdmissionIDPolicy;
+    }
+
+    public void setHl7ImportReportMissingAdmissionIDPolicy(HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy) {
+        this.hl7ImportReportMissingAdmissionIDPolicy = hl7ImportReportMissingAdmissionIDPolicy;
     }
 
     public String hl7ImportReportMissingStudyIUIDCFindSCP() {

@@ -53,9 +53,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.HL7ORUAction;
-import org.dcm4chee.arc.conf.SPSStatus;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -163,11 +161,7 @@ class ImportReportService extends DefaultHL7Service {
                         .setUserMessage("Encapsulated document data missing"));
 
         if (!attrs.containsValue(Tag.AdmissionID))
-            throw new HL7Exception(
-                    new ERRSegment(msg.msh())
-                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                            .setErrorLocation(ADMISSION_ID)
-                            .setUserMessage("Missing admission ID"));
+            adjustAdmissionID(arcHL7App, attrs, msg);
 
         if (!attrs.containsValue(Tag.StudyInstanceUID)) {
             String accNo = attrs.getString(Tag.AccessionNumber);
@@ -199,6 +193,30 @@ class ImportReportService extends DefaultHL7Service {
             attrs.setString(Tag.SeriesInstanceUID, VR.UI,
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
         processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
+    }
+
+    private void adjustAdmissionID(ArchiveHL7ApplicationExtension arcHL7App, Attributes attrs, UnparsedHL7Message msg)
+            throws HL7Exception {
+        HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy
+                = arcHL7App.hl7ImportReportMissingAdmissionIDPolicy();
+        HL7Segment msh = msg.msh();
+        switch (hl7ImportReportMissingAdmissionIDPolicy) {
+            case REJECT:
+                throw new HL7Exception(
+                        new ERRSegment(msh)
+                                .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                .setErrorLocation(ADMISSION_ID)
+                                .setUserMessage("Missing admission ID"));
+            case ACCESSION_AS_ADMISSION:
+                String accNo = attrs.getString(Tag.AccessionNumber);
+                if (accNo == null)
+                    throw new HL7Exception(
+                            new ERRSegment(msh)
+                                    .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                    .setErrorLocation(ACCESSION_NUMBER)
+                                    .setUserMessage("Failed to derive Admission ID from accession number"));
+                attrs.setString(Tag.AdmissionID, VR.LO, accNo);
+        }
     }
 
     private boolean isEncapsulatedDoc(Attributes attrs) {

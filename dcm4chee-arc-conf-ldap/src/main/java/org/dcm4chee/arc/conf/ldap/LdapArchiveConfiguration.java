@@ -438,6 +438,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHl7OrderMissingAdmissionIDPolicy(), HL7OrderMissingAdmissionIDPolicy.ACCEPT);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportMissingStudyIUIDPolicy",
                 ext.getHl7ImportReportMissingStudyIUIDPolicy(), HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportMissingAdmissionIDPolicy",
+                ext.getHl7ImportReportMissingAdmissionIDPolicy(), HL7ImportReportMissingAdmissionIDPolicy.ACCEPT);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportMissingStudyIUIDCFindSCP",
                 ext.getHl7ImportReportMissingStudyIUIDCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7DicomCharacterSet",
@@ -793,6 +795,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7ImportReportMissingStudyIUIDPolicy(
                 LdapUtils.enumValue(HL7ImportReportMissingStudyIUIDPolicy.class,
                         attrs.get("hl7ImportReportMissingStudyIUIDPolicy"), HL7ImportReportMissingStudyIUIDPolicy.GENERATE));
+        ext.setHl7ImportReportMissingAdmissionIDPolicy(
+                LdapUtils.enumValue(HL7ImportReportMissingAdmissionIDPolicy.class,
+                        attrs.get("hl7ImportReportMissingAdmissionIDPolicy"), HL7ImportReportMissingAdmissionIDPolicy.ACCEPT));
         ext.setHl7ImportReportMissingStudyIUIDCFindSCP(LdapUtils.stringValue(
                 attrs.get("hl7ImportReportMissingStudyIUIDCFindSCP"), null));
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
@@ -1336,6 +1341,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportMissingStudyIUIDPolicy",
                 aa.getHl7ImportReportMissingStudyIUIDPolicy(), bb.getHl7ImportReportMissingStudyIUIDPolicy(),
                 HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportMissingAdmissionIDPolicy",
+                aa.getHl7ImportReportMissingAdmissionIDPolicy(), bb.getHl7ImportReportMissingAdmissionIDPolicy(),
+                HL7ImportReportMissingAdmissionIDPolicy.ACCEPT);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportMissingStudyIUIDCFindSCP",
                 aa.getHl7ImportReportMissingStudyIUIDCFindSCP(),
                 bb.getHl7ImportReportMissingStudyIUIDCFindSCP(),

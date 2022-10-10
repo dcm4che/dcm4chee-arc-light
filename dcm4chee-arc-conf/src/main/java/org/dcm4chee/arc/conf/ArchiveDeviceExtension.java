@@ -284,6 +284,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
     private volatile HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy = HL7OrderMissingAdmissionIDPolicy.ACCEPT;
+    private volatile HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy =
+            HL7ImportReportMissingAdmissionIDPolicy.ACCEPT;
     private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy =
             HL7ImportReportMissingStudyIUIDPolicy.GENERATE;
     private volatile String hl7ImportReportMissingStudyIUIDCFindSCP;
@@ -2980,6 +2982,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ImportReportMissingStudyIUIDPolicy = hl7ImportReportMissingStudyIUIDPolicy;
     }
 
+    public HL7ImportReportMissingAdmissionIDPolicy getHl7ImportReportMissingAdmissionIDPolicy() {
+        return hl7ImportReportMissingAdmissionIDPolicy;
+    }
+
+    public void setHl7ImportReportMissingAdmissionIDPolicy(
+            HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy) {
+        this.hl7ImportReportMissingAdmissionIDPolicy = hl7ImportReportMissingAdmissionIDPolicy;
+    }
+
     public String getHl7ImportReportMissingStudyIUIDCFindSCP() {
         return hl7ImportReportMissingStudyIUIDCFindSCP;
     }
@@ -3443,6 +3454,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7OrderMissingAdmissionIDPolicy = arcdev.hl7OrderMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;
+        hl7ImportReportMissingAdmissionIDPolicy = arcdev.hl7ImportReportMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDCFindSCP = arcdev.hl7ImportReportMissingStudyIUIDCFindSCP;
         hl7ReferredMergedPatientPolicy = arcdev.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
