@@ -972,6 +972,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "send_instance_availability_notification"){
                 this.sendInstanceAvailabilityNotificationSingle(id.level , model);
             }
+            if(id.action==="recreate_record"){
+                this.recreateDBRecord(id.level,model);
+            }
         }else{
             this.appService.showError($localize `:@@study.no_webapp_selected:No Web Application Service was selected!`);
         }
@@ -3773,6 +3776,77 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     };
 
+    recreateDBRecord(dicomLevel:DicomLevel,model){
+        this.confirm({
+            content: $localize `:@@study.update_study_access_control_id_param:Recreate Database Record`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@sourceOfPreviousValues:Source of Previous Value`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"sourceOfPreviousValues",
+                            description:$localize `:@@sourceOfPreviousValues:Source of Previous Value`,
+                            placeholder:$localize `:@@sourceOfPreviousValues:Source of Previous Value`
+                        }
+                    ],[
+                        {
+                            tag:"label",
+                            text:$localize `:@@reasonForModification:Reason for Modification`
+                        },
+                            {
+                                tag:"select",
+                                type:"text",
+                                options:[
+                                    new SelectDropdown("COERCE","COERCE"),
+                                    new SelectDropdown("CORRECT","CORRECT")
+                                ],
+                                filterKey:"reasonForModification",
+                                description:$localize `:@@reasonForModification:Reason for Modification`,
+                                placeholder:$localize `:@@reasonForModification:Reason for Modification`
+                            }
+                        ],[
+                        {
+                            tag:"label",
+                            text:$localize `:@@updatePolicy:Update Policy`
+                        },
+                            {
+                                tag:"select",
+                                type:"text",
+                                options:[
+                                    new SelectDropdown("SUPPLEMENT","SUPPLEMENT"),
+                                    new SelectDropdown("MERGE","MERGE"),
+                                    new SelectDropdown("OVERWRITE","OVERWRITE")
+                                ],
+                                filterKey:"updatePolicy",
+                                description:$localize `:@@updatePolicy:Update Policy`,
+                                placeholder:$localize `:@@updatePolicy:Update Policy`
+                            }
+                        ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@RECREATE:RECREATE`
+        }).subscribe((ok)=>{
+            if(ok){
+                this.cfpLoadingBar.start();
+                this.service.recreateDBRecord(ok.schema_model, this.studyWebService.selectedWebService,model).subscribe(res=>{
+                    this.cfpLoadingBar.complete();
+                    console.log("res",res)
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                })
+            }
+        });
+    }
     updateAccessControlId(mode?:AccessControlIDMode, model?:any){
         const matching = mode === "update_access_control_id_to_matching";
         const innerText = matching ? $localize `:@@inner_text.of_matching_studies:of matching studies`: $localize `:@@inner_text.of_the_study: of the study`;

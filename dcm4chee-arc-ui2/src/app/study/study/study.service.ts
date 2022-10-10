@@ -927,6 +927,15 @@ export class StudyService {
         return this.wadoURL(webService, inst.wadoQueryParams);
     }
 
+    recreateDBRecord(filters, selectedWebService:DcmWebApp, studyObject){
+        return this.$http.post(
+            `${this.studyURL(studyObject.attrs, selectedWebService)}/remiport${j4care.param(filters)}`,
+            {},
+            this.jsonHeader,
+            undefined,
+            selectedWebService
+        );
+    }
     private diffUrl(callingAet: Aet, firstExternalAet?: Aet, secondExternalAet?: Aet, baseUrl?: string) {
 
         return `${
@@ -1893,6 +1902,25 @@ export class StudyService {
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'upload'
+                                }
+                            }, {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon recreate_record`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "recreate_record"
+                                    }, e);
+                                },
+                                id:"study_recreate_record",
+                                title: $localize `:@@recreate_db_record:Recreate DB Record`,
+                                permission: {
+                                    id: 'action-studies-download',
+                                    param: 'visible'
                                 }
                             }, {
                                 icon: {
