@@ -1,0 +1,12 @@
+version: 1
+
+dn: cn=RetrieveAsReceived,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: cn=RetrieveAsReceived,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmDIMSE: C_STORE_RQ
+dicomTransferRole: SCP
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: retrieve-as-received:
+cn: RetrieveAsReceived
