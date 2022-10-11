@@ -141,6 +141,18 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         });
         this.filterChange(e);
     }
+    modifiedWidget(e){
+        [
+            "modified",
+            "allmodified"
+        ].forEach(key=>{
+            if(_.hasIn(e, key)){
+                this.model[key] = e[key];
+            }else{
+                delete this.model[key];
+            }
+        })
+    }
     clear(){
         Object.keys(this.model).forEach(filter=>{
            this.model[filter] = '';

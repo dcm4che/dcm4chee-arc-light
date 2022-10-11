@@ -4060,6 +4060,19 @@ export class Globalvar {
                     filterKey:"ReceivingHL7FacilityOfSeries",
                     description:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`,
                     placeholder:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`
+                },
+                {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingHL7FacilityOfSeries",
+                    description:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`,
+                    placeholder:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`
+                },
+                {
+                    tag:"modified-widget",
+                    dicomLevel:"study",
+                    description:$localize `:@@modified:Modified`,
+                    placeholder:$localize `:@@modified:Modified`
                 }
             ];
         }
@@ -4680,6 +4693,12 @@ export class Globalvar {
                     filterKey:"ReceivingHL7FacilityOfSeries",
                     description:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`,
                     placeholder:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`
+                },
+                {
+                    tag:"modified-widget",
+                    dicomLevel:"series",
+                    description:$localize `:@@modified:Modified`,
+                    placeholder:$localize `:@@modified:Modified`
                 }
             ];
         }

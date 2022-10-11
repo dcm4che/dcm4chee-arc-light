@@ -3778,7 +3778,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     recreateDBRecord(dicomLevel:DicomLevel,model){
         this.confirm({
-            content: $localize `:@@study.update_study_access_control_id_param:Recreate Database Record`,
+            content: $localize `:@@resetto_as_received:Reset to as received`,
             doNotSave:true,
             form_schema:[
                 [

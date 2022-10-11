@@ -1,0 +1,40 @@
+<div class="modified_widget">
+    <div class="main_input_block" title="{{title}}">
+<!--        <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}"  (ngModelChange)="filterChanged()" (click)="selectorOpen = true">-->
+        <label class="main_input" (click)="togglePicker()" title="{{placeholder}}">
+            {{stateText}}
+        </label>
+        <span *ngIf="model" class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
+        <i class="material-icons filter_button" (click)="togglePicker()">
+            subdirectory_arrow_right
+        </i>
+        <ng-container *ngIf="selectorOpen">
+            <div class="overlay" (click)="selectorOpen = false">
+            </div>
+            <div class="content_block">
+                <h5 class="title" *ngIf="title">{{title}}</h5>
+                <div class="filter">
+                    <div class="line">
+                        <label>All modified:</label>
+                        <input type="checkbox" [(ngModel)]="allModified" (change)="changeAllModified($event)"><br/>
+                    </div>
+                    <ng-container *ngIf="!allModified && iod">
+                        <div class="line">
+                            <label>Modified DICOM attributes:</label>
+                            <dcm-drop-down
+                                    [options]="iod"
+                                    [(model)]="modifiedAttr"
+                                    [showSearchField]="true"
+                                    [multiSelectMode]="true"
+                                    (modelChange)="modifiedAttrChanged($event)"
+                            ></dcm-drop-down>
+                        </div>
+                    </ng-container>
+                </div>
+                <div class="dialogbuttons">
+                    <button class="set_button save" (click)="setFilter()" i18n="@@SET">SET</button>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

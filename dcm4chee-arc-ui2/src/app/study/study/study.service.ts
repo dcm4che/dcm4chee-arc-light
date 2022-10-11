@@ -929,7 +929,7 @@ export class StudyService {
 
     recreateDBRecord(filters, selectedWebService:DcmWebApp, studyObject){
         return this.$http.post(
-            `${this.studyURL(studyObject.attrs, selectedWebService)}/remiport${j4care.param(filters)}`,
+            `${this.studyURL(studyObject.attrs, selectedWebService)}/reimport${j4care.param(filters)}`,
             {},
             this.jsonHeader,
             undefined,
@@ -4117,13 +4117,6 @@ export class StudyService {
 
     webAppGroupHasClass(studyWebService:StudyWebService, webServiceClass:WebServiceClass){
         try{
-/*
-            console.log("+++++++test=",studyWebService.webServices.filter((webService:DcmWebApp)=>{
-                return webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1
-            }));
-            console.log("+++++++test2=",studyWebService.allWebServices.filter((webService:DcmWebApp)=>{
-                return webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1
-            }));*/
             return (_.hasIn(studyWebService,"selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf(webServiceClass) > -1) ||
                 studyWebService.webServices.filter((webService:DcmWebApp)=>webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1).length > 0 ||
                 studyWebService.allWebServices.filter((webService:DcmWebApp)=>webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1).length > 0

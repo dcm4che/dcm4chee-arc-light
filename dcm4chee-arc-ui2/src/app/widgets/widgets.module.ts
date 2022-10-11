@@ -45,6 +45,7 @@ import { LanguagePickerComponent } from './language-picker/language-picker.compo
 import {ModifyUpsComponent} from "./dialogs/modify-ups/modify-ups.component";
 import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.component';
 import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.component';
+import { ModifiedWidgetComponent } from './modified-widget/modified-widget.component';
 
 
 @Injectable()
@@ -100,5 +101,6 @@ export const WidgetsComponents = [
     MediaViewerComponent,
     CodeSelectorComponent,
     LanguagePickerComponent,
-    DeviceCloneComponent
+    DeviceCloneComponent,
+    ModifiedWidgetComponent
 ];

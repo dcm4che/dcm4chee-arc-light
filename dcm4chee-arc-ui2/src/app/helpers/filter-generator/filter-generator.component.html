@@ -46,7 +46,7 @@
                             <span [ngStyle]="item?.style" >{{item.text}}</span>
                         </label>
                     </ng-container>
-                  <ng-container *ngIf="line[index].filterKey || line[index].tag === 'code-selector'">
+                  <ng-container *ngIf="line[index].filterKey || line[index].tag === 'code-selector' || line[index].tag === 'modified-widget'">
                     <div class="input_group_dropdown" *ngSwitchCase="'size_range_picker'">
                         <size-range-picker ngDefaultControl (modelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(model)]="model[line[index].filterKey]"></size-range-picker>
                     </div>
@@ -243,6 +243,13 @@
                         placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                         (modelChange)="codeChanged(line[index]?.codes, $event)"
                     ></code-selector>
+                    <modified-widget *ngSwitchCase="'modified-widget'"
+                        [title]="line[index]?.description"
+                        [model]="model"
+                        [dicomLevel]="line[index]?.dicomLevel"
+                        placeholder="{{line[index]?.placeholder || line[index]?.description}}"
+                        (modelChange)="modifiedWidget($event)"
+                    ></modified-widget>
                   </ng-container>
                     <div *ngSwitchCase="'dummy'"></div>
                     <label *ngSwitchCase="'label_large'" class="label_large">{{line[index].text}}</label>
