@@ -1502,11 +1502,11 @@ class ArchiveDeviceFactory {
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
                 false, true, false, false, false,
-                new ArchiveAttributeCoercion()
+                new ArchiveAttributeCoercion2()
                         .setCommonName("RetrieveAsReceived")
                         .setDIMSE(Dimse.C_STORE_RQ)
                         .setRole(SCP)
-                        .setRetrieveAsReceived(true),
+                        .setURI(ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED + ":"),
                 configType, ONLY_ADMIN));
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
@@ -2223,7 +2223,7 @@ class ArchiveDeviceFactory {
     private static ApplicationEntity createAE(String aet, String description,
             Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
             boolean storeSCP, boolean storeSCU, boolean ianSCU, boolean mwlSCP, boolean upsSCP,
-            ArchiveAttributeCoercion coercion, ConfigType configType, String... acceptedUserRoles) {
+            ArchiveAttributeCoercion2 coercion, ConfigType configType, String... acceptedUserRoles) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -2280,7 +2280,7 @@ class ArchiveDeviceFactory {
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
         if (coercion != null)
-            aeExt.addAttributeCoercion(coercion);
+            aeExt.addAttributeCoercion2(coercion);
         return ae;
     }
 

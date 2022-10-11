@@ -3433,9 +3433,9 @@ dicomAETitle: DCM4CHEE
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
-dcmMetadataStorageID: metadata
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
+dcmMetadataStorageID: metadata
 
 dn: cn=Forward to STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: STORESCP
@@ -3639,6 +3639,7 @@ dcmMaxRetryDelay: PT10M
 dn: dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Retrieve instances as received
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: regularUse
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
@@ -3647,7 +3648,6 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: AS_RECEIVED
 dicomAssociationAcceptor: TRUE
-dcmAcceptedUserRole: admin
 
 dn: cn=Leading DCMQRSCP STORE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
@@ -3687,6 +3687,7 @@ dcmWebServicePath: /dcm4chee-arc/aets/AS_RECEIVED/rs
 dn: dicomAETitle=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Only show instances rejected for Data Retention Expired
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: dataRetentionPolicyExpired
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
@@ -3695,11 +3696,11 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_EXPIRED
 dicomAssociationAcceptor: TRUE
-dcmAcceptedUserRole: admin
 
 dn: dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Only show instances rejected for Quality Reasons
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: rejectedForQualityReasons
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
@@ -3708,7 +3709,6 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_QUALITY
 dicomAssociationAcceptor: TRUE
-dcmAcceptedUserRole: admin
 
 dn: dcmWebAppName=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Data Retention Expired
@@ -3766,6 +3766,7 @@ dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/wado
 dn: dicomAETitle=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: incorrectModalityWorklistEntry
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
@@ -3774,7 +3775,6 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_WRONG_MWL
 dicomAssociationAcceptor: TRUE
-dcmAcceptedUserRole: admin
 
 dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7OrderScheduledStationDeviceReference: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3820,6 +3820,7 @@ dcmWebServicePath: /dcm4chee-arc/aets/IOCM_WRONG_MWL/rs
 dn: dicomAETitle=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Only show instances rejected for Patient Safety Reasons
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: rejectedForPatientSafetyReasons
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
@@ -3828,7 +3829,6 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_PAT_SAFETY
 dicomAssociationAcceptor: TRUE
-dcmAcceptedUserRole: admin
 
 dn: cn=Coerce MWL Agfa to Archive,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSOPClass: 1.2.840.10008.5.1.4.31
@@ -3877,6 +3877,7 @@ dcmWebServicePath: /dcm4chee-arc/aets/IOCM_PAT_SAFETY/rs
 dn: dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Show instances rejected for Quality Reasons
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: regularUse
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
@@ -3885,7 +3886,6 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IOCM_REGULAR_USE
 dicomAssociationAcceptor: TRUE
-dcmAcceptedUserRole: admin
 
 dn: dcmMetricsName=delete-from-fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Object Delete Time on fs1
@@ -4388,6 +4388,8 @@ dcmTag: 00380500
 dcmTag: 00380502
 dcmTag: 00400244
 dcmTag: 00400245
+dcmTag: 00400250
+dcmTag: 00400251
 dcmTag: 00400260
 dcmTag: 00400275
 dcmTag: 00400512
@@ -10395,8 +10397,8 @@ dcmImageWriteParam: compressionRatiofactor=10.0
 dn: cn=RetrieveAsReceived,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCP
-dcmRetrieveAsReceived: TRUE
-objectClass: dcmArchiveAttributeCoercion
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: retrieve-as-received:
 cn: RetrieveAsReceived
 
 dn: cn=RT Dose Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
