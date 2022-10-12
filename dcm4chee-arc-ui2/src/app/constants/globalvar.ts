@@ -4070,7 +4070,10 @@ export class Globalvar {
                 },
                 {
                     tag:"modified-widget",
-                    dicomLevel:"study",
+                    iodFileNames:[
+                        "patient",
+                        "study"
+                    ],
                     description:$localize `:@@modified:Modified`,
                     placeholder:$localize `:@@modified:Modified`
                 }
@@ -4696,7 +4699,11 @@ export class Globalvar {
                 },
                 {
                     tag:"modified-widget",
-                    dicomLevel:"series",
+                    iodFileNames:[
+                        "patient",
+                        "study",
+                        "series"
+                    ],
                     description:$localize `:@@modified:Modified`,
                     placeholder:$localize `:@@modified:Modified`
                 }

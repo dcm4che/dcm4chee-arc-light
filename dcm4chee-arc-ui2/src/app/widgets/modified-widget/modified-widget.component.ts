@@ -3,6 +3,7 @@ import {DicomLevel, SelectDropdown} from "../../interfaces";
 import {StudyService} from "../../study/study/study.service";
 import {j4care} from "../../helpers/j4care.service";
 import * as _ from 'lodash-es';
+import {forkJoin} from "rxjs";
 declare var DCM4CHE: any;
 
 @Component({
@@ -16,11 +17,10 @@ export class ModifiedWidgetComponent implements OnInit {
 
   @Input() placeholder:string;
   @Input() title:string;
-  @Input() dicomLevel:DicomLevel;
+  @Input() iodFileNames:string[];
 
   @Input('model')
   set model(value){
-    console.log("value",value);
     this._model = value;
   }
   get model(){
@@ -30,7 +30,6 @@ export class ModifiedWidgetComponent implements OnInit {
   @Output() modelChange =  new EventEmitter();
   selectorOpen:boolean = false;
   filterModel = {};
-  maiInputValid:boolean = true;
   constructor(
       private studyService:StudyService
   ) { }
@@ -39,26 +38,26 @@ export class ModifiedWidgetComponent implements OnInit {
   modifiedAttr;
   iod:SelectDropdown<any>[];
   ngOnInit(): void {
-    if(!this.dicomLevel){
-      this.dicomLevel = "study";
+    if(!this.iodFileNames || this.iodFileNames.length === 0){
+      this.iodFileNames = [
+          "patient",
+          "study"
+      ];
     }
-    this.studyService.getIod(this.dicomLevel).subscribe(iod=>{
-      this.iod = this.iodToSelectedDropdown(iod);
+    this.getIodObjects();
+  }
+  getIodObjects(){
+    const iodServices = [];
+    this.iodFileNames.forEach(iodFileName=>{
+      iodServices.push(this.studyService.getIod(iodFileName));
+    });
+    forkJoin(iodServices).subscribe(iod=>{
+      this.iod = this.iodToSelectedDropdown(iod.reduce((n0,n1)=>Object.assign(n0,n1)));
     });
   }
   iodToSelectedDropdown(iodObject):SelectDropdown<any>[]{
-    let iodKeys = _.uniqWith(Object.keys(j4care.flatten(iodObject)).map(key=>{
-      return key
-          .replace(".items","")
-          .replace(".enum","")
-          .replace(".multi","")
-          .replace(".required","")
-          .replace(".vr","")
-          .replace("[0]","")
-          .replace("[1]","")
-    }), _.isEqual);
-    let iod = iodKeys.map(iodKey=>{
-      let label = iodKey.replace(/(\w){8}/g,(g)=>{
+    return this.getAllAttributeKeyPathsFromIODObject(iodObject).map(iodKey=>{
+      let label = iodKey.replace(/(\w){8}/g,(g)=>{ // get DICOM label [chain] to key [chain]
         return DCM4CHE.elementName.forTag(g);
       });
       return new SelectDropdown(iodKey,label,`${label} ( ${iodKey} )`,undefined,undefined,{
@@ -66,10 +65,16 @@ export class ModifiedWidgetComponent implements OnInit {
         label:label
       });
     });
-    return iod;
   }
-
-  togglePicker(){
+  getAllAttributeKeyPathsFromIODObject(iodObject){
+    return _.uniqWith(
+        Object.keys(j4care.flatten(iodObject)).map(key=>{
+          return key.replace(/\.items|\.enum|\.multi|\.required|\.vr|\[\w\]/g,""); //remove everything that is not a DICOM attribute
+        }),
+        _.isEqual
+    );
+  }
+  toggleSelector(){
     this.selectorOpen = !this.selectorOpen;
   }
   hardClear(){
@@ -79,7 +84,6 @@ export class ModifiedWidgetComponent implements OnInit {
     this.modelChange.emit(undefined);
   }
   changeAllModified(e){
-    console.log("e",e.target.checked);
     this.allModified = e.target.checked;
     if(this.allModified){
       this.stateText = "All modified";

@@ -246,7 +246,7 @@
                     <modified-widget *ngSwitchCase="'modified-widget'"
                         [title]="line[index]?.description"
                         [model]="model"
-                        [dicomLevel]="line[index]?.dicomLevel"
+                        [iodFileNames]="line[index]?.iodFileNames"
                         placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                         (modelChange)="modifiedWidget($event)"
                     ></modified-widget>

@@ -132,7 +132,7 @@ export interface FilterSchemaElement {
     tag:FilterTag;
     filterKey?:string;
     type?:"text"|"number";
-    dicomLevel?:DicomLevel;
+    iodFileNames?:string[]; // Used in the modified-widget to select the modified attributes
     text?:string;
     id?:string;
     description?:string;
