@@ -3857,7 +3857,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             result: {
                 schema_model: {}
             },
-            saveButton: $localize `:@@RECREATE:RECREATE`
+            saveButton: $localize `:@@RESET:RESET`
         }).subscribe((ok)=>{
             if(ok){
                 this.cfpLoadingBar.start();
