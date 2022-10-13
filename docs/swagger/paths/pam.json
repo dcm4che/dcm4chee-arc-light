@@ -344,7 +344,7 @@
           "description": "No matching patient found"
         },
         "400": {
-          "description": "Issuer of Patient ID or Issuer of Patient ID Qualifiers Sequence not allowed in query filters."
+          "description": "Issuer of Patient ID or Issuer of Patient ID Qualifiers Sequence not allowed in query filters or incorrectly passed query filters."
         },
         "403": {
           "description": "Indeterminate state arising when matches greater than fetch size"
