@@ -189,7 +189,8 @@ public class HL7PSUScheduler extends Scheduler {
                     LOG.warn("{}: Failed to create or update HL7PSUTask:\n", ctx, e);
                 }
             }
-        }
+        } else
+            LOG.info("Missing MPPS attributes PlacerOrderNumberImagingServiceRequest and FillerOrderNumberImagingServiceRequest in ScheduledStepAttributesSequence");
     }
 
     private boolean checkAllRefInMpps(ApplicationEntity ae, MPPS mpps) {
