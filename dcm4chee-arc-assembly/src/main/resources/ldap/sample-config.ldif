@@ -4796,6 +4796,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: MR Spectroscopy Storage SCU
 
+dn: cn=SupplementIssuerOfPatientID,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmMergeAttribute: IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}
+dcmDIMSE: C_STORE_RQ
+dicomTransferRole: SCU
+dcmProperty: IssuerOfPatientID!=.+
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-attrs:
+cn: SupplementIssuerOfPatientID
+
 dn: cn=Comprehensive SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.33
 dicomTransferRole: SCP

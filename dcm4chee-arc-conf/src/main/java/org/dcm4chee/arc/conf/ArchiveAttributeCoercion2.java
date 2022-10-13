@@ -160,8 +160,9 @@ public class ArchiveAttributeCoercion2 {
         return conditions;
     }
 
-    public void setConditions(Conditions conditions) {
+    public ArchiveAttributeCoercion2 setConditions(Conditions conditions) {
         this.conditions = conditions;
+        return this;
     }
 
     public ArchiveAttributeCoercion2 setSendingHostname(String hostname) {

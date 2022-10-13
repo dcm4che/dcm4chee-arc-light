@@ -1477,7 +1477,14 @@ class ArchiveDeviceFactory {
 
         device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
-                true, true, true, true, true, null,
+                true, true, true, true, true,
+                new ArchiveAttributeCoercion2()
+                        .setCommonName("SupplementIssuerOfPatientID")
+                        .setDIMSE(Dimse.C_STORE_RQ)
+                        .setRole(SCU)
+                        .setURI("merge-attrs:")
+                        .setConditions(new Conditions("IssuerOfPatientID!=.+"))
+                        .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}"),
                 configType, ONLY_ADMIN, USER));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
