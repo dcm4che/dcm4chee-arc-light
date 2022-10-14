@@ -198,22 +198,34 @@
       <xsl:with-param name="tag" select="$tag"/>
       <xsl:with-param name="val" select="$xpn"/>
       <xsl:with-param name="fn">
-        <xsl:apply-templates select="$xpn/text()|$xpn/escape" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$xpn"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="gn">
-        <xsl:apply-templates select="$xpn25[1]/text()|$xpn25[1]/escape" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$xpn25[1]"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="mn">
-        <xsl:apply-templates select="$xpn25[2]/text()|$xpn25[2]/escape" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$xpn25[2]"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="ns">
-        <xsl:apply-templates select="$xpn25[3]/text()|$xpn25[3]/escape" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$xpn25[3]"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="np">
-        <xsl:apply-templates select="$xpn25[4]/text()|$xpn25[4]/escape" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$xpn25[4]"/>
+        </xsl:call-template>
       </xsl:with-param>
       <xsl:with-param name="deg">
-        <xsl:apply-templates select="$xpn25[5]/text()|$xpn25[5]/escape" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$xpn25[5]"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
@@ -225,24 +237,36 @@
     <xsl:if test="$cn26 or $cn = '&quot;&quot;'">
       <xsl:call-template name="pnAttr">
         <xsl:with-param name="tag" select="$tag"/>
-        <xsl:with-param name="val" select="string($cn/text())"/>
+        <xsl:with-param name="val" select="$cn"/>
         <xsl:with-param name="fn">
-          <xsl:apply-templates select="$cn26[1]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn26[1]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="gn">
-          <xsl:apply-templates select="$cn26[2]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn26[2]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="mn">
-          <xsl:apply-templates select="$cn26[3]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn26[3]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="ns">
-          <xsl:apply-templates select="$cn26[4]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn26[4]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="np">
-          <xsl:apply-templates select="$cn26[5]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn26[5]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="deg">
-          <xsl:apply-templates select="$cn26[6]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn26[6]"/>
+          </xsl:call-template>
         </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
@@ -254,24 +278,36 @@
     <xsl:if test="$cn or $cn != '&quot;&quot;'">
       <xsl:call-template name="pnAttr">
         <xsl:with-param name="tag" select="$tag"/>
-        <xsl:with-param name="val" select="string($cn)"/>
+        <xsl:with-param name="val" select="$cn"/>
         <xsl:with-param name="fn">
-          <xsl:apply-templates select="$cn/subcomponent[1]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn/subcomponent[1]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="gn">
-          <xsl:apply-templates select="$cn/subcomponent[2]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn/subcomponent[2]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="mn">
-          <xsl:apply-templates select="$cn/subcomponent[3]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn/subcomponent[3]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="ns">
-          <xsl:apply-templates select="$cn/subcomponent[4]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn/subcomponent[4]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="np">
-          <xsl:apply-templates select="$cn/subcomponent[5]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn/subcomponent[5]"/>
+          </xsl:call-template>
         </xsl:with-param>
         <xsl:with-param name="deg">
-          <xsl:apply-templates select="$cn/subcomponent[6]" mode="txt"/>
+          <xsl:call-template name="unescape">
+            <xsl:with-param name="val" select="$cn/subcomponent[6]"/>
+          </xsl:call-template>
         </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
@@ -337,7 +373,9 @@
       </xsl:with-param>
       <xsl:with-param name="scheme" select="$codedEntry/component[$offset+2]"/>
       <xsl:with-param name="meaning">
-        <xsl:apply-templates select="$codedEntry/component[$offset+1]" mode="txt" />
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$codedEntry/component[$offset+1]"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
@@ -370,10 +408,14 @@
     <xsl:param name="codedEntry"/>
     <xsl:choose>
       <xsl:when test="$descVal and $descVal != '&quot;&quot;'">
-        <xsl:apply-templates select="$descVal" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$descVal"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates select="$codedEntry" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$codedEntry"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -728,8 +770,9 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="text()" mode="txt">
-    <xsl:value-of select='.'/>
+  <xsl:template name="unescape">
+    <xsl:param name="val"/>
+    <xsl:apply-templates select="$val/text()|$val/escape" mode="txt"/>
   </xsl:template>
 
   <xsl:template match="escape" mode="txt">

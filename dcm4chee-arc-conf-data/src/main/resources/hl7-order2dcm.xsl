@@ -81,7 +81,9 @@
       <xsl:with-param name="tag" select="'00102000'"/>
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="val">
-        <xsl:apply-templates select="field[13]" mode="txt"/>
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="field[13]"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
     <!-- Requesting Physician -->
@@ -294,7 +296,9 @@
       </xsl:with-param>
       <xsl:with-param name="scheme" select="$codedEntry/component[$offset+2]"/>
       <xsl:with-param name="meaning">
-        <xsl:apply-templates select="$codedEntry/component[$offset+1]" mode="txt" />
+        <xsl:call-template name="unescape">
+          <xsl:with-param name="val" select="$codedEntry/component[$offset+1]"/>
+        </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
   </xsl:template>

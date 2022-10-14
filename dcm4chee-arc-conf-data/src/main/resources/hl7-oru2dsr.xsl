@@ -51,7 +51,9 @@
             <xsl:apply-templates select="OBR" mode="obsctx"/>
             <xsl:choose>
               <xsl:when test="$valueType = 'HD'">
-                <xsl:apply-templates select="OBX[field[3]/component='SR Text']" mode="txt"/>
+                <xsl:call-template name="unescape">
+                  <xsl:with-param name="val" select="OBX[field[3]/component='SR Text']"/>
+                </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:apply-templates select="OBX" mode="rad128"/>
@@ -618,7 +620,9 @@
                 <xsl:with-param name="tag" select="'0040A160'"/>
                 <xsl:with-param name="vr" select="'UT'"/>
                 <xsl:with-param name="val">
-                  <xsl:apply-templates select="field[5]" mode="txt"/>
+                  <xsl:call-template name="unescape">
+                    <xsl:with-param name="val" select="field[5]"/>
+                  </xsl:call-template>
                 </xsl:with-param>
               </xsl:call-template>
             </xsl:when>
@@ -637,7 +641,9 @@
 
   <xsl:template match="OBX" mode="txt">
     <xsl:variable name="text">
-      <xsl:apply-templates select="field[5]" mode="txt"/>
+      <xsl:call-template name="unescape">
+        <xsl:with-param name="val" select="field[5]"/>
+      </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="starts-with($text, 'History')">
