@@ -194,41 +194,26 @@
     <xsl:param name="tag"/>
     <xsl:param name="xpn"/>
     <xsl:param name="xpn25" select="$xpn/component"/>
-    <xsl:variable name="val">
-      <xsl:apply-templates select="$xpn" mode="txt"/>
-    </xsl:variable>
-    <xsl:variable name="gn">
-      <xsl:apply-templates select="$xpn25[1]" mode="txt"/>
-    </xsl:variable>
     <xsl:call-template name="pnAttr">
       <xsl:with-param name="tag" select="$tag"/>
-      <xsl:with-param name="val">
-        <xsl:value-of select="$val"/>
-      </xsl:with-param>
+      <xsl:with-param name="val" select="$xpn"/>
       <xsl:with-param name="fn">
-        <xsl:choose>
-          <xsl:when test="string-length($gn) != 0">
-            <xsl:value-of select="substring-before($val, $gn)"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$val"/>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="$xpn/text()|$xpn/escape" mode="txt"/>
       </xsl:with-param>
       <xsl:with-param name="gn">
-        <xsl:value-of select="$gn"/>
+        <xsl:apply-templates select="$xpn25[1]/text()|$xpn25[1]/escape" mode="txt"/>
       </xsl:with-param>
       <xsl:with-param name="mn">
-        <xsl:apply-templates select="$xpn25[2]" mode="txt"/>
+        <xsl:apply-templates select="$xpn25[2]/text()|$xpn25[2]/escape" mode="txt"/>
       </xsl:with-param>
       <xsl:with-param name="ns">
-        <xsl:apply-templates select="$xpn25[3]" mode="txt"/>
+        <xsl:apply-templates select="$xpn25[3]/text()|$xpn25[3]/escape" mode="txt"/>
       </xsl:with-param>
       <xsl:with-param name="np">
-        <xsl:apply-templates select="$xpn25[4]" mode="txt"/>
+        <xsl:apply-templates select="$xpn25[4]/text()|$xpn25[4]/escape" mode="txt"/>
       </xsl:with-param>
       <xsl:with-param name="deg">
-        <xsl:apply-templates select="$xpn25[5]" mode="txt"/>
+        <xsl:apply-templates select="$xpn25[5]/text()|$xpn25[5]/escape" mode="txt"/>
       </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
