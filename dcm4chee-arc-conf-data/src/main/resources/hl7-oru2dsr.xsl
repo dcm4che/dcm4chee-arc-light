@@ -51,9 +51,7 @@
             <xsl:apply-templates select="OBR" mode="obsctx"/>
             <xsl:choose>
               <xsl:when test="$valueType = 'HD'">
-                <xsl:call-template name="unescape">
-                  <xsl:with-param name="val" select="OBX[field[3]/component='SR Text']"/>
-                </xsl:call-template>
+                <xsl:apply-templates select="OBX[field[3]/component='SR Text']" mode="txt"/>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:apply-templates select="OBX" mode="rad128"/>
