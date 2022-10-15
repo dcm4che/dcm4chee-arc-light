@@ -154,6 +154,74 @@
       }
     }
   },
+  "studies.bulkdata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Study Bulkdata",
+      "operationId": "RetrieveStudyBulkdata",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedBulkdata"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Study does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "studies.pixeldata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Study Pixel Data",
+      "operationId": "RetrieveStudyPixelData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedPixelData"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Study does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "series": {
     "get": {
       "tags": [
@@ -173,9 +241,6 @@
         },
         {
           "$ref": "../parameters.json#/wadoRetrieveAccept"
-        },
-        {
-          "$ref": "../parameters.json#/dicomdir"
         }
       ],
       "responses": {
@@ -236,6 +301,80 @@
       }
     }
   },
+  "series.bulkdata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Series Bulkdata",
+      "operationId": "RetrieveSeriesBulkdata",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedBulkdata"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Series does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.pixeldata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Series Pixel Data",
+      "operationId": "RetrieveSeriesPixelData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedPixelData"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Series does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "instances": {
     "get": {
       "tags": [
@@ -266,6 +405,86 @@
       "responses": {
         "200": {
           "$ref": "../responses.json#/retrievedInstances"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Instance does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances.bulkdata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Instance Bulkdata",
+      "operationId": "RetrieveInstanceBulkdata",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedBulkdata"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "404": {
+          "description": "Instance does not exist."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "instances.pixeldata": {
+    "get": {
+      "tags": [
+        "WADO-RS"
+      ],
+      "summary": "Retrieve Instance Pixel Data",
+      "operationId": "RetrieveInstancePixelData",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/wadoRetrieveAccept"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/retrievedPixelData"
         },
         "400": {
           "description": "There was a problem with the request."

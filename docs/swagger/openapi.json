@@ -465,6 +465,12 @@
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/bulkdata/{bulkdata}": {
       "$ref": "paths/wado.json#/bulkdata"
     },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/bulkdata": {
+      "$ref": "paths/wado.json#/instances.bulkdata"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/pixeldata": {
+      "$ref": "paths/wado.json#/instances.pixeldata"
+    },
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/{instance}/metadata": {
       "$ref": "paths/wado.json#/instances.metadata"
     },
@@ -486,11 +492,23 @@
     "/aets/{aet}/rs/studies/{study}": {
       "$ref": "paths/wado.json#/studies"
     },
-    "/aets/{aet}/rs/studies/{study}/series/{series}": {
-      "$ref": "paths/wado.json#/series"
+    "/aets/{aet}/rs/studies/{study}/bulkdata": {
+      "$ref": "paths/wado.json#/studies.bulkdata"
+    },
+    "/aets/{aet}/rs/studies/{study}/pixeldata": {
+      "$ref": "paths/wado.json#/studies.pixeldata"
     },
     "/aets/{aet}/rs/studies/{study}/metadata": {
       "$ref": "paths/wado.json#/studies.metadata"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}": {
+      "$ref": "paths/wado.json#/series"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/bulkdata": {
+      "$ref": "paths/wado.json#/series.bulkdata"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/pixeldata": {
+      "$ref": "paths/wado.json#/series.pixeldata"
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/metadata": {
       "$ref": "paths/wado.json#/series.metadata"

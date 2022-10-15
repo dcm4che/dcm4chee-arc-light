@@ -426,6 +426,124 @@
       }
     }
   },
+  "retrievedBulkdata": {
+    "description": "Bulkdata successfully retrieved.",
+    "content": {
+      "multipart/related;type=application/octet-stream": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=application/pdf": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jp2": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpx": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/dicom-rle": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jls": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=text/xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mp4": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
+  "retrievedPixelData": {
+    "description": "Pixel Data successfully retrieved.",
+    "content": {
+      "multipart/related;type=application/octet-stream": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jp2": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jpx": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/dicom-rle": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=image/jls": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mpeg": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "multipart/related;type=video/mp4": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
   "retrievedFrames": {
     "description": "Frame(s) successfully retrieved.",
     "content": {
@@ -478,29 +596,6 @@
         }
       },
       "application/zip": {
-        "schema": {
-          "type": "string",
-          "format": "binary"
-        }
-      }
-    }
-  },
-  "retrievedBulkdata": {
-    "description": "Bulkdata successfully retrieved.",
-    "content": {
-      "multipart/related;type=application/octet-stream": {
-        "schema": {
-          "type": "string",
-          "format": "binary"
-        }
-      },
-      "multipart/related;type=application/pdf": {
-        "schema": {
-          "type": "string",
-          "format": "binary"
-        }
-      },
-      "multipart/related;type=text/xml": {
         "schema": {
           "type": "string",
           "format": "binary"

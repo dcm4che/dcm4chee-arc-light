@@ -95,6 +95,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -212,6 +213,22 @@ public class WadoRS {
     }
 
     @GET
+    @Path("/studies/{studyUID}/bulkdata")
+    public void retrieveStudyBulkdata(
+            @PathParam("studyUID") String studyUID,
+            @Suspended AsyncResponse ar) {
+        retrieve(Target.StudyBulkdata, studyUID, null, null, null, null, ar);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/pixeldata")
+    public void retrieveStudyPixeldata(
+            @PathParam("studyUID") String studyUID,
+            @Suspended AsyncResponse ar) {
+        retrieve(Target.StudyPixeldata, studyUID, null, null, null, null, ar);
+    }
+
+    @GET
     @Path("/studies/{studyUID}/metadata")
     public void retrieveStudyMetadata(
             @PathParam("studyUID") String studyUID,
@@ -226,6 +243,24 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.Series, studyUID, seriesUID, null, null, null, ar);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/bulkdata")
+    public void retrieveSeriesBulkdata(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @Suspended AsyncResponse ar) {
+        retrieve(Target.SeriesBulkdata, studyUID, seriesUID, null, null, null, ar);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/pixeldata")
+    public void retrieveSeriesPixeldata(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @Suspended AsyncResponse ar) {
+        retrieve(Target.SeriesPixeldata, studyUID, seriesUID, null, null, null, ar);
     }
 
     @GET
@@ -245,6 +280,26 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
         retrieve(Target.Instance, studyUID, seriesUID, objectUID, null, null, ar);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/bulkdata")
+    public void retrieveInstanceBulkdata(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @PathParam("objectUID") String objectUID,
+            @Suspended AsyncResponse ar) {
+        retrieve(Target.InstanceBulkdata, studyUID, seriesUID, objectUID, null, null, ar);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/pixeldata")
+    public void retrieveInstancePixeldata(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @PathParam("objectUID") String objectUID,
+            @Suspended AsyncResponse ar) {
+        retrieve(Target.InstancePixeldata, studyUID, seriesUID, objectUID, null, null, ar);
     }
 
     @GET
@@ -365,6 +420,12 @@ public class WadoRS {
                 new FrameList(frameList).frames, null, ar);
     }
 
+    private Output bulkdata() {
+        checkMultipartRelatedAcceptable();
+        ignorePatientUpdate = true;
+        return Output.BULKDATA;
+    }
+
     Output bulkdataPath() {
         checkMultipartRelatedAcceptable();
         ignorePatientUpdate = true;
@@ -395,19 +456,25 @@ public class WadoRS {
     }
 
     private enum Target {
-        Study(WadoRS::dicomOrBulkdataOrZIP),
-        Series(WadoRS::dicomOrBulkdataOrZIP),
-        Instance(WadoRS::dicomOrBulkdataOrZIP),
-        Frame(WadoRS::bulkdataFrame),
-        Bulkdata(WadoRS::bulkdataPath),
-        StudyMetadata(WadoRS::metadataJSONorXML),
-        SeriesMetadata(WadoRS::metadataJSONorXML),
-        InstanceMetadata(WadoRS::metadataJSONorXML),
-        RenderedStudy(WadoRS::render),
-        RenderedSeries(WadoRS::render),
-        RenderedInstance(WadoRS::render),
-        RenderedFrame(WadoRS::renderFrame),
-        StudyThumbnail(WadoRS::thumbnail) {
+        Study(WadoRS::dicomOrBulkdataOrZIP, match -> true),
+        Series(WadoRS::dicomOrBulkdataOrZIP, match -> true),
+        Instance(WadoRS::dicomOrBulkdataOrZIP, match -> true),
+        StudyBulkdata(WadoRS::bulkdata, match -> true),
+        SeriesBulkdata(WadoRS::bulkdata, match -> true),
+        InstanceBulkdata(WadoRS::bulkdata, match -> true),
+        StudyPixeldata(WadoRS::bulkdata, InstanceLocations::isImage),
+        SeriesPixeldata(WadoRS::bulkdata, InstanceLocations::isImage),
+        InstancePixeldata(WadoRS::bulkdata, InstanceLocations::isImage),
+        Frame(WadoRS::bulkdataFrame, InstanceLocations::isImage),
+        Bulkdata(WadoRS::bulkdataPath, match -> true),
+        StudyMetadata(WadoRS::metadataJSONorXML, match -> true),
+        SeriesMetadata(WadoRS::metadataJSONorXML, match -> true),
+        InstanceMetadata(WadoRS::metadataJSONorXML, match -> true),
+        RenderedStudy(WadoRS::render, match -> true),
+        RenderedSeries(WadoRS::render, match -> true),
+        RenderedInstance(WadoRS::render, match -> true),
+        RenderedFrame(WadoRS::renderFrame, InstanceLocations::isImage),
+        StudyThumbnail(WadoRS::thumbnail, match -> true) {
             @Override
             public InstanceLocations selectThumbnailInstance(RetrieveContext ctx) {
                 List<InstanceLocations> matches = ctx.getMatches();
@@ -420,18 +487,24 @@ public class WadoRS {
                 return matches.get((i + j) >> 1);
             }
         },
-        SeriesThumbnail(WadoRS::thumbnail),
-        InstanceThumbnail(WadoRS::thumbnail),
-        FrameThumbnail(WadoRS::thumbnail);
+        SeriesThumbnail(WadoRS::thumbnail, match -> true),
+        InstanceThumbnail(WadoRS::thumbnail, match -> true),
+        FrameThumbnail(WadoRS::thumbnail, InstanceLocations::isImage);
 
         final Function<WadoRS,Output> output;
+        final Predicate<InstanceLocations> acceptable;
 
-        Target(Function<WadoRS, Output> output) {
+        Target(Function<WadoRS, Output> output, Predicate<InstanceLocations> acceptable) {
             this.output = output;
+            this.acceptable = acceptable;
         }
 
         Output output(WadoRS wadoRS) {
             return output.apply(wadoRS);
+        }
+
+        public boolean isAcceptable(InstanceLocations match) {
+            return acceptable.test(match);
         }
 
         public InstanceLocations selectThumbnailInstance(RetrieveContext ctx) {
@@ -687,7 +760,7 @@ public class WadoRS {
         }
         output = output.adjust(this, frameList, ctx);
         Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(
-                this, ctx, frameList, attributePath);
+                this, ctx, target, frameList, attributePath);
         if (ctx.getMatches().isEmpty()) {
             Response errResp = notAccepted.isEmpty()
                     ? errResponse("No matches found.", Response.Status.NOT_FOUND)
@@ -768,7 +841,7 @@ public class WadoRS {
         DICOM {
             @Override
             public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
-                    int[] frameList, int[] attributePath) {
+                                                                    Target target, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -811,7 +884,7 @@ public class WadoRS {
         ZIP {
             @Override
             public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
-                    int[] frameList, int[] attributePath) {
+                                                                    Target target, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -923,7 +996,7 @@ public class WadoRS {
         RENDER {
             @Override
             public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
-                    int[] frameList, int[] attributePath) {
+                                                                    Target target, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
 
@@ -946,7 +1019,7 @@ public class WadoRS {
         RENDER_FRAME {
             @Override
             public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
-                    int[] frameList, int[] attributePath) {
+                                                                    Target target, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
 
@@ -968,7 +1041,7 @@ public class WadoRS {
         },
         METADATA_XML {
             @Override
-            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, Target target, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -984,7 +1057,7 @@ public class WadoRS {
         THUMBNAIL {
             @Override
             public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx,
-                    int[] frameList, int[] attributePath) {
+                                                                    Target target, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
 
@@ -1011,7 +1084,7 @@ public class WadoRS {
         },
         METADATA_JSON {
             @Override
-            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+            public List<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx, Target target, int[] frameList, int[] attributePath) {
                 return Collections.EMPTY_LIST;
             }
             @Override
@@ -1045,21 +1118,18 @@ public class WadoRS {
         }
 
         public List<InstanceLocations> removeNotAcceptedMatches(
-                WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+                WadoRS wadoRS, RetrieveContext ctx, Target target, int[] frameList, int[] attributePath) {
             Collection<InstanceLocations> matches = ctx.getMatches();
             List<InstanceLocations> notAcceptable = new ArrayList<>(matches.size());
             Map<String,MediaType> selectedMediaTypes = new HashMap<>(matches.size() * 4 / 3);
             Iterator<InstanceLocations> iter = matches.iterator();
+            MediaType[] mediaTypes;
+            MediaType mediaType;
             while (iter.hasNext()) {
                 InstanceLocations match = iter.next();
-                MediaType[] mediaTypes = mediaTypesFor(match, ctx, attributePath, frameList == null ? 0 : 1);
-                if (mediaTypes == null) {
-                    iter.remove();
-                    continue;
-                }
-                MediaType mediaType =
-                        selectMediaType(wadoRS.acceptableMultipartRelatedMediaTypes, mediaTypes);
-                if (mediaType != null) {
+                if (target.isAcceptable(match) &&
+                        (mediaTypes = mediaTypesFor(match, ctx, attributePath, frameList == null ? 0 : 1)) != null &&
+                        (mediaType = selectMediaType(wadoRS.acceptableMultipartRelatedMediaTypes, mediaTypes)) != null) {
                     selectedMediaTypes.put(match.getSopInstanceUID(), mediaType);
                 } else {
                     iter.remove();
