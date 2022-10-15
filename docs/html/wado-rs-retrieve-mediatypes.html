@@ -1,0 +1,620 @@
+<html>
+<head>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+        }
+        th {
+            vertical-align: bottom;
+            writing-mode: sideways-lr;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <thead>
+        <tr>
+            <td></td>
+            <th>multipart/related; type="application/dicom"</th>
+            <th>multipart/related; type="application/octet-stream"</th>
+            <th>multipart/related; type="image/dicom-rle"</th>
+            <th>multipart/related; type="image/gif"</th>
+            <th>multipart/related; type="image/jls"</th>
+            <th>multipart/related; type="image/jp2"</th>
+            <th>multipart/related; type="image/jpeg"</th>
+            <th>multipart/related; type="image/jpx"</th>
+            <th>multipart/related; type="image/png"</th>
+            <th>multipart/related; type="video/mp4"</th>
+            <th>multipart/related; type="video/mpeg"</th>
+            <th>multipart/related; type="application/pdf"</th>
+            <th>multipart/related; type="text/html"</th>
+            <th>multipart/related; type="text/plain"</th>
+            <th>multipart/related; type="text/rtf"</th>
+            <th>multipart/related; type="text/xml"</th>
+            <th>multipart/related; type="model/stl"</th>
+            <th>multipart/related; type="model/obj"</th>
+            <th>multipart/related; type="model/mtl"</th>
+            <th>multipart/related; type="application/dicom+xml"</th>
+            <th>application/dicom+json</th>
+            <th>image/gif</th>
+            <th>image/jp2</th>
+            <th>image/jpeg</th>
+            <th>image/png</th>
+            <th>video/mp4</th>
+            <th>video/mpeg</th>
+            <th>application/pdf</th>
+            <th>text/html</th>
+            <th>text/plain</th>
+            <th>text/rtf</th>
+            <th>text/xml</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>/studies/{study}</td>
+            <td>D</td>
+            <td title="if Image">RC</td>
+            <td title="if Image">OC</td>
+            <td></td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td></td>
+            <td title="if Video">OC</td>
+            <td title="if Video">OC</td>
+            <td title="if Encapsulated PDF">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if Encapsulated CDA">OC</td>
+            <td title="if Encapsulated STL">OC</td>
+            <td title="if Encapsulated OBJ">OC</td>
+            <td title="if Encapsulated MTL">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}</td>
+            <td>D</td>
+            <td title="if Image">RC</td>
+            <td title="if Image">OC</td>
+            <td></td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td></td>
+            <td title="if Video">OC</td>
+            <td title="if Video">OC</td>
+            <td title="if Encapsulated PDF">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if Encapsulated CDA">OC</td>
+            <td title="if Encapsulated STL">OC</td>
+            <td title="if Encapsulated OBJ">OC</td>
+            <td title="if Encapsulated MTL">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/instance/{instance}</td>
+            <td>D</td>
+            <td title="if Image">RC</td>
+            <td title="if Image">OC</td>
+            <td></td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td></td>
+            <td title="if Video">OC</td>
+            <td title="if Video">OC</td>
+            <td title="if Encapsulated PDF">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if Encapsulated CDA">OC</td>
+            <td title="if Encapsulated STL">OC</td>
+            <td title="if Encapsulated OBJ">OC</td>
+            <td title="if Encapsulated MTL">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/instance/{instance}/frames/{frames}</td>
+            <td></td>
+            <td title="if Image">RC</td>
+            <td title="if Image">OC</td>
+            <td></td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td title="if Image">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/{/bulkdata}</td>
+            <td></td>
+            <td>R</td>
+            <td title="if Image Pixel Data">OC</td>
+            <td></td>
+            <td title="if Image Pixel Data">OC</td>
+            <td title="if Image Pixel Data">OC</td>
+            <td title="if Image Pixel Data">OC</td>
+            <td title="if Image Pixel Data">OC</td>
+            <td></td>
+            <td title="if Video Pixel Data">OC</td>
+            <td title="if Video Pixel Data">OC</td>
+            <td title="if Encapsulated PDF">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if Encapsulated CDA">OC</td>
+            <td title="if Encapsulated STL">OC</td>
+            <td title="if Encapsulated OBJ">OC</td>
+            <td title="if Encapsulated MTL">OC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/metadata</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>R</td>
+            <td>R</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/metadata</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>R</td>
+            <td>R</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/instance/{instance}/metadata</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>R</td>
+            <td>R</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/rendered</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if Image">RC</td>
+            <td></td>
+            <td title="if Image">OC</td>
+            <td title="if Image">DC</td>
+            <td></td>
+            <td title="if Image">RC</td>
+            <td title="if Video">OC</td>
+            <td title="if Video">OC</td>
+            <td title="if Encapsulated PDF or Structured Report">OC</td>
+            <td title="if Structured Report">DC</td>
+            <td title="if Structured Report">RC</td>
+            <td title="if Structured Report">OC</td>
+            <td title="if Encapsulated CDA">RC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/rendered</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if Image">RC</td>
+            <td></td>
+            <td title="if Image">OC</td>
+            <td title="if Image">DC</td>
+            <td></td>
+            <td title="if Image">RC</td>
+            <td title="if Video">OC</td>
+            <td title="if Video">OC</td>
+            <td title="if Encapsulated PDF or Structured Report">OC</td>
+            <td title="if Structured Report">DC</td>
+            <td title="if Structured Report">RC</td>
+            <td title="if Structured Report">OC</td>
+            <td title="if Encapsulated CDA">RC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/instance/{instance}/rendered</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if Multi-frame Image">RC</td>
+            <td></td>
+            <td title="if Multi-frame Image">OC</td>
+            <td title="if Multi-frame Image">DC</td>
+            <td></td>
+            <td title="if Multi-frame Image">RC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if Image">RC</td>
+            <td title="if Single-frame Image">OC</td>
+            <td title="if Single-frame Image">DC</td>
+            <td title="if Single-frame Image">RC</td>
+            <td title="if Video">OC</td>
+            <td title="if Video">OC</td>
+            <td title="if Encapsulated PDF or Structured Report">OC</td>
+            <td title="if Structured Report">DC</td>
+            <td title="if Structured Report">RC</td>
+            <td title="if Structured Report">OC</td>
+            <td title="if Encapsulated CDA">RC</td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/instance/{instance}/frames/{frames}/rendered</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td title="if multiple frames requested">RC</td>
+            <td></td>
+            <td title="if multiple frames requested">OC</td>
+            <td title="if multiple frames requested">DC</td>
+            <td></td>
+            <td title="if multiple frames requested">RC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>R</td>
+            <td title="if single frame requested">OC</td>
+            <td title="if single frame requested">DC</td>
+            <td title="if single frame requested">RC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/thumbnail</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>R</td>
+            <td>O</td>
+            <td>D</td>
+            <td>R</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/thumbnail</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>R</td>
+            <td>O</td>
+            <td>D</td>
+            <td>R</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/instance/{instance}/thumbnail</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>R</td>
+            <td>O</td>
+            <td>D</td>
+            <td>R</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>/studies/{study}/series/{series}/instance/{instance}/frames/{frames}/thumbnail</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>R</td>
+            <td>O</td>
+            <td>D</td>
+            <td>R</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>
