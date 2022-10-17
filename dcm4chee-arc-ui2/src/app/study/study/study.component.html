@@ -24,8 +24,8 @@
         <div class="filter single_block">
           <div class="filter_block" *ngIf="(studyConfig && studyConfig.tab != 'mwl')">
             <div class="line">
-              <a href="" (click)="$event.preventDefault();filter.expand=true" *ngIf="!filter.expand" class="more pull-left" i18n="@@more">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-              <a href="" (click)="$event.preventDefault();filter.expand=false" *ngIf="filter.expand" class="more [hidden] pull-left" i18n="@@close_more_block">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
+              <a href="" (click)="$event.preventDefault();toggleMore(true)" *ngIf="!filter.expand" class="more pull-left" i18n="@@more">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+              <a href="" (click)="$event.preventDefault();toggleMore(false)" *ngIf="filter.expand" class="more [hidden] pull-left" i18n="@@close_more_block">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
               <input *ngIf="patients && patients.length > 0"  i18n-title="@@title.study.search_current_list" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList"  i18n-placeholder="@@placeholder.study.search_current_list" placeholder="Search current list">
             </div>
           </div>

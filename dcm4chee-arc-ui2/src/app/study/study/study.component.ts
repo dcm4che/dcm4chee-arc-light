@@ -264,7 +264,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     currentWebAppClass = "QIDO_RS";
     diffAttributeSets:SelectDropdown<DiffAttributeSet>[];
     storages:SelectDropdown<StorageSystems>[];
-
+    headerTop = {
+        "true":undefined,
+        "false":undefined
+    }
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -423,14 +426,25 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.tableParam.config.headerTop = `${this.stickyHeaderView.nativeElement.scrollHeight}px`;
         }
     }
-
+    toggleMore(expand){
+       this.filter.expand = expand;
+       if(!this.headerTop[expand]){
+           this.headerTop[expand] = this.stickyHeaderView.nativeElement.scrollHeight;
+       }else{
+           this.tableParam.config.headerTop = `${this.headerTop[expand]}px`;
+       }
+       setTimeout(()=>{
+        this.setTopToTableHeader();
+       },1);
+    }
     @HostListener("window:scroll", ['$event'])
     onWindowScroll(e) {
         let html = document.documentElement;
         if(html.scrollTop > 63){
             this.fixedHeader = true;
             this.testShow = false;
-            this.filter.expand = false;
+            //this.filter.expand = false;
+            //this.toggleMore(false);
         }else{
             this.fixedHeader = false;
             this.testShow = true;
