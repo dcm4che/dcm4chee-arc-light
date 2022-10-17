@@ -55,6 +55,7 @@ import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.conf.MergeMWLMatchingKey;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
@@ -121,8 +122,10 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
                 coercion.getCoercionParam("match-by", MergeMWLMatchingKey.ScheduledProcedureStepID.name()));
         String mwlSCP = coercion.getCoercionParam("mwl-scp", null);
         String localMwlSCPs = coercion.getCoercionParam("local-mwl-scp", null);
+        String localMwlStatus = coercion.getCoercionParam("local-mwl-status", null);
         return MergeMWLQueryParam.valueOf(mwlSCP,
-                localMwlSCPs != null ? StringUtils.split(localMwlSCPs, '|') : null,
+                StringUtils.split(localMwlSCPs, '|'),
+                SPSStatus.valuesOf(StringUtils.split(localMwlStatus, '|')),
                 mergeMWLMatchingKey, attrs);
     }
 

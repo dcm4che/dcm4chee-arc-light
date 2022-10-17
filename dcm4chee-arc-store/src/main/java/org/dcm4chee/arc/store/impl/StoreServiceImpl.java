@@ -651,7 +651,7 @@ class StoreServiceImpl implements StoreService {
             return null;
 
         MergeMWLQueryParam queryParam = MergeMWLQueryParam.valueOf(rule.getMergeMWLSCP(), rule.getMergeLocalMWLSCPs(),
-                        mergeMWLMatchingKey, ctx.getAttributes());
+                        rule.getMergeLocalMWLWithStatus(), mergeMWLMatchingKey, ctx.getAttributes());
 
         Cache.Entry<Attributes> entry = mergeMWLCache.getEntry(queryParam);
         if (entry != null)

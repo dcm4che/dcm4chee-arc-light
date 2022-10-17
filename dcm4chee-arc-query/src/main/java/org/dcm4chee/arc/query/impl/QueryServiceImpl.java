@@ -931,6 +931,8 @@ class QueryServiceImpl implements QueryService {
         List<Predicate> predicates = new ArrayList<>();
         if (queryParam.localMwlSCPs.length > 0)
             predicates.add(cb.or(mwlItem.get(MWLItem_.localAET).in(queryParam.localMwlSCPs)));
+        if (queryParam.localMwlStatus.length > 0)
+            predicates.add(cb.or(mwlItem.get(MWLItem_.status).in(queryParam.localMwlStatus)));
         if (queryParam.patientID != null)
             predicates.add(cb.equal(patientID.get(PatientID_.id), queryParam.patientID));
         if (queryParam.accessionNumber != null)

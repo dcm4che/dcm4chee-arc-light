@@ -2144,6 +2144,10 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.440 NAME 'hl7ImportReportMissingAdmissi
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.441 NAME 'dcmMergeLocalMWLWithStatus'
+  DESC 'Only consider MWL items with one of the specified Scheduled Procedure Step Status codes. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELED, DISCONTINUED, COMPLETED. If absent, MWL items with any Scheduled Procedure Step Status are considered.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2708,6 +2712,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmMergeMWLTemplateURI $
     dcmMergeMWLSCP $
     dcmMergeLocalMWLSCP $
+    dcmMergeLocalMWLWithStatus $
     dcmMWLImportFilterBySCU $
     dcmLeadingCFindSCP $
     dcmTag $

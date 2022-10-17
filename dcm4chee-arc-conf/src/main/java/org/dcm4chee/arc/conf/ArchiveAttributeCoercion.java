@@ -76,6 +76,7 @@ public class ArchiveAttributeCoercion {
     private String mergeMWLTemplateURI;
     private String mergeMWLSCP;
     private String[] mergeLocalMWLSCPs = {};
+    private SPSStatus[] mergeLocalMWLWithStatus = {};
     private boolean filterBySCU;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
     private boolean trimISO2022CharacterSet;
@@ -245,6 +246,14 @@ public class ArchiveAttributeCoercion {
 
     public void setMergeLocalMWLSCPs(String... mergeLocalMWLSCPs) {
         this.mergeLocalMWLSCPs = mergeLocalMWLSCPs;
+    }
+
+    public SPSStatus[] getMergeLocalMWLWithStatus() {
+        return mergeLocalMWLWithStatus;
+    }
+
+    public void setMergeLocalMWLWithStatus(SPSStatus... mergeLocalMWLWithStatus) {
+        this.mergeLocalMWLWithStatus = mergeLocalMWLWithStatus;
     }
 
     public boolean isFilterBySCU() {
@@ -466,6 +475,7 @@ public class ArchiveAttributeCoercion {
                 + ", mergeMWLTemplateURI=" + mergeMWLTemplateURI
                 + ", mergeMWLSCP=" + mergeMWLSCP
                 + ", mergeLocalMWLSCPs=" + Arrays.toString(mergeLocalMWLSCPs)
+                + ", mergeLocalMWLStatus=" + Arrays.toString(mergeLocalMWLWithStatus)
                 + ", mwlImportFilterBySCU=" + filterBySCU
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy
                 + ", trimISO2022CharacterSet=" + trimISO2022CharacterSet

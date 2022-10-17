@@ -45,6 +45,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.conf.AttributesBuilder;
 import org.dcm4chee.arc.conf.MergeMWLMatchingKey;
+import org.dcm4chee.arc.conf.SPSStatus;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -56,21 +57,23 @@ import java.util.Objects;
 public class MergeMWLQueryParam {
     public final String mwlSCP;
     public final String[] localMwlSCPs;
+    public final SPSStatus[] localMwlStatus;
     public final String patientID;
     public final String accessionNumber;
     public final String studyIUID;
     public final String spsID;
 
-    public MergeMWLQueryParam(String mwlSCP, String[] localMwlSCPs, String patientID, String accessionNumber, String studyIUID, String spsID) {
+    public MergeMWLQueryParam(String mwlSCP, String[] localMwlSCPs, SPSStatus[] localMwlStatus, String patientID, String accessionNumber, String studyIUID, String spsID) {
         this.mwlSCP = mwlSCP;
         this.localMwlSCPs = localMwlSCPs;
+        this.localMwlStatus = localMwlStatus;
         this.patientID = patientID;
         this.accessionNumber = accessionNumber;
         this.studyIUID = studyIUID;
         this.spsID = spsID;
     }
 
-    public static MergeMWLQueryParam valueOf(String mwlSCP, String[] localMwlSCPs, MergeMWLMatchingKey matchingKey, Attributes attrs) {
+    public static MergeMWLQueryParam valueOf(String mwlSCP, String[] localMwlSCPs, SPSStatus[] localMwlStatus, MergeMWLMatchingKey matchingKey, Attributes attrs) {
         String patientID = null;
         String accessionNumber = null;
         String studyIUID = null;
@@ -97,7 +100,7 @@ public class MergeMWLQueryParam {
                 studyIUID = attrs.getString(Tag.StudyInstanceUID);
                 break;
         }
-        return new MergeMWLQueryParam(mwlSCP, localMwlSCPs, patientID, accessionNumber, studyIUID, spsID);
+        return new MergeMWLQueryParam(mwlSCP, localMwlSCPs, localMwlStatus, patientID, accessionNumber, studyIUID, spsID);
     }
 
     public Attributes setMatchingKeys(Attributes keys) {
@@ -132,6 +135,7 @@ public class MergeMWLQueryParam {
     public int hashCode() {
         int result = Objects.hash(mwlSCP, patientID, accessionNumber, studyIUID, spsID);
         result = 31 * result + Arrays.hashCode(localMwlSCPs);
+        result = 31 * result + Arrays.hashCode(localMwlStatus);
         return result;
     }
 
@@ -140,6 +144,7 @@ public class MergeMWLQueryParam {
         return "MergeMWLQueryParam{" +
                 "mwlSCP='" + mwlSCP +
                 "', localMwlSCPs='" + Arrays.toString(localMwlSCPs) +
+                "', localMwlStatus='" + Arrays.toString(localMwlStatus) +
                 "', patientID='" + patientID +
                 "', accessionNumber='" + accessionNumber +
                 "', studyIUID='" + studyIUID +

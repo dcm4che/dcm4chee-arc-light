@@ -45,5 +45,13 @@ package org.dcm4chee.arc.conf;
  * @since Jun 2016
  */
 public enum SPSStatus {
-    SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELED, DISCONTINUED, COMPLETED
+    SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELED, DISCONTINUED, COMPLETED;
+
+    public static SPSStatus[] valuesOf(String... names) {
+        SPSStatus[] values = new SPSStatus[names.length];
+        for (int i = 0; i < names.length; i++) {
+            values[i] = SPSStatus.valueOf(names[i]);
+        }
+        return values;
+    }
 }
