@@ -920,6 +920,7 @@ public class QueryBuilder {
             }
         }
         Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        String[] spsStatus = null;
         if (sps != null) {
             anyOf(predicates, mwlItem.get(MWLItem_.scheduledProcedureStepID),
                     sps.getStrings(Tag.ScheduledProcedureStepID), false);
@@ -935,12 +936,12 @@ public class QueryBuilder {
             anyOf(predicates, mwlItem.get(MWLItem_.modality),
                     toUpperCase(sps.getStrings(Tag.Modality)), false);
             anyOf(predicates, mwlItem.get(MWLItem_.status), SPSStatus::valueOf,
-                    toUpperCase(sps.getStrings(Tag.ScheduledProcedureStepStatus)));
+                    toUpperCase(spsStatus = sps.getStrings(Tag.ScheduledProcedureStepStatus)));
             String spsAET = sps.getString(Tag.ScheduledStationAETitle, "*");
             if (!isUniversalMatching(spsAET))
                 predicates.add(cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
         }
-        hideSPSWithStatus(predicates, mwlItem, queryParam);
+        if (spsStatus == null) hideSPSWithStatus(predicates, mwlItem, queryParam);
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
