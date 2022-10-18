@@ -2148,6 +2148,18 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.441 NAME 'dcmMergeLocalMWLWithStatus'
   DESC 'Only consider MWL items with one of the specified Scheduled Procedure Step Status codes. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELED, DISCONTINUED, COMPLETED. If absent, MWL items with any Scheduled Procedure Step Status are considered.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.442 NAME 'hl7PSUMppsTemplateURI'
+  DESC 'URL of XSL style sheet to create HL7v2 message to notify configured HL7 receivers about changes of the Status of requested Procedures triggered by MPPS.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.443 NAME 'hl7PSUStudyTemplateURI'
+  DESC 'URL of XSL style sheet to create HL7v2 message to notify configured HL7 receivers about changes of the Status of requested Procedures triggered by received Study.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2394,6 +2406,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
+    hl7PSUMppsTemplateURI $
+    hl7PSUStudyTemplateURI $
     hl7PSUDelay $
     hl7PSUCondition $
     hl7PSUForRequestedProcedure $
@@ -2528,6 +2542,10 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmMWLAccessionNumberGenerator $
     dcmMWLRequestedProcedureIDGenerator $
     dcmMWLScheduledProcedureStepIDGenerator $
+    hl7PSUReceivingApplication $
+    hl7PSUSendingApplication $
+    hl7PSUMppsTemplateURI $
+    hl7PSUStudyTemplateURI $
     hl7PSUDelay $
     hl7PSUCondition $
     hl7PSUForRequestedProcedure $
@@ -2540,9 +2558,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     hl7PSUMWL $
     hl7PSUMWLMatchingKey $
     hl7PSUTimeout $
-    hl7PSUOnTimeout $
-    hl7PSUReceivingApplication $
-    hl7PSUSendingApplication ) )
+    hl7PSUOnTimeout ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
   SUP top STRUCTURAL
