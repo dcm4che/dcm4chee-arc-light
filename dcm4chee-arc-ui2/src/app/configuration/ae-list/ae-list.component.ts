@@ -161,7 +161,7 @@ export class AeListComponent implements OnInit{
             });
         });
         let parameters: any = {
-            content: $localize `:@@select_one_aet:Select one AET:`,
+            content: $localize `:@@select_archive_aet:Select an archive AET:`,
             select: select,
             result: {select: this.aets[0].dicomAETitle},
             bodytext: 'Remote AET: <b>' + ae + '</b>',
