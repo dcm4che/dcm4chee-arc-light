@@ -44,17 +44,44 @@ export class DcmDropDownComponent implements OnInit {
     @Input()
     set options(values:SelectDropdown<any>[]){
         this._options = values;
-        values.forEach(((option:SelectDropdown<any>)=>{
-            if(option.selected){
-                this.selectedDropdown = option;
-                this.selectedValue = option.value;
-            }
-        }))
+        if(values){
+            values.forEach(((option:SelectDropdown<any>)=>{
+                if(option.selected){
+                    this.selectedDropdown = option;
+                    this.selectedValue = option.value;
+                }
+            }))
+        }else{
+            this.selectedDropdown = undefined;
+            this.selectedValue = undefined;
+        }
     };
     get options():SelectDropdown<any>[]{
         return this._options;
     }
-    @Input() optionsTree:{label:string, options:SelectDropdown<any>[]}[];
+    _optionsTree;
+    @Input()
+    set optionsTree(value:{label:string, options:SelectDropdown<any>[]}[]){
+        this._optionsTree = value;
+        if(value){
+            try{
+                value.forEach(el=>{
+                    el.options.forEach(option=>{
+                        if(option.selected){
+                            this.selectedDropdown = option;
+                            this.selectedValue = option.value;
+                        }
+                    });
+                })
+            }catch (e) {
+                console.error("Value not undefined but selectedValue could not be set",e);
+                console.log("Value:",value);
+            }
+        }
+    }
+    get optionsTree(){
+        return this._optionsTree;
+    }
     @Input() editable:boolean = false;
     @Input() min:number;
     @Input() max:number;
