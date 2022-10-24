@@ -4,6 +4,7 @@ import {StudyService} from "../../study/study/study.service";
 import {j4care} from "../../helpers/j4care.service";
 import * as _ from 'lodash-es';
 import {forkJoin} from "rxjs";
+import {TrimPipe} from "../../pipes/trim.pipe";
 declare var DCM4CHE: any;
 
 @Component({
@@ -33,16 +34,21 @@ export class ModifiedWidgetComponent implements OnInit {
   constructor(
       private studyService:StudyService
   ) { }
-
+  Object = Object;
+  Array = Array;
   allModified=false;
-  modifiedAttr;
+  modifiedAttr = new Set();
   iod:SelectDropdown<any>[];
+  stateTextHover = "";
   ngOnInit(): void {
     if(!this.iodFileNames || this.iodFileNames.length === 0){
       this.iodFileNames = [
           "patient",
           "study"
       ];
+    }
+    if(!this.placeholder){
+      this.placeholder = "Modified";
     }
     this.getIodObjects();
   }
@@ -57,14 +63,38 @@ export class ModifiedWidgetComponent implements OnInit {
   }
   iodToSelectedDropdown(iodObject):SelectDropdown<any>[]{
     return this.getAllAttributeKeyPathsFromIODObject(iodObject).map(iodKey=>{
-      let label = iodKey.replace(/(\w){8}/g,(g)=>{ // get DICOM label [chain] to key [chain]
-        return DCM4CHE.elementName.forTag(g);
-      });
+      let label = this.getLabelFromIODTag(iodKey);
       return new SelectDropdown(iodKey,label,`${label} ( ${iodKey} )`,undefined,undefined,{
         key:iodKey,
         label:label
       });
     });
+  }
+  getLabelFromIODTag(dicomTagPath){
+      return dicomTagPath.replace(/(\w){8}/g,(g)=>{ // get DICOM label [chain] to key [chain]
+      return DCM4CHE.elementName.forTag(g);
+    });
+  }
+  remove(attr){
+    try {
+      this.modifiedAttr.delete(attr);
+    }catch (e) {
+
+    }
+  }
+  newAttribute;
+  trim = new TrimPipe();
+  addAttribute(e){
+    try{
+      console.log("newAttribute",this.newAttribute)
+      console.log("toggleattr",e);
+      if(!this.modifiedAttr.has(e) && this.newAttribute){
+        this.modifiedAttr.add(e);
+      }
+      this.newAttribute = undefined;
+    }catch (e) {(e)
+
+    }
   }
   getAllAttributeKeyPathsFromIODObject(iodObject){
     return _.uniqWith(
@@ -79,16 +109,19 @@ export class ModifiedWidgetComponent implements OnInit {
   }
   hardClear(){
     this.allModified = false;
-    this.modifiedAttr = [];
+    this.modifiedAttr.clear();
     this.stateText = "";
+    this.stateTextHover = "";
     this.modelChange.emit(undefined);
   }
   changeAllModified(e){
     this.allModified = e.target.checked;
     if(this.allModified){
       this.stateText = "All modified";
+      this.stateTextHover = "All modified";
     }else{
       this.stateText = "";
+      this.stateTextHover = "";
     }
   }
   filterChanged(){}
@@ -98,18 +131,22 @@ export class ModifiedWidgetComponent implements OnInit {
         allmodified:true
       })
     }else{
-      if(this.modifiedAttr && this.modifiedAttr.length > 0){
+      if(this.modifiedAttr && this.modifiedAttr.size > 0){
         this.modelChange.emit({
-          allmodified:false,
-          modified:this.modifiedAttr
+          modified:Array.from(this.modifiedAttr.values())
         });
+        if(this.modifiedAttr && this.modifiedAttr.size > 0  && this.modifiedAttr.size){
+          this.stateText = this.trim.transform(Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", "),18);
+        }
+        //this.stateText = Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", ");
+        this.stateTextHover = Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", ");
       }
     }
     this.selectorOpen = false;
   }
   modifiedAttrChanged(e){
-    if(this.modifiedAttr && this.modifiedAttr.length > 0){
-      this.stateText = `( ${this.modifiedAttr.length} ) selected`;
+    if(this.modifiedAttr && this.modifiedAttr.size > 0){
+      this.stateText = `( ${this.modifiedAttr.size} ) selected`;
     }else{
       this.stateText = "";
     }

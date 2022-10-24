@@ -13,6 +13,10 @@ $height:27px;
     padding-left: 6px;
     color: #777;
     font-style: italic;
+    &.black{
+      color:black;
+      font-style: normal;
+    }
   }
   .filter_button{
     background: rgba(28, 36, 43, 0.92);
@@ -39,6 +43,12 @@ $height:27px;
         width: 50%;
         float: right;
       }
+    }
+  }
+  .add_block{
+    margin-top:15px;
+    .material-icons{
+      margin-top:3px;
     }
   }
 }
@@ -70,6 +80,28 @@ $height:27px;
       input[type=checkbox]{
         width: 10%;
         min-height: 15px;
+      }
+    }
+  }
+  ul{
+    padding:0;
+    list-style: none;
+    li{
+      border: 1px solid;
+      padding-left: 9px;
+      float: left;
+      width: 100%;
+      vertical-align: middle;
+      label,dcm-drop-down{
+        width:calc( 100% - 24px);
+        float: left;
+      }
+      i.material-icons{
+        float: right;
+        background: rgb(6 29 47 / 84%);
+        color: white;
+        cursor: pointer;
+        width:24px;
       }
     }
   }
