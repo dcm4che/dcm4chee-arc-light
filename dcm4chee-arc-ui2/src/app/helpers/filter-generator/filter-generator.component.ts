@@ -108,6 +108,17 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
                });
            }
         }
+        if(this.schema){
+/*            const test = _.flattenDepth(this.schema,this._filterTreeHeight).forEach(element=>{
+                console.log("element",element);
+            });*/
+            j4care.penetrateArrayToObject(this.schema,(obj)=>{
+                if(obj.hasOwnProperty("type") && obj["type"] === "dynamic-attributes" && obj.hasOwnProperty("iodFileNames")){
+                    console.log("iodFilenames",obj["iodFileNames"]);
+                    //TODO get iods and show them as dropdown
+                }
+            });
+        }
         this.onTemplateSet.emit(this.model);
     }
 

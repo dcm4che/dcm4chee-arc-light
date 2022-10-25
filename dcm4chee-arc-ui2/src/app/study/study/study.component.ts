@@ -3865,7 +3865,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 description:$localize `:@@updatePolicy:Update Policy`,
                                 placeholder:$localize `:@@updatePolicy:Update Policy`
                             }
-                        ]
+                        ],
+                    [
+                        {
+                            type:"label_large",
+                            description:$localize `:@@updatePolicy:Set attribute and value`,
+                        },{
+                            type:"dynamic-attributes",
+                            iodFileNames:[
+                                "patient",
+                                "study"
+                            ]
+
+                        }
+                    ]
                 ]
             ],
             result: {

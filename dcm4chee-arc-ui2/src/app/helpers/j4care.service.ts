@@ -54,6 +54,16 @@ export class j4care {
         return object;
     }
 
+    static penetrateArrayToObject(array:any, func:Function){
+        if(array instanceof Object && !(array instanceof Array)){
+            func.call(this,array);
+        }else if(array instanceof Array){
+            array.forEach(subEl=>{
+                this.penetrateArrayToObject(subEl,func);
+            })
+        }
+    }
+
     static removeKeyFromObject(object, toRemoveKey){
         if(_.isArray(toRemoveKey)){
             toRemoveKey.forEach(k=>{
