@@ -24,6 +24,9 @@ $height:27px;
     position: absolute;
     top: 0;
     right: 0;
+    width: 24px;
+    line-height: 27px;
+    text-align: center;
     height: $height;
     &:hover{
       cursor: pointer;
@@ -46,9 +49,20 @@ $height:27px;
     }
   }
   .add_block{
-    margin-top:15px;
-    .material-icons{
-      margin-top:3px;
+    margin-bottom: 15px;
+    float: left;
+    width: 100%;
+    border:1px solid black;
+    dcm-drop-down{
+      width:calc( 100% - 24px);
+      float: left;
+    }
+    i.material-icons{
+      float: right;
+      background: rgb(6 29 47 / 84%);
+      color: white;
+      cursor: pointer;
+      width:24px;
     }
   }
 }
@@ -86,13 +100,17 @@ $height:27px;
   ul{
     padding:0;
     list-style: none;
+    float: left;
+    max-height: 125px;
+    overflow: auto;
+    width: 100%;
     li{
       border: 1px solid;
       padding-left: 9px;
       float: left;
       width: 100%;
       vertical-align: middle;
-      label,dcm-drop-down{
+      label{
         width:calc( 100% - 24px);
         float: left;
       }
