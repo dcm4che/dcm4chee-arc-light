@@ -187,11 +187,11 @@ public class StudyMgtRS {
             return errResponse("Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload",
                             Response.Status.BAD_REQUEST);
 
-        Patient patient = patientService.findPatient(patientID);
-        if (patient == null)
-            return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
-
         try {
+            Patient patient = patientService.findPatient(patientID);
+            if (patient == null)
+                return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
+
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setPatient(patient);
@@ -208,6 +208,8 @@ public class StudyMgtRS {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (PatientMismatchException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
+        } catch (NonUniquePatientException | PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -239,11 +241,11 @@ public class StudyMgtRS {
             return errResponse("Series UID in request does not match Series UID in request payload",
                             Response.Status.BAD_REQUEST);
 
-        Patient patient = patientService.findPatient(patientID);
-        if (patient == null)
-            return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
-
         try {
+            Patient patient = patientService.findPatient(patientID);
+            if (patient == null)
+                return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
+
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setPatient(patient);
@@ -262,6 +264,8 @@ public class StudyMgtRS {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (PatientMismatchException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
+        } catch (NonUniquePatientException | PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

@@ -168,20 +168,20 @@ public class PamRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
 
-        Patient patient = patientService.findPatient(patientID);
-        if (patient == null)
-            return errResponse("Patient having patient ID : " + patientID + " not found.",
-                            Response.Status.NOT_FOUND);
-        AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
-        String patientDeleteForbidden = allowDeletePatient == AllowDeletePatient.NEVER
-                ? "Patient deletion as per configuration is never allowed."
-                : allowDeletePatient == AllowDeletePatient.WITHOUT_STUDIES && patient.getNumberOfStudies() > 0
-                ? "Patient having patient ID : " + patientID + " has non empty studies."
-                : null;
-        if (patientDeleteForbidden != null)
-            return errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN);
-
         try {
+            Patient patient = patientService.findPatient(patientID);
+            if (patient == null)
+                return errResponse("Patient having patient ID : " + patientID + " not found.",
+                        Response.Status.NOT_FOUND);
+            AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
+            String patientDeleteForbidden = allowDeletePatient == AllowDeletePatient.NEVER
+                    ? "Patient deletion as per configuration is never allowed."
+                    : allowDeletePatient == AllowDeletePatient.WITHOUT_STUDIES && patient.getNumberOfStudies() > 0
+                    ? "Patient having patient ID : " + patientID + " has non empty studies."
+                    : null;
+            if (patientDeleteForbidden != null)
+                return errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN);
+
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
             ctx.setPatientID(patientID);

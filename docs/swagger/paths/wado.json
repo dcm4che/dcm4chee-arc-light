@@ -116,6 +116,9 @@
         "404": {
           "description": "No such Application Entity or Patient or Study"
         },
+        "409": {
+          "description": "Non Unique Patient or Patient is already merged exception."
+        },
         "500": {
           "description": "Internal Server Error."
         }
@@ -294,6 +297,9 @@
         },
         "404": {
           "description": "No such Application Entity or Series"
+        },
+        "409": {
+          "description": "Non Unique Patient or Patient is already merged exception."
         },
         "500": {
           "description": "Internal Server Error."
