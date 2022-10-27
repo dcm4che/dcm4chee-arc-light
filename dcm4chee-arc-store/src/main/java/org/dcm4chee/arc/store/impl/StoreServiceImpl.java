@@ -297,9 +297,9 @@ class StoreServiceImpl implements StoreService {
         Instance instance = result.getCreatedInstance();
         if (instance != null) {
             Patient createdPatient = result.getCreatedPatient();
-            if (result.getCreatedPatient() != null) {
+            if (createdPatient != null) {
                 IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
-                if (pid != null && pid.getIssuer() == null) {
+                if (pid != null) {
                     synchronized (this) {
                         try {
                             ejb.checkDuplicatePatientCreated(ctx, pid, result);

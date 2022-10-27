@@ -85,22 +85,18 @@ public class PatientServiceEJB {
                 .getResultList();
         Issuer issuer = pid.getIssuer();
         removeNonMatchingIssuer(list, issuer);
-        if (list.size() > 1) {
-            if (issuer != null) {
-                removeWithoutIssuer(list);
+        if (list.size() > 1 && issuer != null) {
+            List<Patient> withIssuer = list.stream()
+                    .filter(patient -> patient.getPatientID().getIssuer() != null)
+                    .collect(Collectors.toList());
+            if (withIssuer.size() > 1) {
+                withIssuer.removeIf(patient -> patient.getPatientID().getIssuer().getUniversalEntityID() == null);
             }
-            if (list.size() > 1 && issuer != null)
-                removeLessQualifiedIssuer(list);
+            if (!withIssuer.isEmpty()) {
+                return withIssuer;
+            }
         }
         return list;
-    }
-
-    private void removeWithoutIssuer(List<Patient> list) {
-        for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
-            Issuer issuer = it.next().getPatientID().getIssuer();
-            if (issuer == null)
-                it.remove();
-        }
     }
 
     private void removeNonMatchingIssuer(List<Patient> list, Issuer issuer) {
@@ -110,14 +106,6 @@ public class PatientServiceEJB {
                 if (other != null && !other.matches(issuer))
                     it.remove();
             }
-        }
-    }
-
-    private void removeLessQualifiedIssuer(List<Patient> list) {
-        for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
-            Issuer other = it.next().getPatientID().getIssuer();
-            if (other != null && other.getUniversalEntityID() == null && other.getUniversalEntityIDType() == null)
-                it.remove();
         }
     }
 
