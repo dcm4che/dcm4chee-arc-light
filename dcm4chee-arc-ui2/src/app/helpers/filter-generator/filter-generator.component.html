@@ -253,24 +253,28 @@
                   </ng-container>
                     <div *ngSwitchCase="'dummy'"></div>
                     <label *ngSwitchCase="'label_large'" class="label_large">{{line[index].text}}</label>
-                    <div class="dynamic-attributes" *ngSwitchCase="'dynamic-attributes'"><!--
-                        <div *ngIf="!allModified && iod" >
-                            <div class="add_block" [ngClass]="{'empty':modifiedAttr.size === 0}">
-                                <dcm-drop-down
-                                        [options]="iod"
-                                        [(model)]="newAttribute"
-                                        [showSearchField]="true"
-                                        [multiSelectMode]="false"
-                                        [placeholder]="placeholder"
-                                ></dcm-drop-down>
-                                <i title="Add" class="material-icons" (click)="addAttribute(newAttribute)">add</i>
-                            </div>
-                            <ul class="modified_list">
-                                <li *ngFor="let attr of Array.from(modifiedAttr.values())">
-                                    <label title="{{attr}}">{{getLabelFromIODTag(attr)}}</label><i title="Delete" (click)="remove(attr)" class="material-icons">clear</i>
+                    <div class="dynamic-attributes" *ngSwitchCase="'dynamic-attributes'">
+                        <div *ngIf="dynamicAttributeConfig.iods" >
+
+                            <ul class="modified_list" *ngIf="dynamicAttributeConfig.dynamicAttributes && dynamicAttributeConfig.dynamicAttributes.size > 0">
+                                <li *ngFor="let attr of Array.from(dynamicAttributeConfig.dynamicAttributes.keys())">
+                                    <label title="{{attr}}">{{getLabelFromIODTag(attr)}}</label>
+                                    <label class="value">{{dynamicAttributeConfig.dynamicAttributes.get(attr)}}</label>
+                                    <i title="Delete" (click)="removeDynamicAttribute(attr)" class="material-icons">clear</i>
                                 </li>
                             </ul>
-                        </div>-->
+                            <div class="add_block">
+                                <dcm-drop-down
+                                        [options]="dynamicAttributeConfig.iods"
+                                        [(model)]="dynamicAttributeConfig.newAttribute"
+                                        [showSearchField]="true"
+                                        [multiSelectMode]="false"
+                                        [placeholder]="dynamicAttributeConfig.dropdownPlaceholder"
+                                ></dcm-drop-down>
+                                <input type="text" [(ngModel)]="dynamicAttributeConfig.newValue">
+                                <i title="Add" class="material-icons" (click)="addNewDynamicAttribute()">add</i>
+                            </div>
+                        </div>
                     </div>
                     <button (click)="submitEmit(line[index].id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[index].description}}">
                         <span *ngIf="line[index].showRefreshIcon" class="glyphicon glyphicon-refresh"></span>

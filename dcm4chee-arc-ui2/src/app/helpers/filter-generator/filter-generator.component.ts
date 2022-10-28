@@ -16,6 +16,7 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
 import {RangePickerService} from "../../widgets/range-picker/range-picker.service";
+import {StudyService} from "../../study/study/study.service";
 
 @Component({
     selector: 'filter-generator',
@@ -48,7 +49,14 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     showFilterButtons = false;
     hoverActive = false;
     noFilterFound = false;
-
+    Array = Array;
+    dynamicAttributeConfig = {
+        iods:[],
+        dynamicAttributes:null,
+        newAttribute:null,
+        newValue:null,
+        dropdownPlaceholder:$localize `:@@select_attribute:Select attribute`
+    }
 
     constructor(
         private inj:Injector,
@@ -58,7 +66,8 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         public config: MatDialogConfig,
         private deviceConfigurator:DeviceConfiguratorService,
         private devices:DevicesService,
-        private rangePicker:RangePickerService
+        private rangePicker:RangePickerService,
+        private studyService:StudyService
     ) {
         console.log("test",this._filterTreeHeight)
     }
@@ -113,15 +122,24 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
                 console.log("element",element);
             });*/
             j4care.penetrateArrayToObject(this.schema,(obj)=>{
-                if(obj.hasOwnProperty("type") && obj["type"] === "dynamic-attributes" && obj.hasOwnProperty("iodFileNames")){
+                if(obj.hasOwnProperty("tag") && obj["tag"] === "dynamic-attributes" && obj.hasOwnProperty("iodFileNames")){
                     console.log("iodFilenames",obj["iodFileNames"]);
-                    //TODO get iods and show them as dropdown
+                    const iodFileNames = obj["iodFileNames"] || [
+                        "patient",
+                        "study"
+                    ];
+                    this.studyService.getIodObjectsFromNames(iodFileNames).subscribe(iod=>{
+                        this.dynamicAttributeConfig.iods = this.studyService.iodToSelectedDropdown(iod.reduce((n0,n1)=>Object.assign(n0,n1)));
+                    });
                 }
             });
         }
         this.onTemplateSet.emit(this.model);
     }
 
+    getLabelFromIODTag(dicomTagPath){
+        return this.studyService.getLabelFromIODTag(dicomTagPath);
+    }
     onKeyUp(e){
         console.log("e",e.code);
         if(e.keyCode === 13){
@@ -129,6 +147,16 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         }
     }
 
+    addNewDynamicAttribute(){
+        this.dynamicAttributeConfig.dynamicAttributes = this.dynamicAttributeConfig.dynamicAttributes || new Map();
+        if(this.dynamicAttributeConfig.newAttribute && this.dynamicAttributeConfig.newValue){
+            this.dynamicAttributeConfig.dynamicAttributes.set(this.dynamicAttributeConfig.newAttribute,this.dynamicAttributeConfig.newValue);
+        }
+    }
+
+    removeDynamicAttribute(attr){
+        console.log("attr",attr);
+    }
     submitEmit(id){
         this.model = j4care.clearEmptyObject(this.model);
       if(id){

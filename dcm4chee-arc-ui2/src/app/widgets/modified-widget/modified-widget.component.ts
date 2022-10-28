@@ -53,27 +53,12 @@ export class ModifiedWidgetComponent implements OnInit {
     this.getIodObjects();
   }
   getIodObjects(){
-    const iodServices = [];
-    this.iodFileNames.forEach(iodFileName=>{
-      iodServices.push(this.studyService.getIod(iodFileName));
-    });
-    forkJoin(iodServices).subscribe(iod=>{
-      this.iod = this.iodToSelectedDropdown(iod.reduce((n0,n1)=>Object.assign(n0,n1)));
-    });
-  }
-  iodToSelectedDropdown(iodObject):SelectDropdown<any>[]{
-    return this.getAllAttributeKeyPathsFromIODObject(iodObject).map(iodKey=>{
-      let label = this.getLabelFromIODTag(iodKey);
-      return new SelectDropdown(iodKey,label,`${label} ( ${iodKey} )`,undefined,undefined,{
-        key:iodKey,
-        label:label
-      });
+    this.studyService.getIodObjectsFromNames(this.iodFileNames).subscribe(iod=>{
+      this.iod = this.studyService.iodToSelectedDropdown(iod.reduce((n0,n1)=>Object.assign(n0,n1)));
     });
   }
   getLabelFromIODTag(dicomTagPath){
-      return dicomTagPath.replace(/(\w){8}/g,(g)=>{ // get DICOM label [chain] to key [chain]
-      return DCM4CHE.elementName.forTag(g);
-    });
+    return this.studyService.getLabelFromIODTag(dicomTagPath);
   }
   remove(attr){
     try {
@@ -96,14 +81,7 @@ export class ModifiedWidgetComponent implements OnInit {
 
     }
   }
-  getAllAttributeKeyPathsFromIODObject(iodObject){
-    return _.uniqWith(
-        Object.keys(j4care.flatten(iodObject)).map(key=>{
-          return key.replace(/\.items|\.enum|\.multi|\.required|\.vr|\[\w\]/g,""); //remove everything that is not a DICOM attribute
-        }),
-        _.isEqual
-    );
-  }
+
   toggleSelector(){
     this.selectorOpen = !this.selectorOpen;
   }
@@ -136,10 +114,10 @@ export class ModifiedWidgetComponent implements OnInit {
           modified:Array.from(this.modifiedAttr.values())
         });
         if(this.modifiedAttr && this.modifiedAttr.size > 0  && this.modifiedAttr.size){
-          this.stateText = this.trim.transform(Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", "),18);
+          this.stateText = this.trim.transform(Array.from(this.modifiedAttr.values()).map(kode=>this.studyService.getLabelFromIODTag(kode)).join(", "),18);
         }
         //this.stateText = Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", ");
-        this.stateTextHover = Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", ");
+        this.stateTextHover = Array.from(this.modifiedAttr.values()).map(kode=>this.studyService.getLabelFromIODTag(kode)).join(", ");
       }
     }
     this.selectorOpen = false;

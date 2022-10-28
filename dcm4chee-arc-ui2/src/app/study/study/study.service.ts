@@ -4177,6 +4177,37 @@ export class StudyService {
             }));
         }
     }
+    getIodObjectsFromNames(iodFileNames:string[]){
+        const iodServices = [];
+        iodFileNames.forEach(iodFileName=>{
+            iodServices.push(this.getIod(iodFileName));
+        });
+        return forkJoin(iodServices);
+    }
+
+    iodToSelectedDropdown(iodObject):SelectDropdown<any>[]{
+        return this.getAllAttributeKeyPathsFromIODObject(iodObject).map(iodKey=>{
+            let label = this.getLabelFromIODTag(iodKey);
+            return new SelectDropdown(iodKey,label,`${label} ( ${iodKey} )`,undefined,undefined,{
+                key:iodKey,
+                label:label
+            });
+        });
+    }
+
+    getLabelFromIODTag(dicomTagPath){
+        return dicomTagPath.replace(/(\w){8}/g,(g)=>{ // get DICOM label [chain] to key [chain]
+            return DCM4CHE.elementName.forTag(g);
+        });
+    }
+    getAllAttributeKeyPathsFromIODObject(iodObject){
+        return _.uniqWith(
+            Object.keys(j4care.flatten(iodObject)).map(key=>{
+                return key.replace(/\.items|\.enum|\.multi|\.required|\.vr|\[\w\]/g,""); //remove everything that is not a DICOM attribute
+            }),
+            _.isEqual
+        );
+    }
 
     /*
     *
