@@ -83,7 +83,7 @@ public class MWLCFindSCP extends BasicCFindSCP {
 
     @Override
     protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys) throws DicomServiceException {
-        LOG.info("{}: Process MWL C-FIND RQ:\n{}", as, keys);
+        LOG.info("{}: Process MWL C-FIND RQ:\n{}", as, keys.toString(keys.size(), 78));
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
