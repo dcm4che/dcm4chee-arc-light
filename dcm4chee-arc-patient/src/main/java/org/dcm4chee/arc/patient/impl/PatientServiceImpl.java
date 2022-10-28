@@ -56,6 +56,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,8 +107,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public List<Patient> findPatients(IDWithIssuer pid) {
-        return ejb.findPatients(pid);
+    public List<Patient> findPatientsAfter(IDWithIssuer pid, Date after) {
+        return ejb.findPatientsAfter(pid, after);
     }
 
     @Override

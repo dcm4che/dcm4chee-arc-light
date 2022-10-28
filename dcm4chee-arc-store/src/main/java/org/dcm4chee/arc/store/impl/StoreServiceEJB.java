@@ -1817,12 +1817,8 @@ public class StoreServiceEJB {
             }
     }
 
-    public void checkDuplicatePatientCreated(StoreContext ctx, IDWithIssuer pid, UpdateDBResult result) {
-        List<Patient> patients = patientService.findPatients(pid);
-        if (patients.size() == 1)
-            return;
-
-        patients.removeIf(p -> !ctx.getAttributes().matches(p.getAttributes(), false, false));
+    public void checkDuplicatePatientCreated(StoreContext ctx, IDWithIssuer pid, UpdateDBResult result, Date after) {
+        List<Patient> patients = patientService.findPatientsAfter(pid, after);
         if (patients.size() == 1)
             return;
 

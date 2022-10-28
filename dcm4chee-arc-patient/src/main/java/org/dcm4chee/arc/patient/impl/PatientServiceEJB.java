@@ -84,8 +84,25 @@ public class PatientServiceEJB {
                 .setParameter(1, pid.getID())
                 .getResultList();
         Issuer issuer = pid.getIssuer();
-        removeNonMatchingIssuer(list, issuer);
-        if (list.size() > 1 && issuer != null) {
+        return issuer != null ? removeNonMatchingIssuer(list, issuer) : list;
+    }
+
+    public List<Patient> findPatientsAfter(IDWithIssuer pid, Date after) {
+        List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID_AFTER, Patient.class)
+                .setParameter(1, pid.getID())
+                .setParameter(2, after)
+                .getResultList();
+        Issuer issuer = pid.getIssuer();
+        return issuer != null ? removeNonMatchingIssuer(list, issuer) : list;
+    }
+
+    private List<Patient> removeNonMatchingIssuer(List<Patient> list, Issuer issuer) {
+        for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
+            Issuer other = it.next().getPatientID().getIssuer();
+            if (other != null && !other.matches(issuer))
+                it.remove();
+        }
+        if (list.size() > 1) {
             List<Patient> withIssuer = list.stream()
                     .filter(patient -> patient.getPatientID().getIssuer() != null)
                     .collect(Collectors.toList());
@@ -97,16 +114,6 @@ public class PatientServiceEJB {
             }
         }
         return list;
-    }
-
-    private void removeNonMatchingIssuer(List<Patient> list, Issuer issuer) {
-        if (issuer != null) {
-            for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
-                Issuer other = it.next().getPatientID().getIssuer();
-                if (other != null && !other.matches(issuer))
-                    it.remove();
-            }
-        }
     }
 
     public Patient createPatient(PatientMgtContext ctx) {

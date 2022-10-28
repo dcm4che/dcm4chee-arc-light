@@ -50,6 +50,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +70,7 @@ public interface PatientService {
 
     PatientMgtContext createPatientMgtContextScheduler();
 
-    List<Patient> findPatients(IDWithIssuer pid);
+    List<Patient> findPatientsAfter(IDWithIssuer pid, Date after);
 
     Patient findPatient(IDWithIssuer pid);
 
