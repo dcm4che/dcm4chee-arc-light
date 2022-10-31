@@ -340,6 +340,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMessageType",
                 ext.getHl7PSUMessageType(), HL7PSUMessageType.OMG_O19);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUCondition", ext.getHl7PSUConditions().getMap());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMppsTemplateURI", ext.getHl7PSUMppsTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUStudyTemplateURI", ext.getHl7PSUStudyTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmProxyUpstreamURL",
@@ -707,6 +709,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUMessageType(
                 LdapUtils.enumValue(HL7PSUMessageType.class, attrs.get("hl7PSUMessageType"), HL7PSUMessageType.OMG_O19));
         ext.setHl7PSUConditions(new Conditions(LdapUtils.stringArray(attrs.get("hl7PSUCondition"))));
+        ext.setHl7PSUMppsTemplateURI(LdapUtils.stringValue(attrs.get("hl7PSUMppsTemplateURI"), null));
+        ext.setHl7PSUStudyTemplateURI(LdapUtils.stringValue(attrs.get("hl7PSUStudyTemplateURI"), null));
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), AcceptConflictingPatientID.MERGED));
@@ -1197,6 +1201,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHl7PSUMessageType(), bb.getHl7PSUMessageType(), HL7PSUMessageType.OMG_O19);
         LdapUtils.storeDiffProperties(ldapObj, mods, "hl7PSUCondition",
                 aa.getHl7PSUConditions().getMap(), bb.getHl7PSUConditions().getMap());
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMppsTemplateURI",
+                aa.getHl7PSUMppsTemplateURI(), bb.getHl7PSUMppsTemplateURI(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUStudyTemplateURI",
+                aa.getHl7PSUStudyTemplateURI(), bb.getHl7PSUStudyTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(),
                 AcceptConflictingPatientID.MERGED);
@@ -1758,6 +1766,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHl7PSUPlacerOrderNumber(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMessageType", ext.getHl7PSUMessageType(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUCondition", ext.getHl7PSUConditions().getMap());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMppsTemplateURI",
+                ext.getHl7PSUMppsTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUStudyTemplateURI",
+                ext.getHl7PSUStudyTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy",
@@ -1922,6 +1934,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUMessageType(
                 LdapUtils.enumValue(HL7PSUMessageType.class, attrs.get("hl7PSUMessageType"), null));
         ext.setHl7PSUConditions(new Conditions(LdapUtils.stringArray(attrs.get("hl7PSUCondition"))));
+        ext.setHl7PSUMppsTemplateURI(LdapUtils.stringValue(attrs.get("hl7PSUMppsTemplateURI"), null));
+        ext.setHl7PSUStudyTemplateURI(LdapUtils.stringValue(attrs.get("hl7PSUStudyTemplateURI"), null));
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), null));
@@ -2167,6 +2181,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHl7PSUMessageType(), bb.getHl7PSUMessageType(), null);
         LdapUtils.storeDiffProperties(ldapObj, mods, "hl7PSUCondition",
                 aa.getHl7PSUConditions().getMap(), bb.getHl7PSUConditions().getMap());
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMppsTemplateURI",
+                aa.getHl7PSUMppsTemplateURI(), bb.getHl7PSUMppsTemplateURI(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUStudyTemplateURI",
+                aa.getHl7PSUStudyTemplateURI(), bb.getHl7PSUStudyTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCopyMoveUpdatePolicy",

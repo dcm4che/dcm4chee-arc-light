@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output method="xml" />
+    <xsl:include href="hl7-common-outgoing.xsl"/>
+    <xsl:param name="sender" />
+    <xsl:param name="receiver" />
+    <xsl:param name="dateTime" />
+    <xsl:param name="msgControlID" />
+    <xsl:param name="msgType" />
+    <xsl:param name="charset" />
+    <xsl:param name="isPIDPV1" />
+    <xsl:param name="includeNullValues" />
+
+    <xsl:template match="/NativeDicomModel">
+        <hl7>
+            <xsl:call-template name="MSH">
+                <xsl:with-param name="sender" select="$sender"/>
+                <xsl:with-param name="receiver" select="$receiver"/>
+                <xsl:with-param name="dateTime" select="$dateTime"/>
+                <xsl:with-param name="msgType">
+                    <xsl:call-template name="hl7MsgType"/>
+                </xsl:with-param>
+                <xsl:with-param name="msgControlID" select="$msgControlID"/>
+                <xsl:with-param name="charset" select="$charset"/>
+            </xsl:call-template>
+            <xsl:if test="$isPIDPV1 = true() or starts-with($msgType, 'ORU')">
+                <xsl:call-template name="PID">
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+                <xsl:call-template name="PV1" />
+            </xsl:if>
+            <xsl:call-template name="ORC" />
+            <xsl:call-template name="OBR" />
+            <xsl:call-template name="TQ1" />
+            <xsl:call-template name="OBX-uid">
+                <xsl:with-param name="tag" select="'0020000D'"/>
+            </xsl:call-template>
+        </hl7>
+    </xsl:template>
+
+    <xsl:template name="hl7MsgType">
+        <xsl:choose>
+            <xsl:when test="starts-with($msgType, 'OMG')">
+                <xsl:value-of select="'OMG^O19^OMG_O19'"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="'ORU^R01^ORU_R01'"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="PV1">
+        <xsl:variable name="routeOfAdmissions" select="DicomAttribute[@tag='00380016']/Value"/>
+        <PV1>
+            <field/>
+            <field>
+                <xsl:choose>
+                    <xsl:when test="$routeOfAdmissions">
+                        <xsl:value-of select="$routeOfAdmissions"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="'U'" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00380010'"/>
+                    <xsl:with-param name="sqTag" select="'00380014'"/>
+                </xsl:call-template>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:value-of select="'V'" />
+            </field>
+        </PV1>
+    </xsl:template>
+
+    <xsl:template name="ORC">
+        <ORC>
+            <field>
+                <xsl:value-of select="'SC'" />
+            </field>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00402016'"/>
+                    <xsl:with-param name="sqTag" select="'00400026'"/>
+                </xsl:call-template>
+            </field>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00402017'"/>
+                    <xsl:with-param name="sqTag" select="'00400027'"/>
+                </xsl:call-template>
+            </field>
+            <field/>
+            <field>
+                <xsl:value-of select="'CM'" />
+            </field>
+        </ORC>
+    </xsl:template>
+
+    <xsl:template name="OBR">
+        <xsl:choose>
+            <xsl:when test="starts-with($msgType, 'ORU')">
+                <xsl:call-template name="OBR-oru"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:call-template name="OBR-omg"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="OBR-omg">
+        <OBR>
+            <field/>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00402016'"/>
+                    <xsl:with-param name="sqTag" select="'00400026'"/>
+                </xsl:call-template>
+            </field>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00402017'"/>
+                    <xsl:with-param name="sqTag" select="'00400027'"/>
+                </xsl:call-template>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="observationDateTime"/>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00080050'"/>
+                    <xsl:with-param name="sqTag" select="'00080051'"/>
+                </xsl:call-template>
+            </field>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'00401001'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </field>
+        </OBR>
+    </xsl:template>
+
+    <xsl:template name="OBR-oru">
+        <xsl:variable name="universalServiceIDAndProcedureCode">
+            <xsl:call-template name="universalServiceIDAndProcedureCode"/>
+        </xsl:variable>
+        <OBR>
+            <field/>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00402016'"/>
+                    <xsl:with-param name="sqTag" select="'00400026'"/>
+                </xsl:call-template>
+            </field>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00402017'"/>
+                    <xsl:with-param name="sqTag" select="'00400027'"/>
+                </xsl:call-template>
+            </field>
+            <field>
+                <xsl:value-of select="$universalServiceIDAndProcedureCode"/>
+            </field>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="observationDateTime"/>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="idWithIssuer">
+                    <xsl:with-param name="idTag" select="'00080050'"/>
+                    <xsl:with-param name="sqTag" select="'00080051'"/>
+                </xsl:call-template>
+            </field>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'00401001'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="diagnosticServiceSectionID"/>
+            </field>
+            <field>
+                <xsl:value-of select="'R'" />
+            </field>
+            <field/>
+            <field>
+                <component/>
+                <component/>
+                <component/>
+                <component/>
+                <component>
+                    <xsl:value-of select="'R'" />
+                </component>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="reasonForStudy"/>
+            </field>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="technician"/>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:value-of select="$universalServiceIDAndProcedureCode"/>
+            </field>
+        </OBR>
+    </xsl:template>
+
+    <xsl:template name="TQ1">
+        <TQ1>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:value-of select="$dateTime" />
+            </field>
+            <field/>
+            <field>
+                <xsl:value-of select="'R'" />
+                <component>
+                    <xsl:value-of select="'Routine'" />
+                </component>
+                <component>
+                    <xsl:value-of select="'HL70078'" />
+                </component>
+            </field>
+        </TQ1>
+    </xsl:template>
+
+    <xsl:template name="OBX-uid">
+        <xsl:param name="tag"/>
+        <OBX>
+            <field>
+                <xsl:value-of select="'1'" />
+            </field>
+            <field>
+                <xsl:value-of select="'ST'" />
+            </field>
+            <field>
+                <xsl:value-of select="'113014'" />
+                <component>
+                    <xsl:value-of select="'DICOM Study'" />
+                </component>
+                <component>
+                    <xsl:value-of select="'DCM'" />
+                </component>
+            </field>
+            <field/>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="$tag"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:value-of select="'O'" />
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+        </OBX>
+    </xsl:template>
+
+    <xsl:template name="idWithIssuer">
+        <xsl:param name="idTag"/>
+        <xsl:param name="sqTag"/>
+        <xsl:variable name="id" select="DicomAttribute[@tag=$idTag]/Value" />
+        <xsl:if test="$id">
+            <xsl:value-of select="$id" />
+            <xsl:variable name="issuer" select="DicomAttribute[@tag=$sqTag]/Item" />
+            <xsl:if test="$issuer">
+                <component/>
+                <component/>
+                <component>
+                    <xsl:value-of select="$issuer/DicomAttribute[@tag='00400031']/Value" />
+                    <subcomponent>
+                        <xsl:value-of select="$issuer/DicomAttribute[@tag='00400032']/Value" />
+                    </subcomponent>
+                    <subcomponent>
+                        <xsl:value-of select="$issuer/DicomAttribute[@tag='00400033']/Value" />
+                    </subcomponent>
+                </component>
+            </xsl:if>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="item2cnn">
+        <xsl:param name="item"/>
+        <xsl:param name="defVal"/>
+        <xsl:choose>
+            <xsl:when test="$item">
+                <xsl:variable name="idSqItem" select="$item/DicomAttribute[@tag='0040A088']/Item"/>
+                <xsl:if test="$idSqItem">
+                    <xsl:value-of select="$idSqItem/DicomAttribute[@tag='00080100']/Value"/>
+                </xsl:if>
+                <xsl:variable name="name" select="$item/DicomAttribute[@tag='0040A075']/PersonName[1]/Alphabetic"/>
+                <subcomponent>
+                    <xsl:value-of select="$name/FamilyName" />
+                </subcomponent>
+                <subcomponent>
+                    <xsl:value-of select="$name/GivenName" />
+                </subcomponent>
+                <subcomponent>
+                    <xsl:value-of select="$name/MiddleName" />
+                </subcomponent>
+                <xsl:variable name="ns" select="$name/NameSuffix" />
+                <subcomponent>
+                    <xsl:choose>
+                        <xsl:when test="contains($ns, ' ')">
+                            <xsl:value-of select="substring-before($ns, ' ')" />
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="$ns" />
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </subcomponent>
+                <subcomponent>
+                    <xsl:value-of select="$name/NamePrefix" />
+                </subcomponent>
+                <subcomponent>
+                    <xsl:value-of select="substring-after($ns, ' ')" />
+                </subcomponent>
+                <subcomponent/>
+                <subcomponent>
+                    <xsl:if test="$idSqItem">
+                        <xsl:value-of select="$idSqItem/DicomAttribute[@tag='00080102']/Value"/>
+                    </xsl:if>
+                </subcomponent>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$defVal" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="diagnosticServiceSectionID">
+        <xsl:variable name="instDeptCode" select="DicomAttribute[@tag='00081041']/Item" />
+        <xsl:choose>
+            <xsl:when test="$instDeptCode">
+                <xsl:value-of select="$instDeptCode/DicomAttribute[@tag='00080100']/Value"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="'RAD'"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="observationDateTime">
+        <xsl:variable name="studyDate" select="DicomAttribute[@tag='00080020']/Value"/>
+        <xsl:variable name="seriesDate" select="DicomAttribute[@tag='00080021']/Value"/>
+        <xsl:variable name="verifyingObserverSqItem" select="DicomAttribute[@tag='0040A073']/Item"/>
+        <xsl:choose>
+            <xsl:when test="$studyDate">
+                <xsl:value-of select="concat($studyDate, DicomAttribute[@tag='00080030']/Value)"/>
+            </xsl:when>
+            <xsl:when test="$seriesDate">
+                <xsl:value-of select="concat($seriesDate, DicomAttribute[@tag='00080031']/Value)"/>
+            </xsl:when>
+            <xsl:when test="$verifyingObserverSqItem">
+                <xsl:value-of select="$verifyingObserverSqItem/DicomAttribute[@tag='0040A030']/Value"/>
+            </xsl:when>
+            <xsl:otherwise/>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="universalServiceIDAndProcedureCode">
+        <xsl:variable name="reqProcedureCodeMWL" select="DicomAttribute[@tag='00321064']/Item"/>
+        <xsl:variable name="procedureCodeStudy" select="DicomAttribute[@tag='00081032']/Item"/>
+        <xsl:variable name="requestAttrsSeries" select="DicomAttribute[@tag='00400275']/Item"/>
+        <xsl:choose>
+            <xsl:when test="$reqProcedureCodeMWL">
+                <xsl:call-template name="codeItem">
+                    <xsl:with-param name="item" select="$reqProcedureCodeMWL"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:choose>
+                    <xsl:when test="$procedureCodeStudy">
+                        <xsl:call-template name="codeItem">
+                            <xsl:with-param name="item" select="$procedureCodeStudy"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="$requestAttrsSeries and boolean(DicomAttribute[@tag='00321064']/Item)">
+                        <xsl:call-template name="codeItem">
+                            <xsl:with-param name="item" select="DicomAttribute[@tag='00321064']/Item"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise/>
+                </xsl:choose>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="technician">
+        <xsl:variable name="hasOperator" select="boolean(DicomAttribute[@tag='00081070']/PersonName)" />
+        <xsl:variable name="operatorIDCode" select="DicomAttribute[@tag='00081072']/Item"/>
+        <xsl:variable name="hasPerformingPhysician" select="boolean(DicomAttribute[@tag='00081050']/PersonName)" />
+        <xsl:variable name="performingPhysicianIDCode" select="DicomAttribute[@tag='00081052']/Item"/>
+        <xsl:choose>
+            <xsl:when test="$hasOperator">
+                <xsl:call-template name="name">
+                    <xsl:with-param name="tag" select="'00081070'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="$operatorIDCode">
+                <xsl:call-template name="codeItem">
+                    <xsl:with-param name="item" select="$operatorIDCode"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="$hasPerformingPhysician">
+                <xsl:call-template name="name">
+                    <xsl:with-param name="tag" select="'00081050'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="$performingPhysicianIDCode">
+                <xsl:call-template name="codeItem">
+                    <xsl:with-param name="item" select="$performingPhysicianIDCode"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise/>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="reasonForStudy">
+        <xsl:variable name="reasonForPerformedProcedureCode" select="DicomAttribute[@tag='00401012']/Item"/>
+        <xsl:variable name="requestAttrs" select="DicomAttribute[@tag='00400275']/Item"/>
+        <xsl:variable name="reasonForVisit"
+                      select="boolean(DicomAttribute[@tag='00321067']/Item) or boolean(DicomAttribute[@tag='00321066']/Value)"/>
+        <xsl:variable name="admittingDiagnoses"
+                      select="boolean(DicomAttribute[@tag='00081084']/Item) or boolean(DicomAttribute[@tag='00081080']/Value)"/>
+        <xsl:choose>
+            <xsl:when test="$reasonForPerformedProcedureCode">
+                <xsl:call-template name="codeItem">
+                    <xsl:with-param name="item" select="$reasonForPerformedProcedureCode"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="$requestAttrs and (boolean($requestAttrs/DicomAttribute[@tag='0040100A']/Item)
+                                                or boolean($requestAttrs/DicomAttribute[@tag='00401002']/Value))">
+                <xsl:call-template name="codeOrDesc">
+                    <xsl:with-param name="item" select="$requestAttrs/DicomAttribute[@tag='0040100A']/Item"/>
+                    <xsl:with-param name="desc" select="$requestAttrs/DicomAttribute[@tag='00401002']/Value"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="$reasonForVisit">
+                <xsl:call-template name="ce2codeItemWithDesc">
+                    <xsl:with-param name="descTag" select="'00321066'"/>
+                    <xsl:with-param name="sqTag" select="'00321067'"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="$admittingDiagnoses">
+                <xsl:call-template name="ce2codeItemWithDesc">
+                    <xsl:with-param name="descTag" select="'00081080'"/>
+                    <xsl:with-param name="sqTag" select="'00081084'"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise/>
+        </xsl:choose>
+    </xsl:template>
+
+</xsl:stylesheet>

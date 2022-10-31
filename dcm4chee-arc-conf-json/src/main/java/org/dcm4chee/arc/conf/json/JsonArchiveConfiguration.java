@@ -264,6 +264,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUPlacerOrderNumber", arcDev.getHl7PSUPlacerOrderNumber(), null);
         writer.writeNotNullOrDef("hl7PSUMessageType", arcDev.getHl7PSUMessageType(), HL7PSUMessageType.OMG_O19);
         writer.writeNotEmpty("hl7PSUCondition", arcDev.getHl7PSUConditions().getMap());
+        writer.writeNotNullOrDef("hl7PSUMppsTemplateURI", arcDev.getHl7PSUMppsTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7PSUStudyTemplateURI", arcDev.getHl7PSUStudyTemplateURI(), null);
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID",
                 arcDev.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         writer.writeNotNullOrDef("dcmProxyUpstreamURL", arcDev.getProxyUpstreamURL(), null);
@@ -1288,6 +1290,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID(), null);
         writer.writeNotNullOrDef("hl7PSUMessageType", arcAE.getHl7PSUMessageType(), null);
         writer.writeNotEmpty("hl7PSUCondition", arcAE.getHl7PSUConditions().getMap());
+        writer.writeNotNullOrDef("hl7PSUMppsTemplateURI", arcAE.getHl7PSUMppsTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7PSUStudyTemplateURI", arcAE.getHl7PSUStudyTemplateURI(), null);
         writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcAE.getLinkMWLEntryUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmStorageVerificationPolicy", arcAE.getStorageVerificationPolicy(), null);
@@ -1787,6 +1791,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUCondition":
                     arcDev.setHl7PSUConditions(new Conditions(reader.stringArray()));
+                    break;
+                case "hl7PSUMppsTemplateURI":
+                    arcDev.setHl7PSUMppsTemplateURI(reader.stringValue());
+                    break;
+                case "hl7PSUStudyTemplateURI":
+                    arcDev.setHl7PSUStudyTemplateURI(reader.stringValue());
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcDev.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
@@ -4125,6 +4135,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUCondition":
                     arcAE.setHl7PSUConditions(new Conditions(reader.stringArray()));
+                    break;
+                case "hl7PSUMppsTemplateURI":
+                    arcAE.setHl7PSUMppsTemplateURI(reader.stringValue());
+                    break;
+                case "hl7PSUStudyTemplateURI":
+                    arcAE.setHl7PSUStudyTemplateURI(reader.stringValue());
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcAE.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));

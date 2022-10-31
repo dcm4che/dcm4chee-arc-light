@@ -1197,6 +1197,8 @@ class ArchiveDeviceFactory {
     static final String COERCE_MWL_AGFA2ARC = "xslt:${jboss.server.temp.url}/dcm4chee-arc/mwl-agfa2arc.xsl";
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
+    static final String MPPS2HL7_PSU_XSL = "${jboss.server.temp.url}/dcm4chee-arc/mpps2hl7-psu.xsl";
+    static final String STUDY2HL7_PSU_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dcm2hl7-psu.xsl";
     static final String AUDIT_LOGGER_SPOOL_DIR_URI = "${jboss.server.temp.url}";
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
@@ -1749,6 +1751,8 @@ class ArchiveDeviceFactory {
         ext.setWadoCDA2HtmlTemplateURI(CDA2HTML_XSL);
         ext.setPatientUpdateTemplateURI(HL7_ADT2DCM_XSL);
         ext.setOutgoingPatientUpdateTemplateURI(HL7_DCM2ADT_XSL);
+        ext.setHl7PSUMppsTemplateURI(MPPS2HL7_PSU_XSL);
+        ext.setHl7PSUStudyTemplateURI(STUDY2HL7_PSU_XSL);
         ext.setUnzipVendorDataToURI(UNZIP_VENDOR_DATA);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);

@@ -235,6 +235,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String hl7PSUPlacerOrderNumber;
     private volatile HL7PSUMessageType hl7PSUMessageType = HL7PSUMessageType.OMG_O19;
     private volatile Conditions hl7PSUConditions = new Conditions();
+    private volatile String hl7PSUMppsTemplateURI;
+    private volatile String hl7PSUStudyTemplateURI;
     private volatile String proxyUpstreamURL;
     private volatile String atna2JsonFhirTemplateURI;
     private volatile String atna2XmlFhirTemplateURI;
@@ -1654,6 +1656,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHl7PSUConditions(Conditions hl7PSUConditions) {
         this.hl7PSUConditions = hl7PSUConditions;
+    }
+
+    public String getHl7PSUMppsTemplateURI() {
+        return hl7PSUMppsTemplateURI;
+    }
+
+    public void setHl7PSUMppsTemplateURI(String hl7PSUMppsTemplateURI) {
+        this.hl7PSUMppsTemplateURI = hl7PSUMppsTemplateURI;
+    }
+
+    public String getHl7PSUStudyTemplateURI() {
+        return hl7PSUStudyTemplateURI;
+    }
+
+    public void setHl7PSUStudyTemplateURI(String hl7PSUStudyTemplateURI) {
+        this.hl7PSUStudyTemplateURI = hl7PSUStudyTemplateURI;
     }
 
     public String[] getHL7NoPatientCreateMessageTypes() {
@@ -3399,6 +3417,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUPlacerOrderNumber = arcdev.hl7PSUPlacerOrderNumber;
         hl7PSUMessageType = arcdev.hl7PSUMessageType;
         hl7PSUConditions = arcdev.hl7PSUConditions;
+        hl7PSUMppsTemplateURI = arcdev.hl7PSUMppsTemplateURI;
+        hl7PSUStudyTemplateURI = arcdev.hl7PSUStudyTemplateURI;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         userIdentityNegotiation = arcdev.userIdentityNegotiation;
         userIdentityNegotiationRole = arcdev.userIdentityNegotiationRole;

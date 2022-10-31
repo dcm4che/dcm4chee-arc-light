@@ -149,6 +149,8 @@ public class ArchiveAEExtension extends AEExtension {
     private String hl7PSUPlacerOrderNumber;
     private HL7PSUMessageType hl7PSUMessageType;
     private Conditions hl7PSUConditions = new Conditions();
+    private String hl7PSUMppsTemplateURI;
+    private String hl7PSUStudyTemplateURI;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private StorageVerificationPolicy storageVerificationPolicy;
@@ -1544,6 +1546,34 @@ public class ArchiveAEExtension extends AEExtension {
                 ? hl7PSUConditions : getArchiveDeviceExtension().getHl7PSUConditions();
     }
 
+    public String getHl7PSUMppsTemplateURI() {
+        return hl7PSUMppsTemplateURI;
+    }
+
+    public void setHl7PSUMppsTemplateURI(String hl7PSUMppsTemplateURI) {
+        this.hl7PSUMppsTemplateURI = hl7PSUMppsTemplateURI;
+    }
+
+    public String hl7PSUMppsTemplateURI() {
+        return hl7PSUMppsTemplateURI != null
+                ? hl7PSUMppsTemplateURI
+                : getArchiveDeviceExtension().getHl7PSUMppsTemplateURI();
+    }
+
+    public String getHl7PSUStudyTemplateURI() {
+        return hl7PSUStudyTemplateURI;
+    }
+
+    public void setHl7PSUStudyTemplateURI(String hl7PSUStudyTemplateURI) {
+        this.hl7PSUStudyTemplateURI = hl7PSUStudyTemplateURI;
+    }
+
+    public String hl7PSUStudyTemplateURI() {
+        return hl7PSUStudyTemplateURI != null
+                ? hl7PSUStudyTemplateURI
+                : getArchiveDeviceExtension().getHl7PSUStudyTemplateURI();
+    }
+
     public AcceptConflictingPatientID getAcceptConflictingPatientID() {
         return acceptConflictingPatientID;
     }
@@ -1973,6 +2003,8 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUPlacerOrderNumber = aeExt.hl7PSUPlacerOrderNumber;
         hl7PSUMessageType = aeExt.hl7PSUMessageType;
         hl7PSUConditions = aeExt.hl7PSUConditions;
+        hl7PSUMppsTemplateURI = aeExt.hl7PSUMppsTemplateURI;
+        hl7PSUStudyTemplateURI = aeExt.hl7PSUStudyTemplateURI;
         storageVerificationPolicy = aeExt.storageVerificationPolicy;
         storageVerificationUpdateLocationStatus = aeExt.storageVerificationUpdateLocationStatus;
         storageVerificationStorageIDs = aeExt.storageVerificationStorageIDs;

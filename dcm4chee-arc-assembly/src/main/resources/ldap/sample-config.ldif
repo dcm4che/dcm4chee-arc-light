@@ -186,6 +186,7 @@ hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.x
 dcmUPSProcessingPollingInterval: PT1M
 dcmStorageVerificationAETitle: DCM4CHEE
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
+hl7PSUStudyTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dcm2hl7-psu.xsl
 dicomManufacturerModelName: dcm4chee-arc
 dcmHideSPSWithStatusFromMWLRS: STARTED
 dcmHideSPSWithStatusFromMWLRS: DEPARTED
@@ -229,6 +230,7 @@ dcmDeleteRejectedPollingInterval: PT5M
 dcmLeadingCFindSCPQueryCacheStaleTimeout: PT5M
 dcmAuditPollingInterval: PT1M
 dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
+hl7PSUMppsTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mpps2hl7-psu.xsl
 dcmHideSPSWithStatusFromMWL: STARTED
 dcmHideSPSWithStatusFromMWL: DEPARTED
 dcmHideSPSWithStatusFromMWL: CANCELED
