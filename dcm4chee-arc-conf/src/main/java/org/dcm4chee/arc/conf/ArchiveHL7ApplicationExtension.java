@@ -54,6 +54,7 @@ import java.util.stream.Stream;
 public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     private String aeTitle;
+    private String destinationAE;
     private Boolean recordAttributeModification;
     private String patientUpdateTemplateURI;
     private String importReportTemplateURI;
@@ -101,6 +102,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     public void reconfigure(HL7ApplicationExtension src) {
         ArchiveHL7ApplicationExtension arcapp = (ArchiveHL7ApplicationExtension) src;
         aeTitle = arcapp.aeTitle;
+        destinationAE = arcapp.destinationAE;
         recordAttributeModification = arcapp.recordAttributeModification;
         patientUpdateTemplateURI = arcapp.patientUpdateTemplateURI;
         importReportTemplateURI = arcapp.importReportTemplateURI;
@@ -150,6 +152,14 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setAETitle(String aeTitle) {
         this.aeTitle = aeTitle;
+    }
+
+    public String getDestinationAE() {
+        return destinationAE;
+    }
+
+    public void setDestinationAE(String destinationAE) {
+        this.destinationAE = destinationAE;
     }
 
     public Boolean getRecordAttributeModification() {

@@ -54,6 +54,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.ReverseDNS;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
@@ -148,7 +149,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
 
         adjust(attrs, hl7App, s, msg);
         ProcedureContext ctx = procedureService.createProcedureContext().setSocket(s).setHL7Message(msg);
-        ctx.setLocalAET(arcHL7App.getAETitle());
+        ctx.setLocalAET(StringUtils.maskNull(arcHL7App.getDestinationAE(), "*"));
         ctx.setArchiveHL7AppExtension(arcHL7App);
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);

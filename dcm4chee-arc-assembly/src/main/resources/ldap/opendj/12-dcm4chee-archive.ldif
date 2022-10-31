@@ -2578,6 +2578,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
     dcmMWLAccessionNumberGenerator $
     dcmMWLRequestedProcedureIDGenerator $
     dcmMWLScheduledProcedureStepIDGenerator $
+    dcmDestinationAE $
     dcmAuditHL7MsgLimit $
     hl7ORUAction $
     hl7PatientUpdateTemplateURI $
