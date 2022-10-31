@@ -55,7 +55,12 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         dynamicAttributes:null,
         newAttribute:null,
         newValue:null,
-        dropdownPlaceholder:$localize `:@@select_attribute:Select attribute`
+        dropdownPlaceholder:$localize `:@@select_attribute:Select attribute`,
+        labels:{
+            dynamic_value:$localize `:@@dynamic_value:Dynamic value`,
+            add_title:$localize `:@@add_title:Add`,
+            delete_title:$localize `:@@delete_title`
+        }
     }
 
     constructor(

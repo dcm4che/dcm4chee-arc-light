@@ -259,7 +259,7 @@
                                 <li *ngFor="let attr of Array.from(dynamicAttributeConfig.dynamicAttributes.keys())">
                                     <label class="label" title="{{getLabelFromIODTag(attr)}}">{{getLabelFromIODTag(attr)|trim:18}}:</label>
                                     <label class="value">{{dynamicAttributeConfig.dynamicAttributes.get(attr)}}</label>
-                                    <i title="Delete" (click)="removeDynamicAttribute(attr)" class="material-icons">clear</i>
+                                    <i title="{{dynamicAttributeConfig.labels.delete_title}}" (click)="removeDynamicAttribute(attr)" class="material-icons">clear</i>
                                 </li>
                             </ul>
                             <div class="add_block">
@@ -270,8 +270,8 @@
                                         [multiSelectMode]="false"
                                         [placeholder]="dynamicAttributeConfig.dropdownPlaceholder"
                                 ></dcm-drop-down>
-                                <input type="text" [(ngModel)]="dynamicAttributeConfig.newValue" placeholder="Dynamic value">
-                                <i title="Add" class="material-icons" (click)="addNewDynamicAttribute()">add</i>
+                                <input type="text" [(ngModel)]="dynamicAttributeConfig.newValue" [placeholder]="dynamicAttributeConfig.labels.dynamic_value">
+                                <i title="{{dynamicAttributeConfig.labels.add_title}}" class="material-icons" (click)="addNewDynamicAttribute()">add</i>
                             </div>
                         </div>
                     </div>
