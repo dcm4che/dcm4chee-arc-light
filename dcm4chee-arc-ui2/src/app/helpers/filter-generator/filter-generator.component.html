@@ -255,10 +255,9 @@
                     <label *ngSwitchCase="'label_large'" class="label_large">{{line[index].text}}</label>
                     <div class="dynamic-attributes" *ngSwitchCase="'dynamic-attributes'">
                         <div *ngIf="dynamicAttributeConfig.iods" >
-
                             <ul class="modified_list" *ngIf="dynamicAttributeConfig.dynamicAttributes && dynamicAttributeConfig.dynamicAttributes.size > 0">
                                 <li *ngFor="let attr of Array.from(dynamicAttributeConfig.dynamicAttributes.keys())">
-                                    <label title="{{attr}}">{{getLabelFromIODTag(attr)}}</label>
+                                    <label class="label" title="{{getLabelFromIODTag(attr)}}">{{getLabelFromIODTag(attr)|trim:18}}:</label>
                                     <label class="value">{{dynamicAttributeConfig.dynamicAttributes.get(attr)}}</label>
                                     <i title="Delete" (click)="removeDynamicAttribute(attr)" class="material-icons">clear</i>
                                 </li>
@@ -271,7 +270,7 @@
                                         [multiSelectMode]="false"
                                         [placeholder]="dynamicAttributeConfig.dropdownPlaceholder"
                                 ></dcm-drop-down>
-                                <input type="text" [(ngModel)]="dynamicAttributeConfig.newValue">
+                                <input type="text" [(ngModel)]="dynamicAttributeConfig.newValue" placeholder="Dynamic value">
                                 <i title="Add" class="material-icons" (click)="addNewDynamicAttribute()">add</i>
                             </div>
                         </div>

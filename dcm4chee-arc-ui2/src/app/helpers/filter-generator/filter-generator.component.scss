@@ -27,9 +27,15 @@
       dcm-drop-down{
         //width:calc( 100% - 24px);
         float: left;
+        .dropdown_input{
+          line-height: 26px;
+          height: 26px;
+        }
       }
       input{
         margin-left: 15px;
+        border: none;
+        border-bottom: 1px solid #ccc;
       }
       i.material-icons{
         float: right;
@@ -48,6 +54,11 @@
         grid-template-columns: calc( 50% - 10px) calc( 50% - 15px) 24px;
         & > label.value{
           margin-left: 15px;
+          border-bottom:1px solid #ccc;
+          padding-bottom: 4px;
+        }
+        & > .label{
+          text-align: right;
         }
         i.material-icons{
           float: right;
@@ -55,6 +66,7 @@
           color: white;
           cursor: pointer;
           width:24px;
+          height: 25px;
         }
       }
     }

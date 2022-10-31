@@ -141,7 +141,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         return this.studyService.getLabelFromIODTag(dicomTagPath);
     }
     onKeyUp(e){
-        console.log("e",e.code);
+        //console.log("e",e.code);
         if(e.keyCode === 13){
             this.submitEmit(this.defaultSubmitId);
         }
@@ -151,11 +151,21 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         this.dynamicAttributeConfig.dynamicAttributes = this.dynamicAttributeConfig.dynamicAttributes || new Map();
         if(this.dynamicAttributeConfig.newAttribute && this.dynamicAttributeConfig.newValue){
             this.dynamicAttributeConfig.dynamicAttributes.set(this.dynamicAttributeConfig.newAttribute,this.dynamicAttributeConfig.newValue);
+            this.model[this.dynamicAttributeConfig.newAttribute] = this.dynamicAttributeConfig.newValue;
+            this.dynamicAttributeConfig.newAttribute = undefined;
+            this.dynamicAttributeConfig.newValue = "";
         }
+        console.log("model",this.model);
     }
 
     removeDynamicAttribute(attr){
-        console.log("attr",attr);
+        try{
+            this.dynamicAttributeConfig.dynamicAttributes.delete(attr);
+            delete this.model[attr];
+        }catch (e) {
+
+        }
+        console.log("model",this.model);
     }
     submitEmit(id){
         this.model = j4care.clearEmptyObject(this.model);

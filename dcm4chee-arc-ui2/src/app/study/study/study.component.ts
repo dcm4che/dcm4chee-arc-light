@@ -3796,31 +3796,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             doNotSave:true,
             form_schema:[
                 [
-                    [
-                        {
-                            tag:"label",
-                            text:$localize `:@@attribute:Attribute`
-                        },
-                        {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"attribute",
-                            description:$localize `:@@attribute:Attribute`,
-                            placeholder:$localize `:@@attribute:Attribute`
-                        }
-                    ],[
-                        {
-                            tag:"label",
-                            text:$localize `:@@value_for_the_attribute:Value for the attribute`
-                        },
-                        {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"attributeValue",
-                            description:$localize `:@@value_for_the_attribute:Value for the attribute`,
-                            placeholder:$localize `:@@value_for_the_attribute:Value for the attribute`
-                        }
-                    ],[
+                   [
                         {
                             tag:"label",
                             text:$localize `:@@sourceOfPreviousValues:Source of Previous Value`
@@ -3866,7 +3842,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 placeholder:$localize `:@@updatePolicy:Update Policy`
                             }
                         ]
-                   /* ,
+                    ,
                     [
                         {
                             tag:"dynamic-attributes",
@@ -3876,7 +3852,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             ]
 
                         }
-                    ]*/
+                    ]
                 ]
             ],
             result: {
@@ -3886,11 +3862,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }).subscribe((ok)=>{
             if(ok){
                 this.cfpLoadingBar.start();
-                if(_.hasIn(ok.schema_model,"attribute") && _.hasIn(ok.schema_model,"attributeValue")){
-                    ok.schema_model[ok.schema_model.attribute] = ok.schema_model.attributeValue;
-                    delete ok.schema_model.attribute;
-                    delete ok.schema_model.attributeValue;
-                }
                 this.service.recreateDBRecord(ok.schema_model, this.studyWebService.selectedWebService,model).subscribe(res=>{
                     this.cfpLoadingBar.complete();
                     console.log("res",res)
