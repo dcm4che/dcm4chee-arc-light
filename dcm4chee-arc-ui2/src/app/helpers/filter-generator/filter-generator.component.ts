@@ -59,7 +59,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         labels:{
             dynamic_value:$localize `:@@dynamic_value:Dynamic value`,
             add_title:$localize `:@@add_title:Add`,
-            delete_title:$localize `:@@delete_title`
+            delete_title:$localize `:@@delete_title:Remove`
         }
     }
 
