@@ -194,14 +194,16 @@ public class HL7PSUEJB {
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
                                       .getHL7Application(hl7PSUSendingApplication, true);
         UnparsedHL7Message hl7Msg = null;
-        String uri = task.getMpps() != null ? arcAE.hl7PSUMppsTemplateURI() : arcAE.hl7PSUStudyTemplateURI();
+        MPPS mpps = task.getMpps();
+        String uri = mpps != null ? arcAE.hl7PSUMppsTemplateURI() : arcAE.hl7PSUStudyTemplateURI();
         for (String hl7PSUReceivingApplication : hl7PSUReceivingApplications) {
             try {
                 HL7Application receiver = hl7AppCache.findHL7Application(hl7PSUReceivingApplication);
                 if (hl7Msg == null)
                     hl7Msg = new UnparsedHL7Message(HL7SenderUtils.data(sender, receiver, attrs, null,
                                                                         arcAE.hl7PSUMessageType().name(), uri,
-                                                                        task.getPPSStatus().name(), arcAE));
+                                                                        mpps != null ? task.getPPSStatus().name() : null,
+                                                                        arcAE));
                 else
                     hl7Msg.msh().setReceivingApplicationWithFacility(hl7PSUReceivingApplication);
                 hl7Sender.scheduleMessage(null, hl7Msg.data());
