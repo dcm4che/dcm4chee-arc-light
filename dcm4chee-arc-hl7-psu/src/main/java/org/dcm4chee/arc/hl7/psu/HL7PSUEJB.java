@@ -101,6 +101,7 @@ public class HL7PSUEJB {
         task.setAETitle(arcAE.getApplicationEntity().getAETitle());
         task.setScheduledTime(scheduledTime(arcAE.hl7PSUTimeout()));
         task.setStudyInstanceUID(ctx.getMPPS().getStudyInstanceUID());
+        task.setAccessionNumber(ctx.getMPPS().getAccessionNumber());
         task.setMpps(ctx.getMPPS());
         em.persist(task);
         LOG.info("{}: Created {}", ctx, task);
