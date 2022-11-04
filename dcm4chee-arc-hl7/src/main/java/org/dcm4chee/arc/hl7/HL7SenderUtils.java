@@ -45,6 +45,8 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.util.AttributesFormat;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.xml.sax.SAXException;
 
@@ -59,14 +61,15 @@ import java.util.Date;
 public class HL7SenderUtils {
 
     public static byte[] data(HL7Application sender, HL7Application receiver, Attributes attrs, Attributes prev,
-                               String msgType, String uri)
+                              String msgType, String uri, String ppsStatus, ArchiveAEExtension arcAE)
             throws TransformerConfigurationException, UnsupportedEncodingException, SAXException {
         return SAXTransformer.transform(attrs, sender.getHL7SendingCharacterSet(), uri, tr -> {
             tr.setParameter("sender", sender.getApplicationName());
             tr.setParameter("receiver", receiver.getApplicationName());
             tr.setParameter("dateTime", HL7Segment.timeStamp(new Date()));
             tr.setParameter("msgControlID", HL7Segment.nextMessageControlID());
-            tr.setParameter("charset", sender.getHL7SendingCharacterSet());
+            if (!sender.getHL7SendingCharacterSet().equals("ASCII"))
+                tr.setParameter("charset", sender.getHL7SendingCharacterSet());
             tr.setParameter("msgType", msgType);
             if (prev != null) {
                 IDWithIssuer prevPID = IDWithIssuer.pidOf(prev);
@@ -76,9 +79,13 @@ public class HL7SenderUtils {
                 if (msgType.equals("ADT^A40^ADT_A39") && prevPatName != null)
                     tr.setParameter("priorPatientName", prevPatName);
             }
-            if (msgType.equals("ADT^A31^ADT_A05")
-                    && sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class).hl7UseNullValue())
+            if (sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class).hl7UseNullValue())
                 tr.setParameter("includeNullValues", "\"\"");
+            tr.setParameter("ppsStatus", ppsStatus);
+            if (arcAE != null) {
+                tr.setParameter("isPIDPV1", arcAE.hl7PSUPIDPV1());
+                arcAE.getHL7PSUParams().forEach((k,v) -> tr.setParameter(k, new AttributesFormat(v).format(attrs)));
+            }
         });
     }
 }

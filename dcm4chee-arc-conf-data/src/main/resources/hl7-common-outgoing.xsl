@@ -236,6 +236,15 @@
         <xsl:param name="tag"/>
         <xsl:param name="includeNullValues" />
         <xsl:variable name="val" select="DicomAttribute[@tag=$tag]/Value"/>
+        <xsl:call-template name="attrVal">
+            <xsl:with-param name="val" select="$val"/>
+            <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+        </xsl:call-template>
+    </xsl:template>
+
+    <xsl:template name="attrVal">
+        <xsl:param name="val"/>
+        <xsl:param name="includeNullValues" />
         <xsl:choose>
             <xsl:when test="$val">
                 <xsl:value-of select="$val"/>

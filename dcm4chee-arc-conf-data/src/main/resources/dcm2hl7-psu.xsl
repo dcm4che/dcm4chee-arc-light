@@ -11,6 +11,10 @@
     <xsl:param name="charset" />
     <xsl:param name="isPIDPV1" />
     <xsl:param name="includeNullValues" />
+    <xsl:param name="RequestedProcedureID"/>
+    <xsl:param name="AccessionNumber"/>
+    <xsl:param name="PlacerOrderNumberImagingServiceRequest"/>
+    <xsl:param name="FillerOrderNumberImagingServiceRequest"/>
 
     <xsl:template match="/NativeDicomModel">
         <hl7>
@@ -33,9 +37,7 @@
             <xsl:call-template name="ORC" />
             <xsl:call-template name="OBR" />
             <xsl:call-template name="TQ1" />
-            <xsl:call-template name="OBX-uid">
-                <xsl:with-param name="tag" select="'0020000D'"/>
-            </xsl:call-template>
+            <xsl:call-template name="OBX"/>
         </hl7>
     </xsl:template>
 
@@ -129,16 +131,36 @@
                 <xsl:value-of select="'SC'" />
             </field>
             <field>
-                <xsl:call-template name="idWithIssuer">
-                    <xsl:with-param name="idTag" select="'00402016'"/>
-                    <xsl:with-param name="sqTag" select="'00400026'"/>
-                </xsl:call-template>
+                <xsl:choose>
+                    <xsl:when test="$PlacerOrderNumberImagingServiceRequest">
+                        <xsl:value-of select="$PlacerOrderNumberImagingServiceRequest"/>
+                        <xsl:call-template name="issuer">
+                            <xsl:with-param name="sqTag" select="'00400026'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="idWithIssuer">
+                            <xsl:with-param name="idTag" select="'00402016'"/>
+                            <xsl:with-param name="sqTag" select="'00400026'"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </field>
             <field>
-                <xsl:call-template name="idWithIssuer">
-                    <xsl:with-param name="idTag" select="'00402017'"/>
-                    <xsl:with-param name="sqTag" select="'00400027'"/>
-                </xsl:call-template>
+                <xsl:choose>
+                    <xsl:when test="$FillerOrderNumberImagingServiceRequest">
+                        <xsl:value-of select="$FillerOrderNumberImagingServiceRequest"/>
+                        <xsl:call-template name="issuer">
+                            <xsl:with-param name="sqTag" select="'00400027'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="idWithIssuer">
+                            <xsl:with-param name="idTag" select="'00402017'"/>
+                            <xsl:with-param name="sqTag" select="'00400027'"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </field>
             <field/>
             <field>
@@ -148,82 +170,42 @@
     </xsl:template>
 
     <xsl:template name="OBR">
-        <xsl:choose>
-            <xsl:when test="starts-with($msgType, 'ORU')">
-                <xsl:call-template name="OBR-oru"/>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:call-template name="OBR-omg"/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-
-    <xsl:template name="OBR-omg">
         <OBR>
             <field/>
             <field>
-                <xsl:call-template name="idWithIssuer">
-                    <xsl:with-param name="idTag" select="'00402016'"/>
-                    <xsl:with-param name="sqTag" select="'00400026'"/>
-                </xsl:call-template>
+                <xsl:choose>
+                    <xsl:when test="$PlacerOrderNumberImagingServiceRequest">
+                        <xsl:value-of select="$PlacerOrderNumberImagingServiceRequest"/>
+                        <xsl:call-template name="issuer">
+                            <xsl:with-param name="sqTag" select="'00400026'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="idWithIssuer">
+                            <xsl:with-param name="idTag" select="'00402016'"/>
+                            <xsl:with-param name="sqTag" select="'00400026'"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </field>
             <field>
-                <xsl:call-template name="idWithIssuer">
-                    <xsl:with-param name="idTag" select="'00402017'"/>
-                    <xsl:with-param name="sqTag" select="'00400027'"/>
-                </xsl:call-template>
-            </field>
-            <field/>
-            <field/>
-            <field/>
-            <field>
-                <xsl:call-template name="observationDateTime"/>
-            </field>
-            <field/>
-            <field/>
-            <field/>
-            <field/>
-            <field/>
-            <field/>
-            <field/>
-            <field/>
-            <field/>
-            <field/>
-            <field>
-                <xsl:call-template name="idWithIssuer">
-                    <xsl:with-param name="idTag" select="'00080050'"/>
-                    <xsl:with-param name="sqTag" select="'00080051'"/>
-                </xsl:call-template>
+                <xsl:choose>
+                    <xsl:when test="$FillerOrderNumberImagingServiceRequest">
+                        <xsl:value-of select="$FillerOrderNumberImagingServiceRequest"/>
+                        <xsl:call-template name="issuer">
+                            <xsl:with-param name="sqTag" select="'00400027'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="idWithIssuer">
+                            <xsl:with-param name="idTag" select="'00402017'"/>
+                            <xsl:with-param name="sqTag" select="'00400027'"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </field>
             <field>
-                <xsl:call-template name="attr">
-                    <xsl:with-param name="tag" select="'00401001'"/>
-                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
-                </xsl:call-template>
-            </field>
-        </OBR>
-    </xsl:template>
-
-    <xsl:template name="OBR-oru">
-        <xsl:variable name="universalServiceIDAndProcedureCode">
-            <xsl:call-template name="universalServiceIDAndProcedureCode"/>
-        </xsl:variable>
-        <OBR>
-            <field/>
-            <field>
-                <xsl:call-template name="idWithIssuer">
-                    <xsl:with-param name="idTag" select="'00402016'"/>
-                    <xsl:with-param name="sqTag" select="'00400026'"/>
-                </xsl:call-template>
-            </field>
-            <field>
-                <xsl:call-template name="idWithIssuer">
-                    <xsl:with-param name="idTag" select="'00402017'"/>
-                    <xsl:with-param name="sqTag" select="'00400027'"/>
-                </xsl:call-template>
-            </field>
-            <field>
-                <xsl:value-of select="$universalServiceIDAndProcedureCode"/>
+                <xsl:call-template name="universalServiceIDAndProcedureCode"/>
             </field>
             <field/>
             <field/>
@@ -241,16 +223,33 @@
             <field/>
             <field/>
             <field>
-                <xsl:call-template name="idWithIssuer">
-                    <xsl:with-param name="idTag" select="'00080050'"/>
-                    <xsl:with-param name="sqTag" select="'00080051'"/>
-                </xsl:call-template>
+                <xsl:choose>
+                    <xsl:when test="$AccessionNumber">
+                        <xsl:value-of select="$AccessionNumber"/>
+                        <xsl:call-template name="issuer">
+                            <xsl:with-param name="sqTag" select="'00080051'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="idWithIssuer">
+                            <xsl:with-param name="idTag" select="'00080050'"/>
+                            <xsl:with-param name="sqTag" select="'00080051'"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </field>
             <field>
-                <xsl:call-template name="attr">
-                    <xsl:with-param name="tag" select="'00401001'"/>
-                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
-                </xsl:call-template>
+                <xsl:choose>
+                    <xsl:when test="string-length($RequestedProcedureID) > 0">
+                        <xsl:value-of select="$RequestedProcedureID"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="attr">
+                            <xsl:with-param name="tag" select="'00401001'"/>
+                            <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </field>
             <field/>
             <field/>
@@ -293,7 +292,7 @@
             <field/>
             <field/>
             <field>
-                <xsl:value-of select="$universalServiceIDAndProcedureCode"/>
+                <xsl:call-template name="universalServiceIDAndProcedureCode"/>
             </field>
         </OBR>
     </xsl:template>
@@ -322,8 +321,7 @@
         </TQ1>
     </xsl:template>
 
-    <xsl:template name="OBX-uid">
-        <xsl:param name="tag"/>
+    <xsl:template name="OBX">
         <OBX>
             <field>
                 <xsl:value-of select="'1'" />
@@ -343,7 +341,7 @@
             <field/>
             <field>
                 <xsl:call-template name="attr">
-                    <xsl:with-param name="tag" select="$tag"/>
+                    <xsl:with-param name="tag" select="'0020000D'"/>
                     <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>
             </field>
@@ -377,20 +375,31 @@
         <xsl:variable name="id" select="DicomAttribute[@tag=$idTag]/Value" />
         <xsl:if test="$id">
             <xsl:value-of select="$id" />
-            <xsl:variable name="issuer" select="DicomAttribute[@tag=$sqTag]/Item" />
-            <xsl:if test="$issuer">
-                <component/>
-                <component/>
-                <component>
-                    <xsl:value-of select="$issuer/DicomAttribute[@tag='00400031']/Value" />
+            <xsl:call-template name="issuer">
+                <xsl:with-param name="sqTag" select="$sqTag"/>
+            </xsl:call-template>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="issuer">
+        <xsl:param name="sqTag"/>
+        <xsl:variable name="issuer" select="DicomAttribute[@tag=$sqTag]/Item" />
+        <xsl:if test="$issuer">
+            <component/>
+            <component/>
+            <component>
+                <xsl:value-of select="$issuer/DicomAttribute[@tag='00400031']/Value" />
+                <xsl:variable name="universalEntityID" select="$issuer/DicomAttribute[@tag='00400032']/Value"/>
+                <xsl:variable name="universalEntityIDType" select="$issuer/DicomAttribute[@tag='00400033']/Value"/>
+                <xsl:if test="$universalEntityID">
                     <subcomponent>
-                        <xsl:value-of select="$issuer/DicomAttribute[@tag='00400032']/Value" />
+                        <xsl:value-of select="$universalEntityID" />
                     </subcomponent>
                     <subcomponent>
-                        <xsl:value-of select="$issuer/DicomAttribute[@tag='00400033']/Value" />
+                        <xsl:value-of select="$universalEntityIDType" />
                     </subcomponent>
-                </component>
-            </xsl:if>
+                </xsl:if>
+            </component>
         </xsl:if>
     </xsl:template>
 

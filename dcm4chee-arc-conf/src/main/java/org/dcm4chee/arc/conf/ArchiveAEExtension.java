@@ -184,6 +184,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final List<ArchiveAttributeCoercion2> attributeCoercions2 = new ArrayList<>();
     private final List<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
+    private final Map<String, String> hl7PSUParams = new HashMap<>();
 
     public String getDefaultCharacterSet() {
         return defaultCharacterSet;
@@ -1574,6 +1575,30 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getHl7PSUStudyTemplateURI();
     }
 
+    public Map<String, String> hl7PSUParams() {
+        return !hl7PSUParams.isEmpty()
+                ? hl7PSUParams
+                : getArchiveDeviceExtension().getHL7PSUParams();
+    }
+
+    public Map<String, String> getHL7PSUParams() {
+        return hl7PSUParams;
+    }
+
+    public void setHL7PSUParam(String name, String value) {
+        hl7PSUParams.put(name, value);
+    }
+
+    public void setHL7PSUParams(String[] ss) {
+        hl7PSUParams.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("XSLT parameter in incorrect format : " + s);
+            setHL7PSUParam(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
     public AcceptConflictingPatientID getAcceptConflictingPatientID() {
         return acceptConflictingPatientID;
     }
@@ -2050,6 +2075,8 @@ public class ArchiveAEExtension extends AEExtension {
         attributeCoercions2.addAll(aeExt.attributeCoercions2);
         storeAccessControlIDRules.clear();
         storeAccessControlIDRules.addAll(aeExt.storeAccessControlIDRules);
+        hl7PSUParams.clear();
+        hl7PSUParams.putAll(aeExt.hl7PSUParams);
     }
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {

@@ -111,6 +111,10 @@ dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmBulkDataDescriptorID: default
 dcmCompressionAETitle: DCM4CHEE
+hl7PSUParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+hl7PSUParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+hl7PSUParam: RequestedProcedureID={StudyInstanceUID,hash}
+hl7PSUParam: AccessionNumber={StudyInstanceUID,hash}
 dcmPurgeStoragePollingInterval: PT5M
 dcmDeleteUPSPollingInterval: PT1H
 dcmRejectionNoteStorageAET: DCM4CHEE

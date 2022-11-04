@@ -162,12 +162,8 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
 
     private ArchiveHL7Message hl7Message(HL7Application sender, HL7Application receiver, RetrieveContext ctx,
                                      String msgType, String uri) throws Exception {
-        byte[] data = HL7SenderUtils.data(sender,
-                                        receiver,
-                                        ctx.getMatches().get(0).getAttributes(),
-                                        null,
-                                        msgType,
-                                        uri);
+        byte[] data = HL7SenderUtils.data(sender, receiver, ctx.getMatches().get(0).getAttributes(), null,
+                                        msgType, uri, null, null);
         ArchiveHL7Message hl7Msg = new ArchiveHL7Message(data);
         hl7Msg.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
         return hl7Msg;
