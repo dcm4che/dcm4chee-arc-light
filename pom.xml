@@ -85,44 +85,11 @@
       <url>https://www.dcm4che.org/maven2</url>
     </repository>
     <repository>
-      <id>jboss-ga-repository</id>
-      <url>http://maven.repository.redhat.com/techpreview/all</url>
-    </repository>
-    <repository>
-      <id>jboss-earlyaccess-repository</id>
-      <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
-    </repository>
-    <repository>
-      <id>jboss-releases</id>
-      <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
-    </repository>
-    <repository>
-      <id>jboss-thirdparty-repository</id>
-      <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
+      <id>jboss-public</id>
+      <name>JBoss Public Repository</name>
+      <url>https://repository.jboss.org/nexus/content/repositories/public</url>
     </repository>
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jboss-ga-plugin-repository</id>
-      <url>http://maven.repository.redhat.com/techpreview/all</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>jboss-earlyaccess-plugin-repository</id>
-      <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 
   <dependencyManagement>
     <dependencies>
@@ -629,11 +596,11 @@
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
+          <version>3.10.1</version>
         </plugin>
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.2.2</version>
         </plugin>
         <plugin>
           <artifactId>maven-remote-resources-plugin</artifactId>
@@ -641,11 +608,15 @@
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.0.0-M5</version>
+          <version>3.0.0-M7</version>
         </plugin>
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.0.0-M2</version>
         </plugin>
         <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
@@ -654,15 +625,15 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.3.2</version>
         </plugin>
         <plugin>
           <artifactId>maven-ear-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -673,6 +644,11 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>xml-maven-plugin</artifactId>
           <version>1.0.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.13.0</version>
         </plugin>
         <plugin>
           <groupId>io.github.divinespear</groupId>
