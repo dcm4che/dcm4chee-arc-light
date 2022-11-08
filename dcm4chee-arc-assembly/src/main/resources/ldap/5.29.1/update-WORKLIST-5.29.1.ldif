@@ -1,0 +1,143 @@
+version: 1
+
+dn: dicomAETitle=WORKLIST,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dicomUniqueAETitle
+dicomAETitle: WORKLIST
+
+dn: dcmWebAppName=WORKLIST,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: WORKLIST
+
+dn: dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomAssociationInitiator: TRUE
+dicomDescription: Modality and Unified Worklist
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+objectClass: dcmArchiveNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: WORKLIST
+dicomAssociationAcceptor: TRUE
+
+dn: dcmWebAppName=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Modality and Unified Worklist
+dcmWebServiceClass: UPS_RS
+dcmWebServiceClass: MWL_RS
+dcmWebServiceClass: DCM4CHEE_ARC_AET
+dcmWebServiceClass: UPS_MATCHING
+objectClass: dcmWebApp
+dicomAETitle: WORKLIST
+dcmWebAppName: WORKLIST
+dcmWebServicePath: /dcm4chee-arc/aets/WORKLIST/rs
+
+dn: cn=Verification SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCP
+
+dn: cn=Verification SOP Class SCU,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCU
+
+dn: cn=Unified Procedure Step - Pull SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.3
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Pull SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Unified Procedure Step - Push SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Unified Procedure Step - Push SOP Class SCP
+
+dn: cn=Unified Procedure Step - Event SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.4
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Unified Procedure Step - Event SOP Class SCP
+
+dn: cn=Unified Procedure Step - Query SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.5
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Query SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Unified Procedure Step - Watch SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.2
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Watch SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Modality Worklist Information Model - FIND SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.31
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Modality Worklist Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Modality Performed Procedure Step SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.3.1.2.3.3
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Modality Performed Procedure Step SOP Class SCP
+
+dn: cn=Modality Performed Procedure Step SOP Class SCU,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.3.1.2.3.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Modality Performed Procedure Step SOP Class SCU

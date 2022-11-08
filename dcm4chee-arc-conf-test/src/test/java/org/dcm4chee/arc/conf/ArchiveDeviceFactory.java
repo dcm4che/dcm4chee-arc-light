@@ -74,6 +74,7 @@ import static org.dcm4che3.net.TransferCapability.Role.SCU;
 class ArchiveDeviceFactory {
 
     static final String AE_TITLE_DESC = "Hide instances rejected for Quality Reasons";
+    static final String WORKLIST_DESC = "Modality and Unified Worklist";
     static final String IOCM_REGULAR_USE_DESC = "Show instances rejected for Quality Reasons";
     static final String IOCM_QUALITY_DESC = "Only show instances rejected for Quality Reasons";
     static final String IOCM_EXPIRED_DESC = "Only show instances rejected for Data Retention Expired";
@@ -1486,7 +1487,7 @@ class ArchiveDeviceFactory {
 
         device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
-                true, true, true, true, true,
+                true, true, true, false, true, true, false,
                 new ArchiveAttributeCoercion2()
                         .setCommonName("SupplementIssuerOfPatientID")
                         .setDIMSE(Dimse.C_STORE_RQ)
@@ -1495,29 +1496,33 @@ class ArchiveDeviceFactory {
                         .setConditions(new Conditions("IssuerOfPatientID!=.+"))
                         .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}"),
                 configType, ONLY_ADMIN, USER));
+        device.addApplicationEntity(createAE("WORKLIST", WORKLIST_DESC,
+                dicom, dicomTLS, null,
+                false, false, false, true, true, true, true, null,
+                configType, ONLY_ADMIN, USER));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
-                false, true, true, false, false, null,
+                false, true, true, false, false, false, false, null,
                 configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
                 dicom, dicomTLS, IOCM_EXPIRED_VIEW,
-                false, false, false, false, false, null,
+                false, false, false, false, false, false, false, null,
                 configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_QUALITY", IOCM_QUALITY_DESC,
                 dicom, dicomTLS, IOCM_QUALITY_VIEW,
-                false, false, false, false, false, null,
+                false, false, false, false, false, false, false, null,
                 configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
                 dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW,
-                false, false, false, false, false, null,
+                false, false, false, false, false, false, false, null,
                 configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
                 dicom, dicomTLS, IOCM_WRONG_MWL_VIEW,
-                false, false, false, false, false, null,
+                false, false, false, false, false, false, false, null,
                 configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
-                false, true, false, false, false,
+                false, true, false, false, false, false, false,
                 new ArchiveAttributeCoercion2()
                         .setCommonName("RetrieveAsReceived")
                         .setDIMSE(Dimse.C_STORE_RQ)
@@ -1531,9 +1536,6 @@ class ArchiveDeviceFactory {
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS,
-                WebApplication.ServiceClass.UPS_RS,
-                WebApplication.ServiceClass.UPS_MATCHING,
-                WebApplication.ServiceClass.MWL_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET);
         device.addWebApplication(webapp);
         if (configType == configType.DOCKER) {
@@ -1545,6 +1547,12 @@ class ArchiveDeviceFactory {
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/wado", AE_TITLE, null,
                 WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("WORKLIST", WORKLIST_DESC,
+                "/dcm4chee-arc/aets/WORKLIST/rs", "WORKLIST", null,
+                WebApplication.ServiceClass.UPS_RS,
+                WebApplication.ServiceClass.UPS_MATCHING,
+                WebApplication.ServiceClass.MWL_RS,
+                WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", ONLY_ADMIN,
                 WebApplication.ServiceClass.QIDO_RS,
@@ -2240,9 +2248,11 @@ class ArchiveDeviceFactory {
     }
 
     private static ApplicationEntity createAE(String aet, String description,
-            Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
-            boolean storeSCP, boolean storeSCU, boolean ianSCU, boolean mwlSCP, boolean upsSCP,
-            ArchiveAttributeCoercion2 coercion, ConfigType configType, String... acceptedUserRoles) {
+                                              Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
+                                              boolean storeSCP, boolean storeSCU, boolean ianSCU, boolean mwlSCP,
+                                              boolean mppsSCP, boolean mppsSCU, boolean upsSCP,
+                                              ArchiveAttributeCoercion2 coercion, ConfigType configType,
+                                              String... acceptedUserRoles) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -2256,7 +2266,10 @@ class ArchiveDeviceFactory {
         addTC(ae, null, SCP, UID.Verification, UID.ImplicitVRLittleEndian);
         addTC(ae, null, SCU, UID.Verification, UID.ImplicitVRLittleEndian);
         EnumSet<QueryOption> allQueryOpts = EnumSet.allOf(QueryOption.class);
-        addTCs(ae, allQueryOpts, SCP, QUERY_CUIDS, UID.ImplicitVRLittleEndian);
+        if (qrView != null) {
+            addTCs(ae, allQueryOpts, SCP, QUERY_CUIDS, UID.ImplicitVRLittleEndian);
+            aeExt.setQueryRetrieveViewID(qrView.getViewID());
+        }
         if (mwlSCP) {
             addTC(ae, allQueryOpts, SCP,
                     UID.ModalityWorklistInformationModelFind,
@@ -2287,16 +2300,19 @@ class ArchiveDeviceFactory {
             for (int i = 0; i < CUIDS.length; i++)
                 addTCs(ae, null, SCP, CUIDS[i], TSUIDS[i]);
             addTC(ae, null, SCP, UID.StorageCommitmentPushModel, UID.ImplicitVRLittleEndian);
-            addTC(ae, null, SCP, UID.ModalityPerformedProcedureStep, UID.ImplicitVRLittleEndian);
-            addTC(ae, null, SCU, UID.ModalityPerformedProcedureStep, UID.ImplicitVRLittleEndian);
             if (configType == ConfigType.SAMPLE)
                 aeExt.setMetadataStorageIDs(METADATA_STORAGE_ID);
             aeExt.setObjectStorageIDs(STORAGE_ID);
         }
+        if (mppsSCP) {
+            addTC(ae, null, SCP, UID.ModalityPerformedProcedureStep, UID.ImplicitVRLittleEndian);
+        }
+        if (mppsSCU) {
+            addTC(ae, null, SCU, UID.ModalityPerformedProcedureStep, UID.ImplicitVRLittleEndian);
+        }
         if (ianSCU) {
             addTC(ae, null, SCU, UID.InstanceAvailabilityNotification, UID.ImplicitVRLittleEndian);
         }
-        aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
         if (coercion != null)
             aeExt.addAttributeCoercion2(coercion);

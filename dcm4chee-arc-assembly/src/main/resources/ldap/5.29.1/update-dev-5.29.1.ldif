@@ -1,0 +1,19 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: hl7PSUStudyTemplateURI
+hl7PSUStudyTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dcm2hl7-psu.xsl
+-
+add: hl7PSUMppsTemplateURI
+hl7PSUMppsTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mpps2hl7-psu.xsl
+-
+add: hl7PSUTemplateParam
+hl7PSUTemplateParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+hl7PSUTemplateParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+hl7PSUTemplateParam: RequestedProcedureID={StudyInstanceUID,hash}
+hl7PSUTemplateParam: AccessionNumber={StudyInstanceUID,hash}
+-
+replace: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+

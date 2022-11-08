@@ -125,6 +125,7 @@ public class ArchiveDeviceConfigurationTest {
 
     private void cleanUp() throws Exception {
         config.unregisterAETitle("DCM4CHEE");
+        config.unregisterAETitle("WORKLIST");
         config.unregisterAETitle("IOCM_REGULAR_USE");
         config.unregisterAETitle("IOCM_EXPIRED");
         config.unregisterAETitle("IOCM_QUALITY");
@@ -136,6 +137,7 @@ public class ArchiveDeviceConfigurationTest {
         hl7Config.unregisterHL7Application("HL7RCV|DCM4CHEE");
         config.unregisterWebAppName("DCM4CHEE");
         config.unregisterWebAppName("DCM4CHEE-WADO");
+        config.unregisterWebAppName("WORKLIST");
         config.unregisterWebAppName("IOCM_REGULAR_USE");
         config.unregisterWebAppName("IOCM_REGULAR_USE-WADO");
         config.unregisterWebAppName("IOCM_EXPIRED");

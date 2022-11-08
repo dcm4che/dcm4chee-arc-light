@@ -106,15 +106,15 @@ dcmTrustStorePin: secret
 dcmTaskPollingInterval: PT1M
 dcmXDSiImagingDocumentSourceAETitle: DCM4CHEE
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
+hl7PSUTemplateParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+hl7PSUTemplateParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+hl7PSUTemplateParam: RequestedProcedureID={StudyInstanceUID,hash}
+hl7PSUTemplateParam: AccessionNumber={StudyInstanceUID,hash}
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmBulkDataDescriptorID: default
 dcmCompressionAETitle: DCM4CHEE
-hl7PSUTemplateParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
-hl7PSUTemplateParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
-hl7PSUTemplateParam: RequestedProcedureID={StudyInstanceUID,hash}
-hl7PSUTemplateParam: AccessionNumber={StudyInstanceUID,hash}
 dcmPurgeStoragePollingInterval: PT5M
 dcmDeleteUPSPollingInterval: PT1H
 dcmRejectionNoteStorageAET: DCM4CHEE
@@ -2925,6 +2925,19 @@ objectClass: dcmArchiveNetworkAE
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
 
+dn: dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAssociationInitiator: TRUE
+dicomDescription: Modality and Unified Worklist
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+objectClass: dcmArchiveNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: WORKLIST
+dicomAssociationAcceptor: TRUE
+
 dn: dcmQueueName=DiffTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmRetryDelay: PT30S
@@ -2984,15 +2997,23 @@ dicomDescription: Hide instances rejected for Quality Reasons
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
-dcmWebServiceClass: UPS_RS
-dcmWebServiceClass: MWL_RS
 dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
-dcmWebServiceClass: UPS_MATCHING
 objectClass: dcmWebApp
 dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/rs
+
+dn: dcmWebAppName=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Modality and Unified Worklist
+dcmWebServiceClass: UPS_RS
+dcmWebServiceClass: MWL_RS
+dcmWebServiceClass: DCM4CHEE_ARC_AET
+dcmWebServiceClass: UPS_MATCHING
+objectClass: dcmWebApp
+dicomAETitle: WORKLIST
+dcmWebAppName: WORKLIST
+dcmWebServicePath: /dcm4chee-arc/aets/WORKLIST/rs
 
 dn: cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmImageReaderFactory
@@ -7141,26 +7162,6 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Storage Commitment Push Model SOP Class SCU
 
-dn: cn=Unified Procedure Step - Pull SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmFuzzySemanticMatching: TRUE
-dicomSOPClass: 1.2.840.10008.5.1.4.34.6.3
-dcmTimezoneQueryAdjustment: TRUE
-dicomTransferRole: SCP
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-dcmCombinedDateTimeMatching: TRUE
-dcmRelationalQueries: TRUE
-cn: Unified Procedure Step - Pull SOP Class SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-
-dn: cn=Unified Procedure Step - Push SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.34.6.1
-dicomTransferRole: SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Unified Procedure Step - Push SOP Class SCP
-
 dn: cn=VL Whole Slide Microscopy Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.6
 dicomTransferRole: SCP
@@ -7361,38 +7362,6 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Tomotherapeutic Radiation Record Storage SCU
 
-dn: cn=Unified Procedure Step - Event SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.34.6.4
-dicomTransferRole: SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Unified Procedure Step - Event SOP Class SCP
-
-dn: cn=Unified Procedure Step - Query SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmFuzzySemanticMatching: TRUE
-dicomSOPClass: 1.2.840.10008.5.1.4.34.6.5
-dcmTimezoneQueryAdjustment: TRUE
-dicomTransferRole: SCP
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-dcmCombinedDateTimeMatching: TRUE
-dcmRelationalQueries: TRUE
-cn: Unified Procedure Step - Query SOP Class SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-
-dn: cn=Unified Procedure Step - Watch SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmFuzzySemanticMatching: TRUE
-dicomSOPClass: 1.2.840.10008.5.1.4.34.6.2
-dcmTimezoneQueryAdjustment: TRUE
-dicomTransferRole: SCP
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-dcmCombinedDateTimeMatching: TRUE
-dcmRelationalQueries: TRUE
-cn: Unified Procedure Step - Watch SOP Class SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-
 dn: cn=Color Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
 dicomTransferRole: SCP
@@ -7590,18 +7559,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Microscopy Bulk Simple Annotations Storage SCU
-
-dn: cn=Modality Worklist Information Model - FIND SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmFuzzySemanticMatching: TRUE
-dicomSOPClass: 1.2.840.10008.5.1.4.31
-dcmTimezoneQueryAdjustment: TRUE
-dicomTransferRole: SCP
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-dcmCombinedDateTimeMatching: TRUE
-dcmRelationalQueries: TRUE
-cn: Modality Worklist Information Model - FIND SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
 
 dn: cn=Multi-channel Respiratory Waveform Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.6.2
@@ -9560,6 +9517,102 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Intravascular Optical Coherence Tomography Image Storage - For Presentation SCU
+
+dn: cn=Verification SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCP
+
+dn: cn=Verification SOP Class SCU,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCU
+
+dn: cn=Unified Procedure Step - Pull SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.3
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Pull SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Unified Procedure Step - Push SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Unified Procedure Step - Push SOP Class SCP
+
+dn: cn=Unified Procedure Step - Event SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.4
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Unified Procedure Step - Event SOP Class SCP
+
+dn: cn=Unified Procedure Step - Query SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.5
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Query SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Unified Procedure Step - Watch SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.34.6.2
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Unified Procedure Step - Watch SOP Class SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Modality Worklist Information Model - FIND SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.31
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Modality Worklist Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Modality Performed Procedure Step SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.3.1.2.3.3
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Modality Performed Procedure Step SOP Class SCP
+
+dn: cn=Modality Performed Procedure Step SOP Class SCU,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.3.1.2.3.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Modality Performed Procedure Step SOP Class SCU
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.5,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.imageio.plugins.rle.RLEImageReader
@@ -15793,6 +15846,10 @@ dn: dicomAETitle=STORESCP,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc
 objectClass: dicomUniqueAETitle
 dicomAETitle: STORESCP
 
+dn: dicomAETitle=WORKLIST,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitle
+dicomAETitle: WORKLIST
+
 dn: dicomAETitle=AS_RECEIVED,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle
 dicomAETitle: AS_RECEIVED
@@ -15828,6 +15885,10 @@ dcmWebAppName: stowrsd
 dn: dcmWebAppName=DCM4CHEE,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmUniqueWebAppName
 dcmWebAppName: DCM4CHEE
+
+dn: dcmWebAppName=WORKLIST,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmUniqueWebAppName
+dcmWebAppName: WORKLIST
 
 dn: dcmWebAppName=AS_RECEIVED,cn=Unique Web Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmUniqueWebAppName
