@@ -337,7 +337,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHl7PSUFillerOrderNumber(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUPlacerOrderNumber",
                 ext.getHl7PSUPlacerOrderNumber(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUParam", ext.getHL7PSUParams());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUTemplateParam", ext.getHL7PSUTemplateParams());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMessageType",
                 ext.getHl7PSUMessageType(), HL7PSUMessageType.OMG_O19);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUCondition", ext.getHl7PSUConditions().getMap());
@@ -707,7 +707,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUAccessionNumber(LdapUtils.stringValue(attrs.get("hl7PSUAccessionNumber"), null));
         ext.setHl7PSUFillerOrderNumber(LdapUtils.stringValue(attrs.get("hl7PSUFillerOrderNumber"), null));
         ext.setHl7PSUPlacerOrderNumber(LdapUtils.stringValue(attrs.get("hl7PSUPlacerOrderNumber"), null));
-        ext.setHL7PSUParams(LdapUtils.stringArray(attrs.get("hl7PSUParam")));
+        ext.setHL7PSUTemplateParams(LdapUtils.stringArray(attrs.get("hl7PSUTemplateParam")));
         ext.setHl7PSUMessageType(
                 LdapUtils.enumValue(HL7PSUMessageType.class, attrs.get("hl7PSUMessageType"), HL7PSUMessageType.OMG_O19));
         ext.setHl7PSUConditions(new Conditions(LdapUtils.stringArray(attrs.get("hl7PSUCondition"))));
@@ -1199,7 +1199,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHl7PSUFillerOrderNumber(), bb.getHl7PSUFillerOrderNumber(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUPlacerOrderNumber",
                 aa.getHl7PSUPlacerOrderNumber(), bb.getHl7PSUPlacerOrderNumber(), null);
-        LdapUtils.storeDiffProperties(ldapObj, mods, "hl7PSUParam", aa.getHL7PSUParams(), bb.getHL7PSUParams());
+        LdapUtils.storeDiffProperties(ldapObj, mods, "hl7PSUTemplateParam", aa.getHL7PSUTemplateParams(), bb.getHL7PSUTemplateParams());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMessageType",
                 aa.getHl7PSUMessageType(), bb.getHl7PSUMessageType(), HL7PSUMessageType.OMG_O19);
         LdapUtils.storeDiffProperties(ldapObj, mods, "hl7PSUCondition",
@@ -1767,7 +1767,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHl7PSUFillerOrderNumber(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUPlacerOrderNumber",
                 ext.getHl7PSUPlacerOrderNumber(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUParam", ext.getHL7PSUParams());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUTemplateParam", ext.getHL7PSUTemplateParams());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMessageType", ext.getHl7PSUMessageType(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUCondition", ext.getHl7PSUConditions().getMap());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMppsTemplateURI",
@@ -1935,7 +1935,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUAccessionNumber(LdapUtils.stringValue(attrs.get("hl7PSUAccessionNumber"), null));
         ext.setHl7PSUFillerOrderNumber(LdapUtils.stringValue(attrs.get("hl7PSUFillerOrderNumber"), null));
         ext.setHl7PSUPlacerOrderNumber(LdapUtils.stringValue(attrs.get("hl7PSUPlacerOrderNumber"), null));
-        ext.setHL7PSUParams(LdapUtils.stringArray(attrs.get("hl7PSUParam")));
+        ext.setHL7PSUTemplateParams(LdapUtils.stringArray(attrs.get("hl7PSUTemplateParam")));
         ext.setHl7PSUMessageType(
                 LdapUtils.enumValue(HL7PSUMessageType.class, attrs.get("hl7PSUMessageType"), null));
         ext.setHl7PSUConditions(new Conditions(LdapUtils.stringArray(attrs.get("hl7PSUCondition"))));
@@ -2182,7 +2182,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHl7PSUFillerOrderNumber(), bb.getHl7PSUFillerOrderNumber(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUPlacerOrderNumber",
                 aa.getHl7PSUPlacerOrderNumber(), bb.getHl7PSUPlacerOrderNumber(), null);
-        LdapUtils.storeDiffProperties(ldapObj, mods, "hl7PSUParam", aa.getHL7PSUParams(), bb.getHL7PSUParams());
+        LdapUtils.storeDiffProperties(ldapObj, mods, "hl7PSUTemplateParam", aa.getHL7PSUTemplateParams(), bb.getHL7PSUTemplateParams());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMessageType",
                 aa.getHl7PSUMessageType(), bb.getHl7PSUMessageType(), null);
         LdapUtils.storeDiffProperties(ldapObj, mods, "hl7PSUCondition",
@@ -2405,7 +2405,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 filter.setCustomAttribute3(valueSelector(attrs.get("dcmCustomAttribute3")));
                 filter.setAttributeUpdatePolicy(
                         LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
-                        attrs.get("dcmAttributeUpdatePolicy"),
+                                attrs.get("dcmAttributeUpdatePolicy"),
                                 org.dcm4che3.data.Attributes.UpdatePolicy.PRESERVE));
                 device.setAttributeFilter(
                         Entity.valueOf(LdapUtils.stringValue(attrs.get("dcmEntity"), null)),
@@ -2481,7 +2481,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 config.destroySubcontext(dn);
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
             }
-        
+
         for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
             Entity entity = entry.getKey();
             String dn = LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN);
@@ -3707,7 +3707,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsProcessingRule.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 upsProcessingRule.setMaxThreads(LdapUtils.intValue(attrs.get("dcmMaxThreads"), 1));
                 upsProcessingRule.setInputReadinessState(LdapUtils.enumValue(InputReadinessState.class,
-                                attrs.get("dcmUPSInputReadinessState"), InputReadinessState.READY));
+                        attrs.get("dcmUPSInputReadinessState"), InputReadinessState.READY));
                 upsProcessingRule.setUPSPriority(
                         LdapUtils.enumValue(UPSPriority.class, attrs.get("dcmUPSPriority"), null));
                 upsProcessingRule.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
@@ -3895,7 +3895,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     static void storeHL7PrefetchRules(ConfigurationChanges diffs, Collection<HL7PrefetchRule> prefetchRules,
-                                    String parentDN, LdapDicomConfiguration config)
+                                      String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7PrefetchRule rule : prefetchRules) {
             String dn = LdapUtils.dnOf("cn", rule.getCommonName(), parentDN);
@@ -3938,7 +3938,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     static void loadHL7PrefetchRules(Collection<HL7PrefetchRule> prefetchRules, String parentDN,
-                                   LdapDicomConfiguration config) throws NamingException {
+                                     LdapDicomConfiguration config) throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7PrefetchRule)");
         try {
             while (ne.hasMore()) {
@@ -4077,7 +4077,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private void mergeMWLImports(ConfigurationChanges diffs, Collection<MWLImport> prevMWLImports,
-                                      Collection<MWLImport> mwlImports, String parentDN)
+                                 Collection<MWLImport> mwlImports, String parentDN)
             throws NamingException {
         for (MWLImport prevMWLImport : prevMWLImports) {
             String mwlImportID = prevMWLImport.getMWLImportID();
@@ -4230,7 +4230,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
-            ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
+                                              ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
                 prev.getConditions().getMap(), rule.getConditions().getMap());
@@ -4276,7 +4276,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getMWLSCP(), mwlImport.getMWLSCP(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDestinationAE",
                 prev.getDestinationAE(), mwlImport.getDestinationAE(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration", 
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
                 prev.getPrefetchBefore(), mwlImport.getPrefetchBefore(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLImportNotOlder",
                 prev.getNotOlderThan(), mwlImport.getNotOlderThan(), null);
@@ -4470,7 +4470,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
-                                              UPSOnHL7 prev, UPSOnHL7 upsOnHL7, ArrayList<ModificationItem> mods) {
+                                                     UPSOnHL7 prev, UPSOnHL7 upsOnHL7, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSLabel",
                 prev.getProcedureStepLabel(), upsOnHL7.getProcedureStepLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPriority",
@@ -4678,9 +4678,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
-                                              HL7ExportRule prev,
-                                              HL7ExportRule rule,
-                                              ArrayList<ModificationItem> mods) {
+                                                     HL7ExportRule prev,
+                                                     HL7ExportRule rule,
+                                                     ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
                 prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(ldapObj, mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
@@ -4709,10 +4709,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     static void mergeHL7PrefetchRules(ConfigurationChanges diffs,
-                                    Collection<HL7PrefetchRule> prevRules,
-                                    Collection<HL7PrefetchRule> rules,
-                                    String parentDN,
-                                    LdapDicomConfiguration config)
+                                      Collection<HL7PrefetchRule> prevRules,
+                                      Collection<HL7PrefetchRule> rules,
+                                      String parentDN,
+                                      LdapDicomConfiguration config)
             throws NamingException {
         for (HL7PrefetchRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
@@ -4742,9 +4742,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj,
-                                              HL7PrefetchRule prev,
-                                              HL7PrefetchRule rule,
-                                              ArrayList<ModificationItem> mods) {
+                                                     HL7PrefetchRule prev,
+                                                     HL7PrefetchRule rule,
+                                                     ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueueName",
                 prev.getQueueName(), rule.getQueueName(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle",
@@ -4833,7 +4833,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
 
     static void storeHL7ForwardRules(ConfigurationChanges diffs,
-            Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
+                                     Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
             throws NamingException{
         for (HL7ForwardRule rule : rules) {
             String dn = LdapUtils.dnOf("cn", rule.getCommonName(), parentDN);
@@ -4844,7 +4844,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     static void storeScheduledStations(ConfigurationChanges diffs,
-            Collection<HL7OrderScheduledStation> stations, String parentDN, LdapDicomConfiguration config)
+                                       Collection<HL7OrderScheduledStation> stations, String parentDN, LdapDicomConfiguration config)
             throws NamingException{
         for (HL7OrderScheduledStation station : stations) {
             String dn = LdapUtils.dnOf("cn", station.getCommonName(), parentDN);
@@ -4855,7 +4855,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     static void storeHL7OrderSPSStatus(ConfigurationChanges diffs,
-            Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String parentDN, LdapDicomConfiguration config)
+                                       Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
             String dn = LdapUtils.dnOf("dcmSPSStatus", entry.getKey().toString(), parentDN);
@@ -5094,8 +5094,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 HL7OrderScheduledStation station = new HL7OrderScheduledStation(LdapUtils.stringValue(attrs.get("cn"), null));
                 String scheduledStationDeviceRef = LdapUtils.stringValue(attrs.get("hl7OrderScheduledStationDeviceReference"), null);
                 station.setDevice(parentDN.equals(scheduledStationDeviceRef)
-                                    ? device
-                                    : loadScheduledStation(scheduledStationDeviceRef, config));
+                        ? device
+                        : loadScheduledStation(scheduledStationDeviceRef, config));
                 station.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 station.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 stations.add(station);
@@ -5306,7 +5306,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 config.createSubcontext(dn,
                         storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 rule, new BasicAttributes(true)));
-             } else {
+            } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<>()));
@@ -5316,7 +5316,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     static void mergeScheduledStations(ConfigurationChanges diffs, Collection<HL7OrderScheduledStation> prevStations, Collection<HL7OrderScheduledStation> stations,
-                                                 String parentDN, LdapDicomConfiguration config)
+                                       String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7OrderScheduledStation prevRule : prevStations) {
             String cn = prevRule.getCommonName();
@@ -5830,7 +5830,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.booleanValue(attrs.get("dcmTrimISO2022CharacterSet"), false));
                 coercion.setUseCallingAETitleAs(
                         LdapUtils.enumValue(UseCallingAETitleAsCoercion.Type.class,
-                        attrs.get("dcmUseCallingAETitleAs"), null));
+                                attrs.get("dcmUseCallingAETitleAs"), null));
                 coercion.setLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCP"), null));
                 coercion.setMergeMWLTemplateURI(
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLTemplateURI"), null));
@@ -5840,7 +5840,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setMergeLocalMWLWithStatus(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmMergeLocalMWLWithStatus")));
                 coercion.setMergeMWLMatchingKey(
                         LdapUtils.enumValue(MergeMWLMatchingKey.class,
-                        attrs.get("dcmMergeMWLMatchingKey"), null));
+                                attrs.get("dcmMergeMWLMatchingKey"), null));
                 coercion.setFilterBySCU(LdapUtils.booleanValue(attrs.get("dcmMWLImportFilterBySCU"), false));
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));

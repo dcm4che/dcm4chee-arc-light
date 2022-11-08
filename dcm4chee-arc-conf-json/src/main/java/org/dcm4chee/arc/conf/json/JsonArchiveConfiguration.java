@@ -262,7 +262,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUAccessionNumber", arcDev.getHl7PSUAccessionNumber(), null);
         writer.writeNotNullOrDef("hl7PSUFillerOrderNumber", arcDev.getHl7PSUFillerOrderNumber(), null);
         writer.writeNotNullOrDef("hl7PSUPlacerOrderNumber", arcDev.getHl7PSUPlacerOrderNumber(), null);
-        writer.writeNotEmpty("hl7PSUParam", arcDev.getHL7PSUParams());
+        writer.writeNotEmpty("hl7PSUTemplateParam", arcDev.getHL7PSUTemplateParams());
         writer.writeNotNullOrDef("hl7PSUMessageType", arcDev.getHl7PSUMessageType(), HL7PSUMessageType.OMG_O19);
         writer.writeNotEmpty("hl7PSUCondition", arcDev.getHl7PSUConditions().getMap());
         writer.writeNotNullOrDef("hl7PSUMppsTemplateURI", arcDev.getHl7PSUMppsTemplateURI(), null);
@@ -1288,7 +1288,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUAccessionNumber", arcAE.getHl7PSUAccessionNumber(), null);
         writer.writeNotNullOrDef("hl7PSUFillerOrderNumber", arcAE.getHl7PSUFillerOrderNumber(), null);
         writer.writeNotNullOrDef("hl7PSUPlacerOrderNumber", arcAE.getHl7PSUPlacerOrderNumber(), null);
-        writer.writeNotEmpty("hl7PSUParam", arcAE.getHL7PSUParams());
+        writer.writeNotEmpty("hl7PSUTemplateParam", arcAE.getHL7PSUTemplateParams());
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID(), null);
         writer.writeNotNullOrDef("hl7PSUMessageType", arcAE.getHl7PSUMessageType(), null);
         writer.writeNotEmpty("hl7PSUCondition", arcAE.getHl7PSUConditions().getMap());
@@ -1788,8 +1788,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "hl7PSUPlacerOrderNumber":
                     arcDev.setHl7PSUPlacerOrderNumber(reader.stringValue());
                     break;
-                case "hl7PSUParam":
-                    arcDev.setHL7PSUParams(reader.stringArray());
+                case "hl7PSUTemplateParam":
+                    arcDev.setHL7PSUTemplateParams(reader.stringArray());
                     break;
                 case "hl7PSUMessageType":
                     arcDev.setHl7PSUMessageType(HL7PSUMessageType.valueOf(reader.stringValue()));
@@ -2957,7 +2957,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadArchiveAttributeCoercion2(Collection<ArchiveAttributeCoercion2> coercions, JsonReader reader,
-                                              ConfigurationDelegate config) {
+                                               ConfigurationDelegate config) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -4135,8 +4135,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "hl7PSUPlacerOrderNumber":
                     arcAE.setHl7PSUPlacerOrderNumber(reader.stringValue());
                     break;
-                case "hl7PSUParam":
-                    arcAE.setHL7PSUParams(reader.stringArray());
+                case "hl7PSUTemplateParam":
+                    arcAE.setHL7PSUTemplateParams(reader.stringArray());
                     break;
                 case "hl7PSUMessageType":
                     arcAE.setHl7PSUMessageType(HL7PSUMessageType.valueOf(reader.stringValue()));

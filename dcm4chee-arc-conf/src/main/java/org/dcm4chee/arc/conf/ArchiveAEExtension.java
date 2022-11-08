@@ -184,7 +184,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final List<ArchiveAttributeCoercion2> attributeCoercions2 = new ArrayList<>();
     private final List<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
-    private final Map<String, String> hl7PSUParams = new HashMap<>();
+    private final Map<String, String> hl7PSUTemplateParams = new HashMap<>();
 
     public String getDefaultCharacterSet() {
         return defaultCharacterSet;
@@ -324,10 +324,10 @@ public class ArchiveAEExtension extends AEExtension {
     public Duration purgeInstanceRecordsDelay() {
         ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
         return arcdev.isPurgeInstanceRecords()
-            ? purgeInstanceRecordsDelay != null
+                ? purgeInstanceRecordsDelay != null
                 ? purgeInstanceRecordsDelay
                 : arcdev.getPurgeInstanceRecordsDelay()
-            : null;
+                : null;
     }
 
     public String getStoreAccessControlID() {
@@ -1575,27 +1575,27 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getHl7PSUStudyTemplateURI();
     }
 
-    public Map<String, String> hl7PSUParams() {
-        return !hl7PSUParams.isEmpty()
-                ? hl7PSUParams
-                : getArchiveDeviceExtension().getHL7PSUParams();
+    public Map<String, String> hl7PSUTemplateParams() {
+        return !hl7PSUTemplateParams.isEmpty()
+                ? hl7PSUTemplateParams
+                : getArchiveDeviceExtension().getHL7PSUTemplateParams();
     }
 
-    public Map<String, String> getHL7PSUParams() {
-        return hl7PSUParams;
+    public Map<String, String> getHL7PSUTemplateParams() {
+        return hl7PSUTemplateParams;
     }
 
-    public void setHL7PSUParam(String name, String value) {
-        hl7PSUParams.put(name, value);
+    public void setHL7PSUTemplateParam(String name, String value) {
+        hl7PSUTemplateParams.put(name, value);
     }
 
-    public void setHL7PSUParams(String[] ss) {
-        hl7PSUParams.clear();
+    public void setHL7PSUTemplateParams(String[] ss) {
+        hl7PSUTemplateParams.clear();
         for (String s : ss) {
             int index = s.indexOf('=');
             if (index < 0)
                 throw new IllegalArgumentException("XSLT parameter in incorrect format : " + s);
-            setHL7PSUParam(s.substring(0, index), s.substring(index+1));
+            setHL7PSUTemplateParam(s.substring(0, index), s.substring(index+1));
         }
     }
 
@@ -2075,8 +2075,8 @@ public class ArchiveAEExtension extends AEExtension {
         attributeCoercions2.addAll(aeExt.attributeCoercions2);
         storeAccessControlIDRules.clear();
         storeAccessControlIDRules.addAll(aeExt.storeAccessControlIDRules);
-        hl7PSUParams.clear();
-        hl7PSUParams.putAll(aeExt.hl7PSUParams);
+        hl7PSUTemplateParams.clear();
+        hl7PSUTemplateParams.putAll(aeExt.hl7PSUTemplateParams);
     }
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
@@ -2118,7 +2118,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public ArchiveAttributeCoercion findAttributeCoercion(Dimse dimse, TransferCapability.Role role, String sopClass,
-            String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs) {
+                                                          String sendingHost, String sendingAET, String receivingHost, String receivingAET, Attributes attrs) {
         return attributeCoercions()
                 .filter(coercion -> coercion.match(role, dimse, sopClass,
                         sendingHost, sendingAET, receivingHost, receivingAET, attrs))
@@ -2128,18 +2128,18 @@ public class ArchiveAEExtension extends AEExtension {
 
     public Stream<ArchiveAttributeCoercion2> attributeCoercions2() {
         return Stream.concat(attributeCoercions2.stream(),
-                getArchiveDeviceExtension().getAttributeCoercions2().stream())
+                        getArchiveDeviceExtension().getAttributeCoercions2().stream())
                 .sorted(Comparator.comparingInt(ArchiveAttributeCoercion2::getPriority).reversed());
     }
 
     public Stream<StudyRetentionPolicy> studyRetentionPolicies() {
         return Stream.concat(studyRetentionPolicies.stream(),
-                getArchiveDeviceExtension().getStudyRetentionPolicies().stream())
+                        getArchiveDeviceExtension().getStudyRetentionPolicies().stream())
                 .sorted(Comparator.comparingInt(StudyRetentionPolicy::getPriority).reversed());
     }
 
     public StudyRetentionPolicy findStudyRetentionPolicy(String sendingHost, String sendingAET,
-            String receivingHost, String receivingAET, Attributes attrs) {
+                                                         String receivingHost, String receivingAET, Attributes attrs) {
         return studyRetentionPolicies()
                 .filter(policy -> policy.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs))
                 .findFirst()

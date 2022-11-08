@@ -1760,7 +1760,7 @@ class ArchiveDeviceFactory {
         ext.setOutgoingPatientUpdateTemplateURI(HL7_DCM2ADT_XSL);
         ext.setHl7PSUMppsTemplateURI(MPPS2HL7_PSU_XSL);
         ext.setHl7PSUStudyTemplateURI(STUDY2HL7_PSU_XSL);
-        ext.setHL7PSUParams(HL7PSU_PARAMS);
+        ext.setHL7PSUTemplateParams(HL7PSU_PARAMS);
         ext.setUnzipVendorDataToURI(UNZIP_VENDOR_DATA);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);

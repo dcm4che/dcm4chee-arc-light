@@ -221,10 +221,10 @@ dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
 dcmBulkDataDescriptorID: default
 dcmCompressionAETitle: DCM4CHEE
-hl7PSUParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
-hl7PSUParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
-hl7PSUParam: RequestedProcedureID={StudyInstanceUID,hash}
-hl7PSUParam: AccessionNumber={StudyInstanceUID,hash}
+hl7PSUTemplateParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+hl7PSUTemplateParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+hl7PSUTemplateParam: RequestedProcedureID={StudyInstanceUID,hash}
+hl7PSUTemplateParam: AccessionNumber={StudyInstanceUID,hash}
 dcmPurgeStoragePollingInterval: PT5M
 dcmDeleteUPSPollingInterval: PT1H
 dcmRejectionNoteStorageAET: DCM4CHEE

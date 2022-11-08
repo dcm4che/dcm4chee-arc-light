@@ -2160,7 +2160,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.443 NAME 'hl7PSUStudyTemplateURI'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.444 NAME 'hl7PSUParam'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.444 NAME 'hl7PSUTemplateParam'
   DESC 'XSLT parameters in format {attributeID}={value} passed to style sheet specified by HL7 Procedure Status Update MPPS Template URI or HL7 Procedure Status Update Study Template URI. {attributeID} inside of {value} will be replaced by the value of that attribute in the original dataset.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
@@ -2419,7 +2419,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PSUAccessionNumber $
     hl7PSUFillerOrderNumber $
     hl7PSUPlacerOrderNumber $
-    hl7PSUParam $
+    hl7PSUTemplateParam $
     hl7PSUMessageType $
     hl7PSUPIDPV1 $
     hl7PSUMWL $
@@ -2558,7 +2558,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     hl7PSUAccessionNumber $
     hl7PSUFillerOrderNumber $
     hl7PSUPlacerOrderNumber $
-    hl7PSUParam $
+    hl7PSUTemplateParam $
     hl7PSUMessageType $
     hl7PSUPIDPV1 $
     hl7PSUMWL $

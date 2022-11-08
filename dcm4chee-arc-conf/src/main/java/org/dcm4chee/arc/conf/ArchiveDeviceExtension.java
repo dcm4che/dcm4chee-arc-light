@@ -357,7 +357,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String,String> xRoadProperties = new HashMap<>();
     private final Map<String,String> impaxReportProperties = new HashMap<>();
     private final Map<String, String> importReportTemplateParams = new HashMap<>();
-    private final Map<String, String> hl7PSUParams = new HashMap<>();
+    private final Map<String, String> hl7PSUTemplateParams = new HashMap<>();
     private final Map<String, String> cStoreSCUOfCMoveSCP = new HashMap<>();
     private final Map<String, String> dicomCharsetNameMappings = new HashMap<>();
     private final Map<String, String> hl7CharsetNameMappings = new HashMap<>();
@@ -2872,21 +2872,21 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
-    public Map<String, String> getHL7PSUParams() {
-        return hl7PSUParams;
+    public Map<String, String> getHL7PSUTemplateParams() {
+        return hl7PSUTemplateParams;
     }
 
-    public void setHL7PSUParam(String name, String value) {
-        hl7PSUParams.put(name, value);
+    public void setHL7PSUTemplateParam(String name, String value) {
+        hl7PSUTemplateParams.put(name, value);
     }
 
-    public void setHL7PSUParams(String[] ss) {
-        hl7PSUParams.clear();
+    public void setHL7PSUTemplateParams(String[] ss) {
+        hl7PSUTemplateParams.clear();
         for (String s : ss) {
             int index = s.indexOf('=');
             if (index < 0)
                 throw new IllegalArgumentException("XSLT parameter in incorrect format : " + s);
-            setHL7PSUParam(s.substring(0, index), s.substring(index+1));
+            setHL7PSUTemplateParam(s.substring(0, index), s.substring(index+1));
         }
     }
 
@@ -3592,8 +3592,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         impaxReportProperties.putAll(arcdev.impaxReportProperties);
         importReportTemplateParams.clear();
         importReportTemplateParams.putAll(arcdev.importReportTemplateParams);
-        hl7PSUParams.clear();
-        hl7PSUParams.putAll(arcdev.hl7PSUParams);
+        hl7PSUTemplateParams.clear();
+        hl7PSUTemplateParams.putAll(arcdev.hl7PSUTemplateParams);
         cStoreSCUOfCMoveSCP.clear();
         cStoreSCUOfCMoveSCP.putAll(arcdev.cStoreSCUOfCMoveSCP);
         dicomCharsetNameMappings.clear();
