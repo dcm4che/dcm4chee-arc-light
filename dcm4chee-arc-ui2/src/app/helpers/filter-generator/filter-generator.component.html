@@ -1,5 +1,5 @@
 <div [hidden]="hideLoader" class="filter filter_loader">
-    <div class="filter_block {{cssBlockClass}}">
+    <div class="filter_block {{cssBlockClass}} height_{{filterTreeHeight}}">
         <i class="fa fa-circle-o-notch fa-spin"></i>
     </div>
 </div>
@@ -18,12 +18,14 @@
                 <li i18n="@@no_filter_template_found">No filter-templates found!</li>
             </ul>
             <ul class="templates" *ngIf="filterTemplates">
-                <li *ngFor="let filter of filterTemplates"><a  title="{{filter.dcmuiFilterTemplateDescription}}" (click)="$event.preventDefault();openTemplateFilter(filter)">{{filter.dcmuiFilterTemplateGroupName}}</a><span class="glyphicon glyphicon-remove" (click)="removeFilterTemplate(filter)"></span></li>
+                <li *ngFor="let filter of filterTemplates">
+                    <a  title="{{filter.dcmuiFilterTemplateDescription}}" (click)="$event.preventDefault();openTemplateFilter(filter)">{{filter.dcmuiFilterTemplateGroupName}}</a>
+                    <span class="glyphicon glyphicon-remove" (click)="removeFilterTemplate(filter)"></span></li>
             </ul>
         </div>
     </div>
     <ng-container *ngFor="let filter of schema;trackBy:trackByFn">
-        <div class="filter_block {{cssBlockClass}}" (click)="inFilterClicked()">
+        <div class="filter_block {{cssBlockClass}} height_{{filterTreeHeight}}" (click)="inFilterClicked()">
             <div *ngFor="let line of filter;trackBy:trackByFn" [ngClass]="{'line':((line && line[0] && (!line[0].showIf || line[0].showIf(model)) && ((line[0].dependingOn && model[line[0].dependingOn]) || !line[0].dependingOn))||(line && line[1] && (!line[1].showIf || line[1].showIf(model)) && ((line[1].dependingOn && model[line[1].dependingOn]) || !line[1].dependingOn)))}" [ngSwitch]="filter.type">
               <ng-container *ngFor="let index of [0,1]">
                 <ng-container *ngIf="line && line[index] && (!line[index].showIf || line[index].showIf(model)) && ((line[index].dependingOn && model[line[index].dependingOn]) || !line[index].dependingOn)" [ngSwitch]="line[index].tag">
@@ -34,7 +36,7 @@
                             <mat-option *ngFor="let option of line[index].secondField.options" value="{{option.value}}" title="{{option.description || option.title}}"  [innerHtml]="option.label || option.text"></mat-option>
                         </mat-select>
                     </div>
-                  <label *ngSwitchCase="'label'">{{line[index].text}}:</label>
+                  <label *ngSwitchCase="'label'" title="{{line[index].title}}">{{line[index].text}}<ng-container *ngIf="!line[index].dontShowDots">:</ng-container></label>
                   <modality *ngSwitchCase="'modality'" [model]="model[line[index].filterKey]" [ngStyle]="line[index].style" (modelChange)="model[line[index].filterKey] = $event;filterChange($event)"></modality>
                     <ng-container *ngSwitchCase="'multi-checkbox'">
                         <!--options:{{line[index]?.options|json}}-->
@@ -107,15 +109,15 @@
                               [showStar]="line[index].showStar"
                       ></dcm-drop-down>
                       <dcm-drop-down
+                              [multiSelectMode]="true"
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'multi-select'"
                               [placeholder]="line[index]?.placeholder"
                               [ngClass]="line[index].cssClass"
-                              [options]="line[index].options"
                               [optionsTree]="line[index].optionsTree"
+                              [options]="line[index].options"
                               [(model)]="model[line[index].filterKey]"
                               [showSearchField]="line[index].showSearchField"
-                              [multiSelectMode]="true"
                               (modelChange)="filterChange($event)"
                               [showStar]="line[index].showStar"
                       ></dcm-drop-down>
@@ -190,6 +192,7 @@
                             *ngSwitchCase="'range-picker'"
                             [onlyDate]="line[index].onlyDate"
                             [model]="model[line[index]?.filterKey]"
+                            [defaultTime]="line[index].defaultTime"
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
                             placeholder="{{line[index]?.description || line[index]?.placeholder}}"
@@ -202,6 +205,7 @@
                             [model]="model[line[index]?.filterKey]"
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
+                            [defaultTime]="line[index].defaultTime"
                             placeholder="{{line[index]?.description || line[index]?.placeholder}}"
                             title="{{line[index]?.description}}"
                             dateRange="true"
@@ -214,6 +218,7 @@
                             [model]="model[line[index]?.filterKey]"
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
+                            [defaultTime]="line[index].defaultTime"
                             placeholder="{{line[index]?.description || line[index]?.placeholder}}"
                             title="{{line[index]?.description}}"
                             onlyTime="true"
@@ -275,7 +280,7 @@
                             </div>
                         </div>
                     </div>
-                    <button (click)="submitEmit(line[index].id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[index].description}}">
+                    <button (click)="submitEmit(line[index].id)" class="btn-default submit" [ngClass]="line[index].cssClass" *ngSwitchCase="'button'" title="{{line[index].description}}">
                         <span *ngIf="line[index].showRefreshIcon" class="glyphicon glyphicon-refresh"></span>
                         <span *ngIf="line[index].showDynamicLoader" class="fa fa-circle-o-notch fa-spin dashboard_loader"></span>
                         {{line[index].text}}</button>

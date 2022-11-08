@@ -1,4 +1,14 @@
-import {Component, ContentChild, ContentChildren, EventEmitter, Input, OnInit, Output, QueryList} from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    ContentChild,
+    ContentChildren,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    QueryList
+} from '@angular/core';
 import {OptionComponent} from "../dropdown/option.component";
 import {SelectDropdown} from "../../interfaces";
 import {animate, state, style, transition, trigger} from "@angular/animations";
@@ -101,7 +111,16 @@ export class DcmDropDownComponent implements OnInit {
         }else{
             if(this.multiSelectMode){
                 console.log("model,element",value);
-                this.multiSelectValue = value || [];
+                if(value && typeof value === "string"){
+                    //const valueArray = value.split(",");
+                    if(value.indexOf(",") > -1 ){
+                        this.multiSelectValue = value.split(",");
+                    }else{
+                        this.multiSelectValue = [value];
+                    }
+                }else{
+                    this.multiSelectValue = value || [];
+                }
                 this.setSelectedElement();
             }
         }
@@ -120,7 +139,8 @@ export class DcmDropDownComponent implements OnInit {
 
     showDropdown = false;
     constructor(
-    ) { }
+        private changeDetectorRef:ChangeDetectorRef
+    ){}
 
     ngOnInit() {
     }
@@ -164,7 +184,8 @@ export class DcmDropDownComponent implements OnInit {
             if(this.isAllCheck){
                 this.multiSelectValue.push(element.value);
             }
-        })
+        });
+        this.modelChange.emit(this.multiSelectValue);
         // this.changeDetectorRef.detectChanges();
     }
     setSelectedElement(){
@@ -180,8 +201,10 @@ export class DcmDropDownComponent implements OnInit {
                         element.selected = false;
                     }
                 });
-                if(count === this.options.length-1){ //TODO make clear optional
+                if(count === this.options.length){ //TODO make clear optional
                     this.isAllCheck = true;
+                }else{
+                    this.isAllCheck = false;
                 }
                 this.modelChange.emit(this.multiSelectValue);
             }
@@ -195,6 +218,8 @@ export class DcmDropDownComponent implements OnInit {
                     }
                 });
                 this.modelChange.emit(this.selectedValue);
+            }else{
+                console.error("in else",this.options,"selectedValue",this.selectedValue);
             }
         }
 
@@ -217,6 +242,11 @@ export class DcmDropDownComponent implements OnInit {
                     this.multiSelectValue.push(element.value);
                     element.selected = true;
                 }
+            }
+            if(this.multiSelectValue.length === this.options.length){
+                this.isAllCheck = true;
+            }else{
+                this.isAllCheck = false;
             }
             this.modelChange.emit(this.multiSelectValue);
         }else{

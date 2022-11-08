@@ -92,6 +92,9 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         if(this._filterTreeHeight) {
             this.cssBlockClass = `height_${this._filterTreeHeight}`;
         }
+        if(this.filterTreeHeight) {
+            this.cssBlockClass = `height_${this.filterTreeHeight}`;
+        }
         if(!this.filterID){
             try{
                 this.filterID = `${location.hostname}-${this.inj['view'].parentNodeDef.renderParent.element.name}`;
