@@ -30,6 +30,7 @@ changetype: add
 dicomDescription: Modality and Unified Worklist
 dcmWebServiceClass: UPS_RS
 dcmWebServiceClass: MWL_RS
+dcmWebServiceClass: MPPS_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 dcmWebServiceClass: UPS_MATCHING
 objectClass: dcmWebApp
