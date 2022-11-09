@@ -12,10 +12,10 @@
     <xsl:param name="isPIDPV1" />
     <xsl:param name="ppsStatus" />
     <xsl:param name="includeNullValues" />
-    <xsl:param name="RequestedProcedureID">{StudyInstanceUID,hash}</xsl:param>
-    <xsl:param name="AccessionNumber">{StudyInstanceUID,hash}</xsl:param>
-    <xsl:param name="PlacerOrderNumberImagingServiceRequest">{StudyInstanceUID,hash}</xsl:param>
-    <xsl:param name="FillerOrderNumberImagingServiceRequest">{StudyInstanceUID,hash}</xsl:param>
+    <xsl:param name="RequestedProcedureID"/>
+    <xsl:param name="AccessionNumber"/>
+    <xsl:param name="PlacerOrderNumberImagingServiceRequest"/>
+    <xsl:param name="FillerOrderNumberImagingServiceRequest"/>
 
     <xsl:template match="/NativeDicomModel">
         <hl7>
