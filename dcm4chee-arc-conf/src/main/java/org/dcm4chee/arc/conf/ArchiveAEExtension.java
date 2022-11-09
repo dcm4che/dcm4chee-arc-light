@@ -1046,7 +1046,9 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public QueryRetrieveView getQueryRetrieveView() {
-        return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(getQueryRetrieveViewID());
+        return queryRetrieveViewID != null
+                ? getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID)
+                : null;
     }
 
     public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {

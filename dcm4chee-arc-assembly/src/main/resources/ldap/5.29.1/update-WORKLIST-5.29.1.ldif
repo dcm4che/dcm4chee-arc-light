@@ -16,6 +16,7 @@ dicomAssociationInitiator: TRUE
 dicomDescription: Modality and Unified Worklist
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
+dcmQueryRetrieveViewID: hideRejected
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
