@@ -215,10 +215,6 @@ dcmTrustStorePin: secret
 dcmTaskPollingInterval: PT1M
 dcmXDSiImagingDocumentSourceAETitle: DCM4CHEE
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
-hl7PSUTemplateParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
-hl7PSUTemplateParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
-hl7PSUTemplateParam: RequestedProcedureID={StudyInstanceUID,hash}
-hl7PSUTemplateParam: AccessionNumber={StudyInstanceUID,hash}
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
