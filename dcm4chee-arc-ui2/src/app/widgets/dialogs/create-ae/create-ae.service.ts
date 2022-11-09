@@ -156,6 +156,7 @@ export class CreateAeService {
                         "WADO_URI",
                         "UPS_RS",
                         "MWL_RS",
+                        "MPPS_RS",
                         "QIDO_COUNT",
                         "DCM4CHEE_ARC",
                         "DCM4CHEE_ARC_AET",

@@ -50,7 +50,6 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -69,7 +68,6 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
-import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -246,7 +244,7 @@ public class QidoRS {
     @Path("/patients")
     public Response searchForPatients() {
         return search("SearchForPatients", Model.PATIENT,
-                null, null, QIDO.PATIENT, false);
+                null, null, QIDO.PATIENT, false, WebApplication.ServiceClass.QIDO_RS);
     }
 
     @GET
@@ -254,7 +252,7 @@ public class QidoRS {
     @Path("/studies")
     public Response searchForStudies() {
         return search("SearchForStudies", Model.STUDY,
-                null, null, QIDO.STUDY, false);
+                null, null, QIDO.STUDY, false, WebApplication.ServiceClass.QIDO_RS);
     }
 
     @GET
@@ -262,7 +260,7 @@ public class QidoRS {
     @Path("/series")
     public Response searchForSeries() {
         return search("SearchForSeries", Model.SERIES,
-                null, null, QIDO.STUDY_SERIES, false);
+                null, null, QIDO.STUDY_SERIES, false, WebApplication.ServiceClass.QIDO_RS);
     }
 
     @GET
@@ -270,7 +268,7 @@ public class QidoRS {
     public Response searchForSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudySeries", Model.SERIES,
-                studyInstanceUID, null, QIDO.SERIES, true);
+                studyInstanceUID, null, QIDO.SERIES, true, WebApplication.ServiceClass.QIDO_RS);
     }
 
     @GET
@@ -278,7 +276,7 @@ public class QidoRS {
     @Path("/instances")
     public Response searchForInstances() {
         return search("SearchForInstances", Model.INSTANCE,
-                null, null, QIDO.STUDY_SERIES_INSTANCE, false);
+                null, null, QIDO.STUDY_SERIES_INSTANCE, false, WebApplication.ServiceClass.QIDO_RS);
     }
 
     @GET
@@ -286,7 +284,7 @@ public class QidoRS {
     public Response searchForInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudyInstances", Model.INSTANCE,
-                studyInstanceUID, null, QIDO.SERIES_INSTANCE, true);
+                studyInstanceUID, null, QIDO.SERIES_INSTANCE, true, WebApplication.ServiceClass.QIDO_RS);
     }
 
     @GET
@@ -295,7 +293,7 @@ public class QidoRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
-                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, true);
+                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, true, WebApplication.ServiceClass.QIDO_RS);
     }
 
     @GET
@@ -303,7 +301,7 @@ public class QidoRS {
     @Path("/mwlitems")
     public Response searchForSPS() {
         return search("SearchForSPS", Model.MWL, null,
-                null, QIDO.MWL, false);
+                null, QIDO.MWL, false, WebApplication.ServiceClass.MWL_RS);
     }
 
     @GET
@@ -311,7 +309,7 @@ public class QidoRS {
     @Path("/mpps")
     public Response searchForMPPS() {
         return search("SearchForMPPS", Model.MPPS, null,
-                null, QIDO.MPPS, false);
+                null, QIDO.MPPS, false, WebApplication.ServiceClass.MPPS_RS);
     }
 
     @GET
@@ -319,7 +317,7 @@ public class QidoRS {
     @Path("/workitems")
     public Response searchForUPS() {
         return search("SearchForUPS", Model.UPS, null,
-                null, QIDO.UPS, false);
+                null, QIDO.UPS, false, WebApplication.ServiceClass.UPS_RS);
     }
 
     @GET
@@ -327,7 +325,7 @@ public class QidoRS {
     @Path("/patients/count")
     @Produces("application/json")
     public Response countPatients() {
-        return count("CountPatients", Model.PATIENT, null, null);
+        return count("CountPatients", Model.PATIENT, null, null, WebApplication.ServiceClass.QIDO_COUNT);
     }
 
     @GET
@@ -335,7 +333,7 @@ public class QidoRS {
     @Path("/studies/count")
     @Produces("application/json")
     public Response countStudies() {
-        return count("CountStudies", Model.STUDY, null, null);
+        return count("CountStudies", Model.STUDY, null, null, WebApplication.ServiceClass.QIDO_COUNT);
     }
 
     @GET
@@ -343,7 +341,7 @@ public class QidoRS {
     @Path("/series/count")
     @Produces("application/json")
     public Response countSeries() {
-        return count("CountSeries", Model.SERIES, null, null);
+        return count("CountSeries", Model.SERIES, null, null, WebApplication.ServiceClass.QIDO_COUNT);
     }
 
     @GET
@@ -352,7 +350,7 @@ public class QidoRS {
     @Produces("application/json")
     public Response countSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return count("CountStudySeries", Model.SERIES, studyInstanceUID, null);
+        return count("CountStudySeries", Model.SERIES, studyInstanceUID, null, WebApplication.ServiceClass.QIDO_COUNT);
     }
 
     @GET
@@ -360,7 +358,7 @@ public class QidoRS {
     @Path("/instances/count")
     @Produces("application/json")
     public Response countInstances() {
-        return count("CountInstances", Model.INSTANCE, null, null);
+        return count("CountInstances", Model.INSTANCE, null, null, WebApplication.ServiceClass.QIDO_COUNT);
     }
 
     @GET
@@ -369,7 +367,7 @@ public class QidoRS {
     @Produces("application/json")
     public Response countInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        return count("CountStudyInstances", Model.INSTANCE, studyInstanceUID, null);
+        return count("CountStudyInstances", Model.INSTANCE, studyInstanceUID, null, WebApplication.ServiceClass.QIDO_COUNT);
     }
 
     @GET
@@ -379,7 +377,7 @@ public class QidoRS {
     public Response countInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        return count("CountStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID);
+        return count("CountStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID, WebApplication.ServiceClass.QIDO_COUNT);
     }
 
     @GET
@@ -387,7 +385,7 @@ public class QidoRS {
     @Path("/mwlitems/count")
     @Produces("application/json")
     public Response countSPS() {
-        return count("CountSPS", Model.MWL, null, null);
+        return count("CountSPS", Model.MWL, null, null, WebApplication.ServiceClass.MWL_RS);
     }
 
     @GET
@@ -395,7 +393,7 @@ public class QidoRS {
     @Path("/mpps/count")
     @Produces("application/json")
     public Response countMPPS() {
-        return count("CountMPPS", Model.MPPS, null, null);
+        return count("CountMPPS", Model.MPPS, null, null, WebApplication.ServiceClass.MPPS_RS);
     }
 
     @GET
@@ -403,7 +401,7 @@ public class QidoRS {
     @Path("/workitems/count")
     @Produces("application/json")
     public Response countUPS() {
-        return count("CountUPS", Model.UPS, null, null);
+        return count("CountUPS", Model.UPS, null, null, WebApplication.ServiceClass.UPS_RS);
     }
 
     @GET
@@ -440,7 +438,8 @@ public class QidoRS {
         }
     }
 
-    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID) {
+    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
+                           WebApplication.ServiceClass serviceClass) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -448,7 +447,7 @@ public class QidoRS {
         validateAcceptedUserRoles(arcAE);
         ApplicationEntity ae = arcAE.getApplicationEntity();
         if (aet.equals(ae.getAETitle()))
-            validateWebAppServiceClass(WebApplication.ServiceClass.QIDO_COUNT);
+            validateWebAppServiceClass(serviceClass);
 
         try {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
@@ -482,7 +481,7 @@ public class QidoRS {
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
-                            boolean etag) {
+                            boolean etag, WebApplication.ServiceClass serviceClass) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -490,7 +489,7 @@ public class QidoRS {
         validateAcceptedUserRoles(arcAE);
         ApplicationEntity ae = arcAE.getApplicationEntity();
         if (aet.equals(ae.getAETitle()))
-            validateWebAppServiceClass(WebApplication.ServiceClass.QIDO_RS);
+            validateWebAppServiceClass(serviceClass);
 
         Output output = selectMediaType();
         try {

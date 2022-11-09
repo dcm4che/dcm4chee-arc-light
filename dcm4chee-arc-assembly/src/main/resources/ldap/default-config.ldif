@@ -2995,6 +2995,7 @@ objectClass: hl7OrderSPSStatus
 
 dn: dcmWebAppName=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Hide instances rejected for Quality Reasons
+dcmWebServiceClass: MPPS_RS
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
@@ -3009,6 +3010,7 @@ dn: dcmWebAppName=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Conf
 dicomDescription: Modality and Unified Worklist
 dcmWebServiceClass: UPS_RS
 dcmWebServiceClass: MWL_RS
+dcmWebServiceClass: MPPS_RS
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 dcmWebServiceClass: UPS_MATCHING
 objectClass: dcmWebApp

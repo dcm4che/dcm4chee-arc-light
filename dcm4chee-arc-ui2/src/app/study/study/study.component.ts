@@ -326,7 +326,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.currentWebAppClass = "MWL_RS";
                         break;
                     case "mpps":
-                        this.currentWebAppClass = "DCM4CHEE_ARC_AET";
+                        this.currentWebAppClass = "MPPS_RS";
                         break;
                     case "uwl":
                         this.currentWebAppClass = "UPS_RS";

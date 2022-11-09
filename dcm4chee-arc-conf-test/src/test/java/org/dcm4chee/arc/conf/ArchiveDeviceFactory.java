@@ -1532,6 +1532,7 @@ class ArchiveDeviceFactory {
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, null,
+                WebApplication.ServiceClass.MPPS_RS,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.QIDO_COUNT,
                 WebApplication.ServiceClass.STOW_RS,
@@ -1552,6 +1553,7 @@ class ArchiveDeviceFactory {
                 WebApplication.ServiceClass.UPS_RS,
                 WebApplication.ServiceClass.UPS_MATCHING,
                 WebApplication.ServiceClass.MWL_RS,
+                WebApplication.ServiceClass.MPPS_RS,
                 WebApplication.ServiceClass.DCM4CHEE_ARC_AET));
         device.addWebApplication(createWebApp("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", ONLY_ADMIN,
