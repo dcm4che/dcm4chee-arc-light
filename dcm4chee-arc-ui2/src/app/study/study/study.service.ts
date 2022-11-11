@@ -331,8 +331,7 @@ export class StudyService {
         storages?:SelectDropdown<StorageSystems>[],
         studyWebService?: StudyWebService,
         attributeSet?:SelectDropdown<DiffAttributeSet>[],
-        noServiceSpecificWebApps?:boolean,
-        showSubmit?:boolean,
+        hasServiceSpecificWebApps?:boolean,
         showCount?:boolean,
         showSize?:boolean,
         filter?:StudyFilterConfig,
@@ -431,7 +430,7 @@ export class StudyService {
                 cssClass: 'study_order',
                 showSearchField: true
             });
-            if (showSubmit)
+            if (hasServiceSpecificWebApps)
                 schema.push({
                     tag: "button",
                     id: "submit",
@@ -476,7 +475,7 @@ export class StudyService {
                     description: $localize `:@@query_only_studies_size:Query only size of studies`
                 })
             }
-            if (noServiceSpecificWebApps)
+            if (!hasServiceSpecificWebApps)
                 this.appService.showMsg(this.getNoServiceSpecificWebApps(tab));
         }
         if(hook){
