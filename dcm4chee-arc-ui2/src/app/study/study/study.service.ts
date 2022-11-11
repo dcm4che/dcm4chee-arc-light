@@ -331,6 +331,8 @@ export class StudyService {
         storages?:SelectDropdown<StorageSystems>[],
         studyWebService?: StudyWebService,
         attributeSet?:SelectDropdown<DiffAttributeSet>[],
+        noServiceSpecificWebApps?:boolean,
+        showSubmit?:boolean,
         showCount?:boolean,
         showSize?:boolean,
         filter?:StudyFilterConfig,
@@ -429,12 +431,13 @@ export class StudyService {
                 cssClass: 'study_order',
                 showSearchField: true
             });
-            schema.push({
-                tag: "button",
-                id: "submit",
-                text: $localize `:@@SUBMIT:SUBMIT`,
-                description: this.getSubmitText(tab)
-            });
+            if (showSubmit)
+                schema.push({
+                    tag: "button",
+                    id: "submit",
+                    text: $localize `:@@SUBMIT:SUBMIT`,
+                    description: this.getSubmitText(tab)
+                });
             if(tab != "diff" && tab != "uwl"){
                 schema.push({
                     tag: "dummy"
@@ -473,6 +476,8 @@ export class StudyService {
                     description: $localize `:@@query_only_studies_size:Query only size of studies`
                 })
             }
+            if (noServiceSpecificWebApps)
+                this.appService.showMsg(this.getNoServiceSpecificWebApps(tab));
         }
         if(hook){
             schema = hook.call(this, schema);
@@ -481,6 +486,36 @@ export class StudyService {
             lineLength: lineLength,
             schema: j4care.prepareFlatFilterObject(schema, lineLength)
         }
+    }
+
+    getNoServiceSpecificWebApps(tab: DicomMode) {
+        let webServiceClass = 'QIDO_RS';
+        let entityOp = $localize `:@@entity_op_view_studies:view studies`;
+        switch (tab) {
+            case "patient":
+                entityOp = $localize `:@@entity_op_view_patients:view patients`;
+                break;
+            case "series":
+                entityOp = $localize `:@@entity_op_view_series:view series`;
+                break;
+            case "mwl":
+                webServiceClass = 'MWL_RS';
+                entityOp = $localize `:@@entity_op_view_mwls:view MWLs`;
+                break;
+            case "mpps":
+                webServiceClass = 'MPPS_RS';
+                entityOp = $localize `:@@entity_op_view_mpps:view MPPS`;
+                break;
+            case "uwl":
+                webServiceClass = 'UPS_RS';
+                entityOp = $localize `:@@entity_op_view_ups:view UPS Workitems`;
+                break;
+            case "diff":
+                webServiceClass = 'DCM4CHEE_ARC_AET_DIFF';
+                entityOp = $localize `:@@entity_op_compare_archives:compare studies between two archives`;
+                break;
+        }
+        return $localize `:@@configure_webapp_with_webservice:Configure at least one web application with ${webServiceClass}:@@webServiceClass: web service class to ${entityOp}:@@entityOp:`;
     }
 
     getSubmitText(tab: DicomMode) {

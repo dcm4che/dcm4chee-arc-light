@@ -2973,6 +2973,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.storages,
             this.studyWebService,
             this.diffAttributeSets,
+            this.studyWebService.selectDropdownWebServices.length == 0,
+            _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass"),
             _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1,
             _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1,
             this.filter
