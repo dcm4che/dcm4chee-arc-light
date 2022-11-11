@@ -2965,6 +2965,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     setMainSchema(){
+        const showCount:boolean = (this.studyConfig.tab == "mwl" || this.studyConfig.tab == "mpps" || this.studyConfig.tab == "uwl") ? !!this.studyWebService.selectedWebService : _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1;
         this._filter.filterSchemaMain  = this.service.getFilterSchema(
             this.studyConfig.tab,
             this.applicationEntities.aes,
@@ -2974,7 +2975,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.studyWebService,
             this.diffAttributeSets,
             this.studyWebService.selectDropdownWebServices.length > 0,
-            _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1,
+            showCount,
             _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1,
             this.filter
         );
