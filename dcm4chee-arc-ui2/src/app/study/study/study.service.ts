@@ -332,6 +332,7 @@ export class StudyService {
         studyWebService?: StudyWebService,
         attributeSet?:SelectDropdown<DiffAttributeSet>[],
         showCount?:boolean,
+        showSize?:boolean,
         filter?:StudyFilterConfig,
         hook?:Function
     ) {
@@ -462,14 +463,14 @@ export class StudyService {
                     });
                 }
             }
-            if(tab === "study"){
+            if(tab === "study" && showSize){
                 schema.push({
                     tag: "button",
                     id: "size",
                     showRefreshIcon: true,
                     showDynamicLoader: false,
                     text: quantityText.size,
-                    description: $localize `:@@query_only_the_size:QUERY ONLY THE SIZE`
+                    description: $localize `:@@query_only_studies_size:Query only size of studies`
                 })
             }
         }

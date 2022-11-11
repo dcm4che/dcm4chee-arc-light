@@ -2974,6 +2974,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.studyWebService,
             this.diffAttributeSets,
             _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1,
+            _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1,
             this.filter
         );
         this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
