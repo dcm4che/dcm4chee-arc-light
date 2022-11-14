@@ -80,21 +80,21 @@ public class DicomDataHandler extends DataHandler {
     public void writeTo(OutputStream os) throws IOException {
         RetrieveService service = ctx.getRetrieveService();
         try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, true)) {
+            List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
+            AttributesCoercion coerce;
+            if (coercions.isEmpty()) {
+                ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+                if (rule != null) {
+                    transcoder.setNullifyPixelData(rule.isNullifyPixelData());
+                }
+                coerce = service.getAttributesCoercion(ctx, inst, rule);
+            } else {
+                transcoder.setNullifyPixelData(ArchiveAttributeCoercion2.containsScheme(
+                        coercions, ArchiveAttributeCoercion2.NULLIFY_PIXEL_DATA));
+                coerce = service.getAttributesCoercion(ctx, inst, coercions);
+            }
             transcoder.transcode((transcoder1, dataset) -> {
                 try {
-                    List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
-                    AttributesCoercion coerce;
-                    if (coercions.isEmpty()) {
-                        ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
-                        if (rule != null) {
-                            transcoder1.setNullifyPixelData(rule.isNullifyPixelData());
-                        }
-                        coerce = service.getAttributesCoercion(ctx, inst, rule);
-                    } else {
-                        transcoder1.setNullifyPixelData(ArchiveAttributeCoercion2.containsScheme(
-                                coercions, ArchiveAttributeCoercion2.NULLIFY_PIXEL_DATA));
-                        coerce = service.getAttributesCoercion(ctx, inst, coercions);
-                    }
                     coerce.coerce(dataset, null);
                     ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
                 } catch (IOException e) {
