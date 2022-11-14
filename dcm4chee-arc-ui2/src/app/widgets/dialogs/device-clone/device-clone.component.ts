@@ -10,7 +10,7 @@ import {AppService} from "../../../app.service";
   styleUrls: ['./device-clone.component.scss']
 })
 export class DeviceCloneComponent implements OnInit {
-
+    validationDetailMessage:String = "";
     toggle:ToggleBlock = "name";
     device;
     clonedDevice;
@@ -72,25 +72,38 @@ export class DeviceCloneComponent implements OnInit {
         if(this.valid()){
             this.dialogRef.close(this.clonedDevice);
         }else{
-            this.appService.showError($localize `:@@make_sure_the_names_are_unique_on_clone:You have to make sure that the names of the new device, AETs, Web Applications and HL7 are not the same as the current device ( You can use the Prefix/Suffix input field )`)
+            this.appService.showError($localize `:@@make_sure_the_names_are_unique_on_clone:You have to make sure that the names of the new device, AETs, Web Applications and HL7 are not the same as the current device ( You can use the Prefix/Suffix input field ) ${this.validationDetailMessage}`)
         }
     }
 
     valid(){
-        let valid:boolean = true;
-        if(this.device.dicomDeviceName === this.clonedDevice.dicomDeviceName){
-            valid = valid && false;
-        }
-        this.keys.forEach(key=>{
-            _.get(this.device, key.path).forEach((part,i)=>{
-                if(_.get(this.clonedDevice, `${key.path}[${i}][${key.name}]`) === part[key.name]){
-                    valid = valid && false;
-                }else{
-                    valid = valid && true;
+        try{
+            let valid:boolean = true;
+            if(this.device.dicomDeviceName === this.clonedDevice.dicomDeviceName){
+                valid = valid && false;
+            }
+            this.keys.forEach(key=>{
+                if(_.get(this.device, key.path)){
+                    _.get(this.device, key.path).forEach((part,i)=>{
+                       if(_.get(this.clonedDevice, `${key.path}[${i}][${key.name}]`) === part[key.name]){
+                            console.groupCollapsed("Following part was not changed in the clone object:");
+                            console.log("In path:",key.path);
+                            console.log("In original device:",_.get(this.clonedDevice, `${key.path}[${i}][${key.name}]`));
+                            console.log("In clone device:",part[key.name]);
+                            console.groupEnd();
+                            this.validationDetailMessage = this.validationDetailMessage || $localize `:@@value_in_path_was_not_changed: <br/>(${_.get(this.clonedDevice, `${key.path}[${i}][${key.name}]`)}:@@value: in ${key.path}:@@path:, was not changed)`;
+                            valid = valid && false;
+                        }else{
+                            valid = valid && true;
+                        }
+                    });
                 }
             });
-        });
-        return valid;
+            return valid;
+        }catch (e) {
+            console.error(e);
+            return false;
+        }
     }
 
     onConnectionReffChange(aet, i, e){
@@ -131,34 +144,38 @@ export class DeviceCloneComponent implements OnInit {
     }
 
     onAetChange( i, aet){
-        const oldAet = _.get(this.device,`dicomNetworkAE[${i}].dicomAETitle`);
-        const clonedOldAet = _.get(this.clonedDevice,`dicomNetworkAE[${i}].dicomAETitle`);
-        const newAet = aet.dicomAETitle;
-        const regex = new RegExp(`/${oldAet}/`, 'gm');
-        const clonedRegex = new RegExp(`/${clonedOldAet}/`, 'gm');
-        let prevRegex;
-        let prevAet;
-        if(this.previousAetState[i]){
-            prevAet = this.previousAetState[i];
-            prevRegex = new RegExp(`/${prevAet}/`, "gm");
-        }
-        this.clonedDevice.dcmDevice.dcmWebApp.forEach(webApp=>{
-            if(webApp.dcmWebServicePath.indexOf(`/${oldAet}/`) > -1  || webApp.dcmWebServicePath.indexOf(`/${clonedOldAet}/`) > -1 || (prevAet && webApp.dcmWebServicePath.indexOf(`/${prevAet}/`) > -1)){
-                if(clonedRegex.test(webApp.dcmWebServicePath)){
-                    webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(clonedRegex, `/${newAet}/`);
-                    this.replaceOtherAetRef(clonedOldAet, newAet);
-                };
-                if(regex.test(webApp.dcmWebServicePath)){
-                    webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(regex, `/${newAet}/`);
-                    this.replaceOtherAetRef(oldAet, newAet);
-                };
-                if(this.previousAetState[i] && prevRegex && prevRegex.test(webApp.dcmWebServicePath)){
-                    webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(prevRegex, `/${newAet}/`);
-                    this.replaceOtherAetRef(prevAet, newAet);
-                };
-                this.previousAetState[i] = newAet;
+        try{
+            const oldAet = _.get(this.device,`dicomNetworkAE[${i}].dicomAETitle`);
+            const clonedOldAet = _.get(this.clonedDevice,`dicomNetworkAE[${i}].dicomAETitle`);
+            const newAet = aet.dicomAETitle;
+            const regex = new RegExp(`/${oldAet}/`, 'gm');
+            const clonedRegex = new RegExp(`/${clonedOldAet}/`, 'gm');
+            let prevRegex;
+            let prevAet;
+            if(this.previousAetState[i]){
+                prevAet = this.previousAetState[i];
+                prevRegex = new RegExp(`/${prevAet}/`, "gm");
             }
-        });
+            this.clonedDevice.dcmDevice.dcmWebApp.forEach(webApp=>{
+                if(webApp.dcmWebServicePath.indexOf(`/${oldAet}/`) > -1  || webApp.dcmWebServicePath.indexOf(`/${clonedOldAet}/`) > -1 || (prevAet && webApp.dcmWebServicePath.indexOf(`/${prevAet}/`) > -1)){
+                    if(clonedRegex.test(webApp.dcmWebServicePath)){
+                        webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(clonedRegex, `/${newAet}/`);
+                        this.replaceOtherAetRef(clonedOldAet, newAet);
+                    };
+                    if(regex.test(webApp.dcmWebServicePath)){
+                        webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(regex, `/${newAet}/`);
+                        this.replaceOtherAetRef(oldAet, newAet);
+                    };
+                    if(this.previousAetState[i] && prevRegex && prevRegex.test(webApp.dcmWebServicePath)){
+                        webApp.dcmWebServicePath = webApp.dcmWebServicePath.replace(prevRegex, `/${newAet}/`);
+                        this.replaceOtherAetRef(prevAet, newAet);
+                    };
+                    this.previousAetState[i] = newAet;
+                }
+            });
+        }catch (e) {
+            
+        }
     }
 
     replaceOtherAetRef(currentAet,newAet){
