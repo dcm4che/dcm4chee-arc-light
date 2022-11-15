@@ -873,7 +873,7 @@ export class j4care {
     }
     static clearEmptyObject(obj){
         _.forEach(obj,(m,i)=>{
-            if((!m || m === "" || m === undefined) && m != 0){
+            if(((!m || m === "" || m === undefined) && m != 0) || (m instanceof Array && m.length === 0)){
                 delete obj[i];
             }
         });

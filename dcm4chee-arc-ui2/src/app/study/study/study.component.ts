@@ -1978,7 +1978,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         // }
         // delete filterModel["allAttributes"];
         delete filterModel.webApp;
-        return filterModel;
+        return j4care.clearEmptyObject(filterModel);
     }
 
     search(mode:('next'|'prev'|'current'), e){
