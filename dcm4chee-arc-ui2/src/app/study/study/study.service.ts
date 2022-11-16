@@ -331,7 +331,6 @@ export class StudyService {
         storages?:SelectDropdown<StorageSystems>[],
         studyWebService?: StudyWebService,
         attributeSet?:SelectDropdown<DiffAttributeSet>[],
-        hasServiceSpecificWebApps?:boolean,
         showCount?:boolean,
         showSize?:boolean,
         filter?:StudyFilterConfig,
@@ -430,7 +429,7 @@ export class StudyService {
                 cssClass: 'study_order',
                 showSearchField: true
             });
-            if (hasServiceSpecificWebApps)
+            if (j4care.arrayIsNotEmpty(studyWebService,"webServices"))
                 schema.push({
                     tag: "button",
                     id: "submit",
@@ -475,7 +474,7 @@ export class StudyService {
                     description: $localize `:@@query_only_studies_size:Query only size of studies`
                 })
             }
-            if (!hasServiceSpecificWebApps)
+            if (!j4care.arrayIsNotEmpty(studyWebService,"webServices"))
                 this.appService.showMsg(this.getNoServiceSpecificWebApps(tab));
         }
         if(hook){

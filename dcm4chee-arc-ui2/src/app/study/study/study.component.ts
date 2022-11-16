@@ -340,18 +340,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.studyConfig.title = this.tabToTitleMap(params.tab);
                 if(this.studyConfig.tab === "diff"){
                     this.getDiffAttributeSet(this, ()=>{
-                        this.getApplicationEntities();
+                        this.initWebApps();
                     });
                 }
                 if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series") {
                     this.getStorages(this, () => {
-                        this.getApplicationEntities();
+                        this.initWebApps();
                     });
                 }
                 this.more = false;
                 this._filter.filterModel.offset = 0;
                 this.tableParam.tableSchema  = this.getSchema();
-                this.initWebApps();
+                if(this.studyConfig.tab != "study" && this.studyConfig.tab != "series" && this.studyConfig.tab != "diff"){
+                    this.initWebApps();
+                }
                 /*                    if(!this.studyWebService){
                                     }else{
                                         this.setSchema();
@@ -2957,8 +2959,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this._filter.filterSchemaExpand.lineLength = undefined;
             this.setMainSchema();
             this._filter.filterSchemaExpand  = this.service.getFilterSchema(
-                this.studyConfig.tab, this.applicationEntities.aes, this._filter.quantityText,
-                'expand', this.storages);
+                this.studyConfig.tab,
+                this.applicationEntities.aes,
+                this._filter.quantityText,
+                'expand',
+                this.storages
+            );
         }catch (e) {
             j4care.log("Error on schema set",e);
         }
@@ -2966,6 +2972,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     setMainSchema(){
         const showCount:boolean = (this.studyConfig.tab == "mwl" || this.studyConfig.tab == "mpps" || this.studyConfig.tab == "uwl") ? !!this.studyWebService.selectedWebService : _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1;
+        const showSize:boolean = _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1;
         this._filter.filterSchemaMain  = this.service.getFilterSchema(
             this.studyConfig.tab,
             this.applicationEntities.aes,
@@ -2974,9 +2981,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.storages,
             this.studyWebService,
             this.diffAttributeSets,
-            this.studyWebService.selectDropdownWebServices.length > 0,
             showCount,
-            _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1,
+            showSize,
             this.filter
         );
         this.filterButtonPath.count = j4care.getPath(this._filter.filterSchemaMain.schema,"id", "count");
@@ -3017,42 +3023,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
-/*    diffOptions:{
-        aes:SelectDropdown<Aet>[],
-        primaryAET?:any,
-        secondaryAET?:any
-    } = {
-        aes:[],
-    };*/
-    getApplicationEntities(){
-        // if(!this.applicationEntities.aetsAreSet){
-/*            Observable.forkJoin(
-                this.service.getAes().map(aes=> aes.map(aet=> new Aet(aet))),
-                this.service.getAets().map(aets=> aets.map(aet => new Aet(aet))),
-            )*/
-            this.service.getAes()
-            .subscribe((aes:Aet[])=>{
-/*                [0,1].forEach(i=>{
-                    res[i] = j4care.extendAetObjectWithAlias(res[i]);
-                    ["external","internal"].forEach(location=>{
-                      this.applicationEntities.aes[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
-                      this.applicationEntities.aets[location] = this.permissionService.filterAetDependingOnUiConfig(res[i],location);
-                      this.applicationEntities.aetsAreSet = true;
-                    })
-                });*/
-                this.applicationEntities.aes = aes.map((ae:Aet)=>{
-                    return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
-                });
-                console.log("filter",this.filter);
-                this.setSchema();
-            },(err)=>{
-                this.appService.showError($localize `:@@study.error_getting:_aets:Error getting AETs!`);
-                j4care.log("error getting aets in Study page",err);
+/*    getApplicationEntities(){
+        this.service.getAes()
+        .subscribe((aes:Aet[])=>{
+            this.applicationEntities.aes = aes.map((ae:Aet)=>{
+                return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
             });
-/*        }else{
+            console.log("filter",this.filter);
             this.setSchema();
-        }*/
-    }
+        },(err)=>{
+            this.appService.showError($localize `:@@study.error_getting:_aets:Error getting AETs!`);
+            j4care.log("error getting aets in Study page",err);
+        });
+    }*/
 
     getDevices(){
         return new Observable((observer: Subscriber<any>) => {
