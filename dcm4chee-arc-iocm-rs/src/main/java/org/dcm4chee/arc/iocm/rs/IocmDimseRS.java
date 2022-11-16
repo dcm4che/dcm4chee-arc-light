@@ -8,7 +8,6 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
-import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.MergeMWLQueryParam;
@@ -41,7 +40,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntFunction;
 
@@ -107,9 +105,6 @@ public class IocmDimseRS {
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
-        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
-            validateWebAppServiceClass();
-
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         ProcedureContext ctx = procedureService.createProcedureContext()
                 .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
@@ -302,16 +297,5 @@ public class IocmDimseRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass() {
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
-                        Response.Status.NOT_FOUND)));
     }
 }

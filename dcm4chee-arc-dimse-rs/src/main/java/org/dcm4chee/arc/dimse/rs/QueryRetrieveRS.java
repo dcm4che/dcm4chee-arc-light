@@ -239,9 +239,6 @@ public class QueryRetrieveRS {
 
         try {
             validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
-            if (aet.equals(ae.getAETitle()))
-                validateWebAppServiceClass(device);
-
             validate(null);
             Response.Status status = Response.Status.BAD_REQUEST;
             if (field < 1)
@@ -363,9 +360,6 @@ public class QueryRetrieveRS {
 
         try {
             validateAcceptedUserRoles(localAE.getAEExtensionNotNull(ArchiveAEExtension.class));
-            if (aet.equals(localAE.getAETitle()))
-                validateWebAppServiceClass(device);
-
             validate(queryAET);
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             queryAttributes.addReturnTags(level.uniqueKey());
@@ -446,9 +440,6 @@ public class QueryRetrieveRS {
                 throw new ConfigurationException("No such Application Entity: " + aet + " found in device: " + deviceName);
 
             validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
-            if (aet.equals(ae.getAETitle()))
-                validateWebAppServiceClass(device);
-
             validateQueue(device);
         } else
             validateQueue(device);
@@ -524,16 +515,5 @@ public class QueryRetrieveRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass(Device device) {
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(WebApplication.ServiceClass.MOVE_MATCHING))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with MOVE_MATCHING service class found for Application Entity: " + aet,
-                        Response.Status.NOT_FOUND)));
     }
 }

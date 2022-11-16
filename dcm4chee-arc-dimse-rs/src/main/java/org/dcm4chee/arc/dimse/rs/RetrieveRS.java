@@ -76,7 +76,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -190,9 +189,6 @@ public class RetrieveRS {
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
-        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
-            validateWebAppServiceClass();
-
         if (uids[0].startsWith("csv"))
             return errResponse("Missing Content-type Header in 'Retrieve Studies specified in CSV from external archive' service " +
                             "causes invocation of 'Retrieve Study from external archive' service.",
@@ -393,17 +389,6 @@ public class RetrieveRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass() {
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(WebApplication.ServiceClass.MOVE))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with MOVE service class found for Application Entity: " + aet,
-                        Response.Status.NOT_FOUND)));
     }
 
 }

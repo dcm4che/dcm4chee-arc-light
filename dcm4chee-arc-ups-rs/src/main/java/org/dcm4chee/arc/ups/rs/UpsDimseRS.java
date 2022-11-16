@@ -221,9 +221,6 @@ public class UpsDimseRS {
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
         validateAcceptedUserRoles(arcAE);
-        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
-            validateWebAppServiceClass();
-
         try {
             aeCache.findApplicationEntity(upsSCP);
             Attributes upsTemplateAttrs = inputType.parse(in);
@@ -322,9 +319,6 @@ public class UpsDimseRS {
             return errResponse(Response.Status.NOT_FOUND,"No such Application Entity: " + aet);
 
         validateAcceptedUserRoles(arcAE);
-        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
-            validateWebAppServiceClass();
-
         if (studyUIDField < 1)
             return errResponse(Response.Status.BAD_REQUEST,
                     "CSV field for Study Instance UID should be greater than or equal to 1");
@@ -495,15 +489,5 @@ public class UpsDimseRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass() {
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(WebApplication.ServiceClass.UPS_MATCHING))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(Response.Status.NOT_FOUND,
-                        "No Web Application with UPS_MATCHING service class found for Application Entity: " + aet)));
     }
 }

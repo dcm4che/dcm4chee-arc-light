@@ -40,11 +40,17 @@ package org.dcm4chee.arc.dimse.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QIDO;
@@ -72,7 +78,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.EnumSet;
 
 /**
@@ -254,8 +259,6 @@ public class QueryRS {
 
         validateAcceptedUserRoles(arcAE);
         ApplicationEntity localAE = arcAE.getApplicationEntity();
-        if (aet.equals(localAE.getAETitle()))
-            validateWebAppServiceClass(count, qido);
 
         try {
             aeCache.findApplicationEntity(externalAET);
@@ -443,22 +446,5 @@ public class QueryRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass(boolean count, QIDO qido) {
-        WebApplication.ServiceClass serviceClass = qido == QIDO.MWL
-                ? WebApplication.ServiceClass.MWL_RS
-                : count
-                    ? WebApplication.ServiceClass.QIDO_COUNT
-                    : WebApplication.ServiceClass.QIDO_RS;
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(serviceClass))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with " + serviceClass
-                                + "service class found for Application Entity: " + aet,
-                        Response.Status.NOT_FOUND)));
     }
 }

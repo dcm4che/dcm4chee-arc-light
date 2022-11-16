@@ -42,7 +42,6 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
@@ -67,7 +66,6 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -146,9 +144,6 @@ public class MWLImportRS {
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
-        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
-            validateWebAppServiceClass();
-
         try {
             Attributes filter = new Attributes(queryAttributes.getQueryKeys());
             QIDO.MWL.addReturnTags(queryAttributes);
@@ -240,16 +235,5 @@ public class MWLImportRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass() {
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(WebApplication.ServiceClass.MWL_RS))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with MWL_RS service class found for Application Entity: " + aet,
-                        Response.Status.NOT_FOUND)));
     }
 }

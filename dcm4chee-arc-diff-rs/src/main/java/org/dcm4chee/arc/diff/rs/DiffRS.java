@@ -46,9 +46,13 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONWriter;
-import org.dcm4che3.net.*;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.TagUtils;
@@ -57,8 +61,8 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.diff.DiffContext;
-import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffSCU;
+import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -81,7 +85,6 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -183,9 +186,6 @@ public class DiffRS {
                     "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
 
         validateAcceptedUserRoles(arcAE);
-        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
-            validateWebAppServiceClass();
-
         try {
             DiffContext ctx = createDiffContext();
             ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
@@ -232,9 +232,6 @@ public class DiffRS {
                     "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
 
         validateAcceptedUserRoles(arcAE);
-        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
-            validateWebAppServiceClass();
-
         try {
             DiffContext ctx = createDiffContext();
             ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
@@ -274,9 +271,6 @@ public class DiffRS {
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
-        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
-            validateWebAppServiceClass();
-
         Response.Status status = Response.Status.BAD_REQUEST;
         if (field < 1)
             return errResponse(
@@ -470,17 +464,6 @@ public class DiffRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass() {
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
-                        Response.Status.NOT_FOUND)));
     }
 
     private ArchiveAEExtension getArchiveAE() {

@@ -44,7 +44,9 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.net.*;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -72,7 +74,6 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -211,9 +212,6 @@ public class RejectRS {
 
         validateAcceptedUserRoles(arcAE);
         ApplicationEntity localAE = arcAE.getApplicationEntity();
-        if (aet.equals(localAE.getAETitle()))
-            validateWebAppServiceClass();
-
         try {
             ApplicationEntity storescpAE = aeCache.findApplicationEntity(storescp);
             ArchiveDeviceExtension arcDev = localAE.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
@@ -361,16 +359,5 @@ public class RejectRS {
                         "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
                         Response.Status.FORBIDDEN);
         }
-    }
-
-    private void validateWebAppServiceClass() {
-        device.getWebApplications().stream()
-                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
-                        && Arrays.asList(webApp.getServiceClasses())
-                        .contains(WebApplication.ServiceClass.REJECT))
-                .findFirst()
-                .orElseThrow(() -> new WebApplicationException(errResponse(
-                        "No Web Application with REJECT service class found for Application Entity: " + aet,
-                        Response.Status.NOT_FOUND)));
     }
 }
