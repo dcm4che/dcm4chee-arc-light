@@ -1682,6 +1682,10 @@ export class j4care {
 
     static arrayIsNotEmpty(array, path?:string){
         try{
+            if(path){
+                const obj = _.get(array,path);
+                return _.isArray(obj) && obj.length > 0;
+            }
             return _.isArray(array) && array.length > 0;
         }catch (e){
             return false;
