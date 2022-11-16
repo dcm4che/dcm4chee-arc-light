@@ -2535,6 +2535,10 @@ export class Globalvar {
             },
             "/monitoring/queues":{
                 permissionsAction:"tab-monitoring->queues",
+                nextCheck:"/monitoring/diff"
+            },
+            "/monitoring/diff":{
+                permissionsAction:"tab-monitoring->diff",
                 nextCheck:"/monitoring/storage-commitment"
             },
             "/monitoring/storage-commitment":{

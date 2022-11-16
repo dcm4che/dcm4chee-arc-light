@@ -251,7 +251,7 @@ export class DiffMonitorService {
                             text:''
                         },
                         click:(e)=>{
-                            this.router.navigate(['./studies'],{
+                            this.router.navigate(['./study/diff'],{
                                 queryParams:{
                                     batchID:e.batchID,
                                     taskID:e.taskID,

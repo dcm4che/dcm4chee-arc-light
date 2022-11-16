@@ -340,6 +340,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.studyConfig.title = this.tabToTitleMap(params.tab);
                 if(this.studyConfig.tab === "diff"){
                     this.getDiffAttributeSet(this, ()=>{
+                        this.route.queryParams.subscribe(queryParams=>{
+                           if(_.hasIn(queryParams,"taskID") && _.hasIn(queryParams,"batchID")){
+                               this.getDiff({
+                                   batchID:queryParams.batchID,
+                                   taskID:queryParams.batchID,
+                                   limit:21,
+                                   offset:0
+                               })
+                           }
+                        });
                         this.initWebApps();
                     });
                 }
