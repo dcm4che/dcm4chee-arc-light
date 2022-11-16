@@ -7,6 +7,10 @@
 
   <xsl:template match="/hl7">
     <NativeDicomModel>
+      <xsl:call-template name="institution">
+        <xsl:with-param name="enteringOrganization" select="ORC/field[17]"/>
+        <xsl:with-param name="sendingOrganization" select="MSH/field[2]"/>
+      </xsl:call-template>
       <xsl:apply-templates select="PID"/>
       <xsl:apply-templates select="PV1"/>
       <xsl:apply-templates select="ORC[1]"/>
@@ -51,7 +55,39 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+    <!-- Institution Address -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00080081'"/>
+      <xsl:with-param name="vr" select="'ST'"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="address">
+          <xsl:with-param name="val" select="field[22]"/>
+        </xsl:call-template>
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
+
+  <xsl:template name="institution">
+    <xsl:param name="enteringOrganization"/>
+    <xsl:param name="sendingOrganization"/>
+    <xsl:choose>
+      <xsl:when test="string-length($enteringOrganization) > 0">
+        <xsl:call-template name="ce2codeItemWithDesc">
+          <xsl:with-param name="descTag" select="'00080080'"/>
+          <xsl:with-param name="seqTag" select="'00080082'"/>
+          <xsl:with-param name="codedEntry" select="$enteringOrganization"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00080080'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="$sendingOrganization"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="procedurePriority">
     <xsl:param name="priority"/>
     <xsl:if test="$priority">
