@@ -1848,12 +1848,6 @@
         },
         {
           "$ref": "../parameters.json#/batchID"
-        },
-        {
-          "$ref": "../parameters.json#/ForceQueryByStudyUID"
-        },
-        {
-          "$ref": "../parameters.json#/SplitStudyDateRange"
         }
       ],
       "requestBody": {
