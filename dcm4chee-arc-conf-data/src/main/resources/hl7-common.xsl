@@ -430,7 +430,7 @@
       <xsl:with-param name="val" select="substring($val, 1, 64)"/>
     </xsl:call-template>
   </xsl:template>
-  
+
   <xsl:template name="address">
     <xsl:param name="val"/>
     <xsl:variable name="streetAddr" select="$val/text()"/>
@@ -442,9 +442,22 @@
         </xsl:if>
       </xsl:for-each>
     </xsl:variable>
-    <xsl:if test="string-length($streetAddr) > 0 or string-length($addrComponents) > 0">
-      <xsl:value-of select="concat($streetAddr, '^', $addrComponents)"/>
-    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="string-length($streetAddr) > 0 and string-length($addrComponents) > 0">
+        <xsl:value-of select="concat($streetAddr, '^', $addrComponents)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:choose>
+          <xsl:when test="string-length($streetAddr) > 0">
+            <xsl:value-of select="$streetAddr"/>
+          </xsl:when>
+          <xsl:when test="string-length($addrComponents) > 0">
+            <xsl:value-of select="concat('^', $addrComponents)"/>
+          </xsl:when>
+          <xsl:otherwise/>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="PID">
