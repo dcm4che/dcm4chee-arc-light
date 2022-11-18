@@ -67,7 +67,7 @@
           }
         },
         "400": {
-          "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+          "description": "Validation for one of the query parameters failed"
         },
         "404": {
           "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
@@ -159,7 +159,7 @@
           }
         },
         "400": {
-          "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+          "description": "Validation for one of the query parameters failed"
         },
         "404": {
           "description": "No such Archive AE Title or Move SCP AE Title or Retrieve queue"
@@ -254,7 +254,7 @@
           }
         },
         "400": {
-          "description": "Validation for one of the query parameters failed or Retrieve Studies specified in CSV from external archive service invoked with missing Content-type header"
+          "description": "Validation for one of the query parameters failed"
         },
         "404": {
           "description": "No such Archive AE Title or Move SCP AE Title Retrieve queue"
@@ -311,6 +311,18 @@
           "$ref": "../parameters.json#/scheduledTime"
         }
       ],
+      "requestBody": {
+        "description": "CSV File containing Study Instance UIDs",
+        "required": true,
+        "content": {
+          "text/csv": {
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            }
+          }
+        }
+      },
       "responses": {
         "202": {
           "$ref": "../responses.json#/countResults"
