@@ -333,9 +333,10 @@ public class DiffRS {
     }
 
     private int scheduleDiffTasks(int count, List<String> studyUIDs) throws ConfigurationException {
+        String queryString = request.getQueryString();
         DiffContext ctx = createDiffContext();
         ctx.setQueryString(
-                "StudyInstanceUID=",
+                queryString == null ? "StudyInstanceUID=" : queryString.concat("&StudyInstanceUID="),
                 uriInfo.getQueryParameters());
         diffService.scheduleDiffTasks(ctx, studyUIDs);
         count += studyUIDs.size();
