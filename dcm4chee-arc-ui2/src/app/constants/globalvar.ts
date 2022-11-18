@@ -2503,8 +2503,10 @@ export class Globalvar {
         return "dcmDevice.dcmArchiveDevice.dcmExporter";
     }
     public static LINK_PERMISSION(url):any{
-        const regex = /^(\/[\S\/]*)\*$/m;
-        let m;
+        const checkAsteriskUrlRegex = /^(\/[\S\/]*)\*$/m;
+        const extractUrlFromKeycloakURL = /([\/\w_-]*)#.*/;
+        let check;
+        let match;
         let urlPermissions = {
             "/monitoring/dashboard/*":{
                 permissionsAction:"menu-dashboard"
@@ -2714,9 +2716,9 @@ export class Globalvar {
                 return urlPermissions[url];
             else{
                 let actionObject;
-                Object.keys(urlPermissions).forEach(keys=>{
-                    if ((m = regex.exec(keys)) !== null && url.indexOf(m[1]) > -1)
-                        actionObject = urlPermissions[keys];
+                Object.keys(urlPermissions).forEach(key=>{
+                    if (((check = checkAsteriskUrlRegex.exec(key)) !== null && url.indexOf(check[1]) > -1) ||  ((match = extractUrlFromKeycloakURL.exec(url)) !== null && match[1] === key))
+                        actionObject = urlPermissions[key];
                 });
                 return actionObject;
             }
