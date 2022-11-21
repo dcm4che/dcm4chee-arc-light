@@ -41,15 +41,14 @@
 
 package org.dcm4chee.arc.pdq.dicom;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.PDQService;
 import org.dcm4chee.arc.pdq.PDQServiceProvider;
 import org.dcm4chee.arc.query.scu.CFindSCU;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

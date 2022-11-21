@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf.ui.ldap;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.LdapUtils;
@@ -48,7 +49,6 @@ import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ui.*;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;

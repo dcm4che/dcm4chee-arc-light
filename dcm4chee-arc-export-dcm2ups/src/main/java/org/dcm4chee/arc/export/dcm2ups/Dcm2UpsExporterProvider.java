@@ -41,6 +41,9 @@
 
 package org.dcm4chee.arc.export.dcm2ups;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -48,10 +51,6 @@ import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.query.QueryService;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * @author Vrinda Nayak (vrinda.nayak@j4care.com)

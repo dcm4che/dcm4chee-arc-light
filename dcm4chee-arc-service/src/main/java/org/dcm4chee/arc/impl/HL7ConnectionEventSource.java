@@ -41,6 +41,9 @@
 
 package org.dcm4chee.arc.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -50,9 +53,6 @@ import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import java.net.Socket;
 
 /**

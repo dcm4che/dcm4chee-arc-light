@@ -41,12 +41,12 @@
 
 package org.dcm4chee.arc.rs.util;
 
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.util.StringUtils;
 import org.jboss.resteasy.util.MediaTypeHelper;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -40,9 +40,9 @@
 
 package org.dcm4chee.arc;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.dcm4che3.data.Attributes;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.Objects;
 
 /**

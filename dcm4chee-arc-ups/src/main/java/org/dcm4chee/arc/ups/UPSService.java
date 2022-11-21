@@ -41,13 +41,13 @@
 
 package org.dcm4chee.arc.ups;
 
+import jakarta.websocket.Session;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
-import javax.websocket.Session;
 import java.util.List;
 
 /**

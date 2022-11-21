@@ -46,13 +46,13 @@ package org.dcm4chee.arc.entity;
  * @since Sep 2019
  */
 
+import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.*;
 
-import javax.persistence.*;
-import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;

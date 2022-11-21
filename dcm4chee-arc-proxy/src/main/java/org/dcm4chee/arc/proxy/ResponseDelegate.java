@@ -40,11 +40,15 @@
 
 package org.dcm4chee.arc.proxy;
 
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.core.*;
+
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.URI;
-import java.util.*;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

@@ -38,9 +38,8 @@
 
 package org.dcm4chee.arc.event;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.conf.api.ConfigurationChanges;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

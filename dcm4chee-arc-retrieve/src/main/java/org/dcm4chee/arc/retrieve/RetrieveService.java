@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.retrieve;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
@@ -62,7 +63,6 @@ import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;

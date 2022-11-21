@@ -41,14 +41,14 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.SeriesInfo;
 import org.dcm4chee.arc.retrieve.StudyInfo;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
-import javax.persistence.criteria.*;
 import java.util.Date;
 
 /**

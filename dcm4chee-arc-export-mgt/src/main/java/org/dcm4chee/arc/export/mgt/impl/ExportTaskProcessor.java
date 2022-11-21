@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.export.mgt.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
@@ -57,11 +61,6 @@ import org.dcm4chee.arc.qmgt.TaskProcessor;
 import org.dcm4chee.arc.query.QueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

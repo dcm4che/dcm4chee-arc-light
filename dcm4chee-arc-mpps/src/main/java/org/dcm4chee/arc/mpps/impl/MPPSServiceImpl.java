@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.mpps.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.NullifyAttributesCoercion;
 import org.dcm4che3.data.UID;
@@ -63,8 +65,6 @@ import org.dcm4chee.arc.mpps.MPPSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.util.List;

@@ -41,10 +41,9 @@
 
 package org.dcm4chee.arc.keycloak;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

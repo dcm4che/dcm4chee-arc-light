@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.id.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
@@ -50,9 +52,6 @@ import org.dcm4chee.arc.conf.IDGenerator;
 import org.dcm4chee.arc.id.IDService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

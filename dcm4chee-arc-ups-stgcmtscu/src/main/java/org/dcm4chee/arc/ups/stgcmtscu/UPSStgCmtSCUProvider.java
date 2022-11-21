@@ -41,15 +41,14 @@
 
 package org.dcm4chee.arc.ups.stgcmtscu;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.process.UPSProcessor;
 import org.dcm4chee.arc.ups.process.UPSProcessorProvider;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

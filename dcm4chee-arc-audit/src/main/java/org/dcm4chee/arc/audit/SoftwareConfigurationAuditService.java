@@ -39,12 +39,14 @@
  */
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import jakarta.servlet.http.HttpServletRequest;
+import org.dcm4che3.audit.ActiveParticipant;
+import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
 
 /**

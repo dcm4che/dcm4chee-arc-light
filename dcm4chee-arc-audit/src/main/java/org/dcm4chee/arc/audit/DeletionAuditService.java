@@ -39,8 +39,11 @@
  */
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import jakarta.servlet.http.HttpServletRequest;
+import org.dcm4che3.audit.ActiveParticipant;
+import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Connection;
@@ -50,12 +53,11 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.event.RejectionNoteSent;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
@@ -49,7 +50,6 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Duration;
 
-import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

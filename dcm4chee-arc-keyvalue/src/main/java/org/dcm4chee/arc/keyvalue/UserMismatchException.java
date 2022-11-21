@@ -40,7 +40,7 @@
 
 package org.dcm4chee.arc.keyvalue;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)

@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.Typed;
+import jakarta.inject.Inject;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
@@ -69,10 +73,6 @@ import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Typed;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 

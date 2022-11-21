@@ -41,6 +41,9 @@
 
 package org.dcm4chee.arc.query.util;
 
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.CollectionAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 import org.dcm4che3.data.*;
 import org.dcm4che3.data.PersonName;
 import org.dcm4che3.dict.archive.PrivateTag;
@@ -51,9 +54,6 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 
-import javax.persistence.criteria.*;
-import javax.persistence.metamodel.CollectionAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 import java.util.*;
 import java.util.function.Function;
 
@@ -1349,7 +1349,7 @@ public class QueryBuilder {
     }
 
     private <T, Z, X> void codes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, X> from,
-                           CollectionAttribute<X, CodeEntity> collection, Attributes item) {
+                                 CollectionAttribute<X, CodeEntity> collection, Attributes item) {
         if (isUniversalMatching(item))
             return;
 

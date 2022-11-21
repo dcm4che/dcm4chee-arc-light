@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Sequence;
@@ -49,7 +50,6 @@ import org.dcm4che3.util.DateUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.SPSStatus;
 
-import javax.persistence.*;
 import java.util.*;
 
 /**

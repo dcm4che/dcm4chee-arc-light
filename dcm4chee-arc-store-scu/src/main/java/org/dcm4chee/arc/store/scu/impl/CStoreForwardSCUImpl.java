@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.store.scu.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -47,8 +49,6 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;

@@ -38,9 +38,8 @@
 
 package org.dcm4chee.arc.keycloak;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.KeycloakSecurityContext;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

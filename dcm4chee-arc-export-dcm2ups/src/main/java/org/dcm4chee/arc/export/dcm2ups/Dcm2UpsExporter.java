@@ -41,6 +41,10 @@
 
 package org.dcm4chee.arc.export.dcm2ups;
 
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
@@ -64,10 +68,6 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;

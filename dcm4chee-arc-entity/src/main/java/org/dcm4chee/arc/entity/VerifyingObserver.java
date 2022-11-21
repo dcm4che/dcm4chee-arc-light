@@ -40,12 +40,12 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
 
-import javax.persistence.*;
 import java.util.Date;
 
 /**

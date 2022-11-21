@@ -43,8 +43,8 @@ package org.dcm4chee.arc.validation.constraints;
 
 import org.dcm4che3.util.StringUtils;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;

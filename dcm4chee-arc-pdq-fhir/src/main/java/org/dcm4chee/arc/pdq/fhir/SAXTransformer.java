@@ -38,13 +38,13 @@
 
 package org.dcm4chee.arc.pdq.fhir;
 
+import jakarta.ws.rs.core.Response;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.io.ContentHandlerAdapter;
 import org.dcm4che3.io.SAXTransformer.SetupTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.util.StringUtils;
 
-import javax.ws.rs.core.Response;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf.ldap;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.ldap.LdapDicomConfiguration;
@@ -61,7 +62,6 @@ import org.dcm4chee.arc.conf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;

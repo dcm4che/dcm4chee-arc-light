@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.query;
 
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.CriteriaQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Code;
@@ -56,8 +58,6 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
 
-import javax.persistence.Tuple;
-import javax.persistence.criteria.CriteriaQuery;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;

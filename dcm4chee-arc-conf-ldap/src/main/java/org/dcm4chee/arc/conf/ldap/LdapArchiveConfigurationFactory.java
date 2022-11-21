@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.conf.ldap;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 import org.dcm4che3.conf.api.*;
 import org.dcm4che3.conf.api.hl7.HL7ApplicationCache;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
@@ -53,10 +57,6 @@ import org.dcm4che3.conf.ldap.imageio.LdapImageReaderConfiguration;
 import org.dcm4che3.conf.ldap.imageio.LdapImageWriterConfiguration;
 import org.dcm4chee.arc.conf.ui.ldap.LdapArchiveUIConfiguration;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;

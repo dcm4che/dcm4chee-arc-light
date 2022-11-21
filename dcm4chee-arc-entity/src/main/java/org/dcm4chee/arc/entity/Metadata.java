@@ -40,9 +40,9 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.dcm4che3.util.TagUtils;
 
-import javax.persistence.*;
 import java.util.Date;
 
 /**

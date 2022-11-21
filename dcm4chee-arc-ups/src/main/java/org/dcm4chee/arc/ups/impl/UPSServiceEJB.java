@@ -41,6 +41,12 @@
 
 package org.dcm4chee.arc.ups.impl;
 
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Tuple;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.ProcedureDiscontinuationReasons;
 import org.dcm4che3.dcmr.ScopeOfAccumulation;
@@ -66,12 +72,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Tuple;
 import javax.xml.transform.TransformerConfigurationException;
 import java.util.*;
 import java.util.function.Predicate;

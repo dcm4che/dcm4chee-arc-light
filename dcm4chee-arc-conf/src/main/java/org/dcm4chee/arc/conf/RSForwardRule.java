@@ -40,7 +40,8 @@
 
 package org.dcm4chee.arc.conf;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.regex.Pattern;

@@ -38,12 +38,11 @@
 
 package org.dcm4chee.arc.event;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.TagUtils;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

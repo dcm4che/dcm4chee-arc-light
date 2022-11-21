@@ -40,10 +40,9 @@
 
 package org.dcm4chee.arc;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4chee.arc.conf.HL7PrefetchRule;
-
-import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>

@@ -40,12 +40,12 @@
 
 package org.dcm4chee.arc.wado;
 
+import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;

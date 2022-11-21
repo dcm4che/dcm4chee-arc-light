@@ -41,12 +41,12 @@
 
 package org.dcm4chee.arc.query.util;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
 import java.util.function.BiFunction;
 
 /**

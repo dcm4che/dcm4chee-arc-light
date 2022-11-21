@@ -41,12 +41,12 @@
 
 package org.dcm4chee.arc.ui2;
 
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import org.jboss.resteasy.annotations.cache.NoCache;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import java.util.StringTokenizer;
 
 /**

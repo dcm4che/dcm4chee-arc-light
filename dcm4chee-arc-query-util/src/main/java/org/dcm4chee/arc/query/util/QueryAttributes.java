@@ -38,6 +38,9 @@
 
 package org.dcm4chee.arc.query.util;
 
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.UriInfo;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Tag;
@@ -48,9 +51,6 @@ import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.AttributesBuilder;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;

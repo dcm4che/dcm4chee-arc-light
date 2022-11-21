@@ -1,8 +1,7 @@
 package org.dcm4chee.arc.event;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4chee.arc.entity.Task;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

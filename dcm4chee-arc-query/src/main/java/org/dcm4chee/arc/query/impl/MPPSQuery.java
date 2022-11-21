@@ -41,15 +41,15 @@
 
 package org.dcm4chee.arc.query.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
-import javax.persistence.criteria.*;
 import java.util.List;
 
 /**
@@ -69,7 +69,7 @@ public class MPPSQuery extends AbstractQuery {
 
     @Override
     protected CriteriaQuery<Tuple> multiselect() {
-        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
         this.mpps = q.from(MPPS.class);
         this.patient = mpps.join(MPPS_.patient);
         return order(restrict(q, patient, mpps)).multiselect(

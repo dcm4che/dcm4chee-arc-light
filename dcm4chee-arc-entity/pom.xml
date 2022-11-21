@@ -59,7 +59,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-jpamodelgen</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -135,6 +135,7 @@
           </execution>
         </executions>
       </plugin>
+      <!--
       <plugin>
         <groupId>io.github.divinespear</groupId>
         <artifactId>jpa-schema-maven-plugin</artifactId>
@@ -155,6 +156,7 @@
           </execution>
         </executions>
       </plugin>
+      -->
     </plugins>
   </build>
 

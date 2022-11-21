@@ -38,6 +38,12 @@
 
 package org.dcm4chee.arc.query.impl;
 
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
+import jakarta.inject.Inject;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
@@ -48,12 +54,6 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-import javax.persistence.*;
-import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Stream;
 

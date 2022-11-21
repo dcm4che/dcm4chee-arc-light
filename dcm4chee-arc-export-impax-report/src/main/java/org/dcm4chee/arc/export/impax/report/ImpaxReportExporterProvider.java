@@ -41,6 +41,9 @@
 
 package org.dcm4chee.arc.export.impax.report;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
@@ -49,9 +52,6 @@ import org.dcm4chee.arc.impax.report.ReportServiceProvider;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreService;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

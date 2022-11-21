@@ -41,12 +41,12 @@
 
 package org.dcm4chee.arc.ups.rs;
 
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4chee.arc.ups.UPSContext;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
 

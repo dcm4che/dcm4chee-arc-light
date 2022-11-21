@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.BasicBulkDataDescriptor;
 import org.dcm4che3.io.BulkDataDescriptor;
@@ -50,7 +51,6 @@ import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StringUtils;
 
 import javax.json.JsonValue;
-import javax.servlet.http.HttpServletRequest;
 import java.time.Period;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;

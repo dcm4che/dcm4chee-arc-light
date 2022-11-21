@@ -1,11 +1,10 @@
 package org.dcm4chee.arc.exporter;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import org.dcm4chee.arc.NamedCDIBeanCache;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

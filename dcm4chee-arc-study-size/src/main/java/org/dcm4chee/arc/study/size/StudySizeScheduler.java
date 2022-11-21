@@ -38,6 +38,10 @@
 
 package org.dcm4chee.arc.study.size;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.persistence.Tuple;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -49,10 +53,6 @@ import org.dcm4chee.arc.query.impl.QuerySizeEJB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.persistence.Tuple;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;

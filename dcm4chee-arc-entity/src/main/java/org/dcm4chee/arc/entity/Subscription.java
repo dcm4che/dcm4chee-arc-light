@@ -41,7 +41,7 @@
 
 package org.dcm4chee.arc.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)

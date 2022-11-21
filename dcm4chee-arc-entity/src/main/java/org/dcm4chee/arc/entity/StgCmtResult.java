@@ -40,11 +40,11 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 
-import javax.persistence.*;
 import java.util.Date;
 
 /**

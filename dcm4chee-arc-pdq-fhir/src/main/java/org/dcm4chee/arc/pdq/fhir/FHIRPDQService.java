@@ -38,6 +38,9 @@
 
 package org.dcm4chee.arc.pdq.fhir;
 
+import jakarta.enterprise.event.Event;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.core.Response;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
@@ -56,9 +59,6 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.Response;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 

@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.patient.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.persistence.criteria.CriteriaQuery;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
@@ -51,10 +55,6 @@ import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.*;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
 import java.util.Date;
 import java.util.List;

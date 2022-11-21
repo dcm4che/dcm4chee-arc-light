@@ -40,13 +40,13 @@
 
 package org.dcm4chee.arc.wado;
 
+import jakarta.ws.rs.core.MediaType;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.InstanceLocations;
 
-import javax.ws.rs.core.MediaType;
 import java.util.Optional;
 import java.util.stream.Stream;
 

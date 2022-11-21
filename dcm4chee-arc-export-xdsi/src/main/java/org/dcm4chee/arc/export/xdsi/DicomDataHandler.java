@@ -38,12 +38,12 @@
 
 package org.dcm4chee.arc.export.xdsi;
 
+import jakarta.activation.DataHandler;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.ws.rs.MediaTypes;
 
-import javax.activation.DataHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 

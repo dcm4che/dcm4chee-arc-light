@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf.ui.json;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
@@ -48,7 +49,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ui.*;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.json.stream.JsonParser;
 import java.util.Collection;
 

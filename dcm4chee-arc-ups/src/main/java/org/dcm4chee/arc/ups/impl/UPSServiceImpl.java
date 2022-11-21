@@ -41,6 +41,12 @@
 
 package org.dcm4chee.arc.ups.impl;
 
+import jakarta.ejb.EJBException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.websocket.Session;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
@@ -74,12 +80,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.ejb.EJBException;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.websocket.Session;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.net.Socket;

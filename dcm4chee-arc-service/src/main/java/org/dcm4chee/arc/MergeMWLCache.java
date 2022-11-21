@@ -42,7 +42,7 @@ package org.dcm4chee.arc;
 
 import org.dcm4che3.data.Attributes;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

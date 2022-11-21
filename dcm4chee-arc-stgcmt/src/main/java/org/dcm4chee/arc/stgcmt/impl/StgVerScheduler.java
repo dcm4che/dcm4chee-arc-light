@@ -41,16 +41,18 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.ScheduleExpression;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;

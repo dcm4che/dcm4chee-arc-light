@@ -40,10 +40,9 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
-
-import javax.persistence.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

@@ -41,7 +41,7 @@
 
 package org.dcm4chee.arc.query;
 
-import javax.ejb.Stateless;
+import jakarta.ejb.Stateless;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

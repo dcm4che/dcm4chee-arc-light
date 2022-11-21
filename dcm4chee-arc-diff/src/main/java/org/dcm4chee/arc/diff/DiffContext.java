@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.diff;
 
+import jakarta.ws.rs.core.MultivaluedMap;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
@@ -51,7 +52,6 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 
-import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
 import java.util.Map;
 

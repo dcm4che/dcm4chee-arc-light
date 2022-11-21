@@ -41,6 +41,10 @@
 
 package org.dcm4chee.arc.pdq.hl7;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
@@ -48,11 +52,6 @@ import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.pdq.PDQService;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceProvider;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

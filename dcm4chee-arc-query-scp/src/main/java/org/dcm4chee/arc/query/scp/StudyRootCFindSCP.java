@@ -40,12 +40,12 @@
 
 package org.dcm4chee.arc.query.scp;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Typed;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Typed;
 import java.util.EnumSet;
 
 /**

@@ -41,6 +41,10 @@
 
 package org.dcm4chee.arc.xroad;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Holder;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -52,12 +56,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Holder;
 import java.util.List;
 import java.util.Map;
 

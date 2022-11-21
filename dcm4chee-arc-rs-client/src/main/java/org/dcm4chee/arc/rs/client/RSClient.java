@@ -40,11 +40,10 @@
 
 package org.dcm4chee.arc.rs.client;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Response;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.qmgt.Outcome;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

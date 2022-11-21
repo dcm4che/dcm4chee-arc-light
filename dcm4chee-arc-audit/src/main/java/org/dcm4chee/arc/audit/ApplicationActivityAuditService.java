@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
@@ -48,7 +49,6 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
 
 /**

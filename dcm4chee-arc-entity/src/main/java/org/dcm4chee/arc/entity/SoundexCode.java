@@ -40,9 +40,9 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.dcm4che3.data.PersonName.Component;
 
-import javax.persistence.*;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 

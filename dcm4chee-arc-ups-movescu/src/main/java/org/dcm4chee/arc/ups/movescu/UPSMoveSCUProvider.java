@@ -41,15 +41,14 @@
 
 package org.dcm4chee.arc.ups.movescu;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.process.UPSProcessor;
 import org.dcm4chee.arc.ups.process.UPSProcessorProvider;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)

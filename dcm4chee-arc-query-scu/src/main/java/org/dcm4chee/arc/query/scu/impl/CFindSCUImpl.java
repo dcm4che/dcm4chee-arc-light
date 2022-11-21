@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.query.scu.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
@@ -59,8 +61,6 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.util.ArrayList;

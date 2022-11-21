@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.procedure.impl;
 
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.*;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
@@ -59,10 +63,6 @@ import org.dcm4chee.arc.query.util.QueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.*;
-import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

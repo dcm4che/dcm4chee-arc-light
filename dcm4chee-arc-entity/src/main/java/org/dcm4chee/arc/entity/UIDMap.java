@@ -40,7 +40,8 @@
 
 package org.dcm4chee.arc.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;

@@ -41,10 +41,10 @@
 
 package org.dcm4chee.arc;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import org.dcm4chee.arc.conf.NamedQualifier;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

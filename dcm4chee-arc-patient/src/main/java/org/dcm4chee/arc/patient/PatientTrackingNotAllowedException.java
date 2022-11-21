@@ -38,7 +38,7 @@
 
 package org.dcm4chee.arc.patient;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

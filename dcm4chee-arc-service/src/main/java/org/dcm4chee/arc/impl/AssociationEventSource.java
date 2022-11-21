@@ -41,15 +41,14 @@
 
 package org.dcm4chee.arc.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.AssociationMonitor;
 import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.metrics.MetricsService;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

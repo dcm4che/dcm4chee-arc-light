@@ -40,6 +40,11 @@
 
 package org.dcm4chee.arc.mpps.scp;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.Typed;
+import jakarta.inject.Inject;
+import jakarta.persistence.PersistenceException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
@@ -52,12 +57,6 @@ import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.MPPSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.Typed;
-import javax.inject.Inject;
-import javax.persistence.PersistenceException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

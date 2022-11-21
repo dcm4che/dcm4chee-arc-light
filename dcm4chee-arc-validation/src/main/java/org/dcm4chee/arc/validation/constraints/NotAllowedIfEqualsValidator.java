@@ -40,8 +40,8 @@
 
 package org.dcm4chee.arc.validation.constraints;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

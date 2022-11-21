@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.retrieve.scu.impl;
 
+import jakarta.enterprise.event.Event;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
@@ -54,7 +55,6 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 

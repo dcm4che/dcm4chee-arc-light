@@ -40,17 +40,16 @@
 
 package org.dcm4chee.arc.code.impl;
 
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.CodeEntity;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

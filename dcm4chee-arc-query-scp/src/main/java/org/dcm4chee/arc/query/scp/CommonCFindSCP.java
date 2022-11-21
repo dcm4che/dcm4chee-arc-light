@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.query.scp;
 
+import jakarta.ejb.EJB;
+import jakarta.inject.Inject;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.Association;
@@ -58,8 +60,6 @@ import org.dcm4chee.arc.query.util.OrderByTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
-import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 

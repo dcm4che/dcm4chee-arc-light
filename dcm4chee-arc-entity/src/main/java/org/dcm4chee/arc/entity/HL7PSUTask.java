@@ -40,7 +40,7 @@
 
 package org.dcm4chee.arc.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 /**

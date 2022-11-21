@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.patient;
 
+import jakarta.persistence.criteria.CriteriaQuery;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -48,7 +49,6 @@ import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
-import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
 import java.util.Date;
 import java.util.List;

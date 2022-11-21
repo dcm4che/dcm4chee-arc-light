@@ -39,6 +39,7 @@
  */
 package org.dcm4chee.arc.audit;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.audit.ActiveParticipant;
 import org.dcm4che3.audit.ActiveParticipantBuilder;
 import org.dcm4che3.audit.AuditMessage;
@@ -53,7 +54,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
 import java.nio.file.Path;
 

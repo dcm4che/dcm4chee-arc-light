@@ -41,6 +41,9 @@
 
 package org.dcm4chee.arc.ups.rs;
 
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.json.JSONReader;
@@ -49,9 +52,6 @@ import org.xml.sax.SAXException;
 
 import javax.json.Json;
 import javax.json.JsonException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;

@@ -41,6 +41,15 @@
 
 package org.dcm4chee.arc.keycloak;
 
+import jakarta.annotation.Resource;
+import jakarta.enterprise.concurrent.ManagedExecutorService;
+import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.KeycloakClient;
 import org.dcm4che3.net.WebApplication;
@@ -61,15 +70,6 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.util.JWKSUtils;
 import org.keycloak.util.JsonSerialization;
 
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.Map;
@@ -166,6 +166,8 @@ public class AccessTokenRequestor {
     }
 
     private Keycloak toKeycloak(KeycloakClient kc) throws Exception {
+        return null;
+/*
         return KeycloakBuilder.builder()
                 .serverUrl(kc.getKeycloakServerURL())
                 .realm(kc.getKeycloakRealm())
@@ -177,6 +179,7 @@ public class AccessTokenRequestor {
                 .resteasyClient(resteasyClientBuilder(
                         kc.getKeycloakServerURL(), kc.isTLSAllowAnyHostname(), kc.isTLSDisableTrustManager()).build())
                 .build();
+*/
     }
 
 

@@ -40,6 +40,9 @@
 
 package org.dcm4chee.arc.code.impl;
 
+import jakarta.ejb.EJBException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -48,10 +51,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ejb.EJBException;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

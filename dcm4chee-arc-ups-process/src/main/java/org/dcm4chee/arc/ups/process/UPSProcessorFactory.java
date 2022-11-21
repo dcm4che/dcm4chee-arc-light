@@ -41,12 +41,11 @@
 
 package org.dcm4chee.arc.ups.process;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import org.dcm4chee.arc.NamedCDIBeanCache;
 import org.dcm4chee.arc.conf.UPSProcessingRule;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)

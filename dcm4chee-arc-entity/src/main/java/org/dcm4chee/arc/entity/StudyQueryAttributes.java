@@ -40,9 +40,8 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.dcm4chee.arc.conf.Availability;
-
-import javax.persistence.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

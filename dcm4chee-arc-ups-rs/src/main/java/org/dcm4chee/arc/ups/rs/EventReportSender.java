@@ -41,6 +41,15 @@
 
 package org.dcm4chee.arc.ups.rs;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.PathParam;
+import jakarta.websocket.server.ServerEndpoint;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
@@ -50,17 +59,8 @@ import org.dcm4chee.arc.ups.UPSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
@@ -86,8 +86,8 @@ public class EventReportSender {
 
     @OnOpen
     public void open(Session session,
-            @PathParam("AETitle") String aet,
-            @PathParam("SubscriberAET") String subscriberAET) {
+                     @PathParam("AETitle") String aet,
+                     @PathParam("SubscriberAET") String subscriberAET) {
         LOG.info("{} open /aets/{}/ws/subscribers/{} ", session, aet, subscriberAET);
         Queue<UPSEvent> queue = queueMap.remove(subscriberAET);
         if (queue != null) {

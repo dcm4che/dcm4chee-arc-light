@@ -40,6 +40,15 @@
 
 package org.dcm4chee.arc.query.impl;
 
+import jakarta.ejb.EJBException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
@@ -73,16 +82,7 @@ import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJBException;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import javax.json.Json;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.Closeable;
@@ -924,7 +924,7 @@ class QueryServiceImpl implements QueryService {
     public List<Attributes> queryMWL(MergeMWLQueryParam queryParam) {
         LOG.info("Query for MWL Items with {}", queryParam);
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);

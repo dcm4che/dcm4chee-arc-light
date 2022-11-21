@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.pdq.scheduler;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.Scheduler;
@@ -57,8 +59,6 @@ import org.dcm4chee.arc.pdq.PDQServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.Period;

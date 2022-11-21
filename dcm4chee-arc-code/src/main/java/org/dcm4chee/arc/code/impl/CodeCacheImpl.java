@@ -40,13 +40,13 @@
 
 package org.dcm4chee.arc.code.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.entity.CodeEntity;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

@@ -38,7 +38,7 @@
 
 package org.dcm4chee.arc.qmgt;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

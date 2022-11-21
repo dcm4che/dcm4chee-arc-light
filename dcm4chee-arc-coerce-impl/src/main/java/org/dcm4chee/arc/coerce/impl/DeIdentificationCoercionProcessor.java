@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.coerce.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.util.StringUtils;
@@ -48,9 +50,6 @@ import org.dcm4chee.arc.coerce.CoercionProcessor;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)

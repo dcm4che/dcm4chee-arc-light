@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.coerce.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
@@ -50,8 +52,6 @@ import org.dcm4chee.arc.conf.Conditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 

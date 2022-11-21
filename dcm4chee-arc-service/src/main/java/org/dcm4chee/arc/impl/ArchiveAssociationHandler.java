@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.*;
@@ -50,8 +52,6 @@ import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetAddress;
 

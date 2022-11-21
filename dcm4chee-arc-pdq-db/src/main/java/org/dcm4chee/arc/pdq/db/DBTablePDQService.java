@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.pdq.db;
 
+import jakarta.persistence.EntityManager;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
@@ -54,7 +55,6 @@ import org.dcm4chee.arc.pdq.PDQServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
 /**

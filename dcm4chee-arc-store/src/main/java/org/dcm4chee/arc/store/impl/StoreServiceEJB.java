@@ -40,6 +40,13 @@
 
 package org.dcm4chee.arc.store.impl;
 
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.*;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.hl7.HL7Segment;
@@ -74,14 +81,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.json.Json;
-import javax.persistence.*;
-import javax.persistence.criteria.*;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -1047,7 +1047,7 @@ public class StoreServiceEJB {
     public List<Attributes> queryMWL(StoreContext ctx, MergeMWLQueryParam queryParam) {
         LOG.info("{}: Query for MWL Items with {}", ctx.getStoreSession(), queryParam);
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
+        CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);

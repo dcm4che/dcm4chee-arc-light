@@ -41,12 +41,12 @@
 
 package org.dcm4chee.arc.ups.rs;
 
+import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4chee.arc.ups.UPSContext;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStream;
 
 /**

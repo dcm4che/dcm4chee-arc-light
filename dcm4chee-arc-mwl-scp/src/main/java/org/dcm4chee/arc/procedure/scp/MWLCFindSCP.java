@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.procedure.scp;
 
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Typed;
+import jakarta.inject.Inject;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
@@ -55,10 +59,6 @@ import org.dcm4chee.arc.query.RunInTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Typed;
-import javax.inject.Inject;
 import java.util.EnumSet;
 
 /**

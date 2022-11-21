@@ -40,7 +40,7 @@
 
 package org.dcm4chee.arc;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

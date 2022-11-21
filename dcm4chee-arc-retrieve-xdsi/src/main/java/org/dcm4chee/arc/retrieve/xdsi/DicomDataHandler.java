@@ -38,7 +38,8 @@
 
 package org.dcm4chee.arc.retrieve.xdsi;
 
-import org.dcm4che3.data.Attributes;
+import jakarta.activation.DataHandler;
+import jakarta.enterprise.event.Event;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.ws.rs.MediaTypes;
@@ -48,8 +49,6 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
 
-import javax.activation.DataHandler;
-import javax.enterprise.event.Event;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;

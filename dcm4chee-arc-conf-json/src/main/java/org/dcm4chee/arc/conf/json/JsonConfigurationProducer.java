@@ -40,6 +40,9 @@
 
 package org.dcm4chee.arc.conf.json;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Produces;
 import org.dcm4che3.conf.json.JsonConfiguration;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.audit.JsonAuditLoggerConfiguration;
@@ -49,9 +52,6 @@ import org.dcm4che3.conf.json.imageio.JsonImageReaderConfiguration;
 import org.dcm4che3.conf.json.imageio.JsonImageWriterConfiguration;
 import org.dcm4chee.arc.conf.ui.json.JsonArchiveUIConfiguration;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
 import java.util.stream.Stream;
 
 /**

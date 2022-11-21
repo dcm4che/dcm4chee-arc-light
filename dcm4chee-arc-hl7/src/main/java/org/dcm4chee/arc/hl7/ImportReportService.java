@@ -40,6 +40,9 @@
 
 package org.dcm4chee.arc.hl7;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Typed;
+import jakarta.inject.Inject;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.ERRSegment;
@@ -63,9 +66,6 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Typed;
-import javax.inject.Inject;
 import java.net.Socket;
 import java.util.List;
 import java.util.stream.Collectors;

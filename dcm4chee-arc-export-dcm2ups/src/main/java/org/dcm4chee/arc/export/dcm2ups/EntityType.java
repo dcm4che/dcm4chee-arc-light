@@ -41,6 +41,10 @@
 
 package org.dcm4chee.arc.export.dcm2ups;
 
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
@@ -48,10 +52,6 @@ import org.dcm4che3.ws.rs.MediaTypes;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.transform.stream.StreamResult;
 
 /**

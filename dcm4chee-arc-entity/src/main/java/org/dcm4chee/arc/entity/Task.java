@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.entity;
 
+import jakarta.persistence.*;
 import org.apache.commons.csv.CSVPrinter;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Code;
@@ -49,7 +50,6 @@ import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 
 import javax.json.stream.JsonGenerator;
-import javax.persistence.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -40,13 +40,13 @@
 
 package org.dcm4chee.arc.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.ConnectionMonitor;
 import org.dcm4chee.arc.ConnectionEvent;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import java.net.Socket;
 
 /**

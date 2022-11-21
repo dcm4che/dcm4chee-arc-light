@@ -1,14 +1,14 @@
 package org.dcm4chee.arc.storage;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import org.dcm4chee.arc.NamedCDIBeanCache;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.conf.StorageThreshold;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.*;
