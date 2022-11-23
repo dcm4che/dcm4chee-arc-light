@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.retrieve.xdsi;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.ws.rs.MediaTypes;
@@ -96,7 +95,6 @@ public class DicomDataHandler extends DataHandler {
             transcoder.transcode((transcoder1, dataset) -> {
                 try {
                     coerce.coerce(dataset, null);
-                    ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
                 } catch (IOException e) {
                     throw e;
                 } catch (Exception e) {
