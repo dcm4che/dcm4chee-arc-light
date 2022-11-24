@@ -76,6 +76,7 @@
       <includes>
         <include>configuration/keystores/key.p12</include>
         <include>configuration/keystores/cacerts.p12</include>
+        <include>configuration/resources/img/**</include>
       </includes>
       <lineEnding>keep</lineEnding>
     </fileSet>
