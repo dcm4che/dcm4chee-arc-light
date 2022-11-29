@@ -4160,8 +4160,16 @@ export class Globalvar {
                 placeholder:$localize `:@@study_description:Study Description`
             },
             {
-                tag:"modality",
+                tag:"editable-multi-select",
                 type:"text",
+                optionsTree:[
+                    {
+                        options:Object.keys(this.MODALITIES.common).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.common[key]}`))
+                    },
+                    {
+                        options:Object.keys(this.MODALITIES.more).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.more[key]}`))
+                    }
+                ],
                 filterKey:"ModalitiesInStudy",
                 placeholder:$localize `:@@modality:Modality`,
             },
@@ -4386,9 +4394,23 @@ export class Globalvar {
                 description:$localize `:@@issuer_of_accession_number:Issuer of accession number`,
                 placeholder:$localize `:@@issuer_of_accession_number:Issuer of accession number`
             },
-            {
+/*            {
                 tag:"modality",
                 type:"text",
+                filterKey:"ModalitiesInStudy",
+                placeholder:$localize `:@@modality:Modality`,
+            },*/
+            {
+                tag:"editable-multi-select",
+                type:"text",
+                optionsTree:[
+                    {
+                        options:Object.keys(this.MODALITIES.common).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.common[key]}`))
+                    },
+                    {
+                        options:Object.keys(this.MODALITIES.more).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.more[key]}`))
+    }
+                ],
                 filterKey:"ModalitiesInStudy",
                 placeholder:$localize `:@@modality:Modality`,
             },

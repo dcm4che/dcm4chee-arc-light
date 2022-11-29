@@ -109,6 +109,22 @@
                               [showStar]="line[index].showStar"
                       ></dcm-drop-down>
                       <dcm-drop-down
+                              [ngStyle]="line[index].style"
+                              *ngSwitchCase="'editable-multi-select'"
+                              [placeholder]="line[index]?.placeholder"
+                              [ngClass]="line[index].cssClass"
+                              [options]="line[index].options"
+                              [optionsTree]="line[index].optionsTree"
+                              [min]="line[index].min"
+                              [max]="line[index].max"
+                              [editable]="false"
+                              [showSearchField]="true"
+                              [(model)]="model[line[index].filterKey]"
+                              [multiSelectMode]="true"
+                              (modelChange)="filterChange($event)"
+                              [showStar]="line[index].showStar"
+                      ></dcm-drop-down>
+                      <dcm-drop-down
                               [multiSelectMode]="true"
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'multi-select'"
@@ -232,7 +248,7 @@
                           (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                           placeholder="{{line[index]?.description || line[index]?.placeholder}}"
                           dateFormat="YYYYMMDD"
-                          onlySingleMode="true"
+                          onlySingleMode="true"3
                           defaultTime="00:00:00"
                           mode="single"
                           title="{{line[index]?.description}}"

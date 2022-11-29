@@ -243,7 +243,7 @@ export class DcmDropDownComponent implements OnInit {
                     element.selected = true;
                 }
             }
-            if(this.multiSelectValue.length === this.options.length){
+            if((this.options && this.multiSelectValue.length === this.options.length) || (this.optionsTree && this.multiSelectValue.length === this.optionsTree.length) ){
                 this.isAllCheck = true;
             }else{
                 this.isAllCheck = false;
