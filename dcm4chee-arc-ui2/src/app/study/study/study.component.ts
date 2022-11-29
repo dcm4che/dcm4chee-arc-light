@@ -2040,30 +2040,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
     }
     submit(filterModel){
-        if (this.studyConfig
-                && this.studyConfig.tab === "series"
-                && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_RS") > -1
-                && this.studyWebService.selectedWebService.dcmWebServicePath.indexOf("/dimse/") > -1) {
-            if (_.hasIn(filterModel, ['StudyInstanceUID']) && (_.get(filterModel, "StudyInstanceUID")).length >= 1)
-                this.triggerQueries(filterModel, true);
-            else
-                this.appService.showWarning($localize `:@@external_archive_proxy_relational_query_req_warning:Query requests without (Study Instance UID) proxied to external archives may not support relational queries!`);
-            return;
-        }
         if (this.showNoFilterWarning(filterModel)) {
             this.confirm({
                 content: $localize `:@@no_filter_set_warning:No filter are set, are you sure you want to continue?`
             }).subscribe(result => {
                 if (result){
-                    this.triggerQueries(filterModel, false);
+                    this.triggerQueries(filterModel);
                 }
             });
         }else{
-            this.triggerQueries(filterModel, false);
+            this.triggerQueries(filterModel);
         }
 
     }
-    triggerQueries(filterModel, isDimseSeries: boolean){
+    triggerQueries(filterModel){
         switch (this.studyConfig.tab){
             case "study":
                 this.getStudies(filterModel);
@@ -2072,7 +2062,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.getPatients(filterModel);
                 break;
             case "series":
-                this.getSeries(filterModel, isDimseSeries);
+                this.getSeries(filterModel);
                 break;
             case "mwl":
                 this.getMWL(filterModel);
@@ -2347,7 +2337,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "patient":
                 return this.service.getPatients(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             case "series":
-                return this.service.getSeries(filterModel, this.studyWebService.selectedWebService, false, <DicomResponseType>quantity);
+                return this.service.getSeries(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             default:
                 return this.service.getStudies(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
         }
@@ -2632,11 +2622,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
     }
 
-    getSeries(filterModel, isDimseSeries: boolean){
+    getSeries(filterModel){
         console.log("getSeriesCalled");
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
-        this.service.getSeries(filterModel, this.studyWebService.selectedWebService, isDimseSeries)
+        this.service.getSeries(filterModel, this.studyWebService.selectedWebService)
             .subscribe(res => {
                 this.patients1 = [];
                 this.studies = [];
