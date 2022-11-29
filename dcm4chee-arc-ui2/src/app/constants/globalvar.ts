@@ -4095,6 +4095,12 @@ export class Globalvar {
                     ],
                     description:$localize `:@@patient_verification_status:Patient Verification Status`,
                     placeholder:$localize `:@@patient_verification_status:Patient Verification Status`,
+                },
+                {
+                    tag:"checkbox",
+                    filterKey:"allOfModalitiesInStudy",
+                    text:$localize `:@@all_modalities_in_study:All of Modalities in Study`,
+                    description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
                 }
             ];
         }
