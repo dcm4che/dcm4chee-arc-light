@@ -153,7 +153,7 @@ public class QueryRS {
     @Path("/patients")
     @Produces("application/dicom+json,application/json")
     public void searchForPatientsJSON(@Suspended AsyncResponse ar) {
-        search(ar, Level.PATIENT, null, null, QIDO.PATIENT, false);
+        search(ar, Level.PATIENT, false, null, null, QIDO.PATIENT, false);
     }
 
     @GET
@@ -161,7 +161,16 @@ public class QueryRS {
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
     public void searchForStudiesJSON(@Suspended AsyncResponse ar) {
-        search(ar, Level.STUDY, null, null, QIDO.STUDY, false);
+        search(ar, Level.STUDY, false, null, null, QIDO.STUDY, false);
+    }
+
+    @GET
+    @NoCache
+    @Path("/series")
+    @Produces("application/dicom+json,application/json")
+    public void searchForSeries(@Suspended AsyncResponse ar) {
+        search(ar, Level.SERIES, true,
+                null, null, QIDO.STUDY_SERIES, false);
     }
 
     @GET
@@ -171,7 +180,25 @@ public class QueryRS {
     public void searchForSeriesOfStudyJSON(
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        search(ar, Level.SERIES, studyInstanceUID, null, QIDO.SERIES, false);
+        search(ar, Level.SERIES, false, studyInstanceUID, null, QIDO.SERIES, false);
+    }
+
+    @GET
+    @NoCache
+    @Path("/instances")
+    @Produces("application/dicom+json,application/json")
+    public void searchForInstancesJSON(@Suspended AsyncResponse ar) {
+        search(ar, Level.IMAGE, true, null, null, QIDO.STUDY_SERIES_INSTANCE, false);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/instances")
+    @Produces("application/dicom+json,application/json")
+    public void searchForInstancesOfStudyJSON(
+            @Suspended AsyncResponse ar,
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+        search(ar, Level.IMAGE, true, studyInstanceUID, null, QIDO.SERIES_INSTANCE, false);
     }
 
     @GET
@@ -182,7 +209,7 @@ public class QueryRS {
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, false);
+        search(ar, Level.IMAGE, false, studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, false);
     }
 
     @GET
@@ -190,7 +217,7 @@ public class QueryRS {
     @Path("/mwlitems")
     @Produces("application/dicom+json,application/json")
     public void searchForSPSJSON(@Suspended AsyncResponse ar) {
-        search(ar, Level.MWL, null, null, QIDO.MWL, false);
+        search(ar, Level.MWL, false, null, null, QIDO.MWL, false);
     }
 
     @GET
@@ -198,7 +225,7 @@ public class QueryRS {
     @Path("/mwlitems/count")
     @Produces("application/json")
     public void countSPS(@Suspended AsyncResponse ar) {
-        search(ar, Level.MWL, null, null, QIDO.MWL, true);
+        search(ar, Level.MWL, false, null, null, QIDO.MWL, true);
     }
 
     @GET
@@ -206,7 +233,16 @@ public class QueryRS {
     @Path("/studies/count")
     @Produces("application/json")
     public void countStudies(@Suspended AsyncResponse ar) {
-        search(ar, Level.STUDY, null, null, QIDO.STUDY, true);
+        search(ar, Level.STUDY, false, null, null, QIDO.STUDY, true);
+    }
+
+    @GET
+    @NoCache
+    @Path("/series/count")
+    @Produces("application/json")
+    public void countSeries(@Suspended AsyncResponse ar) {
+        search(ar, Level.SERIES, true,
+                null, null, QIDO.STUDY_SERIES, true);
     }
 
     @GET
@@ -216,7 +252,25 @@ public class QueryRS {
     public void countSeriesOfStudy(
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID) {
-        search(ar, Level.SERIES, studyInstanceUID, null, QIDO.SERIES, true);
+        search(ar, Level.SERIES, false, studyInstanceUID, null, QIDO.SERIES, true);
+    }
+
+    @GET
+    @NoCache
+    @Path("/instances/count")
+    @Produces("application/json")
+    public void countInstances(@Suspended AsyncResponse ar) {
+        search(ar, Level.IMAGE, true, null, null, QIDO.STUDY_SERIES_INSTANCE, true);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/instances/count")
+    @Produces("application/json")
+    public void countInstancesOfStudy(
+            @Suspended AsyncResponse ar,
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
+        search(ar, Level.IMAGE, true, studyInstanceUID, null, QIDO.SERIES_INSTANCE, true);
     }
 
     @GET
@@ -227,7 +281,7 @@ public class QueryRS {
             @Suspended AsyncResponse ar,
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
-        search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, true);
+        search(ar, Level.IMAGE, false, studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, true);
     }
 
     private int offset() {
@@ -250,7 +304,8 @@ public class QueryRS {
         return splitStudyDateRange != null ? Duration.valueOf(splitStudyDateRange) : null;
     }
 
-    private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
+    private void search(AsyncResponse ar, Level level, boolean relational,
+                        String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                         boolean count) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
@@ -296,6 +351,8 @@ public class QueryRS {
             EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
             if (Boolean.parseBoolean(fuzzymatching))
                 queryOptions.add(QueryOption.FUZZY);
+            if (relational)
+                queryOptions.add(QueryOption.RELATIONAL);
             ar.register((CompletionCallback) throwable -> {
                     if (as != null)
                         try {

@@ -540,17 +540,35 @@
     "/aets/{aet}/dimse/{findscp}/studies/count": {
       "$ref": "paths/find.json#/studies.count"
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series": {
+    "/aets/{aet}/dimse/{findscp}/series": {
       "$ref": "paths/find.json#/series"
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/count": {
+    "/aets/{aet}/dimse/{findscp}/series/count": {
       "$ref": "paths/find.json#/series.count"
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances": {
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series": {
+      "$ref": "paths/find.json#/studies.series"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/count": {
+      "$ref": "paths/find.json#/studies.series.count"
+    },
+    "/aets/{aet}/dimse/{findscp}/instances": {
       "$ref": "paths/find.json#/instances"
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances/count": {
+    "/aets/{aet}/dimse/{findscp}/instances/count": {
       "$ref": "paths/find.json#/instances.count"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/instances": {
+      "$ref": "paths/find.json#/studies.instances"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/instances/count": {
+      "$ref": "paths/find.json#/studies.instances.count"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances": {
+      "$ref": "paths/find.json#/studies.series.instances"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances/count": {
+      "$ref": "paths/find.json#/studies.series.instances.count"
     },
     "/aets/{aet}/dimse/{findscp}/diff/{secondaryFindSCP}/studies": {
       "$ref": "paths/iocm.json#/diff.studies"
