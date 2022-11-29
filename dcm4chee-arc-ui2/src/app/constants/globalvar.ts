@@ -4082,6 +4082,19 @@ export class Globalvar {
                     ],
                     description:$localize `:@@modified:Modified`,
                     placeholder:$localize `:@@modified:Modified`
+                },
+                {
+                    tag:"select",
+                    filterKey:"patientVerificationStatus",
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
+                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
+                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                    ],
+                    description:$localize `:@@patient_verification_status:Patient Verification Status`,
+                    placeholder:$localize `:@@patient_verification_status:Patient Verification Status`,
                 }
             ];
         }
