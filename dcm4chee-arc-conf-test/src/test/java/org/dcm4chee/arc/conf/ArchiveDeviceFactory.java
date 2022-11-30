@@ -118,6 +118,7 @@ class ArchiveDeviceFactory {
             "findscu",
             "getscu",
             "movescu",
+            "upsscu",
             "hl7snd"
     };
     static final String[] OTHER_DEVICE_TYPES = {
@@ -131,6 +132,7 @@ class ArchiveDeviceFactory {
             "WSD",
             "WSD",
             "WSD",
+            "DSS",
             "DSS"
     };
     static final String[] OTHER_AES = {
@@ -143,7 +145,8 @@ class ArchiveDeviceFactory {
             "MPPSSCU",
             "FINDSCU",
             "GETSCU",
-            "MOVESCU"
+            "MOVESCU",
+            "UPSSCU"
     };
     static final int SCHEDULED_STATION_INDEX = 0;
     static final int STORESCU_INDEX = 5;
@@ -167,6 +170,7 @@ class ArchiveDeviceFactory {
             SITE_A, // FINDSCU
             SITE_A, // GETSCU
             SITE_A, // MOVESCU
+            SITE_A, // UPSSCU
             null // hl7snd
     };
     static final Code[] OTHER_INST_CODES = {
@@ -180,6 +184,7 @@ class ArchiveDeviceFactory {
             null, // FINDSCU
             null, // GETSCU
             null, // MOVESCU
+            INST_A, // upsscu
             null, // hl7snd
     };
     static final int[] OTHER_PORTS = {
@@ -193,6 +198,7 @@ class ArchiveDeviceFactory {
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // FINDSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // GETSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // MOVESCU
+            11119, 2769 // UPSSCU
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {

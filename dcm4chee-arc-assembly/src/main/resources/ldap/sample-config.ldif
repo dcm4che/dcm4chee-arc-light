@@ -36,6 +36,18 @@ objectClass: dicomDevice
 objectClass: dcmDevice
 dicomPrimaryDeviceType: DSS
 
+dn: dicomDeviceName=upsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: TRUE
+dicomIssuerOfPatientID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
+dicomDeviceName: upsscu
+dicomIssuerOfAdmissionID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
+dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
+dicomInstitutionName: Site A
+dicomInstitutionCode: (111.1111, 99DCM4CHEE, "Site A")
+objectClass: dicomDevice
+objectClass: dcmDevice
+dicomPrimaryDeviceType: DSS
+
 dn: dicomDeviceName=findscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomIssuerOfPatientID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
@@ -319,6 +331,31 @@ objectClass: dcmNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=ianscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=ianscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: IANSCP
+dicomAssociationAcceptor: TRUE
+
+dn: cn=dicom,dicomDeviceName=upsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+dicomPort: 11119
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+cn: dicom
+
+dn: cn=dicom-tls,dicomDeviceName=upsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+dicomPort: 2769
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+cn: dicom-tls
+
+dn: dicomAETitle=UPSSCU,dicomDeviceName=upsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAssociationInitiator: TRUE
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=upsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=upsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: UPSSCU
 dicomAssociationAcceptor: TRUE
 
 dn: cn=dicom,dicomDeviceName=findscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3551,10 +3588,10 @@ dcmURI: ${jboss.server.data.url}/wado/
 
 dn: dcmWebAppName=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Hide instances rejected for Quality Reasons
-dcmWebServiceClass: MPPS_RS
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: MPPS_RS
 dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
@@ -16560,6 +16597,10 @@ dicomAETitle: GETSCU
 dn: dicomAETitle=IANSCP,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle
 dicomAETitle: IANSCP
+
+dn: dicomAETitle=UPSSCU,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitle
+dicomAETitle: UPSSCU
 
 dn: dicomAETitle=FINDSCU,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle
