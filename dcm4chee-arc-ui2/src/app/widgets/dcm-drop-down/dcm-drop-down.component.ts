@@ -225,6 +225,15 @@ export class DcmDropDownComponent implements OnInit {
 
         // this.changeDetectorRef.detectChanges();
     }
+    customTreeElement;
+    addCustomElement(e){
+        try{
+            this.optionsTree[0].options.unshift(new SelectDropdown(this.customTreeElement,this.customTreeElement));
+            this.customTreeElement = "";
+        }catch (e) {
+            
+        }
+    }
     select(element){
         if(this.multiSelectMode){
             if(element === ""){

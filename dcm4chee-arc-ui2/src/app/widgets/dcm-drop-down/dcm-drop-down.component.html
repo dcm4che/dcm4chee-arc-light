@@ -12,7 +12,7 @@
         <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && !editable">{{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}</div>
         <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
       </ng-container>
-        <input class="edited_input_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && editable" title="{{placeholder}}" placeholder="{{placeholder}}" min="{{min}}" max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
+        <input class="edited_input_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && editable && !multiSelectMode" title="{{placeholder}}" placeholder="{{placeholder}}" min="{{min}}" max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
       <div *ngIf="!(selectedValue && selectedDropdown) && !multiSelectMode && !editable" class="selected_value empty_field">{{placeholder}}</div>
     </div>
     <span class="glyphicon glyphicon-triangle-bottom"></span>
@@ -22,6 +22,9 @@
       <input type="checkbox"  class="dcm_input_checkbox" *ngIf="multiSelectMode" [(ngModel)]="isAllCheck" (change)="allChecked($event)">
       <input type="text" [ngClass]="{'single_input':!multiSelectMode}" i18n-placeholder="@@search" placeholder="Search" [(ngModel)]="search">
     </div>
+      <div class="search_block" *ngIf="editable && optionsTree">
+          <input class="edited_input_value"  title="{{placeholder}}" placeholder="{{placeholder}}" [(ngModel)]="customTreeElement"><span (click)="addCustomElement($event)" class="glyphicon glyphicon-plus"></span>
+      </div>
       <ul *ngIf="!mixedMode" class="option_block">
           <li *ngIf="showStar" class="option" (click)="select('')">&nbsp;</li>
           <ng-container *ngIf="options && !optionsTree; else treeMode">
