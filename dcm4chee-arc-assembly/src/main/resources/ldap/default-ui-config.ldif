@@ -196,6 +196,7 @@ dcmuiActionParam: upload
 dcmuiActionParam: reject
 dcmuiActionParam: delete
 dcmuiActionParam: restore
+dcmuiActionParam: recreate
 
 dn: dcmuiPermissionName=Tab - Monitoring Associations,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission

@@ -3249,6 +3249,7 @@ export class Globalvar {
                     "reject":undefined,
                     "delete":undefined,
                     "restore":undefined,
+                    "recreate":undefined
                 }
             },
             "action-studies-serie":{

@@ -1934,9 +1934,12 @@ export class StudyService {
                                 },
                                 id:"study_recreate_record",
                                 title: $localize `:@@recreate_db_record:Recreate DB Record`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
                                 permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
+                                    id: 'action-studies-study',
+                                    param: 'recreate'
                                 }
                             }, {
                                 icon: {

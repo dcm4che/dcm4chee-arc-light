@@ -17,3 +17,7 @@ hl7PSUTemplateParam: AccessionNumber={StudyInstanceUID,hash}
 replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 
+dn: dcmuiPermissionName=Action - Studies - Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmuiActionParam
+dcmuiActionParam: recreate

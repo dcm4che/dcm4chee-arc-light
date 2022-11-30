@@ -3778,37 +3778,37 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     recreateDBRecord(dicomLevel:DicomLevel,model){
         this.confirm({
-            content: $localize `:@@resetto_as_received:Reset to as received`,
+            content: $localize `:@@reset_to_as_received:Reset to as received`,
             doNotSave:true,
             form_schema:[
                 [
                    [
                         {
                             tag:"label",
-                            text:$localize `:@@sourceOfPreviousValues:Source of Previous Value`
+                            text:$localize `:@@source_of_previous_values:Source of Previous Values`
                         },
                         {
                             tag:"input",
                             type:"text",
                             filterKey:"sourceOfPreviousValues",
-                            description:$localize `:@@sourceOfPreviousValues:Source of Previous Value`,
-                            placeholder:$localize `:@@sourceOfPreviousValues:Source of Previous Value`
+                            description:$localize `:@@source_of_previous_values_desc:Source of Previous Values (0400,0561) stored with original Attributes in Original Attributes Sequence (0400,0561)`,
+                            placeholder:$localize `:@@source_of_previous_values:Source of Previous Values`
                         }
                     ],[
                         {
                             tag:"label",
-                            text:$localize `:@@reasonForModification:Reason for Modification`
+                            text:$localize `:@@reason_for_modification:Reason for Modification`
                         },
                             {
                                 tag:"select",
                                 type:"text",
                                 options:[
-                                    new SelectDropdown("COERCE","COERCE"),
-                                    new SelectDropdown("CORRECT","CORRECT")
+                                    new SelectDropdown("COERCE", $localize `:@@COERCE:COERCE`),
+                                    new SelectDropdown("CORRECT", $localize `:@@CORRECT:CORRECT`)
                                 ],
                                 filterKey:"reasonForModification",
-                                description:$localize `:@@reasonForModification:Reason for Modification`,
-                                placeholder:$localize `:@@reasonForModification:Reason for Modification`
+                                description:$localize `:@@reason_for_modification_desc:Store original values of modified Attributes in Original Attributes Sequence (0400,0561) with given Reason for the Attribute Modification (0400,0565)`,
+                                placeholder:$localize `:@@reason_for_modification:Reason for Modification`
                             }
                         ],[
                         {
@@ -3819,13 +3819,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 tag:"select",
                                 type:"text",
                                 options:[
-                                    new SelectDropdown("SUPPLEMENT","SUPPLEMENT"),
-                                    new SelectDropdown("MERGE","MERGE"),
-                                    new SelectDropdown("OVERWRITE","OVERWRITE")
+                                    new SelectDropdown("SUPPLEMENT", $localize `:@@SUPPLEMENT:SUPPLEMENT`),
+                                    new SelectDropdown("MERGE", $localize `:@@MERGE:MERGE`),
+                                    new SelectDropdown("OVERWRITE", $localize `:@@OVERWRITE:OVERWRITE`)
                                 ],
                                 filterKey:"updatePolicy",
-                                description:$localize `:@@updatePolicy:Update Policy`,
-                                placeholder:$localize `:@@updatePolicy:Update Policy`
+                                description:$localize `:@@update_policy_desc:Update Policy for modification of original attributes`,
+                                placeholder:$localize `:@@update_policy:Update Policy`
                             }
                         ]
                     ,
