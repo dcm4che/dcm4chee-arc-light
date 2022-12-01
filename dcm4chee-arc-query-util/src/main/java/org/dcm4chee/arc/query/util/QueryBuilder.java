@@ -1768,7 +1768,7 @@ public class QueryBuilder {
                 : end == null ? cb.greaterThanOrEqualTo(path, start)
                 : start.equals(end) ? cb.equal(path, start)
                 : (dt.equals(FormatDate.TM) && range.isStartDateExeedsEndDate())
-                ? cb.or(cb.between(path, start, "115959.999"), cb.between(path, "000000.000", end))
+                ? cb.or(cb.between(path, start, "235959.999"), cb.between(path, "000000.000", end))
                 : cb.between(path, start, end);
     }
 
