@@ -52,6 +52,7 @@ import org.dcm4che3.net.service.QueryTask;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.RunInTransaction;
+import org.dcm4chee.arc.query.util.OrderByTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +61,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import java.util.EnumSet;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -101,6 +103,9 @@ public class MWLCFindSCP extends BasicCFindSCP {
             ctx.setPatientIDs(idWithIssuer);
         else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
             ctx.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(keys));
+        Sequence sortingOperationSeq = (Sequence) keys.remove(Tag.SortingOperationsSequence);
+        if (sortingOperationSeq != null)
+            ctx.setOrderByTags(sortingOperationSeq.stream().map(OrderByTag::valueOf).collect(Collectors.toList()));
         return new MWLQueryTask(as, pc, rq, keys,
                 queryService.createMWLQuery(ctx),
                 queryService.getAttributesCoercion(ctx),
