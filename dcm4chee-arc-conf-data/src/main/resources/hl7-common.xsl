@@ -548,6 +548,17 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+    <!-- Patient Comments -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00104000'"/>
+      <xsl:with-param name="vr" select="'UT'"/>
+      <xsl:with-param name="val">
+        <xsl:variable name="nte" select="following-sibling::*[1]"/>
+        <xsl:if test="name($nte)='NTE'">
+          <xsl:value-of select="$nte/field[3]"/>
+        </xsl:if>
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="nullifyIfAbsent">
