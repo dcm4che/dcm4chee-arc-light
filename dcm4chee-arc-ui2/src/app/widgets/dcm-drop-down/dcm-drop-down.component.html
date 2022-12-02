@@ -3,15 +3,15 @@
   <div class="dropdown_input" (click)="toggleDropdown()">
     <div class="input_part">
         <!--<pre style="position:fixed;right:10px;width:70%;top:40px;z-index: 9999999;height: 200px;">{{selectedDropdown|json}}</pre>-->
-      <ng-container *ngIf="multiSelectMode">
-        <div class="selected_value" *ngIf="multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown">{{multiSelectValue | arrayToString:', '}}</div>
-        <div class="selected_value" *ngIf="multiSelectValue.length > maxSelectedValueShown">( {{multiSelectValue.length}} ) selected</div>
-        <div class="selected_value" *ngIf="multiSelectValue.length === 0">{{placeholder}}</div>
-      </ng-container>
-      <ng-container *ngIf="!multiSelectMode && (selectedValue && selectedDropdown)">
-        <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && !editable">{{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}</div>
-        <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
-      </ng-container>
+        <ng-container *ngIf="multiSelectMode">
+            <div class="selected_value" *ngIf="multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown">{{multiSelectValue | arrayToString:', '}}</div>
+            <div class="selected_value" *ngIf="multiSelectValue.length > maxSelectedValueShown">( {{multiSelectValue.length}} ) selected</div>
+            <div class="selected_value" *ngIf="multiSelectValue.length === 0">{{placeholder}}</div>
+        </ng-container>
+        <ng-container *ngIf="!multiSelectMode && (selectedValue && selectedDropdown)">
+            <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && !editable">{{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}</div>
+            <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
+        </ng-container>
         <input class="edited_input_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && editable && !multiSelectMode" title="{{placeholder}}" placeholder="{{placeholder}}" min="{{min}}" max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
       <div *ngIf="!(selectedValue && selectedDropdown) && !multiSelectMode && !editable" class="selected_value empty_field">{{placeholder}}</div>
     </div>
@@ -22,8 +22,9 @@
       <input type="checkbox"  class="dcm_input_checkbox" *ngIf="multiSelectMode" [(ngModel)]="isAllCheck" (change)="allChecked($event)">
       <input type="text" [ngClass]="{'single_input':!multiSelectMode}" i18n-placeholder="@@search" placeholder="Search" [(ngModel)]="search">
     </div>
-      <div class="search_block" *ngIf="editable && optionsTree">
-          <input class="edited_input_value"  title="{{placeholder}}" placeholder="{{placeholder}}" [(ngModel)]="customTreeElement"><span (click)="addCustomElement($event)" class="glyphicon glyphicon-plus"></span>
+      <div class="add_block" *ngIf="editable && optionsTree">
+          <input class="edited_input_value"  title="{{addFieldPlaceholder}}" placeholder="{{addFieldPlaceholder}}" [(ngModel)]="customTreeElement">
+          <span (click)="addCustomElement($event)" class="glyphicon glyphicon-plus"></span>
       </div>
       <ul *ngIf="!mixedMode" class="option_block">
           <li *ngIf="showStar" class="option" (click)="select('')">&nbsp;</li>
