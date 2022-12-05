@@ -341,13 +341,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if(this.studyConfig.tab === "diff"){
                     this.getDiffAttributeSet(this, ()=>{
                         this.route.queryParams.subscribe(queryParams=>{
-                           if(_.hasIn(queryParams,"taskID") && _.hasIn(queryParams,"batchID")){
-                               this.getDiff({
-                                   batchID:queryParams.batchID,
-                                   taskID:queryParams.batchID,
-                                   limit:21,
-                                   offset:0
-                               })
+                           if(_.hasIn(queryParams,"taskID") || _.hasIn(queryParams,"batchID")){
+                               if(queryParams.batchID){
+                                   this.filter.filterModel["batchID"] = queryParams.batchID;
+                               }
+                               if(queryParams.taskID){
+                                   this.filter.filterModel["taskID"] = queryParams.taskID;
+                               }
+                               this.getDiff(_.cloneDeep(this.filter.filterModel));
                            }
                         });
                         this.initWebApps();
@@ -2081,17 +2082,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     getDiff(filterModel){
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
-/*        let filter = Object.assign({},params);
-        filter['offset'] = offset ? offset:0;
-        filter['limit'] = this.limit + 1;
-        let mode = 'pk';
-        this.cfpLoadingBar.start();
-        if(this.taskPK != ''){
-            filter['pk'] = this.taskPK;
-        }else{
-            mode = 'batch';
-            filter['batchID'] = this.batchID;
-        }*/
         delete filterModel.orderby;
 
         if(_.hasIn(filterModel,"taskID") || (_.hasIn(filterModel,"batchID") && !this.studyWebService.selectedWebService)){
@@ -2100,12 +2090,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.complete();
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
-                /*            this.morePatients = undefined;
-                            this.moreDiffs = undefined;
-                            this.moreStudies = undefined;*/
-
                 if (_.size(res) > 0) {
-                    // this.moreDiffs = res.length > this.limit;
                     this.prepareDiffData(res, filterModel.offset);
                 }else{
                     this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
@@ -2120,12 +2105,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.complete();
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
-                /*            this.morePatients = undefined;
-                            this.moreDiffs = undefined;
-                            this.moreStudies = undefined;*/
-
                 if (_.size(res) > 0) {
-                    // this.moreDiffs = res.length > this.limit;
                     this.prepareDiffData(res, filterModel.offset);
                 }else{
                     if(_.hasIn(filterModel,"queue") && filterModel.queue === true){

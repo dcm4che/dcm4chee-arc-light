@@ -897,13 +897,13 @@ export class j4care {
     static objToUrlParams(filter, addQuestionMarktPrefix?:boolean){
         try{
             if(filter){
-                let filterMaped = Object.keys(filter).map((key) => {
+                let filterMapped = Object.keys(filter).map((key) => {
                     if (filter[key] || filter[key] === false || filter[key] === 0){
                         console.log("trimmed",filter[key]);
                         return key + '=' + (typeof filter[key] === "string" ? filter[key].trim() : filter[key]);
                     }
                 });
-                let filterCleared = _.compact(filterMaped);
+                let filterCleared = _.compact(filterMapped);
                 return (addQuestionMarktPrefix && filterCleared && filterCleared.length > 0 ? "?" : "") + filterCleared.join('&');
             }
             return "";

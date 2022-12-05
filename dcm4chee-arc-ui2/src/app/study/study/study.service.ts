@@ -604,17 +604,19 @@ export class StudyService {
         let taskID;
         let url;
         if((_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != "") || (_.hasIn(filterModel,"taskID") && _.get(filterModel,"taskID") != "")){
-            if(_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != ""){
-                batchID = _.get(filterModel,"batchID");
-                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/batch/${batchID}/studies${j4care.param(filterModel)}`
-            }else{
-                taskID = _.get(filterModel,"taskID");
-                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/${taskID}/studies${j4care.param(filterModel)}`
-            }
+            batchID = _.get(filterModel,"batchID");
+            taskID = _.get(filterModel,"taskID");
             delete filterModel["batchID"];
             delete filterModel["taskID"];
+            if(batchID && batchID != ""){
+                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/batch/${batchID}/studies${j4care.objToUrlParams(j4care.clearEmptyObject(filterModel),true)}`
+            }else{
+                if(taskID){
+                    url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/${taskID}/studies${j4care.objToUrlParams(j4care.clearEmptyObject(filterModel),true)}`
+                }
+            }
         }
-        if(batchID || taskID){
+        if((batchID || taskID) && url){
             return this.$http.get(
                 url,
                 header
