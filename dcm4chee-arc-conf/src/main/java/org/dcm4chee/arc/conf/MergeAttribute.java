@@ -46,6 +46,7 @@ import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.AttributesFormat;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 
 import java.util.stream.Stream;
@@ -58,17 +59,37 @@ public class MergeAttribute {
     private static final ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
     final String value;
     final int[] tagPath;
+    final int[] itemPath;
     final AttributesFormat format;
 
     public MergeAttribute(String value) {
         try {
             this.value = value;
             int index = value.indexOf('=');
-            tagPath = TagUtils.parseTagPath(value.substring(0, index));
+            String[] names = StringUtils.split(value.substring(0, index), '.');
+            tagPath = new int[names.length];
+            itemPath = new int[names.length];
+            parseTagPath(names);
             int beginIndex = index + 1;
             format = beginIndex <  value.length() ? new AttributesFormat(value.substring(beginIndex)) : null;
         } catch (Exception e) {
             throw new IllegalArgumentException(value);
+        }
+    }
+
+    private void parseTagPath(String[] names) {
+        for (int i = 0; i < tagPath.length; i++) {
+            String name = names[i];
+            int last = name.length() - 1;
+            if (name.charAt(last) == ']') {
+                int endName = name.indexOf('[');
+                itemPath[i] = Integer.parseInt(name.substring(endName + 1, last)) - 1;
+                name = name.substring(0, endName);
+            }
+            tagPath[i] = TagUtils.forName(name);
+            if (tagPath[i] == -1 || itemPath[i] < 0) {
+                throw new IllegalArgumentException("tagPath: " + names[i]);
+            }
         }
     }
 
@@ -106,22 +127,19 @@ public class MergeAttribute {
         }
     }
 
-    private static Attributes ensureItem(Attributes attrs, int tag) {
-        Sequence sq = attrs.ensureSequence(tag, 1);
-        Attributes item;
-        if (sq.isEmpty()) {
-            sq.add(item = new Attributes());
-        } else {
-            item = sq.get(0);
+    private static Attributes ensureItem(Attributes attrs, int tag, int index) {
+        Sequence sq = attrs.ensureSequence(tag, index + 1);
+        while (sq.size() <= index) {
+            sq.add(new Attributes());
         }
-        return item;
+        return sq.get(index);
     }
 
     private Attributes ensureItem(Attributes attrs) {
         Attributes item = attrs;
         int last = tagPath.length - 1;
         for (int i = 0; i < last; i++) {
-            item = ensureItem(item, tagPath[i]);
+            item = ensureItem(item, tagPath[i], itemPath[i]);
         }
         return item;
     }
