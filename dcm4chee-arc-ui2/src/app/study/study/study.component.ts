@@ -345,6 +345,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                if(queryParams.batchID){
                                    this.filter.filterModel["batchID"] = queryParams.batchID;
                                }
+                               if(queryParams.different){
+                                   this.filter.filterModel["different"] = queryParams.different;
+                               }
+                               if(queryParams.comparefield){
+                                   this.filter.filterModel["comparefield"] = queryParams.comparefield;
+                               }
+                               if(queryParams.missing){
+                                   this.filter.filterModel["missing"] = queryParams.missing;
+                               }
                                if(queryParams.taskID){
                                    this.filter.filterModel["taskID"] = queryParams.taskID;
                                }

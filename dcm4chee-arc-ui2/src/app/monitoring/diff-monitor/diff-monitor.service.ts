@@ -251,12 +251,24 @@ export class DiffMonitorService {
                             text:''
                         },
                         click:(e)=>{
+                            let queryParams = {
+                                taskID:e.taskID
+                            };
+                            if(e.batchID){
+                                queryParams["batchID"] = e.batchID;
+                            }
+                            if(e.checkDifferent){
+                                queryParams["different"] = e.checkDifferent;
+                            }
+                            if(e.comparefield){
+                                queryParams["comparefield"] = e.comparefield;
+                            }
+                            if(e.checkMissing){
+                                queryParams["missing"] = e.checkMissing;
+                            }
+
                             this.router.navigate(['./study/diff'],{
-                                queryParams:{
-                                    batchID:e.batchID,
-                                    taskID:e.taskID,
-                                    mode:"diff"
-                                }
+                                queryParams:queryParams
                             })
                             // e.showAttributes = !e.showAttributes;
                         }
