@@ -81,7 +81,8 @@ public class HL7SenderUtils {
             }
             if (sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class).hl7UseNullValue())
                 tr.setParameter("includeNullValues", "\"\"");
-            tr.setParameter("ppsStatus", ppsStatus);
+            if (ppsStatus != null)
+                tr.setParameter("ppsStatus", ppsStatus);
             if (arcAE != null) {
                 tr.setParameter("isPIDPV1", arcAE.hl7PSUPIDPV1());
                 arcAE.getHL7PSUTemplateParams().forEach(
