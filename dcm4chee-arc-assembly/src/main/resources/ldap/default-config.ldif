@@ -2794,6 +2794,7 @@ dcmTag: 00400562
 dcmTag: 0040A032
 dcmTag: 0040A043
 dcmTag: 0040A073
+dcmTag: 0040A360
 dcmTag: 0040A370
 dcmTag: 0040A375
 dcmTag: 0040A491
@@ -2995,10 +2996,10 @@ objectClass: hl7OrderSPSStatus
 
 dn: dcmWebAppName=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Hide instances rejected for Quality Reasons
-dcmWebServiceClass: MPPS_RS
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: STOW_RS
 dcmWebServiceClass: QIDO_RS
+dcmWebServiceClass: MPPS_RS
 dcmWebServiceClass: QIDO_COUNT
 dcmWebServiceClass: DCM4CHEE_ARC_AET
 objectClass: dcmWebApp
@@ -3720,6 +3721,7 @@ dcmTag: 00403001
 dcmTag: 0040A032
 dcmTag: 0040A043
 dcmTag: 0040A073
+dcmTag: 0040A360
 dcmTag: 0040A370
 dcmTag: 0040A375
 dcmTag: 0040A491

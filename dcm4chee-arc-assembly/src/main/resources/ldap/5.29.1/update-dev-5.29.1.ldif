@@ -21,3 +21,8 @@ dn: dcmuiPermissionName=Action - Studies - Studies,dcmuiConfigName=default,dicom
 changetype: modify
 add: dcmuiActionParam
 dcmuiActionParam: recreate
+
+dn: dcmEntity=Instance,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 0040A360

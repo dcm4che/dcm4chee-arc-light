@@ -3268,6 +3268,7 @@ dcmTag: 00400562
 dcmTag: 0040A032
 dcmTag: 0040A043
 dcmTag: 0040A073
+dcmTag: 0040A360
 dcmTag: 0040A370
 dcmTag: 0040A375
 dcmTag: 0040A491
@@ -4469,6 +4470,7 @@ dcmTag: 00403001
 dcmTag: 0040A032
 dcmTag: 0040A043
 dcmTag: 0040A073
+dcmTag: 0040A360
 dcmTag: 0040A370
 dcmTag: 0040A375
 dcmTag: 0040A491
