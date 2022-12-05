@@ -154,6 +154,20 @@
         </PID>
     </xsl:template>
 
+    <xsl:template name="nte-pid">
+        <NTE>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'00104000'" />
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues" />
+                </xsl:call-template>
+            </field>
+            <field/>
+        </NTE>
+    </xsl:template>
+
     <xsl:template name="address">
         <xsl:param name="includeNullValues"/>
         <xsl:variable name="address" select="DicomAttribute[@tag='00101040']" />

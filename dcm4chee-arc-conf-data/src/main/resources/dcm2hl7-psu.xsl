@@ -32,6 +32,9 @@
                 <xsl:call-template name="PID">
                     <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>
+                <xsl:if test="string-length(DicomAttribute[@tag='00104000']/Value) > 0">
+                    <xsl:call-template name="nte-pid" />
+                </xsl:if>
                 <xsl:call-template name="PV1" />
             </xsl:if>
             <xsl:call-template name="ORC" />
