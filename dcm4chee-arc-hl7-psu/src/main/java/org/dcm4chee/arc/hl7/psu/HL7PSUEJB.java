@@ -173,7 +173,7 @@ public class HL7PSUEJB {
 
         return ppsStatus == MPPS.Status.DISCONTINUED
                 ? SPSStatus.DISCONTINUED
-                : SPSStatus.ARRIVED;
+                : SPSStatus.STARTED;
     }
 
     private void scheduleHL7Msg(HL7PSUTask task) {
