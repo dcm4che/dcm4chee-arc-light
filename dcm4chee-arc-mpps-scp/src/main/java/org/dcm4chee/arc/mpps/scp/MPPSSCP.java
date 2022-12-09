@@ -42,6 +42,7 @@ package org.dcm4chee.arc.mpps.scp;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
@@ -86,7 +87,7 @@ class MPPSSCP extends BasicMPPSSCP {
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             DicomServiceException dse;
             int status;
             try {
@@ -98,6 +99,8 @@ class MPPSSCP extends BasicMPPSSCP {
             ctx.setException((dse = status == Status.DuplicateSOPinstance
                                     ? new DicomServiceException(status)
                                     : new DicomServiceException(status, e)));
+            dse.setUID(Tag.AffectedSOPClassUID, UID.ModalityPerformedProcedureStep);
+            dse.setUID(Tag.AffectedSOPInstanceUID, rsp.getString(Tag.AffectedSOPInstanceUID));
             throw dse;
         }
         fire(ctx);
