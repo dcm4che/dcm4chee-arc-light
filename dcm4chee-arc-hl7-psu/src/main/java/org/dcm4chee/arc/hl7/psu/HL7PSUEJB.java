@@ -156,24 +156,13 @@ public class HL7PSUEJB {
     }
 
     private MWLItem updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask task) {
-        SPSStatus status = spsStatus(task);
-        List<MWLItem> mwlItems = procedureService.updateMWLStatus(arcAE, task, status);
+        List<MWLItem> mwlItems = procedureService.updateMWLStatus(arcAE, task, SPSStatus.COMPLETED);
         if (mwlItems.size() > 0)
-            LOG.info("{} MWL Items status updated to {} by HL7 PSU task {}.", mwlItems.size(), status, task);
+            LOG.info("{} MWL Items status updated to {} by HL7 PSU task {}.", mwlItems.size(), SPSStatus.COMPLETED, task);
         else
             LOG.info("Study referenced in the HL7 PSU task {} does not have any associated MWL items.", task);
 
         return !mwlItems.isEmpty() ? mwlItems.get(0) : null;
-    }
-
-    private SPSStatus spsStatus(HL7PSUTask task) {
-        MPPS.Status ppsStatus;
-        if (task.getMpps() == null || (ppsStatus = task.getPPSStatus()) == MPPS.Status.COMPLETED)
-            return SPSStatus.COMPLETED;
-
-        return ppsStatus == MPPS.Status.DISCONTINUED
-                ? SPSStatus.DISCONTINUED
-                : SPSStatus.STARTED;
     }
 
     private void scheduleHL7Msg(HL7PSUTask task) {
@@ -220,8 +209,9 @@ public class HL7PSUEJB {
 
     private Attributes attributesFrom(ArchiveAEExtension arcAE, HL7PSUTask task) {
         MWLItem mwl = null;
-        if ((arcAE.hl7PSUSendingApplication() != null && arcAE.hl7PSUReceivingApplications().length > 0)
-            || arcAE.hl7PSUMWL())
+        if (task.getMpps() == null &&
+                (arcAE.hl7PSUSendingApplication() != null && arcAE.hl7PSUReceivingApplications().length > 0)
+                    || arcAE.hl7PSUMWL())
             mwl = updateMWLStatus(arcAE, task);
 
         Attributes attrs;
