@@ -48,6 +48,7 @@ import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.BasicMPPSSCP;
 import org.dcm4che3.net.service.DicomService;
+import org.dcm4che3.net.service.DicomServiceApplicationException;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.MPPSService;
@@ -89,16 +90,12 @@ class MPPSSCP extends BasicMPPSSCP {
             throw e;
         } catch (Exception e) {
             DicomServiceException dse;
-            int status;
             try {
                 mppsService.findMPPS(ctx);
-                status = Status.DuplicateSOPinstance;
+                dse = new DicomServiceApplicationException(Status.DuplicateSOPinstance, "duplicate SOP Instance", false);
             } catch (Exception e1) {
-                status = Status.ProcessingFailure;
+                dse = new DicomServiceException(Status.ProcessingFailure, e);
             }
-            ctx.setException((dse = status == Status.DuplicateSOPinstance
-                                    ? new DicomServiceException(status)
-                                    : new DicomServiceException(status, e)));
             dse.setUID(Tag.AffectedSOPClassUID, UID.ModalityPerformedProcedureStep);
             dse.setUID(Tag.AffectedSOPInstanceUID, rsp.getString(Tag.AffectedSOPInstanceUID));
             throw dse;
