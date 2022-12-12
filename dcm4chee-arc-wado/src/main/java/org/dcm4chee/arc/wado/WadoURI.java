@@ -434,7 +434,7 @@ public class WadoURI {
                 return decapsulateDocument(service.openDicomInputStream(ctx, inst));
             case MPEG2Video:
             case MPEG4Video:
-                return decapsulateVideo(service.openDicomInputStream(ctx, inst));
+                return new CompressedPixelDataOutput(ctx, inst);
             case SRDocument:
                 return new DicomXSLTOutput(ctx, inst, mimeType, wadoURL());
         }
@@ -494,16 +494,6 @@ public class WadoURI {
 
     private String wadoURL() {
         return device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request).toString();
-    }
-
-    private StreamingOutput decapsulateVideo(DicomInputStream dis) throws IOException {
-        dis.readDataset(-1, Tag.PixelData);
-        if (dis.tag() != Tag.PixelData || dis.length() != -1
-                || !dis.readItemHeader() || dis.length() != 0
-                || !dis.readItemHeader())
-            throw new IOException("No or incorrect encapsulated video stream in requested object");
-
-        return new StreamCopyOutput(dis, dis.length());
     }
 
     private StreamingOutput decapsulateCDA(DicomInputStream dis, String templateURI) throws IOException {

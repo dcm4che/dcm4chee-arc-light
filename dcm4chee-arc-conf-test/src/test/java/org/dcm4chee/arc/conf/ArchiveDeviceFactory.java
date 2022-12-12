@@ -815,12 +815,21 @@ class ArchiveDeviceFactory {
     static final String[] VIDEO_TSUIDS = {
             UID.JPEGBaseline8Bit,
             UID.MPEG2MPML,
+            UID.MPEG2MPMLF,
             UID.MPEG2MPHL,
+            UID.MPEG2MPHLF,
             UID.MPEG4HP41BD,
+            UID.MPEG4HP41BDF,
             UID.MPEG4HP41,
+            UID.MPEG4HP41F,
             UID.MPEG4HP422D,
+            UID.MPEG4HP422DF,
             UID.MPEG4HP423D,
-            UID.MPEG4HP42STEREO
+            UID.MPEG4HP423DF,
+            UID.MPEG4HP42STEREO,
+            UID.MPEG4HP42STEREOF,
+            UID.HEVCMP51,
+            UID.HEVCM10P51
     };
 
     private static final String[] SR_CUIDS = {
@@ -1408,10 +1417,11 @@ class ArchiveDeviceFactory {
         Device device = createDevice("storescp", "STORESCP", "localhost", 104, -2);
         ApplicationEntity ae = device.getApplicationEntity("STORESCP");
         addTC(ae, null, SCP, UID.Verification, UID.ImplicitVRLittleEndian);
-        String[][] CUIDS = { IMAGE_CUIDS, PRIVATE_IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS, PRIVATE_CUIDS };
+        String[][] CUIDS = { IMAGE_CUIDS, PRIVATE_IMAGE_CUIDS, SR_CUIDS, OTHER_CUIDS, PRIVATE_CUIDS };
         for (int i = 0; i < CUIDS.length; i++) {
             addTCs(ae, null, SCP, CUIDS[i], OTHER_TSUIDS);
         }
+        addTCs(ae, null, SCP, VIDEO_CUIDS, VIDEO_TSUIDS);
         return device;
     }
 

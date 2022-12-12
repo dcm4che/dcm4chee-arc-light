@@ -591,13 +591,19 @@ public class WadoRS {
         if (list.remove("")) {
             list.add(UID.ExplicitVRLittleEndian);
             list.add(UID.MPEG2MPML);
+            list.add(UID.MPEG2MPMLF);
             list.add(UID.MPEG2MPHL);
+            list.add(UID.MPEG2MPHLF);
             list.add(UID.MPEG4HP41);
+            list.add(UID.MPEG4HP41F);
             list.add(UID.MPEG4HP41BD);
+            list.add(UID.MPEG4HP41BDF);
             list.add(UID.MPEG4HP422D);
-            list.add(UID.MPEG4HP41BD);
+            list.add(UID.MPEG4HP422DF);
             list.add(UID.MPEG4HP423D);
+            list.add(UID.MPEG4HP423DF);
             list.add(UID.MPEG4HP42STEREO);
+            list.add(UID.MPEG4HP42STEREOF);
             list.add(UID.HEVCMP51);
             list.add(UID.HEVCM10P51);
         }
