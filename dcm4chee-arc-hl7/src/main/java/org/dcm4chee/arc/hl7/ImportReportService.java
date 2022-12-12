@@ -192,6 +192,7 @@ class ImportReportService extends DefaultHL7Service {
         if (!attrs.containsValue(Tag.SeriesInstanceUID))
             attrs.setString(Tag.SeriesInstanceUID, VR.UI,
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
+        adjustPredecessors(attrs);
         processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
     }
 
@@ -277,6 +278,16 @@ class ImportReportService extends DefaultHL7Service {
         }
     }
 
+    private void adjustPredecessors(Attributes attrs) {
+        Sequence predecessors = attrs.getSequence(Tag.PredecessorDocumentsSequence);
+        if (predecessors == null)
+            return;
+
+        for (Attributes predecessor : predecessors)
+            if (predecessor.getString(Tag.StudyInstanceUID) == null)
+                predecessor.setString(Tag.StudyInstanceUID, VR.UI, attrs.getStrings(Tag.StudyInstanceUID));
+    }
+
     private void processHL7ORUAction(
             ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
             Attributes attrs) throws Exception {
@@ -300,6 +311,7 @@ class ImportReportService extends DefaultHL7Service {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, refStudy.getString(Tag.StudyInstanceUID));
             attrs.setString(Tag.SeriesInstanceUID, VR.UI, refSeries.getString(Tag.SeriesInstanceUID));
             attrs.setString(Tag.SOPInstanceUID, VR.UI, refSOP.getString(Tag.ReferencedSOPInstanceUID));
+            adjustPredecessors(attrs);
             processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
             seq.add(i, refStudy);
         }
