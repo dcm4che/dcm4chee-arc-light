@@ -462,6 +462,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.isRestrictRetrieveSilently(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.isStowQuicktime2MP4(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStowMaxFragmentLength",
+                ext.getStowMaxFragmentLength(), 2147483646L);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLPollingInterval",
                 ext.getMWLPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLFetchSize", ext.getMWLFetchSize(), 100);
@@ -819,6 +821,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStowExcludeAPPMarkers(LdapUtils.booleanValue(attrs.get("dcmStowExcludeAPPMarkers"), false));
         ext.setRestrictRetrieveSilently(LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), false));
         ext.setStowQuicktime2MP4(LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), false));
+        ext.setStowMaxFragmentLength(LdapUtils.longValue(attrs.get("dcmStowMaxFragmentLength"), 2147483646L));
         ext.setMWLPollingInterval(toDuration(attrs.get("dcmMWLPollingInterval"), null));
         ext.setMWLFetchSize(LdapUtils.intValue(attrs.get("dcmMWLFetchSize"), 100));
         ext.setMWLImportInterval(toDuration(attrs.get("dcmMWLImportInterval"), null));
@@ -1398,6 +1401,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isStowQuicktime2MP4(),
                 bb.isStowQuicktime2MP4(),
                 false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStowMaxFragmentLength",
+                aa.getStowMaxFragmentLength(),
+                bb.getStowMaxFragmentLength(),
+                2147483646L);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLPollingInterval",
                 aa.getMWLPollingInterval(),
                 bb.getMWLPollingInterval(),
@@ -1805,6 +1812,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRestrictRetrieveSilently",
                 ext.getRestrictRetrieveSilently(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowQuicktime2MP4", ext.getStowQuicktime2MP4(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowMaxFragmentLength",
+                ext.getStowMaxFragmentLength(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnNoMatch",
                 ext.getRetrieveTaskWarningOnNoMatch(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveTaskWarningOnWarnings",
@@ -1972,6 +1981,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmRestrictRetrieveSilently"), null));
         ext.setStowQuicktime2MP4(
                 LdapUtils.booleanValue(attrs.get("dcmStowQuicktime2MP4"), null));
+        ext.setStowMaxFragmentLength(LdapUtils.longValue(attrs.get("dcmStowMaxFragmentLength"), null));
         ext.setRetrieveTaskWarningOnNoMatch(
                 LdapUtils.booleanValue(attrs.get("dcmRetrieveTaskWarningOnNoMatch"), null));
         ext.setRetrieveTaskWarningOnWarnings(
@@ -2224,6 +2234,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRestrictRetrieveSilently(), bb.getRestrictRetrieveSilently(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStowQuicktime2MP4",
                 aa.getStowQuicktime2MP4(), bb.getStowQuicktime2MP4(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStowMaxFragmentLength",
+                aa.getStowMaxFragmentLength(), bb.getStowMaxFragmentLength(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveTaskWarningOnNoMatch",
                 aa.getRetrieveTaskWarningOnNoMatch(),
                 bb.getRetrieveTaskWarningOnNoMatch(), null);

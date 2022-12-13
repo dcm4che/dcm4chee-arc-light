@@ -1931,7 +1931,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public void setStowMaxFragmentLength(Long stowMaxFragmentLength) {
-        if (stowMaxFragmentLength == null)
+        if (stowMaxFragmentLength != null)
             ArchiveDeviceExtension.checkStowMaxFragmentLength(stowMaxFragmentLength);
         this.stowMaxFragmentLength = stowMaxFragmentLength;
     }

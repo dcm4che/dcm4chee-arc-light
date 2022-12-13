@@ -373,6 +373,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStowExcludeAPPMarkers", arcDev.isStowExcludeAPPMarkers(), false);
         writer.writeNotDef("dcmRestrictRetrieveSilently", arcDev.isRestrictRetrieveSilently(), false);
         writer.writeNotDef("dcmStowQuicktime2MP4", arcDev.isStowQuicktime2MP4(), false);
+        writer.writeNotDef("dcmStowMaxFragmentLength", arcDev.getStowMaxFragmentLength(), 2147483646L);
         writer.writeNotNullOrDef("dcmMWLPollingInterval", arcDev.getMWLPollingInterval(), null);
         writer.writeNotDef("dcmMWLFetchSize", arcDev.getMWLFetchSize(), 100);
         writer.writeNotNullOrDef("dcmMWLImportInterval", arcDev.getMWLImportInterval(), null);
@@ -1313,6 +1314,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStowExcludeAPPMarkers", arcAE.getStowExcludeAPPMarkers());
         writer.writeNotNull("dcmRestrictRetrieveSilently", arcAE.getRestrictRetrieveSilently());
         writer.writeNotNull("dcmStowQuicktime2MP4", arcAE.getStowQuicktime2MP4());
+        writer.writeNotNull("dcmStowMaxFragmentLength", arcAE.getStowMaxFragmentLength());
         writer.writeNotNull("dcmRetrieveTaskWarningOnNoMatch", arcAE.getRetrieveTaskWarningOnNoMatch());
         writer.writeNotNull("dcmRetrieveTaskWarningOnWarnings", arcAE.getRetrieveTaskWarningOnWarnings());
         writer.writeNotNullOrDef("dcmUserIdentityNegotiation", arcAE.getUserIdentityNegotiation(), null);
@@ -2002,6 +2004,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStowQuicktime2MP4":
                     arcDev.setStowQuicktime2MP4(reader.booleanValue());
+                    break;
+                case "dcmStowMaxFragmentLength":
+                    arcDev.setStowMaxFragmentLength(reader.longValue());
                     break;
                 case "dcmMWLPollingInterval":
                     arcDev.setMWLPollingInterval(Duration.valueOf(reader.stringValue()));
@@ -4197,6 +4202,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStowQuicktime2MP4":
                     arcAE.setStowQuicktime2MP4(reader.booleanValue());
+                    break;
+                case "dcmStowMaxFragmentLength":
+                    arcAE.setStowMaxFragmentLength(reader.longValue());
                     break;
                 case "dcmRetrieveTaskWarningOnNoMatch":
                     arcAE.setRetrieveTaskWarningOnNoMatch(reader.booleanValue());
