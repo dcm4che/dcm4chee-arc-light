@@ -69,6 +69,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.imageio.ImageIO;
@@ -166,7 +167,7 @@ public class StowRS {
     private Sequence sopSequence;
     private Sequence failedSOPSequence;
     private java.nio.file.Path spoolDirectory;
-    private Map<String, BulkDataWithMediaType> bulkdataMap = new HashMap<>();
+    private Map<String, PathWithMediaType> bulkdataMap = new HashMap<>();
 
     public void validate() {
         logRequest();
@@ -324,10 +325,9 @@ public class StowRS {
                             LOG.info("{}: Ignore Part with Content-Type={}", session, mediaType);
                             multipartInputStream.skipAll();
                         }
-                    } catch (JsonParsingException e) {
+                    } catch (JsonParsingException | SAXException e) {
                         throw new WebApplicationException(
-                                errResponse(e.getMessage() + " at location : " + e.getLocation(),
-                                        Response.Status.BAD_REQUEST));
+                                errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
                     } catch (Exception e) {
                         if (instances.size() == 1)
                             throw new WebApplicationException(
@@ -522,12 +522,12 @@ public class StowRS {
         StoreContext ctx = service.newStoreContext(session);
         ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
         try {
-            BulkDataWithMediaType bulkdataWithMediaType = resolveBulkdataRefs(attrs);
-            if (bulkdataWithMediaType == null) 
+            PathWithMediaType pathWithMediaType = resolveBulkdataRefs(session, attrs);
+            if (pathWithMediaType == null)
                 ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
             else {
-                ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(bulkdataWithMediaType.mediaType));
-                supplementAttrs(ctx, session, attrs, instanceNumber, bulkdataWithMediaType);
+                ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(pathWithMediaType.mediaType));
+                supplementAttrs(ctx, session, attrs, instanceNumber, pathWithMediaType);
             }
             service.store(ctx, attrs);
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
@@ -541,7 +541,7 @@ public class StowRS {
     }
 
     private void supplementAttrs(StoreContext ctx, StoreSession session, Attributes attrs, int instanceNumber,
-                                 BulkDataWithMediaType bulkdata) throws DicomServiceException {
+                                 PathWithMediaType bulkdata) throws DicomServiceException {
         for (int tag : IUIDS_TAGS)
             if (!attrs.containsValue(tag)) {
                 String uid = UIDUtils.createUID();
@@ -589,19 +589,19 @@ public class StowRS {
     }
 
     private void supplementImagePixelModule(StoreContext ctx, StoreSession session, Attributes attrs,
-            BulkDataWithMediaType bulkdata) throws DicomServiceException {
+            PathWithMediaType bulkdata) throws DicomServiceException {
         CompressedPixelData compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
         ImageReader imageReader;
         if (compressedPixelData != null) {
-            File file = bulkdata.bulkData.getFile();
-            try (SeekableByteChannel channel = Files.newByteChannel(file.toPath())) {
-                ctx.setReceiveTransferSyntax(compressedPixelData.supplementImagePixelModule(session, channel, attrs));
+            try (SeekableByteChannel channel = Files.newByteChannel(bulkdata.path)) {
+                ctx.setReceiveTransferSyntax(compressedPixelData.supplementImagePixelModule(session, channel, attrs,
+                        bulkdata.length > session.getArchiveAEExtension().stowMaxFragmentLength()));
             } catch (IOException e) {
-                LOG.info("Failed to parse {} compressed pixel data from {}:\n", compressedPixelData, file, e);
+                LOG.info("Failed to parse {} compressed pixel data from {}:\n", compressedPixelData, bulkdata.path, e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
         } else if ((imageReader = findImageReader(bulkdata.mediaType, "com.sun.imageio")) != null) {
-            try (ImageInputStream iio = ImageIO.createImageInputStream(bulkdata.bulkData.getFile())) {
+            try (ImageInputStream iio = ImageIO.createImageInputStream(bulkdata.path.toFile())) {
                 imageReader.setInput(iio);
                 BufferedImageUtils.toImagePixelModule(imageReader, attrs);
                 ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
@@ -650,7 +650,7 @@ public class StowRS {
     }
 
     private static void verifyEncapsulatedDocumentModule(
-            StoreSession session, Attributes attrs, BulkDataWithMediaType bulkdata) throws DicomServiceException {
+            StoreSession session, Attributes attrs, PathWithMediaType bulkdata) throws DicomServiceException {
         String cuid = attrs.getString(Tag.SOPClassUID);
         if (!attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument)) {
             String mimeType = bulkdata.mediaType.toString();
@@ -661,7 +661,7 @@ public class StowRS {
         if (!attrs.containsValue(Tag.BurnedInAnnotation))
             supplementMissing(session, Tag.BurnedInAnnotation, VR.CS, "YES", attrs);
         if (!attrs.containsValue(Tag.EncapsulatedDocumentLength))
-            supplementMissing(session, Tag.EncapsulatedDocumentLength, VR.UL, bulkdata.bulkData.length(), attrs);
+            supplementMissing(session, Tag.EncapsulatedDocumentLength, VR.UL, (int) bulkdata.length, attrs);
         switch (cuid) {
             case UID.EncapsulatedSTLStorage:
             case UID.EncapsulatedMTLStorage:
@@ -707,12 +707,12 @@ public class StowRS {
                 "Missing " + DICT.keywordOf(tag) + " " + TagUtils.toString(tag));
     }
 
-    private BulkDataWithMediaType resolveBulkdataRefs(Attributes attrs) throws DicomServiceException {
-        final BulkDataWithMediaType[] bulkdataWithMediaType = new BulkDataWithMediaType[1];
+    private PathWithMediaType resolveBulkdataRefs(StoreSession session, Attributes attrs) throws DicomServiceException {
+        final PathWithMediaType[] bulkdataWithMediaType = new PathWithMediaType[1];
         try {
             attrs.accept((attrs1, tag, vr, value) -> {
                 if (value instanceof BulkData)
-                    bulkdataWithMediaType[0] = resolveBulkdataRef(attrs1, tag, vr, (BulkData) value);
+                    bulkdataWithMediaType[0] = resolveBulkdataRef(session, attrs1, tag, vr, (BulkData) value);
 
                 return true;
             }, true);
@@ -724,61 +724,68 @@ public class StowRS {
         return bulkdataWithMediaType[0];
     }
 
-    private BulkDataWithMediaType resolveBulkdataRef(Attributes attrs, int tag, VR vr, BulkData bulkdata)
+    private PathWithMediaType resolveBulkdataRef(StoreSession session, Attributes attrs, int tag, VR vr, BulkData bulkdata)
             throws IOException {
-        BulkDataWithMediaType bulkdataWithMediaType = bulkdataMap.get(bulkdata.getURI());
-        if (bulkdataWithMediaType == null)
+        PathWithMediaType pathWithMediaType = bulkdataMap.get(bulkdata.getURI());
+        if (pathWithMediaType == null)
             throw new DicomServiceException(0xA922, "Missing Bulkdata: " + bulkdata.getURI());
-        if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType))
-            bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
+        if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(pathWithMediaType.mediaType))
+            bulkdata.setURI(pathWithMediaType.path.toUri() + "?offset=0&length=" + pathWithMediaType.length);
         else
-            addFragments(attrs,
-                    new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false),
-                    tag,
-                    vr);
-        return bulkdataWithMediaType;
+            addFragments(session, attrs, pathWithMediaType, tag, vr);
+        return pathWithMediaType;
     }
 
-    private static void addFragments(Attributes attrs, BulkData bulkData, int tag, VR vr) {
-        Fragments frags = attrs.newFragments(tag, vr, 2);
+    private static void addFragments(StoreSession session, Attributes attrs, PathWithMediaType pathWithMediaType,
+                                     int tag, VR vr) {
+        String uri = pathWithMediaType.path.toUri().toString();
+        long offset = 0;
+        long remaining = pathWithMediaType.length;
+        long maxFragmentLength = session.getArchiveAEExtension().stowMaxFragmentLength();
+        Fragments frags = attrs.newFragments(tag, vr, 2 + (int)((remaining - 1) / maxFragmentLength));
         frags.add(ByteUtils.EMPTY_BYTES);
-        frags.add(bulkData);
+        while (remaining > maxFragmentLength) {
+            frags.add(new BulkData(uri, offset, maxFragmentLength, false));
+            offset += maxFragmentLength;
+            remaining -= maxFragmentLength;
+        }
+        frags.add(new BulkData(uri, offset, remaining, false));
     }
 
     private enum CompressedPixelData {
         JPEG {
             @Override
-            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs)
+            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs, boolean fragmented)
                     throws IOException {
                 JPEGParser jpegParser = new JPEGParser(channel);
                 jpegParser.getAttributes(attrs);
                 ArchiveAEExtension arcAE = session.getArchiveAEExtension();
                 adjustBulkdata(attrs, jpegParser, arcAE);
-                return adjustJPEGTransferSyntax(jpegParser.getTransferSyntaxUID(),
+                return adjustJPEGTransferSyntax(jpegParser.getTransferSyntaxUID(fragmented),
                         arcAE.stowRetiredTransferSyntax(), attrs);
             }
         },
         MPEG {
             @Override
-            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs)
+            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs, boolean fragmented)
                     throws IOException {
                 MPEG2Parser mpeg2Parser = new MPEG2Parser(channel);
                 mpeg2Parser.getAttributes(attrs);
-                return mpeg2Parser.getTransferSyntaxUID();
+                return mpeg2Parser.getTransferSyntaxUID(fragmented);
             }
         },
         MP4 {
             @Override
-            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs)
+            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs, boolean fragmented)
                     throws IOException {
                 MP4Parser mp4Parser = new MP4Parser(channel);
                 mp4Parser.getAttributes(attrs);
                 adjustBulkdata(attrs, mp4Parser, session.getArchiveAEExtension());
-                return mp4Parser.getTransferSyntaxUID();
+                return mp4Parser.getTransferSyntaxUID(fragmented);
             }
         };
 
-        abstract String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs)
+        abstract String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs, boolean fragmented)
                 throws IOException;
 
         static CompressedPixelData valueOf(MediaType mediaType) {
@@ -809,8 +816,8 @@ public class StowRS {
 
     private static void excludeAppMarkers(Attributes attrs, JPEGParser parser) {
         Fragments fragments = (Fragments) attrs.getValue(Tag.PixelData);
-        BulkData bulkData = (BulkData) fragments.remove(1);
-        fragments.add(new BulkDataWithPrefix(
+        BulkData bulkData = (BulkData) fragments.get(1);
+        fragments.set(1, new BulkDataWithPrefix(
                 bulkData.uriWithoutOffsetAndLength(),
                 parser.getPositionAfterAPPSegments(),
                 (int) (bulkData.length() - parser.getPositionAfterAPPSegments()),
@@ -876,7 +883,7 @@ public class StowRS {
             try (OutputStream out = Files.newOutputStream(spoolFile)) {
                 StreamUtils.copy(in, out);
             }
-            bulkdataMap.put(contentLocation, new BulkDataWithMediaType(spoolFile, mediaType));
+            bulkdataMap.put(contentLocation, new PathWithMediaType(spoolFile, mediaType));
             return true;
         } catch (IOException e) {
             StringWriter sw = new StringWriter();
@@ -953,12 +960,14 @@ public class StowRS {
                 : failedSOPSequence == null ? Response.Status.OK : Response.Status.ACCEPTED;
     }
 
-    private static class BulkDataWithMediaType {
-        final BulkData bulkData;
+    private static class PathWithMediaType {
+        final java.nio.file.Path path;
+        final long length;
         final MediaType mediaType;
 
-        private BulkDataWithMediaType(java.nio.file.Path path, MediaType mediaType) throws IOException {
-            this.bulkData = new BulkData(path.toUri().toString(), 0, (int) Files.size(path), false);
+        private PathWithMediaType(java.nio.file.Path path, MediaType mediaType) throws IOException {
+            this.path = path;
+            this.length = Files.size(path);
             this.mediaType = mediaType;
         }
     }

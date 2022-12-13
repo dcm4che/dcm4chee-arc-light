@@ -167,6 +167,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean retrieveTaskWarningOnNoMatch;
     private Boolean retrieveTaskWarningOnWarnings;
     private Boolean stowQuicktime2MP4;
+    private Long stowMaxFragmentLength;
     private String changeRequesterAET;
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
@@ -1925,6 +1926,22 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isStowQuicktime2MP4();
     }
 
+    public Long getStowMaxFragmentLength() {
+        return stowMaxFragmentLength;
+    }
+
+    public void setStowMaxFragmentLength(Long stowMaxFragmentLength) {
+        if (stowMaxFragmentLength == null)
+            ArchiveDeviceExtension.checkStowMaxFragmentLength(stowMaxFragmentLength);
+        this.stowMaxFragmentLength = stowMaxFragmentLength;
+    }
+
+    public long stowMaxFragmentLength() {
+        return stowMaxFragmentLength != null
+                ? stowMaxFragmentLength
+                : getArchiveDeviceExtension().getStowMaxFragmentLength();
+    }
+
     public String changeRequesterAET() {
         return changeRequesterAET != null
                 ? changeRequesterAET
@@ -2047,6 +2064,7 @@ public class ArchiveAEExtension extends AEExtension {
         retrieveTaskWarningOnNoMatch = aeExt.retrieveTaskWarningOnNoMatch;
         retrieveTaskWarningOnWarnings = aeExt.retrieveTaskWarningOnWarnings;
         stowQuicktime2MP4 = aeExt.stowQuicktime2MP4;
+        stowMaxFragmentLength = aeExt.stowMaxFragmentLength;
         multipleStoreAssociations = aeExt.multipleStoreAssociations;
         changeRequesterAET = aeExt.changeRequesterAET;
         encodeAsJSONNumber.clear();

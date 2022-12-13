@@ -2163,6 +2163,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.444 NAME 'hl7PSUTemplateParam'
   DESC 'XSLT parameters in format {attributeID}={value} passed to style sheet specified by HL7 Procedure Status Update MPPS Template URI or HL7 Procedure Status Update Study Template URI. {attributeID} inside of {value} will be replaced by the value of that attribute in the original dataset.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.445 NAME 'dcmStowMaxFragmentLength'
+  DESC 'Maximum length of data fragments of encapsulated JPEG/MPEG stream in stored DICOM object. If the received JPEG/MPEG stream exceeds that value, it will be split into several fragments, using a Fragmentable Encapsulated Transfer Syntax. Valid range: 1024..4294967294. 2147483646 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2396,6 +2401,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRetrieveTaskWarningOnNoMatch $
     dcmRetrieveTaskWarningOnWarnings $
     dcmStowQuicktime2MP4 $
+    dcmStowMaxFragmentLength $
     dcmEncodeAsJSONNumber $
     dcmSchedulerMinStartDelay $
     dcmSupplementIssuerFetchSize $
@@ -2541,6 +2547,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmRetrieveTaskWarningOnNoMatch $
     dcmRetrieveTaskWarningOnWarnings $
     dcmStowQuicktime2MP4 $
+    dcmStowMaxFragmentLength $
     dcmEncodeAsJSONNumber $
     dcmChangeRequesterAET $
     dcmMWLAccessionNumberGenerator $
