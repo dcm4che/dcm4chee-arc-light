@@ -244,17 +244,17 @@ public class ProcedureServiceEJB {
     }
 
     public void updateSPSStatus(ProcedureContext ctx) {
-        List<MWLItem> mwlItems = findMWLItems(ctx.getStudyInstanceUID());
+        MWLItem mwlItem = findMWLItem(ctx);
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        for (MWLItem mwl : mwlItems) {
-            Attributes mwlAttrs = mwl.getAttributes();
-            Attributes spsItemMWL = mwlAttrs
-                    .getNestedDataset(Tag.ScheduledProcedureStepSequence);
-            if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus).equals(ctx.getSpsStatus().name())) {
-                spsItemMWL.setString(Tag.ScheduledProcedureStepStatus, VR.CS, ctx.getSpsStatus().name());
-                mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
-                ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-            }
+        if (mwlItem == null)
+            return;
+
+        Attributes mwlAttrs = mwlItem.getAttributes();
+        Attributes spsItemMWL = mwlAttrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus).equals(ctx.getSpsStatus().name())) {
+            spsItemMWL.setString(Tag.ScheduledProcedureStepStatus, VR.CS, ctx.getSpsStatus().name());
+            mwlItem.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         }
     }
 
