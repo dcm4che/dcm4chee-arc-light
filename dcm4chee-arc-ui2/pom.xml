@@ -56,6 +56,7 @@
     <node.version>v12.13.0</node.version>
     <yarn.version>v1.21.1</yarn.version>
     <yarn.run>prod</yarn.run>
+    <secure-classifier>secure</secure-classifier>
   </properties>
 
   <dependencies>
@@ -103,7 +104,7 @@
               </execution>
               <execution>
                 <!--<id>npm run-script prod</id>-->
-                <id>yarn run prod</id>
+                <id>yarn run</id>
                 <goals>
                   <goal>yarn</goal>
                 </goals>
@@ -153,18 +154,30 @@
           <plugin>
             <artifactId>maven-war-plugin</artifactId>
             <configuration>
-              <classifier>secure</classifier>
+              <classifier>${secure-classifier}</classifier>
               <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
               <webResources>
                 <resource>
                   <directory>target/webapp</directory>
                 </resource>
               </webResources>
-              <webappDirectory>${project.build.directory}/${project.build.finalName}-secure</webappDirectory>
+              <webappDirectory>${project.build.directory}/${project.build.finalName}-${secure-classifier}</webappDirectory>
             </configuration>
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <activation>
+        <property>
+          <name>yarn.run</name>
+          <value>dev</value>
+        </property>
+      </activation>
+      <properties>
+        <secure-classifier>secure-dev</secure-classifier>
+      </properties>
     </profile>
   </profiles>
 
