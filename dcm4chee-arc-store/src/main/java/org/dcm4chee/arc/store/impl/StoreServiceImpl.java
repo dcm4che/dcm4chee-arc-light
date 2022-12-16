@@ -489,8 +489,6 @@ class StoreServiceImpl implements StoreService {
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         coerceAttrs = new Attributes(coerceAttrs);
         Attributes.unifyCharacterSets(attrs, coerceAttrs);
-        coerceAttrs.updateSelected(session.getStudyUpdatePolicy(), attrs, null,
-                arcDev.getAttributeFilter(Entity.Study).getSelection(false));
         attrs.update(updatePolicy, coerceAttrs, ctx.getCoercedAttributes());
     }
 
