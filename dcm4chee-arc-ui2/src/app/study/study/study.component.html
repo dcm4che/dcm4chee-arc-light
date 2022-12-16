@@ -92,7 +92,7 @@
             </div>
         </div>
       </div>
-      <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') > -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+      <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService && studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') > -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
           <ul class="selection_functions">
               <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
               <li *ngIf='studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1'><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>
@@ -110,7 +110,7 @@
               <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')" i18n="@@hide_checkboxes">Hide checkboxes</button></li>
           </ul>
       </div>
-    <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') == -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+    <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService && studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') == -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
         <ul class="selection_functions">
             <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
 <!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>-->
