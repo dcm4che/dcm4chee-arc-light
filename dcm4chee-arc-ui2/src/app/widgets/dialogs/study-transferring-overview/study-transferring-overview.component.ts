@@ -20,6 +20,9 @@ export class StudyTransferringOverviewComponent implements OnInit {
     constructor(public dialogRef: MatDialogRef<StudyTransferringOverviewComponent>) { }
 
     ngOnInit() {
+        if(this.selectedElements.action === "link"){
+            this.reject = "113038^DCM";
+        }
     }
 
     onRemoveFromSelection(e){
