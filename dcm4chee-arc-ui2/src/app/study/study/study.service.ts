@@ -412,7 +412,7 @@ export class StudyService {
                 tag: "html-select",
                 options: studyWebService.webServices.map((webApp: DcmWebApp) => {
                     return new SelectDropdown(
-                        webApp,
+                        webApp.dcmWebAppName,
                         webApp.dcmWebAppName,
                         webApp.dicomDescription,
                         undefined,

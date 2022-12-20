@@ -123,6 +123,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
                        return a;
                    }
                });
+               this.onTemplateSet.emit(this.model);
            }
         }
         if(this.schema){
@@ -366,6 +367,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         });
         console.log("newOjbect",newObject);
         this.model = newObject;
+        this.onTemplateSet.emit(this.model);
 
     }
     ngOnDestroy(){

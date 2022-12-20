@@ -5,7 +5,7 @@ import {
     OnInit,
     ViewChild,
     ViewContainerRef,
-    AfterContentChecked, OnDestroy,
+    AfterContentChecked, OnDestroy, Input, Output, EventEmitter,
 } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {
@@ -15,7 +15,14 @@ import {
     SelectDropdown,
     DicomLevel,
     Quantity,
-    DicomResponseType, DiffAttributeSet, StorageSystems, AccessControlIDMode, UPSModifyMode, UPSSubscribeType, ModifyConfig,
+    DicomResponseType,
+    DiffAttributeSet,
+    StorageSystems,
+    AccessControlIDMode,
+    UPSModifyMode,
+    UPSSubscribeType,
+    ModifyConfig,
+    StudyTagConfig, CreateDialogTemplate
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -70,7 +77,7 @@ import {filter, map, switchMap} from "rxjs/operators";
 import {ModifyUpsComponent} from "../../widgets/dialogs/modify-ups/modify-ups.component";
 import {Subscriber} from "rxjs/index";
 import {Device} from "../../models/device";
-import {environment} from "../../../environments/environment";
+
 declare var DCM4CHE: any;
 
 
@@ -103,6 +110,11 @@ declare var DCM4CHE: any;
 export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     // model = new SelectDropdown('StudyDate,StudyTime','','', '', `<label>Study</label><span class="orderbydatedesc"></span>`);
+    @Input() studyTagConfig:StudyTagConfig;
+    @Output() onAction = new EventEmitter();
+    @Output() onFilterChange = new EventEmitter();
+    @Output() onStudyWebServiceChange = new EventEmitter();
+    @Output() onPasteEvent = new EventEmitter();
     isOpen = true;
     testToggle(){
         this.isOpen = !this.isOpen;
@@ -268,6 +280,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         "true":undefined,
         "false":undefined
     }
+    filterTemplate;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -297,6 +310,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.getPatientAttributeFilters();
         this.getStudyAttributeFilters();
         this.route.params.subscribe(params => {
+            this.filterTemplate = undefined;
+            this.studyWebService = undefined;
             this.patients = [];
             this.patients1 = [];
             this.internal = !this.internal;
@@ -334,8 +349,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     default:
                         this.currentWebAppClass = "QIDO_RS";
                 }
-                if(_.hasIn(this.studyWebService,"selectedWebService") && !_.hasIn(this._filter,"filterModel.webApp")){
-                    this._filter.filterModel["webApp"] = this.studyWebService.selectedWebService;
+                if(_.hasIn(this.studyWebService,"selectedWebService.dcmWebAppName") && !_.hasIn(this._filter,"filterModel.webApp")){
+                    this._filter.filterModel["webApp"] = this.studyWebService.selectedWebService.dcmWebAppName;
                 };
                 this.studyConfig.title = this.tabToTitleMap(params.tab);
                 if(this.studyConfig.tab === "diff"){
@@ -370,7 +385,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
                 this.more = false;
                 this._filter.filterModel.offset = 0;
-                this.tableParam.tableSchema  = this.getSchema();
+                this.setTableSchema();
                 if(this.studyConfig.tab != "study" && this.studyConfig.tab != "series" && this.studyConfig.tab != "diff"){
                     this.initWebApps();
                 }
@@ -402,24 +417,24 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     onFilterTemplateSet(object){
-        console.log("object",object);
-        this.filter.filterModel = {};
-        if(object && _.hasIn(object,"webApp") && object.webApp){
-            Object.keys(object).forEach(key=>{
-                if(key === "webApp" &&  this.studyWebService && this.studyWebService.webServices){
-                    this.studyWebService.seletWebAppFromWebAppName(object.webApp.dcmWebAppName)
-                    this.filter.filterModel["webApp"] = this.studyWebService.selectedWebService;
-                    this.tableParam.tableSchema  = this.getSchema();
-                    this.setMainSchema();
+        this.filterTemplate = object;
+        this.setTemplateToFilter();
+        this.onFilterChange.emit(this.filter.filterModel);
+    }
+
+    setTemplateToFilter(){
+        if(this.filterTemplate && this.studyWebService && this.studyWebService.selectDropdownWebServices && this.studyWebService.selectDropdownWebServices.length > 0){
+            this.filter.filterModel = {};
+            Object.keys(this.filterTemplate).forEach(key=>{
+                if(key === "webApp"){
+                    this.studyWebService.seletWebAppFromWebAppName(this.filterTemplate.webApp);
                 }else{
-                    this.filter.filterModel[key] = object[key];
+                    this.filter.filterModel[key] = this.filterTemplate[key];
                 }
-            })
-        }else{
-            Object.assign(this.filter.filterModel, object);
+            });
         }
-        //
-        console.log("this.studyWebService",this.studyWebService);
+        this.setTableSchema();
+        this.setSchema();
     }
 
     tabToTitleMap(tab:DicomMode){
@@ -572,7 +587,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     actionsSelectionsChanged(e){
         if(e === "toggle_checkboxes"){
             this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
-            this.tableParam.tableSchema  = this.getSchema();
+            this.setTableSchema();
         }
         if(e === "export_object"){
             this.exporter(
@@ -666,7 +681,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case 'hide_checkboxes':{
                 this.resetSetSelectionObject();
                 this.tableParam.config.showCheckboxes = false;
-                this.tableParam.tableSchema  = this.getSchema();
+                this.setTableSchema();
                 break;
             }
         }
@@ -704,13 +719,21 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             switch (this.selectedElements.action) {
                                 case 'merge':
                                     this.service.mergePatients(this.selectedElements,this.studyWebService)
-                                        .subscribe((response) => {
+                                        .subscribe((res) => {
                                             this.appService.showMsg($localize `:@@study.patients_merged_successfully:Patients merged successfully!`);
                                             this.clearClipboard();
                                             this.cfpLoadingBar.complete();
-                                        }, (response) => {
+                                            this.onPasteEvent.emit({
+                                                mode:"success",
+                                                response:res
+                                            });
+                                        }, (err) => {
                                             this.cfpLoadingBar.complete();
-                                            this.httpErrorHandler.handleError(response);
+                                            this.httpErrorHandler.handleError(err);
+                                            this.onPasteEvent.emit({
+                                                mode:"error",
+                                                response:err
+                                            });
                                         });
                                     break;
                                 case 'link':
@@ -719,9 +742,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         this.cfpLoadingBar.complete();
                                         this.appService.showMsgCopyMoveLink(res, this.service.getTextFromAction(this.selectedElements.action));
                                         this.clearClipboard();
+                                        this.onPasteEvent.emit({
+                                            mode:"success",
+                                            response:res
+                                        });
                                     },err=>{
                                         this.cfpLoadingBar.complete();
                                         this.httpErrorHandler.handleError(err);
+                                        this.onPasteEvent.emit({
+                                            mode:"error",
+                                            response:err
+                                        });
                                     });
                                     break;
                                 default:
@@ -734,9 +765,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         }
                                         this.clearClipboard();
                                         this.cfpLoadingBar.complete();
+                                        this.onPasteEvent.emit({
+                                            mode:"success",
+                                            response:res
+                                        });
                                     },err=>{
                                         this.cfpLoadingBar.complete();
                                         this.httpErrorHandler.handleError(err);
+                                        this.onPasteEvent.emit({
+                                            mode:"error",
+                                            response:err
+                                        });
                                     });
                             }
                         }else{
@@ -745,6 +784,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             }else{*/
                                 this.clearClipboard();
                             // }
+                            this.onPasteEvent.emit({
+                                mode:"cancel",
+                                response:this.selectedElements
+                            });
                         }
                         this.dialogRef = null;
                     });
@@ -776,8 +819,23 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
 
         if(!noResetSelectElements){
-            if(this.selectedElements){
-                this.selectedElements.reset(allReset);
+            if(resetIds.length < 5){
+                resetIds.forEach((level:DicomLevel)=>{
+                    try{
+                        Object.keys(this.selectedElements.preActionElements[level]).forEach(id=>{
+                            this.selectedElements.preActionElements.toggle(level,{id:id,idParts:[]}, {});
+                        });
+                        Object.keys(this.selectedElements.postActionElements[level]).forEach(id=>{
+                            this.selectedElements.postActionElements.toggle(level,{id:id,idParts:[]}, {});
+                        });
+                    }catch(e){
+
+                    }
+                });
+            }else{
+                if(this.selectedElements){
+                    this.selectedElements.reset(allReset);
+                }
             }
         }
 
@@ -797,10 +855,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 })
                         })
                 });
-            if(patient.mwls && resetIds.indexOf("mwl") > -1)
+            if(patient.mwls && resetIds.indexOf("mwl") > -1){
                 patient.mwls.forEach(study=>{
                     study.selected = selectedValue;
                 });
+            }
         })
     }
 
@@ -2818,8 +2877,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     filterChanged(){
-        if(this.studyWebService.selectedWebService != _.get(this.filter,"filterModel.webApp")){
-            this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp.dcmWebAppName"));
+        if(this.studyWebService && _.get(this.studyWebService,"selectedWebService.dcmWebAppName") != _.get(this.filter,"filterModel.webApp")){
+            this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp"));
+            this.onStudyWebServiceChange.emit(this.studyWebService);
             this.internal = !(this.appService.archiveDeviceName && _.hasIn(this.studyWebService, "selectedWebService.dicomDeviceName") && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
             if(!this.internal){
                 delete this._filter.filterModel.includefield;
@@ -2839,6 +2899,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.setTrash();
             this.patients = [];
         }
+        this.onFilterChange.emit(this.filter.filterModel);
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
     }
 
@@ -2985,7 +3046,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     synchronizeSelectedWebAppWithFilter(){
         if(this.studyWebService && this.studyWebService.selectedWebService && (!_.hasIn(this._filter.filterModel, "webApp") || this._filter.filterModel.webApp.dcmWebAppName != this.studyWebService.selectedWebService.dcmWebAppName)){
-            this.filter.filterModel.webApp = this.studyWebService.selectedWebService;
+            this.filter.filterModel.webApp = this.studyWebService.selectedWebService.dcmWebAppName;
         }
     }
 
@@ -4759,7 +4820,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         console.log("res",res);
                         let count = "";
                         try{
-                            count = res.count;
+                            count = res["count"];
                         }catch (e) {
                             j4care.log("Could not get count from res=",e);
                         }
@@ -5256,8 +5317,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }else{
             this.trash.active = false;
         }
-        this.tableParam.tableSchema  = this.getSchema();
+        this.setTableSchema();
     };
+
+    setTableSchema(){
+        this.tableParam.tableSchema = this.getSchema();
+    }
+
     getSchema(){
         let dateTimeFormat = _.hasIn(this.appService.global,"dateTimeFormat") ? this.appService.global["dateTimeFormat"] : undefined;
         let personNameFormat = _.hasIn(this.appService.global,"personNameFormat") ? this.appService.global["personNameFormat"] : undefined;
@@ -5331,6 +5397,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 tag:"editable-select",
                                 options:this.applicationEntities.aes,
                                 filterKey:"destination",
+                                showSearchField:true,
                                 description: $localize `:@@destination_aet:Destination AET`,
                                 placeholder: $localize `:@@destination_aet:Destination AET`
                             }
@@ -6120,7 +6187,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     // webApps = _.uniq([...webApps,...webAppsTemp],"dcmWebAppName");
                     console.log("this.studyWebService",this.studyWebService);
                     console.log("this.filter",this.filter.filterModel);
-                    this.studyWebService= new StudyWebService({
+                    this.studyWebService = new StudyWebService({
                         webServices:webApps.map((webApp:DcmWebApp)=>{
                             aetsTemp.forEach((aet)=>{
                                 if(webApp.dicomAETitle && webApp.dicomAETitle === aet.dicomAETitle){
@@ -6133,6 +6200,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         selectedWebService:_.get(this.studyWebService,"selectedWebService"),
                         allWebServices:_.uniq([...webApps,...webAppsTemp],"dcmWebAppName"),
                     });
+                   /* if(_.hasIn(this.filter,"filterModel.webApp") && !this.studyWebService.selectedWebService){
+                        this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp"));
+                        if(!this.studyWebService.selectedWebService || !this.studyWebService.selectedWebService.dcmWebAppName){
+                            delete this.filter.filterModel.webApp;
+                        }
+                    }*/
+                    this.onStudyWebServiceChange.emit(this.studyWebService);
                     this.applicationEntities.aets = aetsTemp.map((ae:Aet)=>{
                         return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
                     });
@@ -6142,7 +6216,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     // this.aets = aetsTemp;
                     // console.log("ates",this.aets);
                     // this.getDevices();
-                    this.setSchema();
+                    this.setTemplateToFilter();
                     this.initExporters(2);
                     this.initRjNotes(2);
                     this.getQueueNames();
