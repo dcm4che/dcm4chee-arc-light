@@ -445,6 +445,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHl7ImportReportMissingAdmissionIDPolicy(), HL7ImportReportMissingAdmissionIDPolicy.ACCEPT);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportMissingStudyIUIDCFindSCP",
                 ext.getHl7ImportReportMissingStudyIUIDCFindSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportAdjustIUID",
+                ext.getHl7ImportReportAdjustIUID(), HL7ImportReportAdjustIUID.NONE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7DicomCharacterSet",
                 ext.getHl7DicomCharacterSet(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7VeterinaryUsePatientName",
@@ -808,6 +810,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         attrs.get("hl7ImportReportMissingAdmissionIDPolicy"), HL7ImportReportMissingAdmissionIDPolicy.ACCEPT));
         ext.setHl7ImportReportMissingStudyIUIDCFindSCP(LdapUtils.stringValue(
                 attrs.get("hl7ImportReportMissingStudyIUIDCFindSCP"), null));
+        ext.setHl7ImportReportAdjustIUID(
+                LdapUtils.enumValue(HL7ImportReportAdjustIUID.class,
+                        attrs.get("hl7ImportReportAdjustIUID"), HL7ImportReportAdjustIUID.NONE));
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
         ext.setHl7VeterinaryUsePatientName(LdapUtils.booleanValue(attrs.get("hl7VeterinaryUsePatientName"), false));
         ext.setValidateUID(LdapUtils.booleanValue(attrs.get("dcmValidateUID"), true));
@@ -1355,13 +1360,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportMissingStudyIUIDPolicy",
                 aa.getHl7ImportReportMissingStudyIUIDPolicy(), bb.getHl7ImportReportMissingStudyIUIDPolicy(),
                 HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
-        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportMissingAdmissionIDPolicy",
-                aa.getHl7ImportReportMissingAdmissionIDPolicy(), bb.getHl7ImportReportMissingAdmissionIDPolicy(),
-                HL7ImportReportMissingAdmissionIDPolicy.ACCEPT);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportMissingStudyIUIDCFindSCP",
                 aa.getHl7ImportReportMissingStudyIUIDCFindSCP(),
                 bb.getHl7ImportReportMissingStudyIUIDCFindSCP(),
                 null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportAdjustIUID",
+                aa.getHl7ImportReportAdjustIUID(), bb.getHl7ImportReportAdjustIUID(),
+                HL7ImportReportAdjustIUID.NONE);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7DicomCharacterSet",
                 aa.getHl7DicomCharacterSet(), bb.getHl7DicomCharacterSet(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7VeterinaryUsePatientName",

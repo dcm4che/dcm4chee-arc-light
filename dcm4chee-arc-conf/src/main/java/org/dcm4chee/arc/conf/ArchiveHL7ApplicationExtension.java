@@ -69,6 +69,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
     private HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy;
     private String hl7ImportReportMissingStudyIUIDCFindSCP;
+    private HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID;
     private HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy;
     private String hl7DicomCharacterSet;
     private Boolean hl7VeterinaryUsePatientName;
@@ -116,6 +117,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OrderMissingAdmissionIDPolicy = arcapp.hl7OrderMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
         hl7ImportReportMissingAdmissionIDPolicy = arcapp.hl7ImportReportMissingAdmissionIDPolicy;
+        hl7ImportReportAdjustIUID = arcapp.hl7ImportReportAdjustIUID;
         hl7ImportReportMissingStudyIUIDCFindSCP = arcapp.hl7ImportReportMissingStudyIUIDCFindSCP;
         hl7ReferredMergedPatientPolicy = arcapp.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
@@ -568,6 +570,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setHl7ImportReportMissingStudyIUIDCFindSCP(String hl7ImportReportMissingStudyIUIDCFindSCP) {
         this.hl7ImportReportMissingStudyIUIDCFindSCP = hl7ImportReportMissingStudyIUIDCFindSCP;
+    }
+
+    public HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID() {
+        return hl7ImportReportAdjustIUID != null
+                ? hl7ImportReportAdjustIUID
+                : getArchiveDeviceExtension().getHl7ImportReportAdjustIUID();
+    }
+
+    public HL7ImportReportAdjustIUID getHl7ImportReportAdjustIUID() {
+        return hl7ImportReportAdjustIUID;
+    }
+
+    public void setHl7ImportReportAdjustIUID(HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID) {
+        this.hl7ImportReportAdjustIUID = hl7ImportReportAdjustIUID;
     }
 
     public HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy() {

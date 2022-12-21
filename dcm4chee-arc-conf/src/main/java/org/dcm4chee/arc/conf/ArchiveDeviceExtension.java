@@ -245,6 +245,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean hl7TrackChangedPatientID = true;
     private volatile boolean auditSoftwareConfigurationVerbose = false;
     private volatile boolean hl7UseNullValue = false;
+
+    private volatile boolean hl7AppendHashOfStudyInstanceUIDToSeriesAndSOPInstanceUID;
+
     private volatile String[] hl7ADTReceivingApplication = {};
     private volatile String hl7ADTSendingApplication;
     private volatile int queueTasksFetchSize = 100;
@@ -291,6 +294,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy =
             HL7ImportReportMissingStudyIUIDPolicy.GENERATE;
     private volatile String hl7ImportReportMissingStudyIUIDCFindSCP;
+    private volatile HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID = HL7ImportReportAdjustIUID.NONE;
     private volatile HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy =
             HL7ReferredMergedPatientPolicy.REJECT;
     private volatile String hl7DicomCharacterSet;
@@ -3037,6 +3041,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ImportReportMissingStudyIUIDCFindSCP = hl7ImportReportMissingStudyIUIDCFindSCP;
     }
 
+    public HL7ImportReportAdjustIUID getHl7ImportReportAdjustIUID() {
+        return hl7ImportReportAdjustIUID;
+    }
+
+    public void setHl7ImportReportAdjustIUID(HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID) {
+        this.hl7ImportReportAdjustIUID = hl7ImportReportAdjustIUID;
+    }
+
     public HL7ReferredMergedPatientPolicy getHl7ReferredMergedPatientPolicy() {
         return hl7ReferredMergedPatientPolicy;
     }
@@ -3510,6 +3522,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;
         hl7ImportReportMissingAdmissionIDPolicy = arcdev.hl7ImportReportMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDCFindSCP = arcdev.hl7ImportReportMissingStudyIUIDCFindSCP;
+        hl7ImportReportAdjustIUID = arcdev.hl7ImportReportAdjustIUID;
         hl7ReferredMergedPatientPolicy = arcdev.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;
