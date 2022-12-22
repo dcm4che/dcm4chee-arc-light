@@ -5550,7 +5550,7 @@ karma@~4.1.0:
     tmp "0.0.33"
     useragent "2.3.0"
 
-keycloak-js@~19.0.1:
+keycloak-js@~20.0.2:
   version "19.0.3"
   resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-19.0.3.tgz#f70e988b799054957e47c981b7e962c9874da00e"
   integrity sha512-mzCBxrzfl+vB551Q7MB+T9+40IHU4i0a6g1eTatzeEGrQMis5m/BqvPC3kxTsI+/LxHbB9XYQE3u9SlWKDHQCw==
