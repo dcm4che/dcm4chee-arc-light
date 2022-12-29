@@ -773,7 +773,9 @@ class ArchiveDeviceFactory {
             UID.PositronEmissionTomographyImageStorage,
             UID.LegacyConvertedEnhancedPETImageStorage,
             UID.EnhancedPETImageStorage,
-            UID.RTImageStorage
+            UID.RTImageStorage,
+            UID.EnhancedRTImageStorage,
+            UID.EnhancedContinuousRTImageStorage
     };
     static final String[] PRIVATE_IMAGE_CUIDS = {
             UID.PrivateFujiCRImageStorage,
@@ -954,6 +956,7 @@ class ArchiveDeviceFactory {
             UID.RoboticRadiationRecordStorage,
             UID.RTRadiationSetDeliveryInstructionStorage,
             UID.RTTreatmentPreparationStorage,
+            UID.RTPatientPositionAcquisitionInstructionStorage,
             UID.RTBeamsDeliveryInstructionStorage,
             UID.RTBrachyApplicationSetupDeliveryInstructionStorage,
     };
