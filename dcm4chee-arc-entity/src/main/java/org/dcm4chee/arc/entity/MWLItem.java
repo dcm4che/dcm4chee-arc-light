@@ -73,6 +73,11 @@ import java.util.*;
                 "where mwl.studyInstanceUID = ?1 " +
                 "and mwl.scheduledProcedureStepID = ?2"),
 @NamedQuery(
+        name = MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID,
+        query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes from MWLItem mwl " +
+                "where mwl.studyInstanceUID = ?1 " +
+                "and mwl.scheduledProcedureStepID = ?2"),
+@NamedQuery(
         name = MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER,
         query = "select mwl from MWLItem mwl " +
                 "join fetch mwl.attributesBlob " +
@@ -123,8 +128,9 @@ public class MWLItem {
 
     public static final String FIND_BY_STUDY_IUID_EAGER = "MWLItem.findByStudyIUIDEager";
     public static final String FIND_BY_PATIENT = "MWLItem.findByPatient";
-    public static final String FIND_BY_STUDY_UID_AND_SPS_ID = "MWLItem.findByStudyUIDAndSPSIDr";
+    public static final String FIND_BY_STUDY_UID_AND_SPS_ID = "MWLItem.findByStudyUIDAndSPSID";
     public static final String FIND_BY_STUDY_UID_AND_SPS_ID_EAGER = "MWLItem.findByStudyUIDAndSPSIDEager";
+    public static final String ATTRS_BY_STUDY_UID_AND_SPS_ID = "MWLItem.attrsByStudyUIDAndSPSID";
     public static final String FIND_PK_BY_STATUS_AND_UPDATED_BEFORE = "MWLItem.findPkByStatusAndUpdatedBefore";
     public static final String FIND_BY_PK = "MWLItem.findByPk";
     public static final String IDS_BY_PATIENT_AND_STATUS = "MWLItem.idsByPatientAndStatus";

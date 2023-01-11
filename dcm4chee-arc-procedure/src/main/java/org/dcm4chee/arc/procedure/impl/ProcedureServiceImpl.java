@@ -101,6 +101,11 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
+    public Attributes getMWLItemAttrs(String studyInstanceUID, String spsID) {
+        return ejb.getMWLItemAttrs(studyInstanceUID, spsID);
+    }
+
+    @Override
     public ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET,
             int priority, Attributes filter, Attributes keys, boolean fuzzymatching, boolean filterbyscu,
             boolean delete, boolean simulate)

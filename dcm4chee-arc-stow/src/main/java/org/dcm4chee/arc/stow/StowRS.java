@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.stow;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.ContributingEquipmentPurposeOfReference;
 import org.dcm4che3.image.BufferedImageUtils;
 import org.dcm4che3.imageio.codec.jpeg.JPEG;
 import org.dcm4che3.imageio.codec.jpeg.JPEGParser;
@@ -62,6 +63,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -127,6 +129,19 @@ public class StowRS {
 
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
     private static final String SUPER_USER_ROLE = "super-user-role";
+    private static final String IRWF_NOT_SUPPORTED =
+            "Query Parameter 'irwf' not supported for Metadata and Bulkdata payload";
+    private static final String IRWF_MISSING_PATIENT_ID =
+            "Query Parameter 'irwf=UNSCHEDULED' requires Query Parameter '00100020'";
+    private static final String IRWF_PATIENT_ID_NOT_SUPPORTED =
+            "Query Parameter 'irwf=SCHEDULED' can't be used with Query Parameter '00100020'";
+    private static final String IRWF_MISSING_SPS =
+            "Query Parameter 'irwf=UNSCHEDULED' requires Query Parameters '00400100.0020000D' and '00400100.00400009'";
+    private static final String IRWF_NOT_SCHEDULED =
+            "No Procedure Step with given '00400100.0020000D' and '00400100.00400009' scheduled";
+
+    @Inject
+    private ProcedureService procedureService;
 
     @Inject
     private StoreService service;
@@ -158,6 +173,9 @@ public class StowRS {
     @QueryParam("sourceOfPreviousValues")
     private String sourceOfPreviousValues;
 
+    @QueryParam("irwf")
+    @Pattern(regexp = "SCHEDULED|UNSCHEDULED")
+    private String irwf;
     private String acceptedStudyInstanceUID;
     private final Set<String> studyInstanceUIDs = new HashSet<>();
 
@@ -168,10 +186,11 @@ public class StowRS {
     private Sequence failedSOPSequence;
     private java.nio.file.Path spoolDirectory;
     private Map<String, PathWithMediaType> bulkdataMap = new HashMap<>();
+    private Attributes coerce;
 
     public void validate() {
         logRequest();
-        new QueryAttributes(uriInfo, null);
+        coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
     }
 
     @Override
@@ -310,6 +329,8 @@ public class StowRS {
         validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
         if (aet.equals(ae.getAETitle()))
             validateWebAppServiceClass();
+        if (irwf != null)
+            validateIRWF(input);
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(
                 HttpServletRequestInfo.valueOf(request), ae, aet, null);
@@ -349,6 +370,68 @@ public class StowRS {
                     .entity(output.entity(response, ae))
                     .header("Warning", warning)
                     .build());
+    }
+
+    private void validateIRWF(Input input) {
+        if (input != Input.DICOM)
+            throw new WebApplicationException(errResponse(IRWF_NOT_SUPPORTED, Response.Status.BAD_REQUEST));
+        if ("UNSCHEDULED".equals(irwf)) {
+            if (!coerce.containsValue(Tag.PatientID))
+                throw new WebApplicationException(errResponse(IRWF_MISSING_PATIENT_ID, Response.Status.BAD_REQUEST));
+        } else { // SCHEDULED
+            if (coerce.contains(Tag.PatientID))
+                throw new WebApplicationException(errResponse(IRWF_PATIENT_ID_NOT_SUPPORTED, Response.Status.BAD_REQUEST));
+            Attributes sps;
+            String suid, spsid;
+            if ((sps = coerce.getNestedDataset(Tag.ScheduledProcedureStepSequence)) == null
+                    || (suid = sps.getString(Tag.StudyInstanceUID)) == null
+                    || (spsid = sps.getString(Tag.ScheduledProcedureStepID)) == null)
+                throw new WebApplicationException(errResponse(IRWF_MISSING_SPS, Response.Status.BAD_REQUEST));
+            Attributes mwlAttrs = procedureService.getMWLItemAttrs(suid, spsid);
+            if (mwlAttrs == null)
+                throw new WebApplicationException(errResponse(IRWF_NOT_SCHEDULED, Response.Status.NOT_FOUND));
+
+            coerce.remove(Tag.ScheduledProcedureStepSequence);
+            coerce.addSelected(mwlAttrs,
+                    Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence,
+                    Tag.PatientID, Tag.IssuerOfPatientID, Tag.IssuerOfPatientIDQualifiersSequence,
+                    Tag.AdmissionID, Tag.IssuerOfAdmissionID);
+            Attributes procedureCode = mwlAttrs.getNestedDataset(Tag.RequestedProcedureCodeSequence);
+            if (procedureCode != null)
+                coerce.newSequence(Tag.ProcedureCodeSequence, 1).add(new Attributes(procedureCode));
+            coerce.newSequence(Tag.RequestAttributesSequence, 1).add(irwfRequestAttrs(mwlAttrs, spsid));
+        }
+        coerce(Tag.IssuerOfPatientID, VR.LO);
+        coerce(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+        coerce(Tag.AccessionNumber, VR.SH);
+        coerce(Tag.IssuerOfAccessionNumberSequence, VR.SQ);
+        coerce(Tag.AdmissionID, VR.SH);
+        coerce(Tag.IssuerOfAdmissionID, VR.SQ);
+        coerce.newSequence(Tag.ContributingEquipmentSequence, 1).add(irwfContributingEquipment());
+        reasonForModification = "COERCE";
+    }
+
+    private Attributes irwfContributingEquipment() {
+        Attributes attrs = new Attributes(3);
+        attrs.setString(Tag.Manufacturer, VR.LO, device.getManufacturer());
+        attrs.setString(Tag.InstitutionName, VR.LO, device.getInstitutionNames());
+        attrs.setString(Tag.StationName, VR.SH, device.getStationName());
+        attrs.setDate(Tag.ContributionDateTime, VR.DT, new Date());
+        attrs.newSequence(Tag.PurposeOfReferenceCodeSequence, 1)
+                .add(ContributingEquipmentPurposeOfReference.PortableMediaImporterEquipment.toItem());
+        return attrs;
+    }
+
+    private void coerce(int tag, VR vr) {
+        if (!coerce.contains(tag)) coerce.setNull(tag, vr);
+    }
+
+    private Attributes irwfRequestAttrs(Attributes mwlAttrs, String spsid) {
+        Attributes attrs = new Attributes(3);
+        attrs.setString(Tag.RequestedProcedureDescription, VR.LO, mwlAttrs.getString(Tag.RequestedProcedureDescription));
+        attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, spsid);
+        attrs.setString(Tag.RequestedProcedureID, VR.SH, mwlAttrs.getString(Tag.RequestedProcedureID));
+        return attrs;
     }
 
     private static MediaType normalize(MediaType mediaType) {
@@ -507,8 +590,23 @@ public class StowRS {
     }
 
     private void coerceAttributes(Attributes attrs) {
-        Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
         if (!coerce.isEmpty()) {
+            if (irwf != null) {
+                Sequence otherPatientIDs = coerce.newSequence(Tag.OtherPatientIDsSequence, 2);
+                otherPatientIDs.add(selectPatientIDWithIssuer(attrs));
+                otherPatientIDs.add(selectPatientIDWithIssuer(coerce));
+                Attributes irwfRequestAttrs = coerce.getNestedDataset(Tag.RequestAttributesSequence);
+                if (irwfRequestAttrs != null) {
+                    irwfRequestAttrs.remove(Tag.ScheduledProcedureStepDescription);
+                    irwfRequestAttrs.remove(Tag.ScheduledProtocolCodeSequence);
+                    Attributes reqAttrs = attrs.getNestedDataset(Tag.RequestAttributesSequence);
+                    if (reqAttrs != null) {
+                        irwfRequestAttrs.addSelected(reqAttrs,
+                                Tag.ScheduledProcedureStepDescription,
+                                Tag.ScheduledProtocolCodeSequence);
+                    }
+                }
+            }
             Attributes modified = new Attributes();
             attrs.update(Attributes.UpdatePolicy.valueOf(updatePolicy), false, coerce, modified);
             if (!modified.isEmpty() && reasonForModification != null) {
@@ -516,6 +614,19 @@ public class StowRS {
                         reasonForModification, device.getDeviceName(), modified);
             }
         }
+    }
+
+    private static Attributes selectPatientIDWithIssuer(Attributes src) {
+        Attributes result = new Attributes(3);
+        result.setString(Tag.PatientID, VR.LO, src.getString(Tag.PatientID));
+        String issuer = src.getString(Tag.IssuerOfPatientID);
+        if (issuer != null)
+            result.setString(Tag.IssuerOfPatientID, VR.LO, issuer);
+        Attributes qualifiers = src.getNestedDataset(Tag.IssuerOfPatientIDQualifiersSequence);
+        if (qualifiers != null)
+            result.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 1)
+                    .add(new Attributes(qualifiers));
+        return result;
     }
 
     private void storeDicomObject(StoreSession session, Attributes attrs, int instanceNumber) throws IOException {

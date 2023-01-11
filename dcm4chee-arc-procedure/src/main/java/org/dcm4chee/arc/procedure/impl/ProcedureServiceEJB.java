@@ -165,6 +165,24 @@ public class ProcedureServiceEJB {
         }
     }
 
+    public Attributes getMWLItemAttrs(String studyInstanceUID, String spsID) {
+        try {
+            Tuple results = em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, Tuple.class)
+                    .setParameter(1, studyInstanceUID)
+                    .setParameter(2, spsID)
+                    .getSingleResult();
+            Attributes mwlAttrs = AttributesBlob.decodeAttributes(results.get(0, byte[].class), null);
+            Attributes patAttrs = AttributesBlob.decodeAttributes(results.get(1, byte[].class), null);
+            Attributes.unifyCharacterSets(patAttrs, mwlAttrs);
+            Attributes attrs = new Attributes(patAttrs.size() + mwlAttrs.size() + 1);
+            attrs.addAll(patAttrs);
+            attrs.addAll(mwlAttrs);
+            return attrs;
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     private void createMWL(ProcedureContext ctx) {
         Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
