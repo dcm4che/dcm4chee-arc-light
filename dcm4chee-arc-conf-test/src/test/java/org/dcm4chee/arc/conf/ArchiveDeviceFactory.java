@@ -421,6 +421,7 @@ class ArchiveDeviceFactory {
             Tag.TimezoneOffsetFromUTC,
             Tag.ReferencedSeriesSequence,
             Tag.AnatomicRegionSequence,
+            Tag.ContributingEquipmentSequence,
             Tag.InstanceNumber,
             Tag.NumberOfFrames,
             Tag.Rows,

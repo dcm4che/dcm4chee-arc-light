@@ -2850,6 +2850,7 @@ dcmTag: 00080033
 dcmTag: 00080201
 dcmTag: 00081115
 dcmTag: 00082218
+dcmTag: 0018A001
 dcmTag: 00200013
 dcmTag: 00200242
 dcmTag: 00209161
@@ -3753,6 +3754,7 @@ dcmTag: 00120064
 dcmTag: 00120081
 dcmTag: 00120082
 dcmTag: 00180015
+dcmTag: 0018A001
 dcmTag: 0020000D
 dcmTag: 0020000E
 dcmTag: 00200010
