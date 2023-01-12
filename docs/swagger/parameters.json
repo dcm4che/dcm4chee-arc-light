@@ -1914,5 +1914,17 @@
     "schema": {
       "type": "string"
     }
+  },
+  "irwf": {
+    "name": "irwf",
+    "in": "query",
+    "description": "Indicates to coerce attributes of received DICOM objects according IHE Import Reconciliation Workflow Integration Profile",
+    "schema": {
+      "type": "string",
+      "enum": [
+        "SCHEDULED",
+        "UNSCHEDULED"
+      ]
+    }
   }
 }

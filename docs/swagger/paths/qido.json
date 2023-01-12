@@ -146,6 +146,9 @@
         },
         {
           "$ref": "../parameters.json#/sourceOfPreviousValues"
+        },
+        {
+          "$ref": "../parameters.json#/irwf"
         }
       ],
       "requestBody": {
