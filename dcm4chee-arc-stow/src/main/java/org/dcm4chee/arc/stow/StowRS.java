@@ -415,7 +415,7 @@ public class StowRS {
         Attributes attrs = new Attributes(3);
         attrs.setString(Tag.Manufacturer, VR.LO, device.getManufacturer());
         attrs.setString(Tag.InstitutionName, VR.LO, device.getInstitutionNames());
-        attrs.setString(Tag.StationName, VR.SH, device.getStationName());
+        attrs.setString(Tag.StationName, VR.SH, getStationName());
         attrs.setDate(Tag.ContributionDateTime, VR.DT, new Date());
         attrs.newSequence(Tag.PurposeOfReferenceCodeSequence, 1)
                 .add(ContributingEquipmentPurposeOfReference.PortableMediaImporterEquipment.toItem());
@@ -611,9 +611,14 @@ public class StowRS {
             attrs.update(Attributes.UpdatePolicy.valueOf(updatePolicy), false, coerce, modified);
             if (!modified.isEmpty() && reasonForModification != null) {
                 attrs.addOriginalAttributes(sourceOfPreviousValues, new Date(),
-                        reasonForModification, device.getDeviceName(), modified);
+                        reasonForModification, getStationName(), modified);
             }
         }
+    }
+
+    private String getStationName() {
+        String stationName = device.getStationName();
+        return stationName != null ? stationName : device.getDeviceName();
     }
 
     private static Attributes selectPatientIDWithIssuer(Attributes src) {
