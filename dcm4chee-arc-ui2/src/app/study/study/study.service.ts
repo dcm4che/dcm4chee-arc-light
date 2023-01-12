@@ -474,8 +474,6 @@ export class StudyService {
                     description: $localize `:@@query_only_studies_size:Query only size of studies`
                 })
             }
-            if (!j4care.arrayIsNotEmpty(studyWebService,"webServices"))
-                this.appService.showMsg(this.getNoServiceSpecificWebApps(tab));
         }
         if(hook){
             schema = hook.call(this, schema);

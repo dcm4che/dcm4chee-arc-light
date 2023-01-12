@@ -6184,9 +6184,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             })
         ).subscribe(
                 (webApps:DcmWebApp[])=> {
-                    // webApps = _.uniq([...webApps,...webAppsTemp],"dcmWebAppName");
-                    console.log("this.studyWebService",this.studyWebService);
-                    console.log("this.filter",this.filter.filterModel);
+                    if((!webApps || !_.isArray(webApps) || webApps.length < 1) && this.studyConfig.tab){
+                        this.appService.showMsg(this.service.getNoServiceSpecificWebApps(this.studyConfig.tab));
+                    }
                     this.studyWebService = new StudyWebService({
                         webServices:webApps.map((webApp:DcmWebApp)=>{
                             aetsTemp.forEach((aet)=>{
@@ -6200,12 +6200,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         selectedWebService:_.get(this.studyWebService,"selectedWebService"),
                         allWebServices:_.uniq([...webApps,...webAppsTemp],"dcmWebAppName"),
                     });
-                   /* if(_.hasIn(this.filter,"filterModel.webApp") && !this.studyWebService.selectedWebService){
-                        this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp"));
-                        if(!this.studyWebService.selectedWebService || !this.studyWebService.selectedWebService.dcmWebAppName){
-                            delete this.filter.filterModel.webApp;
-                        }
-                    }*/
                     this.onStudyWebServiceChange.emit(this.studyWebService);
                     this.applicationEntities.aets = aetsTemp.map((ae:Aet)=>{
                         return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
@@ -6213,9 +6207,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.applicationEntities.aes = aesTemp.map((ae:Aet)=>{
                         return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
                     });
-                    // this.aets = aetsTemp;
-                    // console.log("ates",this.aets);
-                    // this.getDevices();
                     this.setTemplateToFilter();
                     this.initExporters(2);
                     this.initRjNotes(2);
