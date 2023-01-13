@@ -3172,6 +3172,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.45 NAME 'dcmArchiveAttributeCoercion2
     dcmProperty $
     dcmAttributeUpdatePolicy $
     dicomDeviceName $
+    dcmSupplementFromDeviceReference $
     dcmMergeAttribute $
     dcmCoercionParam $
     dcmCoercionSufficient $

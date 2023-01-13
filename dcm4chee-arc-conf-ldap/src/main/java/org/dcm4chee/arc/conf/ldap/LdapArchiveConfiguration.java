@@ -5814,7 +5814,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", coercion.getURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDeviceName",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSupplementFromDeviceReference",
                 deviceNameOf(coercion.getOtherDevice()), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMergeAttribute", coercion.getMergeAttributes());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmCoercionParam", coercion.getCoercionParams());
@@ -5897,7 +5897,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
-                String otherDevice = LdapUtils.stringValue(attrs.get("dicomDeviceName"), null);
+                String otherDevice = LdapUtils.stringValue(attrs.get("dcmSupplementFromDeviceReference"), null);
                 if (otherDevice != null)
                     coercion.setOtherDevice(parentDN.equals(otherDevice)
                             ? device
@@ -6014,7 +6014,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getAttributeUpdatePolicy(),
                 coercion.getAttributeUpdatePolicy(),
                 org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDeviceName",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSupplementFromDeviceReference",
                 deviceNameOf(prev.getOtherDevice()),
                 deviceNameOf(coercion.getOtherDevice()), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMergeAttribute",
