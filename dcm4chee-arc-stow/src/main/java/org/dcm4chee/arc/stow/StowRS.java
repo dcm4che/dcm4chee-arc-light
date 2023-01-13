@@ -136,9 +136,9 @@ public class StowRS {
     private static final String IRWF_PATIENT_ID_NOT_SUPPORTED =
             "Query Parameter 'irwf=SCHEDULED' can't be used with Query Parameter '00100020'";
     private static final String IRWF_MISSING_SPS =
-            "Query Parameter 'irwf=UNSCHEDULED' requires Query Parameters '00400100.0020000D' and '00400100.00400009'";
+            "Query Parameter 'irwf=UNSCHEDULED' requires Query Parameters '0020000D' and '00400100.00400009'";
     private static final String IRWF_NOT_SCHEDULED =
-            "No Procedure Step with given '00400100.0020000D' and '00400100.00400009' scheduled";
+            "No Procedure Step with given '0020000D' and '00400100.00400009' scheduled";
 
     @Inject
     private ProcedureService procedureService;
@@ -383,8 +383,8 @@ public class StowRS {
                 throw new WebApplicationException(errResponse(IRWF_PATIENT_ID_NOT_SUPPORTED, Response.Status.BAD_REQUEST));
             Attributes sps;
             String suid, spsid;
-            if ((sps = coerce.getNestedDataset(Tag.ScheduledProcedureStepSequence)) == null
-                    || (suid = sps.getString(Tag.StudyInstanceUID)) == null
+            if ((suid = coerce.getString(Tag.StudyInstanceUID)) == null
+                    || (sps = coerce.getNestedDataset(Tag.ScheduledProcedureStepSequence)) == null
                     || (spsid = sps.getString(Tag.ScheduledProcedureStepID)) == null)
                 throw new WebApplicationException(errResponse(IRWF_MISSING_SPS, Response.Status.BAD_REQUEST));
             Attributes mwlAttrs = procedureService.getMWLItemAttrs(suid, spsid);
