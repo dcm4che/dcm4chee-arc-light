@@ -1922,8 +1922,9 @@
     "schema": {
       "type": "string",
       "enum": [
+        "UNSCHEDULED",
         "SCHEDULED",
-        "UNSCHEDULED"
+        "SCHEDULED_COERCE_STUDY"
       ]
     }
   }

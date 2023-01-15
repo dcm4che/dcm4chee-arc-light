@@ -174,7 +174,7 @@ public class StowRS {
     private String sourceOfPreviousValues;
 
     @QueryParam("irwf")
-    @Pattern(regexp = "SCHEDULED|UNSCHEDULED")
+    @Pattern(regexp = "UNSCHEDULED|SCHEDULED|SCHEDULED_COERCE_STUDY")
     private String irwf;
     private String acceptedStudyInstanceUID;
     private final Set<String> studyInstanceUIDs = new HashSet<>();
@@ -378,7 +378,7 @@ public class StowRS {
         if ("UNSCHEDULED".equals(irwf)) {
             if (!coerce.containsValue(Tag.PatientID))
                 throw new WebApplicationException(errResponse(IRWF_MISSING_PATIENT_ID, Response.Status.BAD_REQUEST));
-        } else { // SCHEDULED
+        } else { // SCHEDULED|SCHEDULED_COERCE_STUDY
             if (coerce.contains(Tag.PatientID))
                 throw new WebApplicationException(errResponse(IRWF_PATIENT_ID_NOT_SUPPORTED, Response.Status.BAD_REQUEST));
             Attributes sps;
@@ -391,6 +391,8 @@ public class StowRS {
             if (mwlAttrs == null)
                 throw new WebApplicationException(errResponse(IRWF_NOT_SCHEDULED, Response.Status.NOT_FOUND));
 
+            if ("SCHEDULED".equals(irwf))
+                coerce.remove(Tag.StudyInstanceUID);
             coerce.remove(Tag.ScheduledProcedureStepSequence);
             coerce.addSelected(mwlAttrs,
                     Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence,
