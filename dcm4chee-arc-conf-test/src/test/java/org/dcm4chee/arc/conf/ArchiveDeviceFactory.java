@@ -2171,7 +2171,7 @@ class ArchiveDeviceFactory {
 
             ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Supplement Composite")
-                    .setURI("sup-from-dev:STORESCU")
+                    .setURI("sup-from-dev:")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("STORESCU")
@@ -2179,7 +2179,7 @@ class ArchiveDeviceFactory {
 
             ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Supplement MPPS")
-                    .setURI("sup-from-dev:MPPSSCU")
+                    .setURI("sup-from-dev:")
                     .setDIMSE(Dimse.N_CREATE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("MPPSSCU")
