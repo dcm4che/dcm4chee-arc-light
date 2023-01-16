@@ -789,7 +789,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
                     aac.getAttributeUpdatePolicy(), Attributes.UpdatePolicy.MERGE);
             writer.writeNotEmpty("dcmNullifyTag", TagUtils.toHexStrings(aac.getNullifyTags()));
-            writer.writeNotNullOrDef("dcmSupplementFromDeviceName", deviceNameOf(aac.getSupplementFromDevice()), null);
+            writer.writeNotNullOrDef("dcmSupplementFromDeviceReference", deviceNameOf(aac.getSupplementFromDevice()), null);
             writer.writeNotNullOrDef("dcmIssuerOfPatientIDFormat", aac.getIssuerOfPatientIDFormat(), null);
             writer.writeNotDef("dcmTrimISO2022CharacterSet", aac.isTrimISO2022CharacterSet(), false);
             writer.writeNotNullOrDef("dcmUseCallingAETitleAs", aac.getUseCallingAETitleAs(), null);
@@ -813,7 +813,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmURI", aac.getURI(), null);
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
                     aac.getAttributeUpdatePolicy(), Attributes.UpdatePolicy.MERGE);
-            writer.writeNotNullOrDef("dicomDeviceName", deviceNameOf(aac.getOtherDevice()), null);
+            writer.writeNotNullOrDef("dcmSupplementFromDeviceReference",
+                    deviceNameOf(aac.getOtherDevice()), null);
             writer.writeNotEmpty("dcmMergeAttribute", aac.getMergeAttributes());
             writer.writeNotEmpty("dcmCoercionParam", aac.getCoercionParams());
             writer.writeNotDef("dcmCoercionSufficient", aac.isCoercionSufficient(), false);
@@ -2938,7 +2939,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmNullifyTag":
                         aac.setNullifyTags(TagUtils.fromHexStrings(reader.stringArray()));
                         break;
-                    case "dcmSupplementFromDeviceName":
+                    case "dcmSupplementFromDeviceReference":
                         aac.setSupplementFromDevice(loadDevice(config, reader.stringValue()));
                         break;
                     case "dcmNullifyIssuerOfPatientID":
@@ -3002,7 +3003,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmAttributeUpdatePolicy":
                         aac.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
                         break;
-                    case "dicomDeviceName":
+                    case "dcmSupplementFromDeviceReference":
                         aac.setOtherDevice(loadDevice(config, reader.stringValue()));
                         break;
                     case "dcmMergeAttribute":

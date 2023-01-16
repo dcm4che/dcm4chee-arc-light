@@ -254,6 +254,9 @@ dcmHideSPSWithStatusFromMWL: DISCONTINUED
 dcmHideSPSWithStatusFromMWL: COMPLETED
 dcmWadoSupportedPRClasses: 1.2.840.10008.5.1.4.1.1.11.1
 dcmAuditAggregateDuration: PT1M
+dicomSoftwareVersion: 5.29.2
+dicomSoftwareVersion: f963140
+dicomSoftwareVersion: 2023-01-15
 
 dn: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
@@ -3306,9 +3309,9 @@ dn: cn=Supplement MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configur
 dcmSOPClass: 1.2.840.10008.3.1.2.3.3
 dcmDIMSE: N_CREATE_RQ
 dicomTransferRole: SCU
-dicomDeviceName: dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: SendingApplicationEntityTitle=MPPSSCU
 objectClass: dcmArchiveAttributeCoercion2
+dcmSupplementFromDeviceReference: dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmURI: sup-from-dev:MPPSSCU
 cn: Supplement MPPS
 
@@ -3720,9 +3723,9 @@ cn: Image Writer Factory
 dn: cn=Supplement Composite,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCU
-dicomDeviceName: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: SendingApplicationEntityTitle=STORESCU
 objectClass: dcmArchiveAttributeCoercion2
+dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmURI: sup-from-dev:STORESCU
 cn: Supplement Composite
 
@@ -4940,13 +4943,13 @@ objectClass: dcmTransferCapability
 cn: MR Spectroscopy Storage SCU
 
 dn: cn=SupplementIssuerOfPatientID,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmMergeAttribute: IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCU
 dcmProperty: IssuerOfPatientID!=.+
 objectClass: dcmArchiveAttributeCoercion2
 dcmURI: merge-attrs:
 cn: SupplementIssuerOfPatientID
+dcmMergeAttribute: IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}
 
 dn: cn=Comprehensive SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.33
