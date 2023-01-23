@@ -83,7 +83,7 @@ export class TableService {
                 description: $localize `:@@process_delay:Process Delay`,
                 hook:(data)=> {
                     if(data)
-                        return j4care.getDifferenceTime(data['processingStartTime'],data['scheduledTime']);
+                        return j4care.getDifferenceTime(data['scheduledTime'], data['processingStartTime']);
                     return "";
                 },
                 widthWeight:1.4,
@@ -95,7 +95,7 @@ export class TableService {
                 description: $localize `:@@process_time:Process Time`,
                 hook:(data)=> {
                     if(data)
-                        return j4care.getDifferenceTime(data['processingEndTime'],data['processingStartTime']);
+                        return j4care.getDifferenceTime(data['processingStartTime'], data['processingEndTime']);
                     return "";
                 },
                 widthWeight:1.4,
