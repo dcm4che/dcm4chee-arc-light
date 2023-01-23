@@ -116,6 +116,7 @@ import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/mater
 import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
 import { CustomAttributeListComponent } from './helpers/custom-attribute-list/custom-attribute-list.component';
 import { CustomDatePipe } from './pipes/custom-date.pipe';
+import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.service";
 
 
 // registerLocaleData(localeDe, 'de-DE');
@@ -285,6 +286,7 @@ import { CustomDatePipe } from './pipes/custom-date.pipe';
         MetricsService,
         WebAppsListService,
         SelectionsDicomViewService,
+        UploadFilesService,
         CustomDatePipe,
         DynamicPipePipe,
         {provide: LOCALE_ID, useValue: 'en-US' },

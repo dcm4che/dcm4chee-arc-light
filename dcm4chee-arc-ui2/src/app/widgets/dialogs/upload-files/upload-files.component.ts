@@ -11,6 +11,8 @@ import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
 import {StudyDicom} from "../../../models/study-dicom";
 import {StudyService} from "../../../study/study/study.service";
 import {DcmWebApp} from "../../../models/dcm-web-app";
+import {Observable, Subscriber} from "rxjs";
+import {UploadFilesService} from "./upload-files.service";
 // import {StudyWebService} from "../../../study/study/study-web-service.model";
 
 // declare var uuidv4: any;
@@ -90,7 +92,8 @@ export class UploadFilesComponent implements OnInit {
         public $http:J4careHttpService,
         private studyService:StudyService,
         private uploadDicomService:UploadDicomService,
-        private _keycloakService: KeycloakService
+        private _keycloakService: KeycloakService,
+        private service:UploadFilesService
     ) {
     }
 
@@ -107,12 +110,36 @@ export class UploadFilesComponent implements OnInit {
         }
     }
 
+    isDicomCheckbox = false;
+    isDicomModel;
     fileChange(event){
         this.fileList = event.target.files;
         let file0 = this.fileList[0];
+/*
         let fileTypeOrExt = this.fileTypeOrExt(file0);
+*/
+        this.service.fileTypeOrExt(file0).subscribe(( fileTypeOrExt:string )=>{
+            console.log("isdicom",fileTypeOrExt);
+            if(fileTypeOrExt === "NO_TYPE_FOUND"){
+                this.isDicomCheckbox = true;
+            }else{
+                this.setDicomObject(fileTypeOrExt,file0);
+            }
+        })
+
+    }
+    onDicomCheck(e){
+        //fileTypeOrExt("");
+        console.log("e",e);
+    }
+    sourceOfPreviousValues = "";
+    sourceOfPreviousValuesBlock = false;
+    private setDicomObject(fileTypeOrExt, file0){
         if(file0 && (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif" || file0.type === "image/tiff")){
             this.isImage = true;
+        }
+        if(fileTypeOrExt === "application/dicom"){
+            this.sourceOfPreviousValuesBlock = true;
         }
 
         this.studyService.getIodFromContext(fileTypeOrExt, this.mode).subscribe(iods=>{
@@ -122,33 +149,6 @@ export class UploadFilesComponent implements OnInit {
                     attrs:[]
                 }
             }
-/*            [
-                "0008103E",
-                "00080018",
-                "00420011",
-            ]
-            [
-                "0008103E"
-                "00080018"
-                "00080020"
-                "00080030"
-                "00080090"
-                "00200010"
-                "00080050"
-                "00420011"
-                "00080016"
-                "00280301"
-                "00420012"
-                "00420010"
-                "00080016"
-                "00080016"
-                "7FE00010"
-                "00080008"
-                "00080064"
-                "00200020"
-            ].forEach(k=>{
-                delete this._dicomObject
-            })*/
             this._dicomObject.attrs["0008103E"] = {
                 "vr": "LO",
                 "Value": [""]
@@ -190,33 +190,33 @@ export class UploadFilesComponent implements OnInit {
                 };
             }
             if (fileTypeOrExt === "application/pdf" || fileTypeOrExt === "pdf") {
-               this.supplementEncapsulatedDocumentAttrs();
-               this.supplementEncapsulatedPDFAttrs();
+                this.supplementEncapsulatedDocumentAttrs();
+                this.supplementEncapsulatedPDFAttrs();
             }
             else if (fileTypeOrExt === "text/xml" || fileTypeOrExt === "xml") {
                 this.supplementEncapsulatedDocumentAttrs();
                 this.supplementEncapsulatedCDAAttrs();
             }
             else if (fileTypeOrExt === "mtl"
-                        || fileTypeOrExt === "model/mtl") {
+                || fileTypeOrExt === "model/mtl") {
                 this.supplementEncapsulated3DAttrs();
                 this.supplementEncapsulatedMTLAttrs();
             }
             else if (fileTypeOrExt === "obj"
-                        || fileTypeOrExt === "application/x-tgif"
-                        || fileTypeOrExt === "model/obj") {
+                || fileTypeOrExt === "application/x-tgif"
+                || fileTypeOrExt === "model/obj") {
                 this.supplementEncapsulated3DAttrs();
                 this.supplementEncapsulatedOBJAttrs();
             }
             else if (fileTypeOrExt === "model/stl"
-                        || fileTypeOrExt === "model/x.stl-binary"
-                        || fileTypeOrExt === "application/sla"
-                        || fileTypeOrExt === "stl") {
+                || fileTypeOrExt === "model/x.stl-binary"
+                || fileTypeOrExt === "application/sla"
+                || fileTypeOrExt === "stl") {
                 this.supplementEncapsulated3DAttrs();
                 this.supplementEncapsulatedSTLAttrs(file0.type);
             }
             else if (fileTypeOrExt === "genozip"
-                        || fileTypeOrExt === "application/vnd.genozip")
+                || fileTypeOrExt === "application/vnd.genozip")
                 this.supplementEncapsulatedGENOZIPAttrs();
             else {
                 if (file0.type.indexOf("video") > -1) {
@@ -238,7 +238,6 @@ export class UploadFilesComponent implements OnInit {
                     "vr": "OB",
                     "BulkDataURI": "file/" + file0.name
                 }
-                // transfareSyntax = ';transfer-syntax=' + transfareSyntax;
             }
             if (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif"|| file0.type === "image/tiff") {
                 this._dicomObject.attrs["00080008"] = {
@@ -266,32 +265,7 @@ export class UploadFilesComponent implements OnInit {
                 return (i.toString().indexOf("777") === -1);
             });
         })
-
-/*        console.log("filtetypes",this.fileList);
-        let type;
-        let i = 0;
-        _.forEach(this.fileList,file=>{
-            if(!type){
-                type = file.type;
-                i++;
-            }else{
-                if(type != file.type){
-                   i++;
-                }
-            }
-        });
-        if(i > 1){
-            this.mainservice.showError("Mixed file types at once is not supported!");
-            this.fileList = undefined;
-            this.file = undefined;
-            this.isImage = undefined;
-        }
-        //video / video.iod.json
-        //image / sc.iod.json == screenshot or photograph vlPhotographic.iod.json
-        //pdf   /encapsulatedPDF.iod.json*/
-
     }
-
     private supplementEncapsulatedDocumentAttrs() {
         this._dicomObject.attrs["00420011"] = {
             "vr": "OB",
@@ -537,14 +511,9 @@ export class UploadFilesComponent implements OnInit {
         }
     }
 
-    private fileTypeOrExt(file: File) {
-        let fileType = file.type;
-        let fileExt = file.name.substr(file.name.lastIndexOf(".") + 1);
-        return fileType.length == 0
-                ? fileExt : fileType;
-    }
 
-    private fileTypeFromExt(fileTypeOrExt:string) {
+
+/*    private fileTypeFromExt(fileTypeOrExt:string) {
         switch (fileTypeOrExt) {
             case "mtl":
                 return "model/mtl";
@@ -557,29 +526,12 @@ export class UploadFilesComponent implements OnInit {
             default:
                 return fileTypeOrExt;
         }
-    }
+    }*/
 
     upload() {
-        let $this = this;
-        let boundary = Math.random().toString().substr(2);
         let descriptionPart;
         let token;
         this.showFileList = true;
-/*        $this.studyService.clearPatientObject(this.dicomObject.attrs);
-        $this.studyService.convertStringToNumber(this.dicomObject.attrs);
-        // StudiesService.convertDateToString($scope, "editstudyFiltered");
-
-        //Add patient attributs again
-        // angular.extend($scope.editstudyFiltered.attrs, patient.attrs);
-        // $scope.editstudyFiltered.attrs.concat(patient.attrs);
-        let local = {};
-        // $this.studyService.appendPatientIdTo(patient.attrs, local);
-        // local["00100020"] = patient.attrs["00100020"];
-        _.forEach(this.dicomObject.attrs, (m, i)=>{
-            if (this.iod[i]){
-                local[i] = m;
-            }
-        });*/
         let seriesInstanceUID;
         this.getToken().subscribe((response) => {
             if(!this.mainservice.global.notSecure){
@@ -591,230 +543,257 @@ export class UploadFilesComponent implements OnInit {
             if (this.fileList) {
                 seriesInstanceUID = j4care.generateOIDFromUUID();
                 _.forEach(this.fileList, (file, i) => {
-                    let fileTypeOrExt = this.fileTypeOrExt(file);
-                    switch (fileTypeOrExt) {
-                        case "image/jpeg":
-                            $this.modality = $this.selectedSopClass.modality;
-                            descriptionPart = "Image";
-                            break;
-                        case "image/png":
-                            $this.modality = $this.selectedSopClass.modality;
-                            descriptionPart = "Image";
-                            break;
-                        case "image/tiff":
-                            $this.modality = $this.selectedSopClass.modality;
-                            descriptionPart = "Image";
-                            break;
-                        case "image/gif":
-                            $this.modality = $this.selectedSopClass.modality;
-                            descriptionPart = "Gif";
-                            break;
-                        case "video/mpeg":
-                            descriptionPart = "Video";
-                            $this.modality = "XC";
-                            break;
-                        case "video/mp4":
-                            descriptionPart = "Video";
-                            $this.modality = "XC";
-                            break;
-                        case "video/quicktime":
-                            descriptionPart = "Video";
-                            $this.modality = "XC";
-                            break;
-                        case "application/pdf":
-                            descriptionPart = "PDF";
-                            $this.modality = "DOC";
-                            break;
-                        case "text/xml":
-                            descriptionPart = "CDA";
-                            $this.modality = "SR";
-                            break;
-                        case "model/mtl":
-                        case "mtl":
-                            descriptionPart = "MTL";
-                            $this.modality = "M3D";
-                            break;
-                        case "model/obj":
-                        case "application/x-tgif":
-                        case "obj":
-                            descriptionPart = "OBJ";
-                            $this.modality = "M3D";
-                            break;
-                        case "stl":
-                        case "model/stl":
-                        case "model/x.stl-binary":
-                        case "application/sla":
-                            descriptionPart = "STL";
-                            $this.modality = "M3D";
-                            break;
-                        case "genozip":
-                        case "application/vnd.genozip":
-                            descriptionPart = "GENOZIP";
-                            $this.modality = "DNA";
-                            break;
-                    }
+                    this.service.fileTypeOrExt(file).subscribe(fileTypeOrExt=>{
+                        //TODO chatch the NO_TYPE_FOUND return
+                        if(fileTypeOrExt === "NO_TYPE_FOUND"){
+                            //TODO
+                        }else{
+                            this.triggerUpload(file,i,token,seriesInstanceUID, fileTypeOrExt);
+                        }
+                    })
 
-                        let xmlHttpRequest = new XMLHttpRequest();
-                        let url = this.studyService.getDicomURL("study",this.selectedWebApp);
-                        // this.studyService.getWebAppFromWebServiceClassAndSelectedWebApp(this.studyWebService,"DCM4CHEE_ARC_AET","STOW_RS").subscribe(webApp=>{
-                        //     console.log("webApp",webApp);
-                            // let url = this.studyService.getDicomURL('study', webApp);
-                            // let url = this.uploadDicomService.getUrlFromWebApp(this.studyWebService.selectedWebService);
-                            if (url) {
-                                this.percentComplete[file.name] = {};
-                                $this.percentComplete[file.name]['showTicker'] = false;
-                                $this.percentComplete[file.name]['showLoader'] = true;
-                                xmlHttpRequest.open('POST', url, true);
-                                let dashes = '--';
-                                let crlf = '\r\n';
-                                //Post with the correct MIME type (If the OS can identify one)
-                                /*                        let studyObject = _.pickBy(local, (o, i) => {
-                                                            return (i.toString().indexOf("777") === -1);
-                                                        });          */
-                                // _.assign(this._dicomObject,this.tempAttributes);
-                                Object.keys(this.tempAttributes.attrs).forEach(attr=>{
-                                    this._dicomObject.attrs[attr] = this.tempAttributes.attrs[attr];
-                                });
-                                let studyObject = _.pickBy(this._dicomObject.attrs, (o, i) => {
-                                    return (i.toString().indexOf("777") === -1);
-                                });
-/*                                if (!$this.description || $this.description === "") {
-                                    $this.description = $localize `:@@upload-files.imported_:Imported ` + descriptionPart;
-                                }*/
-                                if(!_.hasIn(studyObject, "0008103E.Value[0]") || _.get(studyObject, "0008103E.Value[0]") === ""){
-                                    studyObject["0008103E"] = {
-                                        "vr": "LO",
-                                        "Value": [
-                                            $localize `:@@upload-files.imported_:Imported ` + descriptionPart
-                                        ]
-                                    };
-                                }
-                                studyObject["00200013"] = { //"00200013":$localize `:@@instance_number:Instance Number`
-                                    "vr": "IS",
-                                    "Value": [
-                                        i + 1
-                                    ]
-                                };
-                                if(this.mode === "series" && _.hasIn(studyObject, "00201209.Value[0]")){
-                                    studyObject["00200011"] = studyObject["00200011"] || { // "00200011":$localize `:@@upload-files.series_number:Series Number`
-                                        "vr": "IS",
-                                        "Value": [
-                                            _.get(studyObject, "00201209.Value[0]")*1 + 1
-                                        ]
-                                    };
-                                    studyObject["00200013"] = studyObject["00200013"] || { //"00200013":$localize `:@@instance_number:Instance Number`
-                                        "vr": "IS",
-                                        "Value": [
-                                            _.get(studyObject, "00201209.Value[0]")*1 + i*1 + 1
-                                        ]
-                                    };
-                                }else{
-                                    studyObject["00200011"] = studyObject["00200011"] || { // "00200011":$localize `:@@upload-files.series_number:Series Number`
-                                        "vr": "IS",
-                                        "Value": [
-                                            this.seriesNumber || 0
-                                        ]
-                                    };
-                                    studyObject["00200013"] = { //"00200013":$localize `:@@instance_number:Instance Number`
-                                        "vr": "IS",
-                                        "Value": [
-                                            i + 1
-                                        ]
-                                    };
-                                }
-                                if (_.hasIn(studyObject, "0020000D.Value[0]") && this.mode != "series") {
-                                    studyObject["0020000E"] = studyObject["0020000E"] || { ///"0020000E":$localize `:@@upload-files.series_instance_uid:Series Instance UID` //Decides if the file in the same series appear
-                                        "vr": "UI",
-                                        "Value": [
-                                            seriesInstanceUID
-                                        ]
-                                    };
-                                }else{
-                                    if(!_.hasIn(studyObject, "0020000E.Value[0]")){
-                                        studyObject["0020000D"] = studyObject["0020000D"] || {
-                                            "vr": "UI",
-                                            "Value": [
-                                                seriesInstanceUID
-                                            ]
-                                        };
-                                    }
-                                }
-
-                                studyObject["00080060"] = studyObject["00080060"] || {
-                                    "vr": "CS",
-                                    "Value": [
-                                        $this.modality
-                                    ]
-                                };
-                                let object = [{}];
-                                this.fixFileSpecificEntries(file, studyObject);
-                                Object.keys(studyObject).forEach(key => {
-                                    if (([
-                                        "00080054",
-                                        "00080056",
-                                        "00080061",
-                                        "00080062",
-                                        "00081190",
-                                        "00201200",
-                                        "00201206",
-                                        "00201208"
-                                    ].indexOf(key) === -1))
-                                        object[0][key] = studyObject[key];
-                                });
-                                const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])) + crlf;
-
-                                const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + this.fileTypeFromExt(fileTypeOrExt) + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
-                                const postDataEnd = crlf + dashes + boundary + dashes;
-
-                                xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
-                                xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
-                                if (!this.mainservice.global.notSecure) {
-                                    xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
-                                }
-                                xmlHttpRequest.upload.onprogress = function (e) {
-                                    if (e.lengthComputable) {
-                                        $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
-                                    }
-                                };
-                                xmlHttpRequest.onreadystatechange = () => {
-                                    if (xmlHttpRequest.readyState === 4) {
-                                        if (xmlHttpRequest.status === 200) {
-                                            $this.percentComplete[file.name]['showLoader'] = false;
-                                            $this.percentComplete[file.name]['showTicker'] = true;
-                                            console.log(`in response`, JSON.parse(xmlHttpRequest.response));
-                                        } else {
-                                            $this.percentComplete[file.name]['showLoader'] = false;
-                                            console.log(`in response error`, xmlHttpRequest.status);
-                                            console.log('statusText', xmlHttpRequest.statusText);
-                                            $this.percentComplete[file.name]['value'] = 0;
-                                            $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ` ` + xmlHttpRequest.statusText;
-                                        }
-                                    }
-                                    // $this.percentComplete[file.name]['showLoader'] = true;
-                                };
-                                xmlHttpRequest.upload.onloadstart = function (e) {
-                                    $this.percentComplete[file.name]['value'] = 1;
-                                };
-                                xmlHttpRequest.upload.onloadend = function (e) {
-                                    if (xmlHttpRequest.status === 200) {
-                                        $this.percentComplete[file.name]['showLoader'] = false;
-                                        $this.percentComplete[file.name]['showTicker'] = true;
-                                        $this.percentComplete[file.name]['value'] = 100;
-                                    }
-                                };
-                                xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
-                            }else{
-                                this.mainservice.showError("A STOW-RS server is missing!")
-                            }
-/*                        },err=>{
-                            console.log("errwebApp",err);
-                        });*/
                 });
             }
         });
     }
+    triggerUpload(file,fileIndex, token, seriesInstanceUID, fileTypeOrExt){
+        let $this = this;
+        let descriptionPart;
+        let boundary = Math.random().toString().substr(2);
+        switch (fileTypeOrExt) {
+            case "image/jpeg":
+                $this.modality = $this.selectedSopClass.modality;
+                descriptionPart = "Image";
+                break;
+            case "image/png":
+                $this.modality = $this.selectedSopClass.modality;
+                descriptionPart = "Image";
+                break;
+            case "image/tiff":
+                $this.modality = $this.selectedSopClass.modality;
+                descriptionPart = "Image";
+                break;
+            case "image/gif":
+                $this.modality = $this.selectedSopClass.modality;
+                descriptionPart = "Gif";
+                break;
+            case "video/mpeg":
+                descriptionPart = "Video";
+                $this.modality = "XC";
+                break;
+            case "video/mp4":
+                descriptionPart = "Video";
+                $this.modality = "XC";
+                break;
+            case "video/quicktime":
+                descriptionPart = "Video";
+                $this.modality = "XC";
+                break;
+            case "application/pdf":
+                descriptionPart = "PDF";
+                $this.modality = "DOC";
+                break;
+            case "text/xml":
+                descriptionPart = "CDA";
+                $this.modality = "SR";
+                break;
+            case "model/mtl":
+            case "mtl":
+                descriptionPart = "MTL";
+                $this.modality = "M3D";
+                break;
+            case "model/obj":
+            case "application/x-tgif":
+            case "obj":
+                descriptionPart = "OBJ";
+                $this.modality = "M3D";
+                break;
+            case "stl":
+            case "model/stl":
+            case "model/x.stl-binary":
+            case "application/sla":
+                descriptionPart = "STL";
+                $this.modality = "M3D";
+                break;
+            case "genozip":
+            case "application/vnd.genozip":
+                descriptionPart = "GENOZIP";
+                $this.modality = "DNA";
+                break;
+        }
 
-    fixFileSpecificEntries(file,object){
+        let xmlHttpRequest = new XMLHttpRequest();
+        let url = this.studyService.getDicomURL("study",this.selectedWebApp);
+        console.log("url",url);
+        //TODO check if the url is corerct for dicom  // POST /dcm4chee-arc/aets​/{aet}​/rs​/study
+
+
+        if (url) {
+
+            this.percentComplete[file.name] = {};
+            $this.percentComplete[file.name]['showTicker'] = false;
+            $this.percentComplete[file.name]['showLoader'] = true;
+
+
+            let dashes = '--';
+            let crlf = '\r\n';
+            Object.keys(this.tempAttributes.attrs).forEach(attr=>{
+                this._dicomObject.attrs[attr] = this.tempAttributes.attrs[attr];
+            });
+            let studyObject = _.pickBy(this._dicomObject.attrs, (o, i) => {
+                return (i.toString().indexOf("777") === -1);
+            });
+            if(fileTypeOrExt === "application/dicom"){
+                let queryParameters = {
+                    irwf:"UNSCHEDULED",
+                    sourceOfPreviousValues:this.sourceOfPreviousValues,
+                    "00100020":_.get(studyObject,"00100020.Value[0]")
+                }
+                if(j4care.hasSet(studyObject, "00100021.Value[0]")){
+                    queryParameters["00100021"] = _.get(studyObject, "00100021.Value[0]");
+                }
+                if(j4care.hasSet(studyObject, "00100024.Value[0]") &&  j4care.hasSet(studyObject, '["00100024"].Value[0]["00400032"].Value[0]')){
+                    queryParameters["00100024.00400032"] = _.get(studyObject, '["00100024"].Value[0]["00400032"].Value[0]');
+                }
+                if(j4care.hasSet(studyObject, "00100024.Value[0]") &&  j4care.hasSet(studyObject, '["00100024"].Value[0]["00400033"].Value[0]')){
+                    queryParameters["00100024.00400033"] = _.get(studyObject, '["00100024"].Value[0]["00400033"].Value[0]');
+                }
+            }
+            xmlHttpRequest.open('POST', url, true);
+            if(!_.hasIn(studyObject, "0008103E.Value[0]") || _.get(studyObject, "0008103E.Value[0]") === ""){
+                studyObject["0008103E"] = {
+                    "vr": "LO",
+                    "Value": [
+                        $localize `:@@upload-files.imported_:Imported ` + descriptionPart
+                    ]
+                };
+            }
+            studyObject["00200013"] = { //"00200013":$localize `:@@instance_number:Instance Number`
+                "vr": "IS",
+                "Value": [
+                    fileIndex + 1
+                ]
+            };
+            if(this.mode === "series" && _.hasIn(studyObject, "00201209.Value[0]")){
+                studyObject["00200011"] = studyObject["00200011"] || { // "00200011":$localize `:@@upload-files.series_number:Series Number`
+                    "vr": "IS",
+                    "Value": [
+                        _.get(studyObject, "00201209.Value[0]")*1 + 1
+                    ]
+                };
+                studyObject["00200013"] = studyObject["00200013"] || { //"00200013":$localize `:@@instance_number:Instance Number`
+                    "vr": "IS",
+                    "Value": [
+                        _.get(studyObject, "00201209.Value[0]")*1 + fileIndex*1 + 1
+                    ]
+                };
+            }else{
+                studyObject["00200011"] = studyObject["00200011"] || { // "00200011":$localize `:@@upload-files.series_number:Series Number`
+                    "vr": "IS",
+                    "Value": [
+                        this.seriesNumber || 0
+                    ]
+                };
+                studyObject["00200013"] = { //"00200013":$localize `:@@instance_number:Instance Number`
+                    "vr": "IS",
+                    "Value": [
+                        fileIndex + 1
+                    ]
+                };
+            }
+            if (_.hasIn(studyObject, "0020000D.Value[0]") && this.mode != "series") {
+                studyObject["0020000E"] = studyObject["0020000E"] || { ///"0020000E":$localize `:@@upload-files.series_instance_uid:Series Instance UID` //Decides if the file in the same series appear
+                    "vr": "UI",
+                    "Value": [
+                        seriesInstanceUID
+                    ]
+                };
+            }else{
+                if(!_.hasIn(studyObject, "0020000E.Value[0]")){
+                    studyObject["0020000D"] = studyObject["0020000D"] || {
+                        "vr": "UI",
+                        "Value": [
+                            seriesInstanceUID
+                        ]
+                    };
+                }
+            }
+
+            studyObject["00080060"] = studyObject["00080060"] || {
+                "vr": "CS",
+                "Value": [
+                    $this.modality
+                ]
+            };
+            let object = [{}];
+            this.service.fixFileSpecificEntries(file, studyObject);
+            Object.keys(studyObject).forEach(key => {
+                if (([
+                    "00080054",
+                    "00080056",
+                    "00080061",
+                    "00080062",
+                    "00081190",
+                    "00201200",
+                    "00201206",
+                    "00201208"
+                ].indexOf(key) === -1))
+                    object[0][key] = studyObject[key];
+            });
+            const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])) + crlf;
+
+            const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + this.service.fileTypeFromExt(fileTypeOrExt) + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
+            const postDataEnd = crlf + dashes + boundary + dashes;
+            if(fileTypeOrExt === "application/dicom"){
+                xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom";boundary=' + boundary);
+            }else{
+                xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
+            }
+            xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
+            if (!this.mainservice.global.notSecure) {
+                xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+            }
+            xmlHttpRequest.upload.onprogress = function (e) {
+                if (e.lengthComputable) {
+                    $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
+                }
+            };
+            xmlHttpRequest.onreadystatechange = () => {
+                if (xmlHttpRequest.readyState === 4) {
+                    if (xmlHttpRequest.status === 200) {
+                        $this.percentComplete[file.name]['showLoader'] = false;
+                        $this.percentComplete[file.name]['showTicker'] = true;
+                        console.log(`in response`, JSON.parse(xmlHttpRequest.response));
+                    } else {
+                        $this.percentComplete[file.name]['showLoader'] = false;
+                        console.log(`in response error`, xmlHttpRequest.status);
+                        console.log('statusText', xmlHttpRequest.statusText);
+                        $this.percentComplete[file.name]['value'] = 0;
+                        $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ` ` + xmlHttpRequest.statusText;
+                    }
+                }
+                // $this.percentComplete[file.name]['showLoader'] = true;
+            };
+            xmlHttpRequest.upload.onloadstart = function (e) {
+                $this.percentComplete[file.name]['value'] = 1;
+            };
+            xmlHttpRequest.upload.onloadend = function (e) {
+                if (xmlHttpRequest.status === 200) {
+                    $this.percentComplete[file.name]['showLoader'] = false;
+                    $this.percentComplete[file.name]['showTicker'] = true;
+                    $this.percentComplete[file.name]['value'] = 100;
+                }
+            };
+            xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
+        }else{
+            this.mainservice.showError("A STOW-RS server is missing!")
+        }
+        /*                        },err=>{
+                                    console.log("errwebApp",err);
+                                });*/
+    }
+
+/*    fixFileSpecificEntries(file,object){
         if(_.hasIn(object,"00420011.BulkDataURI")){
             _.set(object,"00420011.BulkDataURI", `file/${file.name}`);
         }
@@ -824,7 +803,7 @@ export class UploadFilesComponent implements OnInit {
         if(_.hasIn(object,"00080018.Value[0]")){
             _.set(object,"00080018.Value[0]", j4care.generateOIDFromUUID());
         }
-    }
+    }*/
 
     close(dialogRef){
         if (this.xmlHttpRequest){
@@ -904,4 +883,20 @@ export class UploadFilesComponent implements OnInit {
 
         });
     }
+
+
+/*    let fileInput = document.getElementById('fileInput');
+    fileInput.onchange  = function(){
+        let file = fileInput.files[0];
+        fileIsDicom(file).then(isDicom=>{
+            console.log("isDicom=",isDicom);
+        })
+    };*/
+/*    private fileTypeOrExt(file: File) {
+        let fileType = file.type;
+        let fileExt = file.name.substr(file.name.lastIndexOf(".") + 1);
+        return fileType.length == 0
+            ? fileExt : fileType;
+    }*/
+    //private
 }

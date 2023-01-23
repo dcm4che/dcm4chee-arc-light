@@ -1,6 +1,6 @@
 <div class="vex vex-theme-os upload" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
-        <h5 i18n="@@upload-file.title">Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to study</h5>
+        <h5 i18n="@@upload-file.title">Upload image, video, PDF, CDA, MTL, STL, DICM, OBJ or Genozip files to study</h5>
         <div class="content">
 <!--            <label>Select the ae title:</label>
             <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
@@ -13,7 +13,24 @@
                 </mat-select>
             </ng-container>
             <label i18n="@@chose_a_file_to_upload">Choose a File to upload:</label><br>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" i18n-placeholder="@@upload_file" placeholder="Upload file"  accept="image/jpeg, image/png, image/gif, image/tiff ,video/mpeg,video/mp4,video/quicktime,application/pdf,text/xml,model/mtl,model/obj,application/vnd.genozip,model/stl,model/x.stl-binary,application/sla" multiple>
+            <input type="file"
+                   [(ngModel)]="file"
+                   (change)="fileChange($event)"
+                   i18n-placeholder="@@upload_file"
+                   placeholder="Upload file"
+                   multiple>
+
+            <ng-container *ngIf="isDicomCheckbox">
+                <label>Type could not be be detected, select a file group</label>
+                <mat-select  [ngModel]="isDicomModel" (ngModelChange)="onDicomCheck($event)">
+                    <mat-option [value]="'dicom'" title="The file is a DICOM type">DICOM type</mat-option>
+                    <mat-option [value]="'nodicom'" title="images, videos or pdf ">images, videos or pdf </mat-option>
+                </mat-select>
+            </ng-container>
+            <ng-container *ngIf="sourceOfPreviousValuesBlock">
+                <label>Source of Previous Value</label>
+                <input type="text" [(ngModel)]="sourceOfPreviousValues">
+            </ng-container>
             <ng-container *ngIf="isImage">
                 <label i18n="@@captured_image_type">Captured Image Type:</label>
                 <mat-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
