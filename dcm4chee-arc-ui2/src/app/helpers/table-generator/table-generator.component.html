@@ -34,16 +34,16 @@
                 <ng-container *ngIf="table_element.type === 'value'">
                     <ng-container *ngIf="table_element.hook">
                         <ng-container *ngIf="!table_element.hoverHook">
-                            <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{_.get(model,table_element.pathToValue)}}">
-                                {{table_element.hook(_.get(model,table_element.pathToValue),model)}}
+                            <span *ngIf="_.hasIn(model,table_element.pathToValue) || (model && !table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{_.get(model,table_element.pathToValue)}}">
+                                {{table_element.hook(_.get(model,table_element.pathToValue) || table_element.pathToValue || model,model)}}
                             </span>
                         </ng-container>
                         <ng-container *ngIf="table_element.hoverHook">
-                            <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{table_element.hoverHook(model)}}">
-                                {{table_element.hook(_.get(model,table_element.pathToValue),model)}}
+                            <span *ngIf="_.hasIn(model,table_element.pathToValue) || (model && !table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{table_element.hoverHook(model)}}">
+                                {{table_element.hook(_.get(model,table_element.pathToValue) || table_element.pathToValue || model,model)}}
                             </span>
                         </ng-container>
-                        </ng-container>
+                    </ng-container>
                     <ng-container *ngIf="!table_element.hook">
                         <ng-container *ngIf="!table_element.hoverHook">
                             <span *ngIf="_.hasIn(model,table_element.pathToValue)" class="text_content {{table_element.cssClass || ''}}" tooltip="{{_.get(model,table_element.pathToValue)}}">

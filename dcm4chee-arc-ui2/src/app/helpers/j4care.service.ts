@@ -1254,11 +1254,14 @@ export class j4care {
     };
 
     static msToTimeSimple(duration,mode?) {
-        if(mode)
+        if(mode){
             if(mode === "sec")
                 return ((duration*6 / 6000).toFixed(4)).toString() + ' s';
             else
                 return ((duration / 60000).toFixed(4)).toString() + ' min';
+        }else{
+            return this.msToTime(duration);
+        }
     }
     static msToTime(duration) {
         if (duration > 999){

@@ -2537,6 +2537,14 @@ export class Globalvar {
             },
             "/monitoring/queues":{
                 permissionsAction:"tab-monitoring->queues",
+                nextCheck:"/monitoring/export"
+            },
+            "/monitoring/export":{
+                permissionsAction:"tab-monitoring->export",
+                nextCheck:"/monitoring/external"
+            },
+            "/monitoring/external":{
+                permissionsAction:"tab-monitoring->external_retrieve",
                 nextCheck:"/monitoring/diff"
             },
             "/monitoring/diff":{
@@ -2857,6 +2865,22 @@ export class Globalvar {
             "tab-dashboard_queue":{
                 type:"tab",
                 title:"Tab - Dashboard - Queue",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-dashboard_export":{
+                type:"tab",
+                title:"Tab - Monitoring - Export",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
+            "tab-dashboard_external_retrieve":{
+                type:"tab",
+                title:"Tab - Monitoring - Retrieve",
                 params:{
                     "visible":undefined,
                     "accessible":undefined
