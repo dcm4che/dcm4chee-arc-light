@@ -72,9 +72,8 @@ export class TableService {
             scheduledTime: new TableSchemaElement({
                 type:"value",
                 title:$localize `:@@scheduled_time:Scheduled Time`,
-                pathToValue:"scheduledTimeRange",
-                description: $localize `:@@scheduled_time_range:Scheduled time range`,
-                hook:(data)=> this.stringifyRangeArray(data),
+                pathToValue:"scheduledTime",
+                description: $localize `:@@scheduled_time:Scheduled Time`,
                 widthWeight:1.4,
                 calculatedWidth:"20%"
             }),

@@ -1243,7 +1243,7 @@ export class j4care {
         }
     }
 
-    static getDifferenceTime(starttime, endtime,mode?){
+    static getDifferenceTime(endtime, starttime,mode?){
         let start = new Date(starttime).getTime();
         let end = new Date(endtime).getTime();
         if (!start || !end || end < start){
