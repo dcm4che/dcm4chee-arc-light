@@ -658,6 +658,9 @@ export class UploadFilesComponent implements OnInit {
                 if(j4care.hasSet(studyObject, "00100024.Value[0]") &&  j4care.hasSet(studyObject, '["00100024"].Value[0]["00400033"].Value[0]')){
                     queryParameters["00100024.00400033"] = _.get(studyObject, '["00100024"].Value[0]["00400033"].Value[0]');
                 }
+                if(queryParameters && Object.keys(queryParameters).length > 0){
+                    url = url + j4care.objToUrlParams(queryParameters,true);
+                }
             }
             xmlHttpRequest.open('POST', url, true);
             if(!_.hasIn(studyObject, "0008103E.Value[0]") || _.get(studyObject, "0008103E.Value[0]") === ""){
