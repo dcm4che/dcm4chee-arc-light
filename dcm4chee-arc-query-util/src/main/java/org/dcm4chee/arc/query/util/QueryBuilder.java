@@ -941,7 +941,7 @@ public class QueryBuilder {
             if (!isUniversalMatching(spsAET))
                 predicates.add(cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
         }
-        if (spsStatus == null) hideSPSWithStatus(predicates, mwlItem, queryParam);
+        if (spsStatus == null || spsStatus.length == 0) hideSPSWithStatus(predicates, mwlItem, queryParam);
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
