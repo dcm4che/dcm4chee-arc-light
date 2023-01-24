@@ -22,9 +22,9 @@
 
             <ng-container *ngIf="isDicomCheckbox">
                 <label>Type could not be be detected, select a file group</label>
-                <mat-select  [ngModel]="isDicomModel" (ngModelChange)="onDicomCheck($event)">
-                    <mat-option [value]="'dicom'" title="The file is a DICOM type">DICOM type</mat-option>
-                    <mat-option [value]="'nodicom'" title="images, videos or pdf ">images, videos or pdf </mat-option>
+                <mat-select  [(ngModel)]="isDicomModel" (ngModelChange)="onDicomCheck($event)">
+                    <mat-option [value]="'application/dicom'" title="The file is a DICOM type">DICOM type</mat-option>
+                    <mat-option [value]="''" title="images, videos or pdf ">images, videos or pdf </mat-option>
                 </mat-select>
             </ng-container>
             <ng-container *ngIf="sourceOfPreviousValuesBlock">

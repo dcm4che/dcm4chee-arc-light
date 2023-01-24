@@ -131,6 +131,12 @@ export class UploadFilesComponent implements OnInit {
     onDicomCheck(e){
         //fileTypeOrExt("");
         console.log("e",e);
+        console.log("isDicomModel=",this.isDicomModel);
+        if(e != "application/dicom"){
+            this.isDicomCheckbox = false;
+            this.isDicomModel = "";
+        }
+        this.setDicomObject(this.isDicomModel,this.fileList[0]);
     }
     sourceOfPreviousValues = "";
     sourceOfPreviousValuesBlock = false;
@@ -544,9 +550,10 @@ export class UploadFilesComponent implements OnInit {
                 seriesInstanceUID = j4care.generateOIDFromUUID();
                 _.forEach(this.fileList, (file, i) => {
                     this.service.fileTypeOrExt(file).subscribe(fileTypeOrExt=>{
-                        //TODO chatch the NO_TYPE_FOUND return
                         if(fileTypeOrExt === "NO_TYPE_FOUND"){
-                            //TODO
+                            if(this.isDicomModel){
+                                this.triggerUpload(file,i,token,seriesInstanceUID, this.isDicomModel);
+                            }
                         }else{
                             this.triggerUpload(file,i,token,seriesInstanceUID, fileTypeOrExt);
                         }
@@ -625,7 +632,7 @@ export class UploadFilesComponent implements OnInit {
         let xmlHttpRequest = new XMLHttpRequest();
         let url = this.studyService.getDicomURL("study",this.selectedWebApp);
         console.log("url",url);
-        //TODO check if the url is corerct for dicom  // POST /dcm4chee-arc/aets​/{aet}​/rs​/study
+        //TODO check if the url is corerct for dicom  // POST /dcm4chee-arc/aets/{aet}/rs/study
 
 
         if (url) {
