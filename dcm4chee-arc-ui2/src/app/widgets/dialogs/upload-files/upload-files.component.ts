@@ -637,9 +637,11 @@ export class UploadFilesComponent implements OnInit {
 
             let dashes = '--';
             let crlf = '\r\n';
-            Object.keys(this.tempAttributes.attrs).forEach(attr=>{
-                this._dicomObject.attrs[attr] = this.tempAttributes.attrs[attr];
-            });
+            if(j4care.is(this.tempAttributes,"attrs")){
+                Object.keys(this.tempAttributes.attrs).forEach(attr=>{
+                    this._dicomObject.attrs[attr] = this.tempAttributes.attrs[attr];
+                });
+            }
             let studyObject = _.pickBy(this._dicomObject.attrs, (o, i) => {
                 return (i.toString().indexOf("777") === -1);
             });
