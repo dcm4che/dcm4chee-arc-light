@@ -62,7 +62,7 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="upload()" i18n="@@START_UPLOADING">START UPLOADING</button>
+            <button class="save" type="button" [disabled]="neededClassMissing" (click)="upload()" i18n="@@START_UPLOADING">START UPLOADING</button>
             <button class="cancle" type="button" (click)="close(dialogRef)" i18n="@@CLOSE">CLOSE</button>
         </div>
     </div>

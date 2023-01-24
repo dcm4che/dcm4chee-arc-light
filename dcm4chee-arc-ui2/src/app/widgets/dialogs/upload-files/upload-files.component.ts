@@ -86,6 +86,11 @@ export class UploadFilesComponent implements OnInit {
             modality:"XC"
         }
     ];
+    sourceOfPreviousValues = "";
+    sourceOfPreviousValuesBlock = false;
+    isDicomCheckbox = false;
+    isDicomModel;
+    neededClassMissing = false;
     constructor(
         public dialogRef: MatDialogRef<UploadFilesComponent>,
         public mainservice:AppService,
@@ -109,168 +114,162 @@ export class UploadFilesComponent implements OnInit {
             this.selectedWebApp = this._fromExternalWebApp;
         }
     }
-
-    isDicomCheckbox = false;
-    isDicomModel;
     fileChange(event){
         this.fileList = event.target.files;
         let file0 = this.fileList[0];
-/*
-        let fileTypeOrExt = this.fileTypeOrExt(file0);
-*/
         this.service.fileTypeOrExt(file0).subscribe(( fileTypeOrExt:string )=>{
-            console.log("isdicom",fileTypeOrExt);
             if(fileTypeOrExt === "NO_TYPE_FOUND"){
                 this.isDicomCheckbox = true;
             }else{
                 this.setDicomObject(fileTypeOrExt,file0);
             }
-        })
-
+        });
     }
     onDicomCheck(e){
-        //fileTypeOrExt("");
-        console.log("e",e);
-        console.log("isDicomModel=",this.isDicomModel);
         if(e != "application/dicom"){
             this.isDicomCheckbox = false;
             this.isDicomModel = "";
         }
         this.setDicomObject(this.isDicomModel,this.fileList[0]);
     }
-    sourceOfPreviousValues = "";
-    sourceOfPreviousValuesBlock = false;
-    private setDicomObject(fileTypeOrExt, file0){
-        if(file0 && (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif" || file0.type === "image/tiff")){
-            this.isImage = true;
-        }
-        if(fileTypeOrExt === "application/dicom"){
-            this.sourceOfPreviousValuesBlock = true;
-        }
 
-        this.studyService.getIodFromContext(fileTypeOrExt, this.mode).subscribe(iods=>{
-            console.log("iods",iods);
-            if(!this._dicomObject){
-                this._dicomObject = {
-                    attrs:[]
-                }
+    private setDicomObject(fileTypeOrExt, file0){
+        if(fileTypeOrExt === "application/dicom" && this.selectedWebApp && this.selectedWebApp.dcmWebServiceClass && this.selectedWebApp.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") === -1){
+            this.neededClassMissing = true;
+            this.mainservice.showError($localize `:@@selected_webapp_doesent_have_the_webapp_class:The selected WebApp doesn't have the webapp class ${'DCM4CHEE_ARC_AET'}:@@webAppServiceClass:`);
+        }else{
+            if(file0 && (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif" || file0.type === "image/tiff")){
+                this.isImage = true;
             }
-            this._dicomObject.attrs["0008103E"] = {
-                "vr": "LO",
-                "Value": [""]
-            };
-            this._dicomObject.attrs["00080018"] = {
-                "vr": "UI",
-                "Value": [
-                    j4care.generateOIDFromUUID()
-                ]
-            };
-            if (!_.hasIn(this._dicomObject.attrs, "00080020.Value[0]")) { // Study Date
-                this._dicomObject.attrs["00080020"] = {
-                    "vr": "DA",
-                    "Value": [""]
-                };
+            if(fileTypeOrExt === "application/dicom"){
+                this.sourceOfPreviousValuesBlock = true;
             }
-            if (!_.hasIn(this._dicomObject.attrs, "00080030.Value[0]")) { // Study Time
-                this._dicomObject.attrs["00080030"] = {
-                    "vr": "TM",
-                    "Value": [""]
-                };
-            }
-            if (!_.hasIn(this._dicomObject.attrs, "00080090.Value[0]")) { // Referring Physician's Name
-                this._dicomObject.attrs["00080090"] = {
-                    "vr": "PN",
-                    "Value": [""]
-                };
-            }
-            if (!_.hasIn(this._dicomObject.attrs, "00200010.Value[0]")) { // Study ID
-                this._dicomObject.attrs["00200010"] = {
-                    "vr": "SH",
-                    "Value": [""]
-                };
-            }
-            if (!_.hasIn(this._dicomObject.attrs, "00080050.Value[0]")) { // Accession Number
-                this._dicomObject.attrs["00080050"] = {
-                    "vr": "SH",
-                    "Value": [""]
-                };
-            }
-            if (fileTypeOrExt === "application/pdf" || fileTypeOrExt === "pdf") {
-                this.supplementEncapsulatedDocumentAttrs();
-                this.supplementEncapsulatedPDFAttrs();
-            }
-            else if (fileTypeOrExt === "text/xml" || fileTypeOrExt === "xml") {
-                this.supplementEncapsulatedDocumentAttrs();
-                this.supplementEncapsulatedCDAAttrs();
-            }
-            else if (fileTypeOrExt === "mtl"
-                || fileTypeOrExt === "model/mtl") {
-                this.supplementEncapsulated3DAttrs();
-                this.supplementEncapsulatedMTLAttrs();
-            }
-            else if (fileTypeOrExt === "obj"
-                || fileTypeOrExt === "application/x-tgif"
-                || fileTypeOrExt === "model/obj") {
-                this.supplementEncapsulated3DAttrs();
-                this.supplementEncapsulatedOBJAttrs();
-            }
-            else if (fileTypeOrExt === "model/stl"
-                || fileTypeOrExt === "model/x.stl-binary"
-                || fileTypeOrExt === "application/sla"
-                || fileTypeOrExt === "stl") {
-                this.supplementEncapsulated3DAttrs();
-                this.supplementEncapsulatedSTLAttrs(file0.type);
-            }
-            else if (fileTypeOrExt === "genozip"
-                || fileTypeOrExt === "application/vnd.genozip")
-                this.supplementEncapsulatedGENOZIPAttrs();
-            else {
-                if (file0.type.indexOf("video") > -1) {
-                    this._dicomObject.attrs["00080016"] = {
-                        "vr": "UI",
-                        "Value": [
-                            "1.2.840.10008.5.1.4.1.1.77.1.4.1"
-                        ]
-                    }
-                } else {
-                    this._dicomObject.attrs["00080016"] = {
-                        "vr": "UI",
-                        "Value": [
-                            this.selectedSopClass.value
-                        ]
+
+            this.studyService.getIodFromContext(fileTypeOrExt, this.mode).subscribe(iods=>{
+                console.log("iods",iods);
+                if(!this._dicomObject){
+                    this._dicomObject = {
+                        attrs:[]
                     }
                 }
-                this._dicomObject.attrs["7FE00010"] = {
-                    "vr": "OB",
-                    "BulkDataURI": "file/" + file0.name
-                }
-            }
-            if (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif"|| file0.type === "image/tiff") {
-                this._dicomObject.attrs["00080008"] = {
-                    "vr": "CS",
+                this._dicomObject.attrs["0008103E"] = {
+                    "vr": "LO",
+                    "Value": [""]
+                };
+                this._dicomObject.attrs["00080018"] = {
+                    "vr": "UI",
                     "Value": [
-                        "ORIGINAL",
-                        "PRIMARY"
+                        j4care.generateOIDFromUUID()
                     ]
                 };
-                if (this.selectedSopClass.value === '1.2.840.10008.5.1.4.1.1.7') {
-                    this._dicomObject.attrs["00080064"] = {
-                        "vr": "CS",
-                        "Value": [
-                            "WSD"
-                        ]
-                    };
-                    this._dicomObject.attrs["00200020"] = {
-                        "vr": "CS"
+                if (!_.hasIn(this._dicomObject.attrs, "00080020.Value[0]")) { // Study Date
+                    this._dicomObject.attrs["00080020"] = {
+                        "vr": "DA",
+                        "Value": [""]
                     };
                 }
-            }
-            this.tempIods = iods;
-            this.tempAttributes = _.cloneDeep(this._dicomObject);
-            this.tempAttributes.attrs = _.pickBy(this._dicomObject.attrs, (o, i) => {
-                return (i.toString().indexOf("777") === -1);
-            });
-        })
+                if (!_.hasIn(this._dicomObject.attrs, "00080030.Value[0]")) { // Study Time
+                    this._dicomObject.attrs["00080030"] = {
+                        "vr": "TM",
+                        "Value": [""]
+                    };
+                }
+                if (!_.hasIn(this._dicomObject.attrs, "00080090.Value[0]")) { // Referring Physician's Name
+                    this._dicomObject.attrs["00080090"] = {
+                        "vr": "PN",
+                        "Value": [""]
+                    };
+                }
+                if (!_.hasIn(this._dicomObject.attrs, "00200010.Value[0]")) { // Study ID
+                    this._dicomObject.attrs["00200010"] = {
+                        "vr": "SH",
+                        "Value": [""]
+                    };
+                }
+                if (!_.hasIn(this._dicomObject.attrs, "00080050.Value[0]")) { // Accession Number
+                    this._dicomObject.attrs["00080050"] = {
+                        "vr": "SH",
+                        "Value": [""]
+                    };
+                }
+                if (fileTypeOrExt === "application/pdf" || fileTypeOrExt === "pdf") {
+                    this.supplementEncapsulatedDocumentAttrs();
+                    this.supplementEncapsulatedPDFAttrs();
+                }
+                else if (fileTypeOrExt === "text/xml" || fileTypeOrExt === "xml") {
+                    this.supplementEncapsulatedDocumentAttrs();
+                    this.supplementEncapsulatedCDAAttrs();
+                }
+                else if (fileTypeOrExt === "mtl"
+                    || fileTypeOrExt === "model/mtl") {
+                    this.supplementEncapsulated3DAttrs();
+                    this.supplementEncapsulatedMTLAttrs();
+                }
+                else if (fileTypeOrExt === "obj"
+                    || fileTypeOrExt === "application/x-tgif"
+                    || fileTypeOrExt === "model/obj") {
+                    this.supplementEncapsulated3DAttrs();
+                    this.supplementEncapsulatedOBJAttrs();
+                }
+                else if (fileTypeOrExt === "model/stl"
+                    || fileTypeOrExt === "model/x.stl-binary"
+                    || fileTypeOrExt === "application/sla"
+                    || fileTypeOrExt === "stl") {
+                    this.supplementEncapsulated3DAttrs();
+                    this.supplementEncapsulatedSTLAttrs(file0.type);
+                }
+                else if (fileTypeOrExt === "genozip"
+                    || fileTypeOrExt === "application/vnd.genozip")
+                    this.supplementEncapsulatedGENOZIPAttrs();
+                else {
+                    if (file0.type.indexOf("video") > -1) {
+                        this._dicomObject.attrs["00080016"] = {
+                            "vr": "UI",
+                            "Value": [
+                                "1.2.840.10008.5.1.4.1.1.77.1.4.1"
+                            ]
+                        }
+                    } else {
+                        this._dicomObject.attrs["00080016"] = {
+                            "vr": "UI",
+                            "Value": [
+                                this.selectedSopClass.value
+                            ]
+                        }
+                    }
+                    this._dicomObject.attrs["7FE00010"] = {
+                        "vr": "OB",
+                        "BulkDataURI": "file/" + file0.name
+                    }
+                }
+                if (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif"|| file0.type === "image/tiff") {
+                    this._dicomObject.attrs["00080008"] = {
+                        "vr": "CS",
+                        "Value": [
+                            "ORIGINAL",
+                            "PRIMARY"
+                        ]
+                    };
+                    if (this.selectedSopClass.value === '1.2.840.10008.5.1.4.1.1.7') {
+                        this._dicomObject.attrs["00080064"] = {
+                            "vr": "CS",
+                            "Value": [
+                                "WSD"
+                            ]
+                        };
+                        this._dicomObject.attrs["00200020"] = {
+                            "vr": "CS"
+                        };
+                    }
+                }
+                this.tempIods = iods;
+                this.tempAttributes = _.cloneDeep(this._dicomObject);
+                this.tempAttributes.attrs = _.pickBy(this._dicomObject.attrs, (o, i) => {
+                    return (i.toString().indexOf("777") === -1);
+                });
+            })
+        }
+
     }
     private supplementEncapsulatedDocumentAttrs() {
         this._dicomObject.attrs["00420011"] = {
@@ -535,33 +534,34 @@ export class UploadFilesComponent implements OnInit {
     }*/
 
     upload() {
-        let descriptionPart;
-        let token;
-        this.showFileList = true;
-        let seriesInstanceUID;
-        this.getToken().subscribe((response) => {
-            if(!this.mainservice.global.notSecure){
-                token = response.token;
-            }
-            if(!this.seriesNumber && this.seriesNumber != 0){
-                this.seriesNumber = 0;
-            }
-            if (this.fileList) {
-                seriesInstanceUID = j4care.generateOIDFromUUID();
-                _.forEach(this.fileList, (file, i) => {
-                    this.service.fileTypeOrExt(file).subscribe(fileTypeOrExt=>{
-                        if(fileTypeOrExt === "NO_TYPE_FOUND"){
-                            if(this.isDicomModel){
-                                this.triggerUpload(file,i,token,seriesInstanceUID, this.isDicomModel);
+        if (!this.neededClassMissing){
+            let token;
+            this.showFileList = true;
+            let seriesInstanceUID;
+            this.getToken().subscribe((response) => {
+                if (!this.mainservice.global.notSecure) {
+                    token = response.token;
+                }
+                if (!this.seriesNumber && this.seriesNumber != 0) {
+                    this.seriesNumber = 0;
+                }
+                if (this.fileList) {
+                    seriesInstanceUID = j4care.generateOIDFromUUID();
+                    _.forEach(this.fileList, (file, i) => {
+                        this.service.fileTypeOrExt(file).subscribe(fileTypeOrExt => {
+                            if (fileTypeOrExt === "NO_TYPE_FOUND") {
+                                if (this.isDicomModel) {
+                                    this.triggerUpload(file, i, token, seriesInstanceUID, this.isDicomModel);
+                                }
+                            } else {
+                                this.triggerUpload(file, i, token, seriesInstanceUID, fileTypeOrExt);
                             }
-                        }else{
-                            this.triggerUpload(file,i,token,seriesInstanceUID, fileTypeOrExt);
-                        }
-                    })
+                        })
 
-                });
-            }
-        });
+                    });
+                }
+            });
+        }
     }
     triggerUpload(file,fileIndex, token, seriesInstanceUID, fileTypeOrExt){
         let $this = this;
