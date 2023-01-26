@@ -753,14 +753,14 @@ export class UploadFilesComponent implements OnInit {
                     object[0][key] = studyObject[key];
             });
             const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])) + crlf;
-
-            const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + this.service.fileTypeFromExt(fileTypeOrExt) + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
-            const postDataEnd = crlf + dashes + boundary + dashes;
+            let postDataStart = dashes + boundary + crlf + 'Content-Type: ' + this.service.fileTypeFromExt(fileTypeOrExt) + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
             if(fileTypeOrExt === "application/dicom"){
                 xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom";boundary=' + boundary);
             }else{
                 xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
+                postDataStart = jsonData + postDataStart;
             }
+            const postDataEnd = crlf + dashes + boundary + dashes;
             xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
             if (!this.mainservice.global.notSecure) {
                 xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);

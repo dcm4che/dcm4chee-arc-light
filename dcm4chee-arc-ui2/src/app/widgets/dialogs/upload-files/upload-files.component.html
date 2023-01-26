@@ -1,6 +1,7 @@
 <div class="vex vex-theme-os upload" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
-        <h5 i18n="@@upload-file.title">Upload image, video, PDF, CDA, MTL, STL, DICM, OBJ or Genozip files to study</h5>
+        <h5 i18n="@@upload-file.title">Upload objects to Patient: {{dicomObject.attrs['00100010'].Value[0].Alphabetic}}<br>
+            Choose DICOM, JPEG, MPEG4, PDF files to upload</h5>
         <div class="content">
 <!--            <label>Select the ae title:</label>
             <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
