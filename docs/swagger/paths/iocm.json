@@ -1154,6 +1154,40 @@
       }
     }
   },
+  "study.request": {
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Request Attributes of all Series of Study",
+      "operationId": "UpdateRequestAttributesOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/requestAttributes"
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "JSON request body not well formed"
+        },
+        "404": {
+          "description": "No such Application Entity or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "study.expire": {
     "put": {
       "tags": [
@@ -1230,6 +1264,43 @@
         },
         "404": {
           "description": "No such Application Entity, Study or Series"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series1.request": {
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Request Attributes of Series",
+      "operationId": "UpdateRequestAttributesOfSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/requestAttributes"
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "JSON request body not well formed"
+        },
+        "404": {
+          "description": "No such Application Entity or Series"
         },
         "500": {
           "description": "Internal Server Error."

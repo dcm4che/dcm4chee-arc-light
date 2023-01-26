@@ -243,6 +243,9 @@
     "/aets/{aet}/rs/studies/{study}/move/{CodeValue}^{CodingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/study.move"
     },
+    "/aets/{aet}/rs/studies/{study}/request": {
+      "$ref": "paths/iocm.json#/study.request"
+    },
     "/aets/{aet}/rs/studies/{study}/expire/{expirationDate}": {
       "$ref": "paths/iocm.json#/study.expire"
     },
@@ -293,6 +296,9 @@
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/series1.reject"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/request": {
+      "$ref": "paths/iocm.json#/series1.request"
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/expire/{expirationDate}": {
       "$ref": "paths/iocm.json#/series1.expire"
