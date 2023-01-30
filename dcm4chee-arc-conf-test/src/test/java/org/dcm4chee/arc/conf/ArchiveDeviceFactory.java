@@ -1514,17 +1514,37 @@ class ArchiveDeviceFactory {
         device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
                 true, true, true, true, false, true, true, false,
-                new ArchiveAttributeCoercion2()
+                new ArchiveAttributeCoercion2[] {
+                    new ArchiveAttributeCoercion2()
                         .setCommonName("SupplementIssuerOfPatientID")
                         .setDIMSE(Dimse.C_STORE_RQ)
                         .setRole(SCU)
                         .setURI("merge-attrs:")
                         .setConditions(new Conditions("IssuerOfPatientID!=.+"))
                         .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}"),
+                    new ArchiveAttributeCoercion2()
+                        .setCommonName("SupplementIssuerOfPatientIDOnMPPS")
+                        .setDIMSE(Dimse.N_CREATE_RQ)
+                        .setSOPClasses(UID.ModalityPerformedProcedureStep)
+                        .setRole(SCU)
+                        .setURI("merge-attrs:")
+                        .setConditions(new Conditions("IssuerOfPatientID!=.+"))
+                        .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}")
+                },
                 configType, ONLY_ADMIN, USER));
         device.addApplicationEntity(createAE("WORKLIST", WORKLIST_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
-                false, false, false, false, true, true, true, true, null,
+                false, false, false, false, true, true, true, true,
+                new ArchiveAttributeCoercion2[] {
+                        new ArchiveAttributeCoercion2()
+                                .setCommonName("SupplementIssuerOfPatientIDOnMPPS")
+                                .setDIMSE(Dimse.N_CREATE_RQ)
+                                .setSOPClasses(UID.ModalityPerformedProcedureStep)
+                                .setRole(SCU)
+                                .setURI("merge-attrs:")
+                                .setConditions(new Conditions("IssuerOfPatientID!=.+"))
+                                .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}")
+                },
                 configType, ONLY_ADMIN, USER));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
@@ -1549,11 +1569,13 @@ class ArchiveDeviceFactory {
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
                 false, true, false, true, false, false, false, false,
-                new ArchiveAttributeCoercion2()
+                new ArchiveAttributeCoercion2[] {
+                    new ArchiveAttributeCoercion2()
                         .setCommonName("RetrieveAsReceived")
                         .setDIMSE(Dimse.C_STORE_RQ)
                         .setRole(SCP)
-                        .setURI(ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED + ":"),
+                        .setURI(ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED + ":")
+                },
                 configType, ONLY_ADMIN));
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
@@ -2279,7 +2301,7 @@ class ArchiveDeviceFactory {
                                               Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
                                               boolean storeSCP, boolean storeSCU, boolean ianSCU, boolean querySCP,
                                               boolean mwlSCP, boolean mppsSCP, boolean mppsSCU, boolean upsSCP,
-                                              ArchiveAttributeCoercion2 coercion, ConfigType configType,
+                                              ArchiveAttributeCoercion2[] coercions, ConfigType configType,
                                               String... acceptedUserRoles) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
@@ -2342,8 +2364,10 @@ class ArchiveDeviceFactory {
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
-        if (coercion != null)
-            aeExt.addAttributeCoercion2(coercion);
+        if (coercions != null)
+            for (ArchiveAttributeCoercion2 coercion : coercions) {
+                aeExt.addAttributeCoercion2(coercion);
+            }
         return ae;
     }
 
