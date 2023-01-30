@@ -43,10 +43,14 @@ package org.dcm4chee.arc.study.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.patient.*;
+import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.patient.PatientMismatchException;
+import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyMissingException;
 import org.slf4j.Logger;
@@ -144,6 +148,100 @@ public class StudyServiceEJB {
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
                 .setParameter(1, series.getPk())
                 .executeUpdate();
+    }
+
+    public void updateStudyRequest(StudyMgtContext ctx) throws StudyMissingException {
+        AttributeFilter studyAttrFilter = ctx.getStudyAttributeFilter();
+        List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
+                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        if (seriesList.isEmpty())
+            throw new StudyMissingException("Study to be updated does not exist: " + ctx.getStudyInstanceUID());
+
+        seriesList.forEach(series -> updateSeriesRequest(ctx, series));
+        List<Attributes> requestAttrs = ctx.getRequestAttributes();
+        if (requestAttrs == null || requestAttrs.size() == 0)
+            return;
+
+        Study study = seriesList.get(0).getStudy();
+        IDWithIssuer accWithIssuer = IDWithIssuer.valueOf(requestAttrs.get(0),
+                                                            Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
+        if (accWithIssuer == null)
+            return;
+
+        for (int i = 1; i < requestAttrs.size(); i++) {
+            IDWithIssuer accWithIssuerI = IDWithIssuer.valueOf(requestAttrs.get(i),
+                    Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
+            if (accWithIssuerI != null && !accWithIssuer.matches(accWithIssuerI))
+                return;
+        }
+
+        Attributes attrs = study.getAttributes();
+        Attributes newAttrs = new Attributes(attrs, studyAttrFilter.getSelection(false));
+        newAttrs.setString(Tag.AccessionNumber, VR.SH, accWithIssuer.getID());
+        if (accWithIssuer.getIssuer() == null)
+            newAttrs.setNull(Tag.IssuerOfAccessionNumberSequence, VR.SQ);
+        else
+            newAttrs.newSequence(Tag.IssuerOfAccessionNumberSequence, 1).add(accWithIssuer.getIssuer().toItem());
+
+        Attributes modified = new Attributes();
+        //if payload values of AccNo (+ Issuer) match exactly with that in study - update not required
+        if (attrs.diff(newAttrs, studyAttrFilter.getSelection(false), modified, true) == 0)
+            return;
+
+        study.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
+                        ? newAttrs.addOriginalAttributes(
+                        null,
+                        new Date(),
+                        Attributes.CORRECT,
+                        device.getDeviceName(),
+                        modified)
+                        : newAttrs,
+                studyAttrFilter, true, ctx.getFuzzyStr());
+        ctx.setStudy(study);
+        ctx.setPatient(study.getPatient());
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+    }
+
+    public void updateSeriesRequest(StudyMgtContext ctx) throws StudyMissingException {
+        Series series = findSeries(ctx);
+        updateSeriesRequest(ctx, series);
+        ctx.setStudy(series.getStudy());
+        ctx.setPatient(series.getStudy().getPatient());
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+    }
+
+    private void updateSeriesRequest(StudyMgtContext ctx, Series series) {
+        FuzzyStr fuzzyStr = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getFuzzyStr();
+        AttributeFilter seriesAttrFilter = ctx.getSeriesAttributeFilter();
+        Attributes seriesAttr = series.getAttributes();
+
+        //Unsure of OriginalAttrsSeq - check for just the differences between items of Series.RequestAttributesSequence vs ctx.getRequestAttributes()
+        Attributes newAttrs = new Attributes(seriesAttr, seriesAttrFilter.getSelection(false));
+        newAttrs.setNull(Tag.RequestAttributesSequence, VR.SQ);
+        List<Attributes> requestAttrs = ctx.getRequestAttributes();
+        Sequence rqAttrsSeq = newAttrs.newSequence(Tag.RequestAttributesSequence, requestAttrs.size());
+        requestAttrs.forEach(item -> rqAttrsSeq.add(new Attributes(item)));
+        Attributes modified = new Attributes();
+        //if payload values of attrs of items of RequestAttrSeq match exactly with that in series entity - update not required
+        if (seriesAttr.diff(newAttrs, seriesAttrFilter.getSelection(false), modified, true) == 0)
+            return;
+
+        Collection<SeriesRequestAttributes> requestAttributes = series.getRequestAttributes();
+        requestAttributes.clear();
+        requestAttrs.forEach(item -> {
+            SeriesRequestAttributes request = new SeriesRequestAttributes(item, fuzzyStr);
+            requestAttributes.add(request);
+        });
+
+        series.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
+                        ? newAttrs.addOriginalAttributes(
+                        null,
+                        new Date(),
+                        Attributes.CORRECT,
+                        device.getDeviceName(),
+                        modified)
+                        : newAttrs,
+                seriesAttrFilter, true, ctx.getFuzzyStr());
     }
 
     private Study findStudy(String studyUID) throws StudyMissingException {

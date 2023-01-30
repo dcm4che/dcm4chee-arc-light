@@ -88,7 +88,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -272,6 +274,70 @@ public class StudyMgtRS {
     }
 
     @PUT
+    @Path("/studies/{study}/request")
+    @Consumes("application/dicom+json,application/json")
+    @Produces("application/json")
+    public Response updateStudyRequestAttrs(
+            @PathParam("study") String studyUID,
+            InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        final List<Attributes> requestAttrs = toRequestAttributes(in);
+        try {
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            ctx.setRequestAttributes(requestAttrs);
+            studyService.updateStudyRequest(ctx);
+            rsForward.forward(RSOperation.UpdateStudyRequest, arcAE, null, request);
+            return Response.accepted().build();
+        } catch (StudyMissingException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
+    @Path("/studies/{study}/series/{series}/request")
+    @Consumes("application/dicom+json,application/json")
+    @Produces("application/json")
+    public Response updateSeriesRequestAttrs(
+            @PathParam("study") String studyUID,
+            @PathParam("series") String seriesUID,
+            InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        final List<Attributes> requestAttrs = toRequestAttributes(in);
+        try {
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            ctx.setSeriesInstanceUID(seriesUID);
+            ctx.setRequestAttributes(requestAttrs);
+            studyService.updateSeriesRequest(ctx);
+           // rsForward.forward(RSOperation.UpdateSeriesRequest, arcAE, null, request);
+            return Response.accepted().build();
+        } catch (StudyMissingException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
     @Path("/studies/{StudyInstanceUID}/access/{accessControlID}")
     public Response updateStudyAccessControlID(
             @PathParam("StudyInstanceUID") String studyUID,
@@ -290,7 +356,7 @@ public class StudyMgtRS {
             ctx.setStudyInstanceUID(studyUID);
             ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
             studyService.updateAccessControlID(ctx);
-            rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);
+          //  rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);
             return Response.noContent().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -407,6 +473,21 @@ public class StudyMgtRS {
         try {
             return new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
                     .readDataset(null);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private List<Attributes> toRequestAttributes(InputStream in) {
+        try {
+            List<Attributes> items = new ArrayList<>();
+            new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
+                    .readDatasets((fmi, dataset) -> items.add(dataset));
+            return items;
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
