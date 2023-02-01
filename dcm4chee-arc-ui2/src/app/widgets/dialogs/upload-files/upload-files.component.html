@@ -32,6 +32,12 @@
                 <label>Source of Previous Value</label>
                 <input type="text" [(ngModel)]="sourceOfPreviousValues">
             </ng-container>
+            <ng-container *ngIf="coerceStudyCheckbox">
+                <label class="checkbox_form">
+                    <input type="checkbox" [(ngModel)]="coerceStudyCheckboxValue">
+                    <span>Coerce Study</span>
+                </label>
+            </ng-container>
             <ng-container *ngIf="isImage">
                 <label i18n="@@captured_image_type">Captured Image Type:</label>
                 <mat-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
