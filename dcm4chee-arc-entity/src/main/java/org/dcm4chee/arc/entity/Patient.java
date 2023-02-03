@@ -56,6 +56,12 @@ import java.util.*;
  */
 @NamedQueries({
 @NamedQuery(
+    name=Patient.FIND_BY_PATIENT_ID,
+    query="select p from Patient p " +
+            "join fetch p.patientID pid " +
+            "where pid.id = ?1 " +
+            "order by p.pk"),
+@NamedQuery(
     name=Patient.FIND_BY_PATIENT_ID_EAGER,
     query="select p from Patient p " +
             "join fetch p.patientID pid " +
@@ -118,6 +124,7 @@ import java.util.*;
 })
 public class Patient {
 
+    public static final String FIND_BY_PATIENT_ID = "Patient.findByPatientID";
     public static final String FIND_BY_PATIENT_ID_EAGER = "Patient.findByPatientIDEager";
     public static final String FIND_BY_PATIENT_ID_AFTER = "Patient.findByPatientIDAfterr";
     public static final String FIND_BY_MERGED_WITH = "Patient.findByMergedWith";
