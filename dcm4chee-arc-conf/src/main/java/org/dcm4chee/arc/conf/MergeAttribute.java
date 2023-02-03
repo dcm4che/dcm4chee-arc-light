@@ -106,8 +106,8 @@ public class MergeAttribute {
 
     public void merge(Attributes attrs, Attributes modified) {
         int tag = tagPath[tagPath.length - 1];
-        String oldValue;
         if (format != null) {
+            String oldValue;
             Attributes item = ensureItem(attrs);
             oldValue = item.getString(tag);
             String newValue = format.format(attrs);
@@ -117,13 +117,17 @@ public class MergeAttribute {
                 return;
             }
             item.setString(tag, dict.vrOf(tag), newValue);
+            if (modified != null && oldValue != null) {
+                ensureItem(modified).setString(tag, dict.vrOf(tag), oldValue);
+            }
         } else {
             Attributes item = getItem(attrs);
-            if (item == null || (oldValue = item.getString(tag)) == null) return;
-            item.setNull(tag, dict.vrOf(tag));
-        }
-        if (modified != null && oldValue != null) {
-            ensureItem(modified).setString(tag, dict.vrOf(tag), oldValue);
+            if (item != null && item.containsValue(tag)) {
+                if (modified != null) {
+                    ensureItem(modified).addSelected(item, null, tag);
+                }
+                item.setNull(tag, dict.vrOf(tag));
+            }
         }
     }
 
