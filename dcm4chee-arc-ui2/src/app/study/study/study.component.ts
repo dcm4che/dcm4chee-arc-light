@@ -1141,7 +1141,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 };
                 let removeCode = [
                     "00401001",
-                    "00400100",
+                    //"00400100",
                     "00321060",
                     "00321064"
                 ];
@@ -1157,7 +1157,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                     }
                 });
-
                 object.attrs = newObject;
             }
             this.config.viewContainerRef = this.viewContainerRef;
@@ -2059,6 +2058,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         // }
         // delete filterModel["allAttributes"];
         delete filterModel.webApp;
+
         return j4care.clearEmptyObject(filterModel);
     }
 

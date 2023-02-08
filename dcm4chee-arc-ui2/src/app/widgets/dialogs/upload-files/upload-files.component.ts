@@ -671,6 +671,7 @@ export class UploadFilesComponent implements OnInit {
                     if(j4care.hasSet(studyObject, "0020000D.Value[0]")){
                         queryParameters["0020000D"] = _.get(studyObject, "0020000D.Value[0]");
                     }
+                    //["00400100"].Value[0]["00400009"].Value[0]
                     if(j4care.hasSet(studyObject, "00400100.Value[0]") &&  j4care.hasSet(studyObject, '["00400100"].Value[0]["00400009"].Value[0]')){
                         queryParameters["00400100.00400009"] = _.get(studyObject, '["00400100"].Value[0]["00400009"].Value[0]');
                     }
@@ -691,6 +692,10 @@ export class UploadFilesComponent implements OnInit {
                 }
                 if(queryParameters && Object.keys(queryParameters).length > 0){
                     url = url + j4care.objToUrlParams(queryParameters,true);
+                }
+            }else{
+                if(_.hasIn(studyObject, "00400100")){
+                    delete studyObject["00400100"];
                 }
             }
             xmlHttpRequest.open('POST', url, true);
