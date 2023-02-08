@@ -107,6 +107,32 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
+    public void updateStudyRequest(StudyMgtContext ctx) throws StudyMissingException {
+        try {
+            ejb.updateStudyRequest(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                updateStudyEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public void updateSeriesRequest(StudyMgtContext ctx) throws StudyMissingException {
+        try {
+            ejb.updateSeriesRequest(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                updateStudyEvent.fire(ctx);
+        }
+    }
+
+    @Override
     public void updateExpirationDate(StudyMgtContext ctx) {
         try {
             ejb.updateExpirationDate(ctx);

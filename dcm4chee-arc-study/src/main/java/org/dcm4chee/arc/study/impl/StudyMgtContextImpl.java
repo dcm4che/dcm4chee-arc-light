@@ -58,6 +58,7 @@ import org.dcm4chee.arc.study.StudyMgtContext;
 
 import java.net.Socket;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -66,6 +67,7 @@ import java.time.LocalDate;
  */
 public class StudyMgtContextImpl implements StudyMgtContext {
     private final AttributeFilter studyAttributeFilter;
+    private final AttributeFilter seriesAttributeFilter;
     private final FuzzyStr fuzzyStr;
     private HttpServletRequestInfo httpRequest;
     private ArchiveAEExtension arcAE;
@@ -73,6 +75,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private UnparsedHL7Message msg;
     private Study study;
     private Attributes attributes;
+    private List<Attributes> requestAttrs;
     private Patient patient;
     private String studyInstanceUID;
     private String eventActionCode;
@@ -83,7 +86,6 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private boolean freezeExpirationDate;
     private boolean unfreezeExpirationDate;
     private String accessControlID;
-    private AttributeFilter seriesAttributeFilter;
 
     StudyMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -282,4 +284,14 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     public AttributeFilter getSeriesAttributeFilter() {
         return seriesAttributeFilter;
     }
+
+    @Override
+    public List<Attributes> getRequestAttributes() {
+        return requestAttrs;
+    };
+
+    @Override
+    public void setRequestAttributes(List<Attributes> requestAttrs) {
+        this.requestAttrs = requestAttrs;
+    };
 }

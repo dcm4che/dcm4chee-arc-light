@@ -136,7 +136,7 @@ public class StowRS {
     private static final String IRWF_PATIENT_ID_NOT_SUPPORTED =
             "Query Parameter 'irwf=SCHEDULED' can't be used with Query Parameter '00100020'";
     private static final String IRWF_MISSING_SPS =
-            "Query Parameter 'irwf=UNSCHEDULED' requires Query Parameters '0020000D' and '00400100.00400009'";
+            "Query Parameter 'irwf=SCHEDULED' requires Query Parameters '0020000D' and '00400100.00400009'";
     private static final String IRWF_NOT_SCHEDULED =
             "No Procedure Step with given '0020000D' and '00400100.00400009' scheduled";
 

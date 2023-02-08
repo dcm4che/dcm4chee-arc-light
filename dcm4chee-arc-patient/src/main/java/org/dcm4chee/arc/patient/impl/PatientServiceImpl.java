@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.patient.impl;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
@@ -133,7 +134,12 @@ public class PatientServiceImpl implements PatientService {
     public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
         try {
-            return ejb.updatePatient(ctx);
+            Patient patient;
+            do {
+                patient = ejb.updatePatient(ctx);
+            } while (ctx.getEventActionCode() == AuditMessages.EventActionCode.Create
+                    && ejb.deleteDuplicateCreatedPatient(ctx, patient));
+            return patient;
         } catch (RuntimeException e) {
             ctx.setException(e);
             throw e;
