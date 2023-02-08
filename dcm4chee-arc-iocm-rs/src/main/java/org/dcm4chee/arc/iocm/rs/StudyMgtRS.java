@@ -80,16 +80,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -485,7 +483,11 @@ public class StudyMgtRS {
     private List<Attributes> toRequestAttributes(InputStream in) {
         try {
             List<Attributes> items = new ArrayList<>();
-            new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
+            PushbackInputStream pushbackInputStream = new PushbackInputStream(in);
+            int ch1 = pushbackInputStream.read();
+            if (ch1 == -1) return Collections.emptyList();
+            pushbackInputStream.unread(ch1);
+            new JSONReader(Json.createParser(new InputStreamReader(pushbackInputStream, StandardCharsets.UTF_8)))
                     .readDatasets((fmi, dataset) -> items.add(dataset));
             return items;
         } catch (JsonParsingException e) {

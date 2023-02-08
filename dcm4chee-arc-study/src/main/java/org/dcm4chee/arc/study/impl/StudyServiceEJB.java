@@ -65,6 +65,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -157,91 +158,93 @@ public class StudyServiceEJB {
         if (seriesList.isEmpty())
             throw new StudyMissingException("Study to be updated does not exist: " + ctx.getStudyInstanceUID());
 
-        seriesList.forEach(series -> updateSeriesRequest(ctx, series));
-        List<Attributes> requestAttrs = ctx.getRequestAttributes();
-        if (requestAttrs == null || requestAttrs.size() == 0)
+        for (Series series : seriesList) {
+            updateSeriesRequest(ctx, series);
+        }
+        if (ctx.getEventActionCode() == null)
             return;
 
-        Study study = seriesList.get(0).getStudy();
-        IDWithIssuer accWithIssuer = IDWithIssuer.valueOf(requestAttrs.get(0),
-                                                            Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
+        IDWithIssuer accWithIssuer = null;
+        for (Attributes requestAttribute : ctx.getRequestAttributes()) {
+            IDWithIssuer accWithIssuerI = IDWithIssuer.valueOf(requestAttribute,
+                    Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
+            if (accWithIssuerI != null)
+                if (accWithIssuer == null)
+                    accWithIssuer = accWithIssuerI;
+                else if (!accWithIssuer.equals(accWithIssuerI))
+                    return;
+        }
         if (accWithIssuer == null)
             return;
 
-        for (int i = 1; i < requestAttrs.size(); i++) {
-            IDWithIssuer accWithIssuerI = IDWithIssuer.valueOf(requestAttrs.get(i),
-                    Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
-            if (accWithIssuerI != null && !accWithIssuer.matches(accWithIssuerI))
-                return;
-        }
-
+        Study study = ctx.getStudy();
         Attributes attrs = study.getAttributes();
-        Attributes newAttrs = new Attributes(attrs, studyAttrFilter.getSelection(false));
-        newAttrs.setString(Tag.AccessionNumber, VR.SH, accWithIssuer.getID());
-        if (accWithIssuer.getIssuer() == null)
-            newAttrs.setNull(Tag.IssuerOfAccessionNumberSequence, VR.SQ);
-        else
-            newAttrs.newSequence(Tag.IssuerOfAccessionNumberSequence, 1).add(accWithIssuer.getIssuer().toItem());
-
-        Attributes modified = new Attributes();
-        //if payload values of AccNo (+ Issuer) match exactly with that in study - update not required
-        if (attrs.diff(newAttrs, studyAttrFilter.getSelection(false), modified, true) == 0)
+        if (accWithIssuer.equals(IDWithIssuer.valueOf(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence)))
             return;
 
-        study.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
-                        ? newAttrs.addOriginalAttributes(
+        Attributes modified = ctx.getArchiveAEExtension().recordAttributeModification()
+                ? new Attributes(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence)
+                : null;
+
+        attrs.setString(Tag.AccessionNumber, VR.SH, accWithIssuer.getID());
+        if (accWithIssuer.getIssuer() == null)
+            attrs.setNull(Tag.IssuerOfAccessionNumberSequence, VR.SQ);
+        else
+            attrs.newSequence(Tag.IssuerOfAccessionNumberSequence, 1).add(accWithIssuer.getIssuer().toItem());
+
+        study.setAttributes(modified != null
+                        ? attrs.addOriginalAttributes(
                         null,
                         new Date(),
-                        Attributes.CORRECT,
+                        Attributes.COERCE,
                         device.getDeviceName(),
                         modified)
-                        : newAttrs,
+                        : attrs,
                 studyAttrFilter, true, ctx.getFuzzyStr());
-        ctx.setStudy(study);
-        ctx.setPatient(study.getPatient());
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
     }
 
     public void updateSeriesRequest(StudyMgtContext ctx) throws StudyMissingException {
-        Series series = findSeries(ctx);
-        updateSeriesRequest(ctx, series);
-        ctx.setStudy(series.getStudy());
-        ctx.setPatient(series.getStudy().getPatient());
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        updateSeriesRequest(ctx, findSeries(ctx));
     }
 
     private void updateSeriesRequest(StudyMgtContext ctx, Series series) {
-        FuzzyStr fuzzyStr = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getFuzzyStr();
-        AttributeFilter seriesAttrFilter = ctx.getSeriesAttributeFilter();
         Attributes seriesAttr = series.getAttributes();
-
-        //Unsure of OriginalAttrsSeq - check for just the differences between items of Series.RequestAttributesSequence vs ctx.getRequestAttributes()
-        Attributes newAttrs = new Attributes(seriesAttr, seriesAttrFilter.getSelection(false));
-        newAttrs.setNull(Tag.RequestAttributesSequence, VR.SQ);
         List<Attributes> requestAttrs = ctx.getRequestAttributes();
-        Sequence rqAttrsSeq = newAttrs.newSequence(Tag.RequestAttributesSequence, requestAttrs.size());
-        requestAttrs.forEach(item -> rqAttrsSeq.add(new Attributes(item)));
-        Attributes modified = new Attributes();
-        //if payload values of attrs of items of RequestAttrSeq match exactly with that in series entity - update not required
-        if (seriesAttr.diff(newAttrs, seriesAttrFilter.getSelection(false), modified, true) == 0)
+        Sequence origRequestAttributes = seriesAttr.getSequence(Tag.RequestAttributesSequence);
+        if (Objects.equals(origRequestAttributes, requestAttrs))
             return;
 
+        Attributes modified = null;
+        if (ctx.getArchiveAEExtension().recordAttributeModification() && origRequestAttributes != null) {
+            modified = new Attributes(1);
+            Sequence rqAttrsSeq = modified.newSequence(Tag.RequestAttributesSequence, origRequestAttributes.size());
+            for (Attributes requestAttr : origRequestAttributes) {
+                rqAttrsSeq.add(new Attributes(requestAttr));
+            }
+        }
+        FuzzyStr fuzzyStr = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getFuzzyStr();
+        Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, requestAttrs.size());
         Collection<SeriesRequestAttributes> requestAttributes = series.getRequestAttributes();
         requestAttributes.clear();
-        requestAttrs.forEach(item -> {
-            SeriesRequestAttributes request = new SeriesRequestAttributes(item, fuzzyStr);
-            requestAttributes.add(request);
-        });
 
-        series.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
-                        ? newAttrs.addOriginalAttributes(
+        for (Attributes requestAttr : requestAttrs) {
+            rqAttrsSeq.add(new Attributes(requestAttr));
+            requestAttributes.add(new SeriesRequestAttributes(requestAttr, fuzzyStr));
+        }
+
+        AttributeFilter seriesAttrFilter = ctx.getSeriesAttributeFilter();
+        series.setAttributes(modified != null
+                        ? seriesAttr.addOriginalAttributes(
                         null,
                         new Date(),
-                        Attributes.CORRECT,
+                        Attributes.COERCE,
                         device.getDeviceName(),
                         modified)
-                        : newAttrs,
+                        : seriesAttr,
                 seriesAttrFilter, true, ctx.getFuzzyStr());
+        ctx.setStudy(series.getStudy());
+        ctx.setPatient(series.getStudy().getPatient());
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
     }
 
     private Study findStudy(String studyUID) throws StudyMissingException {
