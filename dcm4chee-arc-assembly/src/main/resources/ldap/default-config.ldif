@@ -5117,6 +5117,16 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: RT Segment Annotation Storage SCU
 
+dn: cn=SupplementIssuerOfPatientIDOnMPPS,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmMergeAttribute: IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}
+dcmSOPClass: 1.2.840.10008.3.1.2.3.3
+dcmDIMSE: N_CREATE_RQ
+dicomTransferRole: SCU
+dcmProperty: IssuerOfPatientID!=.+
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-attrs:
+cn: SupplementIssuerOfPatientIDOnMPPS
+
 dn: cn=VL Photographic Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.4
 dicomTransferRole: SCP
@@ -9766,6 +9776,16 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Verification SOP Class SCU
+
+dn: cn=SupplementIssuerOfPatientIDOnMPPS,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmMergeAttribute: IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}
+dcmSOPClass: 1.2.840.10008.3.1.2.3.3
+dcmDIMSE: N_CREATE_RQ
+dicomTransferRole: SCU
+dcmProperty: IssuerOfPatientID!=.+
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-attrs:
+cn: SupplementIssuerOfPatientIDOnMPPS
 
 dn: cn=Unified Procedure Step - Pull SOP Class SCP,dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmFuzzySemanticMatching: TRUE

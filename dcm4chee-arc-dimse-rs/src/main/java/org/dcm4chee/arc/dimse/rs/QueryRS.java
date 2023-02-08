@@ -230,6 +230,14 @@ public class QueryRS {
 
     @GET
     @NoCache
+    @Path("/patients/count")
+    @Produces("application/json")
+    public void countPatients(@Suspended AsyncResponse ar) {
+        search(ar, Level.PATIENT, false, null, null, QIDO.PATIENT, true);
+    }
+
+    @GET
+    @NoCache
     @Path("/studies/count")
     @Produces("application/json")
     public void countStudies(@Suspended AsyncResponse ar) {

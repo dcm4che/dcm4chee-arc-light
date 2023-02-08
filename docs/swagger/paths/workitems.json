@@ -577,8 +577,8 @@
       "tags": [
         "UPS-ARC-RS"
       ],
-      "summary": "Create Workitems for local matching Study",
-      "operationId": "CreateWorkitemsForLocalMatchingStudy",
+      "summary": "Create Workitems for local matching Studies",
+      "operationId": "CreateWorkitemsForLocalMatchingStudies",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"

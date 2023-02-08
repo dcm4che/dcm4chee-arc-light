@@ -565,4 +565,31 @@ public class PatientServiceEJB {
                     });
         }
     }
+
+    public boolean deleteDuplicateCreatedPatient(PatientMgtContext ctx, Patient createdPatient) {
+        IDWithIssuer pid = ctx.getPatientID();
+        List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID, Patient.class)
+                .setParameter(1, pid.getID())
+                .getResultList();
+        Issuer issuer = pid.getIssuer();
+        List<Patient> patients = issuer != null ? removeNonMatchingIssuer(list, issuer) : list;
+        if (patients.size() > 1) {
+            for (int i = 0; i < patients.size(); i++) {
+                Patient patient = patients.get(i);
+                if (patient.getPk() == createdPatient.getPk()) {
+                    if (i == 0) {
+                        LOG.info("Keep duplicate created {} because {} was created after",
+                                createdPatient, patients.get(1));
+                        return false;
+                    } else {
+                        LOG.info("Delete duplicate created {}", createdPatient);
+                        em.remove(patient);
+                        ctx.setEventActionCode(AuditMessages.EventActionCode.Read);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }

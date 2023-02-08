@@ -506,6 +506,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         this.getTasks(filter);
     }
     onFormChange(filters){
+        this.setTableSchemas();
 /*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(filters.status == "SCHEDULED" || filters.status == $localize `:@@storage-verification.in_process:IN PROCESS`){
                 return o.value != 'reschedule';

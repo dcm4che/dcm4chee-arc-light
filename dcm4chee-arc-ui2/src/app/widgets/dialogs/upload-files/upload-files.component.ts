@@ -88,6 +88,8 @@ export class UploadFilesComponent implements OnInit {
     ];
     sourceOfPreviousValues = "";
     sourceOfPreviousValuesBlock = false;
+    coerceStudyCheckbox:boolean = false;
+    coerceStudyCheckboxValue;
     isDicomCheckbox = false;
     isDicomModel;
     neededClassMissing = false;
@@ -143,6 +145,9 @@ export class UploadFilesComponent implements OnInit {
             }
             if(fileTypeOrExt === "application/dicom"){
                 this.sourceOfPreviousValuesBlock = true;
+                if(this.mode === "mwl"){
+                    this.coerceStudyCheckbox = true;
+                }
             }
 
             this.studyService.getIodFromContext(fileTypeOrExt, this.mode).subscribe(iods=>{
@@ -653,19 +658,36 @@ export class UploadFilesComponent implements OnInit {
                 return (i.toString().indexOf("777") === -1);
             });
             if(fileTypeOrExt === "application/dicom"){
-                let queryParameters = {
-                    irwf:"UNSCHEDULED",
-                    sourceOfPreviousValues:this.sourceOfPreviousValues,
-                    "00100020":_.get(studyObject,"00100020.Value[0]")
+                console.log("mode",this.mode);
+                let queryParameters:any = {
+                    sourceOfPreviousValues:this.sourceOfPreviousValues
                 }
-                if(j4care.hasSet(studyObject, "00100021.Value[0]")){
-                    queryParameters["00100021"] = _.get(studyObject, "00100021.Value[0]");
-                }
-                if(j4care.hasSet(studyObject, "00100024.Value[0]") &&  j4care.hasSet(studyObject, '["00100024"].Value[0]["00400032"].Value[0]')){
-                    queryParameters["00100024.00400032"] = _.get(studyObject, '["00100024"].Value[0]["00400032"].Value[0]');
-                }
-                if(j4care.hasSet(studyObject, "00100024.Value[0]") &&  j4care.hasSet(studyObject, '["00100024"].Value[0]["00400033"].Value[0]')){
-                    queryParameters["00100024.00400033"] = _.get(studyObject, '["00100024"].Value[0]["00400033"].Value[0]');
+                if(this.mode === "mwl"){
+                    if(this.coerceStudyCheckboxValue){
+                        queryParameters["irwf"] = "SCHEDULED_COERCE_STUDY";
+                    }else{
+                        queryParameters["irwf"] = "SCHEDULED";
+                    }
+                    if(j4care.hasSet(studyObject, "0020000D.Value[0]")){
+                        queryParameters["0020000D"] = _.get(studyObject, "0020000D.Value[0]");
+                    }
+                    if(j4care.hasSet(studyObject, "00400100.Value[0]") &&  j4care.hasSet(studyObject, '["00400100"].Value[0]["00400009"].Value[0]')){
+                        queryParameters["00400100.00400009"] = _.get(studyObject, '["00400100"].Value[0]["00400009"].Value[0]');
+                    }
+                }else{
+                    queryParameters["irwf"] = "UNSCHEDULED";
+                    if(j4care.hasSet(studyObject, "00100020.Value[0]")){
+                        queryParameters["00100020"] = _.get(studyObject, "00100020.Value[0]");
+                    }
+                    if(j4care.hasSet(studyObject, "00100021.Value[0]")){
+                        queryParameters["00100021"] = _.get(studyObject, "00100021.Value[0]");
+                    }
+                    if(j4care.hasSet(studyObject, "00100024.Value[0]") &&  j4care.hasSet(studyObject, '["00100024"].Value[0]["00400032"].Value[0]')){
+                        queryParameters["00100024.00400032"] = _.get(studyObject, '["00100024"].Value[0]["00400032"].Value[0]');
+                    }
+                    if(j4care.hasSet(studyObject, "00100024.Value[0]") &&  j4care.hasSet(studyObject, '["00100024"].Value[0]["00400033"].Value[0]')){
+                        queryParameters["00100024.00400033"] = _.get(studyObject, '["00100024"].Value[0]["00400033"].Value[0]');
+                    }
                 }
                 if(queryParameters && Object.keys(queryParameters).length > 0){
                     url = url + j4care.objToUrlParams(queryParameters,true);
