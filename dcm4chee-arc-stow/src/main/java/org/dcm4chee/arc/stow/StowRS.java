@@ -395,6 +395,7 @@ public class StowRS {
                 coerce.remove(Tag.StudyInstanceUID);
             coerce.remove(Tag.ScheduledProcedureStepSequence);
             coerce.addSelected(mwlAttrs,
+                    Tag.SpecificCharacterSet,
                     Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence,
                     Tag.PatientID, Tag.IssuerOfPatientID, Tag.IssuerOfPatientIDQualifiersSequence,
                     Tag.AdmissionID, Tag.IssuerOfAdmissionID);
