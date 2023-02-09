@@ -46,6 +46,7 @@ import {ModifyUpsComponent} from "./dialogs/modify-ups/modify-ups.component";
 import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.component';
 import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.component';
 import { ModifiedWidgetComponent } from './modified-widget/modified-widget.component';
+import { PatientNamePickerComponent } from './patient-name-picker/patient-name-picker.component';
 
 
 @Injectable()
@@ -55,7 +56,7 @@ import { ModifiedWidgetComponent } from './modified-widget/modified-widget.compo
         BrowserModule,
         FormsModule
     ],
-    declarations: [WidgetsComponent],
+    declarations: [WidgetsComponent, PatientNamePickerComponent],
     exports: [WidgetsComponent],
     providers: [MatDialogConfig]
 })

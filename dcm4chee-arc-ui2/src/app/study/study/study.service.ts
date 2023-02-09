@@ -1688,6 +1688,7 @@ export class StudyService {
                     header: $localize `:@@patients_name:Patient's Name`,
                     headerDescription: $localize `:@@patients_name:Patient's Name`,
                     widthWeight: 1.5,
+                    saveTheOriginalValueOnTooltip:true,
                     calculatedWidth: "20%",
                     pathToValue:"00100010.Value.0",
                     pipe: new DynamicPipe(PersonNamePipe, [options.configuredPersonNameFormat])

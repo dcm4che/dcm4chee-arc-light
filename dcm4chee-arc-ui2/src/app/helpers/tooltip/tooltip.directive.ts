@@ -43,8 +43,20 @@ export class TooltipDirective implements OnDestroy{
     @HostListener('onmouseup') onMouseUp() {
         window.prompt('Copy to clipboard: Ctrl+C, Enter', this.tooltip);
     }
+    textTransformed:string = "";
+    textOriginal:string = "";
     createPlaceholder(){
-        if(this.tooltip && this.tooltip.length > 1){
+        if(this.tooltip && ((this.tooltip.length && this.tooltip.length > 1) || (_.hasIn(this.tooltip,"original")))){
+
+            if(this.tooltip.indexOf("original") > -1){
+                if(typeof this.tooltip === "string"){
+                    this.tooltip = JSON.parse(this.tooltip);
+                }
+                this.textOriginal = this.tooltip["original"];
+                this.textTransformed = this.tooltip["transformed"] || "";
+            }else{
+                this.textTransformed = this.textOriginal = this.tooltip;
+            }
             this.div =  document.createElement('div');
             this.i = document.createElement('i');
             this.i.className = "glyphicon glyphicon-duplicate";
@@ -64,8 +76,8 @@ export class TooltipDirective implements OnDestroy{
             });
 
             let text;
-            if (_.includes(this.tooltip, '<br>')){
-                let textArray = this.tooltip.split('<br>');
+            if (_.includes(this.textTransformed, '<br>')){
+                let textArray = this.textTransformed.split('<br>');
                 _.forEach(textArray, (m, i) => {
                     div2.appendChild(br);
                     this.spanText.appendChild(document.createTextNode(m));
@@ -73,7 +85,7 @@ export class TooltipDirective implements OnDestroy{
                     // div2.appendChild(document.createTextNode(m));
                 });
             }else{
-                text = document.createTextNode(this.tooltip);
+                text = document.createTextNode(this.textTransformed);
                 this.spanText.appendChild(text);
                 div2.appendChild(this.spanText);
             }
@@ -89,12 +101,12 @@ export class TooltipDirective implements OnDestroy{
         }
         let copyToClipboard = ()=>{
             const el = document.createElement('textarea');
-            el.value = this.tooltip;
+            el.value = this.textOriginal;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            this.mainservice.showMsg($localize `:@@tooltip.text_copied_successfully_in_the_clipboard:Text copied successfully in the clipboard`);
+            this.mainservice.showMsg($localize `:@@tooltip.text_copied_successfully_in_the_clipboard:Text '${this.textOriginal}' copied successfully in the clipboard`);
         }
     }
     setPositionOfDiv(){

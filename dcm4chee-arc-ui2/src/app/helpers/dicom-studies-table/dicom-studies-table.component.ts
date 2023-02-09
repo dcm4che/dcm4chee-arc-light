@@ -114,7 +114,18 @@ export class DicomStudiesTableComponent implements OnInit {
         }else{
             if(table.type==="pipe" || table.pipe){
                 if(table.pathToValue){
-                    return this.dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe);
+                    if(table.saveTheOriginalValueOnTooltip){
+                        let extractOriginal = _.get(object.attrs,table.pathToValue);
+                        if(extractOriginal && extractOriginal["Alphabetic"]){
+                            extractOriginal = extractOriginal["Alphabetic"];
+                        }
+                        return JSON.stringify({
+                            original:extractOriginal,
+                            transformed:this.dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe)
+                        })
+                    }else{
+                        return this.dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe);
+                    }
                 }
                 return this.dynamicPipe.transform(object.attrs,table.pipe);
             }

@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import * as _ from 'lodash-es';
+import {PATIENT_NAME_PARTS} from "../models/patient-dicom";
 
 @Pipe({
   name: 'personName'
@@ -8,27 +9,11 @@ export class PersonNamePipe implements PipeTransform {
 
     transform(nameObject: any, format?: any): any {
         format = format || `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`;
-        const nameKeys = [
-          "FAMILY-NAME",
-          "GIVEN-NAME",
-          "MIDDLE-NAME",
-          "NAME-PREFIX",
-          "NAME-SUFFIX",
-          "I_FAMILY-NAME",
-          "I_GIVEN-NAME",
-          "I_MIDDLE-NAME",
-          "I_NAME-PREFIX",
-          "I_NAME-SUFFIX",
-          "P_FAMILY-NAME",
-          "P_GIVEN-NAME",
-          "P_MIDDLE-NAME",
-          "P_NAME-PREFIX",
-          "P_NAME-SUFFIX"
-        ];
+        const nameKeys = PATIENT_NAME_PARTS;
         try {
             const regex = {
               names: /({FAMILY-NAME})|({GIVEN-NAME})|({MIDDLE-NAME})|({NAME-PREFIX})|({NAME-SUFFIX})|({I_FAMILY-NAME})|({I_GIVEN-NAME})|({I_MIDDLE-NAME})|({I_NAME-PREFIX})|({I_NAME-SUFFIX})|({P_FAMILY-NAME})|({P_GIVEN-NAME})|({P_MIDDLE-NAME})|({P_NAME-PREFIX})|({P_NAME-SUFFIX})/g,
-              startingEndingSpaces: /^(\s*[\(\[\,.|\s]]*\s*[\)\[\],.|\s]*\s*)|(\s*[\(\[\,.|]]*\s*[\)\[\],.|]*\s*)$/gm,
+              startingEndingSpaces: /^(\s*[\(\[\,.|\s]]*\s*[\)\[\],.|\s]*\s*)|(\s*[\(\[\,|]]*\s*[\)\[\],.|]*\s*)$/gm,
               multipleSpaces: /\s{2,}/gm
             };
 

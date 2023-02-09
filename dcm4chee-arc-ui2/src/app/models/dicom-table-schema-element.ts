@@ -27,6 +27,7 @@ export class TableSchemaElement {
     private _elementId:string;
     showBorder?:boolean;
     showBorderPath?:string;
+    saveTheOriginalValueOnTooltip?:boolean;
 
     constructor(
         options:{
@@ -48,7 +49,8 @@ export class TableSchemaElement {
             description?:string,
             showIf?:Function,
             showBorder?:boolean,
-            showBorderPath?:string
+            showBorderPath?:string,
+            saveTheOriginalValueOnTooltip?:boolean
         } = {}
     ){
         this._type = options.type;
@@ -70,6 +72,7 @@ export class TableSchemaElement {
         this.showIf = options.showIf;
         this.showBorder = options.showBorder;
         this.showBorderPath = options.showBorderPath;
+        this.saveTheOriginalValueOnTooltip = options.saveTheOriginalValueOnTooltip;
 
         this.calculateElementID();
     }
