@@ -94,8 +94,8 @@ public class CloudStorage extends AbstractStorage {
     private final AttributesFormat pathFormat;
     private final String container;
     private final BlobStoreContext context;
-    private final boolean streamingUpload;
-    private final long maxPartSize;
+    private final String uploaderOverride;
+    private String api;
     private int count;
 
     @Override
@@ -109,15 +109,14 @@ public class CloudStorage extends AbstractStorage {
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         container = descriptor.getProperty("container", DEFAULT_CONTAINER);
         if (Boolean.parseBoolean(descriptor.getProperty("containerExists", null))) count++;
-        String api = descriptor.getStorageURI().getSchemeSpecificPart();
+        api = descriptor.getStorageURI().getSchemeSpecificPart();
         String endpoint = null;
         int endApi = api.indexOf(':');
         if (endApi != -1) {
             endpoint = api.substring(endApi + 1);
             api = api.substring(0, endApi);
         }
-        this.streamingUpload = Boolean.parseBoolean(descriptor.getProperty("streamingUpload", null));
-        this.maxPartSize = BinaryPrefix.parse(descriptor.getProperty("maxPartSize", "5G"));
+        this.uploaderOverride = descriptor.getProperty("uploaderOverride", "");
         ContextBuilder ctxBuilder = ContextBuilder.newBuilder(api);
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
@@ -200,8 +199,21 @@ public class CloudStorage extends AbstractStorage {
                         .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
         long length = ctx.getContentLength();
-        Uploader uploader = streamingUpload || length >= 0 && length <= maxPartSize
-                ? STREAMING_UPLOADER : new S3Uploader();
+        Uploader uploader = STREAMING_UPLOADER;
+        switch(uploaderOverride) {
+            case "do":
+                break;
+            default:
+                switch(api) {
+                    case "aws-s3":
+                        uploader = new S3Uploader();
+                        break;
+                    case "azureblob":
+                        uploader = new AzureBlobUploader();
+                        break;
+                }
+        }
+
         uploader.upload(context, in, length, blobStore, container, storagePath);
         ctx.setStoragePath(storagePath);
     }
