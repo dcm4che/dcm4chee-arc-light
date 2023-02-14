@@ -293,7 +293,7 @@ public class StudyMgtRS {
             ctx.setStudyInstanceUID(studyUID);
             ctx.setRequestAttributes(requestAttrs);
             studyService.updateStudyRequest(ctx);
-            rsForward.forward(RSOperation.UpdateStudyRequest, arcAE, null, request);
+            rsForward.forward(RSOperation.UpdateStudyRequest, arcAE, request, requestAttrs);
             return Response.accepted().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -326,7 +326,7 @@ public class StudyMgtRS {
             ctx.setSeriesInstanceUID(seriesUID);
             ctx.setRequestAttributes(requestAttrs);
             studyService.updateSeriesRequest(ctx);
-           // rsForward.forward(RSOperation.UpdateSeriesRequest, arcAE, null, request);
+            rsForward.forward(RSOperation.UpdateSeriesRequest, arcAE, request, requestAttrs);
             return Response.accepted().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -354,7 +354,7 @@ public class StudyMgtRS {
             ctx.setStudyInstanceUID(studyUID);
             ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
             studyService.updateAccessControlID(ctx);
-          //  rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);
+            rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);
             return Response.noContent().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);

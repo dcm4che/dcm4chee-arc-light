@@ -74,7 +74,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.persistence.*;
@@ -133,6 +133,9 @@ public class StoreServiceEJB {
 
     @Inject
     private Device device;
+
+    @Inject
+    private StoreServiceEJB ejb;
 
     private enum LocationOp {
         CREATE(Attributes.COERCE),
@@ -482,21 +485,12 @@ public class StoreServiceEJB {
                         throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
                                 MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE_MSG, objectUID));
 
-                    RejectedInstance rejectedInstance = findRejectedInstance(studyUID, seriesUID, objectUID);
-                    if (rejectedInstance != null) {
-                        LOG.info("{}: Detect previous {}", session, rejectedInstance);
-                        CodeEntity prevRjNoteCode = rejectedInstance.getRejectionNoteCode();
-                        if (rejectionCode.getPk() != prevRjNoteCode.getPk()) {
-                            if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
-                                throw new DicomServiceException(StoreService.REJECTION_FAILED_ALREADY_REJECTED,
-                                        MessageFormat.format(StoreService.REJECTION_FAILED_ALREADY_REJECTED_MSG, objectUID));
-                            rejectedInstance.setRejectionNoteCode(rejectionCode);
-                            LOG.info("{}: {}", session, rejectedInstance);
-                        }
-                    } else {
-                        rejectedInstance = new RejectedInstance(studyUID, seriesUID, objectUID, classUID, rejectionCode);
-                        em.persist(rejectedInstance);
-                        LOG.info("{}: {}", session, rejectedInstance);
+                    try {
+                        ejb.rejectInstance(session, rjNote, rejectionCode, studyUID, seriesUID, classUID, objectUID);
+                    } catch (EJBException e) {
+                        if (e.getCausedByException() instanceof DicomServiceException)
+                            throw (DicomServiceException) e.getCausedByException();
+                        throw e;
                     }
                 }
                 if (series != null) {
@@ -520,6 +514,27 @@ public class StoreServiceEJB {
                 }
                 deleteStudyQueryAttributes(study);
             }
+        }
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void rejectInstance(StoreSession session, RejectionNote rjNote, CodeEntity rejectionCode, String studyUID,
+                               String seriesUID, String classUID, String objectUID) throws DicomServiceException {
+        RejectedInstance rejectedInstance = findRejectedInstance(studyUID, seriesUID, objectUID);
+        if (rejectedInstance != null) {
+            LOG.info("{}: Detect previous {}", session, rejectedInstance);
+            CodeEntity prevRjNoteCode = rejectedInstance.getRejectionNoteCode();
+            if (rejectionCode.getPk() != prevRjNoteCode.getPk()) {
+                if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
+                    throw new DicomServiceException(StoreService.REJECTION_FAILED_ALREADY_REJECTED,
+                            MessageFormat.format(StoreService.REJECTION_FAILED_ALREADY_REJECTED_MSG, objectUID));
+                rejectedInstance.setRejectionNoteCode(rejectionCode);
+                LOG.info("{}: {}", session, rejectedInstance);
+            }
+        } else {
+            rejectedInstance = new RejectedInstance(studyUID, seriesUID, objectUID, classUID, rejectionCode);
+            em.persist(rejectedInstance);
+            LOG.info("{}: {}", session, rejectedInstance);
         }
     }
 

@@ -56,6 +56,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -75,6 +76,14 @@ public class RSForward {
                 arcAE,
                 toContent(attrs, arcAE),
                 rsOp == RSOperation.CreatePatient ? IDWithIssuer.pidOf(attrs).toString() : null,
+                request);
+    }
+
+    public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, HttpServletRequest request, List<Attributes> attrs) {
+        forward(rsOp,
+                arcAE,
+                toContent(attrs, arcAE),
+                null,
                 request);
     }
 
@@ -111,6 +120,19 @@ public class RSForward {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (JsonGenerator gen = Json.createGenerator(out)) {
             arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
+        }
+        return out.toByteArray();
+    }
+
+    private static byte[] toContent(List<Attributes> requestAttrs, ArchiveAEExtension arcAE) {
+        if (requestAttrs.isEmpty())
+            return ByteUtils.EMPTY_BYTES;
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator gen = Json.createGenerator(out)) {
+            gen.writeStartArray();
+            requestAttrs.forEach(attrs -> arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs));
+            gen.writeEnd();
         }
         return out.toByteArray();
     }
