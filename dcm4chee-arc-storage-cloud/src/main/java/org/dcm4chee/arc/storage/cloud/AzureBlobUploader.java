@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dcm4chee.arc.storage.CacheInputStream;
-import org.jclouds.azureblob.blobstore.AzureBlobStore;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
@@ -54,6 +53,7 @@ import org.jclouds.blobstore.domain.MultipartPart;
 import org.jclouds.blobstore.domain.MultipartUpload;
 import org.jclouds.io.Payload;
 import org.jclouds.io.payloads.InputStreamPayload;
+import org.jclouds.blobstore.options.PutOptions;
 
 /**
  * @author Daniil Trishkin <kernel.pryanic@protonmail.com>
@@ -82,18 +82,17 @@ class AzureBlobUploader extends CacheInputStream implements Uploader {
 
     private void uploadMultipleParts(BlobStoreContext context, InputStream in, String container, String storagePath)
             throws IOException {
-        AzureBlobStore blobStore = (AzureBlobStore) context.getBlobStore();
-        Payload payload = createPayload();
-        Blob blob = blobStore.blobBuilder(storagePath).payload(payload).build();
-        MultipartUpload mpu = blobStore.initiateMultipartUpload(container, blob.getMetadata(), null);
+        BlobStore blobStore = context.getBlobStore();
+        Blob blob = blobStore.blobBuilder(storagePath).build();
+        MultipartUpload mpu = blobStore.initiateMultipartUpload(container, blob.getMetadata(), new PutOptions().multipart());
         List<MultipartPart> parts = new ArrayList<MultipartPart>();
         int partNumber = 1;
         do {
-            parts.add(blobStore.uploadMultipartPart(mpu, partNumber, payload));
+            parts.add(blobStore.uploadMultipartPart(mpu, partNumber, createPayload()));
             partNumber++;
         } while (fillBuffers(in));
         if (available() > 0)
-            parts.add(blobStore.uploadMultipartPart(mpu, partNumber, payload));
+            parts.add(blobStore.uploadMultipartPart(mpu, partNumber, createPayload()));
         blobStore.completeMultipartUpload(mpu, parts);
     }
 }
