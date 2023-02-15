@@ -43,7 +43,6 @@ package org.dcm4chee.arc.storage.cloud;
 import com.google.common.hash.HashCode;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.AttributesFormat;
-import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
@@ -94,7 +93,6 @@ public class CloudStorage extends AbstractStorage {
     private final AttributesFormat pathFormat;
     private final String container;
     private final BlobStoreContext context;
-    private final String uploaderOverride;
     private String api;
     private int count;
 
@@ -116,7 +114,6 @@ public class CloudStorage extends AbstractStorage {
             endpoint = api.substring(endApi + 1);
             api = api.substring(0, endApi);
         }
-        this.uploaderOverride = descriptor.getProperty("uploaderOverride", "");
         ContextBuilder ctxBuilder = ContextBuilder.newBuilder(api);
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
@@ -200,18 +197,13 @@ public class CloudStorage extends AbstractStorage {
         }
         long length = ctx.getContentLength();
         Uploader uploader = STREAMING_UPLOADER;
-        switch(uploaderOverride) {
-            case "do":
+        switch (api) {
+            case "aws-s3":
+                uploader = new S3Uploader();
                 break;
-            default:
-                switch(api) {
-                    case "aws-s3":
-                        uploader = new S3Uploader();
-                        break;
-                    case "azureblob":
-                        uploader = new AzureBlobUploader();
-                        break;
-                }
+            case "azureblob":
+                uploader = new AzureBlobUploader();
+                break;
         }
 
         uploader.upload(context, in, length, blobStore, container, storagePath);
