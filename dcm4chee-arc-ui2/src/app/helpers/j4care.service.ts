@@ -142,6 +142,49 @@ export class j4care {
             return true;
         return false;
     }
+    static getOrNone(obj,path,defaultReturn?){
+        if(this.hasSet(obj,path)){
+            return _.get(obj,path);
+        }else{
+            if(defaultReturn != undefined){
+                return defaultReturn;
+            }
+            return "";
+        }
+    }
+    static hasBiggerAs(obj,path,value){
+        try{
+            return this.hasSet(obj,path) && _.get(obj,path) > value;
+        }catch (e) {
+            return false;
+        }
+    }
+
+    static getStudyInstanceUID(object){
+        try{
+            return _.get(object, "0020000D.Value[0]");
+        }catch (e) {
+            return undefined;
+        }
+    }
+
+    static checkInPath(object:Object,path:string, checkFunction:Function):boolean{
+        try{
+            if(_.hasIn(object,path)){
+                return checkFunction(_.get(object,path))
+            }
+            return false;
+        }catch (e) {
+            return false;
+        }
+    }
+    static hasSmallerAs(obj,path,value){
+        try{
+            return this.hasSet(obj,path) && _.get(obj,path) > value;
+        }catch (e) {
+            return false;
+        }
+    }
     static isDate(input){
         try{
             if(input && !isNaN((new Date(input)).getTime()) && typeof input != "number"){

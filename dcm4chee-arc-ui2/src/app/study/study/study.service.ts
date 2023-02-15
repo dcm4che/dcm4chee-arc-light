@@ -52,6 +52,8 @@ import {MwlDicom} from "../../models/mwl-dicom";
 import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
 import {DatePipe} from "@angular/common";
 import {CustomDatePipe} from "../../pipes/custom-date.pipe";
+import {SeriesDicom} from "../../models/series-dicom";
+import {StudyDicom} from "../../models/study-dicom";
 
 @Injectable()
 export class StudyService {
@@ -1819,6 +1821,25 @@ export class StudyService {
                                     id: 'action-studies-study',
                                     param: 'edit'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'material-icons',
+                                    text: 'visibility_off'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "mark_as_requested_unscheduled"
+                                    }, e);
+                                },
+                                title: $localize `:@@mark_study_as_requested_or_unscheduled:Mark study as Requested or Unscheduled`,
+                                id:"study_mark_as_requested_unscheduled",
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'edit'
+                                }
                             }, {
                                 icon: {
                                     tag: 'i',
@@ -2326,6 +2347,25 @@ export class StudyService {
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
+                                permission: {
+                                    id: 'action-studies-serie',
+                                    param: 'edit'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'material-icons',
+                                    text: 'visibility_off'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "mark_as_requested_unscheduled"
+                                    }, e);
+                                },
+                                id:"series_mark_as_requested_unscheduled",
+                                title: $localize `:@@mark_series_as_requested_or_unscheduled:Mark series as Requested or Unscheduled`,
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: 'edit'
@@ -3790,6 +3830,11 @@ export class StudyService {
         }
         return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
     }
+    getSeriesUrl(selectedWebService:DcmWebApp, series:SeriesDicom, studyInstanceUID?:string, seriesInstanceUID?:string){
+        studyInstanceUID = studyInstanceUID || this.getStudyInstanceUID(series.attrs);
+        seriesInstanceUID = seriesInstanceUID || this.getSeriesInstanceUID(series.attrs);
+        return `${this.getDicomURL("study",selectedWebService)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
+    }
     modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string) {
         const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}`;
         if (url) {
@@ -5058,5 +5103,141 @@ export class StudyService {
             case "mwl":
                 return $localize `:@@mwl:mwl`;
         }
+    }
+
+
+    markAsRequestedOrUnscheduled(dcmWebApp:DcmWebApp, studyInstanceUID, object, dicomLevel:string, dicomObject:StudyDicom|SeriesDicom){
+        dicomLevel = dicomLevel || "study";
+        if(dicomLevel === "study"){
+            return this.$http.put(`${this.getDicomURL(dicomLevel, dcmWebApp)}/${studyInstanceUID}/request`, object, new HttpHeaders({'Content-Type': 'application/dicom+json'}),undefined,dcmWebApp);
+        }
+        if(dicomLevel === "series"){
+            return this.$http.put(`${this.getSeriesUrl(dcmWebApp,<SeriesDicom> dicomObject)}/request`, object, new HttpHeaders({'Content-Type': 'application/dicom+json'}),undefined,dcmWebApp);
+        }
+    }
+
+    getRequestSchema(){
+        let requestSchema = [];
+        return this.getIod("series").pipe(map(res=>{
+            const requestIOD = _.get(res,"00400275.items");
+            Object.keys(requestIOD).forEach(dicomKey=>{
+                if(requestIOD[dicomKey].vr === "SQ" && _.hasIn(requestIOD[dicomKey],"items")){
+                    requestSchema.push([
+                        {
+                            tag:"label_large",
+                            text:DCM4CHE.elementName.forTag(dicomKey)
+                        }
+                    ]);
+                    const subItems = _.get(requestIOD[dicomKey],"items");
+                    Object.keys(subItems).forEach(itemKey=>{
+                        requestSchema.push([
+                            {
+                                tag:"label",
+                                text:DCM4CHE.elementName.forTag(itemKey),
+                                prefix:"> "
+                            },
+                            {
+                                tag:"input",
+                                type:"text",
+                                filterKey: `${dicomKey}.${itemKey}`,
+                                description:DCM4CHE.elementName.forTag(itemKey),
+                                placeholder:DCM4CHE.elementName.forTag(itemKey)
+                            }
+                        ])
+                    })
+                }else{
+                    requestSchema.push([
+                        {
+                            tag:"label",
+                            text:DCM4CHE.elementName.forTag(dicomKey)
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey: dicomKey,
+                            description:DCM4CHE.elementName.forTag(dicomKey),
+                            placeholder:DCM4CHE.elementName.forTag(dicomKey)
+                        }
+                    ])
+                }
+            });
+            return [requestSchema, requestIOD];
+        }));
+    }
+    /*
+     {
+        00080050: "test1",
+        00080051.00400031: "test2"
+     }
+
+     to
+     {
+        00080050:{
+            vr:"SH",
+            Value:["test1"]
+        },
+        00080051:{
+            vr:"SQ",
+            Value:[
+                {
+                    00400031:{
+                        vr:"SH",
+                        Value:["test1"]
+                    }
+                }
+            ]
+        }
+     }
+    *
+    * */
+    convertFilterModelToDICOMObject(object, iod, exception:string[]=[]){
+        let newObject = {};
+        Object.keys(object).forEach(modelKey=>{
+            if(exception.indexOf(modelKey) === -1){
+                if(modelKey.indexOf(".") > -1){
+                    const [firstKey,secondKey] = modelKey.split(".");
+                    console.log("first",firstKey)
+                    console.log("second",secondKey)
+                    const iodObject = _.get(iod,`${firstKey}.items.${secondKey}`);
+                    delete iodObject["required"];
+                    if(iodObject){
+                        if(newObject[firstKey]){
+                            _.set(newObject,`${firstKey}.Value[0].${secondKey}`,{
+                                ...iodObject,
+                                Value:[
+                                    object[modelKey]
+                                ]
+                            })
+                        }else{
+                            newObject[firstKey] = {
+                                "vr":"SQ",
+                                "Value":[
+                                    {
+                                        [secondKey]:{
+                                            ...iodObject,
+                                            Value:[
+                                                object[modelKey]
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }else{
+                    const iodObject = _.get(iod,modelKey);
+                    delete iodObject["required"];
+                    if(iodObject){
+                        newObject[modelKey] = {
+                            ...iodObject,
+                            Value:[
+                                object[modelKey]
+                            ]
+                        }
+                    }
+                }
+            }
+        });
+        return newObject;
     }
 }

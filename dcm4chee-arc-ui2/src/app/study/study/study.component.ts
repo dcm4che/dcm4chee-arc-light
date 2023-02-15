@@ -1019,6 +1019,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "modify_expired_date"){
                 this.setExpiredDate(model);
             }
+            if(id.action === "mark_as_requested_unscheduled"){
+                this.markAsRequestedOrUnscheduled(model, id.level);
+            }
             if(id.action === "create_mwl"){
                 this.createMWL(model);
             }
@@ -4626,6 +4629,76 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     setExpiredDate(study){
         this.setExpiredDateQuery(study,false);
+    }
+    markAsRequestedOrUnscheduled(e, level:DicomLevel){
+        this.service.getRequestSchema().subscribe(([requestedSchema, iod])=>{
+            const mainSchema = [
+                [
+
+                    {
+                        tag:"label",
+                        text:$localize `:@@mark_mode:Mark mode`
+                    },
+                    {
+                        tag:"select",
+                        options:[
+                            new SelectDropdown("requested", $localize `:@@requested:Requested`),
+                            new SelectDropdown("unscheduled", $localize `:@@unscheduled:Unscheduled`)
+                        ],
+                        filterKey:"markMode",
+                        description:$localize `:@@select_mode_to_mark_all_series_as_such:Select mark mode to mark all series of the study as such`,
+                        placeholder:$localize `:@@mark_mode:Mark mode`
+                    }
+                ]
+            ];
+
+            let schemaMode = "unscheduled";
+            this.confirm({
+                content: $localize `:@@query_pdw:Mark all series of the study as Requested or Unscheduled`,
+                doNotSave:true,
+                form_schema:[
+                    mainSchema
+                ],
+                onFilterChangeHook:(e,model,schema)=>{
+                    console.log("e",e);
+                    console.log("model",model);
+                    console.log("schema",schema);
+                    if(model && model["markMode"]){
+                        if(model["markMode"] === "requested" && schemaMode != "requested"){
+                            schema[0] = [
+                                ...mainSchema,
+                                ...requestedSchema
+                            ];
+                            schemaMode = "requested";
+                        }
+                        if(model["markMode"] === "unscheduled" && schemaMode != "unscheduled"){
+                            schema[0] = mainSchema;
+                            schemaMode = "unscheduled";
+                        }
+                    }
+                },
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize `:@@SUBMIT:SUBMIT`
+            }).subscribe(ok=>{
+                if(ok && _.hasIn(ok,"schema_model.markMode")){
+                    const studyInstanceUID = j4care.getStudyInstanceUID(e.attrs);
+                    let toSendObject = [];
+                    if(_.get(ok, "schema_model.markMode") === "requested"){
+                        toSendObject = [this.service.convertFilterModelToDICOMObject(ok.schema_model,iod,["markMode"])];
+                    }
+                    this.cfpLoadingBar.start();
+                    this.service.markAsRequestedOrUnscheduled(this.studyWebService.selectedWebService,studyInstanceUID,toSendObject, level, e).subscribe(res=>{
+                        this.cfpLoadingBar.complete();
+                        this.appService.showMsg($localize `:@@series_of_study_marked_successfully:Series of the studies marked successfully!`);
+                    },err=>{
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    });
+                }
+            })
+        })
     }
 
     setExpiredDateQuery(study, infinit){

@@ -156,7 +156,7 @@ export interface FilterSchemaElement {
     codes?:Code[];
 }
 
-export type DicomMode = "study" | "patient" | "series" | "mwl" | "mpps" | "uwl" | "diff" | "export" | "thumbnail";
+export type DicomMode = "study" | "patient" | "series" | "mwl" | "mpps" | "uwl" | "diff" | "export" | "thumbnail" | string;
 export type StudyTab = "study" | "patient" | "mwl" | "uwl" | "diff" | "mpps";
 
 export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff" | "mwl" | string;
