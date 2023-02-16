@@ -1618,11 +1618,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     /*
     * @confirmparameters is an object that can contain title, content
     * */
-    confirm(confirmparameters){
+    confirm(confirmparameters, width?:string){
+        width = width || '500px';
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: width
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -4681,7 +4682,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     schema_model: {}
                 },
                 saveButton: $localize `:@@SUBMIT:SUBMIT`
-            }).subscribe(ok=>{
+            },
+                '700px'
+            ).subscribe(ok=>{
                 if(ok && _.hasIn(ok,"schema_model.markMode")){
                     const studyInstanceUID = j4care.getStudyInstanceUID(e.attrs);
                     let toSendObject = [];

@@ -38,6 +38,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     @Output() onFilterClear  = new EventEmitter();
     @Input() ignoreOnClear; //string[], pas here all filter keys that should be ignored on clear
     @Input() defaultSubmitId:string;
+    @Input() onFilterChangeHook:Function; //A function that will be triggered every time when the filter will change ( So one can manipulate the schema based on some value/dropdown/checkbox in the model
     dialogRef: MatDialogRef<any>;
     cssBlockClass = '';
     hideLoader = false;
@@ -186,6 +187,10 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     }
     filterChange(test){
         console.log("this.model",this.model);
+        console.log("this.schema",this.schema);
+        if(this.onFilterChangeHook){
+            this.onFilterChangeHook(event,this.model,this.schema);
+        }
         this.onChange.emit(this.model);
 
     }

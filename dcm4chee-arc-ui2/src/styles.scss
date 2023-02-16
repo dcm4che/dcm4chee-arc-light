@@ -18,6 +18,20 @@ $hoverBlue:#5293C1;
       }
     }
   }
+  .confirm{
+    filter-generator{
+      .filter{
+        clear: both;
+        float: revert;
+        .filter_block{
+          min-width:460px;
+          width: 100%;
+          max-height: 50vh;
+          overflow-y: auto;
+        }
+      }
+    }
+  }
 }
 @media screen and (max-width: 1400px) {
   .hideOn1400px{

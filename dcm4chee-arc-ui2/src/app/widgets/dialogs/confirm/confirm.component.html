@@ -64,7 +64,7 @@
                 <span class="text-danger" *ngIf="(_.hasIn(parameters,parameters.warningOn.conditions[0]) && _.get(parameters,parameters.warningOn.conditions[0]) === true) || _.hasIn(parameters,parameters.warningOn.conditions[1]) && _.get(parameters,parameters.warningOn.conditions[1]) === true">{{ parameters.warningOn.message }}</span>
             </div>
             <div *ngIf="parameters.form_schema">
-                <filter-generator [schema]="parameters.form_schema" [filterTreeHeight]="1" [model]="parameters.result.schema_model" [hideClearButtons]="true" [filterID]="parameters.form_id" [doNotSave]="parameters.doNotSave"></filter-generator>
+                <filter-generator [schema]="parameters.form_schema" [filterTreeHeight]="1" [model]="parameters.result.schema_model" [hideClearButtons]="true" [filterID]="parameters.form_id" [doNotSave]="parameters.doNotSave" [onFilterChangeHook]="parameters.onFilterChangeHook"></filter-generator>
             </div>
         </div>
         <div class="dialogbuttons">

@@ -36,7 +36,11 @@
                             <mat-option *ngFor="let option of line[index].secondField.options" value="{{option.value}}" title="{{option.description || option.title}}"  [innerHtml]="option.label || option.text"></mat-option>
                         </mat-select>
                     </div>
-                  <label *ngSwitchCase="'label'" title="{{line[index].title}}">{{line[index].text}}<ng-container *ngIf="!line[index].dontShowDots">:</ng-container></label>
+                  <label *ngSwitchCase="'label'" title="{{line[index].title}}">
+                      <ng-container *ngIf="line[index].prefix">{{line[index].prefix}}</ng-container>
+                      {{line[index].text}}
+                      <ng-container *ngIf="!line[index].dontShowDots">:</ng-container>
+                  </label>
                   <modality *ngSwitchCase="'modality'" [model]="model[line[index].filterKey]" [ngStyle]="line[index].style" (modelChange)="model[line[index].filterKey] = $event;filterChange($event)"></modality>
                     <ng-container *ngSwitchCase="'multi-checkbox'">
                         <!--options:{{line[index]?.options|json}}-->
