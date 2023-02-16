@@ -600,7 +600,7 @@ export class DeviceConfiguratorService{
                                 options.push({
                                     label: opt.label,
                                     value: opt.value,
-                                    active: (opt.value === value) ? true : false
+                                    active: (opt.value === value)
                                 });
                             });
                         }else{
@@ -609,7 +609,7 @@ export class DeviceConfiguratorService{
                                     options.push({
                                         label: opt,
                                         value: opt,
-                                        active: (opt === value) ? true : false
+                                        active: (opt === value)
                                     });
                                 });
                             }
@@ -824,7 +824,7 @@ export class DeviceConfiguratorService{
                                 options.push({
                                     key: opt.label,
                                     value: opt.value,
-                                    active: (_.indexOf(value, opt.value) > -1) ? true : false
+                                    active: (_.indexOf(value, opt.value) > -1)
                                 });
                             });
                        }else{
@@ -832,7 +832,7 @@ export class DeviceConfiguratorService{
                                options.push({
                                    key: opt,
                                    value: opt,
-                                   active: (opt === value) ? true : false
+                                   active: (opt === value)
                                });
                            });
                        }
@@ -842,7 +842,7 @@ export class DeviceConfiguratorService{
                             options.push({
                                 value: '/dicomNetworkConnection/' + i,
                                 key: opt.cn + ' (' + opt.dicomHostname + ((opt.dicomPort) ? ':' + opt.dicomPort : '') + ')',
-                                active: (_.indexOf(value, '/dicomNetworkConnection/' + i) > -1) ? true : false
+                                active: (_.indexOf(value, '/dicomNetworkConnection/' + i) > -1)
                             });
                         });
                     }
@@ -893,7 +893,7 @@ export class DeviceConfiguratorService{
                             options.push({
                                 key: opt,
                                 value: opt,
-                                active: (opt === value || _.indexOf(value, opt) > -1) ? true : false
+                                active: (opt === value || _.indexOf(value, opt) > -1)
                             });
                         });
                         form.push(
@@ -1077,7 +1077,7 @@ export class DeviceConfiguratorService{
                         options.push({
                             label: opt,
                             value: opt,
-                            active: (opt === value) ? true : false
+                            active: (opt === value)
                         });
                     });
                     form.push(
