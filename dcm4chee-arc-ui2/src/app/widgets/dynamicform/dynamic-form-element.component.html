@@ -146,6 +146,6 @@
         </div>
     </div>
     <div  class="description_parent" *ngIf="formelement.show || partSearch != ''">
-        <span class="description">{{formelement.description}}</span>
+        <span class="description" [innerHtml]="formelement.description"></span>
     </div>
 </div>
