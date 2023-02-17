@@ -3775,24 +3775,21 @@ export class StudyService {
         if(j4care.is(options, "studyTagConfig")){
             Object.keys(schema).forEach((modeKey:DicomLevel)=>{
                 console.log("schema™modeKey",schema[modeKey]);
-                schema[modeKey].forEach((element)=>{
+                schema[modeKey].forEach((element,i)=>{
                     console.log("element",element);
                     if(element.type === "actions-menu" && _.hasIn(element,"menu.actions[0]")){ //To prevent showing the single action buttons in the tag mode you have to extend this function with  || element.type === "actions" so you can filter the actions too
-
-                        console.log("element.menu.actions",element.menu.actions);
-                        for(let i = element.menu.actions.length - 1; i > -1;i--){
-                            console.log("element in i:",element.menu.actions[i]);
-                            if(!_.hasIn(options,"studyTagConfig.takeActionsOver") || !(_.hasIn(element,`menu.actions[${i}].id`) && options.studyTagConfig.takeActionsOver.indexOf(element.menu.actions[i].id) > -1)){
-                                console.log("about to delete this",element.menu.actions[i]); //TODO
-                                console.log("i:",i);
-                                element.menu.actions.splice(i, 1);
-                            }
+                        element.menu.actions = element.menu.actions.filter(a=>_.hasIn(options,"studyTagConfig.takeActionsOver") && options.studyTagConfig.takeActionsOver.indexOf(a.id) > -1);
+                        if(element.menu.actions.length === 0 && options.studyTagConfig.hideEmptyActionMenu){
+                            schema[modeKey].splice(i, 1); //If there is no action button in menu left, delete the menu point!
                         }
                     }
                 })
             });
             if(_.hasIn(options,"studyTagConfig.addActions.addPath") && _.hasIn(options,"studyTagConfig.addActions.addFunction")){
-                options.studyTagConfig.addActions.addFunction(actions,$this,_.get(schema, options.studyTagConfig.addActions.addPath));
+                options.studyTagConfig.addActions.addFunction(actions,$this,_.get(schema, options.studyTagConfig.addActions.addPath), schema);
+            }
+            if(_.hasIn(options,"studyTagConfig.hookSchema")){
+                options.studyTagConfig.hookSchema(schema,$this);
             }
         }
 

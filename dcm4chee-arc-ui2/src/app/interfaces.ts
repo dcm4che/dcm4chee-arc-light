@@ -3,7 +3,7 @@ import {Device} from "./models/device";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {HttpHeaders} from "@angular/common/http";
 import {SelectionsDicomObjects} from "./study/study/selections-dicom-objects.model";
-import {TableAction} from "./helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {DicomTableSchema, TableAction} from "./helpers/dicom-studies-table/dicom-studies-table.interfaces";
 
 export interface J4careDateTime {
     FullYear:string;
@@ -361,12 +361,18 @@ export interface StudyTagConfig {
     title:string;
     takeActionsOver?:string[]; //Array of the permissions id strings, if empty no actions button will be taken over
     addActions?:AddActions;
+    hookSchema?:(schema:DicomTableSchema, $this:any)=>DicomTableSchema;
     searchPatientAfterNoMwl?:boolean;
     tableMode?:StudyTab;
+    hidePageArrows?:boolean;
+    cssClass?:string;
+    hideEmptyActionMenu?:boolean;
+    presetFilter?:any;
+    preventClearingSelected?:boolean;
 }
 type AddActions = {
     addPath:string,
-    addFunction:(actions:Function, $this:any, currentActions:TableAction[]) => TableAction[]
+    addFunction:(actions:Function, $this:any, currentActions:TableAction[], schema?:DicomTableSchema) => TableAction[]
 };
 
 export interface CreateDialogTemplate{
