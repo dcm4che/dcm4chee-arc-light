@@ -1422,8 +1422,9 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public static Device createStoreSCPDevice() {
-        Device device = createDevice("storescp", "STORESCP", "localhost", 104, -2);
+    public static Device createStoreSCPDevice(ConfigType configType) {
+        Device device = createDevice("storescp", "STORESCP",
+                configType == ConfigType.DOCKER ? "storescp-host" : "localhost", 11117, -2);
         ApplicationEntity ae = device.getApplicationEntity("STORESCP");
         addTC(ae, null, SCP, UID.Verification, UID.ImplicitVRLittleEndian);
         String[][] CUIDS = { IMAGE_CUIDS, PRIVATE_IMAGE_CUIDS, SR_CUIDS, OTHER_CUIDS, PRIVATE_CUIDS };

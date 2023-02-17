@@ -209,7 +209,7 @@ cn: Audit Record Repository
 
 dn: cn=dicom,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
-dicomPort: 104
+dicomPort: 11117
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 cn: dicom
