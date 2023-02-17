@@ -4632,6 +4632,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.setExpiredDateQuery(study,false);
     }
     markAsRequestedOrUnscheduled(e, level:DicomLevel){
+        let markModeHover;
+        let markModeTitle;
+        if (level === "series") {
+            markModeHover = $localize `:@@mark_mode_series_desc:Select mark mode to mark series as Requested or Unscheduled`;
+            markModeTitle = $localize `:@@mark_mode_series_text:Mark series as Requested or Unscheduled`;
+        } else {
+            markModeHover = $localize `:@@mark_mode_study_desc:Select mark mode to mark all series of study as Requested or Unscheduled`;
+            markModeTitle = $localize `:@@mark_mode_study_text:Mark all series of study as Requested or Unscheduled`;
+        }
+
         this.service.getRequestSchema().subscribe(([requestedSchema, iod])=>{
             const mainSchema = [
                 [
@@ -4647,7 +4657,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             new SelectDropdown("unscheduled", $localize `:@@unscheduled:Unscheduled`)
                         ],
                         filterKey:"markMode",
-                        description:$localize `:@@select_mode_to_mark_all_series_as_such:Select mark mode to mark all series of the study as such`,
+                        description: markModeHover,
                         placeholder:$localize `:@@mark_mode:Mark mode`
                     }
                 ]
@@ -4655,7 +4665,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
             let schemaMode = "unscheduled";
             this.confirm({
-                content: $localize `:@@query_pdw:Mark all series of the study as Requested or Unscheduled`,
+                content: markModeTitle,
                 doNotSave:true,
                 form_schema:[
                     mainSchema
@@ -4688,13 +4698,21 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if(ok && _.hasIn(ok,"schema_model.markMode")){
                     const studyInstanceUID = j4care.getStudyInstanceUID(e.attrs);
                     let toSendObject = [];
-                    if(_.get(ok, "schema_model.markMode") === "requested"){
+                    let requested = _.get(ok, "schema_model.markMode") === "requested";
+                    if(requested){
                         toSendObject = [this.service.convertFilterModelToDICOMObject(ok.schema_model,iod,["markMode"])];
                     }
                     this.cfpLoadingBar.start();
                     this.service.markAsRequestedOrUnscheduled(this.studyWebService.selectedWebService,studyInstanceUID,toSendObject, level, e).subscribe(res=>{
                         this.cfpLoadingBar.complete();
-                        this.appService.showMsg($localize `:@@series_of_study_marked_successfully:Series of the studies marked successfully!`);
+                        let infoMsg = level === "series"
+                                        ? requested
+                                            ? $localize `:@@mark_series_requested_successfully:Series marked as Requested successfully!`
+                                            : $localize `:@@mark_series_unscheduled_successfully:Series marked as Unscheduled successfully!`
+                                        : requested
+                                            ? $localize `:@@mark_study_requested_successfully:All Series of Study marked as Requested successfully!`
+                                            : $localize `:@@mark_study_unscheduled_successfully:All Series of Study marked as Unscheduled successfully!`;
+                        this.appService.showMsg(infoMsg);
                     },err=>{
                         this.cfpLoadingBar.complete();
                         this.httpErrorHandler.handleError(err);

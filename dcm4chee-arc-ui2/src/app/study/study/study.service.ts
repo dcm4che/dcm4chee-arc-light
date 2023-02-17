@@ -1834,7 +1834,7 @@ export class StudyService {
                                         action: "mark_as_requested_unscheduled"
                                     }, e);
                                 },
-                                title: $localize `:@@mark_study_as_requested_or_unscheduled:Mark study as Requested or Unscheduled`,
+                                title: $localize `:@@mark_mode_study_text:Mark study as Requested or Unscheduled`,
                                 id:"study_mark_as_requested_unscheduled",
                                 permission: {
                                     id: 'action-studies-study',
@@ -2365,7 +2365,7 @@ export class StudyService {
                                     }, e);
                                 },
                                 id:"series_mark_as_requested_unscheduled",
-                                title: $localize `:@@mark_series_as_requested_or_unscheduled:Mark series as Requested or Unscheduled`,
+                                title: $localize `:@@mark_mode_series_text:Mark series as Requested or Unscheduled`,
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: 'edit'
