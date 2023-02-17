@@ -64,7 +64,7 @@ class AzureBlobUploader extends CacheInputStream implements Uploader {
     public void upload(BlobStoreContext context, InputStream in, long length, BlobStore blobStore,
             String container, String storagePath) throws IOException {
         if (fillBuffers(in))
-            uploadMultipleParts(context, in, container, storagePath);
+            uploadMultipleParts(blobStore, in, container, storagePath);
         else
             uploadSinglePart(blobStore, container, storagePath);
     }
@@ -80,9 +80,8 @@ class AzureBlobUploader extends CacheInputStream implements Uploader {
         return payload;
     }
 
-    private void uploadMultipleParts(BlobStoreContext context, InputStream in, String container, String storagePath)
+    private void uploadMultipleParts(BlobStore blobStore, InputStream in, String container, String storagePath)
             throws IOException {
-        BlobStore blobStore = context.getBlobStore();
         Blob blob = blobStore.blobBuilder(storagePath).build();
         MultipartUpload mpu = blobStore.initiateMultipartUpload(container, blob.getMetadata(), new PutOptions().multipart());
         List<MultipartPart> parts = new ArrayList<MultipartPart>();
