@@ -619,6 +619,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(e === "send_ian_request_for_selections"){
             this.sendInstanceAvailabilityNotificationSingle();
         }
+        if(e === "delete_object"){
+            this.deleteSelectedObjects()
+        }
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
         },1);
@@ -4798,6 +4801,28 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     }
 
+    deleteSelectedObjects(){
+        let deleteServices = ()=>{
+            if(this.selectedElements.size > 0){
+                this.cfpLoadingBar.start();
+                this.service.deleteMultipleObjects(this.selectedElements, this.studyWebService.selectedWebService).subscribe(res=>{
+                    this.appService.showMsg($localize `:@@deleting_multiple_objects_triggered_successfully:Deleting multiple objects triggered successfully!`);
+                    this.cfpLoadingBar.complete();
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                })
+            }
+        };
+        let parameters: any = {
+            content: $localize `:@@deleting_selected_object_study_patient:Delete selected Object ( Only deleting Studies and Patient objects are currently supported ) `};
+        this.confirm(parameters).subscribe(result => {
+            if (result) {
+                deleteServices();
+            }
+        });
+    }
+
     deleteStudy(study){
         console.log('study', study);
         this.confirm({
@@ -5013,7 +5038,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.start();
                 this.service.rejectRestoreMultipleObjects(this.selectedElements, this.studyWebService.selectedWebService,rejectionCode).subscribe(res=>{
                     this.appService.showMsg(msg);
-                this.cfpLoadingBar.complete();
+                    this.cfpLoadingBar.complete();
                 },err=>{
                     this.cfpLoadingBar.complete();
                     this.httpErrorHandler.handleError(err);

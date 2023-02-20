@@ -4608,6 +4608,16 @@ export class StudyService {
             );
         }));
     }
+    deleteMultipleObjects(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, param?:any){
+        return forkJoin(multipleObjects.getAllAsArray().map((element: SelectedDetailObject) => {
+            if(element.dicomLevel === "patient" && _.hasIn(element,"object.attrs")){
+                return this.deletePatient(selectedWebService,this.getPatientId(element.object.attrs));
+            }
+            if(element.dicomLevel === "study" && _.hasIn(element,"object.attrs")){
+                return this.deleteStudy(this.getStudyInstanceUID(element.object.attrs),selectedWebService,param);
+            }
+        }));
+    }
 
     rejectMatchingStudies(webApp: DcmWebApp, rejectionCode, params:any){
         return this.$http.post(
