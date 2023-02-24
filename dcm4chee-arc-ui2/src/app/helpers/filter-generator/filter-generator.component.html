@@ -42,16 +42,23 @@
                       <ng-container *ngIf="!line[index].dontShowDots">:</ng-container>
                   </label>
                   <modality *ngSwitchCase="'modality'" [model]="model[line[index].filterKey]" [ngStyle]="line[index].style" (modelChange)="model[line[index].filterKey] = $event;filterChange($event)"></modality>
-                    <ng-container *ngSwitchCase="'multi-checkbox'">
-                        <!--options:{{line[index]?.options|json}}-->
-                        <label *ngFor="let item of line[index]?.options">
+                <ng-container *ngSwitchCase="'multi-checkbox'">
+                    <!--options:{{line[index]?.options|json}}-->
+                    <label *ngFor="let item of line[index]?.options">
 <!--
-                            item:{{item|json}}
+                        item:{{item|json}}
 -->
-                            <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="model[item.key] = $event;filterChange($event)" [(ngModel)]="model[item.key]"  title="{{item?.description}}" />
-                            <span [ngStyle]="item?.style" >{{item.text}}</span>
-                        </label>
-                    </ng-container>
+                        <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="model[item.key] = $event;filterChange($event)" [(ngModel)]="model[item.key]"  title="{{item?.description}}" />
+                        <span [ngStyle]="item?.style" >{{item.text}}</span>
+                    </label>
+                </ng-container>
+                    <person-name-picker
+                            *ngSwitchCase="'person-name-picker'"
+                            [title]="line[index]?.description"
+                            [placeholder]="line[index]?.placeholder"
+                            [model]="model[line[index].filterKey]"
+                            (modelChange)="model[line[index].filterKey] = $event"
+                    ></person-name-picker>
                   <ng-container *ngIf="line[index].filterKey || line[index].tag === 'code-selector' || line[index].tag === 'modified-widget'">
                     <div class="input_group_dropdown" *ngSwitchCase="'size_range_picker'">
                         <size-range-picker ngDefaultControl (modelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(model)]="model[line[index].filterKey]"></size-range-picker>
@@ -83,6 +90,7 @@
 
                         >
                       </ng-container>
+
                     <div class="filter_checkbox" *ngSwitchCase="'checkbox'" title="{{line[index]?.description}}" [ngClass]="{'active':model[line[index].filterKey]}">
                       <input [disabled]="line[index].disabled" type="checkbox" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]"  title="{{line[index]?.description}}" > <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
                     </div>

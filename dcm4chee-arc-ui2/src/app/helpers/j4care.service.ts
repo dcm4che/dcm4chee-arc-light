@@ -168,6 +168,13 @@ export class j4care {
         }
     }
 
+    //Will merge multiple elements in the array at the position "position"
+    static mergeArrayAtPosition(array:any[], position:number, placesToMerge:number = 1, joinSpace:string = ""){
+        try{
+            return [array.slice(position, placesToMerge+1).join(joinSpace),...array.slice(position + placesToMerge + 1, array.length)]
+        }catch (e) {}
+    }
+
     static checkInPath(object:Object,path:string, checkFunction:Function):boolean{
         try{
             if(_.hasIn(object,path)){

@@ -168,3 +168,21 @@ export const PATIENT_NAME_PARTS = [
     "P_NAME-PREFIX",
     "P_NAME-SUFFIX"
 ];
+
+export const PERSON_NAME_PARTS_BY_LES_PROBABILITY = [
+    "P_NAME-SUFFIX",
+    "I_NAME-SUFFIX",
+    "P_NAME-PREFIX",
+    "I_NAME-PREFIX",
+    "P_MIDDLE-NAME",
+    "I_MIDDLE-NAME",
+    "P_FAMILY-NAME",
+    "I_FAMILY-NAME",
+    "P_GIVEN-NAME",
+    "I_GIVEN-NAME",
+    "NAME-SUFFIX",
+    "NAME-PREFIX",
+    "MIDDLE-NAME",
+    "FAMILY-NAME",
+    "GIVEN-NAME"
+]

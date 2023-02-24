@@ -3375,8 +3375,7 @@ export class Globalvar {
         }else{
             return [
                 {
-                    tag:"input",
-                    type:"text",
+                    tag:"person-name-picker",
                     filterKey:"PatientName",
                     placeholder:$localize `:@@patient_family_name:Patient family name`,
                     description:$localize `:@@patient_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
@@ -3481,8 +3480,7 @@ export class Globalvar {
                     placeholder:$localize `:@@sps_status:SPS Status`
                 },
                 {
-                    tag:"input",
-                    type:"text",
+                    tag:"person-name-picker",
                     filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
                     description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`,
                     placeholder:$localize `:@@sp_physicians_family_name:SP Physician's family name`
@@ -3532,8 +3530,7 @@ export class Globalvar {
         }else{
             return [
                 {
-                    tag:"input",
-                    type:"text",
+                    tag:"person-name-picker",
                     filterKey:"PatientName",
                     placeholder:$localize `:@@patient_family_name:Patient family name`,
                     description:$localize `:@@patient_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
@@ -3708,8 +3705,7 @@ export class Globalvar {
         }else{
             return [
                 {
-                    tag:"input",
-                    type:"text",
+                    tag:"person-name-picker",
                     filterKey:"00100010",
                     description:$localize `:@@patient_family_name:Patient family name`,
                     placeholder:$localize `:@@patient_family_name:Patient family name`
@@ -4148,8 +4144,7 @@ export class Globalvar {
                 placeholder:$localize `:@@AET:AET`
             },
             {
-                tag:"input",
-                type:"text",
+                tag:"person-name-picker",
                 filterKey:"PatientName",
                 placeholder:$localize `:@@patient_family_name:Patient family name`,
                 description:$localize `:@@patient_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
@@ -4389,8 +4384,7 @@ export class Globalvar {
         }
         return [
             {
-                tag:"input",
-                type:"text",
+                tag:"person-name-picker",
                 filterKey:"PatientName",
                 description:$localize `:@@patient_family_name:Patient family name`,
                 placeholder:$localize `:@@patient_family_name:Patient family name`
@@ -4794,8 +4788,7 @@ export class Globalvar {
                 placeholder:$localize `:@@AET:AET`
             },
             {
-                tag:"input",
-                type:"text",
+                tag:"person-name-picker",
                 filterKey:"PatientName",
                 placeholder:$localize `:@@patient_family_name:Patient family name`,
                 description:$localize `:@@patient_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
@@ -4886,8 +4879,7 @@ export class Globalvar {
                 description:$localize `:@@station_name:Station Name`,
                 placeholder:$localize `:@@station_name:Station Name`
             },{
-                tag:"input",
-                type:"text",
+                tag:"person-name-picker",
                 filterKey:"PerformingPhysicianName",
                 placeholder:$localize `:@@Performing_physician_family_name:Performing physician family name`,
                 description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
@@ -4913,8 +4905,7 @@ export class Globalvar {
                 placeholder:$localize `:@@issuer_of_accession_number:Issuer of accession number`
             },
             {
-                tag:"input",
-                type:"text",
+                tag:"person-name-picker",
                 filterKey:"ReferringPhysicianName",
                 placeholder:$localize `:@@referring_physician_family_name:Referring physician family name`,
                 description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
@@ -5010,8 +5001,7 @@ export class Globalvar {
                 placeholder:$localize `:@@AET:AET`
             },
             {
-                tag:"input",
-                type:"text",
+                tag:"person-name-picker",
                 filterKey:"PatientName",
                 placeholder:$localize `:@@patient_family_name:Patient family name`,
                 description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
@@ -5090,8 +5080,7 @@ export class Globalvar {
                 placeholder:"Accession number"
             },
             {
-                tag:"input",
-                type:"text",
+                tag:"person-name-picker",
                 filterKey:"PatientName",
                 description:"Patient name",
                 placeholder:"Patient name"
@@ -5120,8 +5109,7 @@ export class Globalvar {
                 placeholder:"Issuer of patient"
             },
             {
-                tag:"input",
-                type:"text",
+                tag:"person-name-picker",
                 filterKey:"ReferringPhysicianName",
                 description:"Referring physician name",
                 placeholder:"Referring physician name"

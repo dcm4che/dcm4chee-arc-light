@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PatientNamePickerService } from './patient-name-picker.service';
+import { PersonNamePickerService } from './person-name-picker.service';
 import {AppService} from "../../app.service";
 class MyServiceDependencyStub {
 }
 describe('PatientNamePickerService', () => {
-  let service: PatientNamePickerService;
+  let service: PersonNamePickerService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -13,7 +13,7 @@ describe('PatientNamePickerService', () => {
         {provide:AppService, useClass:MyServiceDependencyStub}
       ]
     });
-    service = TestBed.inject(PatientNamePickerService);
+    service = TestBed.inject(PersonNamePickerService);
   });
 
   it('should be created', () => {
@@ -22,10 +22,28 @@ describe('PatientNamePickerService', () => {
 
   it("should convert formatted person name to dicom",()=>{
       expect(service.convertPNameFromFormattedToDicomForm(
+          "Rev. John test Adams, B.A. M.Div.",
+          `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`
+      )).toBe(
+          "Adams^John^test^Rev.^B.A. M.Div."
+      );
+      expect(service.convertPNameFromFormattedToDicomForm(
           "Rev. John Adams, B.A. M.Div.",
           `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`
       )).toBe(
           "Adams^John^^Rev.^B.A. M.Div."
+      );
+      expect(service.convertPNameFromFormattedToDicomForm(
+          "Rev. John Adams",
+          `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`
+      )).toBe(
+          "Adams^John^^Rev.^"
+      );
+      expect(service.convertPNameFromFormattedToDicomForm(
+          "John Adams M.Div.",
+          `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`
+      )).toBe(
+          "Adams^John^^M.Div.^"
       );
   });
   it("should convert dicom person name to formatted person name",()=>{

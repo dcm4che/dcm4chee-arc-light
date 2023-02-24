@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PatientNamePickerComponent } from './patient-name-picker.component';
+import { PersonNamePickerComponent } from './person-name-picker.component';
 
 describe('PatientNamePickerComponent', () => {
-  let component: PatientNamePickerComponent;
-  let fixture: ComponentFixture<PatientNamePickerComponent>;
+  let component: PersonNamePickerComponent;
+  let fixture: ComponentFixture<PersonNamePickerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PatientNamePickerComponent ]
+      declarations: [ PersonNamePickerComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PatientNamePickerComponent);
+    fixture = TestBed.createComponent(PersonNamePickerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

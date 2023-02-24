@@ -32,7 +32,7 @@ export interface ConfiguredDateTameFormatObject{
 
 export type StatisticsPage = "simple"|"detailed"
 
-export type FilterTag = "button" | "input" | "checkbox" | "select" | "modality" | "range-picker-limit" | "range-picker-time" | "range-picker" | "code-selector" | "p-calendar" | "multi-select" | "html-select" | "editable-select" | "editable-multi-select" | "label" | "label_large" | "dummy" | "combined" | "number" | "size_range_picker" | "modified-widget";
+export type FilterTag = "button" | "input" | "checkbox" | "select" | "modality" | "range-picker-limit" | "range-picker-time" | "range-picker" | "code-selector" | "p-calendar" | "multi-select" | "html-select" | "editable-select" | "editable-multi-select" | "label" | "label_large" | "dummy" | "combined" | "number" | "size_range_picker" | "modified-widget" | "person-name-picker";
 
 export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 

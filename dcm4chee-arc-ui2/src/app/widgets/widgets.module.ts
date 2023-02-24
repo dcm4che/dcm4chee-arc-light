@@ -46,7 +46,7 @@ import {ModifyUpsComponent} from "./dialogs/modify-ups/modify-ups.component";
 import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.component';
 import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.component';
 import { ModifiedWidgetComponent } from './modified-widget/modified-widget.component';
-import { PatientNamePickerComponent } from './patient-name-picker/patient-name-picker.component';
+import { PersonNamePickerComponent } from './person-name-picker/person-name-picker.component';
 
 
 @Injectable()
@@ -56,7 +56,7 @@ import { PatientNamePickerComponent } from './patient-name-picker/patient-name-p
         BrowserModule,
         FormsModule
     ],
-    declarations: [WidgetsComponent, PatientNamePickerComponent],
+    declarations: [WidgetsComponent],
     exports: [WidgetsComponent],
     providers: [MatDialogConfig]
 })
@@ -103,5 +103,6 @@ export const WidgetsComponents = [
     CodeSelectorComponent,
     LanguagePickerComponent,
     DeviceCloneComponent,
-    ModifiedWidgetComponent
+    ModifiedWidgetComponent,
+    PersonNamePickerComponent
 ];
