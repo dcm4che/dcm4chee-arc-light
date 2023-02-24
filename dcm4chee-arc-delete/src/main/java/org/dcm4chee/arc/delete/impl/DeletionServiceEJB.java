@@ -578,7 +578,6 @@ public class DeletionServiceEJB {
             series.setInstancePurgeTime(now);
             return false;
         }
-        calculateMissingSeriesQueryAttributes(seriesPk);
         series.setModifiedTime(maxInstanceUpdatedTimeOfSeries(series));
         Map<String,Long> sizeOfInst = new HashMap<>();
         for (Location location : locations) {
@@ -653,17 +652,6 @@ public class DeletionServiceEJB {
                 .setParameter(2, from)
                 .setParameter(3, to)
                 .executeUpdate() > 0;
-    }
-
-    private void calculateMissingSeriesQueryAttributes(Long seriesPk) {
-        ArchiveDeviceExtension arcDev = arcDev();
-        Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
-        viewIDs.removeAll(em.createNamedQuery(SeriesQueryAttributes.VIEW_IDS_FOR_SERIES_PK, String.class)
-                .setParameter(1, seriesPk)
-                .getResultList());
-        for (String viewID : viewIDs) {
-            queryService.calculateSeriesQueryAttributes(seriesPk, arcDev.getQueryRetrieveView(viewID));
-        }
     }
 
     private ArchiveDeviceExtension arcDev() {

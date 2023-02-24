@@ -362,6 +362,57 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public SeriesQueryAttributes calculateSeriesQueryAttributes(
+            Long seriesPk, Series.InstancePurgeState purgeState, String storageID, String storagePath,
+            QueryRetrieveView qrView) {
+        return purgeState == Series.InstancePurgeState.PURGED
+                ? qrView.isHideNotRejectedInstances() ? new SeriesQueryAttributes()
+                : calculateSeriesQueryAttributes(seriesPk, storageID, storagePath, qrView)
+                : calculateSeriesQueryAttributes(seriesPk, qrView);
+    }
+
+    private SeriesQueryAttributes calculateSeriesQueryAttributes(
+            Long seriesPk, String storageID, String storagePath, QueryRetrieveView qrView) {
+        int numberOfInstances = 0;
+        String[] retrieveAETs = null;
+        Availability availability = Availability.ONLINE;
+        Set<String> cuids = new HashSet<>();
+        Storage storage = storageFactory.getStorage(arcDev().getStorageDescriptorNotNull(storageID));
+        try (ZipInputStream seriesMetadataStream = openZipInputStream(storage, storagePath, null)) {
+            while (seriesMetadataStream.getNextEntry() != null) {
+                JSONReader jsonReader = new JSONReader(Json.createParser(
+                        new InputStreamReader(seriesMetadataStream, StandardCharsets.UTF_8)));
+                jsonReader.setSkipBulkDataURI(true);
+                Attributes metadata = jsonReader.readDataset(null);
+                String[] retrieveAETs1 = metadata.getStrings(Tag.RetrieveAETitle);
+                Availability availability1 = Availability.valueOf(metadata.getString(Tag.InstanceAvailability));
+                if (numberOfInstances++ == 0) {
+                    retrieveAETs = retrieveAETs1;
+                    availability = availability1;
+                } else {
+                    retrieveAETs = QueryAttributesEJB.intersection(retrieveAETs, retrieveAETs1);
+                    if (availability.compareTo(availability1) < 0)
+                        availability = availability1;
+                }
+                cuids.add(metadata.getString(Tag.SOPClassUID));
+                seriesMetadataStream.closeEntry();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        SeriesQueryAttributes queryAttrs = new SeriesQueryAttributes();
+        queryAttrs.setViewID(qrView.getViewID());
+        queryAttrs.setSeries(em.getReference(Series.class, seriesPk));
+        queryAttrs.setNumberOfInstances(numberOfInstances);
+        if (numberOfInstances > 0) {
+            queryAttrs.setSOPClassesInSeries(StringUtils.concat(cuids, '\\'));
+            queryAttrs.setRetrieveAETs(StringUtils.concat(retrieveAETs, '\\'));
+            queryAttrs.setAvailability(availability);
+        }
+        queryAttributesEJB.persist(queryAttrs);
+        return queryAttrs;
+    }
+
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
         int retries = arcDev().getStoreUpdateDBMaxRetries();
         for (;;) {

@@ -176,8 +176,12 @@ public class QueryServiceEJB {
         Integer numberOfSeriesRelatedInstances =
                 result.get(seriesQueryAttributesPath.get(SeriesQueryAttributes_.numberOfInstances));
         if (numberOfSeriesRelatedInstances == null) {
-            SeriesQueryAttributes seriesQueryAttributes =
-                    queryService.calculateSeriesQueryAttributes(seriesPk, qrView);
+            SeriesQueryAttributes seriesQueryAttributes = queryService.calculateSeriesQueryAttributes(
+                            seriesPk,
+                            result.get(series.get(Series_.instancePurgeState)),
+                            result.get(metadata.get(Metadata_.storageID)),
+                            result.get(metadata.get(Metadata_.storagePath)),
+                            qrView);
             numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
         }
 
@@ -304,6 +308,7 @@ public class QueryServiceEJB {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Series> series = q.from(Series.class);
+        Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
         Join<Series, Study> study = series.join(Series_.study);
         CollectionJoin<Series, SeriesQueryAttributes> seriesQueryAttributesPath =
                 QueryBuilder.joinSeriesQueryAttributes(cb, series, viewID);
@@ -313,6 +318,9 @@ public class QueryServiceEJB {
                 .multiselect(
                     series.get(Series_.pk),
                     series.get(Series_.modality),
+                    series.get(Series_.instancePurgeState),
+                    metadata.get(Metadata_.storageID),
+                    metadata.get(Metadata_.storagePath),
                     seriesQueryAttributesPath.get(SeriesQueryAttributes_.numberOfInstances))
                 .where(
                     cb.equal(study.get(Study_.studyInstanceUID), studyIUID),
@@ -327,7 +335,12 @@ public class QueryServiceEJB {
         if (numberOfSeriesRelatedInstances == null) {
             Long seriesPk = result.get(series.get(Series_.pk));
             SeriesQueryAttributes seriesQueryAttributes =
-                    queryService.calculateSeriesQueryAttributes(seriesPk, qrView);
+                    queryService.calculateSeriesQueryAttributes(
+                            seriesPk,
+                            result.get(series.get(Series_.instancePurgeState)),
+                            result.get(metadata.get(Metadata_.storageID)),
+                            result.get(metadata.get(Metadata_.storagePath)),
+                            qrView);
             numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
         }
         Attributes attrs = new Attributes(2);

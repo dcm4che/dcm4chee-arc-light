@@ -108,7 +108,9 @@ public interface QueryService {
 
     StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView);
 
-    SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView);
+    SeriesQueryAttributes calculateSeriesQueryAttributes(
+            Long seriesPk, Series.InstancePurgeState purgeState, String storageID, String storagePath,
+            QueryRetrieveView qrView);
 
     Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);

@@ -186,8 +186,13 @@ class SeriesQuery extends AbstractQuery {
             retrieveAETs = results.get(seriesQueryAttributes.get(SeriesQueryAttributes_.retrieveAETs));
             availability = results.get(seriesQueryAttributes.get(SeriesQueryAttributes_.availability));
         } else {
-            SeriesQueryAttributes seriesView = context.getQueryService()
-                    .calculateSeriesQueryAttributes(seriesPk, queryParam.getQueryRetrieveView());
+            SeriesQueryAttributes seriesView =
+                    context.getQueryService().calculateSeriesQueryAttributes(
+                            seriesPk,
+                            results.get(series.get(Series_.instancePurgeState)),
+                            results.get(metadata.get(Metadata_.storageID)),
+                            results.get(metadata.get(Metadata_.storagePath)),
+                            queryParam.getQueryRetrieveView());
             numberOfSeriesRelatedInstances = seriesView.getNumberOfInstances();
             if (numberOfSeriesRelatedInstances == 0) {
                 return null;
