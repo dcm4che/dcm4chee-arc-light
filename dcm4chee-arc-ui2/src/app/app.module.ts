@@ -219,42 +219,29 @@ import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.se
                     pathMatch: 'full',
                     canActivate: [AuthGuard]
                 },
-                {path: 'study/:tab', component: StudyComponent, canActivate: [AuthGuard]},
-                {path: 'permission-denied', component: PermissionDeniedComponent},
-                {path: 'monitoring/control', component: ControlComponent, canActivate: [AuthGuard]},
-                {path: 'monitoring/export', component: ExportComponent, canActivate: [AuthGuard]},
-                {path: 'monitoring/external', component: RetrieveMonitoringComponent, canActivate: [AuthGuard]},
-                {path: 'monitoring/queues', component: QueuesComponent, canActivate: [AuthGuard]},
-                {path: 'monitoring/associations', component: AssociationsComponent, canActivate: [AuthGuard]},
-                {path: 'monitoring/storage-commitment', component: StorageCommitmentComponent, canActivate: [AuthGuard]},
-                {path: 'monitoring/storage-systems', component: StorageSystemsComponent, canActivate: [AuthGuard]},
-                {
-                    path: 'monitoring/storage-verification',
-                    component: StorageVerificationComponent,
-                    canActivate: [AuthGuard]
-                },
-                {path: 'monitoring/diff', component: DiffMonitorComponent, canActivate: [AuthGuard]},
-                {path: 'monitoring/metrics', component: MetricsComponent, canActivate: [AuthGuard]},
-                {path: 'device/devicelist', component: DevicesComponent, canActivate: [AuthGuard]},
-                {path: 'device/aelist', component: AeListComponent, canActivate: [AuthGuard]},
-                {path: 'device/webappslist', component: WebAppsListComponent, canActivate: [AuthGuard]},
-                {path: 'device/hl7applications', component: Hl7ApplicationsComponent, canActivate: [AuthGuard]},
-                {path: 'device/edit/:device', component: DeviceConfiguratorComponent, canActivate: [AuthGuard]},
-                {path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent, canActivate: [AuthGuard]},
-                {
-                    path: 'device/edit/:device/:devicereff/:schema',
-                    component: DeviceConfiguratorComponent,
-                    canActivate: [AuthGuard]
-                },
-                {
-                    path: 'device/edit/:device/:devicereff/:schema/:clone',
-                    component: DeviceConfiguratorComponent,
-                    canActivate: [AuthGuard]
-                },
-                {path: '**', component: PageNotFoundComponent}
+                { path: 'study/:tab', component: StudyComponent , canActivate: [AuthGuard]},
+                { path: 'permission-denied', component: PermissionDeniedComponent},
+                { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/export', component: ExportComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/external', component: RetrieveMonitoringComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/queues', component: QueuesComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/associations', component: AssociationsComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/storage-systems', component: StorageSystemsComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/storage-verification', component: StorageVerificationComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/diff', component: DiffMonitorComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/metrics', component: MetricsComponent,  canActivate: [AuthGuard] },
+                { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
+                { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
+                { path: 'device/webappslist', component: WebAppsListComponent,  canActivate: [AuthGuard] },
+                { path: 'device/hl7applications', component: Hl7ApplicationsComponent,  canActivate: [AuthGuard] },
+                { path: 'device/edit/:device', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+                { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+                { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+                { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+                { path: '**', component: PageNotFoundComponent }
             ],
-            {useHash: false}),
-        WidgetsModule
+            { useHash: false })
     ],
     entryComponents: [WidgetsComponents],
     providers: [
