@@ -93,15 +93,17 @@ class DeletionAuditService {
 
     private static AuditInfoBuilder userRejectedAuditInfo(StoreContext ctx, ArchiveDeviceExtension arcDev) {
         StoreSession storeSession = ctx.getStoreSession();
-        HttpServletRequestInfo req = storeSession.getHttpRequest();
+        HttpServletRequestInfo httpServletRequestInfo = storeSession.getHttpRequest();
         String callingAET = storeSession.getCallingAET();
         AuditInfoBuilder.Builder auditInfoBuilder = new AuditInfoBuilder.Builder()
                 .callingHost(storeSession.getRemoteHostName())
-                .callingUserID(req != null
-                        ? req.requesterUserID
+                .callingUserID(httpServletRequestInfo != null
+                        ? httpServletRequestInfo.requesterUserID
                         : callingAET != null
                         ? callingAET : storeSession.getLocalApplicationEntity().getAETitle())
-                .calledUserID(req != null ? req.requestURI : storeSession.getCalledAET())
+                .calledUserID(httpServletRequestInfo != null
+                                ? requestURLWithQueryParams(httpServletRequestInfo)
+                                : storeSession.getCalledAET())
                 .outcome(outcome(ctx))
                 .warning(warning(ctx));
 
@@ -198,8 +200,14 @@ class DeletionAuditService {
         return infoBuilder
                 .callingUserID(httpServletRequestInfo.requesterUserID)
                 .callingHost(httpServletRequestInfo.requesterHost)
-                .calledUserID(httpServletRequestInfo.requestURI)
+                .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
                 .build();
+    }
+
+    private static String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     private static AuditInfoBuilder schedulerTriggeredPermDeletionAuditInfo(

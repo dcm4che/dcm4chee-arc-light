@@ -30,7 +30,7 @@ class ProvideAndRegisterAuditService {
         return new AuditInfoBuilder.Builder()
                 .callingUserID(httpServletRequestInfo.requesterUserID)
                 .callingHost(httpServletRequestInfo.requesterHost)
-                .calledUserID(httpServletRequestInfo.requestURI)
+                .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
                 .destUserID(destination.toString())
                 .destNapID(destinationHost(destination))
                 .outcome(outcome(ctx))
@@ -48,6 +48,12 @@ class ProvideAndRegisterAuditService {
                 .outcome(outcome(ctx))
                 .pIDAndName(ctx.getXDSiManifest(), arcDev)
                 .submissionSetUID(ctx.getSubmissionSetUID()).build();
+    }
+
+    private static String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     private static String destinationHost(URI destination) {

@@ -67,6 +67,7 @@ public class StgVerTaskProcessor implements TaskProcessor {
         return stgCmtMgr.executeStgVerTask(task, HttpServletRequestInfo.valueOf(
                 task.getRequesterUserID(),
                 task.getRequesterHost(),
-                task.getRequestURI()));
+                task.getRequestURI(),
+                task.getQueryString()));
     }
 }

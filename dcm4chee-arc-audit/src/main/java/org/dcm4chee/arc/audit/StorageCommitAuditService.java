@@ -47,6 +47,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 
 import java.nio.file.Path;
@@ -124,8 +125,14 @@ class StorageCommitAuditService {
 
     private static String storageCmtCalledAET(StgCmtContext ctx) {
         return ctx.getRequest() != null
-                ? ctx.getRequest().requestURI
+                ? requestURLWithQueryParams(ctx.getRequest())
                 : ctx.getLocalAET();
+    }
+
+    private static String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     private static String storageCmtCallingAET(StgCmtContext ctx) {

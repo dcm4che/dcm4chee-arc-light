@@ -112,6 +112,7 @@ public class RetrieveManagerEJB {
             task.setRequesterUserID(ctx.getHttpServletRequestInfo().requesterUserID);
             task.setRequesterHost(ctx.getHttpServletRequestInfo().requesterHost);
             task.setRequestURI(ctx.getHttpServletRequestInfo().requestURI);
+            task.setQueryString(ctx.getHttpServletRequestInfo().queryString);
         }
         em.persist(task);
         LOG.info("Create {}", task);

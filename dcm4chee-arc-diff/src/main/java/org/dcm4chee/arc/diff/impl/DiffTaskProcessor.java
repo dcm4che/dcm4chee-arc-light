@@ -66,6 +66,7 @@ public class DiffTaskProcessor implements TaskProcessor {
         return diffService.executeDiffTask(task, HttpServletRequestInfo.valueOf(
                 task.getRequesterUserID(),
                 task.getRequesterHost(),
-                task.getRequestURI()));
+                task.getRequestURI(),
+                task.getQueryString()));
     }
 }

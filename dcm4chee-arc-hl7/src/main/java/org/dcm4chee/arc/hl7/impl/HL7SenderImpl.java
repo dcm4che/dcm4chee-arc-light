@@ -194,6 +194,7 @@ public class HL7SenderImpl implements HL7Sender {
             task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
             task.setRequesterHost(httpServletRequestInfo.requesterHost);
             task.setRequestURI(httpServletRequestInfo.requestURI);
+            task.setQueryString(httpServletRequestInfo.queryString);
         }
         task.setPayload(data);
         task.setStatus(Task.Status.SCHEDULED);

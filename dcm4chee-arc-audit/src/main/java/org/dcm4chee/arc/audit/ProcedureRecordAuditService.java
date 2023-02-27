@@ -162,12 +162,18 @@ class ProcedureRecordAuditService {
         if (procCtx.getSourceMwlScp() != null)
             return procUpdatedByMWLImport();
 
-        HttpServletRequestInfo req  = procCtx.getHttpRequest();
+        HttpServletRequestInfo httpServletRequestInfo  = procCtx.getHttpRequest();
         return infoBuilder
-                .callingUserID(req.requesterUserID)
+                .callingUserID(httpServletRequestInfo.requesterUserID)
                 .callingHost(procCtx.getRemoteHostName())
-                .calledUserID(req.requestURI)
+                .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
                 .build();
+    }
+
+    private String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     private AuditInfoBuilder procUpdatedByMWLImport() {

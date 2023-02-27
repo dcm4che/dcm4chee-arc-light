@@ -167,6 +167,7 @@ public class ExportManagerEJB implements ExportManager {
             task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
             task.setRequesterHost(httpServletRequestInfo.requesterHost);
             task.setRequestURI(httpServletRequestInfo.requestURI);
+            task.setQueryString(httpServletRequestInfo.queryString);
         }
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);

@@ -86,7 +86,8 @@ public class HL7SenderTaskProcessor implements TaskProcessor {
         hl7Msg.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(
                 task.getRequesterUserID(),
                 task.getRequesterHost(),
-                task.getRequestURI()));
+                task.getRequestURI(),
+                task.getQueryString()));
         UnparsedHL7Message rsp = hl7Sender.sendMessage(sender, receiver, hl7Msg);
         return toOutcome(rsp.data(), sender);
     }

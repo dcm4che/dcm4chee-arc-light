@@ -733,6 +733,7 @@ public class DeletionServiceEJB {
             task.setRequesterUserID(httpRequest.requesterUserID);
             task.setRequesterHost(httpRequest.requesterHost);
             task.setRequestURI(httpRequest.requestURI);
+            task.setQueryString(httpRequest.queryString);
         }
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);

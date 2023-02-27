@@ -76,15 +76,15 @@ class PatientRecordAuditService {
     PatientRecordAuditService(PatientMgtContext ctx, ArchiveDeviceExtension arcDev) {
         this.ctx = ctx;
         this.arcDev = arcDev;
-        HttpServletRequestInfo httpRequest = ctx.getHttpServletRequestInfo();
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
         Association association = ctx.getAssociation();
-        String callingUserID = httpRequest != null
-                ? httpRequest.requesterUserID
+        String callingUserID = httpServletRequestInfo != null
+                ? httpServletRequestInfo.requesterUserID
                 : association != null
                     ? association.getCallingAET()
                     : ctx.getSourceMwlScp() != null ? ctx.getSourceMwlScp() : arcDev.getDevice().getDeviceName();
-        String calledUserID = httpRequest != null
-                ? httpRequest.requestURI
+        String calledUserID = httpServletRequestInfo != null
+                ? requestURLWithQueryParams(httpServletRequestInfo)
                 : association != null
                     ? association.getCalledAET()
                     : ctx.getLocalAET() != null ? ctx.getLocalAET() : null;
@@ -115,7 +115,7 @@ class PatientRecordAuditService {
             if (httpServletRequestInfo != null) {
                 callingHost = httpServletRequestInfo.requesterHost;
                 callingUserID = httpServletRequestInfo.requesterUserID;
-                calledUserID = httpServletRequestInfo.requestURI;
+                calledUserID = requestURLWithQueryParams(httpServletRequestInfo);
             }
         }
 
@@ -124,6 +124,12 @@ class PatientRecordAuditService {
                 .callingUserID(callingUserID)
                 .calledUserID(calledUserID)
                 .outcome(outcome(hl7ConnEvent.getException()));
+    }
+
+    private String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     AuditInfoBuilder getPatAuditInfo() {

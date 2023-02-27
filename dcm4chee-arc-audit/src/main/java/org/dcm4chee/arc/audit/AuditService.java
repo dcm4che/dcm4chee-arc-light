@@ -507,12 +507,14 @@ public class AuditService {
 
     private void spoolInstancesStored(StoreContext ctx) {
         StoreSession ss = ctx.getStoreSession();
-        HttpServletRequestInfo req = ss.getHttpRequest();
-        String callingUserID = req != null
-                ? req.requesterUserID
+        HttpServletRequestInfo httpServletRequestInfo = ss.getHttpRequest();
+        String callingUserID = httpServletRequestInfo != null
+                ? httpServletRequestInfo.requesterUserID
                 : ss.getCallingAET() != null
                 ? ss.getCallingAET() : device.getDeviceName();
-        String calledUserID = req != null ? req.requestURI : ss.getCalledAET();
+        String calledUserID = httpServletRequestInfo != null
+                                ? requestURLWithQueryParams(httpServletRequestInfo)
+                                : ss.getCalledAET();
         try {
             String outcome = ctx.getException() != null
                     ? ctx.getRejectionNote() != null
@@ -603,16 +605,16 @@ public class AuditService {
     }
 
     void spoolRetrieveWADO(RetrieveContext ctx) {
-        HttpServletRequestInfo req = ctx.getHttpServletRequestInfo();
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
         try {
             Attributes attrs = ctx.getMatches().get(0).getAttributes();
-            String suffix = '-' + req.requesterHost
+            String suffix = '-' + httpServletRequestInfo.requesterHost
                     + '-' + ctx.getLocalAETitle()
                     + '-' + ctx.getStudyInstanceUIDs()[0];
             AuditInfoBuilder info = new AuditInfoBuilder.Builder()
-                    .callingHost(req.requesterHost)
-                    .callingUserID(req.requesterUserID)
-                    .calledUserID(req.requestURI)
+                    .callingHost(httpServletRequestInfo.requesterHost)
+                    .callingUserID(httpServletRequestInfo.requesterUserID)
+                    .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
                     .studyUIDAccNumDate(attrs, getArchiveDevice())
                     .pIDAndName(attrs, getArchiveDevice())
                     .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
@@ -624,8 +626,14 @@ public class AuditService {
             writeSpoolFile(AuditUtils.EventType.WADO___URI, suffix, info, instanceInfo);
         } catch (Exception e) {
             LOG.info("Failed to spool Wado Retrieve for [StudyIUID={}] triggered by [User={}]\n",
-                    ctx.getStudyInstanceUID(), req.requesterUserID, e);
+                    ctx.getStudyInstanceUID(), httpServletRequestInfo.requesterUserID, e);
         }
+    }
+
+    private String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     private void auditStoreError(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {

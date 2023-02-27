@@ -87,11 +87,17 @@ class StudyRecordAuditService {
     }
 
     private AuditInfoBuilder studyExpiredByWeb() {
-        HttpServletRequestInfo request = studyMgtCtx.getHttpRequest();
+        HttpServletRequestInfo httpServletRequestInfo = studyMgtCtx.getHttpRequest();
         return infoBuilder
-                .callingUserID(request.requesterUserID)
-                .calledUserID(request.requestURI)
+                .callingUserID(httpServletRequestInfo.requesterUserID)
+                .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
                 .build();
+    }
+
+    private static String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
