@@ -1,6 +1,9 @@
 <div class="patient_name_picker" [ngClass]="{'open':dialogOpen}">
     <div class="input_field">
-        <input type="text" [(ngModel)]="internModel" placeholder="{{placeholder}}" title="{{title}}" (ngModelChange)="onInternModelChange($event)">
+        <div class="input_block">
+            <input type="text" [(ngModel)]="internModel" placeholder="{{placeholder}}" title="{{title}}" (ngModelChange)="onInternModelChange($event)">
+            <span class="glyphicon glyphicon-remove" *ngIf="internModel" (click)="clear()"></span>
+        </div>
         <span class="glyphicon glyphicon-pencil" (click)="toggleDialog()"></span>
     </div>
     <div class="overlay" *ngIf="dialogOpen" (click)="dialogOpen = false"></div>

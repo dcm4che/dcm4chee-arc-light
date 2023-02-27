@@ -1,5 +1,6 @@
 .patient_name_picker{
   position: relative;
+  color: black;
   .input_field{
     display: grid;
     grid-template-columns: auto 26px;
@@ -20,14 +21,31 @@
         cursor: pointer;
       }
     }
+    .input_block{
+      position: relative;
+      span.glyphicon-remove{
+        display: none;
+        position: absolute;
+        right: 3px;
+        top: 7px;
+        background: transparent;
+        color: black;
+        &:hover{
+          cursor: pointer;
+        }
+      }
+    }
+    &:hover .input_block span.glyphicon-remove{
+      display: block;
+    }
   }
   .dialog{
     position: absolute;
     background: white;
     padding: 20px;
-    -webkit-box-shadow: 3px 4px 8px 6px #cccccc;
-    -moz-box-shadow:  3px 4px 8px 6px #cccccc;
-    box-shadow:  3px 4px 8px 6px #cccccc;
+    -webkit-box-shadow: 3px 4px 8px #cccccc;
+    -moz-box-shadow:  3px 4px 8px #cccccc;
+    box-shadow:  3px 4px 8px #cccccc;
     z-index: 1001;
     .dialog_block{
       margin-bottom: 10px;
@@ -40,6 +58,9 @@
       font-size: 16px;
       border-bottom: 1px solid #ccc;
       padding-bottom: 5px;
+    }
+    input{
+      color:black;
     }
   }
   .dicom_components{
@@ -54,7 +75,14 @@
   &.open{
     .input_field{
       input{
-        z-index: 1001;
+        z-index: 1002;
+        position: relative;
+        background: white;
+        color: black;
+      }
+      &:hover .input_block span.glyphicon-remove{
+        display: block;
+        z-index: 10004;
       }
     }
   }

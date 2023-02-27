@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AppService} from "../../app.service";
 import {PersonNamePickerService} from "./person-name-picker.service";
+import * as _ from "lodash-es";
 
 @Component({
   selector: 'person-name-picker',
@@ -39,6 +40,9 @@ export class PersonNamePickerComponent implements OnInit {
 
   ngOnInit(): void {
     this._internModel = this.model;
+    if(_.hasIn(this.appService,"global.personNameFormat")){
+      this.format = this.appService.global.personNameFormat;
+    }
   }
 
   onInternModelChange(e){
@@ -88,5 +92,9 @@ export class PersonNamePickerComponent implements OnInit {
   set asFilterModel(value: string) {
     this._asFilterModel = value;
     this.modelChange.emit(value);
+  }
+  clear(){
+    this._internModel = "";
+    this.onInternModelChange(undefined);
   }
 }
