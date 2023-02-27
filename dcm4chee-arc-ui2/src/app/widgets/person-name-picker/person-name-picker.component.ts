@@ -47,7 +47,7 @@ export class PersonNamePickerComponent implements OnInit {
 
   onInternModelChange(e){
     if(this._internModel){
-      this.asFilterModel = this.personNameService.convertPNameFromFormattedToDicomForm(this._internModel);
+      this.asFilterModel = this.personNameService.convertPNameFromFormattedToDicomForm(this._internModel, this.format);
       [
         this.familyName,
         this.givenName,
@@ -83,7 +83,7 @@ export class PersonNamePickerComponent implements OnInit {
       this.namePrefix,
       this.nameSuffix
     ].join("^");
-    this._internModel = this.personNameService.convertPNameFromDicomFormToFormatted(this._asFilterModel)
+    this._internModel = this.personNameService.convertPNameFromDicomFormToFormatted(this._asFilterModel, this.format)
   }
   get asFilterModel(): string {
     return this._asFilterModel;
