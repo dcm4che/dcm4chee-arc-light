@@ -170,8 +170,9 @@ public class HL7PSUEJB {
                                          .getAEExtension(ArchiveAEExtension.class);
         String hl7PSUSendingApplication = arcAE.hl7PSUSendingApplication();
         String[] hl7PSUReceivingApplications = arcAE.hl7PSUReceivingApplications();
-        if (hl7PSUSendingApplication == null || hl7PSUReceivingApplications.length == 0) {
-            LOG.info("HL7 Procedure Status Update Sending or Receiving Applications not configured.");
+        if (!arcAE.hl7PSUMWL() && (hl7PSUSendingApplication == null && hl7PSUReceivingApplications.length == 0)) {
+            LOG.info("HL7 Procedure Status Update Task not processed as neither notification to external HL7 receivers is " +
+                    "configured nor update MWL status to COMPLETED is configured");
             return;
         }
 
