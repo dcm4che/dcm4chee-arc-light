@@ -194,7 +194,7 @@ class ImportReportService extends DefaultHL7Service {
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
         switch (arcHL7App.hl7ImportReportAdjustIUID()) {
             case APPEND_HASH_OF_STUDY_INSTANCE_UID:
-                appendToSeriesAndSOPInstanceUID(attrs, "." + attrs.getString(Tag.StudyInstanceUID).hashCode());
+                appendToSeriesAndSOPInstanceUID(attrs, "." + (attrs.getString(Tag.StudyInstanceUID).hashCode() & 0xFFFFFFFFL));
         }
         ensureStudyInstanceUIDInPredecessors(attrs);
         processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
