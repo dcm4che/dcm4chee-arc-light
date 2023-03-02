@@ -157,6 +157,10 @@ export class UploadFilesComponent implements OnInit {
                         attrs:[]
                     }
                 }
+                this._dicomObject.attrs["00081030"] = {
+                    "vr": "LO",
+                    "Value": [""]
+                };
                 this._dicomObject.attrs["0008103E"] = {
                     "vr": "LO",
                     "Value": [""]
