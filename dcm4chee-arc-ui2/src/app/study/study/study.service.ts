@@ -43,7 +43,7 @@ import {StudyWebService} from "./study-web-service.model";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
-import {catchError, map, switchMap} from "rxjs/operators";
+import {catchError, map, switchMap, tap} from "rxjs/operators";
 import {FormatTMPipe} from "../../pipes/format-tm.pipe";
 import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
@@ -74,7 +74,8 @@ export class StudyService {
         private permissionService: PermissionService,
         private _keycloakService:KeycloakService,
         private appService:AppService,
-        private j4careService:j4care
+        private j4careService:j4care,
+        private nativeHttp:HttpClient
     ) {}
 
     getWebApps(filter?:any) {
@@ -4057,7 +4058,22 @@ export class StudyService {
             .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (requester) {
-                        return this.$http.post(`${url}/${workitemUID}/cancelrequest/${requester}`,{});
+                        return this._keycloakService.getToken().pipe(switchMap(token=>{
+                            const headers = new HttpHeaders()
+                                .set('Authorization', `Bearer ${token.token}`)
+                                .set('Content-Type',  'application/json');
+
+                            return this.nativeHttp.post(`${url}/${workitemUID}/cancelrequest/${requester}`,{},{
+                                    headers,
+                                    observe:"response"
+                            })
+                        }),map(res=>{
+                            try{
+                                return res.headers.get("Warning");
+                            }catch (e) {
+                                return res;
+                            }
+                        }))
                     } else
                         this.appService.showWarning($localize `:@@requester_aet_warning_msg:Requester AET should be set`);
                 }
