@@ -54,10 +54,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.*;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -1591,6 +1588,15 @@ public class WadoRS {
         else if (ctx.isWithoutPrivateAttributes())
             metadata.removePrivateAttributes();
         setBulkdataURI(metadata, sb.toString());
+        List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
+        AttributesCoercion coerce;
+        if (coercions.isEmpty()) {
+            ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+            coerce = service.getAttributesCoercion(ctx, inst, rule);
+        } else {
+            coerce = service.getAttributesCoercion(ctx, inst, coercions);
+        }
+        coerce.coerce(metadata, null);
         return metadata;
     }
 
