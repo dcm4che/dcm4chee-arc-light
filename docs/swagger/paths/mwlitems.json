@@ -65,6 +65,9 @@
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/mwlscp"
         }
       ],
       "requestBody": {

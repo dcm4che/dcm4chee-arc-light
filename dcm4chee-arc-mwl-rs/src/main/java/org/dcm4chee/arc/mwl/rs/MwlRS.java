@@ -51,6 +51,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
@@ -121,7 +122,7 @@ public class MwlRS {
     @Path("/mwlitems")
     @Consumes("application/dicom+json,application/json")
     @Produces("application/dicom+json,application/json")
-    public Response updateSPS(InputStream in) {
+    public Response updateSPS(@QueryParam("mwlscp") String mwlscp, InputStream in) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
@@ -160,7 +161,7 @@ public class MwlRS {
                 adjustScheduledStations(spsItem);
             ProcedureContext ctx = procedureService.createProcedureContext()
                     .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
-            ctx.setLocalAET(aet);
+            ctx.setLocalAET(StringUtils.maskNull(mwlscp, aet));
             ctx.setArchiveAEExtension(arcAE);
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
