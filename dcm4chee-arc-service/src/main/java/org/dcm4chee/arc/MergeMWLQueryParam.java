@@ -62,8 +62,10 @@ public class MergeMWLQueryParam {
     public final String accessionNumber;
     public final String studyIUID;
     public final String spsID;
+    private final String tplURI;
 
-    public MergeMWLQueryParam(String mwlSCP, String[] localMwlSCPs, SPSStatus[] localMwlStatus, String patientID, String accessionNumber, String studyIUID, String spsID) {
+    public MergeMWLQueryParam(String mwlSCP, String[] localMwlSCPs, SPSStatus[] localMwlStatus, String patientID,
+                              String accessionNumber, String studyIUID, String spsID, String tplURI) {
         this.mwlSCP = mwlSCP;
         this.localMwlSCPs = localMwlSCPs;
         this.localMwlStatus = localMwlStatus;
@@ -71,9 +73,11 @@ public class MergeMWLQueryParam {
         this.accessionNumber = accessionNumber;
         this.studyIUID = studyIUID;
         this.spsID = spsID;
+        this.tplURI = tplURI;
     }
 
-    public static MergeMWLQueryParam valueOf(String mwlSCP, String[] localMwlSCPs, SPSStatus[] localMwlStatus, MergeMWLMatchingKey matchingKey, Attributes attrs) {
+    public static MergeMWLQueryParam valueOf(String mwlSCP, String[] localMwlSCPs, SPSStatus[] localMwlStatus,
+                                             MergeMWLMatchingKey matchingKey, Attributes attrs, String tplURI) {
         String patientID = null;
         String accessionNumber = null;
         String studyIUID = null;
@@ -100,7 +104,8 @@ public class MergeMWLQueryParam {
                 studyIUID = attrs.getString(Tag.StudyInstanceUID);
                 break;
         }
-        return new MergeMWLQueryParam(mwlSCP, localMwlSCPs, localMwlStatus, patientID, accessionNumber, studyIUID, spsID);
+        return new MergeMWLQueryParam(
+                mwlSCP, localMwlSCPs, localMwlStatus, patientID, accessionNumber, studyIUID, spsID, tplURI);
     }
 
     public Attributes setMatchingKeys(Attributes keys) {
@@ -128,12 +133,13 @@ public class MergeMWLQueryParam {
                 Objects.equals(patientID, that.patientID) &&
                 Objects.equals(accessionNumber, that.accessionNumber) &&
                 Objects.equals(studyIUID, that.studyIUID) &&
-                Objects.equals(spsID, that.spsID);
+                Objects.equals(spsID, that.spsID) &&
+                Objects.equals(tplURI, that.tplURI);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(mwlSCP, patientID, accessionNumber, studyIUID, spsID);
+        int result = Objects.hash(mwlSCP, patientID, accessionNumber, studyIUID, spsID, tplURI);
         result = 31 * result + Arrays.hashCode(localMwlSCPs);
         result = 31 * result + Arrays.hashCode(localMwlStatus);
         return result;
