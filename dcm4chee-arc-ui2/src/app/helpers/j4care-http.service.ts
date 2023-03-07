@@ -138,6 +138,20 @@ export class J4careHttpService{
                     }));
                 }
                 return throwError(res);
+            }),
+            map((res:any)=>{
+               if(_.hasIn(res,"body")){
+                   if(_.hasIn(res,"headers") && (!res.body || res.body === "")){
+                       try{
+                           return res.headers.get("Warning") || "";
+                       }catch (e) {
+                           return ""
+                       }
+                   }else{
+                    return res.body;
+                   }
+               }
+               return res;
             })
         );
     }
@@ -157,7 +171,16 @@ export class J4careHttpService{
                     httpParam[1] = headerObject;
                     // httpParam.push({responseType:param[key]});
                 }else{
-                    httpParam.push(param[key]);
+                    if(key=== "header"){
+                        httpParam.push({
+                            ...param[key],
+                            ...{
+                                observe:"response"
+                            }
+                        });
+                    }else{
+                        httpParam.push(param[key]);
+                    }
                 }
             }else{
                 if(key === "data" && (requestFunctionName === "post" || requestFunctionName === "put")){
