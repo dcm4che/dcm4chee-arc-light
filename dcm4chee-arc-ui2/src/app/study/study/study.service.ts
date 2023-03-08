@@ -73,9 +73,7 @@ export class StudyService {
         private webAppListService: WebAppsListService,
         private permissionService: PermissionService,
         private _keycloakService:KeycloakService,
-        private appService:AppService,
-        private j4careService:j4care,
-        private nativeHttp:HttpClient
+        private appService:AppService
     ) {}
 
     getWebApps(filter?:any) {
@@ -4058,27 +4056,7 @@ export class StudyService {
             .pipe(switchMap((url:string)=>{
                 if (url) {
                     if (requester) {
-                        return this.$http.post(`${url}/${workitemUID}/cancelrequest/${requester}`,{}).pipe(map(res=>{
-                            console.log("****res",res);
-                            return res;
-                        }));
-
-/*                        return this._keycloakService.getToken().pipe(switchMap(token=>{
-                            const headers = new HttpHeaders()
-                                .set('Authorization', `Bearer ${token.token}`)
-                                .set('Content-Type',  'application/json');
-
-                            return this.nativeHttp.post(`${url}/${workitemUID}/cancelrequest/${requester}`,{},{
-                                    headers,
-                                    observe:"response"
-                            })
-                        }),map(res=>{
-                            try{
-                                return res.headers.get("Warning");
-                            }catch (e) {
-                                return res;
-                            }
-                        }))*/
+                        return this.$http.post(`${url}/${workitemUID}/cancelrequest/${requester}`,{});
                     } else
                         this.appService.showWarning($localize `:@@requester_aet_warning_msg:Requester AET should be set`);
                 }

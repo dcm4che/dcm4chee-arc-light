@@ -3768,8 +3768,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             saveButton: $localize `:@@CANCEL_UPS:Cancel UPS`
         }).subscribe((ok)=> {
             if(ok){
-                this.service.cancelUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model.requester).subscribe(res => {
-                    console.log("+++++",res)
+                this.service.cancelUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model.requester).subscribe(warningHeaderText => {
                     this.appService.showMsg($localize `:@@cancellation_of_the_ups_workitem_was_requested_successfully:Cancellation of the UPS Workitem was requested successfully!`);
                 }, err => {
                     this.httpErrorHandler.handleError(err);

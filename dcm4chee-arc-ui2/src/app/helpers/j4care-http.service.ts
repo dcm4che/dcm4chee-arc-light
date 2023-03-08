@@ -141,15 +141,16 @@ export class J4careHttpService{
             }),
             map((res:any)=>{
                if(_.hasIn(res,"body")){
-                   if(_.hasIn(res,"headers") && (!res.body || res.body === "")){
+                   if(_.hasIn(res,"headers")){
                        try{
-                           return res.headers.get("Warning") || "";
+                           const warning = res.headers.get("Warning") || "";
+                           if(warning){
+                               this.mainservice.showWarning(warning);
+                           }
                        }catch (e) {
-                           return ""
                        }
-                   }else{
-                    return res.body;
                    }
+                   return res.body;
                }
                return res;
             })
