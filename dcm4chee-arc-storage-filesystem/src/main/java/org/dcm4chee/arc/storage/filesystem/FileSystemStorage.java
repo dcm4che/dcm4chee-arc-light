@@ -69,6 +69,8 @@ public class FileSystemStorage extends AbstractStorage {
     private final URI rootURI;
     private final AttributesFormat pathFormat;
     private final Path checkMountFilePath;
+    private final boolean noopOnFileExists;
+    private final boolean randomPathOnFileExists;
     private final OpenOption[] openOptions;
     private final CreateDirectories createDirectories;
     private final int retryCreateDirectories;
@@ -84,6 +86,9 @@ public class FileSystemStorage extends AbstractStorage {
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         String checkMountFile = descriptor.getProperty("checkMountFile", null);
         checkMountFilePath = checkMountFile != null ?  Paths.get(rootURI.resolve(checkMountFile)) : null;
+        String onFileExists = descriptor.getProperty("onFileExists", null);
+        randomPathOnFileExists = onFileExists == null;
+        noopOnFileExists = "NOOP".equalsIgnoreCase(onFileExists);
         String fileOpenOption = descriptor.getProperty("fileOpenOption", null);
         openOptions = fileOpenOption != null
                 ? new OpenOption[]{ StandardOpenOption.CREATE_NEW, StandardOpenOption.valueOf(fileOpenOption) }
@@ -182,14 +187,17 @@ public class FileSystemStorage extends AbstractStorage {
         Path dir = path.getParent();
         createDirectories(dir);
         OutputStream stream = null;
-        while (stream == null)
+        while (true)
             try {
-                stream = Files.newOutputStream(path, openOptions);
+                ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
+                return Files.newOutputStream(path, openOptions);
             } catch (FileAlreadyExistsException e) {
-                path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+                if (noopOnFileExists) return OutputStream.nullOutputStream();
+                if (randomPathOnFileExists)
+                    path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+                else
+                    throw e;
             }
-        ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
-        return stream;
     }
 
     @Override
