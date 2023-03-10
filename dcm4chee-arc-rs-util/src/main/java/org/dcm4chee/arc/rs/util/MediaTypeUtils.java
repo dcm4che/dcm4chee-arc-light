@@ -90,7 +90,7 @@ public class MediaTypeUtils {
     }
 
     public static String selectTransferSyntax(Collection<String> acceptable, String tsuid) {
-        return acceptable.isEmpty() || acceptable.contains(tsuid)
+        return acceptable.isEmpty() || acceptable.contains("*") || acceptable.contains(tsuid)
                 ? tsuid
                 : acceptable.contains(UID.ExplicitVRLittleEndian)
                 ? UID.ExplicitVRLittleEndian
