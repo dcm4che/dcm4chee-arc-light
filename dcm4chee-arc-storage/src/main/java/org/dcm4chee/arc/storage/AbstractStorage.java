@@ -249,7 +249,7 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public void revokeStorage(WriteContext ctx) throws IOException {
-        deleteObject(ctx.getStoragePath());
+        if (!ctx.isDeletionLock()) deleteObject(ctx.getStoragePath());
     }
 
     @Override

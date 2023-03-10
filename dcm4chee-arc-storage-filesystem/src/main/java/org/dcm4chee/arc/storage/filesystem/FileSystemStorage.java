@@ -192,11 +192,16 @@ public class FileSystemStorage extends AbstractStorage {
                 ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
                 return Files.newOutputStream(path, openOptions);
             } catch (FileAlreadyExistsException e) {
-                if (noopOnFileExists) return OutputStream.nullOutputStream();
+                if (noopOnFileExists) {
+                    ctx.setDeletionLock(true);
+                    return OutputStream.nullOutputStream();
+                }
                 if (randomPathOnFileExists)
                     path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
-                else
+                else {
+                    ctx.setDeletionLock(true);
                     throw e;
+                }
             }
     }
 

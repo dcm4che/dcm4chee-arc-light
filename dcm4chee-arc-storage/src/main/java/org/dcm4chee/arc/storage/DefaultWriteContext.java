@@ -49,6 +49,7 @@ import org.dcm4che3.data.Attributes;
 public class DefaultWriteContext extends DefaultReadContext implements WriteContext{
     private Attributes attrs;
     private long contentLength = -1;
+    private boolean deletionLock;
 
     public DefaultWriteContext(Storage storage) {
         super(storage);
@@ -74,4 +75,13 @@ public class DefaultWriteContext extends DefaultReadContext implements WriteCont
         this.contentLength = contentLength;
     }
 
+    @Override
+    public boolean isDeletionLock() {
+        return deletionLock;
+    }
+
+    @Override
+    public void setDeletionLock(boolean deletionLock) {
+        this.deletionLock = deletionLock;
+    }
 }
