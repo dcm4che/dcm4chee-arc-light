@@ -90,6 +90,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
         writer.writeNotNullOrDef("dcmuiBackgroundURL", uiConfig.getBackgroundUrl(),null);
         writer.writeNotNullOrDef("dcmuiDateTimeFormat", uiConfig.getDateTimeFormat(),null);
+        writer.writeNotDef("dcmuiHideClock", uiConfig.isHideClock(),false);
+        writer.writeNotNullOrDef("dcmuiPageTitle", uiConfig.getPageTitle(),null);
         writer.writeNotNullOrDef("dcmuiPersonNameFormat", uiConfig.getPersonNameFormat(),null);
         writer.writeNotNullOrDef("dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         writer.writeNotEmpty("dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
@@ -390,6 +392,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiDateTimeFormat":
                     uiConfig.setDateTimeFormat(reader.stringValue());
+                    break;
+                case "dcmuiHideClock":
+                    uiConfig.setHideClock(reader.booleanValue());
+                    break;
+                case "dcmuiPageTitle":
+                    uiConfig.setPageTitle(reader.stringValue());
                     break;
                 case "dcmuiPersonNameFormat":
                     uiConfig.setPersonNameFormat(reader.stringValue());

@@ -23,6 +23,7 @@ import {LanguageSwitcher} from "./models/language-switcher";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {ConfiguredDateTameFormatObject, LanguageObject, LocalLanguageObject} from "./interfaces";
 import {AppRequestsService} from "./app-requests.service";
+import { Title } from '@angular/platform-browser';
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 const worker = new Worker('./server-time.worker', { type: 'module', name: 'server-time'});
@@ -66,6 +67,8 @@ export class AppComponent implements OnInit {
         label:$localize `:@@available_devices:Available devices`,
         title:$localize `:@@here_you_can_change_the_archive_device_to_which_the_calls_are_made:Here you can change the archive device to which the calls are made`
     }
+    dcmuiHideClock:boolean = false;
+    dcmuiPageTitle:string;
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -75,7 +78,8 @@ export class AppComponent implements OnInit {
         private permissionService:PermissionService,
         private keycloakHttpClient:KeycloakHttpClient,
         private _keycloakService: KeycloakService,
-        public httpErrorHandler:HttpErrorHandler
+        public httpErrorHandler:HttpErrorHandler,
+        private title:Title
     ){
         console.log("in app.component construct", window);
     }
@@ -151,6 +155,21 @@ export class AppComponent implements OnInit {
                     this.personNameFormat = _.get(global, "uiConfig.dcmuiPersonNameFormat");
                     global["personNameFormat"] = this.personNameFormat;
                     console.log("Global Patient Name Format:", this.personNameFormat);
+                    this.mainservice.setGlobal(global);
+                }
+                if(_.hasIn(global, "uiConfig.dcmuiHideClock") && !this.dcmuiHideClock){
+                    this.dcmuiHideClock = _.get(global, "uiConfig.dcmuiHideClock");
+                    global["dcmuiHideClock"] = this.dcmuiHideClock;
+                    console.log("hideClock", this.dcmuiHideClock);
+                    this.mainservice.setGlobal(global);
+                }
+                if(_.hasIn(global, "uiConfig.dcmuiPageTitle") && !this.dcmuiPageTitle){
+                    this.dcmuiPageTitle = _.get(global, "uiConfig.dcmuiPageTitle");
+                    global["dcmuiPageTitle"] = this.dcmuiPageTitle;
+                    console.log("hideClock", this.dcmuiPageTitle);
+                    if(this.dcmuiPageTitle && this.dcmuiPageTitle != ""){
+                        this.title.setTitle(this.dcmuiPageTitle);
+                    }
                     this.mainservice.setGlobal(global);
                 }
             }

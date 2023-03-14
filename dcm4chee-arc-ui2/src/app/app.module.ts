@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { RouterModule }   from '@angular/router';
@@ -289,6 +289,7 @@ import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.se
         UploadFilesService,
         CustomDatePipe,
         DynamicPipePipe,
+        Title,
         {provide: LOCALE_ID, useValue: 'en-US' },
         {
             provide: DateAdapter,

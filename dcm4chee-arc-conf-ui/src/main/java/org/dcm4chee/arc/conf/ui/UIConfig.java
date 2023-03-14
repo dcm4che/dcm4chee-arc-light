@@ -55,6 +55,8 @@ public class UIConfig {
     private String xdsUrl;
     private String backgroundUrl;
     private String dateTimeFormat;
+    private boolean hideClock;
+    private String pageTitle;
     private String personNameFormat;
     private String logoUrl;
     private String[] defaultWidgetAets = {};
@@ -125,6 +127,21 @@ public class UIConfig {
         this.dateTimeFormat = dateTimeFormat;
     }
 
+    public boolean isHideClock() {
+        return hideClock;
+    }
+
+    public void setHideClock(boolean hideClock) {
+        this.hideClock = hideClock;
+    }
+
+    public String getPageTitle() {
+        return pageTitle;
+    }
+
+    public void setPageTitle(String pageTitle) {
+        this.pageTitle = pageTitle;
+    }
     public String getPersonNameFormat() {
         return personNameFormat;
     }

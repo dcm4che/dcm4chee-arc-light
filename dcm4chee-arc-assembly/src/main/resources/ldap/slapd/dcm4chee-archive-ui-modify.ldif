@@ -390,6 +390,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.80 NAME 'dcmuiPersonNameFormat'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.82 NAME 'dcmuiHideClock'
+    DESC 'Hide Clock'
+    EQUALITY booleanMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.83 NAME 'dcmuiPageTitle'
+  DESC 'Page Title'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
@@ -405,6 +415,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
     dcmuiLogoURL $
     dcmuiAboutInfo $
     dcmuiDateTimeFormat $
+    dcmuiHideClock $
+    dcmuiPageTitle $
     dcmuiPersonNameFormat $
     dcmDefaultLanguage $
     dcmLanguages $
