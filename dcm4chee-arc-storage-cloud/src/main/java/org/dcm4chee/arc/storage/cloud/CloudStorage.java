@@ -43,7 +43,6 @@ package org.dcm4chee.arc.storage.cloud;
 import com.google.common.hash.HashCode;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.AttributesFormat;
-import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
@@ -94,8 +93,7 @@ public class CloudStorage extends AbstractStorage {
     private final AttributesFormat pathFormat;
     private final String container;
     private final BlobStoreContext context;
-    private final boolean streamingUpload;
-    private final long maxPartSize;
+    private String api;
     private int count;
 
     @Override
@@ -109,15 +107,13 @@ public class CloudStorage extends AbstractStorage {
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         container = descriptor.getProperty("container", DEFAULT_CONTAINER);
         if (Boolean.parseBoolean(descriptor.getProperty("containerExists", null))) count++;
-        String api = descriptor.getStorageURI().getSchemeSpecificPart();
+        api = descriptor.getStorageURI().getSchemeSpecificPart();
         String endpoint = null;
         int endApi = api.indexOf(':');
         if (endApi != -1) {
             endpoint = api.substring(endApi + 1);
             api = api.substring(0, endApi);
         }
-        this.streamingUpload = Boolean.parseBoolean(descriptor.getProperty("streamingUpload", null));
-        this.maxPartSize = BinaryPrefix.parse(descriptor.getProperty("maxPartSize", "5G"));
         ContextBuilder ctxBuilder = ContextBuilder.newBuilder(api);
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
@@ -200,8 +196,16 @@ public class CloudStorage extends AbstractStorage {
                         .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
         long length = ctx.getContentLength();
-        Uploader uploader = streamingUpload || length >= 0 && length <= maxPartSize
-                ? STREAMING_UPLOADER : new S3Uploader();
+        Uploader uploader = STREAMING_UPLOADER;
+        switch (api) {
+            case "aws-s3":
+                uploader = new S3Uploader();
+                break;
+            case "azureblob":
+                uploader = new AzureBlobUploader();
+                break;
+        }
+
         uploader.upload(context, in, length, blobStore, container, storagePath);
         ctx.setStoragePath(storagePath);
     }
