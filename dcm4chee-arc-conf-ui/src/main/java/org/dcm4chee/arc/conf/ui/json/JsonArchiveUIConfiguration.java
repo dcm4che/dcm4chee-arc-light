@@ -100,6 +100,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
         writeUIElasticsearchConfigs(writer, uiConfig.getElasticsearchConfigs());
         writeUILanguageConfigs(writer, uiConfig.getLanguageConfigs());
+        writeUITableConfigs(writer, uiConfig.getTableConfigs());
         writeUIDeviceURLs(writer, uiConfig.getDeviceURLs());
         writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
         writeUIFilterTemplate(writer, uiConfig.getFilterTemplates());
@@ -255,7 +256,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         writer.writeEnd();
     }
-    private void writeUILanguageConfigs(JsonWriter writer, Collection<UILanguageConfig> uiLanguageConfigs) {
+    private void writeUILanguageConfigs(JsonWriter writer, Collection<UILanguageConfig> uiTableConfigs) {
         if (uiLanguageConfigs.isEmpty())
             return;
 
@@ -265,6 +266,23 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiLanguageConfigName", uiLanguageConfig.getName(), null);
             writer.writeNotEmpty("dcmLanguages", uiLanguageConfig.getLanguages());
             writeUILanguageProfile(writer, uiLanguageConfig.getLanguageProfiles());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUITableConfigs(JsonWriter writer, Collection<UITableConfig> uiTableConfigs) {
+        if (uiTableConfigs.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiTableConfig");
+        for (UITableConfig uiTableConfig : uiTableConfigs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiTableConfigName", uiTableConfig.getName(), null);
+            writer.writeNotEmpty("dcmuiTableConfigUsername", uiTableConfig.getUsername());
+            writer.writeNotEmpty("dcmuiTableConfigRoles", uiTableConfig.getRoles());
+            writer.writeNotEmpty("dcmuiTableID", uiTableConfig.getTableId());
+            writer.writeNotDef("dcmuiTableConfigIsDefault", uiTableConfig.isDefault());
+            writeUITableColumn(writer, uiTableConfig.getTableColumns());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -298,6 +316,24 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmDefaultLanguage", uiLanguageProfile.getDefaultLanguage(),null);
             writer.writeNotEmpty("dcmuiLanguageProfileRole", uiLanguageProfile.getAcceptedUserRoles());
             writer.writeNotNullOrDef("dcmuiLanguageProfileUsername", uiLanguageProfile.getUserName(),null);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUITableColumn(JsonWriter writer, Collection<UITableColumn> uiTableColumns) {
+        if (uiTableColumns.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiTableColumnConfigObjects");
+        for (UITableColumn uiTableColumn : uiTableColumns) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiColumnName", uiTableColumn.getColumnName(), null);
+            writer.writeNotNullOrDef("dcmuiColumnId", uiTableColumn.getColumnId(),null);
+            writer.writeNotNullOrDef("dcmuiColumnTitle", uiTableColumn.getColumnTitle(),null);
+            writer.writeNotNullOrDef("dcmuiValuePath", uiTableColumn.getValuePath(),null);
+            writer.writeNotNullOrDef("dcmuiValueType", uiTableColumn.getValueType(),null);
+            writer.writeNotNullOrDef("dcmuiColumnWidth", uiTableColumn.getColumnWidth(),null);
+            writer.writeNotNullOrDef("dcmuiColumnOrder", uiTableColumn.getColumnOrder(),null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -431,6 +467,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiLanguageConfig":
                     loadUILanguageConfigs(uiConfig, reader);
+                    break;
+                case "dcmuiTableConfig":
+                    loadUITableConfigs(uiConfig, reader);
                     break;
                 case "dcmuiDeviceURLObject":
                     loadUIDeviceURLs(uiConfig, reader);
@@ -699,6 +738,41 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
+    private void loadUITableConfigs(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UITableConfig uiTableConfig = new UITableConfig();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiTableConfigName":
+                        uiTableConfig.setName(reader.stringValue());
+                        break;
+                    case "dcmuiTableConfigUsername":
+                        uiTableConfig.setUsername(reader.stringArray());
+                        break;
+                    case "dcmuiTableConfigRoles":
+                        uiTableConfig.setRoles(reader.stringArray());
+                        break;
+                    case "dcmuiTableID":
+                        uiTableConfig.setTableId(reader.stringValue());
+                        break;
+                    case "dcmuiTableConfigIsDefault":
+                        uiTableConfig.setDefault(reader.booleanValue());
+                        break;
+                    case "dcmuiTableColumnConfigObjects":
+                        loadUITableColumn(uiTableConfig, reader);
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addTableConfig(uiTableConfig);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
 
     private void loadUIElasticsearchConfigs(UIConfig uiConfig, JsonReader reader) {
         reader.next();
@@ -781,6 +855,44 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiLanguageConfig.addLanguageProfile(uiLanguageProfile);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUITableColumn(UITableConfig uiTableConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UITableColumn uiTableColumn = new UITableColumn();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiColumnName":
+                        uiTableColumn.setColumnName(reader.stringValue());
+                        break;
+                    case "dcmuiColumnId":
+                        uiTableColumn.setColumnId(reader.stringValue());
+                        break;
+                    case "dcmuiColumnTitle":
+                        uiTableColumn.setColumnTitle(reader.stringValue());
+                        break;
+                    case "dcmuiValuePath":
+                        uiTableColumn.setValuePath(reader.stringValue());
+                        break;
+                    case "dcmuiValueType":
+                        uiTableColumn.setValueType(reader.stringValue());
+                        break;
+                    case "dcmuiColumnWidth":
+                        uiTableColumn.setColumnWidth(reader.stringValue());
+                        break;
+                    case "dcmuiColumnOrder":
+                        uiTableColumn.setColumnOrder(reader.intValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiTableConfig.addTableColumn(uiTableColumn);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

@@ -71,6 +71,7 @@ public class UIConfig {
     private Map<String, UICreateDialogTemplate> dialogTemplate  = new HashMap<>();
     private Map<String, UIWebAppList> webAppList  = new HashMap<>();
     private Map<String, UILanguageConfig> languageConfig = new HashMap<>();
+    private Map<String, UITableConfig> tableConfig = new HashMap<>();
 
     public UIConfig() {
     }
@@ -343,5 +344,21 @@ public class UIConfig {
 
     public Collection<UILanguageConfig> getLanguageConfigs() {
         return languageConfig.values();
+    }
+
+    public UITableConfig getTableConfig(String name) {
+        return tableConfig.get(name);
+    }
+
+    public void addTableConfig(UITableConfig table) {
+        tableConfig.put(table.getName(), table);
+    }
+
+    public UITableConfig removeTableConfig(String name) {
+        return tableConfig.remove(name);
+    }
+
+    public Collection<UITableConfig> getTableConfigs() {
+        return tableConfig.values();
     }
 }
