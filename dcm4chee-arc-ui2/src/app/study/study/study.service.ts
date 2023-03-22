@@ -282,8 +282,8 @@ export class StudyService {
                         });
                     case "series":
                         return [
-                            ...Globalvar.SERIES_FILTER_SCHEMA([], [],false),
-                            ...Globalvar.SERIES_FILTER_SCHEMA([], [],true)
+                            ...Globalvar.SERIES_FILTER_SCHEMA([], [], [],false),
+                            ...Globalvar.SERIES_FILTER_SCHEMA([], [], [],true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
@@ -311,8 +311,8 @@ export class StudyService {
                         });
                     default:
                         return [
-                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], false),
-                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], true)
+                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], [], false),
+                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], [],true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
@@ -330,6 +330,7 @@ export class StudyService {
         quantityText: { count: string, size: string },
         filterMode: ('main' | 'expand'),
         storages?:SelectDropdown<StorageSystems>[],
+        institutions?:SelectDropdown<String>[],
         studyWebService?: StudyWebService,
         attributeSet?:SelectDropdown<DiffAttributeSet>[],
         showCount?:boolean,
@@ -347,13 +348,13 @@ export class StudyService {
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "series":
-                schema = Globalvar.SERIES_FILTER_SCHEMA(aets, storages, filterMode === "expand").filter(filter => {
+                schema = Globalvar.SERIES_FILTER_SCHEMA(aets, storages, institutions,filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 lineLength = 3;
                 break;
             case "mwl":
-                schema = Globalvar.MWL_FILTER_SCHEMA( filterMode === "expand");
+                schema = Globalvar.MWL_FILTER_SCHEMA(filterMode === "expand");
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "mpps":
@@ -371,7 +372,7 @@ export class StudyService {
                 // lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             default:
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, storages, filterMode === "expand").filter(filter => {
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, storages, institutions,filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 lineLength = 3;
@@ -5013,6 +5014,8 @@ export class StudyService {
     getQueueNames = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}queue`);
 
     getRejectNotes = (params?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`);
+
+    getInstitutions = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions`);
 
     createEmptyStudy = (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp), patientDicomAttrs, this.dicomHeader);
 

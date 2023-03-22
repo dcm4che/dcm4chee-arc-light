@@ -276,6 +276,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     currentWebAppClass = "QIDO_RS";
     diffAttributeSets:SelectDropdown<DiffAttributeSet>[];
     storages:SelectDropdown<StorageSystems>[];
+    institutions:SelectDropdown<string>[];
     headerTop = {
         "true":undefined,
         "false":undefined
@@ -379,8 +380,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                 }
                 if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series") {
-                    this.getStorages(this, () => {
-                        this.initWebApps();
+                    this.getInstitutions(this, () => {
+                        this.getStorages(this, () => {
+                            this.initWebApps();
+                        });
                     });
                 }
                 this.more = false;
@@ -3020,7 +3023,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.applicationEntities.aes,
                 this._filter.quantityText,
                 'expand',
-                this.storages
+                this.storages,
+                this.institutions
             );
         }catch (e) {
             j4care.log("Error on schema set",e);
@@ -3036,6 +3040,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this._filter.quantityText,
             'main',
             this.storages,
+            this.institutions,
             this.studyWebService,
             this.diffAttributeSets,
             showCount,
@@ -6449,6 +6454,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.service.getStorageSystems().subscribe((storageSystems:StorageSystems[]) => {
             this.storages = storageSystems.map((storageSystem:StorageSystems) => {
                 return new SelectDropdown(storageSystem.dcmStorageID, storageSystem.dcmStorageID);
+            });
+            callback.call($this);
+        }, err => {
+            this.httpErrorHandler.handleError(err);
+        });
+    }
+
+    getInstitutions($this, callback?:Function) {
+        this.service.getInstitutions().subscribe((institutions:any) => {
+            this.institutions = institutions.Institutions.map((institution:string) => {
+                return new SelectDropdown(institution, institution);
             });
             callback.call($this);
         }, err => {

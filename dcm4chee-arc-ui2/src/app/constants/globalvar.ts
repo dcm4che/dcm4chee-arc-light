@@ -3878,16 +3878,10 @@ export class Globalvar {
         }
     }
 
-    static STUDY_FILTER_SCHEMA(aets, storages, hidden?):FilterSchema{
+    static STUDY_FILTER_SCHEMA(aets, storages, institutions, hidden?):FilterSchema{
         if(hidden){
             return [
                 {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"InstitutionName",
-                    description:$localize `:@@institution_name:Institution Name`,
-                    placeholder:$localize `:@@institution_name:Institution Name`
-                },{
                     tag:"input",
                     type:"text",
                     filterKey:"StationName",
@@ -4201,6 +4195,17 @@ export class Globalvar {
                 ],
                 filterKey:"ModalitiesInStudy",
                 placeholder:$localize `:@@modality:Modality`,
+            },
+            {
+                tag:"editable-multi-select",
+                type:"text",
+                optionsTree:[
+                    {
+                        options:institutions
+                    }
+                ],
+                filterKey:"InstitutionName",
+                placeholder:$localize `:@@institution_name:Institution Name`
             },
             {
                 tag:"input",
@@ -4518,7 +4523,7 @@ export class Globalvar {
         ];
     }
 
-    static SERIES_FILTER_SCHEMA(aets, storages, hidden?):FilterSchema{
+    static SERIES_FILTER_SCHEMA(aets, storages, institutions, hidden?):FilterSchema{
         if(hidden){
             return [
                 {
@@ -4867,10 +4872,14 @@ export class Globalvar {
                 description:$localize `:@@institutional_department_name:Institutional Department Name`,
                 placeholder:$localize `:@@institutional_department_name:Institutional Department Name`
             },{
-                tag:"input",
+                tag:"editable-multi-select",
                 type:"text",
+                optionsTree:[
+                    {
+                        options:institutions
+                    }
+                ],
                 filterKey:"InstitutionName",
-                description:$localize `:@@institution_name:Institution Name`,
                 placeholder:$localize `:@@institution_name:Institution Name`
             },{
                 tag:"input",
