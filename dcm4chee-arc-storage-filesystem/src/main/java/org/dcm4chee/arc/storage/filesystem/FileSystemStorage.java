@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.storage.filesystem;
 
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
@@ -67,7 +66,6 @@ public class FileSystemStorage extends AbstractStorage {
     private static final int COPY_BUFFER_SIZE = 8192;
 
     private final URI rootURI;
-    private final AttributesFormat pathFormat;
     private final Path checkMountFilePath;
     private final boolean noopOnFileExists;
     private final boolean randomPathOnFileExists;
@@ -83,7 +81,6 @@ public class FileSystemStorage extends AbstractStorage {
     public FileSystemStorage(StorageDescriptor descriptor, MetricsService metricsService) {
         super(descriptor, metricsService);
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
-        pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         String checkMountFile = descriptor.getProperty("checkMountFile", null);
         checkMountFilePath = checkMountFile != null ?  Paths.get(rootURI.resolve(checkMountFile)) : null;
         String onFileExists = descriptor.getProperty("onFileExists", null);
@@ -183,7 +180,7 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     protected OutputStream openOutputStreamA(WriteContext ctx) throws IOException {
-        Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
+        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
         Path dir = path.getParent();
         createDirectories(dir);
         OutputStream stream = null;

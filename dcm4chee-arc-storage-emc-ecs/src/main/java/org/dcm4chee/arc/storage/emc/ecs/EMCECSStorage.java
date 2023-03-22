@@ -49,7 +49,6 @@ import com.emc.object.s3.jersey.S3JerseyClient;
 import com.emc.object.s3.request.PutObjectRequest;
 import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.StorageDescriptor;
@@ -88,7 +87,6 @@ public class EMCECSStorage extends AbstractStorage {
     };
 
     private final Device device;
-    private final AttributesFormat pathFormat;
     private final String container;
     private final S3Client s3;
     private final boolean streamingUpload;
@@ -98,7 +96,6 @@ public class EMCECSStorage extends AbstractStorage {
     public EMCECSStorage(StorageDescriptor descriptor, MetricsService metricsService, Device device) {
         super(descriptor, metricsService);
         this.device = device;
-        pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         container = descriptor.getProperty("container", DEFAULT_CONTAINER);
         if (Boolean.parseBoolean(descriptor.getProperty("containerExists", null))) count++;
         String endpoint = descriptor.getStorageURI().getSchemeSpecificPart();
@@ -120,8 +117,10 @@ public class EMCECSStorage extends AbstractStorage {
     }
 
     @Override
-    public WriteContext createWriteContext() {
-        return new EMCECSWriteContext(this);
+    public WriteContext createWriteContext(String storagePath) {
+        EMCECSWriteContext writeContext = new EMCECSWriteContext(this);
+        writeContext.setStoragePath(storagePath);
+        return writeContext;
     }
 
     @Override
@@ -168,18 +167,17 @@ public class EMCECSStorage extends AbstractStorage {
     }
 
     private void upload(WriteContext ctx, InputStream in) throws IOException {
-        String storagePath = pathFormat.format(ctx.getAttributes());
+        String storagePath = ctx.getStoragePath();
         if (count++ == 0 && !s3.bucketExists(container))
             s3.createBucket(container);
         else while (exists(storagePath)) {
-            storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
-                    .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+            ctx.setStoragePath(storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
+                    .concat(String.format("%08X", ThreadLocalRandom.current().nextInt())));
         }
         long length = ctx.getContentLength();
         Uploader uploader = streamingUpload || length >= 0 && length <= maxPartSize
                 ? STREAMING_UPLOADER : new S3Uploader();
         uploader.upload(s3, in, length, container, storagePath);
-        ctx.setStoragePath(storagePath);
     }
 
     private boolean exists(String storagePath) {

@@ -42,7 +42,6 @@ package org.dcm4chee.arc.storage.cloud;
 
 import com.google.common.hash.HashCode;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
@@ -91,7 +90,6 @@ public class CloudStorage extends AbstractStorage {
         }
     };
     private final Device device;
-    private final AttributesFormat pathFormat;
     private final String container;
     private final BlobStoreContext context;
     private final boolean streamingUpload;
@@ -99,14 +97,15 @@ public class CloudStorage extends AbstractStorage {
     private int count;
 
     @Override
-    public WriteContext createWriteContext() {
-        return new CloudWriteContext(this);
+    public WriteContext createWriteContext(String storagePath) {
+        CloudWriteContext writeContext = new CloudWriteContext(this);
+        writeContext.setStoragePath(storagePath);
+        return writeContext;
     }
 
     protected CloudStorage(StorageDescriptor descriptor, MetricsService metricsService, Device device) {
         super(descriptor, metricsService);
         this.device = device;
-        pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         container = descriptor.getProperty("container", DEFAULT_CONTAINER);
         if (Boolean.parseBoolean(descriptor.getProperty("containerExists", null))) count++;
         String api = descriptor.getStorageURI().getSchemeSpecificPart();
@@ -191,19 +190,18 @@ public class CloudStorage extends AbstractStorage {
 
     private void upload(InputStream in, WriteContext ctx) throws IOException {
         BlobStore blobStore = context.getBlobStore();
-        String storagePath = pathFormat.format(ctx.getAttributes());
+        String storagePath = ctx.getStoragePath();
         if (count++ == 0 && !blobStore.containerExists(container))
             blobStore.createContainerInLocation(null, container);
         else {
             while (blobStore.blobExists(container, storagePath))
-                storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
-                        .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+                ctx.setStoragePath(storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
+                        .concat(String.format("%08X", ThreadLocalRandom.current().nextInt())));
         }
         long length = ctx.getContentLength();
         Uploader uploader = streamingUpload || length >= 0 && length <= maxPartSize
                 ? STREAMING_UPLOADER : new S3Uploader();
         uploader.upload(context, in, length, blobStore, container, storagePath);
-        ctx.setStoragePath(storagePath);
     }
 
     private boolean isSynchronizeUpload() {

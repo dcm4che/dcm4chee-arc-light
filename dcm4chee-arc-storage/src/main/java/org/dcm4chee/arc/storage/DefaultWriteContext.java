@@ -40,29 +40,16 @@
 
 package org.dcm4chee.arc.storage;
 
-import org.dcm4che3.data.Attributes;
-
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class DefaultWriteContext extends DefaultReadContext implements WriteContext{
-    private Attributes attrs;
+public class DefaultWriteContext extends DefaultReadContext implements WriteContext {
     private long contentLength = -1;
     private boolean deletionLock;
 
     public DefaultWriteContext(Storage storage) {
         super(storage);
-    }
-
-    @Override
-    public Attributes getAttributes() {
-        return attrs;
-    }
-
-    @Override
-    public void setAttributes(Attributes attrs) {
-        this.attrs = attrs;
     }
 
     @Override

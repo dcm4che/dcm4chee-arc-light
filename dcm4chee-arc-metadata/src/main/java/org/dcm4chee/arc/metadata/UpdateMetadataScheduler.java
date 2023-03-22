@@ -280,8 +280,7 @@ public class UpdateMetadataScheduler extends Scheduler {
     }
 
     private WriteContext createWriteContext(Storage storage, InstanceLocations match) {
-        WriteContext writeCtx = storage.createWriteContext();
-        writeCtx.setAttributes(match.getAttributes());
+        WriteContext writeCtx = storage.createWriteContext(match.getAttributes());
         writeCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
         return writeCtx;
     }

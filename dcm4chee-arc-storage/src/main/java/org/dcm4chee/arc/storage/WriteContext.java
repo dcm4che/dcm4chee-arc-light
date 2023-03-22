@@ -40,17 +40,11 @@
 
 package org.dcm4chee.arc.storage;
 
-import org.dcm4che3.data.Attributes;
-
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
 public interface WriteContext extends ReadContext {
-
-    Attributes getAttributes();
-
-    void setAttributes(Attributes attrs);
 
     long getContentLength();
 

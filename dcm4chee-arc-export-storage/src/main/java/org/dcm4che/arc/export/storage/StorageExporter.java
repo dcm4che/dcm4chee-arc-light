@@ -123,8 +123,7 @@ public class StorageExporter extends AbstractExporter {
                         continue;
                     }
 
-                    WriteContext writeCtx = storage.createWriteContext();
-                    writeCtx.setAttributes(instanceLocations.getAttributes());
+                    WriteContext writeCtx = storage.createWriteContext(instanceLocations.getAttributes());
                     writeCtx.setStudyInstanceUID(studyIUID);
                     Location location = null;
                     try {

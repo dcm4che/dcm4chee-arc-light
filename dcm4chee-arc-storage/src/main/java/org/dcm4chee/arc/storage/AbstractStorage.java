@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.storage;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
@@ -60,10 +62,12 @@ public abstract class AbstractStorage implements Storage {
 
     protected final StorageDescriptor descriptor;
     protected final MetricsService metricsService;
+    private final AttributesFormat pathFormat;
 
     protected AbstractStorage(StorageDescriptor descriptor, MetricsService metricsService) {
         this.descriptor = descriptor;
         this.metricsService = metricsService;
+        this.pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
     }
 
     @Override
@@ -72,8 +76,20 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
-    public WriteContext createWriteContext() {
-        return new DefaultWriteContext(this);
+    public WriteContext createWriteContext(String storagePath) {
+        DefaultWriteContext writeContext = new DefaultWriteContext(this);
+        writeContext.setStoragePath(storagePath);
+        return writeContext;
+    }
+
+    @Override
+    public WriteContext createWriteContext(Attributes attrs) {
+        return createWriteContext(storagePathOf(attrs));
+    }
+
+    @Override
+    public String storagePathOf(Attributes attrs) {
+        return pathFormat.format(attrs);
     }
 
     @Override

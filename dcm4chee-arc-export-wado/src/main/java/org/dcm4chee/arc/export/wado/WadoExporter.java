@@ -65,7 +65,6 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -230,7 +229,6 @@ public class WadoExporter extends AbstractExporter {
             storage = storageFactory.getStorage(storageDescriptor);
             storageMap.put(storageDescriptor.getStorageID(), storage);
         }
-        WriteContext ctx = storage.createWriteContext();
         Attributes attrs = new Attributes(params.length);
         switch (params.length) {
             case 4:
@@ -242,7 +240,7 @@ public class WadoExporter extends AbstractExporter {
             case 1:
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, (String) params[0]);
         }
-        ctx.setAttributes(attrs);
+        WriteContext ctx = storage.createWriteContext(attrs);
         return storage.openOutputStream(ctx);
     }
 

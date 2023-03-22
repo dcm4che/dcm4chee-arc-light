@@ -165,8 +165,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
 
     private boolean copy(InstanceLocations match) {
         Storage storage = ctx.getRetrieveService().getStorage(storageID, ctx);
-        WriteContext writeCtx = storage.createWriteContext();
-        writeCtx.setAttributes(match.getAttributes());
+        WriteContext writeCtx = storage.createWriteContext(match.getAttributes());
         Location location = null;
         try {
             LOG.debug("Start copying {} to {}", match, storage.getStorageDescriptor());

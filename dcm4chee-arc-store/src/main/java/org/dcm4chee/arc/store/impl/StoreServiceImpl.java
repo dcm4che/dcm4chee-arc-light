@@ -747,8 +747,7 @@ class StoreServiceImpl implements StoreService {
                 ? selectObjectStorage(session)
                 : selectMetadataStorage(session);
 
-        WriteContext writeCtx = storage.createWriteContext();
-        writeCtx.setAttributes(storeContext.getAttributes());
+        WriteContext writeCtx = storage.createWriteContext(storeContext.getAttributes());
         writeCtx.setStudyInstanceUID(storeContext.getStudyInstanceUID());
         writeCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
         storeContext.setWriteContext(objectType, writeCtx);
