@@ -227,6 +227,9 @@ import java.util.stream.Stream;
         name = Series.FIND_DISTINCT_MODALITIES,
         query = "select distinct se.modality from Series se"),
 @NamedQuery(
+        name = Series.FIND_DISTINCT_INSTITUTIONS,
+        query = "select distinct se.institutionName from Series se"),
+@NamedQuery(
         name=Series.UPDATE_INSTANCE_PURGE_STATE,
         query = "update Series se set se.instancePurgeState = ?3 " +
                 "where se.pk = ?1 and se.instancePurgeState = ?2"),
@@ -358,6 +361,7 @@ public class Series {
     public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID = "Series.scheduleMetadataUpdateForSeriesUID";
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
+    public static final String FIND_DISTINCT_INSTITUTIONS = "Series.findDistinctInstitutions";
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
     public static final String UPDATE_STGVER_FAILURES = "Series.updateStgVerFailures";
     public static final String SCHEDULED_STORAGE_VERIFICATION = "Series.scheduledStorageVerification";

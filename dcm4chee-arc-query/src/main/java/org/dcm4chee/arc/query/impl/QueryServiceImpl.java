@@ -889,6 +889,12 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public List<String> getDistinctInstitutions() {
+        return em.createNamedQuery(Series.FIND_DISTINCT_INSTITUTIONS, String.class)
+                .getResultList();
+    }
+
+    @Override
     public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
         return ejb.unknownSizeStudies(dt, fetchSize);
     }

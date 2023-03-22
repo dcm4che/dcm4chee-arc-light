@@ -998,6 +998,27 @@
       }
     }
   },
+  "institutions": {
+    "description": "List of Distinct Institutions",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "Institutions"
+          ],
+          "properties": {
+            "Modalities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "PatientID": {
     "description": "Patient ID of created Patient",
     "content": {

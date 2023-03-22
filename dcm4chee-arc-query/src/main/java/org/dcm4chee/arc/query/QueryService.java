@@ -152,6 +152,8 @@ public interface QueryService {
 
     List<String> getDistinctModalities();
 
+    List<String> getDistinctInstitutions();
+
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 
     CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
