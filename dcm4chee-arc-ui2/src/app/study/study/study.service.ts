@@ -289,8 +289,8 @@ export class StudyService {
                         });
                     case "mwl":
                         return [
-                            ...Globalvar.MWL_FILTER_SCHEMA(false),
-                            ...Globalvar.MWL_FILTER_SCHEMA(true)
+                            ...Globalvar.MWL_FILTER_SCHEMA([],false),
+                            ...Globalvar.MWL_FILTER_SCHEMA([],true)
                         ];
                     case "mpps":
                         return [
@@ -354,7 +354,7 @@ export class StudyService {
                 lineLength = 3;
                 break;
             case "mwl":
-                schema = Globalvar.MWL_FILTER_SCHEMA(filterMode === "expand");
+                schema = Globalvar.MWL_FILTER_SCHEMA( institutions,filterMode === "expand");
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "mpps":

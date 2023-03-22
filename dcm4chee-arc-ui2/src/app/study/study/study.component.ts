@@ -386,6 +386,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         });
                     });
                 }
+                if (this.studyConfig.tab === "mwl") {
+                    this.getInstitutions(this, () => {
+                        this.initWebApps();
+                    });
+                }
                 this.more = false;
                 this._filter.filterModel.offset = 0;
                 this.setTableSchema();

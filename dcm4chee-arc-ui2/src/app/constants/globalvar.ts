@@ -3367,7 +3367,7 @@ export class Globalvar {
         return "6";
     }
 
-    static MWL_FILTER_SCHEMA(hidden?):FilterSchema{
+    static MWL_FILTER_SCHEMA(institutions, hidden?):FilterSchema{
         if(hidden){
             return [
 
@@ -3450,6 +3450,16 @@ export class Globalvar {
                     filterKey:"ScheduledProcedureStepSequence.Modality",
                     placeholder:$localize `:@@modality:Modality`,
                 },{
+                    tag:"editable-multi-select",
+                    type:"text",
+                    optionsTree:[
+                        {
+                            options:institutions
+                        }
+                    ],
+                    filterKey:"InstitutionName",
+                    placeholder:$localize `:@@institution_name:Institution Name`
+                }, {
                     tag:"input",
                     type:"text",
                     filterKey:"StudyInstanceUID",
