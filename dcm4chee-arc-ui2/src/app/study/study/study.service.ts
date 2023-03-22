@@ -3940,8 +3940,10 @@ export class StudyService {
                 url += `/` + rejectionCode;
             }
             url += j4care.param(patientParams);
-            selectedElements.preActionElements.getAllAsArray().forEach(object=>{
-                observables.push(this.$http.post(url,object.requestReady).pipe(
+            const objects = this.collectSelectedObjects(selectedElements.preActionElements.getAllAsArray().map(object=>object.requestReady));
+            objects.forEach(object=>{
+                console.log("oncopyobject = ",object);
+                observables.push(this.$http.post(url,object).pipe(
                     catchError(err => of({isError: true, error: err})),
                 ));
             });
@@ -3950,6 +3952,52 @@ export class StudyService {
             return throwError(e);
         }
     };
+
+    collectSelectedObjects(objects:any[]){
+        let groupObject = {};
+        objects.forEach(object=>{
+            if(object.StudyInstanceUID && groupObject[object.StudyInstanceUID]){
+                if(object.ReferencedSeriesSequence && groupObject[object.StudyInstanceUID].ReferencedSeriesSequence){
+                    let foundTheSameRefSeriesSec = false;
+                    groupObject[object.StudyInstanceUID].ReferencedSeriesSequence.forEach(availableReferencedSeriesSequenceObject =>{
+                        object.ReferencedSeriesSequence.forEach(newReferencedSeriesSequenceObject =>{
+                            if(availableReferencedSeriesSequenceObject.SeriesInstanceUID === newReferencedSeriesSequenceObject.SeriesInstanceUID){
+                                foundTheSameRefSeriesSec = true;
+                                if(availableReferencedSeriesSequenceObject.ReferencedSOPSequence && newReferencedSeriesSequenceObject.ReferencedSOPSequence){
+                                    let newReferencedSOPSequence = [];
+                                    availableReferencedSeriesSequenceObject.ReferencedSOPSequence.forEach(availableReferencedSOPSeq=>{
+                                        newReferencedSeriesSequenceObject.ReferencedSOPSequence.forEach(newReferencedSOPSeq=>{
+                                            if(
+                                                availableReferencedSOPSeq.ReferencedSOPClassUID != newReferencedSOPSeq.ReferencedSOPClassUID ||
+                                                availableReferencedSOPSeq.ReferencedSOPInstanceUID != newReferencedSOPSeq.ReferencedSOPInstanceUID
+                                            ){
+                                                newReferencedSOPSequence.push(newReferencedSOPSeq);
+                                            }
+                                        });
+                                    })
+                                    if(newReferencedSOPSequence.length > 0){
+                                        availableReferencedSeriesSequenceObject.ReferencedSOPSequence = _.uniq([
+                                            ...availableReferencedSeriesSequenceObject.ReferencedSOPSequence,
+                                            ...newReferencedSOPSequence
+                                        ]);
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    if(!foundTheSameRefSeriesSec){
+                        groupObject[object.StudyInstanceUID].ReferencedSeriesSequence = _.uniq([
+                            ...groupObject[object.StudyInstanceUID].ReferencedSeriesSequence,
+                            ...object.ReferencedSeriesSequence
+                        ]);
+                    }
+                }
+            }else{
+                groupObject[object.StudyInstanceUID] = object;
+            }
+        });
+        return Object.values(groupObject);
+    }
 
     linkStudyToMwl(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode):Observable<any>{
         try{
