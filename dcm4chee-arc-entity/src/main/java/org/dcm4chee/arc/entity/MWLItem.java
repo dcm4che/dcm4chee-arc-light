@@ -93,7 +93,9 @@ import java.util.*;
         name = MWLItem.FIND_BY_PK,
         query = "select mwl from MWLItem mwl " +
                 "where mwl.pk = ?1"),
-
+@NamedQuery(
+        name = MWLItem.FIND_DISTINCT_INSTITUTIONS,
+        query = "select distinct mwl.institutionName from MWLItem mwl"),
 @NamedQuery(
         name = MWLItem.IDS_BY_PATIENT_AND_STATUS,
         query = "select new org.dcm4chee.arc.entity.MWLItem$IDs(mwl.scheduledProcedureStepID, mwl.studyInstanceUID) " +
@@ -135,6 +137,7 @@ public class MWLItem {
     public static final String FIND_BY_PK = "MWLItem.findByPk";
     public static final String IDS_BY_PATIENT_AND_STATUS = "MWLItem.idsByPatientAndStatus";
     public static final String FIND_BY_ACCESSION_NO_EAGER = "MWLItem.findByAccessionNoEager";
+    public static final String FIND_DISTINCT_INSTITUTIONS = "MWLItem.findDistinctInstitutions";
 
     public static class IDs {
         public final String scheduledProcedureStepID;
