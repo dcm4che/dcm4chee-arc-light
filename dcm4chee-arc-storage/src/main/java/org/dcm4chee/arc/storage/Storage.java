@@ -25,6 +25,8 @@ public interface Storage extends Closeable {
 
     boolean isAccessable();
 
+    boolean isTarArchiver();
+
     boolean exists(ReadContext ctx);
 
     long getContentLength(ReadContext ctx) throws IOException;
