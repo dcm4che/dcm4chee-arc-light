@@ -220,13 +220,13 @@ public class StorageExporter extends AbstractExporter {
         }
         byte[] copyBuffer = new byte[DEFAULT_BUFFER_SIZE];
         for (Map.Entry<String, List<TarEntry>> entry : tars.entrySet()) {
-            String storagePath = entry.getKey();
             List<TarEntry> tarEntries = entry.getValue();
-            WriteContext writeCtx = storage.createWriteContext(storagePath);
+            WriteContext writeCtx = storage.createWriteContext(entry.getKey());
             writeCtx.setStudyInstanceUID(retrieveContext.getStudyInstanceUID());
             int completed = 0;
             try {
                 try (TarArchiveOutputStream tar = new TarArchiveOutputStream(storage.openOutputStream(writeCtx))) {
+                    String storagePath = writeCtx.getStoragePath();
                     for (TarEntry tarEntry : tarEntries) {
                         LOG.debug("Start copying {} to TAR {} at {}", tarEntry.instanceLocations,
                                 storagePath, storage.getStorageDescriptor());
