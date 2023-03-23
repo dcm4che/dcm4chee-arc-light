@@ -169,7 +169,7 @@ public class StorageExporter extends AbstractExporter {
                 retrieveContext, instanceLocations)) {
             writeCtx.setContentLength(locationInputStream.location.getSize());
             storage.copy(locationInputStream.stream, writeCtx);
-            return new Location.Builder()
+            Location location = new Location.Builder()
                     .storageID(storage.getStorageDescriptor().getStorageID())
                     .storagePath(writeCtx.getStoragePath())
                     .transferSyntaxUID(locationInputStream.location.getTransferSyntaxUID())
@@ -177,6 +177,8 @@ public class StorageExporter extends AbstractExporter {
                     .size(locationInputStream.location.getSize())
                     .digest(locationInputStream.location.getDigest())
                     .build();
+            location.setUidMap(locationInputStream.location.getUidMap());
+            return location;
         }
     }
 }
