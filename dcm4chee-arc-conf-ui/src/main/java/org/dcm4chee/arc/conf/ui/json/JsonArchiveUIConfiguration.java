@@ -256,7 +256,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         writer.writeEnd();
     }
-    private void writeUILanguageConfigs(JsonWriter writer, Collection<UILanguageConfig> uiTableConfigs) {
+    private void writeUILanguageConfigs(JsonWriter writer, Collection<UILanguageConfig> uiLanguageConfigs) {
         if (uiLanguageConfigs.isEmpty())
             return;
 
@@ -280,8 +280,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiTableConfigName", uiTableConfig.getName(), null);
             writer.writeNotEmpty("dcmuiTableConfigUsername", uiTableConfig.getUsername());
             writer.writeNotEmpty("dcmuiTableConfigRoles", uiTableConfig.getRoles());
-            writer.writeNotEmpty("dcmuiTableID", uiTableConfig.getTableId());
-            writer.writeNotDef("dcmuiTableConfigIsDefault", uiTableConfig.isDefault());
+            writer.writeNotNullOrDef("dcmuiTableID", uiTableConfig.getTableId(), null);
+            writer.writeNotDef("dcmuiTableConfigIsDefault", uiTableConfig.isDefault(), false);
             writeUITableColumn(writer, uiTableConfig.getTableColumns());
             writer.writeEnd();
         }

@@ -823,8 +823,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 String uiTableConfigDN = LdapUtils.dnOf("dcmuiTableConfigName" , uiTableConfig.getName(), uiConfigDN);
                 uiTableConfig.setUsername(LdapUtils.stringArray(attrs.get("dcmuiTableConfigUsername")));
                 uiTableConfig.setRoles(LdapUtils.stringArray(attrs.get("dcmuiTableConfigRoles")));
-                uiTableConfig.setTableId(LdapUtils.stringValue(attrs.get("dcmuiTableID")));
-                uiTableConfig.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiTableConfigIsDefault")));
+                uiTableConfig.setTableId(LdapUtils.stringValue(attrs.get("dcmuiTableID"),null));
+                uiTableConfig.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiTableConfigIsDefault"),false));
                 loadTableColumn(uiTableConfig, uiTableConfigDN);
                 uiConfig.addTableConfig(uiTableConfig);
             }
