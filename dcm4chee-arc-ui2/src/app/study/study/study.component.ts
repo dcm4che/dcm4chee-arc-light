@@ -380,14 +380,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                 }
                 if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series") {
-                    this.getInstitutions(this, () => {
+                    this.getInstitutions(this, "Series", () => {
                         this.getStorages(this, () => {
                             this.initWebApps();
                         });
                     });
                 }
                 if (this.studyConfig.tab === "mwl") {
-                    this.getInstitutions(this, () => {
+                    this.getInstitutions(this, "MWL",() => {
                         this.initWebApps();
                     });
                 }
@@ -6466,8 +6466,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
-    getInstitutions($this, callback?:Function) {
-        this.service.getInstitutions().subscribe((institutions:any) => {
+    getInstitutions($this, entity?: any, callback?:Function) {
+        this.service.getInstitutions(entity).subscribe((institutions:any) => {
             this.institutions = institutions.Institutions.map((institution:string) => {
                 return new SelectDropdown(institution, institution);
             });
