@@ -43,17 +43,10 @@
     }
   },
   "createUpdateSPS": {
-    "externalDocs": {
-      "description": "MWL Item Attributes",
-      "url": "https://dicom.nema.org/medical/dicom/current/output/html/part04.html#table_K.6-1"
-    },
+    "description": "MWL Item Attributes",
+    "url": "https://dicom.nema.org/medical/dicom/current/output/html/part04.html#table_K.6-1",
     "content": {
       "application/dicom+json": {
-        "schema": {
-          "$ref": "schemas.json#/attributes"
-        }
-      },
-      "application/json": {
         "schema": {
           "$ref": "schemas.json#/attributes"
         }
