@@ -114,7 +114,7 @@ public class StorageExporter extends AbstractExporter {
             try {
                 Storage storage = retrieveService.getStorage(storageID, retrieveContext);
                 retrieveContext.setDestinationStorage(storage.getStorageDescriptor());
-                Collection<String> seriesIUIDs = storage.isTarArchiver()
+                Collection<String> seriesIUIDs = storage.getStorageDescriptor().isTarArchiver()
                     ? tarFiles(retrieveContext, storeSession, storage)
                     : copyFiles(retrieveContext, storeSession, storage);
                 if (!seriesIUIDs.isEmpty()) {

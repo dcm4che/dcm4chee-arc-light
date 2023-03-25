@@ -63,13 +63,11 @@ public abstract class AbstractStorage implements Storage {
     protected final StorageDescriptor descriptor;
     protected final MetricsService metricsService;
     private final AttributesFormat pathFormat;
-    private final boolean tarArchiver;
 
     protected AbstractStorage(StorageDescriptor descriptor, MetricsService metricsService) {
         this.descriptor = descriptor;
         this.metricsService = metricsService;
         this.pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
-        this.tarArchiver = "tar".equals(descriptor.getProperty("archiver", null));
     }
 
     @Override
@@ -102,11 +100,6 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public boolean isAccessable() {
         return true;
-    }
-
-    @Override
-    public boolean isTarArchiver() {
-        return tarArchiver;
     }
 
     @Override
