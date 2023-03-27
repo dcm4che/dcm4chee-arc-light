@@ -6474,6 +6474,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             callback.call($this);
         }, err => {
             this.httpErrorHandler.handleError(err);
+            this.institutions;
+            callback.call($this);
         });
     }
 
