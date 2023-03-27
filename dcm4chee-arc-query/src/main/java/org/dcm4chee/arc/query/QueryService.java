@@ -47,10 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4chee.arc.MergeMWLQueryParam;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -152,7 +149,7 @@ public interface QueryService {
 
     List<String> getDistinctModalities();
 
-    List<String> getDistinctInstitutions();
+    List<String> getDistinctInstitutions(String entity);
 
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 

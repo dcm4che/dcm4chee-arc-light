@@ -49,11 +49,6 @@
         "schema": {
           "$ref": "schemas.json#/attributes"
         }
-      },
-      "application/json": {
-        "schema": {
-          "$ref": "schemas.json#/attributes"
-        }
       }
     }
   },

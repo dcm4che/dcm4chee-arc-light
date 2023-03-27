@@ -228,6 +228,8 @@ public class Location {
         private Status status = Status.OK;
         private ObjectType objectType = ObjectType.DICOM_FILE;
 
+        private UIDMap uidMap;
+
         public Builder pk(long pk) {
             this.pk = pk;
             return this;
@@ -277,6 +279,11 @@ public class Location {
             return this;
         }
 
+        public Builder uidMap(UIDMap uidMap) {
+            this.uidMap = uidMap;
+            return this;
+        }
+
         public Location build() {
             return new Location(this);
         }
@@ -293,6 +300,7 @@ public class Location {
         digest = builder.digest;
         status = builder.status;
         objectType = builder.objectType;
+        uidMap = builder.uidMap;
     }
 
     public Location(Location other) {

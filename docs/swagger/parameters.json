@@ -295,6 +295,19 @@
       "type": "string"
     }
   },
+  "entity": {
+    "name": "entity",
+    "in": "query",
+    "description": "Entity of which Institution Names are to be returned",
+    "required": true,
+    "schema": {
+      "type": "string",
+      "enum": [
+        "Series",
+        "MWL"
+      ]
+    }
+  },
   "typePathParam": {
     "name": "type",
     "in": "path",

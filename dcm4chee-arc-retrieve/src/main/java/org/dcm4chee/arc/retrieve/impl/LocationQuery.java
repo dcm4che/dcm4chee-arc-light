@@ -230,7 +230,7 @@ class LocationQuery {
         if (pk == null)
             return;
 
-        Location location = new Location.Builder()
+        match.getLocations().add(new Location.Builder()
                 .pk(pk)
                 .storageID(tuple.get(locationPath.get(Location_.storageID)))
                 .storagePath(tuple.get(locationPath.get(Location_.storagePath)))
@@ -239,8 +239,7 @@ class LocationQuery {
                 .digest(tuple.get(locationPath.get(Location_.digest)))
                 .size(tuple.get(locationPath.get(Location_.size)))
                 .status(tuple.get(locationPath.get(Location_.status)))
-                .build();
-        location.setUidMap(uidMap);
-        match.getLocations().add(location);
+                .uidMap(uidMap)
+                .build());
     }
 }

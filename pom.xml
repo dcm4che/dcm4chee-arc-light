@@ -62,6 +62,7 @@
     <jbossws-cxf-client.version>5.5.0.Final</jbossws-cxf-client.version>
     <jaxb-xjc.version>2.3.3-b02</jaxb-xjc.version>
     <apache-cxf.version>3.4.7</apache-cxf.version>
+    <apache-commons-compress.version>1.22</apache-commons-compress.version>
     <apache-commons-csv.version>1.9.0</apache-commons-csv.version>
     <jclouds.version>2.5.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
@@ -130,6 +131,12 @@
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-admin-client</artifactId>
         <version>${keycloak.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>${apache-commons-compress.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

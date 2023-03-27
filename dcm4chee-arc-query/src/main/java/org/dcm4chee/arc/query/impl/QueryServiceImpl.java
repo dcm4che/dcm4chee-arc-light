@@ -889,8 +889,10 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public List<String> getDistinctInstitutions() {
-        return em.createNamedQuery(Series.FIND_DISTINCT_INSTITUTIONS, String.class)
+    public List<String> getDistinctInstitutions(String entity) {
+        return em.createNamedQuery(
+                entity.equals(Entity.Series.name()) ? Series.FIND_DISTINCT_INSTITUTIONS : MWLItem.FIND_DISTINCT_INSTITUTIONS,
+                        String.class)
                 .getResultList();
     }
 

@@ -677,6 +677,7 @@ public class StoreServiceEJB {
                 .setParameter(1, uidMap).getSingleResult();
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void removeOrMarkLocationAs(Location location, Location.Status status) {
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
@@ -691,6 +692,7 @@ public class StoreServiceEJB {
         location.setStatus(status);
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void removeOrphaned(UIDMap uidMap) {
         if (countLocationsByUIDMap(uidMap) == 0)
             em.remove(uidMap);

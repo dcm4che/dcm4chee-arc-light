@@ -48,9 +48,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.validation.constraints.Pattern;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import java.util.stream.Collectors;
 
@@ -69,13 +68,18 @@ public class InstitutionsRS {
     @Inject
     private QueryService queryService;
 
+    @QueryParam("entity")
+    @Pattern(regexp = "Series|MWL")
+    @DefaultValue("Series")
+    private String entity;
+
     @GET
     @NoCache
     @Produces("application/json")
     public String listInstitutions() {
         logRequest();
-        return queryService.getDistinctInstitutions().stream()
-                .filter(modality -> !modality.equals("*"))
+        return queryService.getDistinctInstitutions(entity).stream()
+                .filter(institution -> !institution.equals("*"))
                 .sorted()
                 .collect(Collectors.joining("\",\"", "{\"Institutions\":[\"", "\"]}"));
     }

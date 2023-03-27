@@ -5063,7 +5063,7 @@ export class StudyService {
 
     getRejectNotes = (params?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`);
 
-    getInstitutions = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions`);
+    getInstitutions = (entity?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
 
     createEmptyStudy = (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp), patientDicomAttrs, this.dicomHeader);
 

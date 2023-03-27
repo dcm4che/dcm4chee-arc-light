@@ -204,8 +204,12 @@
       ],
       "summary": "List Distinct Institutions",
       "operationId": "listDistinctInstitutions",
-      "description": "List distinct values for Institution Name (0008,0080) of received Series",
-      "parameters": [],
+      "description": "List distinct values for Institution Name (0008,0080) of received Series / MWLs",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/entity"
+        }
+      ],
       "responses": {
         "200": {
           "$ref": "../responses.json#/institutions"

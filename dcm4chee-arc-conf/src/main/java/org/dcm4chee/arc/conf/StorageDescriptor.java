@@ -109,6 +109,10 @@ public final class StorageDescriptor {
         return storageURI;
     }
 
+    public boolean isTarArchiver() {
+        return "tar".equals(properties.get("archiver"));
+    }
+
     public String getDigestAlgorithm() {
         return digestAlgorithm;
     }
