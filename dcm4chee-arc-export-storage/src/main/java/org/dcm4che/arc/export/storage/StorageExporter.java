@@ -43,6 +43,7 @@ package org.dcm4che.arc.export.storage;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.StreamUtils;
@@ -62,10 +63,15 @@ import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
+import org.hibernate.engine.jdbc.ReaderInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -226,6 +232,7 @@ public class StorageExporter extends AbstractExporter {
             try {
                 try (TarArchiveOutputStream tar = new TarArchiveOutputStream(storage.openOutputStream(writeCtx))) {
                     String storagePath = writeCtx.getStoragePath();
+                    ByteArrayOutputStream md5sum = new ByteArrayOutputStream();
                     for (TarEntry tarEntry : tarEntries) {
                         LOG.debug("Start copying {} to TAR {} at {}", tarEntry.instanceLocations,
                                 storagePath, storage.getStorageDescriptor());
@@ -233,6 +240,20 @@ public class StorageExporter extends AbstractExporter {
                                 tar, storageID, storagePath, tarEntry.entryName, copyBuffer);
                         LOG.debug("Finished copying {} to TAR {} at {}", tarEntry.instanceLocations,
                                 storagePath, storage.getStorageDescriptor());
+                        if (tarEntry.newLocation.getDigestAsHexString() != null) {
+                            md5sum.write(tarEntry.newLocation.getDigestAsHexString().getBytes());
+                            md5sum.write(' ');
+                            md5sum.write(' ');
+                            md5sum.write(tarEntry.entryName.getBytes());
+                            md5sum.write('\n');
+                        }
+                    }
+                    if (md5sum.size() > 0) {
+                        TarArchiveEntry archiveEntry = new TarArchiveEntry("MD5SUM");
+                        archiveEntry.setSize(md5sum.size());
+                        tar.putArchiveEntry(archiveEntry);
+                        tar.write(md5sum.toByteArray());
+                        tar.closeArchiveEntry();
                     }
                 }
                 storage.commitStorage(writeCtx);
