@@ -212,6 +212,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 .objectType(Location.ObjectType.DICOM_FILE)
                 .size(tarLocation.getSize())
                 .digest(tarLocation.getDigest())
+                .uidMap(tarLocation.getUidMap())
                 .build();
     }
 
@@ -280,6 +281,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
                     .objectType(Location.ObjectType.DICOM_FILE)
                     .size(locationInputStream.location.getSize())
                     .digest(locationInputStream.location.getDigest())
+                    .uidMap(locationInputStream.location.getUidMap())
                     .build();
         }
     }

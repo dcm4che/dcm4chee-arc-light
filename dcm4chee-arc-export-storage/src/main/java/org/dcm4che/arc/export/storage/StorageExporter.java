@@ -179,16 +179,15 @@ public class StorageExporter extends AbstractExporter {
                 retrieveContext, instanceLocations)) {
             writeCtx.setContentLength(locationInputStream.location.getSize());
             storage.copy(locationInputStream.stream, writeCtx);
-            Location location = new Location.Builder()
+            return new Location.Builder()
                     .storageID(storage.getStorageDescriptor().getStorageID())
                     .storagePath(writeCtx.getStoragePath())
                     .transferSyntaxUID(locationInputStream.location.getTransferSyntaxUID())
                     .objectType(Location.ObjectType.DICOM_FILE)
                     .size(locationInputStream.location.getSize())
                     .digest(locationInputStream.location.getDigest())
+                    .uidMap(locationInputStream.location.getUidMap())
                     .build();
-            location.setUidMap(locationInputStream.location.getUidMap());
-            return location;
         }
     }
 
@@ -268,16 +267,15 @@ public class StorageExporter extends AbstractExporter {
             tar.putArchiveEntry(archiveEntry);
             StreamUtils.copy(locationInputStream.stream, tar, copyBuffer);
             tar.closeArchiveEntry();
-            Location location = new Location.Builder()
+            return new Location.Builder()
                     .storageID(storageID)
                     .storagePath(storagePath + '!' + entryName)
                     .transferSyntaxUID(locationInputStream.location.getTransferSyntaxUID())
                     .objectType(Location.ObjectType.DICOM_FILE)
                     .size(locationInputStream.location.getSize())
                     .digest(locationInputStream.location.getDigest())
+                    .uidMap(locationInputStream.location.getUidMap())
                     .build();
-            location.setUidMap(locationInputStream.location.getUidMap());
-            return location;
         }
     }
 
