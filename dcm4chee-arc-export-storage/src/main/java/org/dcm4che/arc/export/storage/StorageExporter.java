@@ -67,10 +67,7 @@ import org.hibernate.engine.jdbc.ReaderInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -230,7 +227,8 @@ public class StorageExporter extends AbstractExporter {
             writeCtx.setStudyInstanceUID(retrieveContext.getStudyInstanceUID());
             int completed = 0;
             try {
-                try (TarArchiveOutputStream tar = new TarArchiveOutputStream(storage.openOutputStream(writeCtx))) {
+                try (TarArchiveOutputStream tar = new TarArchiveOutputStream(
+                        new BufferedOutputStream(storage.openOutputStream(writeCtx)))) {
                     String storagePath = writeCtx.getStoragePath();
                     ByteArrayOutputStream md5sum = new ByteArrayOutputStream();
                     for (TarEntry tarEntry : tarEntries) {

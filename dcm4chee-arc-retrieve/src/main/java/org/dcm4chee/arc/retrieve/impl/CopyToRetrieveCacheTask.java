@@ -58,6 +58,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -139,7 +140,8 @@ public class CopyToRetrieveCacheTask implements Runnable {
     private void untarFiles(Storage tarStorage, String tarPath, Map<String, InstanceLocations> matchByTarEntry) {
         ReadContext readContext = tarStorage.createReadContext();
         readContext.setStoragePath(tarPath);
-        try (TarArchiveInputStream tar = new TarArchiveInputStream(tarStorage.openInputStream(readContext))) {
+        try (TarArchiveInputStream tar = new TarArchiveInputStream(
+                new BufferedInputStream(tarStorage.openInputStream(readContext)))) {
             TarArchiveEntry tarEntry;
             while ((tarEntry = tar.getNextTarEntry()) != null) {
                 InstanceLocations inst = matchByTarEntry.remove(tarEntry.getName());
