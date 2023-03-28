@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import {DicomLevel} from "../../../interfaces";
 import {TableSchemaElement} from "../../../models/dicom-table-schema-element";
+import {DynamicPipe} from "../../../helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {PatientIssuerPipe} from "../../../pipes/patient-issuer.pipe";
+import {CustomDatePipe} from "../../../pipes/custom-date.pipe";
 
 @Injectable()
 export class SelectionsDicomViewService {
@@ -28,11 +31,27 @@ export class SelectionsDicomViewService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
+                    type: "pipe",
                     header: $localize `:@@issuer_of_patient:Issuer of Patient`,
-                    pathToValue: "00100021.Value[0]",
-                    headerDescription: $localize `:@@issuer_of_patient_id:Issuer of Patient ID`,
+                    headerDescription: $localize `:@@issuer_of_patient:Issuer of Patient`,
                     widthWeight: 1,
+                    calculatedWidth: "20%",
+                    pipe: new DynamicPipe(PatientIssuerPipe, undefined)
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@b_date:B. Date`,
+                    pathToValue: "00100030.Value[0]",
+                    headerDescription: $localize `:@@patients_birth_date:Patient's Birth Date`,
+                    widthWeight: 0.5,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@sex:Sex`,
+                    pathToValue: "00100040.Value[0]",
+                    headerDescription: $localize `:@@patients_sex:Patient's Sex`,
+                    widthWeight: 0.2,
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
@@ -77,7 +96,21 @@ export class SelectionsDicomViewService {
                   header: $localize `:@@study_instance_uid:Study Instance UID`,
                   pathToValue: "[0020000D].Value[0]",
                   headerDescription: $localize `:@@study_instance_uid:Study Instance UID`,
-                  widthWeight: 3,
+                  widthWeight: 2,
+                  calculatedWidth: "20%"
+              }), new TableSchemaElement({
+                  type: "value",
+                  header: $localize `:@@accession_number:Accession Number`,
+                  pathToValue: "[00080050].Value[0]",
+                  headerDescription: $localize `:@@accession_number:Accession Number`,
+                  widthWeight: 1.5,
+                  calculatedWidth: "20%"
+              }), new TableSchemaElement({
+                  type: "value",
+                  header: $localize `:@@study_desc:Study Desc`,
+                  pathToValue: "[00081030].Value[0]",
+                  headerDescription: $localize `:@@study_description:Study Description`,
+                  widthWeight: 2,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
@@ -85,7 +118,7 @@ export class SelectionsDicomViewService {
                   header: $localize `:@@study_date:Study Date`,
                   pathToValue: "[00080020].Value[0]",
                   headerDescription: $localize `:@@study_date:Study Date`,
-                  widthWeight: 0.6,
+                  widthWeight: 1,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
@@ -93,7 +126,7 @@ export class SelectionsDicomViewService {
                   header: $localize `:@@number_of_related_series:#S`,
                   pathToValue: "[00201206].Value[0]",
                   headerDescription: $localize `:@@number_of_study_related_series:Number of Study Related Series`,
-                  widthWeight: 0.2,
+                  widthWeight: 0.3,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
@@ -101,7 +134,7 @@ export class SelectionsDicomViewService {
                   header:$localize `:@@number_of_instances:#I`,
                   pathToValue: "[00201208].Value[0]",
                   headerDescription: $localize `:@@number_of_study_related_instances:Number of Study Related Instances`,
-                  widthWeight: 0.2,
+                  widthWeight: 0.3,
                   calculatedWidth: "20%"
               }),
               new TableSchemaElement({
