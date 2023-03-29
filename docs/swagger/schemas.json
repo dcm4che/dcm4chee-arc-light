@@ -17,6 +17,13 @@
       "VERIFICATION_FAILED"
     ]
   },
+  "linkStrategy": {
+    "type": "string",
+    "enum": [
+      "MERGE",
+      "IOCM"
+    ]
+  },
   "ExpirationState": {
     "type": "string",
     "enum": [

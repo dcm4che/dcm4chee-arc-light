@@ -364,7 +364,10 @@ public class ProcedureServiceEJB {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
-                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+                                    .setParameter(1, ctx.getStudyInstanceUIDInstRefs() == null
+                                                                ? ctx.getStudyInstanceUID()
+                                                                : ctx.getStudyInstanceUIDInstRefs())
+                                    .getResultList();
         if (seriesList.isEmpty())
             return false;
 

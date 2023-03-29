@@ -86,7 +86,7 @@ class IocmUtils {
         if (instanceLocations.isEmpty())
             return null;
 
-        if (studyInstanceUID.equals(instanceRefs.getString(Tag.StudyInstanceUID))) {
+        if (isMerge(ctx, instanceRefs)) {
             procedureService.updateStudySeriesAttributes(ctx);
             result = getResult(instanceLocations);
         } else {
@@ -100,6 +100,20 @@ class IocmUtils {
             rejectInstances(instanceRefs, queryService, rjNote, session, result);
         }
         return result;
+    }
+
+    private static boolean isMerge(ProcedureContext ctx, Attributes instanceRefs) {
+        String linkStrategy = ctx.getLinkStrategy();
+        String studyInstanceUIDInstRefs = instanceRefs.getString(Tag.StudyInstanceUID);
+        if (linkStrategy == null)
+            return ctx.getStudyInstanceUID().equals(studyInstanceUIDInstRefs);
+
+        if (linkStrategy.equals("MERGE")) {
+            ctx.setStudyInstanceUIDInstRefs(studyInstanceUIDInstRefs);
+            return true;
+        }
+
+        return false;
     }
 
     static Attributes copyMove(

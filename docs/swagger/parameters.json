@@ -1169,6 +1169,14 @@
       "default": false
     }
   },
+  "strategy": {
+    "name": "strategy",
+    "in": "query",
+    "description": "specify strategy to be used for link instance to MWL service",
+    "schema": {
+      "$ref": "schemas.json#/linkStrategy"
+    }
+  },
   "storageID": {
     "name": "storageID",
     "in": "query",

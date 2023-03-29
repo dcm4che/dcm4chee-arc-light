@@ -74,6 +74,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -210,6 +211,7 @@ public class IocmRS {
                                               @PathParam("spsID") String spsID,
                                               @PathParam("codeValue") String codeValue,
                                               @PathParam("codingSchemeDesignator") String designator,
+                                              @QueryParam("strategy") @Pattern(regexp = "IOCM|MERGE") String strategy,
                                               InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
@@ -232,6 +234,7 @@ public class IocmRS {
 
             ctx.setAttributes(mwl.getAttributes());
             ctx.setPatient(mwl.getPatient());
+            ctx.setLinkStrategy(strategy);
             String changeRequesterAET = arcAE.changeRequesterAET();
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request),

@@ -139,4 +139,12 @@ public interface ProcedureContext {
     String getStatus();
 
     void setStatus(String status);
+
+    String getLinkStrategy();
+
+    void setLinkStrategy(String strategy);
+
+    String getStudyInstanceUIDInstRefs();
+
+    void setStudyInstanceUIDInstRefs(String studyInstanceUIDInstRefs);
 }
