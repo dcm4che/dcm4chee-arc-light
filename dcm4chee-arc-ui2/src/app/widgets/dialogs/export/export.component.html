@@ -16,7 +16,9 @@
                 </div>
                 <br>
                 <div>
-                    <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@batch_id" placeholder="Batch ID">
+                    <p>
+                       <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@batch_id" placeholder="Batch ID">
+                    </p>
                     <range-picker
                             [model]="result.scheduledTime"
                             (modelChange)="result.scheduledTime = $event"
