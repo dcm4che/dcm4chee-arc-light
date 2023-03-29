@@ -116,11 +116,16 @@ public class CopyToRetrieveCacheTask implements Runnable {
     @Override
     public void run() {
         if (matchesByTar != null) {
-            matchesByTar.forEach((storageID, matchesByTar) -> {
-                        Storage storage = ctx.getRetrieveService().getStorage(storageID, ctx);
-                        matchesByTar.forEach((tarPath, matchByTarEntry) ->
-                                untarFiles(storage, tarPath, matchByTarEntry));
-                    });
+            for (Map.Entry<String, Map<String, Map<String, InstanceLocations>>> entry : matchesByTar.entrySet()) {
+                String key = entry.getKey();
+                Map<String, Map<String, InstanceLocations>> value = entry.getValue();
+                Storage storage = ctx.getRetrieveService().getStorage(key, ctx);
+                for (Map.Entry<String, Map<String, InstanceLocations>> e : value.entrySet()) {
+                    String tarPath = e.getKey();
+                    Map<String, InstanceLocations> matchByTarEntry = e.getValue();
+                    untarFiles(storage, tarPath, matchByTarEntry);
+                }
+            }
         } else {
             copyFiles();
         }

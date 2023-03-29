@@ -66,11 +66,8 @@ public class StorageExporterProvider implements ExporterProvider {
     @Inject
     private StoreService storeService;
 
-    @Inject
-    private StorageFactory storageFactory;
-
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new StorageExporter(descriptor, retrieveService, storeService, storageFactory);
+        return new StorageExporter(descriptor, retrieveService, storeService);
     }
 }
