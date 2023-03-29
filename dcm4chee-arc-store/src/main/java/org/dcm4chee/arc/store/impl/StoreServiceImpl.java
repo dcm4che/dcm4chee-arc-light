@@ -213,9 +213,8 @@ class StoreServiceImpl implements StoreService {
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
-            Date beforeUpdate = new Date();
             result = updateDB(ctx);
-            postUpdateDB(ctx, result, beforeUpdate);
+            postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
@@ -292,7 +291,7 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void postUpdateDB(StoreContext ctx, UpdateDBResult result, Date after) throws IOException {
+    private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
         StoreSession storeSession = ctx.getStoreSession();
         LOG.debug("{}: Enter postUpdateDB", storeSession);
         Instance instance = result.getCreatedInstance();
@@ -303,7 +302,7 @@ class StoreServiceImpl implements StoreService {
                 if (pid != null) {
                     synchronized (this) {
                         try {
-                            ejb.checkDuplicatePatientCreated(ctx, pid, result, after);
+                            ejb.checkDuplicatePatientCreated(ctx, pid, result);
                         } catch (Exception e) {
                             LOG.warn("{}: Failed to remove duplicate created {}:\n",
                                     storeSession, createdPatient, e);
@@ -383,9 +382,8 @@ class StoreServiceImpl implements StoreService {
                 storeMetadata(ctx);
                 coerceAttributes(ctx);
             }
-            Date beforeUpdate = new Date();
             result = updateDB(ctx);
-            postUpdateDB(ctx, result, beforeUpdate);
+            postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
@@ -410,9 +408,8 @@ class StoreServiceImpl implements StoreService {
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
-            Date beforeUpdate = new Date();
             result = updateDB(ctx);
-            postUpdateDB(ctx, result, beforeUpdate);
+            postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;

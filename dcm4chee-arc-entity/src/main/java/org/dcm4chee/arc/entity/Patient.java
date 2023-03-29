@@ -70,12 +70,6 @@ import java.util.*;
             "where pid.id = ?1 " +
             "order by p.pk"),
 @NamedQuery(
-    name=Patient.FIND_BY_PATIENT_ID_AFTER,
-    query="select p from Patient p " +
-            "join fetch p.patientID pid " +
-            "where pid.id = ?1 and p.createdTime > ?2 " +
-            "order by p.pk"),
-@NamedQuery(
     name=Patient.FIND_BY_MERGED_WITH,
     query="select p from Patient p " +
             "where p.mergedWith = ?1"),
@@ -126,7 +120,6 @@ public class Patient {
 
     public static final String FIND_BY_PATIENT_ID = "Patient.findByPatientID";
     public static final String FIND_BY_PATIENT_ID_EAGER = "Patient.findByPatientIDEager";
-    public static final String FIND_BY_PATIENT_ID_AFTER = "Patient.findByPatientIDAfterr";
     public static final String FIND_BY_MERGED_WITH = "Patient.findByMergedWith";
     public static final String COUNT_BY_MERGED_WITH = "Patient.CountByMergedWith";
     public static final String FIND_BY_VERIFICATION_STATUS = "Patient.findByVerificationStatus";
@@ -389,6 +382,10 @@ public class Patient {
 
     public Attributes getAttributes() throws BlobCorruptedException {
         return attributesBlob.getAttributes();
+    }
+
+    public byte[] getEncodedAttributes() throws BlobCorruptedException {
+        return attributesBlob.getEncodedAttributes();
     }
 
     public void setAttributes(Attributes attrs, AttributeFilter filter, boolean withOriginalAttributesSequence,

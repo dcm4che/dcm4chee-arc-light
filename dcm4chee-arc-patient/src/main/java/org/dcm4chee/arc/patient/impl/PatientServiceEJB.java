@@ -87,15 +87,6 @@ public class PatientServiceEJB {
         return issuer != null ? removeNonMatchingIssuer(list, issuer) : list;
     }
 
-    public List<Patient> findPatientsAfter(IDWithIssuer pid, Date after) {
-        List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID_AFTER, Patient.class)
-                .setParameter(1, pid.getID())
-                .setParameter(2, after)
-                .getResultList();
-        Issuer issuer = pid.getIssuer();
-        return issuer != null ? removeNonMatchingIssuer(list, issuer) : list;
-    }
-
     private List<Patient> removeNonMatchingIssuer(List<Patient> list, Issuer issuer) {
         for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
             Issuer other = it.next().getPatientID().getIssuer();

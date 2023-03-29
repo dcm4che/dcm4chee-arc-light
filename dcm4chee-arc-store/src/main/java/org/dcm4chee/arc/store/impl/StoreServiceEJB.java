@@ -1834,20 +1834,16 @@ public class StoreServiceEJB {
             }
     }
 
-    public void checkDuplicatePatientCreated(StoreContext ctx, IDWithIssuer pid, UpdateDBResult result, Date after) {
-        List<Patient> patients = patientService.findPatientsAfter(pid, after);
-        if (patients.size() == 1)
-            return;
-
+    public void checkDuplicatePatientCreated(StoreContext ctx, IDWithIssuer pid, UpdateDBResult result) {
         Patient createdPatient = result.getCreatedPatient();
-        long createdPatientPk = createdPatient.getPk();
-        Patient otherPatient = patients.get(0);
-        if (otherPatient.getPk() == createdPatientPk) {
-            LOG.info("{}: Keep duplicate created {} because {} was created after",
-                    ctx.getStoreSession(), createdPatient, patients.get(1));
+        List<Patient> patients = patientService.findPatients(pid);
+        if (patients.size() == 1) {
+            LOG.info("{}: No duplicate record with equal Patient ID found {}",
+                    ctx.getStoreSession(), createdPatient);
             return;
         }
 
+        long createdPatientPk = createdPatient.getPk();
         Optional<Patient> createdPatientFound =
                 patients.stream().filter(p -> p.getPk() == createdPatientPk).findFirst();
         if (!createdPatientFound.isPresent()) {
@@ -1855,6 +1851,18 @@ public class StoreServiceEJB {
             return;
         }
 
+        byte[] encodedAttrs = createdPatient.getEncodedAttributes();
+        Optional<Patient> otherPatientFound =
+                patients.stream().filter(p ->
+                        p.getPk() != createdPatientPk && Arrays.equals(p.getEncodedAttributes(), encodedAttrs))
+                        .findFirst();
+        if (!createdPatientFound.isPresent()) {
+            LOG.info("{}: No duplicate record with equal Patient attributes found {}",
+                    ctx.getStoreSession(), createdPatient);
+            return;
+        }
+
+        Patient otherPatient = otherPatientFound.get();
         if (otherPatient.getMergedWith() != null) {
             LOG.warn("{}: Keep duplicate created {} because existing {} is circular merged",
                     ctx.getStoreSession(), createdPatient, otherPatient);
