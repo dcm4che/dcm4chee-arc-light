@@ -557,30 +557,43 @@ public class PatientServiceEJB {
         }
     }
 
-    public boolean deleteDuplicateCreatedPatient(PatientMgtContext ctx, Patient createdPatient) {
-        IDWithIssuer pid = ctx.getPatientID();
-        List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID, Patient.class)
-                .setParameter(1, pid.getID())
-                .getResultList();
-        Issuer issuer = pid.getIssuer();
-        List<Patient> patients = issuer != null ? removeNonMatchingIssuer(list, issuer) : list;
-        if (patients.size() > 1) {
-            for (int i = 0; i < patients.size(); i++) {
-                Patient patient = patients.get(i);
-                if (patient.getPk() == createdPatient.getPk()) {
-                    if (i == 0) {
-                        LOG.info("Keep duplicate created {} because {} was created after",
-                                createdPatient, patients.get(1));
-                        return false;
-                    } else {
-                        LOG.info("Delete duplicate created {}", createdPatient);
-                        em.remove(patient);
-                        ctx.setEventActionCode(AuditMessages.EventActionCode.Read);
-                        return true;
-                    }
-                }
-            }
+    public boolean deleteDuplicateCreatedPatient(IDWithIssuer pid, Patient createdPatient, Study createdStudy) {
+        List<Patient> patients = findPatients(pid);
+        if (patients.size() == 1) {
+            LOG.info("No duplicate record with equal Patient ID found {}", createdPatient);
+            return false;
         }
-        return false;
+
+        long createdPatientPk = createdPatient.getPk();
+        Optional<Patient> createdPatientFound =
+                patients.stream().filter(p -> p.getPk() == createdPatientPk).findFirst();
+        if (!createdPatientFound.isPresent()) {
+            LOG.warn("Failed to find created {}", createdPatient);
+            return false;
+        }
+
+        byte[] encodedAttrs = createdPatient.getEncodedAttributes();
+        Optional<Patient> otherPatientFound =
+                patients.stream().filter(p ->
+                                p.getPk() != createdPatientPk && Arrays.equals(p.getEncodedAttributes(), encodedAttrs))
+                        .findFirst();
+        if (!otherPatientFound.isPresent()) {
+            LOG.info("No duplicate record with equal Patient attributes found {}", createdPatient);
+            return false;
+        }
+
+        Patient otherPatient = otherPatientFound.get();
+        if (otherPatient.getMergedWith() != null) {
+            LOG.warn("Keep duplicate created {} because existing {} is circular merged",
+                    createdPatient, otherPatient);
+            return false;
+        }
+        LOG.info("Delete duplicate created {}", createdPatient);
+        if (createdStudy != null) {
+            em.merge(createdStudy).setPatient(otherPatient);
+            otherPatient.incrementNumberOfStudies();
+        }
+        em.remove(createdPatientFound.get());
+        return true;
     }
 }

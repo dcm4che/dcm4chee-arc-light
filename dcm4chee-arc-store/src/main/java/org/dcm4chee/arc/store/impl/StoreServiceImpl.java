@@ -70,6 +70,7 @@ import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
+import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
@@ -118,6 +119,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private StoreServiceEJB ejb;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private QueryService queryService;
@@ -300,13 +304,14 @@ class StoreServiceImpl implements StoreService {
             if (createdPatient != null) {
                 IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
                 if (pid != null) {
-                    synchronized (this) {
-                        try {
-                            ejb.checkDuplicatePatientCreated(ctx, pid, result);
-                        } catch (Exception e) {
-                            LOG.warn("{}: Failed to remove duplicate created {}:\n",
-                                    storeSession, createdPatient, e);
+                    try {
+                        if (patientService.deleteDuplicateCreatedPatient(
+                                pid, createdPatient, result.getCreatedStudy())) {
+                            result.setCreatedPatient(null);
                         }
+                    } catch (Exception e) {
+                        LOG.warn("{}: Failed to remove duplicate created {}:\n",
+                                storeSession, createdPatient, e);
                     }
                 }
             }

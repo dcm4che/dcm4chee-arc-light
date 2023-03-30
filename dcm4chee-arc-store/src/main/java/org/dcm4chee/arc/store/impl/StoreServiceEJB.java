@@ -1834,47 +1834,6 @@ public class StoreServiceEJB {
             }
     }
 
-    public void checkDuplicatePatientCreated(StoreContext ctx, IDWithIssuer pid, UpdateDBResult result) {
-        Patient createdPatient = result.getCreatedPatient();
-        List<Patient> patients = patientService.findPatients(pid);
-        if (patients.size() == 1) {
-            LOG.info("{}: No duplicate record with equal Patient ID found {}",
-                    ctx.getStoreSession(), createdPatient);
-            return;
-        }
-
-        long createdPatientPk = createdPatient.getPk();
-        Optional<Patient> createdPatientFound =
-                patients.stream().filter(p -> p.getPk() == createdPatientPk).findFirst();
-        if (!createdPatientFound.isPresent()) {
-            LOG.warn("{}: Failed to find created {}", ctx.getStoreSession(), createdPatient);
-            return;
-        }
-
-        byte[] encodedAttrs = createdPatient.getEncodedAttributes();
-        Optional<Patient> otherPatientFound =
-                patients.stream().filter(p ->
-                        p.getPk() != createdPatientPk && Arrays.equals(p.getEncodedAttributes(), encodedAttrs))
-                        .findFirst();
-        if (!createdPatientFound.isPresent()) {
-            LOG.info("{}: No duplicate record with equal Patient attributes found {}",
-                    ctx.getStoreSession(), createdPatient);
-            return;
-        }
-
-        Patient otherPatient = otherPatientFound.get();
-        if (otherPatient.getMergedWith() != null) {
-            LOG.warn("{}: Keep duplicate created {} because existing {} is circular merged",
-                    ctx.getStoreSession(), createdPatient, otherPatient);
-            return;
-        }
-        LOG.info("{}: Delete duplicate created {}", ctx.getStoreSession(), createdPatient);
-        otherPatient.incrementNumberOfStudies();
-        em.merge(result.getCreatedStudy()).setPatient(otherPatient);
-        em.remove(createdPatientFound.get());
-        result.setCreatedPatient(null);
-    }
-
     public List<String> studyIUIDsByAccessionNo(String accNo) {
         return em.createNamedQuery(Study.STUDY_IUIDS_BY_ACCESSION_NUMBER, String.class)
                 .setParameter(1, accNo).getResultList();

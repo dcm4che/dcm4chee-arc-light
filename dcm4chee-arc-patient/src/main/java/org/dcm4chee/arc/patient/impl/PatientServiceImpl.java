@@ -49,6 +49,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.*;
 
@@ -135,9 +136,10 @@ public class PatientServiceImpl implements PatientService {
         try {
             Patient patient;
             do {
+                ctx.setEventActionCode(null);
                 patient = ejb.updatePatient(ctx);
             } while (ctx.getEventActionCode() == AuditMessages.EventActionCode.Create
-                    && ejb.deleteDuplicateCreatedPatient(ctx, patient));
+                    && deleteDuplicateCreatedPatient(ctx.getPatientID(), patient, null));
             return patient;
         } catch (RuntimeException e) {
             ctx.setException(e);
@@ -146,6 +148,12 @@ public class PatientServiceImpl implements PatientService {
             if (ctx.getEventActionCode() != null)
                 patientMgtEvent.fire(ctx);
         }
+    }
+
+    @Override
+    public synchronized boolean deleteDuplicateCreatedPatient(
+            IDWithIssuer pid, Patient createdPatient, Study createdStudy) {
+        return ejb.deleteDuplicateCreatedPatient(pid, createdPatient, createdStudy);
     }
 
     @Override

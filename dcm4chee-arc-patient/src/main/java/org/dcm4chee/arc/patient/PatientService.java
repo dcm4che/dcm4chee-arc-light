@@ -46,6 +46,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import javax.persistence.criteria.CriteriaQuery;
@@ -77,6 +78,8 @@ public interface PatientService {
 
     Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException;
+
+    boolean deleteDuplicateCreatedPatient(IDWithIssuer pid, Patient patient, Study createdStudy);
 
     Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException;
