@@ -280,7 +280,7 @@
           "description": "JSON request body not well formed or Missing Study Instance UID in request body or Duplicate rejection note or subsequent occurrence of rejected object or Rejection failed as instance is already rejected or Patient ID missing in object"
         },
         "403": {
-          "description": "MWL Item used for linking instances belongs to a different local MWL SCP."
+          "description": "Retention period not yet expired or rejection for retention policy expired is not allowed"
         },
         "404": {
           "description": "No such Application Entity, Study, MWL Item or Rejection Note or No such instance(s) found for rejection."

@@ -231,11 +231,6 @@ public class IocmRS {
             if (mwl == null)
                 return errResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
                         Response.Status.NOT_FOUND);
-            if (!mwl.getLocalAET().equals(arcAE.getApplicationEntity().getAETitle())
-                    || !Arrays.asList(arcAE.getApplicationEntity().getOtherAETitles()).contains(mwl.getLocalAET()))
-                return errResponse(
-                        "MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not belong to local MWL SCP : " + aet,
-                        Response.Status.FORBIDDEN);
 
             ctx.setAttributes(mwl.getAttributes());
             ctx.setPatient(mwl.getPatient());
