@@ -380,6 +380,8 @@ public class ProcedureServiceEJB {
         Attributes.unifyCharacterSets(studyAttr, mwlAttr);
         if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
                 mwlAttr, modified, studyFilter.getSelection())) {
+            studyAttr.setString(Tag.StudyDescription, VR.LO, mwlAttr.getString(Tag.RequestedProcedureDescription));
+            studyAttr.setString(Tag.StudyID, VR.SH, mwlAttr.getString(Tag.RequestedProcedureID));
             study.setAttributes(recordAttributeModification(ctx)
                     ? studyAttr.addOriginalAttributes(
                         null,
