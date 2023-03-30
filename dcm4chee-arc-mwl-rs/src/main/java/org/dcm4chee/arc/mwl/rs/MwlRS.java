@@ -161,7 +161,7 @@ public class MwlRS {
                 adjustScheduledStations(spsItem);
             ProcedureContext ctx = procedureService.createProcedureContext()
                     .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
-            ctx.setLocalAET(StringUtils.maskNull(mwlscp, aet));
+            ctx.setLocalAET(StringUtils.maskNull(mwlscp, "*"));
             ctx.setArchiveAEExtension(arcAE);
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
