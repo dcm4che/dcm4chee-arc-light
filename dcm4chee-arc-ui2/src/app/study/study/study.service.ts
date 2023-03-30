@@ -438,7 +438,7 @@ export class StudyService {
                     text: $localize `:@@SUBMIT:SUBMIT`,
                     description: this.getSubmitText(tab)
                 });
-            if(tab != "diff" && tab != "uwl"){
+            if(tab != "diff" && tab != "uwl" && tab != "study"){
                 schema.push({
                     tag: "dummy"
                 })
