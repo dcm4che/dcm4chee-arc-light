@@ -1,7 +1,7 @@
 <h3>{{title}}</h3>
 <div *ngIf="selectedElements.action === 'move' || selectedElements.action === 'link'">
     <div class="line_block">
-        <span class="line_element" i18n="@@study_transferring_overview.select_reject_type">Select rejected type:</span>
+        <span class="line_element" i18n="@@select_rejection_note_type">Select Rejection Note type:</span>
         <select class="line_element" id="reject" [(ngModel)]="reject" name="reject">
             <option *ngFor="let rjn of rjnotes" title="{{rjn.title}}" value="{{rjn.value}}">{{rjn.text}}</option>
         </select>

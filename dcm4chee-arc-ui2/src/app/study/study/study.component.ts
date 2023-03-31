@@ -4885,7 +4885,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         });
         this.confirm({
-            content: $localize `:@@select_rejected_type:Select rejected type`,
+            content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
             doNotSave:true,
             form_schema:[
                 [
@@ -4972,7 +4972,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         });
         this.confirm({
-            content: $localize `:@@select_rejected_type:Select rejected type`,
+            content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
             doNotSave:true,
             form_schema:this.service.rejectMatchingSeriesDialogSchema(rjNoteCodes),
             result: {
@@ -5069,7 +5069,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: $localize `:@@select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
                 saveButton: $localize `:@@REJECT:REJECT`
@@ -5107,7 +5107,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             this.confirm({
-                content: $localize `:@@select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -5224,7 +5224,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             this.confirm({
-                content: $localize `:@@select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -5341,7 +5341,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             this.confirm({
-                content: $localize `:@@select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
                 doNotSave:true,
                 form_schema:[
                     [
