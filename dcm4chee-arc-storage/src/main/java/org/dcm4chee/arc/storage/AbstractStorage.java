@@ -87,7 +87,9 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public WriteContext createWriteContext(Attributes attrs) {
-        return createWriteContext(storagePathOf(attrs));
+        WriteContext writeContext = createWriteContext(storagePathOf(attrs));
+        writeContext.setAttributes(attrs);
+        return writeContext;
     }
 
     @Override
