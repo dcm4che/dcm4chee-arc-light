@@ -2230,6 +2230,7 @@ DCM4CHE.elementName = (function (dictionary) {
 "00282112":"Lossy Image Compression Ratio",
 "00282114":"Lossy Image Compression Method",
 "00283000":"Modality LUT Sequence",
+"00283001":"Variable Modality LUT Sequence",
 "00283002":"LUT Descriptor",
 "00283003":"LUT Explanation",
 "00283004":"Modality LUT Type",

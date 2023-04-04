@@ -104,6 +104,7 @@ DCM4CHE.SOPClass = (function (dictionary) {
 "1.2.840.10008.5.1.4.1.1.11.9":"Volume Rendering Volumetric Presentation State Storage",
 "1.2.840.10008.5.1.4.1.1.11.10":"Segmented Volume Rendering Volumetric Presentation State Storage",
 "1.2.840.10008.5.1.4.1.1.11.11":"Multiple Volume Rendering Volumetric Presentation State Storage",
+"1.2.840.10008.5.1.4.1.1.11.12":"Variable Modality LUT Softcopy Presentation State Storage",
 "1.2.840.10008.5.1.4.1.1.12.1":"X-Ray Angiographic Image Storage",
 "1.2.840.10008.5.1.4.1.1.12.1.1":"Enhanced XA Image Storage",
 "1.2.840.10008.5.1.4.1.1.12.2":"X-Ray Radiofluoroscopic Image Storage",
