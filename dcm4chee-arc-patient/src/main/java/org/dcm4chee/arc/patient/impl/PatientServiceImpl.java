@@ -136,10 +136,8 @@ public class PatientServiceImpl implements PatientService {
         try {
             Patient patient;
             do {
-                ctx.setEventActionCode(null);
                 patient = ejb.updatePatient(ctx);
-            } while (ctx.getEventActionCode() == AuditMessages.EventActionCode.Create
-                    && deleteDuplicateCreatedPatient(ctx.getPatientID(), patient, null));
+            } while (deleteDuplicateCreatedPatient(ctx, patient));
             return patient;
         } catch (RuntimeException e) {
             ctx.setException(e);
@@ -148,6 +146,16 @@ public class PatientServiceImpl implements PatientService {
             if (ctx.getEventActionCode() != null)
                 patientMgtEvent.fire(ctx);
         }
+    }
+
+    private boolean deleteDuplicateCreatedPatient(PatientMgtContext ctx, Patient patient) {
+        if (ctx.getEventActionCode() == AuditMessages.EventActionCode.Create) {
+            if (deleteDuplicateCreatedPatient(ctx.getPatientID(), patient, null)) {
+                ctx.setEventActionCode(AuditMessages.EventActionCode.Read);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
