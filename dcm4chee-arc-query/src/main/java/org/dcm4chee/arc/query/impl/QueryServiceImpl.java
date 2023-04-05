@@ -988,8 +988,8 @@ class QueryServiceImpl implements QueryService {
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
         List<Predicate> predicates = new ArrayList<>();
-        if (queryParam.localMwlSCPs.length > 0)
-            predicates.add(cb.or(mwlItem.get(MWLItem_.localAET).in(queryParam.localMwlSCPs)));
+        if (queryParam.localMwlWorklistLabels.length > 0)
+            predicates.add(cb.or(mwlItem.get(MWLItem_.worklistLabel).in(queryParam.localMwlWorklistLabels)));
         if (queryParam.localMwlStatus.length > 0)
             predicates.add(cb.or(mwlItem.get(MWLItem_.status).in(queryParam.localMwlStatus)));
         if (queryParam.patientID != null)

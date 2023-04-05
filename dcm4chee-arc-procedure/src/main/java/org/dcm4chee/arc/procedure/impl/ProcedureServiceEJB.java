@@ -187,7 +187,6 @@ public class ProcedureServiceEJB {
         Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         MWLItem mwlItem = new MWLItem();
-        mwlItem.setLocalAET(ctx.getLocalAET());
         mwlItem.setPatient(ctx.getPatient());
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate))

@@ -118,7 +118,8 @@ public enum QIDO {
         Tag.RequestedProcedureID,
         Tag.RequestedProcedurePriority,
         Tag.PatientTransportArrangements,
-        Tag.ConfidentialityConstraintOnPatientDataDescription
+        Tag.ConfidentialityConstraintOnPatientDataDescription,
+        Tag.WorklistLabel
     ) {
         @Override
         public void addReturnTags(QueryAttributes queryAttributes) {

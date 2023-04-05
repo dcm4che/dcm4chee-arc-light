@@ -1744,6 +1744,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStorePermissionServiceExpirationDatePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet",
                 ext.getDefaultCharacterSet(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLWorklistLabel",
+                ext.getMWLWorklistLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
                 ext.getUPSWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventSCU", ext.getUPSEventSCUs());
@@ -1922,6 +1924,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(
                 attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
+        ext.setMWLWorklistLabel(LdapUtils.stringValue(attrs.get("dcmMWLWorklistLabel"), null));
         ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
         ext.setUPSEventSCUKeepAlive(LdapUtils.intValue(attrs.get("dcmUPSEventSCUKeepAlive"), 0));
@@ -2146,6 +2149,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getStorePermissionServiceExpirationDatePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultCharacterSet",
                 aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLWorklistLabel",
+                aa.getMWLWorklistLabel(), bb.getMWLWorklistLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
                 aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCU",

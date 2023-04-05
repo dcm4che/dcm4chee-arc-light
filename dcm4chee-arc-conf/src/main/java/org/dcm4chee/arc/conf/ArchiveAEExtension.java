@@ -63,6 +63,7 @@ import java.util.stream.Stream;
  */
 public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
+    private String mwlWorklistLabel;
     private String upsWorklistLabel;
     private String[] upsEventSCUs = {};
     private int upsEventSCUKeepAlive;
@@ -199,6 +200,14 @@ public class ArchiveAEExtension extends AEExtension {
         return defaultCharacterSet != null
                 ? defaultCharacterSet
                 : getArchiveDeviceExtension().getDefaultCharacterSet();
+    }
+
+    public String getMWLWorklistLabel() {
+        return mwlWorklistLabel;
+    }
+
+    public void setMWLWorklistLabel(String mwlWorklistLabel) {
+        this.mwlWorklistLabel = mwlWorklistLabel;
     }
 
     public String getUPSWorklistLabel() {
