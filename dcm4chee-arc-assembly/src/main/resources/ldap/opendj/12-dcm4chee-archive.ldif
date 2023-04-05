@@ -2174,6 +2174,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.446 NAME 'hl7ImportReportAdjustIUID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.447 NAME 'dcmMWLWorklistLabel'
+  DESC 'Value of Worklist Label (0074,1202) of created MWL items on receive of HL7 Order messages by the HL7 Receiver associated with this Archive AE. If absent, created MWL items are not bound to a particular MWL SCP.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2560,6 +2565,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmMWLAccessionNumberGenerator $
     dcmMWLRequestedProcedureIDGenerator $
     dcmMWLScheduledProcedureStepIDGenerator $
+    dcmMWLWorklistLabel $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
     hl7PSUMppsTemplateURI $

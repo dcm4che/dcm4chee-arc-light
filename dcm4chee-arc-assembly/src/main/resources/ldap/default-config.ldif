@@ -2558,6 +2558,7 @@ dcmTag: 00402011
 dcmTag: 00402016
 dcmTag: 00402017
 dcmTag: 00402400
+dcmTag: 00741202
 dcmEntity: MWL
 objectClass: dcmAttributeFilter
 
