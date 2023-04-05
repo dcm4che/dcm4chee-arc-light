@@ -907,6 +907,7 @@ class ArchiveDeviceFactory {
             UID.VolumeRenderingVolumetricPresentationStateStorage,
             UID.SegmentedVolumeRenderingVolumetricPresentationStateStorage,
             UID.MultipleVolumeRenderingVolumetricPresentationStateStorage,
+            UID.VariableModalityLUTPresentationStateStorage,
             UID.ParametricMapStorage,
             UID.RawDataStorage,
             UID.SpatialRegistrationStorage,
