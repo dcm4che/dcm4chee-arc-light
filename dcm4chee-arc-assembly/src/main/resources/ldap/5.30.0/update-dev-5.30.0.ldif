@@ -3,4 +3,4 @@ version: 1
 dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 add: dcmTag
-dcmEntity: MWL
+dcmTag: 00741202
