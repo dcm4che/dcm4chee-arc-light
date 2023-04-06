@@ -452,14 +452,13 @@ public class ProcedureServiceEJB {
                 .getResultList();
     }
 
-    public Set<MWLItem.IDs> findMWLItemIDs(ApplicationEntity ae, String aet, Attributes keys, boolean fuzzymatching) {
+    public Set<MWLItem.IDs> findMWLItemIDs(ApplicationEntity ae, Attributes keys, boolean fuzzymatching) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         QueryParam queryParam = new QueryParam(ae);
-        queryParam.setCalledAET(aet);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(fuzzymatching);
         List<Predicate> predicates = new QueryBuilder(cb).mwlItemPredicates(q, patient, mwlItem,

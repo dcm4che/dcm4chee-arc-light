@@ -45,6 +45,7 @@ import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.DateRange;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
@@ -106,7 +107,7 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
-    public ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET,
+    public ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String worklistLabel,
             int priority, Attributes filter, Attributes keys, boolean fuzzymatching, boolean filterbyscu,
             boolean delete, boolean simulate)
             throws Exception {
@@ -121,13 +122,15 @@ public class ProcedureServiceImpl implements ProcedureService {
             mwlItems.removeIf(item -> !item.matches(filter, false, false));
 
         Set<MWLItem.IDs> toDelete = delete
-                ? ejb.findMWLItemIDs(localAE, destAET, filter, fuzzymatching)
+                ? ejb.findMWLItemIDs(localAE, addWorklistLabel(filter, worklistLabel), fuzzymatching)
                 : Collections.emptySet();
 
         int created = 0;
         int updated = 0;
         List<Exception> exceptions = new ArrayList<>();
         for (Attributes mwlItem : mwlItems) {
+            if (worklistLabel != null)
+                mwlItem.setString(Tag.WorklistLabel, VR.LO, worklistLabel);
             MWLItem.IDs spsID = new MWLItem.IDs(
                     mwlItem.getNestedDataset(Tag.ScheduledProcedureStepSequence)
                             .getString(Tag.ScheduledProcedureStepID),
@@ -136,7 +139,6 @@ public class ProcedureServiceImpl implements ProcedureService {
             ProcedureContext ctx = createProcedureContext().setHttpServletRequest(request);
             ctx.setAttributes(mwlItem);
             ctx.setSpsID(spsID.scheduledProcedureStepID);
-            ctx.setLocalAET(destAET);
             ctx.setSourceMwlScp(mwlscp);
             try {
                 ejb.createOrUpdateMWLItem(ctx, simulate);
@@ -178,10 +180,18 @@ public class ProcedureServiceImpl implements ProcedureService {
         return new ImportResult(mwlItems.size(), created, updated, toDelete.size(), exceptions);
     }
 
+    private Attributes addWorklistLabel(Attributes filter, String worklistLabel) {
+        if (worklistLabel != null) {
+            filter = new Attributes(filter);
+            filter.setString(Tag.WorklistLabel, VR.LO, worklistLabel);
+        }
+        return filter;
+    }
+
     @Override
     public ImportResult importMWL(MWLImport rule) throws Exception {
         Attributes filter = toFilter(rule);
-        return importMWL(null, rule.getAETitle(), rule.getMWLSCP(), rule.getDestinationAE(), Priority.NORMAL,
+        return importMWL(null, rule.getAETitle(), rule.getMWLSCP(), rule.getMWLWorklistLabel(), Priority.NORMAL,
                 filter, toKeys(rule, filter), false, rule.isFilterBySCU(), rule.isDeleteNotFound(), false);
     }
 

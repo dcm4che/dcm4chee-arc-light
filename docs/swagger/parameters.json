@@ -134,6 +134,15 @@
       "type": "string"
     }
   },
+  "worklistLabelPathParam": {
+    "name": "worklistLabel",
+    "in": "path",
+    "description": "Worklist Label",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "patientPathParam": {
     "name": "patientID",
     "in": "path",

@@ -2510,7 +2510,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.429 NAME 'dcmAuditHL7MsgLimit'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.430 NAME 'dcmMergeLocalMWLSCP'
-  DESC 'AE Titles of local archive MWL SCPs used to lookup MWL Item to coerce request attributes of received objects. If absent, the Archive DB is queried for a matching MWL item provided by any Archive MWL AE.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
@@ -3202,6 +3202,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmMergeMWLTemplateURI $
     dcmMergeMWLSCP $
     dcmMergeLocalMWLSCP $
+    dcmMWLWorklistLabel $
     dcmMergeLocalMWLWithStatus $
     dcmMWLImportFilterBySCU $
     dcmLeadingCFindSCP $
@@ -3614,9 +3615,10 @@ objectclass ( 1.2.40.0.13.1.15.110.4.43 NAME 'dcmMWLImport'
   MUST (
     dcmMWLImportID $
     dicomAETitle $
-    dcmMergeMWLSCP $
-    dcmDestinationAE )
+    dcmMergeMWLSCP )
   MAY (
+    dcmDestinationAE $
+    dcmMWLWorklistLabel $
     dcmDuration $
     dcmMWLImportNotOlder $
     dcmMWLImportFilterBySCU $

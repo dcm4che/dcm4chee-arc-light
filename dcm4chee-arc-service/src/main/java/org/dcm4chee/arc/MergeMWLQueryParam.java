@@ -149,7 +149,7 @@ public class MergeMWLQueryParam {
     public String toString() {
         return "MergeMWLQueryParam{" +
                 "mwlSCP='" + mwlSCP +
-                "', localMwlSCPs='" + Arrays.toString(localMwlWorklistLabels) +
+                "', localMwlWorklistLabels='" + Arrays.toString(localMwlWorklistLabels) +
                 "', localMwlStatus='" + Arrays.toString(localMwlStatus) +
                 "', patientID='" + patientID +
                 "', accessionNumber='" + accessionNumber +

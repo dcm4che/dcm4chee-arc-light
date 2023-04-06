@@ -3270,7 +3270,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("dcmMWLImportID", rule.getMWLImportID());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", rule.getAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLSCP", rule.getMWLSCP(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDestinationAE", rule.getDestinationAE(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLWorklistLabel", rule.getMWLWorklistLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration", rule.getPrefetchBefore(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLImportNotOlder", rule.getNotOlderThan(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMWLImportFilterBySCU", rule.isFilterBySCU(), false);
@@ -3581,7 +3581,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 MWLImport rule = new MWLImport(LdapUtils.stringValue(attrs.get("dcmMWLImportID"), null));
                 rule.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
                 rule.setMWLSCP(LdapUtils.stringValue(attrs.get("dcmMergeMWLSCP"), null));
-                rule.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
+                rule.setMWLWorklistLabel(LdapUtils.stringValue(attrs.get("dcmMWLWorklistLabel"), null));
                 rule.setPrefetchBefore(toDuration(attrs.get("dcmDuration"), null));
                 rule.setNotOlderThan(toDuration(attrs.get("dcmMWLImportNotOlder"), null));
                 rule.setFilterBySCU(LdapUtils.booleanValue(attrs.get("dcmMWLImportFilterBySCU"), false));
@@ -4296,8 +4296,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getAETitle(), mwlImport.getAETitle(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLSCP",
                 prev.getMWLSCP(), mwlImport.getMWLSCP(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDestinationAE",
-                prev.getDestinationAE(), mwlImport.getDestinationAE(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLWorklistLabel",
+                prev.getMWLWorklistLabel(), mwlImport.getMWLWorklistLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration",
                 prev.getPrefetchBefore(), mwlImport.getPrefetchBefore(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLImportNotOlder",
@@ -5780,7 +5780,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLTemplateURI",
                 coercion.getMergeMWLTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLSCP", coercion.getMergeMWLSCP(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMergeLocalMWLSCP", coercion.getMergeLocalMWLSCPs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLWorklistLabel", coercion.getMergeMWLWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMergeLocalMWLWithStatus", coercion.getMergeLocalMWLWithStatus());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLMatchingKey",
                 coercion.getMergeMWLMatchingKey(), null);
@@ -5858,7 +5858,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLTemplateURI"), null));
                 coercion.setMergeMWLSCP(
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLSCP"), null));
-                coercion.setMergeLocalMWLSCPs(LdapUtils.stringArray(attrs.get("dcmMergeLocalMWLSCP")));
+                coercion.setMergeMWLWorklistLabel(LdapUtils.stringValue(attrs.get("dcmMWLWorklistLabel"), null));
                 coercion.setMergeLocalMWLWithStatus(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmMergeLocalMWLWithStatus")));
                 coercion.setMergeMWLMatchingKey(
                         LdapUtils.enumValue(MergeMWLMatchingKey.class,
@@ -5969,9 +5969,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLSCP",
                 prev.getMergeMWLSCP(),
                 coercion.getMergeMWLSCP(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmMergeLocalMWLSCP",
-                prev.getMergeLocalMWLSCPs(),
-                coercion.getMergeLocalMWLSCPs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLWorklistLabel",
+                prev.getMergeMWLWorklistLabel(),
+                coercion.getMergeMWLWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmMergeLocalMWLWithStatus",
                 prev.getMergeLocalMWLWithStatus(),
                 coercion.getMergeLocalMWLWithStatus());

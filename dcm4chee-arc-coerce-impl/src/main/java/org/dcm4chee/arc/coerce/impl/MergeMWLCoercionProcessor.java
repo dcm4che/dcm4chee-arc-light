@@ -121,10 +121,10 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
         MergeMWLMatchingKey mergeMWLMatchingKey = MergeMWLMatchingKey.valueOf(
                 coercion.getCoercionParam("match-by", MergeMWLMatchingKey.ScheduledProcedureStepID.name()));
         String mwlSCP = coercion.getCoercionParam("mwl-scp", null);
-        String localMwlSCPs = coercion.getCoercionParam("local-mwl-scp", null);
+        String localMwlWorklistLabels = coercion.getCoercionParam("local-mwl-worklist-label", null);
         String localMwlStatus = coercion.getCoercionParam("local-mwl-status", null);
         return MergeMWLQueryParam.valueOf(mwlSCP,
-                StringUtils.split(localMwlSCPs, '|'),
+                StringUtils.split(localMwlWorklistLabels, '|'),
                 SPSStatus.valuesOf(StringUtils.split(localMwlStatus, '|')),
                 mergeMWLMatchingKey, attrs, coercion.getSchemeSpecificPart());
     }
