@@ -8,7 +8,10 @@ import {PATIENT_NAME_PARTS} from "../models/patient-dicom";
 export class PersonNamePipe implements PipeTransform {
 
     transform(nameObject: any, format?: any): any {
-        format = format || `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`;
+        if((!format || format === "") && nameObject && nameObject.Alphabetic){
+            return nameObject.Alphabetic;
+        }
+        format = format || `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`;1
         const nameKeys = PATIENT_NAME_PARTS;
         try {
             const regex = {
