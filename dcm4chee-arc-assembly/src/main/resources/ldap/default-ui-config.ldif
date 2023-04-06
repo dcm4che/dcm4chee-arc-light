@@ -15,6 +15,7 @@ dcmuiModalities: PT
 dcmuiModalities: PR
 dcmuiModalities: US
 dcmuiModalities: XA
+dcmuiPersonNameFormat: {NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME} {NAME-SUFFIX}
 
 dn: dcmuiPermissionName=Menu - Navigation,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
