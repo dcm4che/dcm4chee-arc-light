@@ -2255,6 +2255,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Digital Intra-Oral X-Ray Image Storage - For Presentation SCP
 
+dn: cn=Variable Modality LUT Softcopy Presentation State Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.12
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Variable Modality LUT Softcopy Presentation State Storage SCP
+
 dn: cn=Digital Mammography X-Ray Image Storage - For Presentation SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.2
 dicomTransferRole: SCP
@@ -2558,6 +2567,7 @@ dcmTag: 00402011
 dcmTag: 00402016
 dcmTag: 00402017
 dcmTag: 00402400
+dcmTag: 00741202
 dcmEntity: MWL
 objectClass: dcmAttributeFilter
 
@@ -9209,6 +9219,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Digital Intra-Oral X-Ray Image Storage - For Presentation SCU
 
+dn: cn=Variable Modality LUT Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.12
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Variable Modality LUT Softcopy Presentation State Storage SCP
+
+dn: cn=Variable Modality LUT Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.12
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Variable Modality LUT Softcopy Presentation State Storage SCU
+
 dn: cn=Digital Mammography X-Ray Image Storage - For Presentation SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.2
 dicomTransferRole: SCP
@@ -12716,6 +12744,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Digital Intra-Oral X-Ray Image Storage - For Presentation SCU
 
+dn: cn=Variable Modality LUT Softcopy Presentation State Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.12
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Variable Modality LUT Softcopy Presentation State Storage SCU
+
 dn: cn=Digital Mammography X-Ray Image Storage - For Presentation SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.2
 dicomTransferRole: SCU
@@ -15928,6 +15965,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Digital Intra-Oral X-Ray Image Storage - For Presentation SCU
+
+dn: cn=Variable Modality LUT Softcopy Presentation State Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.12
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Variable Modality LUT Softcopy Presentation State Storage SCU
 
 dn: cn=Digital Mammography X-Ray Image Storage - For Presentation SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.2

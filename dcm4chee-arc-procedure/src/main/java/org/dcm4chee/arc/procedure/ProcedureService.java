@@ -79,7 +79,7 @@ public interface ProcedureService {
 
     Attributes getMWLItemAttrs(String studyInstanceUID, String spsID);
 
-    ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET,
+    ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String worklistLabel,
             int priority, Attributes filter, Attributes keys, boolean fuzzymatching, boolean filterbyscu,
             boolean delete, boolean simulate)
             throws Exception;

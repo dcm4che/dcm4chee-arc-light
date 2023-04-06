@@ -136,9 +136,9 @@ public class MWLImportRS {
     }
 
     @POST
-    @Path("/mwlitems/import/{destination}")
+    @Path("/mwlitems/import/{worklistLabel}")
     @Produces("application/json")
-    public Response mwlImport(@PathParam("destination") String destAET) {
+    public Response mwlImport(@PathParam("worklistLabel") String worklistLabel) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -156,7 +156,7 @@ public class MWLImportRS {
             }
             ImportResult result = procedureService.importMWL(
                     HttpServletRequestInfo.valueOf(request),
-                    aet, mwlscp, destAET, priority(), filter, queryAttributes.getQueryKeys(),
+                    aet, mwlscp, worklistLabel, priority(), filter, queryAttributes.getQueryKeys(),
                     Boolean.parseBoolean(fuzzymatching),
                     Boolean.parseBoolean(filterbyscu),
                     Boolean.parseBoolean(delete),

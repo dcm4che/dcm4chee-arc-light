@@ -2091,7 +2091,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.429 NAME 'dcmAuditHL7MsgLimit'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.430 NAME 'dcmMergeLocalMWLSCP'
-  DESC 'AE Titles of local archive MWL SCPs used to lookup MWL Item to coerce request attributes of received objects. If absent, the Archive DB is queried for a matching MWL item provided by any Archive MWL AE.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.431 NAME 'dcmMatchSOPClassOnInstanceLevel'
@@ -2173,6 +2173,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.446 NAME 'hl7ImportReportAdjustIUID'
   DESC 'Specifies adjustment of Series and SOP Instances UIDs returned by XSLT on incoming HL7 Import Report (ORU) messages. Enumerated values: NONE, APPEND_HASH_OF_STUDY_INSTANCE_UID. If absent, NONE will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.447 NAME 'dcmMWLWorklistLabel'
+  DESC 'Value of Worklist Label (0074,1202) of created MWL items on receive of HL7 Order messages by the HL7 Receiver associated with this Archive AE. If absent, created MWL items are not bound to a particular MWL SCP.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 -
 replace: olcObjectClasses
@@ -2562,6 +2567,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmMWLAccessionNumberGenerator $
     dcmMWLRequestedProcedureIDGenerator $
     dcmMWLScheduledProcedureStepIDGenerator $
+    dcmMWLWorklistLabel $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
     hl7PSUMppsTemplateURI $
@@ -2751,6 +2757,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmMergeMWLTemplateURI $
     dcmMergeMWLSCP $
     dcmMergeLocalMWLSCP $
+    dcmMWLWorklistLabel $
     dcmMergeLocalMWLWithStatus $
     dcmMWLImportFilterBySCU $
     dcmLeadingCFindSCP $
@@ -3139,9 +3146,10 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.43 NAME 'dcmMWLImport'
   MUST (
     dcmMWLImportID $
     dicomAETitle $
-    dcmMergeMWLSCP $
-    dcmDestinationAE )
+    dcmMergeMWLSCP )
   MAY (
+    dcmDestinationAE $
+    dcmMWLWorklistLabel $
     dcmDuration $
     dcmMWLImportNotOlder $
     dcmMWLImportFilterBySCU $

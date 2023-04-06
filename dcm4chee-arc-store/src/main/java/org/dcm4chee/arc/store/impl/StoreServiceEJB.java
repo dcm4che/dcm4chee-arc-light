@@ -1061,48 +1061,6 @@ public class StoreServiceEJB {
         return series;
     }
 
-    public List<Attributes> queryMWL(StoreContext ctx, MergeMWLQueryParam queryParam) {
-        LOG.info("{}: Query for MWL Items with {}", ctx.getStoreSession(), queryParam);
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
-        Root<MWLItem> mwlItem = q.from(MWLItem.class);
-        Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
-        List<Predicate> predicates = new ArrayList<>();
-        if (queryParam.localMwlSCPs.length > 0)
-            predicates.add(cb.or(mwlItem.get(MWLItem_.localAET).in(queryParam.localMwlSCPs)));
-        if (queryParam.patientID != null)
-            predicates.add(cb.equal(patientID.get(PatientID_.id), queryParam.patientID));
-        if (queryParam.accessionNumber != null)
-            predicates.add(cb.equal(mwlItem.get(MWLItem_.accessionNumber), queryParam.accessionNumber));
-        if (queryParam.studyIUID != null)
-            predicates.add(cb.equal(mwlItem.get(MWLItem_.studyInstanceUID), queryParam.studyIUID));
-        if (queryParam.spsID != null)
-            predicates.add(cb.equal(mwlItem.get(MWLItem_.scheduledProcedureStepID), queryParam.spsID));
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        q.multiselect(
-                mwlItem.get(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                patient.get(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes));
-        TypedQuery<Tuple> query = em.createQuery(q);
-        List<Tuple> resultList = query.getResultList();
-        if (resultList.isEmpty()) {
-            LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
-            return null;
-        }
-
-        LOG.info("{}: Found {} matching MWL Items", ctx.getStoreSession(), resultList.size());
-        List<Attributes> mwlItems = new ArrayList<>(resultList.size());
-        for (Tuple result : resultList) {
-            Attributes mwlAttrs = AttributesBlob.decodeAttributes(result.get(0, byte[].class), null);
-            Attributes patAttrs = AttributesBlob.decodeAttributes(result.get(1, byte[].class), null);
-            Attributes.unifyCharacterSets(patAttrs, mwlAttrs);
-            mwlAttrs.addAll(patAttrs);
-            mwlItems.add(mwlAttrs);
-        }
-        return mwlItems;
-    }
-
     public void replaceLocation(StoreContext ctx, InstanceLocations inst) {
         Instance instance = new Instance();
         instance.setPk(inst.getInstancePk());

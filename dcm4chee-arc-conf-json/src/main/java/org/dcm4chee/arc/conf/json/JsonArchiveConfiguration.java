@@ -749,7 +749,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMWLImportID", mwlImport.getMWLImportID(), null);
             writer.writeNotNullOrDef("dicomAETitle", mwlImport.getAETitle(), null);
             writer.writeNotNullOrDef("dcmMergeMWLSCP", mwlImport.getMWLSCP(), null);
-            writer.writeNotNullOrDef("dcmDestinationAE", mwlImport.getDestinationAE(), null);
+            writer.writeNotNullOrDef("dcmMWLWorklistLabel", mwlImport.getMWLWorklistLabel(), null);
             writer.writeNotNullOrDef("dcmDuration", mwlImport.getPrefetchBefore(), null);
             writer.writeNotNullOrDef("dcmMWLImportNotOlder", mwlImport.getNotOlderThan(), null);
             writer.writeNotDef("dcmMWLImportFilterBySCU", mwlImport.isFilterBySCU(), false);
@@ -781,7 +781,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmMergeMWLSCP", aac.getMergeMWLSCP(), null);
-            writer.writeNotEmpty("dcmMergeLocalMWLSCP", aac.getMergeLocalMWLSCPs());
+            writer.writeNotNullOrDef("dcmMWLWorklistLabel", aac.getMergeMWLWorklistLabel(), null);
             writer.writeNotEmpty("dcmMergeLocalMWLWithStatus", aac.getMergeLocalMWLWithStatus());
             writer.writeNotDef("dcmMWLImportFilterBySCU", aac.isFilterBySCU(), false);
             writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", aac.getNullifyIssuerOfPatientID(), null);
@@ -1266,6 +1266,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",
                 arcAE.getStorePermissionServiceExpirationDatePattern(), null);
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet(), null);
+        writer.writeNotNullOrDef("dcmMWLWorklistLabel", arcAE.getMWLWorklistLabel(), null);
         writer.writeNotNullOrDef("dcmUPSWorklistLabel", arcAE.getUPSWorklistLabel(), null);
         writer.writeNotEmpty("dcmUPSEventSCU", arcAE.getUPSEventSCUs());
         writer.writeNotDef("dcmUPSEventSCUKeepAlive", arcAE.getUPSEventSCUKeepAlive(), 0);
@@ -2924,8 +2925,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmMergeMWLSCP":
                         aac.setMergeMWLSCP(reader.stringValue());
                         break;
-                    case "dcmMergeLocalMWLSCP":
-                        aac.setMergeLocalMWLSCPs(reader.stringArray());
+                    case "dcmMWLWorklistLabel":
+                        aac.setMergeMWLWorklistLabel(reader.stringValue());
                         break;
                     case "dcmMergeLocalMWLWithStatus":
                         aac.setMergeLocalMWLWithStatus(reader.enumArray(SPSStatus.class));
@@ -3850,8 +3851,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmMergeMWLSCP":
                         mwlImport.setMWLSCP(reader.stringValue());
                         break;
-                    case "dcmDestinationAE":
-                        mwlImport.setDestinationAE(reader.stringValue());
+                    case "dcmMWLWorklistLabel":
+                        mwlImport.setMWLWorklistLabel(reader.stringValue());
                         break;
                     case "dcmDuration":
                         mwlImport.setPrefetchBefore(Duration.valueOf(reader.stringValue()));
@@ -4073,6 +4074,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmDefaultCharacterSet":
                     arcAE.setDefaultCharacterSet(reader.stringValue());
+                    break;
+                case "dcmMWLWorklistLabel":
+                    arcAE.setMWLWorklistLabel(reader.stringValue());
                     break;
                 case "dcmUPSWorklistLabel":
                     arcAE.setUPSWorklistLabel(reader.stringValue());

@@ -113,7 +113,7 @@ import java.util.*;
         uniqueConstraints = @UniqueConstraint(columnNames = { "study_iuid", "sps_id" }),
         indexes = {
                 @Index(columnList = "updated_time"),
-                @Index(columnList = "local_aet"),
+                @Index(columnList = "worklist_label"),
                 @Index(columnList = "sps_id"),
                 @Index(columnList = "req_proc_id"),
                 @Index(columnList = "study_iuid"),
@@ -180,8 +180,8 @@ public class MWLItem {
     private Date updatedTime;
 
     @Basic(optional = false)
-    @Column(name = "local_aet", updatable = false)
-    private String localAET;
+    @Column(name = "worklist_label")
+    private String worklistLabel;
 
     @Basic(optional = false)
     @Column(name = "sps_id", updatable = false)
@@ -361,6 +361,7 @@ public class MWLItem {
     @Override
     public String toString() {
         return "MWLItem[pk=" + pk
+                + ", worklist=" + worklistLabel
                 + ", spsid=" + scheduledProcedureStepID
                 + ", rpid=" + requestedProcedureID
                 + ", suid=" + studyInstanceUID
@@ -384,14 +385,6 @@ public class MWLItem {
         updatedTime = new Date();
     }
 
-    public String getLocalAET() {
-        return localAET;
-    }
-
-    public void setLocalAET(String localAET) {
-        this.localAET = localAET;
-    }
-
     public AttributesBlob getAttributesBlob() {
         return attributesBlob;
     }
@@ -407,6 +400,7 @@ public class MWLItem {
             throw new IllegalArgumentException(
                     "Missing Scheduled Procedure Step Sequence (0040,0100) Item");
         }
+        worklistLabel = attrs.getString(Tag.WorklistLabel, "*");
         scheduledProcedureStepID = spsItem.getString(Tag.ScheduledProcedureStepID);
         modality = spsItem.getString(Tag.Modality, "*").toUpperCase();
         Date dt = spsItem.getDate(Tag.ScheduledProcedureStepStartDateAndTime);

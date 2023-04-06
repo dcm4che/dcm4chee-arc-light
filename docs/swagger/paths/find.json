@@ -1134,7 +1134,7 @@
           "$ref": "../parameters.json#/mwlSCPPathParam"
         },
         {
-          "$ref": "../parameters.json#/destinationPathParam"
+          "$ref": "../parameters.json#/worklistLabelPathParam"
         },
         {
           "$ref": "../parameters.json#/filter"

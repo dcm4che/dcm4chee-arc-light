@@ -56,7 +56,7 @@ import java.util.Objects;
  */
 public class MergeMWLQueryParam {
     public final String mwlSCP;
-    public final String[] localMwlSCPs;
+    public final String[] localMwlWorklistLabels;
     public final SPSStatus[] localMwlStatus;
     public final String patientID;
     public final String accessionNumber;
@@ -64,10 +64,10 @@ public class MergeMWLQueryParam {
     public final String spsID;
     private final String tplURI;
 
-    public MergeMWLQueryParam(String mwlSCP, String[] localMwlSCPs, SPSStatus[] localMwlStatus, String patientID,
+    public MergeMWLQueryParam(String mwlSCP, String[] localMwlWorklistLabels, SPSStatus[] localMwlStatus, String patientID,
                               String accessionNumber, String studyIUID, String spsID, String tplURI) {
         this.mwlSCP = mwlSCP;
-        this.localMwlSCPs = localMwlSCPs;
+        this.localMwlWorklistLabels = localMwlWorklistLabels;
         this.localMwlStatus = localMwlStatus;
         this.patientID = patientID;
         this.accessionNumber = accessionNumber;
@@ -76,7 +76,7 @@ public class MergeMWLQueryParam {
         this.tplURI = tplURI;
     }
 
-    public static MergeMWLQueryParam valueOf(String mwlSCP, String[] localMwlSCPs, SPSStatus[] localMwlStatus,
+    public static MergeMWLQueryParam valueOf(String mwlSCP, String[] localMwlWorklistLabels, SPSStatus[] localMwlStatus,
                                              MergeMWLMatchingKey matchingKey, Attributes attrs, String tplURI) {
         String patientID = null;
         String accessionNumber = null;
@@ -105,7 +105,7 @@ public class MergeMWLQueryParam {
                 break;
         }
         return new MergeMWLQueryParam(
-                mwlSCP, localMwlSCPs, localMwlStatus, patientID, accessionNumber, studyIUID, spsID, tplURI);
+                mwlSCP, localMwlWorklistLabels, localMwlStatus, patientID, accessionNumber, studyIUID, spsID, tplURI);
     }
 
     public Attributes setMatchingKeys(Attributes keys) {
@@ -129,7 +129,7 @@ public class MergeMWLQueryParam {
         if (o == null || getClass() != o.getClass()) return false;
         MergeMWLQueryParam that = (MergeMWLQueryParam) o;
         return Objects.equals(mwlSCP, that.mwlSCP) &&
-                Arrays.equals(localMwlSCPs, that.localMwlSCPs) &&
+                Arrays.equals(localMwlWorklistLabels, that.localMwlWorklistLabels) &&
                 Objects.equals(patientID, that.patientID) &&
                 Objects.equals(accessionNumber, that.accessionNumber) &&
                 Objects.equals(studyIUID, that.studyIUID) &&
@@ -140,7 +140,7 @@ public class MergeMWLQueryParam {
     @Override
     public int hashCode() {
         int result = Objects.hash(mwlSCP, patientID, accessionNumber, studyIUID, spsID, tplURI);
-        result = 31 * result + Arrays.hashCode(localMwlSCPs);
+        result = 31 * result + Arrays.hashCode(localMwlWorklistLabels);
         result = 31 * result + Arrays.hashCode(localMwlStatus);
         return result;
     }
@@ -149,7 +149,7 @@ public class MergeMWLQueryParam {
     public String toString() {
         return "MergeMWLQueryParam{" +
                 "mwlSCP='" + mwlSCP +
-                "', localMwlSCPs='" + Arrays.toString(localMwlSCPs) +
+                "', localMwlWorklistLabels='" + Arrays.toString(localMwlWorklistLabels) +
                 "', localMwlStatus='" + Arrays.toString(localMwlStatus) +
                 "', patientID='" + patientID +
                 "', accessionNumber='" + accessionNumber +

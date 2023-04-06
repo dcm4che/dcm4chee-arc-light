@@ -260,6 +260,8 @@ public class QueryBuilder {
             return true;
 
         switch (orderByTag.tag) {
+            case Tag.WorklistLabel:
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.worklistLabel)));
             case Tag.AccessionNumber:
                 return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.accessionNumber)));
             case Tag.Modality:
@@ -913,6 +915,7 @@ public class QueryBuilder {
 
     private <T> void mwlItemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q, Root<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
+        anyOf(predicates, mwlItem.get(MWLItem_.worklistLabel), keys.getStrings(Tag.WorklistLabel), false, true);
         anyOf(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
         anyOf(predicates, mwlItem.get(MWLItem_.requestedProcedureID),
                 keys.getStrings(Tag.RequestedProcedureID), false);
@@ -974,7 +977,6 @@ public class QueryBuilder {
         code(predicates,
                 mwlItem.get(MWLItem_.institutionalDepartmentTypeCode),
                 keys.getNestedDataset(Tag.InstitutionalDepartmentTypeCodeSequence));
-        predicates.add(mwlItem.get(MWLItem_.localAET).in(queryParam.getCalledAET(), "*"));
     }
 
     private <T> boolean anyOf(List<Predicate> predicates, Path<T> path, Function<String, T> valueOf,
@@ -1175,10 +1177,15 @@ public class QueryBuilder {
     }
 
     private boolean anyOf(List<Predicate> predicates, Expression<String> path, String[] values, boolean ignoreCase) {
+        return anyOf(predicates, path, values, ignoreCase, false);
+    }
+
+    private boolean anyOf(List<Predicate> predicates, Expression<String> path, String[] values, boolean ignoreCase,
+                          boolean matchNotAvailable) {
         if (isUniversalMatching(values))
             return false;
 
-        if (values.length == 1)
+        if (values.length == 1 && !matchNotAvailable)
             return wildCard(predicates, path, values[0], ignoreCase);
 
         List<Predicate> y = new ArrayList<>(values.length);
@@ -1186,10 +1193,10 @@ public class QueryBuilder {
             if (!wildCard(y, path, value, ignoreCase))
                 return false;
         }
+        if (matchNotAvailable) y.add(cb.equal(path, "*"));
         predicates.add(cb.or(y.toArray(new Predicate[0])));
         return true;
     }
-
     private boolean wildCard(List<Predicate> predicates, Expression<String> path, String value) {
         return wildCard(predicates, path, value, false);
     }

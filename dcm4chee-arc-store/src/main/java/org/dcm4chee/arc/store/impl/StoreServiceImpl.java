@@ -653,8 +653,15 @@ class StoreServiceImpl implements StoreService {
         if (mergeMWLMatchingKey == null || tplURI == null)
             return null;
 
-        MergeMWLQueryParam queryParam = MergeMWLQueryParam.valueOf(rule.getMergeMWLSCP(), rule.getMergeLocalMWLSCPs(),
-                        rule.getMergeLocalMWLWithStatus(), mergeMWLMatchingKey, ctx.getAttributes(), tplURI);
+        MergeMWLQueryParam queryParam = MergeMWLQueryParam.valueOf(
+                rule.getMergeMWLSCP(),
+                rule.getMergeMWLWorklistLabel() != null
+                        ? new String[]{rule.getMergeMWLWorklistLabel()}
+                        : StringUtils.EMPTY_STRING,
+                rule.getMergeLocalMWLWithStatus(),
+                mergeMWLMatchingKey,
+                ctx.getAttributes(),
+                tplURI);
 
         Cache.Entry<Attributes> entry = mergeMWLCache.getEntry(queryParam);
         if (entry != null)

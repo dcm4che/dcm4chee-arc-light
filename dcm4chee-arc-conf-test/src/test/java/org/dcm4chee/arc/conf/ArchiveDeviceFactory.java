@@ -647,7 +647,8 @@ class ArchiveDeviceFactory {
             Tag.PlacerOrderNumberImagingServiceRequest,
             Tag.FillerOrderNumberImagingServiceRequest,
             Tag.ImagingServiceRequestComments,
-            Tag.StudyStatusID
+            Tag.StudyStatusID,
+            Tag.WorklistLabel
     };
     static final int[] UPS_ATTRS = {
             Tag.SpecificCharacterSet,
@@ -906,6 +907,7 @@ class ArchiveDeviceFactory {
             UID.VolumeRenderingVolumetricPresentationStateStorage,
             UID.SegmentedVolumeRenderingVolumetricPresentationStateStorage,
             UID.MultipleVolumeRenderingVolumetricPresentationStateStorage,
+            UID.VariableModalityLUTPresentationStateStorage,
             UID.ParametricMapStorage,
             UID.RawDataStorage,
             UID.SpatialRegistrationStorage,

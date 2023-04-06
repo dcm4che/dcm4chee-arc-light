@@ -55,7 +55,7 @@ public class MWLImport {
     private String mwlImportID;
     private String aeTitle;
     private String mwlSCP;
-    private String destinationAE;
+    private String mwlWorklistLabel;
     private String[] includeFields = {};
     private Duration prefetchBefore;
     private Duration notOlderThan;
@@ -94,12 +94,13 @@ public class MWLImport {
         this.mwlSCP = mwlSCP;
     }
 
-    public String getDestinationAE() {
-        return destinationAE;
+
+    public String getMWLWorklistLabel() {
+        return mwlWorklistLabel;
     }
 
-    public void setDestinationAE(String destinationAE) {
-        this.destinationAE = destinationAE;
+    public void setMWLWorklistLabel(String mwlWorklistLabel) {
+        this.mwlWorklistLabel = mwlWorklistLabel;
     }
 
     public String[] getIncludeFields() {
@@ -182,7 +183,7 @@ public class MWLImport {
                 "mwlImportID='" + mwlImportID + '\'' +
                 ", aeTitle='" + aeTitle + '\'' +
                 ", mwlSCP='" + mwlSCP + '\'' +
-                ", destinationAE='" + destinationAE + '\'' +
+                ", mwlWorklistLabel='" + mwlWorklistLabel + '\'' +
                 ", prefetchBefore=" + prefetchBefore +
                 ", notOlderThan=" + notOlderThan +
                 ", filterBySCU=" + filterBySCU +

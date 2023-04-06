@@ -594,7 +594,7 @@
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/count": {
       "$ref": "paths/find.json#/mwlitems.count"
     },
-    "/aets/{aet}/dimse/{mwlscp}/mwlitems/import/{destination}": {
+    "/aets/{aet}/dimse/{mwlscp}/mwlitems/import/{worklistLabel}": {
       "$ref": "paths/find.json#/mwlitems.import"
     },
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
