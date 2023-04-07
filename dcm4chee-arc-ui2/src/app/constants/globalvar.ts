@@ -3527,6 +3527,12 @@ export class Globalvar {
                     showStar:true,
                     description:$localize `:@@study_status_id_agfa:Study Status ID - AGFA`,
                     placeholder:$localize `:@@study_status_id_agfa:Study Status ID - AGFA`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"WorklistLabel",
+                    description:$localize `:@@worklist_label:Worklist Label`,
+                    placeholder:$localize `:@@worklist_label:Worklist Label`
                 }
             ]
         }

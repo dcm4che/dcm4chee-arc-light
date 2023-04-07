@@ -1969,6 +1969,7 @@ public class ArchiveAEExtension extends AEExtension {
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         defaultCharacterSet = aeExt.defaultCharacterSet;
+        mwlWorklistLabel = aeExt.mwlWorklistLabel;
         upsWorklistLabel = aeExt.upsWorklistLabel;
         upsEventSCUs = aeExt.upsEventSCUs;
         upsEventSCUKeepAlive = aeExt.upsEventSCUKeepAlive;
