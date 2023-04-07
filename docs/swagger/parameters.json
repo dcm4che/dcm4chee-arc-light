@@ -654,14 +654,6 @@
       "default": false
     }
   },
-  "mwlscp": {
-    "name": "mwlscp",
-    "in": "query",
-    "description": "AE Title of local MWL SCP - which may differ from Path Parameter {aet} - by which created MWL item shall be provided",
-    "schema": {
-      "type": "string"
-    }
-  },
   "contentType": {
     "name": "contentType",
     "in": "query",
