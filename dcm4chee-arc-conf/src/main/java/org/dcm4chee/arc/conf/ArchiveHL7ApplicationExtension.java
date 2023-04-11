@@ -74,6 +74,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private Boolean hl7VeterinaryUsePatientName;
     private String hl7PatientArrivalMessageType;
     private HL7ORUAction[] hl7ORUAction = {};
+    private String mwlWorklistLabel;
     private String mwlAccessionNumberGenerator;
     private String mwlRequestedProcedureIDGenerator;
     private String mwlScheduledProcedureStepIDGenerator;
@@ -122,6 +123,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7VeterinaryUsePatientName = arcapp.hl7VeterinaryUsePatientName;
         hl7PatientArrivalMessageType = arcapp.hl7PatientArrivalMessageType;
         hl7ORUAction = arcapp.hl7ORUAction;
+        mwlWorklistLabel = arcapp.mwlWorklistLabel;
         mwlAccessionNumberGenerator = arcapp.mwlAccessionNumberGenerator;
         mwlRequestedProcedureIDGenerator = arcapp.mwlRequestedProcedureIDGenerator;
         mwlScheduledProcedureStepIDGenerator = arcapp.mwlScheduledProcedureStepIDGenerator;
@@ -644,6 +646,14 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7ORUAction.length > 0
                 ? hl7ORUAction
                 : getArchiveDeviceExtension().getHl7ORUAction();
+    }
+
+    public String getMWLWorklistLabel() {
+        return mwlWorklistLabel;
+    }
+
+    public void setMWLWorklistLabel(String mwlWorklistLabel) {
+        this.mwlWorklistLabel = mwlWorklistLabel;
     }
 
     public String getMWLAccessionNumberGenerator() {

@@ -102,6 +102,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7VeterinaryUsePatientName",
                 ext.getHl7VeterinaryUsePatientName(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLWorklistLabel",
+                ext.getMWLWorklistLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLAccessionNumberGenerator",
                 ext.getMWLAccessionNumberGenerator(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLRequestedProcedureIDGenerator",
@@ -171,6 +173,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
         ext.setHl7VeterinaryUsePatientName(LdapUtils.booleanValue(attrs.get("hl7VeterinaryUsePatientName"), null));
         ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
+        ext.setMWLWorklistLabel(LdapUtils.stringValue(attrs.get("dcmMWLWorklistLabel"), null));
         ext.setMWLAccessionNumberGenerator(LdapUtils.stringValue(attrs.get("dcmMWLAccessionNumberGenerator"), null));
         ext.setMWLRequestedProcedureIDGenerator(
                 LdapUtils.stringValue(attrs.get("dcmMWLRequestedProcedureIDGenerator"), null));
@@ -261,6 +264,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7VeterinaryUsePatientName",
                 aa.getHl7VeterinaryUsePatientName(), bb.getHl7VeterinaryUsePatientName(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7ORUAction", aa.getHl7ORUAction(), bb.getHl7ORUAction());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLWorklistLabel",
+                aa.getMWLWorklistLabel(), bb.getMWLWorklistLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLAccessionNumberGenerator",
                 aa.getMWLAccessionNumberGenerator(), bb.getMWLAccessionNumberGenerator(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLRequestedProcedureIDGenerator",

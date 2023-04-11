@@ -91,6 +91,10 @@ public class MWLCFindSCP extends BasicCFindSCP {
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
+        String mwlWorklistLabel = ctx.getArchiveAEExtension().getMWLWorklistLabel();
+        if (mwlWorklistLabel != null) {
+            keys.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabel);
+        }
         try {
             queryService.coerceAttributes(ctx);
         } catch (DicomServiceException e) {

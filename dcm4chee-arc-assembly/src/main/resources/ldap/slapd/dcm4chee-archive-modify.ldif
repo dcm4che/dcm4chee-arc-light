@@ -2602,6 +2602,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
   SUP top AUXILIARY
   MAY (
     dcmRecordAttributeModification $
+    dcmMWLWorklistLabel $
     dcmMWLAccessionNumberGenerator $
     dcmMWLRequestedProcedureIDGenerator $
     dcmMWLScheduledProcedureStepIDGenerator $

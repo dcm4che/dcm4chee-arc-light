@@ -179,7 +179,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
 
     private void adjust(Attributes attrs, HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
         ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class);
-        String mwlWorklistLabel = arcHL7App.getArchiveAEExtension().getMWLWorklistLabel();
+        String mwlWorklistLabel = arcHL7App.getMWLWorklistLabel();
         if (mwlWorklistLabel != null) {
             attrs.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabel);
         }

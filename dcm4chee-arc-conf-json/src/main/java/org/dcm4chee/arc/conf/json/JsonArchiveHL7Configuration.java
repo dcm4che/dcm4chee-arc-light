@@ -88,6 +88,7 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotNullOrDef("hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
         writer.writeNotNullOrDef("hl7VeterinaryUsePatientName", ext.getHl7VeterinaryUsePatientName(), null);
         writer.writeNotEmpty("hl7ORUAction", ext.getHl7ORUAction());
+        writer.writeNotNullOrDef("dcmMWLWorklistLabel", ext.getMWLWorklistLabel(), null);
         writer.writeNotNullOrDef("dcmMWLAccessionNumberGenerator",
                 ext.getMWLAccessionNumberGenerator(), null);
         writer.writeNotNullOrDef("dcmMWLRequestedProcedureIDGenerator",
@@ -191,6 +192,9 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7ORUAction":
                     ext.setHl7ORUAction(reader.enumArray(HL7ORUAction.class));
+                    break;
+                case "dcmMWLWorklistLabel":
+                    ext.setMWLWorklistLabel(reader.stringValue());
                     break;
                 case "dcmMWLAccessionNumberGenerator":
                     ext.setMWLAccessionNumberGenerator(reader.stringValue());
