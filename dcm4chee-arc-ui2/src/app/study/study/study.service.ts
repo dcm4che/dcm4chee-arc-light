@@ -3046,6 +3046,14 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
+                    header: $localize `:@@worklist_label:Worklist Label`,
+                    pathToValue: "00741202.Value[0]",
+                    headerDescription: $localize `:@@worklist_label:Worklist Label`,
+                    widthWeight: 1.5,
+                    calculatedWidth: "20%"
+                }),
+                new TableSchemaElement({
+                    type: "value",
                     header: $localize `:@@study.requested_procedure_id:Requested Procedure ID`,
                     pathToValue: "00401001.Value[0]",
                     headerDescription: $localize `:@@study.requested_procedure_id:Requested Procedure ID`,
