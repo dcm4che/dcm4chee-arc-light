@@ -655,9 +655,7 @@ class StoreServiceImpl implements StoreService {
 
         MergeMWLQueryParam queryParam = MergeMWLQueryParam.valueOf(
                 rule.getMergeMWLSCP(),
-                rule.getMergeMWLWorklistLabel() != null
-                        ? new String[]{rule.getMergeMWLWorklistLabel()}
-                        : StringUtils.EMPTY_STRING,
+                rule.getMergeLocalMWLWorklistLabels(),
                 rule.getMergeLocalMWLWithStatus(),
                 mergeMWLMatchingKey,
                 ctx.getAttributes(),

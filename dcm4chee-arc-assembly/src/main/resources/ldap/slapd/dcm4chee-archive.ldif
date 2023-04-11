@@ -2178,6 +2178,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.447 NAME 'dcmMWLWorklistLabel'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.448 NAME 'dcmMergeLocalMWLWorklistLabel'
+  DESC 'Only consider MWL items with one of the specified values of its Worklist Label (0074,1202) in the Archive DB to coerce request attributes of received objects. If absent, the Archive DB is queried for matching MWL items with any Worklist Label (0074,1202).'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2755,7 +2759,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmMergeMWLTemplateURI $
     dcmMergeMWLSCP $
     dcmMergeLocalMWLSCP $
-    dcmMWLWorklistLabel $
+    dcmMergeLocalMWLWorklistLabel $
     dcmMergeLocalMWLWithStatus $
     dcmMWLImportFilterBySCU $
     dcmLeadingCFindSCP $

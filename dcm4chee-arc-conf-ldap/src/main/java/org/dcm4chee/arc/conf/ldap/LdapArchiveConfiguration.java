@@ -5780,7 +5780,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLTemplateURI",
                 coercion.getMergeMWLTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLSCP", coercion.getMergeMWLSCP(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLWorklistLabel", coercion.getMergeMWLWorklistLabel(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMergeLocalMWLWorklistLabel", coercion.getMergeLocalMWLWorklistLabels());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMergeLocalMWLWithStatus", coercion.getMergeLocalMWLWithStatus());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLMatchingKey",
                 coercion.getMergeMWLMatchingKey(), null);
@@ -5858,7 +5858,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLTemplateURI"), null));
                 coercion.setMergeMWLSCP(
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLSCP"), null));
-                coercion.setMergeMWLWorklistLabel(LdapUtils.stringValue(attrs.get("dcmMWLWorklistLabel"), null));
+                coercion.setMergeLocalMWLWorklistLabels(LdapUtils.stringArray(attrs.get("dcmMergeLocalMWLWorklistLabel")));
                 coercion.setMergeLocalMWLWithStatus(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmMergeLocalMWLWithStatus")));
                 coercion.setMergeMWLMatchingKey(
                         LdapUtils.enumValue(MergeMWLMatchingKey.class,
@@ -5969,9 +5969,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLSCP",
                 prev.getMergeMWLSCP(),
                 coercion.getMergeMWLSCP(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLWorklistLabel",
-                prev.getMergeMWLWorklistLabel(),
-                coercion.getMergeMWLWorklistLabel(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMergeLocalMWLWorklistLabel",
+                prev.getMergeLocalMWLWorklistLabels(),
+                coercion.getMergeLocalMWLWorklistLabels());
         LdapUtils.storeDiff(ldapObj, mods, "dcmMergeLocalMWLWithStatus",
                 prev.getMergeLocalMWLWithStatus(),
                 coercion.getMergeLocalMWLWithStatus());

@@ -781,7 +781,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmMergeMWLSCP", aac.getMergeMWLSCP(), null);
-            writer.writeNotNullOrDef("dcmMWLWorklistLabel", aac.getMergeMWLWorklistLabel(), null);
+            writer.writeNotEmpty("dcmMergeLocalMWLWorklistLabel", aac.getMergeLocalMWLWorklistLabels());
             writer.writeNotEmpty("dcmMergeLocalMWLWithStatus", aac.getMergeLocalMWLWithStatus());
             writer.writeNotDef("dcmMWLImportFilterBySCU", aac.isFilterBySCU(), false);
             writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", aac.getNullifyIssuerOfPatientID(), null);
@@ -2925,8 +2925,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmMergeMWLSCP":
                         aac.setMergeMWLSCP(reader.stringValue());
                         break;
-                    case "dcmMWLWorklistLabel":
-                        aac.setMergeMWLWorklistLabel(reader.stringValue());
+                    case "dcmMergeLocalMWLWorklistLabel":
+                        aac.setMergeLocalMWLWorklistLabels(reader.stringArray());
                         break;
                     case "dcmMergeLocalMWLWithStatus":
                         aac.setMergeLocalMWLWithStatus(reader.enumArray(SPSStatus.class));
