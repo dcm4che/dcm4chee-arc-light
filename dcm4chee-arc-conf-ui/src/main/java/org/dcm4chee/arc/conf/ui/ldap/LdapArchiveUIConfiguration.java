@@ -122,6 +122,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiPersonNameFormat", uiConfig.getPersonNameFormat(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
         return attrs;
     }
 
@@ -537,6 +538,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setPersonNameFormat(LdapUtils.stringValue(attrs.get("dcmuiPersonNameFormat"),null));
         uiConfig.setLogoUrl(LdapUtils.stringValue(attrs.get("dcmuiLogoURL"),null));
         uiConfig.setDefaultWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiDefaultWidgetAets")));
+        uiConfig.setMWLWorklistLabels(LdapUtils.stringArray(attrs.get("dcmuiMWLWorklistLabel")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
@@ -939,6 +941,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UIConfig prevUIConfig, UIConfig uiConfig, ArrayList<ModificationItem> mods) throws NamingException {
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets",prevUIConfig.getWidgetAets(),uiConfig.getWidgetAets());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiMWLWorklistLabel",prevUIConfig.getMWLWorklistLabels(),uiConfig.getMWLWorklistLabels());
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",prevUIConfig.getXdsUrl(),uiConfig.getXdsUrl(),null);
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",prevUIConfig.getBackgroundUrl(),uiConfig.getBackgroundUrl(),null);
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiDateTimeFormat",prevUIConfig.getDateTimeFormat(),uiConfig.getDateTimeFormat(),null);

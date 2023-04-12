@@ -52,6 +52,7 @@ public class UIConfig {
     private String name;
     private String[] modalities = {};
     private String[] widgetAets = {};
+    private String[] mwlWorklistLabels = {};
     private String xdsUrl;
     private String backgroundUrl;
     private String dateTimeFormat;
@@ -165,6 +166,14 @@ public class UIConfig {
 
     public void setDefaultWidgetAets(String[] defaultWidgetAets) {
         this.defaultWidgetAets = defaultWidgetAets;
+    }
+
+    public String[] getMWLWorklistLabels() {
+        return mwlWorklistLabels;
+    }
+
+    public void setMWLWorklistLabels(String[] mwlWorklistLabels) {
+        this.mwlWorklistLabels = mwlWorklistLabels;
     }
 
     public UIPermission getPermission(String name) {
