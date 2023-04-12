@@ -1297,7 +1297,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 },
                 '0020000D': { 'vr': 'UI', 'Value': ['']},
                 '00080050': { 'vr': 'SH', 'Value': ['']},
-                '00401001': { 'vr': 'SH', 'Value': ['']}
+                '00401001': { 'vr': 'SH', 'Value': ['']},
+                '00741202': { 'vr': 'LO', 'Value': ['']}
             }
         };
         let config = {
