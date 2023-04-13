@@ -2480,6 +2480,12 @@ export class Globalvar {
                 labelKey:'{dcmBulkDataDescriptorID}',
                 msg:$localize `:@@dynamic_formatter.web_app:Create first a Bulkdata Descriptor!`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmBulkDataDescriptor'
+            },
+            dcmMWLWorklistLabel:{
+                key:'dcmuiMWLWorklistLabel',
+                labelKey:'{dcmuiMWLWorklistLabel}',
+                msg:$localize `:@@dynamic_formatter.web_app:Create first a UI MWL Worklist Label!`,
+                pathInDevice:'dcmDevice.dcmuiConfig'
             }
 /*            dicomDeviceName:{
                 key:'dicomDeviceName',
