@@ -379,8 +379,14 @@ public class ProcedureServiceEJB {
         Attributes.unifyCharacterSets(studyAttr, mwlAttr);
         if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
                 mwlAttr, modified, studyFilter.getSelection())) {
+            modified.setString(Tag.StudyDescription, VR.LO, studyAttr.getString(Tag.StudyDescription));
+            modified.setString(Tag.StudyID, VR.SH, studyAttr.getString(Tag.StudyID));
             studyAttr.setString(Tag.StudyDescription, VR.LO, mwlAttr.getString(Tag.RequestedProcedureDescription));
             studyAttr.setString(Tag.StudyID, VR.SH, mwlAttr.getString(Tag.RequestedProcedureID));
+            if (ctx.getStudyInstanceUIDInstRefs() != null) {
+                studyAttr.setString(Tag.StudyInstanceUID, VR.UI, ctx.getStudyInstanceUIDInstRefs());
+                modified.remove(Tag.StudyInstanceUID);
+            }
             study.setAttributes(recordAttributeModification(ctx)
                     ? studyAttr.addOriginalAttributes(
                         null,
@@ -397,7 +403,10 @@ public class ProcedureServiceEJB {
                 updateSeriesAttributes(series, mwlAttr,
                         arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr(), now, ctx);
 
-        LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
+        LOG.info("Study and series attributes updated successfully for study : "
+                + (ctx.getStudyInstanceUIDInstRefs() == null
+                    ? ctx.getStudyInstanceUID()
+                    : ctx.getStudyInstanceUIDInstRefs()));
         return true;
     }
 
