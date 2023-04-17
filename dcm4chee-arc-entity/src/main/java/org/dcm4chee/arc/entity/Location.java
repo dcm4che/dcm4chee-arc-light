@@ -227,7 +227,7 @@ public class Location {
         private String digest;
         private Status status = Status.OK;
         private ObjectType objectType = ObjectType.DICOM_FILE;
-
+        public Integer multiReference;
         private UIDMap uidMap;
 
         public Builder pk(long pk) {
@@ -279,6 +279,24 @@ public class Location {
             return this;
         }
 
+        public Builder multiReference(Integer multiReference) {
+            this.multiReference = multiReference;
+            return this;
+        }
+
+        public Builder multiReference(String multiReference) {
+            return multiReference(parseIntegerOrNull(multiReference));
+        }
+
+        private static Integer parseIntegerOrNull(String s) {
+            if (s != null)
+                try {
+                    return Integer.valueOf(s);
+                } catch (NumberFormatException e) {
+                }
+            return null;
+        }
+
         public Builder uidMap(UIDMap uidMap) {
             this.uidMap = uidMap;
             return this;
@@ -300,6 +318,7 @@ public class Location {
         digest = builder.digest;
         status = builder.status;
         objectType = builder.objectType;
+        multiReference = builder.multiReference;
         uidMap = builder.uidMap;
     }
 

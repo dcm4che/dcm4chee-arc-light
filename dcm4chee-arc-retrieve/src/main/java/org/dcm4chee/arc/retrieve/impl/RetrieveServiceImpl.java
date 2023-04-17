@@ -548,6 +548,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .digest(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest))
                 .size(attrs.getInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, -1))
                 .status(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus))
+                .multiReference(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference))
                 .build());
     }
 
@@ -860,6 +861,9 @@ public class RetrieveServiceImpl implements RetrieveService {
                 if (location.getStatus() != Location.Status.OK)
                     item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
                             location.getStatus().name());
+                if (location.getMultiReference() != null)
+                    item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference, VR.IS,
+                            location.getMultiReference());
             }
         }
     }

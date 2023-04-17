@@ -135,6 +135,7 @@ class LocationQuery {
                 locationPath.get(Location_.digest),
                 locationPath.get(Location_.size),
                 locationPath.get(Location_.status),
+                locationPath.get(Location_.multiReference),
                 locationPath.get(Location_.uidMapFk),
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),
@@ -239,6 +240,7 @@ class LocationQuery {
                 .digest(tuple.get(locationPath.get(Location_.digest)))
                 .size(tuple.get(locationPath.get(Location_.size)))
                 .status(tuple.get(locationPath.get(Location_.status)))
+                .multiReference(tuple.get(locationPath.get(Location_.multiReference)))
                 .uidMap(uidMap)
                 .build());
     }

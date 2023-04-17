@@ -46,6 +46,7 @@ DCM4CHE.elementName.addDictionary({
 "7777xx54":"Storage Object Digest",
 "7777xx55":"Other Storage Sequence",
 "7777xx56":"Storage Object Status",
+"7777xx57":"Storage Object Multi-Reference",
 "7777xx60":"Scheduled Storage Verification Date Time of Series",
 "7777xx61":"Failures of last Storage Verification of Series",
 "7777xx62":"Scheduled Compression Date Time of Series",

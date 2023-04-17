@@ -197,6 +197,7 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
                 .digest(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest))
                 .size(attrs.getInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, -1))
                 .status(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus))
+                .multiReference(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference))
                 .build();
 
     }

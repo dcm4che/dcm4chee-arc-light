@@ -447,6 +447,7 @@ public class StoreServiceEJB {
                 .digest(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest))
                 .size(attrs.getInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, -1))
                 .status(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus))
+                .multiReference(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference))
                 .build();
         location.setInstance(inst);
         inst.getLocations().add(location);
@@ -679,6 +680,7 @@ public class StoreServiceEJB {
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void removeOrMarkLocationAs(Location location, Location.Status status) {
+        location = em.merge(location);
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
         else

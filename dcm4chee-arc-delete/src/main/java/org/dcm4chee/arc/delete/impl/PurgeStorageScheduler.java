@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.delete.impl;
 
+import org.apache.http.impl.execchain.ServiceUnavailableRetryExec;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.dict.archive.PrivateTag;
@@ -506,11 +507,16 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private void deleteLocation(Storage storage, Location location, AtomicInteger success, AtomicInteger skipped) {
+        String storagePath = location.getStoragePath();
+        if (storage.getStorageDescriptor().isTarArchiver()) {
+            int endTarPath = storagePath.indexOf('!');
+            if (endTarPath > 0) storagePath = storagePath.substring(0, endTarPath);
+        }
         try {
             if (ejb.claimDeleteObject(location)) {
-                storage.deleteObject(location.getStoragePath());
+                storage.deleteObject(storagePath);
                 ejb.removeLocation(location);
-                LOG.debug("Successfully delete {} from {}", location, storage);
+                LOG.debug("Successfully delete {} from {}", storagePath, storage);
                 success.getAndIncrement();
             } else {
                 skipped.getAndIncrement();

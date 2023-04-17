@@ -90,7 +90,8 @@ class InstanceQuery extends AbstractQuery {
             PrivateTag.StorageTransferSyntaxUID | 0x1000,
             PrivateTag.StorageObjectSize | 0x1000,
             PrivateTag.StorageObjectDigest | 0x1000,
-            PrivateTag.StorageObjectStatus | 0x1000
+            PrivateTag.StorageObjectStatus | 0x1000,
+            PrivateTag.StorageObjectMultiReference | 0x1000
     };
 
     private final CodeCache codeCache;

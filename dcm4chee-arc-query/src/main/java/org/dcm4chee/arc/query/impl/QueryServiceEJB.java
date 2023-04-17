@@ -230,7 +230,8 @@ public class QueryServiceEJB {
                 location.get(Location_.transferSyntaxUID),
                 location.get(Location_.digest),
                 location.get(Location_.size),
-                location.get(Location_.status)
+                location.get(Location_.status),
+                location.get(Location_.multiReference)
         ).where(
                 cb.equal(location.get(Location_.instance).get(Instance_.pk), instancePk),
                 cb.equal(location.get(Location_.objectType), Location.ObjectType.DICOM_FILE)));
@@ -257,8 +258,11 @@ public class QueryServiceEJB {
                     item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest, VR.LO,
                             results.get(location.get(Location_.digest)));
                 if (results.get(location.get(Location_.status)) != Location.Status.OK)
-                    attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
                             results.get(location.get(Location_.status)).name());
+                if (results.get(location.get(Location_.multiReference)) != null)
+                    item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference, VR.IS,
+                            results.get(location.get(Location_.multiReference)));
             }
         }
     }

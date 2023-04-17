@@ -337,6 +337,7 @@ public class StorageExporter extends AbstractExporter {
                                 tar, storageID, storagePath, tarEntry.entryName, copyBuffer);
                         LOG.debug("Finished copying {} to TAR {} at {}", tarEntry.match,
                                 storagePath, storage.getStorageDescriptor());
+                        tarEntry.newLocation.setMultiReference(entry.getKey().hashCode());
                         if (tarEntry.newLocation.getDigestAsHexString() != null) {
                             md5sum.write(tarEntry.newLocation.getDigestAsHexString().getBytes());
                             md5sum.write(' ');
