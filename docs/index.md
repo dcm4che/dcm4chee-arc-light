@@ -5,6 +5,7 @@
 - [SQL Scripts for SQL Server](#sql-scripts-for-sql-server)
 
 ## Database Schema for PostgreSQL
+- [Version 5.30.x](dbschema-5.30/index.html)
 - [Version 5.29.x](dbschema-5.29/index.html)
 - [Version 5.28.x](dbschema-5.28/index.html)
 - [Version 5.27.x](dbschema-5.27/index.html)
@@ -36,6 +37,7 @@
 - [create-fk-index.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/psql/create-fk-index.sql)
 - [create-case-insensitive-index.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/psql/create-case-insensitive-index.sql)
 - [drop-psql.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/psql/drop-psql.sql)
+- [update-5.30-psql.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.30-psql.sql)
 - [update-5.29-psql.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.29-psql.sql)
 - [update-5.28-psql.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.28-psql.sql)
 - [update-5.27-psql.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.27-psql.sql)
@@ -69,6 +71,7 @@
 ## SQL Scripts for MySQL
 - [create-mysql.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/mysql/create-mysql.sql)
 - [drop-mysql.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/mysql/drop-mysql.sql)
+- [update-5.30-mysql.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.30-mysql.sql)
 - [update-5.29-mysql.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.29-mysql.sql)
 - [update-5.28-mysql.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.28-mysql.sql)
 - [update-5.27-mysql.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.27-mysql.sql)
@@ -104,6 +107,7 @@
 - [create-fk-index.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/oracle/create-fk-index.sql)
 - [create-case-insensitive-index.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/oracle/create-case-insensitive-index.sql)
 - [drop-oracle.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/oracle/drop-oracle.sql)
+- [update-5.30-oracle.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.30-oracle.sql)
 - [update-5.29-oracle.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.29-oracle.sql)
 - [update-5.28-oracle.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.28-oracle.sql)
 - [update-5.27-oracle.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.27-oracle.sql)
@@ -139,6 +143,7 @@
 - [create-fk-index.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/sqlserver/create-fk-index.sql)
 - [create-case-insensitive-index-sqlserver.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/sqlserver/create-case-insensitive-index-sqlserver.sql)
 - [drop-sqlserver.sql](https://raw.githubusercontent.com/wiki/dcm4che/dcm4chee-arc-light/sqlserver/drop-sqlserver.sql)
+- [update-5.30-sqlserver.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.30-sqlserver.sql)
 - [update-5.29-sqlserver.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.29-sqlserver.sql)
 - [update-5.28-sqlserver.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.28-sqlserver.sql)
 - [update-5.27-sqlserver.sql](https://raw.githubusercontent.com/dcm4che/dcm4chee-arc-light/master/dcm4chee-arc-entity/src/main/resources/sql/update-5.27-sqlserver.sql)
