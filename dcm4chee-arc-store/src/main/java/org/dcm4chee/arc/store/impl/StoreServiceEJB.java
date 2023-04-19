@@ -682,7 +682,7 @@ public class StoreServiceEJB {
     public void removeOrMarkLocationAs(Location location, Location.Status status) {
         location = em.merge(location);
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
-            em.remove(location);
+            em.remove(em.merge(location));
         else
             markLocationAs(location, status);
     }
