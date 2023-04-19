@@ -53,11 +53,9 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.StorePermission;
 import org.dcm4chee.arc.StorePermissionCache;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.id.IDService;
@@ -74,11 +72,16 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.*;
+import javax.ejb.EJBException;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.persistence.*;
-import javax.persistence.criteria.*;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
@@ -682,7 +685,7 @@ public class StoreServiceEJB {
     public void removeOrMarkLocationAs(Location location, Location.Status status) {
         location = em.merge(location);
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
-            em.remove(em.merge(location));
+            em.remove(location);
         else
             markLocationAs(location, status);
     }
