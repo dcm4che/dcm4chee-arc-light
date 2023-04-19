@@ -1568,8 +1568,15 @@ public class WadoRS {
             JsonGenerator gen = Json.createGenerator(out);
             JSONWriter writer = ctx.getArchiveAEExtension().encodeAsJSONNumber(new JSONWriter(gen));
             gen.writeStartArray();
-            for (InstanceLocations inst : ctx.getMatches())
+            for (InstanceLocations inst : ctx.getMatches()) {
+                if (!ctx.copyToRetrieveCache(inst))
+                    writer.write(loadMetadata(ctx, inst));
+            }
+            ctx.copyToRetrieveCache(null);
+            InstanceLocations inst;
+            while ((inst = ctx.copiedToRetrieveCache()) != null) {
                 writer.write(loadMetadata(ctx, inst));
+            }
             gen.writeEnd();
             gen.flush();
         } catch (Exception e) {
