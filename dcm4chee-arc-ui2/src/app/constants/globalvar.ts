@@ -2482,10 +2482,8 @@ export class Globalvar {
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmBulkDataDescriptor'
             },
             dcmMWLWorklistLabel:{
-                key:'dcmuiMWLWorklistLabel',
-                labelKey:'{dcmuiMWLWorklistLabel}',
                 msg:$localize `:@@dynamic_formatter.web_app:Create first a UI MWL Worklist Label!`,
-                pathInDevice:'dcmDevice.dcmuiConfig'
+                pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiMWLWorklistLabel'
             }
 /*            dicomDeviceName:{
                 key:'dicomDeviceName',

@@ -395,10 +395,10 @@ export class DeviceConfiguratorService{
         }
     }
     replaceCharactersInTitleKey(string, object){
-            let re = /{(.*?)}/g;
-            let m;
-            let array = [];
-            do {
+        let re = /{(.*?)}/g;
+        let m;
+        let array = [];
+        do {
             m = re.exec(string);
             if (m) {
                 if (m[1]){
@@ -443,13 +443,20 @@ export class DeviceConfiguratorService{
                         this.getFormatValue(m.format, this.device || device).subscribe(
                             (formatValue) =>{
                                 // setTimeout(()=>{
-
+                                console.log("formatValue", formatValue)
                                 if(formatValue && formatValue.length > 0){
                                     m.formatValue = formatValue.map((el)=>{
-                                        return {
-                                            label:this.replaceCharactersInTitleKey(Globalvar.DYNAMIC_FORMATER[m.format].labelKey,el),
-                                            value:el[Globalvar.DYNAMIC_FORMATER[m.format].key]
-                                        };
+                                        if(typeof el === "string"){
+                                            return {
+                                                label:el,
+                                                value:el
+                                            }
+                                        }else{
+                                            return {
+                                                label:this.replaceCharactersInTitleKey(Globalvar.DYNAMIC_FORMATER[m.format].labelKey,el),
+                                                value:el[Globalvar.DYNAMIC_FORMATER[m.format].key]
+                                            };
+                                        }
                                     });
                                 }else{
                                     if(Globalvar.DYNAMIC_FORMATER[m.format]){
