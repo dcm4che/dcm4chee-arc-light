@@ -82,11 +82,11 @@ public class HttpServletRequestInfo {
         return new HttpServletRequestInfo(request);
     }
 
-    public static HttpServletRequestInfo valueOf(
-            String requesterUserID, String requesterHost, String requestURI, String queryStr) {
-        return requestURI != null
-                ? new HttpServletRequestInfo(requesterUserID, requesterHost, requestURI, queryStr)
-                : null;
+    public static HttpServletRequestInfo valueOf(String requesterUserID, String requesterHost, String requestURI) {
+        return requestURI == null
+                ? null
+                : new HttpServletRequestInfo(requesterUserID, requesterHost, requestURI,
+                        requestURI.contains("?") ? requestURI.substring(requestURI.indexOf("?") + 1) : null);
     }
 
     private static String hostOfURI(String requestURI) {

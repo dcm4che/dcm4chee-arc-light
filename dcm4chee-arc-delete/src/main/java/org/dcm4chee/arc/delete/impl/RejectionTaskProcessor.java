@@ -72,8 +72,7 @@ public class RejectionTaskProcessor implements TaskProcessor {
                     HttpServletRequestInfo.valueOf(
                             task.getRequesterUserID(),
                             task.getRequesterHost(),
-                            task.getRequestURI(),
-                            task.getQueryString()));
+                            task.getRequestURI()));
             return count > 0
                     ? new Outcome(Task.Status.COMPLETED, count + " instances rejected.")
                     : new Outcome(Task.Status.WARNING,

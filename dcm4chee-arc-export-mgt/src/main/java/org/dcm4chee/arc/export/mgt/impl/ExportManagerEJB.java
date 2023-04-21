@@ -166,8 +166,7 @@ public class ExportManagerEJB implements ExportManager {
         if (httpServletRequestInfo != null) {
             task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
             task.setRequesterHost(httpServletRequestInfo.requesterHost);
-            task.setRequestURI(httpServletRequestInfo.requestURI);
-            task.setQueryString(httpServletRequestInfo.queryString);
+            task.setRequestURI(requestURL(httpServletRequestInfo));
         }
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
@@ -180,6 +179,12 @@ public class ExportManagerEJB implements ExportManager {
         em.persist(task);
         LOG.info("Create {}", task);
         return task;
+    }
+
+    private String requestURL(HttpServletRequestInfo httpServletRequestInfo) {
+        String requestURI = httpServletRequestInfo.requestURI;
+        String queryString = httpServletRequestInfo.queryString;
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     @Override

@@ -71,8 +71,7 @@ public class RetrieveTaskProcessor implements TaskProcessor {
                         .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(
                                 task.getRequesterUserID(),
                                 task.getRequesterHost(),
-                                task.getRequestURI(),
-                                task.getQueryString()))
+                                task.getRequestURI()))
                         .setKeys(task.getPayload(Attributes.class)),
                 task);
     }
