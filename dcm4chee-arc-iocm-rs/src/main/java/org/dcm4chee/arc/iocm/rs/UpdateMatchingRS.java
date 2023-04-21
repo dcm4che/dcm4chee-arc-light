@@ -188,6 +188,13 @@ public class UpdateMatchingRS {
     @Pattern(regexp = "SUPPLEMENT|MERGE|OVERWRITE")
     private String updatePolicyName;
 
+    @QueryParam("reasonForModification")
+    @Pattern(regexp = "COERCE|CORRECT")
+    private String reasonForModification;
+
+    @QueryParam("sourceOfPreviousValues")
+    private String sourceOfPreviousValues;
+
     private QueryAttributes queryAttrs;
 
     private static Boolean parseBoolean(String s) {
@@ -196,6 +203,7 @@ public class UpdateMatchingRS {
 
     @POST
     @Path("/studies/update")
+    @Consumes("application/dicom+json,application/json")
     @Produces("application/json")
     public Response updateMatchingStudies(InputStream in) {
         return updateMatching(aet, "updateMatchingStudies", QueryRetrieveLevel2.STUDY,
@@ -258,6 +266,8 @@ public class UpdateMatchingRS {
 
         StudyMgtContext studyMgtCtx = studyService.createStudyMgtContextWEB(
                 HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+        studyMgtCtx.setReasonForModification(reasonForModification);
+        studyMgtCtx.setSourceOfPreviousValues(sourceOfPreviousValues);
         final Attributes attrs = new Attributes(toAttributes(in),
                     (qrlevel == QueryRetrieveLevel2.STUDY
                             ? studyMgtCtx.getStudyAttributeFilter()

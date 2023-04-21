@@ -97,6 +97,12 @@
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
         }
       ],
       "requestBody": {
@@ -279,6 +285,12 @@
         },
         {
           "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
         }
       ],
       "requestBody": {

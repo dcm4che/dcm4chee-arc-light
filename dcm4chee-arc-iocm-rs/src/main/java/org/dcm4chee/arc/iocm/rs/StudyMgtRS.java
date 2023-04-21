@@ -120,6 +120,13 @@ public class StudyMgtRS {
     @PathParam("AETitle")
     private String aet;
 
+    @QueryParam("reasonForModification")
+    @Pattern(regexp = "COERCE|CORRECT")
+    private String reasonForModification;
+
+    @QueryParam("sourceOfPreviousValues")
+    private String sourceOfPreviousValues;
+
     @Context
     private HttpServletRequest request;
 
@@ -196,6 +203,8 @@ public class StudyMgtRS {
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
             studyService.updateStudy(ctx);
             rsForward.forward(RSOperation.UpdateStudy, arcAE, attrs, request);
             return Response.ok((StreamingOutput) out -> {
@@ -252,6 +261,8 @@ public class StudyMgtRS {
             ctx.setAttributes(attrs);
             ctx.setStudyInstanceUID(studyUID);
             ctx.setSeriesInstanceUID(seriesUID);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
             studyService.updateSeries(ctx);
             rsForward.forward(RSOperation.UpdateSeries, arcAE, attrs, request);
             return Response.ok((StreamingOutput)out -> {
@@ -292,6 +303,8 @@ public class StudyMgtRS {
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setStudyInstanceUID(studyUID);
             ctx.setRequestAttributes(requestAttrs);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
             studyService.updateStudyRequest(ctx);
             rsForward.forward(RSOperation.UpdateStudyRequest, arcAE, request, requestAttrs);
             return Response.accepted().build();
@@ -325,6 +338,8 @@ public class StudyMgtRS {
             ctx.setStudyInstanceUID(studyUID);
             ctx.setSeriesInstanceUID(seriesUID);
             ctx.setRequestAttributes(requestAttrs);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
             studyService.updateSeriesRequest(ctx);
             rsForward.forward(RSOperation.UpdateSeriesRequest, arcAE, request, requestAttrs);
             return Response.accepted().build();

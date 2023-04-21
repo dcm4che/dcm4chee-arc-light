@@ -87,6 +87,10 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private boolean unfreezeExpirationDate;
     private String accessControlID;
 
+    private String reasonForModification;
+
+    private String sourceOfPreviousValues;
+
     StudyMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         this.studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
@@ -295,4 +299,24 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     public void setRequestAttributes(List<Attributes> requestAttrs) {
         this.requestAttrs = requestAttrs;
     };
+
+    @Override
+    public String getReasonForModification() {
+        return reasonForModification;
+    }
+
+    @Override
+    public void setReasonForModification(String reasonForModification) {
+        this.reasonForModification = reasonForModification;
+    }
+
+    @Override
+    public String getSourceOfPreviousValues() {
+        return sourceOfPreviousValues;
+    }
+
+    @Override
+    public void setSourceOfPreviousValues(String sourceOfPreviousValues) {
+        this.sourceOfPreviousValues = sourceOfPreviousValues;
+    }
 }

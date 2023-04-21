@@ -128,4 +128,12 @@ public interface StudyMgtContext {
     List<Attributes> getRequestAttributes();
 
     void setRequestAttributes(List<Attributes> requestAttrs);
+
+    String getReasonForModification();
+
+    void setReasonForModification(String reasonForModification);
+
+    String getSourceOfPreviousValues();
+
+    void setSourceOfPreviousValues(String sourceOfPreviousValues);
 }

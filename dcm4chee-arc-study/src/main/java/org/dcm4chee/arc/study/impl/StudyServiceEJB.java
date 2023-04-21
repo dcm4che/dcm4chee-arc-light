@@ -108,11 +108,11 @@ public class StudyServiceEJB {
         Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
-        study.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
+        study.setAttributes(ctx.getReasonForModification() != null
                 ? attrs.addOriginalAttributes(
-                    null,
+                    ctx.getSourceOfPreviousValues(),
                     new Date(),
-                    Attributes.CORRECT,
+                    ctx.getReasonForModification(),
                     device.getDeviceName(),
                     modified)
                 : attrs,
@@ -143,11 +143,11 @@ public class StudyServiceEJB {
         Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
-        series.setAttributes(ctx.getArchiveAEExtension().recordAttributeModification()
+        series.setAttributes(ctx.getReasonForModification() != null
                         ? attrs.addOriginalAttributes(
-                        null,
+                        ctx.getSourceOfPreviousValues(),
                         new Date(),
-                        Attributes.CORRECT,
+                        ctx.getReasonForModification(),
                         device.getDeviceName(),
                         modified)
                         : attrs,
@@ -188,7 +188,7 @@ public class StudyServiceEJB {
         if (accWithIssuer.equals(IDWithIssuer.valueOf(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence)))
             return;
 
-        Attributes modified = ctx.getArchiveAEExtension().recordAttributeModification()
+        Attributes modified = ctx.getReasonForModification() != null
                 ? new Attributes(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence)
                 : null;
 
@@ -200,9 +200,9 @@ public class StudyServiceEJB {
 
         study.setAttributes(modified != null
                         ? attrs.addOriginalAttributes(
-                        null,
+                        ctx.getSourceOfPreviousValues(),
                         new Date(),
-                        Attributes.COERCE,
+                        ctx.getReasonForModification(),
                         device.getDeviceName(),
                         modified)
                         : attrs,
@@ -221,7 +221,7 @@ public class StudyServiceEJB {
             return;
 
         Attributes modified = null;
-        if (ctx.getArchiveAEExtension().recordAttributeModification() && origRequestAttributes != null) {
+        if (ctx.getReasonForModification() != null && origRequestAttributes != null) {
             modified = new Attributes(1);
             Sequence rqAttrsSeq = modified.newSequence(Tag.RequestAttributesSequence, origRequestAttributes.size());
             for (Attributes requestAttr : origRequestAttributes) {
@@ -241,9 +241,9 @@ public class StudyServiceEJB {
         AttributeFilter seriesAttrFilter = ctx.getSeriesAttributeFilter();
         series.setAttributes(modified != null
                         ? seriesAttr.addOriginalAttributes(
-                        null,
+                        ctx.getSourceOfPreviousValues(),
                         new Date(),
-                        Attributes.COERCE,
+                        ctx.getReasonForModification(),
                         device.getDeviceName(),
                         modified)
                         : seriesAttr,
