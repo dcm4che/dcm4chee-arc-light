@@ -94,10 +94,10 @@
       },
       "responses": {
         "200": {
-          "$ref": "../responses.json#/storeInstancesSuccessful"
+          "$ref": "../responses.json#/updateMatchingSuccessful"
         },
         "202": {
-          "$ref": "../responses.json#/storeInstancesWarnings"
+          "$ref": "../responses.json#/updateMatchingWarnings"
         },
         "204": {
           "description": "No matching Studies found"
@@ -109,7 +109,7 @@
           "description": "No such Archive AE Title or Rejection Note"
         },
         "409": {
-          "$ref": "../responses.json#/storeInstancesFailed"
+          "$ref": "../responses.json#/updateMatchingFailed"
         },
         "500": {
           "description": "Internal Server Error"
@@ -215,10 +215,10 @@
       },
       "responses": {
         "200": {
-          "$ref": "../responses.json#/storeInstancesSuccessful"
+          "$ref": "../responses.json#/updateMatchingSuccessful"
         },
         "202": {
-          "$ref": "../responses.json#/storeInstancesWarnings"
+          "$ref": "../responses.json#/updateMatchingWarnings"
         },
         "204": {
           "description": "No matching Series found"
@@ -230,7 +230,7 @@
           "description": "No such Archive AE Title or Rejection Note"
         },
         "409": {
-          "$ref": "../responses.json#/storeInstancesFailed"
+          "$ref": "../responses.json#/updateMatchingFailed"
         },
         "500": {
           "description": "Internal Server Error"
@@ -333,10 +333,10 @@
       },
       "responses": {
         "200": {
-          "$ref": "../responses.json#/storeInstancesSuccessful"
+          "$ref": "../responses.json#/updateMatchingSuccessful"
         },
         "202": {
-          "$ref": "../responses.json#/storeInstancesWarnings"
+          "$ref": "../responses.json#/updateMatchingWarnings"
         },
         "204": {
           "description": "No matching Series found"
@@ -348,7 +348,7 @@
           "description": "No such Archive AE Title or Rejection Note"
         },
         "409": {
-          "$ref": "../responses.json#/storeInstancesFailed"
+          "$ref": "../responses.json#/updateMatchingFailed"
         },
         "500": {
           "description": "Internal Server Error"
