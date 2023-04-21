@@ -99,7 +99,9 @@ public class StudyServiceEJB {
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         ctx.setStudy(study);
-        if (study.getPatient().getPk() != ctx.getPatient().getPk())
+        if (ctx.getPatient() == null)
+            ctx.setPatient(study.getPatient());
+        else if (study.getPatient().getPk() != ctx.getPatient().getPk())
             throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
                     study.getPatient() + " in existing " + study);
 
@@ -130,7 +132,11 @@ public class StudyServiceEJB {
         if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
             return;
 
-        if (series.getStudy().getPatient().getPk() != ctx.getPatient().getPk())
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        ctx.setStudy(series.getStudy());
+        if (ctx.getPatient() == null)
+            ctx.setPatient(series.getStudy().getPatient());
+        else if (series.getStudy().getPatient().getPk() != ctx.getPatient().getPk())
             throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
                     series.getStudy().getPatient() + " in existing " + series.getStudy());
 

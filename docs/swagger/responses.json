@@ -251,6 +251,87 @@
       }
     }
   },
+  "updateMatchingSuccessful": {
+    "description": "Successfully updated all matching Studies/Series",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "name": "Number of matching Studies/Series",
+              "type": "integer"
+            },
+            "updated": {
+              "name": "Number of updated Studies/Series",
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "updateMatchingWarnings": {
+    "description": "Updated some of the matching Studies/Series but warnings or failures exist for others.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "name": "Number of matching Studies/Series",
+              "type": "integer"
+            },
+            "updated": {
+              "name": "Number of updated Studies/Series",
+              "type": "integer"
+            },
+            "failed": {
+              "name": "Number of failures to update Studies/Series",
+              "type": "integer"
+            },
+            "error": {
+              "name": "Error message",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "updateMatchingFailed": {
+    "description": "Update of matching Studies/Series failed.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "name": "Number of matching Studies/Series",
+              "type": "integer"
+            },
+            "failed": {
+              "name": "Number of failures to update Studies/Series",
+              "type": "integer"
+            },
+            "error": {
+              "name": "Error message",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
   "storeInstancesSuccessful": {
     "description": "Successfully stored all Instances.",
     "content": {

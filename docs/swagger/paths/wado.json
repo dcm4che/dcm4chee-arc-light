@@ -71,7 +71,7 @@
         "200": {
           "$ref": "../responses.json#/storeInstancesSuccessful"
         },
-        "204": {
+        "202": {
           "$ref": "../responses.json#/storeInstancesWarnings"
         },
         "400": {

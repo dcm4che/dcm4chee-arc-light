@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.29.2"
+    "version": "5.30.0"
   },
   "servers": [
     {
@@ -204,6 +204,9 @@
     "/aets/{aet}/rs/studies/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/studies.reject"
     },
+    "/aets/{aet}/rs/studies/update": {
+      "$ref": "paths/iocm.json#/studies.update"
+    },
     "/aets/{aet}/rs/studies/stgver": {
       "$ref": "paths/stgver.json#/studies"
     },
@@ -276,6 +279,9 @@
     "/aets/{aet}/rs/series/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/series.reject"
     },
+    "/aets/{aet}/rs/series/update": {
+      "$ref": "paths/iocm.json#/series.update"
+    },
     "/aets/{aet}/rs/series/stgver": {
       "$ref": "paths/stgver.json#/series"
     },
@@ -317,6 +323,9 @@
     },
     "/aets/{aet}/rs/studies/{study}/series/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/studies.series.reject"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/update": {
+      "$ref": "paths/iocm.json#/studies.series.update"
     },
     "/aets/{aet}/rs/studies/{study}/series/stgver": {
       "$ref": "paths/stgver.json#/studies.series"

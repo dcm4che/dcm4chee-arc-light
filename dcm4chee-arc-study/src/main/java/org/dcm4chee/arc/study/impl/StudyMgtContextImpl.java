@@ -168,6 +168,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     public void setAttributes(Attributes attrs) {
         this.attributes = attrs;
         this.studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+        this.seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
     }
 
     @Override

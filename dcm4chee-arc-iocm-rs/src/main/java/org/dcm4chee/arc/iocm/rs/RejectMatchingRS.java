@@ -455,15 +455,6 @@ public class RejectMatchingRS {
         }
     }
 
-    private ApplicationEntity validateAE(String aet) throws ConfigurationException {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new ConfigurationException(
-                    "No such Application Entity: " + aet + " found in device: " + device.getDeviceName());
-
-        return ae;
-    }
-
     private Code validateRejectionNote(String codeValue, String designator) {
         Code rjNoteCode;
         if (codeValue == null
