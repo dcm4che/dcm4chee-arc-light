@@ -22,7 +22,7 @@
                 <input type="text" [(ngModel)]="nameSuffix" placeholder="Suffix" title="Name Suffix">
             </div>
         </div>
-        <div class="dialog_block"  *ngIf=" namePrefix || givenName || middleName || familyName || nameSuffix">
+        <div class="dialog_block"  *ngIf=" namePrefix || givenName || middleName || familyName || nameSuffix || asFilterModel">
             <h5>DICOM version ( Will be used as filter ):</h5>
             <div>
                 {{asFilterModel}}

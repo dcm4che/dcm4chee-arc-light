@@ -31,6 +31,8 @@ export class PersonNamePickerComponent implements OnInit {
   @Input()
   set model(value: string) {
     this._model = value;
+    this.asFilterModel = value;
+    this.internModel = value;
   }
   @Output() modelChange = new EventEmitter();
   constructor(
@@ -46,7 +48,7 @@ export class PersonNamePickerComponent implements OnInit {
   }
 
   onInternModelChange(e){
-    if(this._internModel){
+    if(this._internModel && this._internModel.indexOf(" ") > -1){
       this.asFilterModel = this.personNameService.convertPNameFromFormattedToDicomForm(this._internModel, this.format);
       [
         this.familyName,
@@ -56,12 +58,21 @@ export class PersonNamePickerComponent implements OnInit {
         this.nameSuffix
       ] = this._asFilterModel.split("^");
     }else{
-      this.asFilterModel = "";
-      this.familyName = "";
-      this.givenName = "";
-      this.middleName = "";
-      this.namePrefix = "";
-      this.nameSuffix = "";
+      if(this._internModel != "" && this._internModel.indexOf(" ") === -1){
+        this.asFilterModel = this._internModel;
+        this.familyName = "";
+        this.givenName = "";
+        this.middleName = "";
+        this.namePrefix = "";
+        this.nameSuffix = "";
+      }else{
+        this.asFilterModel = "";
+        this.familyName = "";
+        this.givenName = "";
+        this.middleName = "";
+        this.namePrefix = "";
+        this.nameSuffix = "";
+      }
     }
   }
   toggleDialog(){
@@ -76,14 +87,20 @@ export class PersonNamePickerComponent implements OnInit {
     this._internModel = value;
   }
   onComponentChange(){
-    this.asFilterModel = [
+    const collected = [
       this.familyName,
       this.givenName,
       this.middleName,
       this.namePrefix,
       this.nameSuffix
-    ].join("^");
-    this._internModel = this.personNameService.convertPNameFromDicomFormToFormatted(this._asFilterModel, this.format)
+    ];
+    if(collected.join("") != ""){
+      this.asFilterModel = collected.join("^");
+      this._internModel = this.personNameService.convertPNameFromDicomFormToFormatted(this._asFilterModel, this.format)
+    }else{
+      this.asFilterModel = "";
+      this._internModel = "";
+    }
   }
   get asFilterModel(): string {
     return this._asFilterModel;
