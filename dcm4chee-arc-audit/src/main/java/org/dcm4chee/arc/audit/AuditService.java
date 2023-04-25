@@ -777,6 +777,13 @@ public class AuditService {
     }
 
     private void spoolIncomingHL7Msg(HL7ConnectionEvent hl7ConnEvent) {
+        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7Message, "PID");
+        if (pid == null) {
+            LOG.info("Exit spooling incoming HL7 message for message type {} as there is no PID segment.",
+                    hl7Message.msh().getMessageType());
+            return;
+        }
         try {
             UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
             if (HL7AuditUtils.isOrderMessage(hl7ConnEvent)) {
@@ -799,14 +806,14 @@ public class AuditService {
                     eventType,
                     hl7ConnEvent);
 
-            HL7Segment mrg = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "MRG");
+            HL7Segment mrg = HL7AuditUtils.getHL7Segment(hl7Message, "MRG");
             if (mrg != null && eventType != AuditUtils.EventType.PAT___READ) //spool below only for successful changePID or merge
                 writeSpoolFile(
                         patRecAuditService.getHL7IncomingPrevPatInfo(mrg),
                         AuditUtils.EventType.PAT_DELETE,
                         hl7ConnEvent);
         } catch (Exception e) {
-            LOG.info("Failed to spool HL7 Incoming for [Message={}]\n", hl7ConnEvent.getHL7Message(), e);
+            LOG.info("Failed to spool HL7 Incoming for [Message={}]\n", hl7Message, e);
         }
 
     }
