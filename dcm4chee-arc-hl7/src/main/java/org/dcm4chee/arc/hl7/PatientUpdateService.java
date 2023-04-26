@@ -46,7 +46,6 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
