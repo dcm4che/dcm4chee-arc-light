@@ -124,7 +124,6 @@ class PatientUpdateService extends DefaultHL7Service {
     static Patient updatePatient(HL7Application hl7App, Socket s, UnparsedHL7Message msg, PatientService patientService,
                                  ArchiveHL7Message archiveHL7Message)
             throws HL7Exception {
-        validateMSHIHERq(msg);
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
 
@@ -154,47 +153,6 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setUserMessage("Missing prior patient identifier"));
 
         return changePIDOrMergePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
-    }
-
-    private static void validateMSHIHERq(UnparsedHL7Message msg) throws HL7Exception {
-        HL7Segment msh = msg.msh();
-        if (msh.getField(2, null) == null)
-            throw new HL7Exception(
-                    new ERRSegment(msh)
-                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                            .setErrorLocation(ERRSegment.SENDING_APPLICATION)
-                            .setUserMessage("Missing Sending Application"));
-        if (msh.getField(3, null) == null)
-            throw new HL7Exception(
-                    new ERRSegment(msh)
-                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                            .setErrorLocation(ERRSegment.SENDING_FACILITY)
-                            .setUserMessage("Missing Sending Facility"));
-        if (msh.getField(4, null) == null)
-            throw new HL7Exception(
-                    new ERRSegment(msh)
-                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                            .setErrorLocation(ERRSegment.RECEIVING_APPLICATION)
-                            .setUserMessage("Missing Receiving Application"));
-        if (msh.getField(5, null) == null)
-            throw new HL7Exception(
-                    new ERRSegment(msh)
-                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                            .setErrorLocation(ERRSegment.RECEIVING_FACILITY)
-                            .setUserMessage("Missing Receiving Facility"));
-        if (msh.getField(6, null) == null)
-            throw new HL7Exception(
-                    new ERRSegment(msh)
-                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                            .setErrorLocation(ERRSegment.MESSAGE_DATETIME)
-                            .setUserMessage("Missing Date/Time of Message"));
-
-        if (msh.getMessageControlID() == null)
-            throw new HL7Exception(
-                    new ERRSegment(msh)
-                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                            .setErrorLocation(ERRSegment.MESSAGE_CONTROL_ID)
-                            .setUserMessage("Missing Message Control ID"));
     }
 
     private static Patient createOrUpdatePatient(
