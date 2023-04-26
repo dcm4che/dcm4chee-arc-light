@@ -2902,6 +2902,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }else{
                 this._filter.filterModel.includefield = "all";
             }
+            if(_.hasIn(this.studyWebService.selectedWebService,"dcmProperty[0]")){
+                this.studyWebService.selectedWebService.dcmProperty.forEach(propertie=>{
+                    if(propertie.indexOf("MWLWorklistLabel=") > -1){
+                        let mwlLabel = propertie;
+                        mwlLabel = mwlLabel.replace("MWLWorklistLabel=","");
+                        this.filter.filterModel.WorklistLabel = mwlLabel;
+                    }
+                })
+            }
             this.setMainSchema();
 /*            this.moreFunctionConfig.options = this.moreFunctionConfig.options.filter(option=>{
                 console.log("option",option);

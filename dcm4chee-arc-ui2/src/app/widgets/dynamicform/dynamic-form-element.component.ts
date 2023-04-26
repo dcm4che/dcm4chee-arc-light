@@ -508,6 +508,7 @@ export class DynamicFormElementComponent implements OnDestroy{
         formelement.showPicker = false;
         formelement.showTimePicker = false;
         formelement.showLanguagePicker = false;
+        formelement.showPropertyPicker = false;
         formelement.showDurationPicker = false;
         formelement.showSchedulePicker = false;
         formelement.showCharSetPicker = false;
@@ -542,6 +543,14 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     onFocuse(formelement,i=null) {
         if(formelement.format){
+/*            if(formelement.format === 'dcmProperty'){
+                if(i != null){
+                    formelement.showPropertyPicker = formelement.showPropertyPicker || {};
+                    formelement.showPropertyPicker[i] = true;
+                }else{
+                    formelement.showPropertyPicker = true;
+                }
+            }*/
             if(formelement.format === 'dcmLanguageChooser'){
                 if(i != null){
                     formelement.showLanguagePicker = formelement.showLanguagePicker || {};
@@ -550,7 +559,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                     formelement.showLanguagePicker = true;
                 }
             }
-            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
+            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass' || formelement.format === 'dcmProperty'){
                 if(i != null){
                     formelement.showPicker = formelement.showPicker || {};
                     formelement.showPicker[i] = true;

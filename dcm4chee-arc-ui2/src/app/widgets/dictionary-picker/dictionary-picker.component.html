@@ -3,7 +3,7 @@
     <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search.." (keyup)="onSearch()">
     <div class="dictionary_widget" (scroll)="onScroll($event)">
         <ul class="list">
-            <li *ngFor="let dictionary of dcmTagsFiltered|slice:0:sliceTo;" (click)="addSelectedElement(dictionary)"><span [innerHTML]="dictionary.key"></span> : <span [innerHTML]="dictionary.text"></span></li>
+            <li *ngFor="let dictionary of dcmTagsFiltered|slice:0:sliceTo;" (click)="addSelectedElement(dictionary)" title="{{dictionary.description}}"><span [innerHTML]="dictionary.key"></span> <span *ngIf="!hideDots">:</span> <span [innerHTML]="dictionary.text"></span></li>
             <button class="load_more" *ngIf="sliceTo <= dcmTags.length && (!filter || filter==='')" (click)="loadMore()">
                 <!--<i *ngIf="moreHl7.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>-->
                 <ng-container i18n="@@more">More</ng-container>
