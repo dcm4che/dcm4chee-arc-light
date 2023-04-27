@@ -354,7 +354,7 @@ export class StudyService {
                 lineLength = 3;
                 break;
             case "mwl":
-                schema = Globalvar.MWL_FILTER_SCHEMA( institutions,filterMode === "expand");
+                schema = Globalvar.MWL_FILTER_SCHEMA( institutions,filterMode === "expand",_.get(this.appService.global,"uiConfig.dcmuiMWLWorklistLabel"));
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "mpps":

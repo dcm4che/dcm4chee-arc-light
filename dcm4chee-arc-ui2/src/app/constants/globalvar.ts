@@ -3371,13 +3371,14 @@ export class Globalvar {
         return "6";
     }
 
-    static MWL_FILTER_SCHEMA(institutions, hidden?):FilterSchema{
+    static MWL_FILTER_SCHEMA(institutions, hidden?, mwlLabels?:string[]):FilterSchema{
+        let filters:FilterSchema = [];
         if(hidden){
-            return [
+            filters = [
 
             ]
         }else{
-            return [
+            filters = [
                 {
                     tag:"person-name-picker",
                     filterKey:"PatientName",
@@ -3531,15 +3532,29 @@ export class Globalvar {
                     showStar:true,
                     description:$localize `:@@study_status_id_agfa:Study Status ID - AGFA`,
                     placeholder:$localize `:@@study_status_id_agfa:Study Status ID - AGFA`
-                }, {
+                }
+            ]
+            if(mwlLabels){
+                filters.push({
+                    tag:"select",
+                    type:"text",
+                    filterKey:"WorklistLabel",
+                    options:mwlLabels.map(label=>new SelectDropdown(label,label)),
+                    showStar:true,
+                    description:$localize `:@@worklist_label:Worklist Label`,
+                    placeholder:$localize `:@@worklist_label:Worklist Label`
+                });
+            }else{
+                filters.push({
                     tag:"input",
                     type:"text",
                     filterKey:"WorklistLabel",
                     description:$localize `:@@worklist_label:Worklist Label`,
                     placeholder:$localize `:@@worklist_label:Worklist Label`
-                }
-            ]
+                });
+            }
         }
+        return filters;
     }
 
     static MPPS_FILTER_SCHEMA(hidden?):FilterSchema{
