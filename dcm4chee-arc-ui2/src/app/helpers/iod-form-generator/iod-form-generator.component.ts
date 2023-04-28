@@ -1,6 +1,7 @@
 import {Component, OnInit, Input} from '@angular/core';
 import * as _ from 'lodash-es';
 import {Globalvar} from '../../constants/globalvar';
+import {AppService} from "../../app.service";
 declare var DCM4CHE: any;
 
 @Component({
@@ -15,8 +16,10 @@ export class IodFormGeneratorComponent implements OnInit {
     @Input() externalInternalAetMode;
     objectIsArray;
     hasValue;
-
-    constructor() { }
+    _=_;
+    constructor(
+        public appService:AppService
+    ) { }
     privateCreator(tag) {
         if ('02468ACE'.indexOf(tag.charAt(3)) < 0) {
             let block = tag.slice(4, 6);
