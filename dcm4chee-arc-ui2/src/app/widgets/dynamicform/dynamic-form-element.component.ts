@@ -418,7 +418,8 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     private tryToConvertValueToInt(value){
         try{
-            if(typeof (value*1) === "number"){
+            const convertedValue = value*1;
+            if(!isNaN(convertedValue) && typeof convertedValue === "number"){
                 return value*1;
             }
         }catch (e) {
