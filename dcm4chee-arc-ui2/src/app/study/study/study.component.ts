@@ -2907,7 +2907,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     if(propertie.indexOf("MWLWorklistLabel=") > -1){
                         let mwlLabel = propertie;
                         mwlLabel = mwlLabel.replace("MWLWorklistLabel=","");
-                        this.filter.filterModel.WorklistLabel = mwlLabel;
+                        if(mwlLabel){
+                            this.filter.filterModel.WorklistLabel = mwlLabel;
+                        }
                     }
                 })
             }
