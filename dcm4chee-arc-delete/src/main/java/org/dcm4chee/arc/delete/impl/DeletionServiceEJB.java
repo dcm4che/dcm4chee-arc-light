@@ -513,7 +513,7 @@ public class DeletionServiceEJB {
                     patMgtCtx.setPatient(study.getPatient());
                     patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Delete);
                     patMgtCtx.setAttributes(study.getPatient().getAttributes());
-                    patMgtCtx.setPatientID(IDWithIssuer.pidOf(study.getPatient().getAttributes()));
+                    patMgtCtx.setPatientIDs(IDWithIssuer.pidsOf(study.getPatient().getAttributes()));
                     patientService.deletePatient(patMgtCtx);
                 }
             } else {

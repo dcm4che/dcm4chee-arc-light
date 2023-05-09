@@ -85,10 +85,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -188,16 +185,16 @@ public class StudyMgtRS {
             validateWebAppServiceClass();
 
         final Attributes attrs = toAttributes(in);
-        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null || !attrs.containsValue(Tag.StudyInstanceUID)
+        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        if (patientIDs == null || !attrs.containsValue(Tag.StudyInstanceUID)
                 || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
             return errResponse("Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload",
                             Response.Status.BAD_REQUEST);
 
         try {
-            Patient patient = patientService.findPatient(patientID);
+            Patient patient = patientService.findPatient(patientIDs);
             if (patient == null)
-                return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
+                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
 
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
@@ -241,8 +238,8 @@ public class StudyMgtRS {
             validateWebAppServiceClass();
 
         final Attributes attrs = toAttributes(in);
-        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null || !attrs.containsValue(Tag.SeriesInstanceUID))
+        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        if (patientIDs == null || !attrs.containsValue(Tag.SeriesInstanceUID))
             return errResponse("Missing Patient ID or Series Instance UID in request payload",
                             Response.Status.BAD_REQUEST);
 
@@ -251,9 +248,9 @@ public class StudyMgtRS {
                             Response.Status.BAD_REQUEST);
 
         try {
-            Patient patient = patientService.findPatient(patientID);
+            Patient patient = patientService.findPatient(patientIDs);
             if (patient == null)
-                return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
+                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
 
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
@@ -398,11 +395,11 @@ public class StudyMgtRS {
         if (queryKeys.getString(Tag.PatientID) == null)
             return errResponse("Missing Patient ID in query filters", Response.Status.BAD_REQUEST);
 
-        IDWithIssuer pid = IDWithIssuer.pidOf(queryKeys);
+        Collection<IDWithIssuer> pids = IDWithIssuer.pidsOf(queryKeys);
         try {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-            ctx.setPatientID(pid);
+            ctx.setPatientIDs(pids);
             ctx.setAttributes(queryKeys);
             if (updatePolicy != null)
                 ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(updatePolicy));

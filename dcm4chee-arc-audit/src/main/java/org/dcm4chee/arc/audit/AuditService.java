@@ -869,7 +869,7 @@ public class AuditService {
             if (ctx.getPreviousAttributes() != null)
                 writeSpoolFile(AuditUtils.EventType.PAT_DELETE, null, patRecAuditService.getPrevPatAuditInfo());
         } catch (Exception e) {
-            LOG.info("Failed to spool Patient Record for [PatientID={}]\n", ctx.getPatientID(), e);
+            LOG.info("Failed to spool Patient Record for [PatientID={}]\n", ctx.getPatientIDs(), e);
         }
     }
 

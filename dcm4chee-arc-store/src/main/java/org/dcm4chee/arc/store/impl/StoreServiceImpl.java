@@ -302,11 +302,11 @@ class StoreServiceImpl implements StoreService {
         if (instance != null) {
             Patient createdPatient = result.getCreatedPatient();
             if (createdPatient != null) {
-                IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
-                if (pid != null) {
+                Collection<IDWithIssuer> pids = IDWithIssuer.pidsOf(ctx.getAttributes());
+                if (pids != null) {
                     try {
                         if (patientService.deleteDuplicateCreatedPatient(
-                                pid, createdPatient, result.getCreatedStudy())) {
+                                pids, createdPatient, result.getCreatedStudy())) {
                             result.setCreatedPatient(null);
                         }
                     } catch (Exception e) {

@@ -77,6 +77,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -138,9 +139,9 @@ public class HL7RS {
         logRequest();
         String msgType = "ADT^A31^ADT_A05";
         PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
-        IDWithIssuer patientID = ctx.getPatientID();
+        Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
         boolean mergePatients = Boolean.parseBoolean(merge);
-        if (!patientID.equals(priorPatientID)) {
+        if (!patientIDs.contains(priorPatientID)) {
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             msgType = mergePatients ? "ADT^A40^ADT_A39" : "ADT^A47^ADT_A30";
         } else if (mergePatients)

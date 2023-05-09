@@ -55,6 +55,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 
 import java.net.Socket;
+import java.util.Collection;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -70,9 +71,9 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private Association as;
     private Socket socket;
     private UnparsedHL7Message msg;
-    private IDWithIssuer patientID;
+    private Collection<IDWithIssuer> patientIDs;
     private Attributes attributes;
-    private IDWithIssuer previousPatientID;
+    private Collection<IDWithIssuer> previousPatientIDs;
     private Attributes previousAttributes;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
     private String eventActionCode = AuditMessages.EventActionCode.Read;
@@ -166,8 +167,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public IDWithIssuer getPatientID() {
-        return patientID;
+    public Collection<IDWithIssuer> getPatientIDs() {
+        return patientIDs;
     }
 
     @Override
@@ -178,12 +179,12 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setAttributes(Attributes attrs) {
         this.attributes = attrs;
-        this.patientID = IDWithIssuer.pidOf(attrs);
+        this.patientIDs = IDWithIssuer.pidsOf(attrs);
     }
 
     @Override
-    public IDWithIssuer getPreviousPatientID() {
-        return previousPatientID;
+    public Collection<IDWithIssuer> getPreviousPatientIDs() {
+        return previousPatientIDs;
     }
 
     @Override
@@ -194,7 +195,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setPreviousAttributes(Attributes attrs) {
         this.previousAttributes = attrs;
-        this.previousPatientID = attrs != null ? IDWithIssuer.pidOf(attrs) : null;
+        this.previousPatientIDs = attrs != null ? IDWithIssuer.pidsOf(attrs) : null;
     }
 
     @Override
@@ -228,8 +229,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public void setPatientID(IDWithIssuer patientID) {
-        this.patientID = patientID;
+    public void setPatientIDs(Collection<IDWithIssuer> patientIDs) {
+        this.patientIDs = patientIDs;
     }
 
     @Override

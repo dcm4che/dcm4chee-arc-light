@@ -71,6 +71,7 @@ import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -129,7 +130,7 @@ public class UpdatePatientDemographics {
                                                 .getPDQServiceDescriptorNotNull(pdqServiceID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
-            ctx.setPatientID(patientID);
+            ctx.setPatientIDs(Collections.singleton(patientID));
             ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());
             Attributes attrs;
             boolean adjustIssuerOfPatientID = adjustIssuerOfPatientID();
@@ -154,7 +155,7 @@ public class UpdatePatientDemographics {
 
             ctx.setAttributes(attrs);
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
-            if (adjustIssuerOfPatientID && !ctx.getPatientID().equals(patientID)) {
+            if (adjustIssuerOfPatientID && !ctx.getPatientIDs().contains(patientID)) {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
                 LOG.info("Updated {} on verification against {}", patientID, descriptor);

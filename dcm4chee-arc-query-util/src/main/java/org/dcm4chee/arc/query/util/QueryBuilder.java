@@ -346,7 +346,7 @@ public class QueryBuilder {
     }
 
     private <Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientIDs);
         predicates.add(patientID.get(PatientID_.localNamespaceEntityID).isNull());
         predicates.add(patientID.get(PatientID_.universalEntityID).isNull());
         if (isUniversalMatching(pids))
@@ -365,7 +365,7 @@ public class QueryBuilder {
     }
 
     public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientIDs);
         List<Predicate> idPredicates = new ArrayList<>(pids.length);
         for (IDWithIssuer pid : pids)
             if (!isUniversalMatching(pid.getID())) {
@@ -386,7 +386,7 @@ public class QueryBuilder {
     }
 
     private <Z> void patIDIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, Issuer issuer) {
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientIDs);
         issuer(predicates,
                 patientID.get(PatientID_.localNamespaceEntityID),
                 patientID.get(PatientID_.universalEntityID),

@@ -51,6 +51,7 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,16 +71,18 @@ public interface PatientService {
 
     PatientMgtContext createPatientMgtContextScheduler();
 
-    List<Patient> findPatients(IDWithIssuer pid);
+    Collection<Patient> findPatients(Collection<IDWithIssuer> pids);
 
-    Patient findPatient(IDWithIssuer pid);
+    Patient findPatient(Collection<IDWithIssuer> pids);
 
     Patient createPatient(PatientMgtContext ctx);
 
     Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException;
 
-    boolean deleteDuplicateCreatedPatient(IDWithIssuer pid, Patient patient, Study createdStudy);
+    void updatePatientIDs(Patient pat, Collection<IDWithIssuer> patientIDs);
+
+    boolean deleteDuplicateCreatedPatient(Collection<IDWithIssuer> pids, Patient patient, Study createdStudy);
 
     Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException;
@@ -98,13 +101,17 @@ public interface PatientService {
 
     List<String> studyInstanceUIDsOf(Patient patient);
 
+/*
     boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer,
             Map<IDWithIssuer, Long> ambiguous);
+*/
 
     <T> T merge(T entity);
 
+/*
     void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
                                Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer);
+*/
 
     <T> List<T> queryWithOffsetAndLimit(CriteriaQuery<T> query, int offset, int limit);
 }

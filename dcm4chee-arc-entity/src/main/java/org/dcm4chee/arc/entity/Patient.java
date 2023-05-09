@@ -40,13 +40,18 @@
 
 package org.dcm4chee.arc.entity;
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
 
 /**
  * @author Damien Evans <damien.daddy@gmail.com>
@@ -55,20 +60,6 @@ import java.util.*;
  * @author Michael Backhaus <michael.backhaus@agfa.com>
  */
 @NamedQueries({
-@NamedQuery(
-    name=Patient.FIND_BY_PATIENT_ID,
-    query="select p from Patient p " +
-            "join fetch p.patientID pid " +
-            "where pid.id = ?1 " +
-            "order by p.pk"),
-@NamedQuery(
-    name=Patient.FIND_BY_PATIENT_ID_EAGER,
-    query="select p from Patient p " +
-            "join fetch p.patientID pid " +
-            "left join fetch p.patientName " +
-            "join fetch p.attributesBlob " +
-            "where pid.id = ?1 " +
-            "order by p.pk"),
 @NamedQuery(
     name=Patient.FIND_BY_MERGED_WITH,
     query="select p from Patient p " +
@@ -79,21 +70,21 @@ import java.util.*;
             "where p.mergedWith = ?1"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS,
-    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVerificationStatus(p.patientID, p.pk, p.verificationStatus) " +
-            "from Patient p " +
+    query="select distinct p from Patient p " +
+            "join fetch p.patientIDs " +
             "where p.verificationStatus = ?1 " +
             "order by p.pk"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME,
-    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVerificationStatus(p.patientID, p.pk, p.verificationStatus) " +
-            "from Patient p " +
+    query="select distinct p from Patient p " +
+            "join fetch p.patientIDs " +
             "where p.verificationStatus = ?1 " +
             "and p.verificationTime < ?2 " +
             "order by p.verificationTime"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES,
-    query="select new org.dcm4chee.arc.entity.Patient$IDWithPkAndVerificationStatus(p.patientID, p.pk, p.verificationStatus) " +
-            "from Patient p " +
+    query="select distinct p from Patient p " +
+            "join fetch p.patientIDs " +
             "where p.verificationStatus = ?1 " +
             "and p.verificationTime < ?2 " +
             "and p.failedVerifications <= ?3 " +
@@ -105,7 +96,6 @@ import java.util.*;
 })
 @Entity
 @Table(name = "patient",
-    uniqueConstraints = @UniqueConstraint(columnNames = "patient_id_fk"),
     indexes = {
         @Index(columnList = "verification_status"),
         @Index(columnList = "verification_time"),
@@ -118,8 +108,6 @@ import java.util.*;
 })
 public class Patient {
 
-    public static final String FIND_BY_PATIENT_ID = "Patient.findByPatientID";
-    public static final String FIND_BY_PATIENT_ID_EAGER = "Patient.findByPatientIDEager";
     public static final String FIND_BY_MERGED_WITH = "Patient.findByMergedWith";
     public static final String COUNT_BY_MERGED_WITH = "Patient.CountByMergedWith";
     public static final String FIND_BY_VERIFICATION_STATUS = "Patient.findByVerificationStatus";
@@ -134,28 +122,6 @@ public class Patient {
         NOT_FOUND,
         VERIFICATION_FAILED,
         IN_PROCESS
-    }
-
-    public static class IDWithPkAndVerificationStatus {
-        public final IDWithIssuer idWithIssuer;
-        public final Long pk;
-        public final VerificationStatus verificationStatus;
-
-        public IDWithPkAndVerificationStatus(PatientID patientID, Long pk, VerificationStatus verificationStatus) {
-            this.idWithIssuer = patientID.getIDWithIssuer();
-            this.pk = pk;
-            this.verificationStatus = verificationStatus;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder(32);
-            sb.append("Patient[pk=").append(pk);
-            if (showPatientInfo != ShowPatientInfo.HASH_NAME_AND_ID)
-                sb.append(", id=").append(idWithIssuer);
-            sb.append(']');
-            return sb.toString();
-        }
     }
 
     @Id
@@ -230,9 +196,8 @@ public class Patient {
     @JoinColumn(name = "merge_fk")
     private Patient mergedWith;
 
-    @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "patient_id_fk")
-    private PatientID patientID;
+    @OneToMany(mappedBy="patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<PatientID> patientIDs;
 
     private static ShowPatientInfo showPatientInfo = ShowPatientInfo.PLAIN_TEXT;
 
@@ -248,16 +213,32 @@ public class Patient {
     public String toString() {
         StringBuilder sb = new StringBuilder(256);
         sb.append("Patient[pk=").append(pk);
-        if (showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID && patientID != null)
-            sb.append(", id=#").append(patientID.toString().hashCode());
-        else
-            sb.append(", id=").append(patientID);
+        if (patientIDs != null) {
+            sb.append(showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID ? ", #id=[" : ", id=[");
+            Iterator<PatientID> itr = patientIDs.iterator();
+            if (itr.hasNext()) {
+                appendIdOrHash(sb, itr.next().getIDWithIssuer());
+                while (itr.hasNext()) {
+                    sb.append(", ");
+                    appendIdOrHash(sb, itr.next().getIDWithIssuer());
+                }
+            }
+            sb.append(']');
+        }
         if (showPatientInfo != ShowPatientInfo.PLAIN_TEXT && patientName != null)
-            sb.append(", name=#").append(patientName.toString().hashCode());
+            sb.append(", #name=").append(patientName.toString().hashCode());
         else
             sb.append(", name=").append(patientName);
         sb.append(']');
         return sb.toString();
+    }
+
+    private static void appendIdOrHash(StringBuilder sb, IDWithIssuer idWithIssuer) {
+        if (showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID) {
+            sb.append(idWithIssuer);
+        } else {
+            sb.append(idWithIssuer.hashCode());
+        }
     }
 
     @PrePersist
@@ -368,12 +349,11 @@ public class Patient {
         return patientName;
     }
 
-    public PatientID getPatientID() {
-        return patientID;
-    }
+    public Collection<PatientID> getPatientIDs() {
+        if (patientIDs == null)
+            patientIDs = new ArrayList<>();
 
-    public void setPatientID(PatientID patientID) {
-        this.patientID = patientID;
+        return patientIDs;
     }
 
     public PersonName getResponsiblePerson() {

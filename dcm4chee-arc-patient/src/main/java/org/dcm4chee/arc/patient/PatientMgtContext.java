@@ -51,6 +51,8 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
+import java.util.Collection;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -73,13 +75,13 @@ public interface PatientMgtContext {
 
     boolean isNoPatientCreate();
 
-    IDWithIssuer getPatientID();
+    Collection<IDWithIssuer> getPatientIDs();
 
     Attributes getAttributes();
 
     void setAttributes(Attributes attributes);
 
-    IDWithIssuer getPreviousPatientID();
+    Collection<IDWithIssuer> getPreviousPatientIDs();
 
     Attributes getPreviousAttributes();
 
@@ -97,7 +99,7 @@ public interface PatientMgtContext {
 
     void setException(Exception ex);
 
-    void setPatientID(IDWithIssuer patientID);
+    void setPatientIDs(Collection<IDWithIssuer> patientIDs);
 
     Patient getPatient();
 

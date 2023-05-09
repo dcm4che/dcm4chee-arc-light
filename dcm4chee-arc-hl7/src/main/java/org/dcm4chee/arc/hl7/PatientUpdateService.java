@@ -132,7 +132,7 @@ class PatientUpdateService extends DefaultHL7Service {
 
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
         ctx.setAttributes(attrs);
-        if (ctx.getPatientID() == null)
+        if (ctx.getPatientIDs().isEmpty())
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
                             .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
@@ -144,7 +144,7 @@ class PatientUpdateService extends DefaultHL7Service {
             return createOrUpdatePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
 
         ctx.setPreviousAttributes(mrg);
-        if (ctx.getPreviousPatientID() == null)
+        if (ctx.getPreviousPatientIDs().isEmpty())
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
                             .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)

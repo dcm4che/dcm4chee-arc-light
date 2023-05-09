@@ -908,7 +908,7 @@ class QueryServiceImpl implements QueryService {
         CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
         Root<Patient> patient = q.from(Patient.class);
         patient.join(Patient_.attributesBlob);
-        patient.join(Patient_.patientID);
+        patient.join(Patient_.patientIDs);
 
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(queryKeys);
         List<Predicate> predicates = builder.patientPredicates(q, patient,
@@ -986,7 +986,7 @@ class QueryServiceImpl implements QueryService {
         CriteriaQuery<javax.persistence.Tuple> q = cb.createTupleQuery();
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientIDs);
         List<Predicate> predicates = new ArrayList<>();
         if (queryParam.localMwlWorklistLabels.length > 0)
             predicates.add(cb.or(

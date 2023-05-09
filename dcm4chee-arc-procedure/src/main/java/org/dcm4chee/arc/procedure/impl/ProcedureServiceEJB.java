@@ -486,7 +486,7 @@ public class ProcedureServiceEJB {
         Attributes attrs = ctx.getAttributes();
         PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(ctx.getHttpRequest());
         patMgtCtx.setAttributes(attrs);
-        patMgtCtx.setPatientID(IDWithIssuer.pidOf(attrs));
+        patMgtCtx.setPatientIDs(IDWithIssuer.pidsOf(attrs));
         patMgtCtx.setLocalAET(ctx.getLocalAET());
         patMgtCtx.setSourceMwlScp(ctx.getSourceMwlScp());
         ctx.setPatient(patientService.findPatient(patMgtCtx));
@@ -494,7 +494,7 @@ public class ProcedureServiceEJB {
         MWLItem mwlItem = findMWLItem(ctx);
         if (mwlItem != null) {
             if (ctx.getPatient() == null || ctx.getPatient().getPk() != mwlItem.getPatient().getPk())
-                throw new PatientMismatchException("Patient ID: " + patMgtCtx.getPatientID() + " does not match " +
+                throw new PatientMismatchException("Patient IDs: " + patMgtCtx.getPatientIDs() + " does not match " +
                         mwlItem.getPatient() + " in previous " + mwlItem);
 
             int[] mwlTags = arcdev.getAttributeFilter(Entity.MWL).getSelection(false);

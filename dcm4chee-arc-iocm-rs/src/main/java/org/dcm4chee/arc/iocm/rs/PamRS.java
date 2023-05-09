@@ -169,7 +169,7 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            Patient patient = patientService.findPatient(patientID);
+            Patient patient = patientService.findPatient(Collections.singleton(patientID));
             if (patient == null)
                 return errResponse("Patient having patient ID : " + patientID + " not found.",
                         Response.Status.NOT_FOUND);
@@ -184,7 +184,7 @@ public class PamRS {
 
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
-            ctx.setPatientID(patientID);
+            ctx.setPatientIDs(Collections.singleton(patientID));
             ctx.setAttributes(patient.getAttributes());
             ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
             ctx.setPatient(patient);
@@ -216,7 +216,7 @@ public class PamRS {
             ctx.setArchiveAEExtension(arcAE);
             if (!ctx.getAttributes().containsValue(Tag.PatientID)) {
                 idService.newPatientID(ctx.getAttributes());
-                ctx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
+                ctx.setPatientIDs(IDWithIssuer.pidsOf(ctx.getAttributes()));
             }
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
@@ -260,12 +260,12 @@ public class PamRS {
 
         PatientMgtContext ctx = patientMgtCtx(in);
         ctx.setArchiveAEExtension(arcAE);
-        IDWithIssuer targetPatientID = ctx.getPatientID();
-        if (targetPatientID == null)
+        Collection<IDWithIssuer> targetPatientIDs = ctx.getPatientIDs();
+        if (targetPatientIDs.isEmpty())
             return errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST);
 
         boolean mergePatients = Boolean.parseBoolean(merge);
-        boolean patientMatch = priorPatientID.equals(targetPatientID);
+        boolean patientMatch = priorPatientID.equals(targetPatientIDs);
         if (patientMatch && mergePatients)
             return errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST);
 
@@ -388,7 +388,7 @@ public class PamRS {
         try {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             patMgtCtx.setArchiveAEExtension(arcAE);
-            patMgtCtx.setPatientID(patientID);
+            patMgtCtx.setPatientIDs(Collections.singleton(patientID));
             patMgtCtx.setAttributes(patientID.exportPatientIDWithIssuer(null));
             if (!patientService.unmergePatient(patMgtCtx))
                 return errResponse("Patient with patient ID " + patientID + " not found.",
@@ -403,7 +403,7 @@ public class PamRS {
         }
     }
 
-    @POST
+ /*   @POST
     @Path("/patients/issuer/{issuer}")
     public Response supplementIssuer(
             @PathParam("issuer") AttributesFormat issuer,
@@ -492,7 +492,7 @@ public class PamRS {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
-
+*/
     private static Response.ResponseBuilder supplementIssuerResponse(
             Set<IDWithIssuer> success,
             Map<IDWithIssuer, Long> ambiguous,
@@ -579,7 +579,7 @@ public class PamRS {
                 throw new VerifyMergePatientException("Found " + studiesOfPriorPatient.size()
                         + " studies of prior Patient[id=" + priorPatientID + "] at " + findSCP);
             }
-            Patient priorPatient = patientService.findPatient(priorPatientID);
+            Patient priorPatient = patientService.findPatient(Collections.singleton(priorPatientID));
             if (priorPatient != null) {
                 for (String studyIUID : patientService.studyInstanceUIDsOf(priorPatient)) {
                     studiesOfPriorPatient = cfindscu.findStudy(localAE, findSCP, Priority.NORMAL, studyIUID,
@@ -613,11 +613,11 @@ public class PamRS {
     private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr, ArchiveAEExtension arcAE) throws Exception {
         PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
         patMgtCtx.setArchiveAEExtension(arcAE);
-        patMgtCtx.setPatientID(patientID);
+        patMgtCtx.setPatientIDs(Collections.singleton(patientID));
         patMgtCtx.setAttributes(patientID.exportPatientIDWithIssuer(null));
         patMgtCtx.setPreviousAttributes(priorPatAttr);
-        LOG.info("Prior patient ID {} and target patient ID {}", patMgtCtx.getPreviousPatientID(),
-                patMgtCtx.getPatientID());
+        LOG.info("Prior patient IDs {} and target patient IDs {}", patMgtCtx.getPreviousPatientIDs(),
+                patMgtCtx.getPatientIDs());
         patientService.mergePatient(patMgtCtx);
         notifyHL7Receivers("ADT^A40^ADT_A39", patMgtCtx);
     }
@@ -635,7 +635,7 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            Patient prevPatient = patientService.findPatient(priorPatientID);
+            Patient prevPatient = patientService.findPatient(Collections.singleton(priorPatientID));
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);

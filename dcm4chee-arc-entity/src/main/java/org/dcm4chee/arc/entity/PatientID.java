@@ -49,6 +49,19 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  *
  */
+@NamedQuery(
+        name=PatientID.FIND_BY_PATIENT_ID,
+        query="select pid from PatientID pid " +
+                "where pid.id = ?1 " +
+                "order by pid.pk")
+@NamedQuery(
+        name=PatientID.FIND_BY_PATIENT_ID_EAGER,
+        query="select pid from PatientID pid " +
+                "join fetch pid.patient p " +
+                "left join fetch p.patientName " +
+                "join fetch p.attributesBlob " +
+                "where pid.id = ?1 " +
+                "order by pid.pk")
 @Entity
 @Table(name = "patient_id",
         indexes = {
@@ -58,6 +71,8 @@ import javax.persistence.*;
         })
 public class PatientID {
 
+    public static final String FIND_BY_PATIENT_ID = "PatientID.findByPatientID";
+    public static final String FIND_BY_PATIENT_ID_EAGER = "PatientID.findByPatientIDEager";
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pk")
@@ -83,6 +98,10 @@ public class PatientID {
     @Column(name = "pat_id_type_code")
     private String identifierTypeCode;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "patient_fk")
+    private Patient patient;
+
     public long getPk() {
         return pk;
     }
@@ -93,6 +112,18 @@ public class PatientID {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    public String getLocalNamespaceEntityID() {
+        return localNamespaceEntityID;
+    }
+
+    public String getUniversalEntityID() {
+        return universalEntityID;
+    }
+
+    public String getUniversalEntityIDType() {
+        return universalEntityIDType;
     }
 
     public Issuer getIssuer() {
@@ -123,6 +154,14 @@ public class PatientID {
 
     public IDWithIssuer getIDWithIssuer() {
         return new IDWithIssuer(id, getIssuer());
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 
     @Override

@@ -840,7 +840,7 @@ public class StoreServiceEJB {
                 checkStorePermission(ctx, pat);
 
                 if (pat == null) {
-                    patMgtCtx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
+                    patMgtCtx.setPatientIDs(IDWithIssuer.pidsOf(ctx.getAttributes()));
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
                 } else {
@@ -912,13 +912,13 @@ public class StoreServiceEJB {
         if (acceptConflictingPatientID == AcceptConflictingPatientID.YES)
             return;
 
-        IDWithIssuer pid = patMgtCtx.getPatientID();
-        IDWithIssuer pidOfStudy = IDWithIssuer.pidOf(patientOfStudy.getAttributes());
-        if (pid == null) {
-            if (pidOfStudy == null || session.getAcceptMissingPatientID() == AcceptMissingPatientID.CREATE)
+        Collection<IDWithIssuer> pids = patMgtCtx.getPatientIDs();
+        Collection<IDWithIssuer> pidsOfStudy = IDWithIssuer.pidsOf(patientOfStudy.getAttributes());
+        if (pids.isEmpty()) {
+            if (pidsOfStudy.isEmpty() || session.getAcceptMissingPatientID() == AcceptMissingPatientID.CREATE)
                 return;
-        } else if (pidOfStudy != null) {
-            if (pidOfStudy.matches(pid))
+        } else if (pidsOfStudy != null) {
+            if (pidsOfStudy.stream().anyMatch(pidOfStudy -> pids.stream().anyMatch(pid -> pidOfStudy.matches(pid))))
                 return;
 
             if (acceptConflictingPatientID == AcceptConflictingPatientID.MERGED) {
@@ -928,7 +928,7 @@ public class StoreServiceEJB {
             }
         }
         String errorMsg = MessageFormat.format(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
-                pid, pidOfStudy, ctx.getStudyInstanceUID());
+                pids, pidsOfStudy, ctx.getStudyInstanceUID());
 
         LOG.warn(errorMsg);
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED, errorMsg);
@@ -944,7 +944,7 @@ public class StoreServiceEJB {
             if (!Objects.equals(ctx.getAttributes().getString(tag), pat.getAttributes().getString(tag)))
                 throw new DicomServiceException(StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED,
                         MessageFormat.format(StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED_MSG,
-                                pat.getPatientID(),
+                                pat.getPatientIDs(),
                                 Keyword.valueOf(tag),
                                 TagUtils.toString(tag)));
     }
@@ -963,10 +963,7 @@ public class StoreServiceEJB {
 
         updateInfo.log(session, pat, attrs);
         pat = em.find(Patient.class, pat.getPk());
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(attrs);
-        if (idWithIssuer != null) {
-            pat.getPatientID().setIssuer(idWithIssuer.getIssuer());
-        }
+        patientService.updatePatientIDs(pat, IDWithIssuer.pidsOf(attrs));
         pat.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,

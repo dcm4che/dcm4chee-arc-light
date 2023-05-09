@@ -79,10 +79,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -132,8 +129,8 @@ public class MwlRS {
             validateWebAppServiceClass();
 
         final Attributes attrs = toAttributes(in);
-        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null)
+        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        if (patientIDs == null)
             return errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST);
 
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
@@ -141,9 +138,9 @@ public class MwlRS {
             return errResponse("Missing or empty (0040,0100) Scheduled Procedure Step Sequence",
                     Response.Status.BAD_REQUEST);
 
-        Patient patient = patientService.findPatient(patientID);
+        Patient patient = patientService.findPatient(patientIDs);
         if (patient == null)
-            return errResponse("Patient[id=" + patientID + "] does not exists", Response.Status.NOT_FOUND);
+            return errResponse("Patient[id=" + patientIDs + "] does not exists", Response.Status.NOT_FOUND);
 
         try {
             if (!attrs.containsValue(Tag.AccessionNumber))
