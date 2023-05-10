@@ -3446,15 +3446,6 @@ export class Globalvar {
                     description:$localize `:@@issuer_of_accession_number:Issuer of accession number`,
                     placeholder:$localize `:@@issuer_of_accession_number:Issuer of accession number`
                 }, {
-                    tag:"select",
-                    filterKey:"includefield",
-                    options:[
-                        new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                        new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
-                    ],
-                    description:$localize `:@@include_field:Include field`,
-                    placeholder:$localize `:@@include_field:Include field`,
-                }, {
                     tag:"input",
                     type:"text",
                     filterKey:"AdmissionID",
@@ -3466,26 +3457,6 @@ export class Globalvar {
                     filterKey:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
                     description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"ScheduledProcedureStepSequence.ScheduledStationAETitle",
-                    description:$localize `:@@scheduled_station_ae_title:Scheduled Station AE Title`,
-                    placeholder:$localize `:@@scheduled_station_ae_title:Scheduled Station AE Title`
-                }
-                ,{
-                    tag:"editable-multi-select",
-                    type:"text",
-                    optionsTree:[
-                        {
-                            options:Object.keys(this.MODALITIES.common).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.common[key]}`))
-                        },
-                        {
-                            options:Object.keys(this.MODALITIES.more).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.more[key]}`))
-                        }
-                    ],
-                    filterKey:"ScheduledProcedureStepSequence.Modality",
-                    placeholder:$localize `:@@modality:Modality`,
                 }, {
                     tag:"editable-multi-select",
                     type:"text",
@@ -3503,11 +3474,24 @@ export class Globalvar {
                     description:$localize `:@@study_instance_uid:Study Instance UID`,
                     placeholder:$localize `:@@study_instance_uid:Study Instance UID`
                 }, {
+                    tag:"editable-multi-select",
+                    type:"text",
+                    optionsTree:[
+                        {
+                            options:Object.keys(this.MODALITIES.common).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.common[key]}`))
+                        },
+                        {
+                            options:Object.keys(this.MODALITIES.more).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.more[key]}`))
+                        }
+                    ],
+                    filterKey:"ScheduledProcedureStepSequence.Modality",
+                    placeholder:$localize `:@@modality:Modality`,
+                }, {
                     tag:"input",
-                    type:"number",
-                    filterKey:"limit",
-                    description:$localize `:@@limit:Limit`,
-                    placeholder:$localize `:@@limit_of_mwl:Limit of MWL`
+                    type:"text",
+                    filterKey:"ScheduledProcedureStepSequence.ScheduledStationAETitle",
+                    description:$localize `:@@scheduled_station_ae_title:Scheduled Station AE Title`,
+                    placeholder:$localize `:@@scheduled_station_ae_title:Scheduled Station AE Title`
                 }, {
                     tag:"select",
                     type:"text",
@@ -3525,14 +3509,12 @@ export class Globalvar {
                     showStar:true,
                     description:$localize `:@@sps_status:SPS Status`,
                     placeholder:$localize `:@@sps_status:SPS Status`
-                },
-                {
+                }, {
                     tag:"person-name-picker",
                     filterKey:"ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName",
                     description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`,
                     placeholder:$localize `:@@sp_physicians_family_name:SP Physician's family name`
-                }
-                ,{
+                }, {
                     tag:"range-picker",
                     type:"text",
                     filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate",
@@ -3545,8 +3527,22 @@ export class Globalvar {
                     filterKey:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                     description:$localize `:@@sps_start_time:SPS Start Time`,
                     placeholder:$localize `:@@scheduled_procedure_step_start_time:Scheduled Procedure Step Start Time`
-                },
-                {
+                }, {
+                    tag:"select",
+                    filterKey:"includefield",
+                    options:[
+                        new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
+                        new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    ],
+                    description:$localize `:@@include_field:Include field`,
+                    placeholder:$localize `:@@include_field:Include field`,
+                }, {
+                    tag:"input",
+                    type:"number",
+                    filterKey:"limit",
+                    description:$localize `:@@limit:Limit`,
+                    placeholder:$localize `:@@limit_of_mwl:Limit of MWL`
+                }, {
                     tag:"select",
                     type:"text",
                     filterKey:"StudyStatusID",
