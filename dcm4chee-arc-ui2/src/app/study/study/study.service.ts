@@ -304,8 +304,8 @@ export class StudyService {
                         ];
                     case "diff":
                         return [
-                            ...Globalvar.DIFF_FILTER_SCHEMA([],[],false),
-                            ...Globalvar.DIFF_FILTER_SCHEMA([],[],true)
+                            ...Globalvar.DIFF_FILTER_SCHEMA([],[], [],false),
+                            ...Globalvar.DIFF_FILTER_SCHEMA([],[], [],true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
@@ -363,10 +363,10 @@ export class StudyService {
                 break;
             case "uwl":
                 schema = Globalvar.UWL_FILTER_SCHEMA( filterMode === "expand");
-                lineLength = filterMode === "expand" ? 1 : 3;
+                lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             case "diff":
-                schema = Globalvar.DIFF_FILTER_SCHEMA(aets,attributeSet, filterMode === "expand").filter(filter => {
+                schema = Globalvar.DIFF_FILTER_SCHEMA(aets,attributeSet, institutions, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 // lineLength = filterMode === "expand" ? 2 : 3;

@@ -379,7 +379,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.initWebApps();
                     });
                 }
-                if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series") {
+                if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series" || this.studyConfig.tab === "diff") {
                     this.getInstitutions(this, "Series", () => {
                         this.getStorages(this, () => {
                             this.initWebApps();
