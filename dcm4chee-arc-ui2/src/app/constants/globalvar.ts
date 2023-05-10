@@ -4002,59 +4002,21 @@ export class Globalvar {
                 }, {
                     tag:"input",
                     type:"text",
-                    filterKey:"StationName",
-                    description:$localize `:@@station_name:Station Name`,
-                    placeholder:$localize `:@@station_name:Station Name`
-                }, {
-                    tag:"multi-select",
-                    filterKey:"SOPClassesInStudy",
-                    options:Object.keys(sopObject).map(sopKey=>{
-                        return new SelectDropdown(sopKey, sopObject[sopKey], sopKey)
-                    }),
-                    showSearchField:true,
-                    description:$localize `:@@sop_classes_in_study:SOP classes in study`,
-                    placeholder:$localize `:@@sop_classes_in_study:SOP classes in study`
+                    filterKey:"AdmissionID",
+                    description:$localize `:@@admission_id:Admission ID`,
+                    placeholder:$localize `:@@admission_id:Admission ID`
                 }, {
                     tag:"input",
                     type:"text",
-                    filterKey:"SeriesDescription",
-                    description:$localize `:@@series_description:Series Description`,
-                    placeholder:$localize `:@@series_description:Series Description`
-                }, {
-                    tag:"checkbox",
-                    filterKey:"incomplete",
-                    text:$localize `:@@only_incomplete:Only incomplete`,
-                    description:$localize `:@@only_incomplete_studies:Only incomplete studies`
+                    filterKey:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
+                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
+                    placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
                     type:"text",
                     filterKey:"StudyID",
                     description:$localize `:@@study_id:Study ID`,
                     placeholder:$localize `:@@study_id:Study ID`
-                }, {
-                    tag:"editable-select",
-                    options:aets,
-                    showStar:true,
-                    filterKey:"ExternalRetrieveAET",
-                    description:$localize `:@@retrievable_from_external_retrieve_aet:Retrievable from external retrieve AET`,
-                    placeholder:$localize `:@@external_retrieve_aet:External retrieve AET`
-                }, {
-                    tag:"editable-select",
-                    options:aets,
-                    showStar:true,
-                    filterKey:"ExternalRetrieveAET!",
-                    description:$localize `:@@not_retrievable_from_external_retrieve_aet:Not retrievable from external retrieve AET`,
-                    placeholder:$localize `:@@not_retrievable_from_aet:Not retrievable from AET`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"BodyPartExamined",
-                    description:$localize `:@@body_part_examined:Body part examined`,
-                    placeholder:$localize `:@@body_part_examined:Body part examined`
-                }, {
-                    tag:"checkbox",
-                    filterKey:"compressionfailed",
-                    text:$localize `:@@compression_failed:Compression Failed`
                 }, {
                     tag:"size_range_picker",
                     filterKey:"StudySizeInKB"
@@ -4078,50 +4040,39 @@ export class Globalvar {
                     filterKey:"ExpirationDate",
                     description:$localize `:@@expiration_date:Expiration Date`
                 }, {
+                    tag:"editable-select",
+                    options:aets,
+                    showStar:true,
+                    filterKey:"ExternalRetrieveAET",
+                    description:$localize `:@@retrievable_from_external_retrieve_aet:Retrievable from external retrieve AET`,
+                    placeholder:$localize `:@@external_retrieve_aet:External retrieve AET`
+                }, {
+                    tag:"editable-select",
+                    options:aets,
+                    showStar:true,
+                    filterKey:"ExternalRetrieveAET!",
+                    description:$localize `:@@not_retrievable_from_external_retrieve_aet:Not retrievable from external retrieve AET`,
+                    placeholder:$localize `:@@not_retrievable_from_aet:Not retrievable from AET`
+                }, {
+                    tag:"checkbox",
+                    filterKey:"incomplete",
+                    text:$localize `:@@only_incomplete:Only incomplete`,
+                    description:$localize `:@@only_incomplete_studies:Only incomplete studies`
+                }, {
                     tag:"checkbox",
                     filterKey:"retrievefailed",
                     text:$localize `:@@only_failed_retrieving:Only failed retrieving`,
                     description:$localize `:@@only_failed_to_be_retrieved:Only failed to be retrieved`
                 }, {
-                    tag:"checkbox",
-                    filterKey:"storageVerificationFailed",
-                    text:$localize `:@@verification_failed:Verification Failed`,
-                    description:$localize `:@@storage_verification_failed:Storage Verification Failed`
-                }, {
-                    tag:"checkbox",
-                    filterKey:"metadataUpdateFailed",
-                    text:$localize `:@@metadata_update_failed:Metadata Update Failed`,
-                    description:$localize `:@@series_metadata_update_failed:Series Metadata Update Failed`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"ReceivingApplicationEntityTitleOfSeries",
-                    description:$localize `:@@receiving_application_entity_title_of_series:Receiving Application Entity Title of Series`,
-                    placeholder:$localize `:@@receiving_aet_of_series:Receiving AET of Series`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"SendingPresentationAddressOfSeries",
-                    description:$localize `:@@sending_presentation_addr_of_series:Sending Presentation Address of Series`,
-                    placeholder:$localize `:@@sending_presentation_addr_of_series:Sending Presentation Address of Series`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"ReceivingPresentationAddressOfSeries",
-                    description:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`,
-                    placeholder:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"AdmissionID",
-                    description:$localize `:@@admission_id:Admission ID`,
-                    placeholder:$localize `:@@admission_id:Admission ID`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
-                    placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
+                    tag:"select",
+                    filterKey:"requested",
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`),
+                        new SelectDropdown("true", $localize `:@@requested:Requested`)
+                    ],
+                    description:$localize `:@@unscheduled_studies:Unscheduled Studies`,
+                    placeholder:$localize `:@@unscheduled_studies:Unscheduled Studies`,
                 }, {
                     tag:"select",
                     options:storages,
@@ -4140,15 +4091,41 @@ export class Globalvar {
                     text:$localize `:@@storage_exported:Storage Exported`,
                     description:$localize `:@@storage_exported_tooltip:Only query studies whose objects are on storage systems selected by 'Storage ID' and its corresponding configured 'Export Storage ID'`
                 }, {
-                    tag:"select",
-                    filterKey:"requested",
-                    showStar:true,
-                    options:[
-                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`),
-                        new SelectDropdown("true", $localize `:@@requested:Requested`)
-                    ],
-                    description:$localize `:@@unscheduled_studies:Unscheduled Studies`,
-                    placeholder:$localize `:@@unscheduled_studies:Unscheduled Studies`,
+                    tag:"input",
+                    type:"text",
+                    filterKey:"StationName",
+                    description:$localize `:@@station_name:Station Name`,
+                    placeholder:$localize `:@@station_name:Station Name`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"BodyPartExamined",
+                    description:$localize `:@@body_part_examined:Body part examined`,
+                    placeholder:$localize `:@@body_part_examined:Body part examined`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SeriesDescription",
+                    description:$localize `:@@series_description:Series Description`,
+                    placeholder:$localize `:@@series_description:Series Description`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingApplicationEntityTitleOfSeries",
+                    description:$localize `:@@receiving_application_entity_title_of_series:Receiving Application Entity Title of Series`,
+                    placeholder:$localize `:@@receiving_aet_of_series:Receiving AET of Series`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"SendingPresentationAddressOfSeries",
+                    description:$localize `:@@sending_presentation_addr_of_series:Sending Presentation Address of Series`,
+                    placeholder:$localize `:@@sending_presentation_addr_of_series:Sending Presentation Address of Series`
+                }, {
+                    tag:"input",
+                    type:"text",
+                    filterKey:"ReceivingPresentationAddressOfSeries",
+                    description:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`,
+                    placeholder:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`
                 }, {
                     tag:"input",
                     type:"text",
@@ -4174,24 +4151,36 @@ export class Globalvar {
                     description:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`,
                     placeholder:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`
                 }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"ReceivingHL7FacilityOfSeries",
-                    description:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`,
-                    placeholder:$localize `:@@receiving_hl7_facility_of_series:Receiving HL7 Facility Of Series`
+                    tag:"multi-select",
+                    filterKey:"SOPClassesInStudy",
+                    options:Object.keys(sopObject).map(sopKey=>{
+                        return new SelectDropdown(sopKey, sopObject[sopKey], sopKey)
+                    }),
+                    showSearchField:true,
+                    description:$localize `:@@sop_classes_in_study:SOP classes in study`,
+                    placeholder:$localize `:@@sop_classes_in_study:SOP classes in study`
                 }, {
-                    tag:"modified-widget",
-                    iodFileNames:[
+                    tag: "modified-widget",
+                    iodFileNames: [
                         "patient",
                         "study"
                     ],
-                    description:$localize `:@@modified:Modified`,
-                    placeholder:$localize `:@@modified:Modified`
+                    description: $localize`:@@modified:Modified`,
+                    placeholder: $localize`:@@modified:Modified`
                 }, {
                     tag:"checkbox",
-                    filterKey:"allOfModalitiesInStudy",
-                    text:$localize `:@@all_modalities_in_study:All of Modalities in Study`,
-                    description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
+                    filterKey:"compressionfailed",
+                    text:$localize `:@@compression_failed:Compression Failed`
+                }, {
+                    tag:"checkbox",
+                    filterKey:"storageVerificationFailed",
+                    text:$localize `:@@verification_failed:Verification Failed`,
+                    description:$localize `:@@storage_verification_failed:Storage Verification Failed`
+                }, {
+                    tag:"checkbox",
+                    filterKey:"metadataUpdateFailed",
+                    text:$localize `:@@metadata_update_failed:Metadata Update Failed`,
+                    description:$localize `:@@series_metadata_update_failed:Series Metadata Update Failed`
                 }
             ];
         }
@@ -4243,61 +4232,6 @@ export class Globalvar {
                 description:$localize `:@@study_description:Study Description`,
                 placeholder:$localize `:@@study_description:Study Description`
             }, {
-                tag:"editable-multi-select",
-                type:"text",
-                optionsTree:[
-                    {
-                        options:Object.keys(this.MODALITIES.common).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.common[key]}`))
-                    },
-                    {
-                        options:Object.keys(this.MODALITIES.more).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.more[key]}`))
-                    }
-                ],
-                filterKey:"ModalitiesInStudy",
-                placeholder:$localize `:@@modality:Modality`,
-            }, {
-                tag:"editable-multi-select",
-                type:"text",
-                optionsTree:[
-                    {
-                        options:institutions
-                    }
-                ],
-                filterKey:"InstitutionName",
-                placeholder:$localize `:@@institution_name:Institution Name`
-            }, {
-                tag:"input",
-                type:"number",
-                filterKey:"limit",
-                description:$localize `:@@limit:Limit`,
-                placeholder:$localize `:@@limit_of_studies:Limit of studies`
-            }, {
-                tag:"select",
-                filterKey:"includefield",
-                options:[
-                    new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                    new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
-                ],
-                description:$localize `:@@include_field:Include field`,
-                placeholder:$localize `:@@include_field:Include field`,
-            }, {
-                tag:"person-name-picker",
-                filterKey:"ReferringPhysicianName",
-                placeholder:$localize `:@@referring_physician_family_name:Referring physician family name`,
-                description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
-            }, {
-                tag:"input",
-                type:"text",
-                filterKey:"InstitutionalDepartmentName",
-                description:$localize `:@@institutional_department_name:Institutional Department Name`,
-                placeholder:$localize `:@@institutional_department_name:Institutional Department Name`
-            }, {
-                tag:"input",
-                type:"text",
-                filterKey:"SendingApplicationEntityTitleOfSeries",
-                description:$localize `:@@sending_application_entity_title_of_series:Sending Application Entity Title of Series`,
-                placeholder:$localize `:@@sending_aet_of_series:Sending AET of Series`
-            }, {
                 tag:"input",
                 type:"text",
                 filterKey:"StudyInstanceUID",
@@ -4324,6 +4258,66 @@ export class Globalvar {
                 type:"text",
                 filterKey:"StudyAccessDateTime",
                 description:$localize `:@@study_access:Study Access`
+            }, {
+                tag:"person-name-picker",
+                filterKey:"ReferringPhysicianName",
+                placeholder:$localize `:@@referring_physician_family_name:Referring physician family name`,
+                description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
+            }, {
+                tag:"input",
+                type:"text",
+                filterKey:"SendingApplicationEntityTitleOfSeries",
+                description:$localize `:@@sending_application_entity_title_of_series:Sending Application Entity Title of Series`,
+                placeholder:$localize `:@@sending_aet_of_series:Sending AET of Series`
+            }, {
+                tag:"editable-multi-select",
+                type:"text",
+                optionsTree:[
+                    {
+                        options:Object.keys(this.MODALITIES.common).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.common[key]}`))
+                    },
+                    {
+                        options:Object.keys(this.MODALITIES.more).map(key=>new SelectDropdown<any>(key,`${key} - ${this.MODALITIES.more[key]}`))
+                    }
+                ],
+                filterKey:"ModalitiesInStudy",
+                placeholder:$localize `:@@modality:Modality`,
+            }, {
+                tag:"checkbox",
+                filterKey:"allOfModalitiesInStudy",
+                text:$localize `:@@all_modalities_in_study:All of Modalities in Study`,
+                description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
+            }, {
+                tag:"editable-multi-select",
+                type:"text",
+                optionsTree:[
+                    {
+                        options:institutions
+                    }
+                ],
+                filterKey:"InstitutionName",
+                placeholder:$localize `:@@institution_name:Institution Name`
+            }, {
+                tag:"input",
+                type:"text",
+                filterKey:"InstitutionalDepartmentName",
+                description:$localize `:@@institutional_department_name:Institutional Department Name`,
+                placeholder:$localize `:@@institutional_department_name:Institutional Department Name`
+            }, {
+                tag:"select",
+                filterKey:"includefield",
+                options:[
+                    new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
+                    new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                ],
+                description:$localize `:@@include_field:Include field`,
+                placeholder:$localize `:@@include_field:Include field`,
+            }, {
+                tag:"input",
+                type:"number",
+                filterKey:"limit",
+                description:$localize `:@@limit:Limit`,
+                placeholder:$localize `:@@limit_of_studies:Limit of studies`
             }
         ];
     }
