@@ -40,21 +40,22 @@
 
 package org.dcm4chee.arc.patient;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -62,6 +63,18 @@ import java.util.Set;
  * @since Jul 2015
  */
 public interface PatientService {
+
+    static Attributes exportPatientIDsWithIssuer(Collection<PatientID> patientIDs) {
+        Iterator<PatientID> iter = patientIDs.iterator();
+        Attributes attrs = iter.next().getIDWithIssuer().exportPatientIDWithIssuer(null);
+        if (iter.hasNext()) {
+            Sequence otherPatientIDsSequence = attrs.newSequence(Tag.OtherPatientIDsSequence, patientIDs.size() - 1);
+            while (iter.hasNext()) {
+                otherPatientIDsSequence.add(iter.next().getIDWithIssuer().exportPatientIDWithIssuer(null));
+            }
+        }
+        return attrs;
+    }
 
     PatientMgtContext createPatientMgtContextDIMSE(Association as);
 

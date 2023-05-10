@@ -290,10 +290,9 @@ public class PatientServiceEJB {
         ctx.setPreviousAttributes(null);
     }
 
-/*
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientAlreadyExistsException {
-        Patient pat = findPatient(ctx.getPreviousPatientID());
+        Patient pat = findPatient(ctx.getPreviousPatientIDs());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
                 logSuppressPatientCreate(ctx);
@@ -303,52 +302,34 @@ public class PatientServiceEJB {
             return createPatient(ctx);
         }
 
-        IDWithIssuer patientID = ctx.getPatientID();
-        Patient pat2 = findPatient(patientID);
-        if (pat2 == null)
-            pat.setPatientID(createPatientID(patientID));
-        else if (pat2 == pat) {
-            PatientID patientID1 = pat.getPatientID();
-            patientID1.setIssuer(patientID.getIssuer());
-            em.merge(patientID1);
-        } else
-            throw new PatientAlreadyExistsException("Patient with Patient ID " + pat2.getPatientID() + "already exists");
+        Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
+        Patient pat2 = findPatient(patientIDs);
+        if (pat2 != null && pat2 != pat)
+            throw new PatientAlreadyExistsException("Patient with Patient IDs " + pat2.getPatientIDs() + "already exists");
+        updatePatientIDs(pat, ctx.getPatientIDs());
+        updatePatientIDAttrs(ctx, pat);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        updatePatientAttrs(ctx, pat);
         return pat;
     }
 
-    private void updatePatientAttrs(PatientMgtContext ctx, Patient pat) {
-        IDWithIssuer patientID = ctx.getPatientID();
+    private void updatePatientIDAttrs(PatientMgtContext ctx, Patient pat) {
         Attributes patientAttrs = pat.getAttributes();
-        Attributes modified = new Attributes(patientAttrs,
-                Tag.PatientID,
-                Tag.IssuerOfPatientID,
-                Tag.IssuerOfPatientIDQualifiersSequence);
-        if (patientAttrs.getString(Tag.IssuerOfPatientID) != null) {
-            Issuer patientIDIssuer = patientID.getIssuer();
-            if (patientIDIssuer == null) {
-                patientAttrs.remove(Tag.IssuerOfPatientID);
-                patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
-            } else if (patientIDIssuer.getUniversalEntityID() == null) {
-                patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
-            }
+        Attributes patientIDAttrs = PatientService.exportPatientIDsWithIssuer(pat.getPatientIDs());
+        Attributes modified = recordAttributeModification(ctx) ? new Attributes() : null;
+        patientAttrs.update(Attributes.UpdatePolicy.OVERWRITE, false, patientIDAttrs, modified);
+        if (modified != null) {
+            patientAttrs.addOriginalAttributes(
+                    null,
+                    new Date(),
+                    Attributes.CORRECT,
+                    device.getDeviceName(),
+                    modified);
         }
-        pat.setAttributes(recordAttributeModification(ctx)
-                ? patientID.exportPatientIDWithIssuer(patientAttrs)
-                    .addOriginalAttributes(
-                        null,
-                        new Date(),
-                        Attributes.CORRECT,
-                        device.getDeviceName(),
-                        modified)
-                : patientID.exportPatientIDWithIssuer(patientAttrs),
-                ctx.getAttributeFilter(), true, ctx.getFuzzyStr());
+        pat.setAttributes(patientAttrs, ctx.getAttributeFilter(), true, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
     }
-*/
 
     public Patient findPatient(PatientMgtContext ctx) {
         Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();

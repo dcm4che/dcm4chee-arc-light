@@ -46,6 +46,8 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.AttributesFormat;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -58,6 +60,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -200,14 +204,8 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException {
-/*
         if (device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isHL7TrackChangedPatientID()) {
-            if (isEitherHavingNoIssuer(ctx))
-                throw new PatientTrackingNotAllowedException(
-                        "Either previous or new Patient ID has missing issuer and change patient id tracking is enabled. "
-                                + "Disable change patient id tracking feature and retry update");
-            if (ctx.getPatientID().equals(ctx.getPreviousPatientID()))
-                throw new CircularPatientMergeException("PriorPatientID same as target PatientID");
+            checkForMatchingPatientIDs(ctx);
             createPatient(ctx);
             return mergePatient(ctx);
         }
@@ -220,18 +218,26 @@ public class PatientServiceImpl implements PatientService {
             if (ctx.getEventActionCode() != null)
                 patientMgtEvent.fire(ctx);
         }
-*/
-        throw new UnsupportedOperationException();
     }
 
-/*
-    private boolean isEitherHavingNoIssuer(PatientMgtContext ctx) {
-        IDWithIssuer prevPatientID = ctx.getPreviousPatientID();
-        IDWithIssuer newPatientID = ctx.getPatientID();
-        return (prevPatientID.getIssuer() == null && newPatientID.getIssuer() != null)
-                || (prevPatientID.getIssuer() != null && newPatientID.getIssuer() == null);
+    private void checkForMatchingPatientIDs(PatientMgtContext ctx) {
+        Collection<IDWithIssuer> prevPatientIDs = ctx.getPreviousPatientIDs();
+        Collection<IDWithIssuer> newPatientIDs = ctx.getPatientIDs();
+        for (IDWithIssuer prevPatientID : prevPatientIDs) {
+            for (IDWithIssuer newPatientID : newPatientIDs) {
+                if (newPatientID.matches(prevPatientID)) {
+                        throw newPatientID.equals(prevPatientID)
+                                ? new CircularPatientMergeException(
+                                        "PriorPatientID same as target PatientID")
+                                : new PatientTrackingNotAllowedException(
+                                        "Previous Patient ID: \"" + prevPatientID
+                                                + "\" matches new Patient ID: \"" + newPatientID
+                                                + " and change patient id tracking is enabled. "
+                                                + "Disable change patient id tracking feature and retry update");
+                }
+            }
+        }
     }
-*/
 
     @Override
     public Patient findPatient(PatientMgtContext ctx) {

@@ -44,6 +44,7 @@ package org.dcm4chee.arc.pdq.scheduler;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -199,7 +200,7 @@ public class PatientVerificationScheduler extends Scheduler {
         ctx.setAttributes(attrs);
         ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
         if (adjustIssuerOfPatientID && !ctx.getPatientIDs().equals(patient.getPatientIDs())) {
-            ctx.setPreviousAttributes(exportPatientIDsWithIssuer(patient.getPatientIDs()));
+            ctx.setPreviousAttributes(PatientService.exportPatientIDsWithIssuer(patient.getPatientIDs()));
             patientService.changePatientID(ctx);
             LOG.info("Updated {} on verification against {}",
                     patient,
@@ -212,15 +213,5 @@ public class PatientVerificationScheduler extends Scheduler {
                     patient,
                     pdqService.getPDQServiceDescriptor());
         }
-    }
-
-    private static Attributes exportPatientIDsWithIssuer(Collection<PatientID> patientIDs) {
-        Iterator<PatientID> iter = patientIDs.iterator();
-        Attributes attrs = iter.next().getIDWithIssuer().exportPatientIDWithIssuer(null);
-        while (iter.hasNext()) {
-            attrs.ensureSequence(Tag.OtherPatientIDsSequence, 1)
-                    .add(iter.next().getIDWithIssuer().exportPatientIDWithIssuer(null));
-        }
-        return attrs;
     }
 }
