@@ -9,14 +9,6 @@ $height:27px;
     border-right: none;
     border-left: none;
     background:transparent;
-    border-bottom: 1px solid #ccc;
-    padding-left: 6px;
-    color: #777;
-    font-style: italic;
-    &.black{
-      color:black;
-      font-style: normal;
-    }
   }
   .filter_button{
     background: rgba(28, 36, 43, 0.92);
@@ -24,28 +16,9 @@ $height:27px;
     position: absolute;
     top: 0;
     right: 0;
-    width: 24px;
-    line-height: 27px;
-    text-align: center;
     height: $height;
     &:hover{
       cursor: pointer;
-    }
-  }
-  .codes{
-    .code{
-      margin: 10px 0;
-      float: left;
-      width: 100%;
-      .code_label{
-        width: 50%;
-        text-align: right;
-        padding-right: 10px;
-      }
-      .code_model{
-        width: 50%;
-        float: right;
-      }
     }
   }
   .issuers{
@@ -64,23 +37,6 @@ $height:27px;
       }
     }
   }
-  .add_block{
-    margin-bottom: 15px;
-    float: left;
-    width: 100%;
-    border:1px solid black;
-    dcm-drop-down{
-      width:calc( 100% - 24px);
-      float: left;
-    }
-    i.material-icons{
-      float: right;
-      background: rgb(6 29 47 / 84%);
-      color: white;
-      cursor: pointer;
-      width:24px;
-    }
-  }
 }
 
 .content_block{
@@ -89,7 +45,7 @@ $height:27px;
   background: white;
   z-index: 9999;
   box-shadow: 7px 10px 10px 5px #444;
-  padding: 30px;
+  padding: 20px 15px;
   min-width: 560px;
   border-top: 20px solid rgba(6, 29, 47, 0.84);
   border-top-right-radius: 5px;
@@ -103,41 +59,6 @@ $height:27px;
     border: 0;
     width: 24%;
     float: right;
-  }
-  .filter{
-    width: 100%;
-    .line{
-      input[type=checkbox]{
-        width: 10%;
-        min-height: 15px;
-      }
-    }
-  }
-  ul{
-    padding:0;
-    list-style: none;
-    float: left;
-    max-height: 125px;
-    overflow: auto;
-    width: 100%;
-    li{
-      border: 1px solid;
-      padding-left: 9px;
-      float: left;
-      width: 100%;
-      vertical-align: middle;
-      label{
-        width:calc( 100% - 24px);
-        float: left;
-      }
-      i.material-icons{
-        float: right;
-        background: rgb(6 29 47 / 84%);
-        color: white;
-        cursor: pointer;
-        width:24px;
-      }
-    }
   }
 }
 .overlay{

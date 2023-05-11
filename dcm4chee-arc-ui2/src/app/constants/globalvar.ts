@@ -3428,9 +3428,19 @@ export class Globalvar {
                     description:$localize `:@@patient_id:Patient ID`,
                     placeholder:$localize `:@@patient_id:Patient ID`
                 }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"IssuerOfPatientID",
+                    tag:"issuer-selector",
+                    issuers:[
+                        {
+                            key:"IssuerOfPatientID",
+                            label:$localize `:@@issuer_of_patient:Issuer of Patient ID`
+                        }, {
+                            key:"IssuerOfPatientIDQualifiersSequence.UniversalEntityID",
+                            label:$localize `:@@issuer_of_patient:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID`
+                        }, {
+                            key:"IssuerOfPatientIDQualifiersSequence.UniversalEntityIDType",
+                            label:$localize `:@@issuer_of_patient:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
+                        }
+                    ],
                     description:$localize `:@@issuer_of_patient:Issuer of Patient`,
                     placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
                 }, {
