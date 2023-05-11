@@ -506,26 +506,24 @@ public class PatientServiceEJB {
                 .getResultList();
     }
 
-/*
     public boolean supplementIssuer(
-            PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Long> ambiguous) {
+            PatientMgtContext ctx, PatientID patientID, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Long> ambiguous) {
         Long count = countPatientIDWithIssuers(idWithIssuer);
         if (count != null && count != 0L) {
             ambiguous.put(idWithIssuer, count);
             return false;
         }
 
-        PatientID patientID = patient.getPatientID();
         patientID.setIssuer(idWithIssuer.getIssuer());
         em.merge(patientID);
+        Patient patient = patientID.getPatient();
         Attributes patAttrs = patient.getAttributes();
         ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
-        updatePatientAttrs(ctx, patient);
+        updatePatientIDAttrs(ctx, patient);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         em.merge(patient);
         return true;
     }
-*/
 
     public Long countPatientIDWithIssuers(IDWithIssuer idWithIssuer) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -561,13 +559,12 @@ public class PatientServiceEJB {
         return em.merge(entity);
     }
 
-/*
-    public void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
+    public void testSupplementIssuers(CriteriaQuery<PatientID> query, int fetchSize,
             Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer) {
-        try (Stream<Patient> resultStream =
+        try (Stream<PatientID> resultStream =
                      em.createQuery(query).setHint(QueryHints.FETCH_SIZE, fetchSize).getResultStream()) {
             resultStream
-                    .map(p -> new IDWithIssuer(p.getPatientID().getID(), issuer.format(p.getAttributes())))
+                    .map(pid -> new IDWithIssuer(pid.getID(), issuer.format(pid.getPatient().getAttributes())))
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                     .forEach((idWithIssuer, count) -> {
                         if (count == 1) {
@@ -579,7 +576,6 @@ public class PatientServiceEJB {
                     });
         }
     }
-*/
 
     public boolean deleteDuplicateCreatedPatient(Collection<IDWithIssuer> pids, Patient createdPatient, Study createdStudy) {
         Collection<Patient> patients = findPatients(pids);

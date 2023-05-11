@@ -114,17 +114,13 @@ public interface PatientService {
 
     List<String> studyInstanceUIDsOf(Patient patient);
 
-/*
-    boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer,
+    boolean supplementIssuer(PatientMgtContext ctx, PatientID patientID, IDWithIssuer idWithIssuer,
             Map<IDWithIssuer, Long> ambiguous);
-*/
 
     <T> T merge(T entity);
 
-/*
-    void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
+    void testSupplementIssuers(CriteriaQuery<PatientID> query, int fetchSize,
                                Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer);
-*/
 
     <T> List<T> queryWithOffsetAndLimit(CriteriaQuery<T> query, int offset, int limit);
 }

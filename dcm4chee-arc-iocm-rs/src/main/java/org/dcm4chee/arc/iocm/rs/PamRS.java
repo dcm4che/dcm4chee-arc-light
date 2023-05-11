@@ -62,6 +62,7 @@ import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.hl7.HL7SenderUtils;
 import org.dcm4chee.arc.id.IDService;
@@ -403,7 +404,7 @@ public class PamRS {
         }
     }
 
- /*   @POST
+    @POST
     @Path("/patients/issuer/{issuer}")
     public Response supplementIssuer(
             @PathParam("issuer") AttributesFormat issuer,
@@ -428,7 +429,7 @@ public class PamRS {
                         "Issuer of Patient ID or Issuer of Patient ID Qualifiers Sequence not allowed in query filters",
                         Response.Status.BAD_REQUEST);
 
-            CriteriaQuery<Patient> query = queryService.createPatientWithUnknownIssuerQuery(
+            CriteriaQuery<PatientID> query = queryService.createPatientIDWithUnknownIssuerQuery(
                     queryParam(arcAE.getApplicationEntity(), true), queryKeys);
             String toManyDuplicates = null;
             int supplementIssuerFetchSize = arcAE.getArchiveDeviceExtension().getSupplementIssuerFetchSize();
@@ -441,7 +442,7 @@ public class PamRS {
                 int carry = 0;
                 do {
                     int limit = supplementIssuerFetchSize + failedPks.size() + carry;
-                    List<Patient> matches = patientService.queryWithOffsetAndLimit(query, 0, limit);
+                    List<PatientID> matches = patientService.queryWithOffsetAndLimit(query, 0, limit);
                     remaining = matches.size() == limit;
                     matches.removeIf(p -> failedPks.contains(p.getPk()));
                     if (matches.isEmpty())
@@ -450,12 +451,12 @@ public class PamRS {
                     carry = 0;
                     if (remaining) {
                         try {
-                            ListIterator<Patient> itr = matches.listIterator(matches.size());
-                            toManyDuplicates = itr.previous().getPatientID().getID();
+                            ListIterator<PatientID> itr = matches.listIterator(matches.size());
+                            toManyDuplicates = itr.previous().getID();
                             do {
                                 itr.remove();
                                 carry++;
-                            } while (toManyDuplicates.equals(itr.previous().getPatientID().getID()));
+                            } while (toManyDuplicates.equals(itr.previous().getID()));
                             toManyDuplicates = null;
                         } catch (NoSuchElementException e) {
                             break;
@@ -463,23 +464,23 @@ public class PamRS {
                     }
                     matches.stream()
                             .collect(Collectors.groupingBy(
-                                    p -> new IDWithIssuer(p.getPatientID().getID(),issuer.format(p.getAttributes()))))
-                            .forEach((idWithIssuer, patients) -> {
-                                if (patients.size() > 1) {
-                                    ambiguous.put(idWithIssuer, Long.valueOf(patients.size()));
-                                    patients.stream().map(Patient::getPk).forEach(failedPks::add);
+                                    pid -> new IDWithIssuer(pid.getID(),issuer.format(pid.getPatient().getAttributes()))))
+                            .forEach((idWithIssuer, pids) -> {
+                                if (pids.size() > 1) {
+                                    ambiguous.put(idWithIssuer, Long.valueOf(pids.size()));
+                                    pids.stream().map(PatientID::getPk).forEach(failedPks::add);
                                 } else {
-                                    Patient patient = patients.get(0);
+                                    PatientID pid = pids.get(0);
                                     try {
                                         if (patientService.supplementIssuer(
-                                                patientMgtCtx(), patient, idWithIssuer, ambiguous)) {
+                                                patientMgtCtx(), pid, idWithIssuer, ambiguous)) {
                                             success.add(idWithIssuer);
                                         } else {
-                                            failedPks.add(patient.getPk());
+                                            failedPks.add(pid.getPk());
                                         }
                                     } catch (Exception e) {
                                         failures.put(idWithIssuer.toString(), e.getMessage());
-                                        failedPks.add(patient.getPk());
+                                        failedPks.add(pid.getPk());
                                     }
                                 }
                             });
@@ -492,7 +493,7 @@ public class PamRS {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
-*/
+
     private static Response.ResponseBuilder supplementIssuerResponse(
             Set<IDWithIssuer> success,
             Map<IDWithIssuer, Long> ambiguous,

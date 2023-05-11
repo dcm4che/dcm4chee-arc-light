@@ -902,23 +902,23 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys) {
+    public CriteriaQuery<PatientID> createPatientIDWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         QueryBuilder builder = new QueryBuilder(cb);
-        CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
-        Root<Patient> patient = q.from(Patient.class);
+        CriteriaQuery<PatientID> q = cb.createQuery(PatientID.class);
+        Root<PatientID> patientID = q.from(PatientID.class);
+        Join<PatientID, Patient> patient = patientID.join(PatientID_.patient);
         patient.join(Patient_.attributesBlob);
-        patient.join(Patient_.patientIDs);
 
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(queryKeys);
-        List<Predicate> predicates = builder.patientPredicates(q, patient,
+        List<Predicate> predicates = builder.patientIDPredicates(q, patientID, patient,
                 idWithIssuer != null ? new IDWithIssuer[] { idWithIssuer } : IDWithIssuer.EMPTY,
                 null,
                 queryKeys,
                 queryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
-        q.orderBy(builder.orderPatients(patient, Collections.singletonList(OrderByTag.asc(Tag.PatientID))));
+        q.orderBy(cb.asc(patientID.get(PatientID_.id)));
         return q;
     }
 

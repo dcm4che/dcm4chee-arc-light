@@ -153,7 +153,7 @@ public interface QueryService {
 
     List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
 
-    CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
+    CriteriaQuery<PatientID> createPatientIDWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
 
     CriteriaQuery<AttributesBlob> createPatientAttributesQuery(QueryParam queryParam, Attributes queryKeys);
 
