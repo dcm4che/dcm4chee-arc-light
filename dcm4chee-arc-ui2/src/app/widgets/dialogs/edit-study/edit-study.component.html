@@ -13,11 +13,11 @@
             <label i18n="@@reason_for_modification_label">Reason for modification: &nbsp;&nbsp;&nbsp;&nbsp;</label>
             <dcm-drop-down [options]="reasonForModification" [(model)]="reasonForModificationResult"
                            [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
-                           (modelChange)="reasonForModificationResult = $event">
+                           (modelChange)="_reasonForModificationResult = $event">
             </dcm-drop-down>
             <br/><br/>
             <label i18n="@@source_of_prev_vals_label">Source of previous values: &nbsp;&nbsp;&nbsp;&nbsp;</label>
-            <input type="text" [(ngModel)]="sourceOfPrevVals" i18n-placeholder="source_of_previous_values" placeholder="Source of previous values">
+            <input type="text" [(ngModel)]="_sourceOfPrevVals" i18n-placeholder="source_of_previous_values" placeholder="Source of previous values">
         </div>
         <div class="dialogbuttons">
             <button class="save" type="button" (click)="dialogRef.close(study)">{{saveLabel}}</button>

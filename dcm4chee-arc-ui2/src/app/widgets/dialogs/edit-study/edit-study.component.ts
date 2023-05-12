@@ -34,8 +34,8 @@ export class EditStudyComponent{
         new SelectDropdown("COERCE", "COERCE"),
         new SelectDropdown("CORRECT", "CORRECT"),
     ]
-    reasonForModificationResult:any;
-    sourceOfPrevVals: '';
+    _reasonForModificationResult:any;
+    _sourceOfPrevVals: '';
 
     @Output() onChange = new EventEmitter();
 
@@ -125,6 +125,22 @@ export class EditStudyComponent{
 
     set studykey(value: any) {
         this._studykey = value;
+    }
+
+    get sourceOfPrevVals(): any {
+        return this._sourceOfPrevVals;
+    }
+
+    set sourceOfPrevVals(value: any) {
+        this._sourceOfPrevVals = value;
+    }
+
+    get reasonForModificationResult(): any {
+        return this._reasonForModificationResult;
+    }
+
+    set reasonForModificationResult(value: any) {
+        this._reasonForModificationResult = value;
     }
 
     get iod(): any {
