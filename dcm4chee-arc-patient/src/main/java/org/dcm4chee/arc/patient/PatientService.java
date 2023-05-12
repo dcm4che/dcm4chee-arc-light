@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.patient;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -65,13 +62,13 @@ import java.util.*;
 public interface PatientService {
 
     static Attributes exportPatientIDsWithIssuer(Collection<PatientID> patientIDs) {
+        Attributes attrs = new Attributes(3);
+        attrs.setNull(Tag.IssuerOfPatientID, VR.LO);
         Iterator<PatientID> iter = patientIDs.iterator();
-        Attributes attrs = iter.next().getIDWithIssuer().exportPatientIDWithIssuer(null);
-        if (iter.hasNext()) {
-            Sequence otherPatientIDsSequence = attrs.newSequence(Tag.OtherPatientIDsSequence, patientIDs.size() - 1);
-            while (iter.hasNext()) {
-                otherPatientIDsSequence.add(iter.next().getIDWithIssuer().exportPatientIDWithIssuer(null));
-            }
+        iter.next().getIDWithIssuer().exportPatientIDWithIssuer(attrs);
+        Sequence otherPatientIDsSequence = attrs.newSequence(Tag.OtherPatientIDsSequence, patientIDs.size() - 1);
+        while (iter.hasNext()) {
+            otherPatientIDsSequence.add(iter.next().getIDWithIssuer().exportPatientIDWithIssuer(null));
         }
         return attrs;
     }

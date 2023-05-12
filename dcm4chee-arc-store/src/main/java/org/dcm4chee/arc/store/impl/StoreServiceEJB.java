@@ -918,7 +918,7 @@ public class StoreServiceEJB {
             if (pidsOfStudy.isEmpty() || session.getAcceptMissingPatientID() == AcceptMissingPatientID.CREATE)
                 return;
         } else if (pidsOfStudy != null) {
-            if (pidsOfStudy.stream().anyMatch(pidOfStudy -> pids.stream().anyMatch(pid -> pidOfStudy.matches(pid))))
+            if (pidsOfStudy.stream().anyMatch(pidOfStudy -> pids.stream().anyMatch(pid -> pidOfStudy.matches2(pid))))
                 return;
 
             if (acceptConflictingPatientID == AcceptConflictingPatientID.MERGED) {

@@ -514,14 +514,13 @@ public class PatientServiceEJB {
             return false;
         }
 
+        patientID = em.merge(patientID);
         patientID.setIssuer(idWithIssuer.getIssuer());
-        em.merge(patientID);
         Patient patient = patientID.getPatient();
         Attributes patAttrs = patient.getAttributes();
         ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
         updatePatientIDAttrs(ctx, patient);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        em.merge(patient);
         return true;
     }
 

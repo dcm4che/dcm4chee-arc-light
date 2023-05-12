@@ -587,7 +587,7 @@ public class PamRS {
                             Tag.PatientID, Tag.IssuerOfPatientID, Tag.IssuerOfPatientIDQualifiersSequence);
                     if (!studiesOfPriorPatient.isEmpty()) {
                         IDWithIssuer findPatientID = IDWithIssuer.pidOf(studiesOfPriorPatient.get(0));
-                        if (!findPatientID.matches(patientID)) {
+                        if (!findPatientID.matches2(patientID)) {
                             throw new VerifyMergePatientException("Found Study[uid=" + studyIUID
                                     + "] of different Patient[id=" + findPatientID
                                     + "] than target Patient[id=" + patientID
