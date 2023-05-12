@@ -30,6 +30,10 @@ export class EditStudyComponent{
     private _iod: any;
     private _mode;
 
+    private _result = {
+        sourceOfPrevVals: ''
+    }
+
     @Output() onChange = new EventEmitter();
 
     options = Globalvar.OPTIONS;
@@ -101,6 +105,15 @@ export class EditStudyComponent{
     @Input()
     set dropdown(value) {
         this._dropdown = value;
+    }
+
+    get result(): any {
+        return this._result;
+    }
+
+    @Input()
+    set result(value: any) {
+        this._result = value;
     }
 
     get study(): any {

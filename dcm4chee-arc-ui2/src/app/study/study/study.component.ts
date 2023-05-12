@@ -4620,8 +4620,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
                 $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
                 $this.dialogRef.componentInstance.mode = mode;
-                $this.dialogRef.afterClosed().subscribe(result => {
-                    if (result){
+                $this.dialogRef.afterClosed().subscribe(ok => {
+                    if (ok){
+                        let params = '';
+                        console.log("sourceOfPrevVals2............", ok.result);
+
+
                         $this.service.clearPatientObject(studyFiltered.attrs);
                         $this.service.convertStringToNumber(studyFiltered.attrs);
                         let local = {};
@@ -4634,6 +4638,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.service.modifyStudy(local,
                             this.studyWebService,
                             new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
+                            params,
                             this.service.getStudyInstanceUID(study.attrs)).subscribe(
                             () => {
                                 $this.appService.showMsg($localize `:@@study_saved:Study saved successfully!`);

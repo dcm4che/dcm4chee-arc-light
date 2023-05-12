@@ -3840,8 +3840,8 @@ export class StudyService {
         seriesInstanceUID = seriesInstanceUID || this.getSeriesInstanceUID(series.attrs);
         return `${this.getDicomURL("study",selectedWebService)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
     }
-    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string) {
-        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}`;
+    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any, studyInstanceUID?:string) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}${params}`;
         if (url) {
             return this.$http.put(url, study, header);
         }
