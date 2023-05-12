@@ -4140,15 +4140,10 @@ export class Globalvar {
                     text:$localize `:@@only_failed_retrieving:Only failed retrieving`,
                     description:$localize `:@@only_failed_to_be_retrieved:Only failed to be retrieved`
                 }, {
-                    tag:"select",
-                    filterKey:"requested",
-                    showStar:true,
-                    options:[
-                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`),
-                        new SelectDropdown("true", $localize `:@@requested:Requested`)
-                    ],
-                    description:$localize `:@@unscheduled_studies:Unscheduled Studies`,
-                    placeholder:$localize `:@@unscheduled_studies:Unscheduled Studies`,
+                    tag:"person-name-picker",
+                    filterKey:"ReferringPhysicianName",
+                    placeholder:$localize `:@@referring_physician_family_name:Referring physician family name`,
+                    description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
                 }, {
                     tag:"select",
                     options:storages,
@@ -4167,10 +4162,15 @@ export class Globalvar {
                     text:$localize `:@@storage_exported:Storage Exported`,
                     description:$localize `:@@storage_exported_tooltip:Only query studies whose objects are on storage systems selected by 'Storage ID' and its corresponding configured 'Export Storage ID'`
                 }, {
-                    tag:"person-name-picker",
-                    filterKey:"ReferringPhysicianName",
-                    placeholder:$localize `:@@referring_physician_family_name:Referring physician family name`,
-                    description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
+                    tag:"select",
+                    filterKey:"requested",
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`),
+                        new SelectDropdown("true", $localize `:@@requested:Requested`)
+                    ],
+                    description:$localize `:@@unscheduled_studies:Unscheduled Studies`,
+                    placeholder:$localize `:@@unscheduled_studies:Unscheduled Studies`,
                 }, {
                     tag:"input",
                     type:"text",
