@@ -4623,7 +4623,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 $this.dialogRef.afterClosed().subscribe(ok => {
                     if (ok){
                         let params = '';
-                        console.log("sourceOfPrevVals2............", ok.result);
+                        console.log("sourceOfPrevVals2............", ok.sourceOfPrevVals);
+                        console.log("reasonForModification............", ok.reasonForModificationResult);
 
 
                         $this.service.clearPatientObject(studyFiltered.attrs);

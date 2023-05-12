@@ -6,6 +6,7 @@ import {SearchPipe} from '../../../pipes/search.pipe';
 declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../../helpers/window-ref.service";
+import {SelectDropdown} from "../../../interfaces";
 
 
 @Component({
@@ -29,10 +30,12 @@ export class EditStudyComponent{
     private _studykey: any;
     private _iod: any;
     private _mode;
-
-    private _result = {
-        sourceOfPrevVals: ''
-    }
+    reasonForModification:SelectDropdown<any>[] = [
+        new SelectDropdown("COERCE", "COERCE"),
+        new SelectDropdown("CORRECT", "CORRECT"),
+    ]
+    reasonForModificationResult:any;
+    sourceOfPrevVals: '';
 
     @Output() onChange = new EventEmitter();
 
@@ -105,15 +108,6 @@ export class EditStudyComponent{
     @Input()
     set dropdown(value) {
         this._dropdown = value;
-    }
-
-    get result(): any {
-        return this._result;
-    }
-
-    @Input()
-    set result(value: any) {
-        this._result = value;
     }
 
     get study(): any {
