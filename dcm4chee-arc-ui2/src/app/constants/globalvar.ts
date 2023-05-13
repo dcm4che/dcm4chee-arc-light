@@ -3407,10 +3407,15 @@ export class Globalvar {
                     filterKey:"ResponsiblePerson",
                     placeholder:$localize `:@@responsible_person:Responsible Person`,
                     description:$localize `:@@responsible_person_desc:Name of person with medical or welfare decision making authority for the Patient, typically if the Patient is a non-human organism.`
-                },  {
-                    tag:"checkbox",
+                }, {
+                    tag:"select",
                     filterKey:"includedefaults",
-                    text:$localize `:@@include_defaults:Include Defaults`,
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`)
+                    ],
+                    placeholder:$localize `:@@include_defaults:Include Defaults`,
                     description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
                 }
             ]
@@ -3754,10 +3759,15 @@ export class Globalvar {
                     ],
                     description:$localize `:@@include_field:Include field`,
                     placeholder:$localize `:@@include_field:Include field`,
-                },  {
-                    tag:"checkbox",
+                }, {
+                    tag:"select",
                     filterKey:"includedefaults",
-                    text:$localize `:@@include_defaults:Include Defaults`,
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`)
+                    ],
+                    placeholder:$localize `:@@include_defaults:Include Defaults`,
                     description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
                 }, {
                     tag:"input",
@@ -4033,9 +4043,14 @@ export class Globalvar {
                     description:$localize `:@@include_field:Include field`,
                     placeholder:$localize `:@@include_field:Include field`,
                 }, {
-                    tag:"checkbox",
+                    tag:"select",
                     filterKey:"includedefaults",
-                    text:$localize `:@@include_defaults:Include Defaults`,
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`)
+                    ],
+                    placeholder:$localize `:@@include_defaults:Include Defaults`,
                     description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
                 }, {
                     tag:"input",
@@ -4281,9 +4296,14 @@ export class Globalvar {
                     text:$localize `:@@metadata_update_failed:Metadata Update Failed`,
                     description:$localize `:@@series_metadata_update_failed:Series Metadata Update Failed`
                 }, {
-                    tag:"checkbox",
+                    tag:"select",
                     filterKey:"includedefaults",
-                    text:$localize `:@@include_defaults:Include Defaults`,
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`)
+                    ],
+                    placeholder:$localize `:@@include_defaults:Include Defaults`,
                     description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
                 }
             ];
@@ -4566,9 +4586,14 @@ export class Globalvar {
                     text:$localize `:@@verification_failed:Verification Failed`,
                     description:$localize `:@@storage_verification_failed:Storage Verification Failed`
                 }, {
-                    tag:"checkbox",
+                    tag:"select",
                     filterKey:"includedefaults",
-                    text:$localize `:@@include_defaults:Include Defaults`,
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`)
+                    ],
+                    placeholder:$localize `:@@include_defaults:Include Defaults`,
                     description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
                 }
             ];
@@ -4983,9 +5008,14 @@ export class Globalvar {
                     description:$localize `:@@scheduled_procedure_step_id:Scheduled Procedure Step ID`,
                     placeholder:$localize `:@@scheduled_procedure_step_id:Scheduled Procedure Step ID`
                 }, {
-                    tag:"checkbox",
+                    tag:"select",
                     filterKey:"includedefaults",
-                    text:$localize `:@@include_defaults:Include Defaults`,
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`)
+                    ],
+                    placeholder:$localize `:@@include_defaults:Include Defaults`,
                     description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
                 }
             ];
@@ -5261,9 +5291,14 @@ export class Globalvar {
                 description:$localize `:@@include_field:Include field`,
                 placeholder:$localize `:@@include_field:Include field`,
             }, {
-                tag:"checkbox",
+                tag:"select",
                 filterKey:"includedefaults",
-                text:$localize `:@@include_defaults:Include Defaults`,
+                showStar:true,
+                options:[
+                    new SelectDropdown("true", $localize `:@@YES:YES`),
+                    new SelectDropdown("false", $localize `:@@NO:NO`)
+                ],
+                placeholder:$localize `:@@include_defaults:Include Defaults`,
                 description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
             }, {
                 tag:"input",
