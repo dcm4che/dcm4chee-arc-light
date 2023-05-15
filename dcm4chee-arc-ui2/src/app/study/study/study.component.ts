@@ -4614,7 +4614,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     height: 'auto',
                     width: '90%'
                 });
-                $this.dialogRef.componentInstance.study = studyFiltered;
+                $this.dialogRef.componentInstance.studyResult.study = studyFiltered;
                 $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
                 $this.dialogRef.componentInstance.iod = iod;
                 $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
