@@ -379,26 +379,30 @@ export class StudyService {
         }
         if (filterMode === "main") {
             if (tab != 'diff') {
-                let orderby;
-                if(tab === "uwl"){
-/*                    schema.push({
-                        tag: "dummy"
-                    });*/
-                    orderby = [
-                        new SelectDropdown('00741200', $localize `:@@asc_scheduled_procedure_step_priority:(asc)  Scheduled Procedure Step Priority`),
-                        new SelectDropdown('-00741200', $localize `:@@desc_scheduled_procedure_step_priority:(desc) Scheduled Procedure Step Priority`),
-                        new SelectDropdown('00404005', $localize `:@@asc_scheduled_procedure_step_start_date_and_time:(asc)  Scheduled Procedure Step Start Date and Time`),
-                        new SelectDropdown('-00404005', $localize `:@@desc_scheduled_procedure_step_start_date_and_time:(desc) Scheduled Procedure Step Start Date and Time`),
-                        new SelectDropdown('00404011', $localize `:@@asc_expected_completion_date_and_time:(asc)  Expected Completion Date and Time`),
-                        new SelectDropdown('-00404011', $localize `:@@desc_expected_completion_date_and_time:(desc) Expected Completion Date and Time`)
-                    ]
-                }else{
-                    orderby = Globalvar.ORDERBY_NEW
-                        .filter(order => order.mode === tab)
-                        .map(order => {
-                            return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
-                        });
-                }
+                let orderby = Globalvar.ORDERBY_NEW
+                    .filter(order => order.mode === tab)
+                    .map(order => {
+                        return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
+                    });
+//                 if(tab === "uwl"){
+// /*                    schema.push({
+//                         tag: "dummy"
+//                     });*/
+//                     orderby = [
+//                         new SelectDropdown('00741200', $localize `:@@asc_scheduled_procedure_step_priority:(asc)  Scheduled Procedure Step Priority`),
+//                         new SelectDropdown('-00741200', $localize `:@@desc_scheduled_procedure_step_priority:(desc) Scheduled Procedure Step Priority`),
+//                         new SelectDropdown('00404005', $localize `:@@asc_scheduled_procedure_step_start_date_and_time:(asc)  Scheduled Procedure Step Start Date and Time`),
+//                         new SelectDropdown('-00404005', $localize `:@@desc_scheduled_procedure_step_start_date_and_time:(desc) Scheduled Procedure Step Start Date and Time`),
+//                         new SelectDropdown('00404011', $localize `:@@asc_expected_completion_date_and_time:(asc)  Expected Completion Date and Time`),
+//                         new SelectDropdown('-00404011', $localize `:@@desc_expected_completion_date_and_time:(desc) Expected Completion Date and Time`)
+//                     ]
+//                 }else{
+//                     orderby = Globalvar.ORDERBY_NEW
+//                         .filter(order => order.mode === tab)
+//                         .map(order => {
+//                             return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
+//                         });
+//                 }
                 schema.push({
                     tag: "html-select",
                     options: orderby,
