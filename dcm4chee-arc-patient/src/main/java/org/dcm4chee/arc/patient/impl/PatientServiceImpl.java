@@ -175,7 +175,7 @@ public class PatientServiceImpl implements PatientService {
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException {
         if (ctx.getPatientIDs().stream().anyMatch(pid ->
-                ctx.getPreviousPatientIDs().stream().anyMatch(other -> pid.matches2(other))))
+                ctx.getPreviousPatientIDs().stream().anyMatch(other -> pid.matchesWithoutIssuer(other))))
             throw new CircularPatientMergeException("PriorPatientID same as target PatientID");
 
         try {
@@ -226,7 +226,7 @@ public class PatientServiceImpl implements PatientService {
         Collection<IDWithIssuer> newPatientIDs = ctx.getPatientIDs();
         for (IDWithIssuer prevPatientID : prevPatientIDs) {
             for (IDWithIssuer newPatientID : newPatientIDs) {
-                if (newPatientID.matches2(prevPatientID)) {
+                if (newPatientID.matchesWithoutIssuer(prevPatientID)) {
                         throw newPatientID.equals(prevPatientID)
                                 ? new CircularPatientMergeException(
                                         "PriorPatientID same as target PatientID")
