@@ -379,7 +379,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.initWebApps();
                     });
                 }
-                if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series") {
+                if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series" || this.studyConfig.tab === "diff") {
                     this.getInstitutions(this, "Series", () => {
                         this.getStorages(this, () => {
                             this.initWebApps();
@@ -4588,18 +4588,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         config.titleLabel += ((_.hasIn(study, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + study.attrs['00100020'].Value[0] + '</b>' : '');
         this.modifyStudy(study, 'edit', config);
     };
-    modifyStudy(study, mode, config?:{saveLabel:string,titleLabel:string}){
+    modifyStudy(studyResult, mode, config?:{saveLabel:string,titleLabel:string}){
         let $this = this;
         this.config.viewContainerRef = this.viewContainerRef;
-        let originalStudyObject = _.cloneDeep(study);
+        let originalStudyObject = _.cloneDeep(studyResult.study);
         if (mode === 'edit'){
-            _.forEach(study.attrs, function(value, index) {
+            _.forEach(studyResult.study.attrs, function(value, index) {
                 let checkValue = '';
                 if (value.Value && value.Value.length){
                     checkValue = value.Value.join('');
                 }
                 if (!(value.Value && checkValue != '')){
-                    delete study.attrs[index];
+                    delete studyResult.study.attrs[index];
                 }
             });
         }
@@ -4607,25 +4607,28 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.service.getStudyIod()
             .subscribe((res) => {
                 let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
-                let studyFiltered = _.cloneDeep(study);
-                studyFiltered.attrs = new ComparewithiodPipe().transform(study.attrs, iod);
+                let studyFiltered = _.cloneDeep(studyResult.study);
+                studyFiltered.attrs = new ComparewithiodPipe().transform(studyResult.study.attrs, iod);
                 $this.service.initEmptyValue(studyFiltered.attrs);
                 $this.dialogRef = $this.dialog.open(EditStudyComponent, {
                     height: 'auto',
                     width: '90%'
                 });
-                $this.dialogRef.componentInstance.study = studyFiltered;
+                $this.dialogRef.componentInstance.studyResult.study = studyFiltered;
                 $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
                 $this.dialogRef.componentInstance.iod = iod;
                 $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
                 $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
                 $this.dialogRef.componentInstance.mode = mode;
-                $this.dialogRef.afterClosed().subscribe(result => {
-                    if (result){
+                $this.dialogRef.afterClosed().subscribe(ok => {
+                    if (ok){
+                        let params = '';
+                        console.log("studyResult.............", ok.studyResult);
+
                         $this.service.clearPatientObject(studyFiltered.attrs);
                         $this.service.convertStringToNumber(studyFiltered.attrs);
                         let local = {};
-                        $this.service.appendPatientIdTo(study.attrs, local);
+                        $this.service.appendPatientIdTo(studyResult.study.attrs, local);
                         _.forEach(studyFiltered.attrs, function(m, i){
                             if (res[i]){
                                 local[i] = m;
@@ -4634,17 +4637,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.service.modifyStudy(local,
                             this.studyWebService,
                             new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
-                            this.service.getStudyInstanceUID(study.attrs)).subscribe(
+                            params,
+                            this.service.getStudyInstanceUID(studyResult.study.attrs)).subscribe(
                             () => {
                                 $this.appService.showMsg($localize `:@@study_saved:Study saved successfully!`);
                             },
                             (err) => {
                                 $this.httpErrorHandler.handleError(err);
-                                _.assign(study, originalStudyObject);
+                                _.assign(studyResult.study, originalStudyObject);
                             }
                         );
                     }else{
-                        _.assign(study, originalStudyObject);
+                        _.assign(studyResult.study, originalStudyObject);
                     }
                     $this.dialogRef = null;
                 });

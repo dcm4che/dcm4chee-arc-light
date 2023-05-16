@@ -304,8 +304,8 @@ export class StudyService {
                         ];
                     case "diff":
                         return [
-                            ...Globalvar.DIFF_FILTER_SCHEMA([],[],false),
-                            ...Globalvar.DIFF_FILTER_SCHEMA([],[],true)
+                            ...Globalvar.DIFF_FILTER_SCHEMA([],[], [],false),
+                            ...Globalvar.DIFF_FILTER_SCHEMA([],[], [],true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
@@ -363,10 +363,10 @@ export class StudyService {
                 break;
             case "uwl":
                 schema = Globalvar.UWL_FILTER_SCHEMA( filterMode === "expand");
-                lineLength = filterMode === "expand" ? 1 : 3;
+                lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             case "diff":
-                schema = Globalvar.DIFF_FILTER_SCHEMA(aets,attributeSet, filterMode === "expand").filter(filter => {
+                schema = Globalvar.DIFF_FILTER_SCHEMA(aets,attributeSet, institutions, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 // lineLength = filterMode === "expand" ? 2 : 3;
@@ -379,26 +379,30 @@ export class StudyService {
         }
         if (filterMode === "main") {
             if (tab != 'diff') {
-                let orderby;
-                if(tab === "uwl"){
-/*                    schema.push({
-                        tag: "dummy"
-                    });*/
-                    orderby = [
-                        new SelectDropdown('00741200', $localize `:@@asc_scheduled_procedure_step_priority:(asc)  Scheduled Procedure Step Priority`),
-                        new SelectDropdown('-00741200', $localize `:@@desc_scheduled_procedure_step_priority:(desc) Scheduled Procedure Step Priority`),
-                        new SelectDropdown('00404005', $localize `:@@asc_scheduled_procedure_step_start_date_and_time:(asc)  Scheduled Procedure Step Start Date and Time`),
-                        new SelectDropdown('-00404005', $localize `:@@desc_scheduled_procedure_step_start_date_and_time:(desc) Scheduled Procedure Step Start Date and Time`),
-                        new SelectDropdown('00404011', $localize `:@@asc_expected_completion_date_and_time:(asc)  Expected Completion Date and Time`),
-                        new SelectDropdown('-00404011', $localize `:@@desc_expected_completion_date_and_time:(desc) Expected Completion Date and Time`)
-                    ]
-                }else{
-                    orderby = Globalvar.ORDERBY_NEW
-                        .filter(order => order.mode === tab)
-                        .map(order => {
-                            return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
-                        });
-                }
+                let orderby = Globalvar.ORDERBY_NEW
+                    .filter(order => order.mode === tab)
+                    .map(order => {
+                        return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
+                    });
+//                 if(tab === "uwl"){
+// /*                    schema.push({
+//                         tag: "dummy"
+//                     });*/
+//                     orderby = [
+//                         new SelectDropdown('00741200', $localize `:@@asc_scheduled_procedure_step_priority:(asc)  Scheduled Procedure Step Priority`),
+//                         new SelectDropdown('-00741200', $localize `:@@desc_scheduled_procedure_step_priority:(desc) Scheduled Procedure Step Priority`),
+//                         new SelectDropdown('00404005', $localize `:@@asc_scheduled_procedure_step_start_date_and_time:(asc)  Scheduled Procedure Step Start Date and Time`),
+//                         new SelectDropdown('-00404005', $localize `:@@desc_scheduled_procedure_step_start_date_and_time:(desc) Scheduled Procedure Step Start Date and Time`),
+//                         new SelectDropdown('00404011', $localize `:@@asc_expected_completion_date_and_time:(asc)  Expected Completion Date and Time`),
+//                         new SelectDropdown('-00404011', $localize `:@@desc_expected_completion_date_and_time:(desc) Expected Completion Date and Time`)
+//                     ]
+//                 }else{
+//                     orderby = Globalvar.ORDERBY_NEW
+//                         .filter(order => order.mode === tab)
+//                         .map(order => {
+//                             return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
+//                         });
+//                 }
                 schema.push({
                     tag: "html-select",
                     options: orderby,
@@ -3840,8 +3844,8 @@ export class StudyService {
         seriesInstanceUID = seriesInstanceUID || this.getSeriesInstanceUID(series.attrs);
         return `${this.getDicomURL("study",selectedWebService)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
     }
-    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string) {
-        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}`;
+    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any, studyInstanceUID?:string) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}${params}`;
         if (url) {
             return this.$http.put(url, study, header);
         }

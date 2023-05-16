@@ -59,7 +59,7 @@
                             [model]="model[line[index].filterKey]"
                             (modelChange)="model[line[index].filterKey] = $event"
                     ></person-name-picker>
-                  <ng-container *ngIf="line[index].filterKey || line[index].tag === 'code-selector' || line[index].tag === 'modified-widget'">
+                  <ng-container *ngIf="line[index].filterKey || line[index].tag === 'code-selector' || line[index].tag === 'issuer-selector' || line[index].tag === 'modified-widget'">
                     <div class="input_group_dropdown" *ngSwitchCase="'size_range_picker'">
                         <size-range-picker ngDefaultControl (modelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(model)]="model[line[index].filterKey]"></size-range-picker>
                     </div>
@@ -274,8 +274,12 @@
                         [title]="line[index]?.description"
                         [codes]="line[index]?.codes"
                         placeholder="{{line[index]?.placeholder || line[index]?.description}}"
-                        (modelChange)="codeChanged(line[index]?.codes, $event)"
-                    ></code-selector>
+                        (modelChange)="codeChanged(line[index]?.codes, $event)"></code-selector>
+                    <issuer-selector *ngSwitchCase="'issuer-selector'"
+                         [title]="line[index]?.description"
+                         [issuers]="line[index]?.issuers"
+                         placeholder="{{line[index]?.placeholder || line[index]?.description}}"
+                         (modelChange)="issuerChanged(line[index]?.issuers, $event)"></issuer-selector>
                     <modified-widget *ngSwitchCase="'modified-widget'"
                         [title]="line[index]?.description"
                         [model]="model"

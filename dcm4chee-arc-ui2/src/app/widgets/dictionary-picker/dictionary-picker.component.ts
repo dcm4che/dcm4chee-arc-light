@@ -57,46 +57,51 @@ export class DictionaryPickerComponent implements OnInit {
                 break;
             case 'dcmProperty':
                 this.hideDots = true;
+                const currentPropertiePosition = document.location.pathname.split(".").pop(); //Get the last string after the .  from the current URL
                 const uiConfig = _.get(this.deviceConfiguratorService.device,"dcmDevice.dcmuiConfig[0]");
-                const dropdown = [
-                    {
-                        key:"IID_PATIENT_URL=[VIEWER_URL]"
-                    },{
-                        key:"IID_STUDY_URL=[VIEWER_URL]"
-                    },{
-                        key:"IID_URL_TARGET=_self"
-                    },{
-                        key:"IID_URL_TARGET=_blank"
-                    },{
-                        key:"MWLAccessionNumberGenerator=[name-of-cd-import-acc-no-id-generator]"
-                    },{
-                        key:"allow-any-hostname=true"
-                    },{
-                        key:"disable-trust-manager=true"
-                    },{
-                        key:"allow-any-hostname=true"
-                    },{
-                        key:"disable-trust-manager=true"
-                    },{
-                        key:"bearer-token=[bearer-token]"
-                    },{
-                        key:"basic-auth=[basic-auth]"
-                    },{
-                        key:"basic-auth=[basic-auth]"
-                    },{
-                        key:"content-type=true"
-                    },{
-                        key:"content-type=false"
-                    },{
-                        key:"chunked=true"
-                    },{
-                        key:"transfer-syntax=[transfer-syntax]"
-                    },{
-                        key:"concurrency=[concurrency]"
-                    }
-                ];
-                this.dcmTags = dropdown;
-                this.dcmTagsFiltered = _.clone(dropdown);
+                if(currentPropertiePosition === "dcmWebApp"){
+                    const dropdown = [
+                        {
+                            key:"IID_PATIENT_URL=[VIEWER_URL]"
+                        },{
+                            key:"IID_STUDY_URL=[VIEWER_URL]"
+                        },{
+                            key:"IID_URL_TARGET=_self"
+                        },{
+                            key:"IID_URL_TARGET=_blank"
+                        },{
+                            key:"MWLAccessionNumberGenerator=[name-of-cd-import-acc-no-id-generator]"
+                        },{
+                            key:"allow-any-hostname=true"
+                        },{
+                            key:"disable-trust-manager=true"
+                        },{
+                            key:"allow-any-hostname=true"
+                        },{
+                            key:"disable-trust-manager=true"
+                        },{
+                            key:"bearer-token=[bearer-token]"
+                        },{
+                            key:"basic-auth=[basic-auth]"
+                        },{
+                            key:"basic-auth=[basic-auth]"
+                        },{
+                            key:"content-type=true"
+                        },{
+                            key:"content-type=false"
+                        },{
+                            key:"chunked=true"
+                        },{
+                            key:"transfer-syntax=[transfer-syntax]"
+                        },{
+                            key:"concurrency=[concurrency]"
+                        },{
+                            key:"WebAppDropdownLabel=[custom_label]"
+                        }
+                    ];
+                    this.dcmTags = dropdown;
+                    this.dcmTagsFiltered = _.clone(dropdown);
+                }
 
                 if(_.hasIn(uiConfig,"dcmuiMWLWorklistLabel") && uiConfig.dcmuiMWLWorklistLabel.length > 0){
                     uiConfig.dcmuiMWLWorklistLabel.forEach(el=>{

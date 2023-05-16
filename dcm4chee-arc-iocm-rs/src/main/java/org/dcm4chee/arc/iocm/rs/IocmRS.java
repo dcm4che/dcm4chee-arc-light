@@ -245,6 +245,8 @@ public class IocmRS {
 
             Attributes result = IocmUtils.linkInstancesWithMWL(
                     session, retrieveService, procedureService, ctx, queryService, rjNote, instAttrs(mwl), in);
+            if (linkStudyToMWLMerge(ctx, strategy))
+                rsForward.forward(RSOperation.LinkStudyToMWLMerge, arcAE, ctx.getSourceInstanceRefs(), request);
             return result == null
                     ? errResponse("No Instances found.", Response.Status.NOT_FOUND)
                     : toResponse(result);
@@ -255,6 +257,12 @@ public class IocmRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean linkStudyToMWLMerge(ProcedureContext ctx, String strategy) {
+        return strategy == null
+                ? ctx.getStudyInstanceUID().equals(ctx.getSourceInstanceRefs().getString(Tag.StudyInstanceUID))
+                : strategy.equals("MERGE");
     }
 
     private Attributes instAttrs(MWLItem mwlItem) {

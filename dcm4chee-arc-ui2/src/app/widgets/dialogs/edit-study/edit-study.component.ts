@@ -6,6 +6,7 @@ import {SearchPipe} from '../../../pipes/search.pipe';
 declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../../helpers/window-ref.service";
+import {SelectDropdown} from "../../../interfaces";
 
 
 @Component({
@@ -25,10 +26,20 @@ export class EditStudyComponent{
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
-    private _study: any;
+    private _study2: any;
     private _studykey: any;
     private _iod: any;
     private _mode;
+    reasonForModification:SelectDropdown<any>[] = [
+        new SelectDropdown("COERCE", "COERCE"),
+        new SelectDropdown("CORRECT", "CORRECT"),
+    ]
+
+    _studyResult = {
+        study: this._study2,
+        sourceOfPrevVals: '',
+        reasonForModificationResult: undefined
+    }
 
     @Output() onChange = new EventEmitter();
 
@@ -36,7 +47,7 @@ export class EditStudyComponent{
 
     DCM4CHE = DCM4CHE;
     constructor(public dialogRef: MatDialogRef<EditStudyComponent>, public mainservice: AppService) {
-        console.log("this.study",this._study);
+        console.log("this.study",this._studyResult.study);
 /*
         setTimeout(function(){
             if(this._mode === "create"){
@@ -67,7 +78,7 @@ export class EditStudyComponent{
     }
 
     change(){
-        this.onChange.emit(this.study);
+        this.onChange.emit(this.studyResult.study);
     }
 
     get mode() {
@@ -103,14 +114,14 @@ export class EditStudyComponent{
         this._dropdown = value;
     }
 
-    get study(): any {
-        return this._study;
-    }
-
-    @Input()
-    set study(value: any) {
-        this._study = value;
-    }
+    // get study(): any {
+    //     return this._study;
+    // }
+    //
+    // @Input()
+    // set study(value: any) {
+    //     this._study = value;
+    // }
 
     get studykey(): any {
         return this._studykey;
@@ -118,6 +129,14 @@ export class EditStudyComponent{
 
     set studykey(value: any) {
         this._studykey = value;
+    }
+
+    get studyResult(): any {
+        return this._studyResult;
+    }
+
+    set studyResult(value: any) {
+        this._studyResult = value;
     }
 
     get iod(): any {
@@ -147,7 +166,7 @@ export class EditStudyComponent{
         let code = (e.keyCode ? e.keyCode : e.which);
         console.log('in modality keyhandler', code);
         if (code === 13){
-            dialogRef.close(this._study);
+            dialogRef.close(this._studyResult.study);
         }
         if (code === 27){
             if (this.opendropdown){
@@ -159,16 +178,16 @@ export class EditStudyComponent{
     };
 
     addAttribute(attrcode){
-        if (this._study.attrs[attrcode] != undefined){
+        if (this._studyResult.study.attrs[attrcode] != undefined){
             if (this._iod[attrcode].multi){
-                this._study.attrs[attrcode]['Value'].push('');
+                this._studyResult.study.attrs[attrcode]['Value'].push('');
                 this.addStudyAttribut           = '';
                 this.opendropdown                 = false;
             }else{
                 this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
             }
         }else{
-            this._study.attrs[attrcode]  = this._iod[attrcode];
+            this._studyResult.study.attrs[attrcode]  = this._iod[attrcode];
         }
     };
 
@@ -188,16 +207,16 @@ export class EditStudyComponent{
             }else{
                 attrcode = filtered[0].code;
             }
-            if (this._study.attrs[attrcode] != undefined){
+            if (this._studyResult.study.attrs[attrcode] != undefined){
                 if (this._iod[attrcode].multi){
-                    this._study.attrs[attrcode]['Value'].push('');
+                    this._studyResult.study.attrs[attrcode]['Value'].push('');
                     this.addStudyAttribut           = '';
                     this.opendropdown                 = false;
                 }else{
                     this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
                 }
             }else{
-                this._study.attrs[attrcode]  = this._iod[attrcode];
+                this._studyResult.study.attrs[attrcode]  = this._iod[attrcode];
                 this.opendropdown = false;
             }
             setTimeout(function(){
@@ -283,14 +302,14 @@ export class EditStudyComponent{
     removeAttr(attrcode){
         switch (arguments.length) {
             case 2:
-                if (this._study.attrs[arguments[0]].Value.length === 1){
-                    delete  this._study.attrs[arguments[0]];
+                if (this._studyResult.study.attrs[arguments[0]].Value.length === 1){
+                    delete  this._studyResult.study.attrs[arguments[0]];
                 }else{
-                    this._study.attrs[arguments[0]].Value.splice(arguments[1], 1);
+                    this._studyResult.study.attrs[arguments[0]].Value.splice(arguments[1], 1);
                 }
                 break;
             default:
-                delete  this._study.attrs[arguments[0]];
+                delete  this._studyResult.study.attrs[arguments[0]];
                 break;
         }
     };

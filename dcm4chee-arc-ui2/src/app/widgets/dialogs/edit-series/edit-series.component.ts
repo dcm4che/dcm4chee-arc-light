@@ -22,6 +22,7 @@ export class EditSeriesComponent{
 
     addSeriesAttribut = '';
     lastPressedCode;
+    sourceOfPrevVals = '';
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
