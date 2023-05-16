@@ -2584,20 +2584,12 @@ div[tooltip]{
 	width:20px;
 	background-position:center;
 }
-.orderbydatedesc2{
-	background:url("../img/orderbydatedesc_2.png");
-	background-repeat:no-repeat;
-	display:inline-block;
-	height:13px;
-	width:20px;
-	background-position:center;
-}
 .orderbydateasc_uwl{
 	background:url("../img/orderbydateasc.png");
 	background-repeat:no-repeat;
 	display:inline-block;
 	height:13px;
-	width:130px;
+	width:82px;
 	background-position:center;
 }
 .orderbydatedesc_uwl{
@@ -2605,11 +2597,27 @@ div[tooltip]{
 	background-repeat:no-repeat;
 	display:inline-block;
 	height:13px;
-	width:130px;
+	width:82px;
+	background-position:center;
+}
+.orderbyprioritydesc{
+	background:url("../img/high2low.png");
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:13px;
+	width:82px;
+	background-position:center;
+}
+.orderbypriorityasc{
+	background:url("../img/low2high.png");
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:13px;
+	width:82px;
 	background-position:center;
 }
 .orderbynamedesc{
-	background:url("../img/orderbynamedesc.png");
+	background:url("../img/orderbynamedesc-obsolete.png");
 	background-repeat:no-repeat;
 	display:inline-block;
 	height:13px;
