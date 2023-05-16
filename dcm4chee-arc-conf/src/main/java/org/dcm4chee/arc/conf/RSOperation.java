@@ -60,6 +60,7 @@ public enum RSOperation {
     UpdateSeriesRequest,
     DeleteStudy,
     ReimportStudy,
+    LinkStudyToMWLMerge,
     RejectStudy,
     RejectSeries,
     RejectInstance,
