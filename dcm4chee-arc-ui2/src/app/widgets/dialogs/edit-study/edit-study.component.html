@@ -7,7 +7,7 @@
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addStudyAttribut" (click)="$event.preventDefault();addAttribute(m.code)">({{m.codeComma}}) {{m.name}}</a>
         </div>
         <div mat-dialog-content>
-            <iod-form-generator *ngIf="_studyResult.study && _studyResult.study.attrs" [object]="_studyResult.study.attrs" [prefix]="" [mode]="mode"  (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
+            <iod-form-generator *ngIf="_studyResult.study && _studyResult.study['attrs']" [object]="_studyResult.study['attrs']" [prefix]="" [mode]="mode"  (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
         </div>
         <div class="inputpart">
             <label i18n="@@reason_for_modification_label">Reason for modification: &nbsp;&nbsp;&nbsp;&nbsp;</label>
