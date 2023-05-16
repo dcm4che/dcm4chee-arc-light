@@ -26,7 +26,7 @@ export class EditStudyComponent{
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
-    private _study2: any;
+    //private _study: any;
     private _studykey: any;
     private _iod: any;
     private _mode;
@@ -36,7 +36,7 @@ export class EditStudyComponent{
     ]
 
     _studyResult = {
-        study: this._study2,
+        study: undefined,
         sourceOfPrevVals: '',
         reasonForModificationResult: undefined
     }
