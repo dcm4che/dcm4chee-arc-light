@@ -13,7 +13,21 @@ import {SelectDropdown} from "../../../interfaces";
     selector: 'edit-study',
     templateUrl: './edit-study.component.html',
     styles: [`
-
+        .form_input{
+            display: grid;
+            grid-template-columns: 1fr 1.36fr;
+            margin-bottom: 15px;
+            grid-gap: 12px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .form_input label{
+            text-align: right;
+        }
+        .form_input input, .form_input dcm-drop-down{
+            width: 96%;
+            min-height: 30px;
+        }
     `]
 })
 export class EditStudyComponent{
