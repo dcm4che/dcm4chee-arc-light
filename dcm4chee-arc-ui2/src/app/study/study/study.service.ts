@@ -3813,8 +3813,9 @@ export class StudyService {
         }
     }
 
-    modifySeries(series, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string, seriesInstanceUID?:string) {
-        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
+    modifySeries(series, deviceWebservice: StudyWebService, header: HttpHeaders, params:any,
+                 studyInstanceUID?:string, seriesInstanceUID?:string) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}/series/${seriesInstanceUID}${params}`;
         if (url) {
             return this.$http.put(url, series, header);
         }

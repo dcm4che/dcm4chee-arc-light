@@ -4542,14 +4542,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     height: 'auto',
                     width: '90%'
                 });
-                $this.dialogRef.componentInstance.series = seriesFiltered;
+                $this.dialogRef.componentInstance.seriesResult.series = seriesFiltered;
                 $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
                 $this.dialogRef.componentInstance.iod = iod;
                 $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
                 $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
                 $this.dialogRef.componentInstance.mode = mode;
-                $this.dialogRef.afterClosed().subscribe(result => {
-                    if (result){
+                $this.dialogRef.afterClosed().subscribe(ok => {
+                    if (ok){
                         $this.service.clearPatientObject(seriesFiltered.attrs);
                         $this.service.convertStringToNumber(seriesFiltered.attrs);
                         let local = {};
@@ -4559,9 +4559,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 local[i] = m;
                             }
                         });
+
+                        let params = ok.sourceOfPrevVals != ''
+                            ? ok.reasonForModification != ''
+                                ? '?sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
+                                : '?sourceOfPreviousValues=' + ok.sourceOfPrevVals
+                            : ok.reasonForModificationResult != ''
+                                ? '?reasonForModification=' + ok.reasonForModificationResult
+                                : '';
+
                         this.service.modifySeries(local,
                             this.studyWebService,
                             new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
+                            params,
                             this.service.getStudyInstanceUID(series.attrs),
                             this.service.getSeriesInstanceUID(series.attrs)).subscribe(
                             () => {
@@ -4622,10 +4632,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 $this.dialogRef.componentInstance.mode = mode;
                 $this.dialogRef.afterClosed().subscribe(ok => {
                     if (ok){
-                        let params = '';
-                        console.log("sourceOfPrevVals2............", ok.sourceOfPrevVals);
-                        console.log("reasonForModification............", ok.reasonForModificationResult);
-
+                        let params = ok.sourceOfPrevVals != ''
+                                        ? ok.reasonForModification != ''
+                                            ? '?sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
+                                            : '?sourceOfPreviousValues=' + ok.sourceOfPrevVals
+                                        : ok.reasonForModificationResult != ''
+                                            ? '?reasonForModification=' + ok.reasonForModificationResult
+                                            : '';
 
                         $this.service.clearPatientObject(studyFiltered.attrs);
                         $this.service.convertStringToNumber(studyFiltered.attrs);

@@ -40,7 +40,6 @@ export class EditStudyComponent{
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
-    //private _study: any;
     private _studykey: any;
     private _iod: any;
     private _mode;
@@ -127,15 +126,6 @@ export class EditStudyComponent{
     set dropdown(value) {
         this._dropdown = value;
     }
-
-    // get study(): any {
-    //     return this._study;
-    // }
-    //
-    // @Input()
-    // set study(value: any) {
-    //     this._study = value;
-    // }
 
     get studykey(): any {
         return this._studykey;
