@@ -52,14 +52,12 @@ import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
-import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.RunInTransaction;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.study.StudyMgtContext;
-import org.dcm4chee.arc.study.StudyMissingException;
 import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
@@ -398,6 +396,7 @@ public class UpdateMatchingRS {
                     if (match == null)
                         continue;
 
+                    Attributes.unifyCharacterSets(match, attrs);
                     if (match.update(updatePolicy, attrs, null)) {
                         try {
                             studyMgtCtx.setPatient(null);
@@ -439,7 +438,7 @@ public class UpdateMatchingRS {
             gen.writeStartObject();
             gen.write("count", count);
             if (updated > 0) gen.write("updated", updated);
-            if (failed > 0) gen.write("failed", updated);
+            if (failed > 0) gen.write("failed", failed);
             if (ex != null) gen.write("error", ex.getMessage());
             gen.writeEnd();
             gen.flush();
