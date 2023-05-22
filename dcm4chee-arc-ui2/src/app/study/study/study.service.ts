@@ -384,25 +384,6 @@ export class StudyService {
                     .map(order => {
                         return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
                     });
-//                 if(tab === "uwl"){
-// /*                    schema.push({
-//                         tag: "dummy"
-//                     });*/
-//                     orderby = [
-//                         new SelectDropdown('00741200', $localize `:@@asc_scheduled_procedure_step_priority:(asc)  Scheduled Procedure Step Priority`),
-//                         new SelectDropdown('-00741200', $localize `:@@desc_scheduled_procedure_step_priority:(desc) Scheduled Procedure Step Priority`),
-//                         new SelectDropdown('00404005', $localize `:@@asc_scheduled_procedure_step_start_date_and_time:(asc)  Scheduled Procedure Step Start Date and Time`),
-//                         new SelectDropdown('-00404005', $localize `:@@desc_scheduled_procedure_step_start_date_and_time:(desc) Scheduled Procedure Step Start Date and Time`),
-//                         new SelectDropdown('00404011', $localize `:@@asc_expected_completion_date_and_time:(asc)  Expected Completion Date and Time`),
-//                         new SelectDropdown('-00404011', $localize `:@@desc_expected_completion_date_and_time:(desc) Expected Completion Date and Time`)
-//                     ]
-//                 }else{
-//                     orderby = Globalvar.ORDERBY_NEW
-//                         .filter(order => order.mode === tab)
-//                         .map(order => {
-//                             return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
-//                         });
-//                 }
                 schema.push({
                     tag: "html-select",
                     options: orderby,
@@ -3832,8 +3813,9 @@ export class StudyService {
         }
     }
 
-    modifySeries(series, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string, seriesInstanceUID?:string) {
-        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
+    modifySeries(series, deviceWebservice: StudyWebService, header: HttpHeaders, params:any,
+                 studyInstanceUID?:string, seriesInstanceUID?:string) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}/series/${seriesInstanceUID}${params}`;
         if (url) {
             return this.$http.put(url, series, header);
         }
@@ -3844,6 +3826,23 @@ export class StudyService {
         seriesInstanceUID = seriesInstanceUID || this.getSeriesInstanceUID(series.attrs);
         return `${this.getDicomURL("study",selectedWebService)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
     }
+
+    updateMatchingStudies(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/update${params}`;
+        if (url) {
+            return this.$http.post(url, study, header);
+        }
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
+    }
+
+    updateMatchingSeries(series, webApp:DcmWebApp, header: HttpHeaders, params:any) {
+        const url = `${this.getDicomURL("series", webApp)}/update${params}`;
+        if (url) {
+            return this.$http.post(url, series, header);
+        }
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
+    }
+
     modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any, studyInstanceUID?:string) {
         const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}${params}`;
         if (url) {

@@ -13,7 +13,21 @@ import {SelectDropdown} from "../../../interfaces";
     selector: 'edit-study',
     templateUrl: './edit-study.component.html',
     styles: [`
-
+        .form_input{
+            display: grid;
+            grid-template-columns: 1fr 1.36fr;
+            margin-bottom: 15px;
+            grid-gap: 12px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .form_input label{
+            text-align: right;
+        }
+        .form_input input, .form_input dcm-drop-down{
+            width: 96%;
+            min-height: 30px;
+        }
     `]
 })
 export class EditStudyComponent{
@@ -26,7 +40,6 @@ export class EditStudyComponent{
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
-    private _study2: any;
     private _studykey: any;
     private _iod: any;
     private _mode;
@@ -34,11 +47,18 @@ export class EditStudyComponent{
         new SelectDropdown("COERCE", "COERCE"),
         new SelectDropdown("CORRECT", "CORRECT"),
     ]
+    updatePolicy:SelectDropdown<any>[] = [
+        new SelectDropdown("SUPPLEMENT", "SUPPLEMENT"),
+        new SelectDropdown("MERGE", "MERGE"),
+        new SelectDropdown("OVERWRITE", "OVERWRITE"),
+    ]
 
     _studyResult = {
-        study: this._study2,
+        editMode: 'single',
+        study: undefined,
         sourceOfPrevVals: '',
-        reasonForModificationResult: undefined
+        reasonForModificationResult: undefined,
+        updatePolicyResult: 'OVERWRITE'
     }
 
     @Output() onChange = new EventEmitter();
@@ -113,15 +133,6 @@ export class EditStudyComponent{
     set dropdown(value) {
         this._dropdown = value;
     }
-
-    // get study(): any {
-    //     return this._study;
-    // }
-    //
-    // @Input()
-    // set study(value: any) {
-    //     this._study = value;
-    // }
 
     get studykey(): any {
         return this._studykey;

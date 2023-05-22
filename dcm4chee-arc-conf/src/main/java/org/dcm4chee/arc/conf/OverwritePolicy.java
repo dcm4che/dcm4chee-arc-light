@@ -45,5 +45,5 @@ package org.dcm4chee.arc.conf;
  * @since Oct 2015
  */
 public enum OverwritePolicy {
-    NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES, SAME_SOURCE_AND_SERIES
+    NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES, SAME_SOURCE_AND_SERIES, EVEN_WITH_EQUAL_DIGEST
 }
