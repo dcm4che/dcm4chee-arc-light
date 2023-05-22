@@ -4638,7 +4638,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $this.dialogRef.afterClosed().subscribe((ok) => {
                 if (ok) {
                     j4care.removeKeyFromObject(studyFiltered.attrs, ["required","enum", "multi"]);
-                    console.log("queryy params update matching studies..............", ok.updatePolicyResult, ok.reasonForModificationResult, ok.sourceOfPrevVals);
                     let params = '?updatePolicy=' + ok.updatePolicyResult;
                     params += ok.sourceOfPrevVals != ''
                                 ? ok.reasonForModificationResult != undefined
@@ -4708,7 +4707,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $this.dialogRef.afterClosed().subscribe((ok) => {
                 if (ok) {
                     j4care.removeKeyFromObject(seriesFiltered.attrs, ["required","enum", "multi"]);
-                    console.log("queryy params update matching series..............", ok.updatePolicyResult, ok.reasonForModificationResult, ok.sourceOfPrevVals);
                     let params = '?updatePolicy=' + ok.updatePolicyResult;
                     params += ok.sourceOfPrevVals != ''
                                 ? ok.reasonForModificationResult != undefined
