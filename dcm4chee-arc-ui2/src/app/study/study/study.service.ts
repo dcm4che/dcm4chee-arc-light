@@ -2226,7 +2226,7 @@ export class StudyService {
                     headerDescription: $localize `:@@referring_physician_name:Referring physician name`,
                     widthWeight: 1,
                     calculatedWidth: "20%",
-                    pathToValue:"[00080090].PersonName[0]",
+                    pathToValue:"00080090.Value.0",
                     pipe: new DynamicPipe(PersonNamePipe, [options.configuredPersonNameFormat])
                 }),
                 new TableSchemaElement({
