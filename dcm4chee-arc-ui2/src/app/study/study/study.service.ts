@@ -3826,6 +3826,23 @@ export class StudyService {
         seriesInstanceUID = seriesInstanceUID || this.getSeriesInstanceUID(series.attrs);
         return `${this.getDicomURL("study",selectedWebService)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
     }
+
+    updateMatchingStudies(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/update${params}`;
+        if (url) {
+            return this.$http.post(url, study, header);
+        }
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
+    }
+
+    updateMatchingSeries(series, webApp:DcmWebApp, header: HttpHeaders, params:any) {
+        const url = `${this.getDicomURL("series", webApp)}/update${params}`;
+        if (url) {
+            return this.$http.post(url, series, header);
+        }
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
+    }
+
     modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any, studyInstanceUID?:string) {
         const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}${params}`;
         if (url) {

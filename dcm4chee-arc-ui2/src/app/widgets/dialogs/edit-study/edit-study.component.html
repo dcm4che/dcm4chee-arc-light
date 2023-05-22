@@ -10,8 +10,15 @@
             <iod-form-generator *ngIf="_studyResult.study && _studyResult.study['attrs']" [object]="_studyResult.study['attrs']" [prefix]="" [mode]="mode"  (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
         </div>
         <div class="inputpart">
+            <div class="form_input" *ngIf="_studyResult.editMode != 'single'">
+                <label i18n="@@update_policy_label">Update Policy :</label>
+                <dcm-drop-down [options]="updatePolicy" [(model)]="_studyResult.updatePolicyResult"
+                               [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
+                               (modelChange)="_studyResult.updatePolicyResult = $event">
+                </dcm-drop-down>
+            </div>
             <div class="form_input">
-                <label i18n="@@reason_for_modification_label">Reason for modification:</label>
+                <label i18n="@@reason_for_modification_label">Reason for modification :</label>
                 <dcm-drop-down [options]="reasonForModification" [(model)]="_studyResult.reasonForModificationResult"
                                [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
                                (modelChange)="_studyResult.reasonForModificationResult = $event">

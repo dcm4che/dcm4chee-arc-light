@@ -47,11 +47,18 @@ export class EditStudyComponent{
         new SelectDropdown("COERCE", "COERCE"),
         new SelectDropdown("CORRECT", "CORRECT"),
     ]
+    updatePolicy:SelectDropdown<any>[] = [
+        new SelectDropdown("SUPPLEMENT", "SUPPLEMENT"),
+        new SelectDropdown("MERGE", "MERGE"),
+        new SelectDropdown("OVERWRITE", "OVERWRITE"),
+    ]
 
     _studyResult = {
+        editMode: 'single',
         study: undefined,
         sourceOfPrevVals: '',
-        reasonForModificationResult: undefined
+        reasonForModificationResult: undefined,
+        updatePolicyResult: 'OVERWRITE'
     }
 
     @Output() onChange = new EventEmitter();
