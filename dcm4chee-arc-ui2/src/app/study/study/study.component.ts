@@ -4571,10 +4571,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         });
 
                         let params = ok.sourceOfPrevVals != ''
-                            ? ok.reasonForModification != ''
+                            ? ok.reasonForModificationResult != undefined
                                 ? '?sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
                                 : '?sourceOfPreviousValues=' + ok.sourceOfPrevVals
-                            : ok.reasonForModificationResult != ''
+                            : ok.reasonForModificationResult != undefined
                                 ? '?reasonForModification=' + ok.reasonForModificationResult
                                 : '';
 
@@ -4637,33 +4637,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.titleLabel = $localize `:@@update_matching_studies:Update matching Studies`;
             $this.dialogRef.afterClosed().subscribe((ok) => {
                 if (ok) {
-                    j4care.removeKeyFromObject(study.attrs, ["required","enum", "multi"]);
-                    console.log("reason for mod1..........", ok.reasonForModificationResult);
-                    console.log("reason for mod1..........", ok.reasonForModification);
-                    let params = '';
-                    if ($this.dialogRef.componentInstance.studyResult.editMode === 'matching') {
-                        params += '?updatePolicy=OVERWRITE';
-                        params += ok.sourceOfPrevVals != ''
-                            ? ok.reasonForModificationResult != undefined
-                                ? '&sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
-                                : '&sourceOfPreviousValues=' + ok.sourceOfPrevVals
-                            : ok.reasonForModificationResult != undefined
-                                ? '&reasonForModification=' + ok.reasonForModificationResult
-                                : '';
-                    } else {
-                        params += ok.sourceOfPrevVals != ''
-                            ? ok.reasonForModificationResult != undefined
-                                ? '?sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
-                                : '?sourceOfPreviousValues=' + ok.sourceOfPrevVals
-                            : ok.reasonForModificationResult != undefined
-                                ? '?reasonForModification=' + ok.reasonForModificationResult
-                                : '';
-                    }
+                    j4care.removeKeyFromObject(studyFiltered.attrs, ["required","enum", "multi"]);
+                    console.log("queryy params update matching studies..............", ok.updatePolicyResult, ok.reasonForModificationResult, ok.sourceOfPrevVals);
+                    let params = '?updatePolicy=' + ok.updatePolicyResult;
+                    params += ok.sourceOfPrevVals != ''
+                                ? ok.reasonForModificationResult != undefined
+                                    ? '&sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
+                                    : '&sourceOfPreviousValues=' + ok.sourceOfPrevVals
+                                : ok.reasonForModificationResult != undefined
+                                    ? '&reasonForModification=' + ok.reasonForModificationResult
+                                    : '';
 
-
-                    if(_.hasIn(studyFiltered,"attrs.0020000D")){
+                    if(_.hasIn(studyFiltered,"attrs.0020000D"))
                         delete studyFiltered.attrs["0020000D"];
-                    }
 
                     let local = {};
                     $this.service.appendPatientIdTo(study.attrs, local);
@@ -4674,14 +4660,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
 
                     this.cfpLoadingBar.start();
-                    let msg = $localize `:@@studies_updated_successfully:Studies updated successfully!`;
+                    let msg = $localize `:@@studies:Studies`;
                     this.service.updateMatchingStudies(local,
                         this.studyWebService,
                         new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
                         params).subscribe(res => {
                         console.log("res", res);
                         this.cfpLoadingBar.complete();
-                        msg = j4care.prepareCountMessage(msg, res);
+                        msg = j4care.prepareCountMessageUpdateMatching(msg, res);
                         this.appService.showMsg(msg);
                     }, err => {
                         this.cfpLoadingBar.complete();
@@ -4705,12 +4691,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
             });
             delete series.attrs["0020000E"];
+            delete series.attrs["00080060"];
+            delete series.attrs["00080005"];
             this.service.initEmptyValue(series.attrs);
             let seriesFiltered = _.cloneDeep(series);
             this.dialogRef = this.dialog.open(EditSeriesComponent, {
                 height: 'auto',
                 width: '90%'
             });
+            $this.dialogRef.componentInstance.seriesResult.editMode = 'matching';
             $this.dialogRef.componentInstance.seriesResult.series = seriesFiltered;
             this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
             this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
@@ -4719,17 +4708,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $this.dialogRef.afterClosed().subscribe((ok) => {
                 if (ok) {
                     j4care.removeKeyFromObject(seriesFiltered.attrs, ["required","enum", "multi"]);
-                    let params = ok.sourceOfPrevVals != ''
-                        ? ok.reasonForModificationResult != ''
-                            ? '?sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
-                            : '?sourceOfPreviousValues=' + ok.sourceOfPrevVals
-                        : ok.reasonForModificationResult != ''
-                            ? '?reasonForModification=' + ok.reasonForModificationResult
-                            : '';
+                    console.log("queryy params update matching series..............", ok.updatePolicyResult, ok.reasonForModificationResult, ok.sourceOfPrevVals);
+                    let params = '?updatePolicy=' + ok.updatePolicyResult;
+                    params += ok.sourceOfPrevVals != ''
+                                ? ok.reasonForModificationResult != undefined
+                                    ? '&sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
+                                    : '&sourceOfPreviousValues=' + ok.sourceOfPrevVals
+                                : ok.reasonForModificationResult != undefined
+                                    ? '&reasonForModification=' + ok.reasonForModificationResult
+                                    : '';
 
-                    if(_.hasIn(seriesFiltered,"attrs.0020000E")){
+                    if(_.hasIn(seriesFiltered,"attrs.0020000E"))
                         delete seriesFiltered.attrs["0020000E"];
-                    }
 
                     let local = {};
                     $this.service.appendPatientIdTo(series.attrs, local);
@@ -4740,14 +4730,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
 
                     this.cfpLoadingBar.start();
-                    let msg = $localize `:@@series_updated_successfully:Series updated successfully!`;
+                    let msg = $localize `:@@series:Series`;
                     this.service.updateMatchingSeries(local,
                         this.studyWebService.selectedWebService,
                         new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
                         params).subscribe(res => {
                         console.log("res", res);
                         this.cfpLoadingBar.complete();
-                        msg = j4care.prepareCountMessage(msg, res);
+                        msg = j4care.prepareCountMessageUpdateMatching(msg, res);
                         this.appService.showMsg(msg);
                     }, err => {
                         this.cfpLoadingBar.complete();
@@ -4793,10 +4783,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 $this.dialogRef.afterClosed().subscribe(ok => {
                     if (ok){
                         let params = ok.sourceOfPrevVals != ''
-                                        ? ok.reasonForModification != ''
+                                        ? ok.reasonForModificationResult != undefined
                                             ? '?sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
                                             : '?sourceOfPreviousValues=' + ok.sourceOfPrevVals
-                                        : ok.reasonForModificationResult != ''
+                                        : ok.reasonForModificationResult != undefined
                                             ? '?reasonForModification=' + ok.reasonForModificationResult
                                             : '';
 

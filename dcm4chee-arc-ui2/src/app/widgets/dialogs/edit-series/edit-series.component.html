@@ -10,6 +10,13 @@
             <iod-form-generator *ngIf="_seriesResult.series && _seriesResult.series['attrs']" [object]="_seriesResult.series['attrs']" [prefix]="" [mode]="mode"  (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
         </div>
         <div class="inputpart">
+            <div class="form_input" *ngIf="_seriesResult.editMode != 'single'">
+                <label i18n="@@update_policy_label">Update Policy :</label>
+                <dcm-drop-down [options]="updatePolicy" [(model)]="_seriesResult.updatePolicyResult"
+                               [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
+                               (modelChange)="_seriesResult.updatePolicyResult = $event">
+                </dcm-drop-down>
+            </div>
             <div class="form_input">
                 <label i18n="@@reason_for_modification_label">Reason for modification:</label>
                 <dcm-drop-down [options]="reasonForModification" [(model)]="_seriesResult.reasonForModificationResult"
