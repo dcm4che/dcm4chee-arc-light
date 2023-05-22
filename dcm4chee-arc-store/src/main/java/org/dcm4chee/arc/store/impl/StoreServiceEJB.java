@@ -213,10 +213,12 @@ public class StoreServiceEJB {
                             logInfo(IGNORE_FROM_DIFFERENT_SOURCE, ctx);
                             return result;
                         }
-                }
-                if (hasLocationWithEqualDigest(ctx, prevInstance)) {
-                    logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
-                    return result;
+                    case ALWAYS:
+                    case SAME_SERIES:
+                        if (hasLocationWithEqualDigest(ctx, prevInstance)) {
+                            logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
+                            return result;
+                        }
                 }
             }
         }
@@ -1181,6 +1183,7 @@ public class StoreServiceEJB {
         switch (ctx.getStoreSession().getArchiveAEExtension().overwritePolicy()) {
             case ALWAYS:
             case SAME_SOURCE:
+            case EVEN_WITH_EQUAL_DIGEST:
                 return findInstance(ctx.getSopInstanceUID());
             default:
                 return findInstance(
