@@ -205,7 +205,7 @@ public class PatientServiceEJB {
             attrs = newAttrs;
         } else {
             Attributes.unifyCharacterSets(attrs, newAttrs);
-            if (!attrs.updateSelected(updatePolicy, newAttrs, modified, filter.getSelection(false)))
+            if (!PatientServiceUtils.updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter))
                 return;
         }
 

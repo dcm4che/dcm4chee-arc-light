@@ -62,6 +62,7 @@ import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.patient.PatientServiceUtils;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -95,7 +96,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -961,7 +961,7 @@ public class StoreServiceEJB {
         Attributes attrs = pat.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
         Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
-        if (!updatePatientAttrs(ctx, updatePolicy, filter, attrs))
+        if (!PatientServiceUtils.updatePatientAttrs(attrs, updatePolicy, ctx.getAttributes(), updateInfo.modified, filter))
             return pat;
 
         updateInfo.log(session, pat, attrs);
@@ -975,58 +975,6 @@ public class StoreServiceEJB {
                 .setParameter(1, pat)
                 .executeUpdate();
         return pat;
-    }
-
-    private static boolean updatePatientAttrs(StoreContext ctx, Attributes.UpdatePolicy updatePolicy, AttributeFilter filter,
-                                      Attributes attrs) {
-        int[] selection = filter.getSelection(false);
-        Attributes updateAttrs = ctx.getAttributes();
-        int mergedIssuers = 0;
-        if (updatePolicy == Attributes.UpdatePolicy.SUPPLEMENT) {
-            selection = IntStream.of(selection)
-                    .filter(tag -> tag != Tag.PatientID
-                            && tag != Tag.IssuerOfPatientID
-                            && tag != Tag.IssuerOfPatientIDQualifiersSequence
-                            && tag != Tag.OtherPatientIDsSequence)
-                    .toArray();
-            Sequence otherPIDs = attrs.getSequence(Tag.OtherPatientIDsSequence);
-            List<IDWithIssuer> updatedPids = new ArrayList<>(IDWithIssuer.pidsOf(updateAttrs));
-            if (mergeIssuer(attrs, updatedPids)) mergedIssuers++;
-            if (otherPIDs != null)
-                for (Attributes item : otherPIDs) {
-                    if (mergeIssuer(item, updatedPids)) mergedIssuers++;
-                }
-            if (!updatedPids.isEmpty()) {
-                if (otherPIDs == null) otherPIDs = attrs.newSequence(Tag.OtherPatientIDsSequence, updatedPids.size());
-                for (IDWithIssuer updatedPid : updatedPids) {
-                    otherPIDs.add(updatedPid.exportPatientIDWithIssuer(null));
-                }
-                mergedIssuers++;
-            }
-        }
-        return attrs.updateSelected(updatePolicy, updateAttrs, null, selection) || mergedIssuers > 0;
-    }
-
-    private static boolean mergeIssuer(Attributes attrs, List<IDWithIssuer> updatedPids) {
-        IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
-        if (pid != null) {
-            Iterator<IDWithIssuer> iter = updatedPids.iterator();
-            while (iter.hasNext()) {
-                IDWithIssuer updatedPid = iter.next();
-                if (pid.matchesWithoutIssuer(updatedPid)) {
-                    iter.remove();
-                    if (updatedPid.getIssuer() == null) return false;
-                    Issuer issuer = pid.getIssuer();
-                    if (issuer == null)
-                        issuer = updatedPid.getIssuer();
-                    else if (!issuer.merge(updatedPid.getIssuer()))
-                        return false;
-                    issuer.toIssuerOfPatientID(attrs);
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private Study updateStudy(StoreContext ctx, Study study, Date now, String reason) {
