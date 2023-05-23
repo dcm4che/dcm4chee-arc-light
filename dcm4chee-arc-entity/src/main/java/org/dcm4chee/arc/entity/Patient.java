@@ -196,7 +196,7 @@ public class Patient {
     @JoinColumn(name = "merge_fk")
     private Patient mergedWith;
 
-    @OneToMany(mappedBy="patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy="patient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Collection<PatientID> patientIDs;
 
     private static ShowPatientInfo showPatientInfo = ShowPatientInfo.PLAIN_TEXT;

@@ -226,7 +226,7 @@ public class PatientServiceEJB {
                 .executeUpdate();
     }
 
-    void updatePatientIDs(Patient pat, Collection<IDWithIssuer> patientIDs) {
+    public void updatePatientIDs(Patient pat, Collection<IDWithIssuer> patientIDs) {
         Collection<IDWithIssuer> newPatientIDs = new LinkedList<>(patientIDs);
         for (Iterator<PatientID> iter = pat.getPatientIDs().iterator(); iter.hasNext();) {
             PatientID patientID = iter.next();
