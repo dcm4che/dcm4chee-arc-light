@@ -183,7 +183,7 @@ class PatientUpdateService extends DefaultHL7Service {
             return msg.msh().getMessageType().equals(CHANGE_PATIENT_IDENTIFIER)
                     ? patientService.changePatientID(ctx)
                     : patientService.mergePatient(ctx);
-        } catch (PatientTrackingNotAllowedException e) {
+        } catch (PatientTrackingNotAllowedException|PatientAlreadyExistsException e) {
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
                             .setHL7ErrorCode(ERRSegment.DUPLICATE_KEY_IDENTIFIER)

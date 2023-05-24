@@ -209,7 +209,11 @@ public class PatientServiceEJB {
                 return;
         }
 
-        updatePatientIDs(pat, ctx.getPatientIDs());
+        updatePatientAttrs(pat, ctx, attrs, modified);
+    }
+
+    private void updatePatientAttrs(Patient pat, PatientMgtContext ctx, Attributes attrs, Attributes modified) {
+        updatePatientIDs(pat, IDWithIssuer.pidsOf(attrs));
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(recordAttributeModification(ctx)
@@ -220,7 +224,7 @@ public class PatientServiceEJB {
                         device.getDeviceName(),
                         modified)
                 : attrs,
-                filter, true, ctx.getFuzzyStr());
+                ctx.getAttributeFilter(), true, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
@@ -306,29 +310,51 @@ public class PatientServiceEJB {
         Patient pat2 = findPatient(patientIDs);
         if (pat2 != null && pat2 != pat)
             throw new PatientAlreadyExistsException("Patient with Patient IDs " + pat2.getPatientIDs() + "already exists");
-        updatePatientIDs(pat, ctx.getPatientIDs());
         updatePatientIDAttrs(ctx, pat);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         return pat;
     }
 
     private void updatePatientIDAttrs(PatientMgtContext ctx, Patient pat) {
-        Attributes patientAttrs = pat.getAttributes();
-        Attributes patientIDAttrs = PatientService.exportPatientIDsWithIssuer(pat.getPatientIDs());
-        Attributes modified = recordAttributeModification(ctx) ? new Attributes() : null;
-        patientAttrs.update(Attributes.UpdatePolicy.OVERWRITE, false, patientIDAttrs, modified);
-        if (modified != null) {
-            patientAttrs.addOriginalAttributes(
-                    null,
-                    new Date(),
-                    Attributes.CORRECT,
-                    device.getDeviceName(),
-                    modified);
+        Attributes attrs = pat.getAttributes();
+        Attributes newIDAttrs = new Attributes(ctx.getAttributes());
+        setNullIfMissing(newIDAttrs, Tag.IssuerOfPatientID, VR.LO);
+        setNullIfMissing(newIDAttrs, Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+        preserveOtherPatientID(ctx,
+                new Attributes(attrs,
+                        Tag.PatientID,
+                        Tag.IssuerOfPatientID,
+                        Tag.IssuerOfPatientIDQualifiersSequence,
+                        Tag.OtherPatientIDsSequence),
+                newIDAttrs);
+        Sequence otherPatientIDs = attrs.getSequence(Tag.OtherPatientIDsSequence);
+        if (otherPatientIDs != null) {
+            for (Attributes otherPatientID : otherPatientIDs) {
+                preserveOtherPatientID(ctx, new Attributes(otherPatientID), newIDAttrs);
+            }
         }
-        pat.setAttributes(patientAttrs, ctx.getAttributeFilter(), true, ctx.getFuzzyStr());
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
-                .setParameter(1, pat)
-                .executeUpdate();
+        Attributes modified = new Attributes();
+        attrs.update(Attributes.UpdatePolicy.OVERWRITE, false, newIDAttrs, modified);
+        updatePatientAttrs(pat, ctx, attrs, modified);
+    }
+
+    private void preserveOtherPatientID(PatientMgtContext ctx, Attributes attrs, Attributes newIDAttrs) {
+        IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
+        if (!matches(ctx.getPatientIDs(), pid) && !matches(ctx.getPreviousPatientIDs(), pid))
+            newIDAttrs.ensureSequence(Tag.OtherPatientIDsSequence, 1)
+                    .add(attrs);
+    }
+
+    private boolean matches(Collection<IDWithIssuer> pids, IDWithIssuer other) {
+        if (pids != null)
+            for (IDWithIssuer pid : pids)
+                if (pid.matches(other))
+                    return true;
+        return false;
+    }
+
+    private static void setNullIfMissing(Attributes attrs, int tag, VR vr) {
+        if (!attrs.contains(tag)) attrs.setNull(tag, vr);
     }
 
     public Patient findPatient(PatientMgtContext ctx) {
