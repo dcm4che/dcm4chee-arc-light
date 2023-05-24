@@ -320,29 +320,10 @@ public class PatientServiceEJB {
         Attributes newIDAttrs = new Attributes(ctx.getAttributes());
         setNullIfMissing(newIDAttrs, Tag.IssuerOfPatientID, VR.LO);
         setNullIfMissing(newIDAttrs, Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
-        preserveOtherPatientID(ctx,
-                new Attributes(attrs,
-                        Tag.PatientID,
-                        Tag.IssuerOfPatientID,
-                        Tag.IssuerOfPatientIDQualifiersSequence,
-                        Tag.OtherPatientIDsSequence),
-                newIDAttrs);
-        Sequence otherPatientIDs = attrs.getSequence(Tag.OtherPatientIDsSequence);
-        if (otherPatientIDs != null) {
-            for (Attributes otherPatientID : otherPatientIDs) {
-                preserveOtherPatientID(ctx, new Attributes(otherPatientID), newIDAttrs);
-            }
-        }
+        setNullIfMissing(newIDAttrs, Tag.OtherPatientIDsSequence, VR.SQ);
         Attributes modified = new Attributes();
         attrs.update(Attributes.UpdatePolicy.OVERWRITE, false, newIDAttrs, modified);
         updatePatientAttrs(pat, ctx, attrs, modified);
-    }
-
-    private void preserveOtherPatientID(PatientMgtContext ctx, Attributes attrs, Attributes newIDAttrs) {
-        IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
-        if (!matches(ctx.getPatientIDs(), pid) && !matches(ctx.getPreviousPatientIDs(), pid))
-            newIDAttrs.ensureSequence(Tag.OtherPatientIDsSequence, 1)
-                    .add(attrs);
     }
 
     private boolean matches(Collection<IDWithIssuer> pids, IDWithIssuer other) {
