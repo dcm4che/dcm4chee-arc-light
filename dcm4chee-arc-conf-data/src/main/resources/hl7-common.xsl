@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:param name="hl7CharacterSet"/>
+  <xsl:param name="hl7PrimaryAssigningAuthorityOfPatientID"/>
 
   <xsl:template name="attr">
     <xsl:param name="tag"/>
@@ -15,6 +16,38 @@
         </xsl:if>
       </DicomAttribute>
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="cx2pidAttrsPrimary">
+    <xsl:param name="cx"/>
+    <xsl:variable name="primaryIssuer" select="$cx/repeat[component[3] = $hl7PrimaryAssigningAuthorityOfPatientID]"/>
+    <xsl:choose>
+      <xsl:when test="$primaryIssuer">
+        <xsl:call-template name="cx2pidAttrs">
+          <xsl:with-param name="cx" select="$primaryIssuer"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="cx2pidAttrs">
+          <xsl:with-param name="cx" select="$cx"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+
+    <DicomAttribute tag="00101002" vr="SQ">
+      <Item number="1">
+        <xsl:call-template name="cx2pidAttrs">
+          <xsl:with-param name="cx" select="$cx"/>
+        </xsl:call-template>
+      </Item>
+      <xsl:for-each select="$cx/repeat">
+        <Item number="{position() + 1}">
+          <xsl:call-template name="cx2pidAttrs">
+            <xsl:with-param name="cx" select="."/>
+          </xsl:call-template>
+        </Item>
+      </xsl:for-each>
+    </DicomAttribute>
   </xsl:template>
 
   <xsl:template name="attrEmptyOrPresent">
@@ -467,7 +500,7 @@
       <xsl:with-param name="xpn" select="field[5]"/>
     </xsl:call-template>
     <!-- Patient ID -->
-    <xsl:call-template name="cx2pidAttrs">
+    <xsl:call-template name="cx2pidAttrsPrimary">
       <xsl:with-param name="cx" select="field[3]"/>
     </xsl:call-template>
     <!-- Patient Birth Date -->
@@ -611,7 +644,7 @@
             <xsl:with-param name="xpn" select="field[7]"/>
         </xsl:call-template>
         <!-- Patient ID -->
-        <xsl:call-template name="cx2pidAttrs">
+        <xsl:call-template name="cx2pidAttrsPrimary">
             <xsl:with-param name="cx" select="field[1]"/>
         </xsl:call-template>
       </Item>

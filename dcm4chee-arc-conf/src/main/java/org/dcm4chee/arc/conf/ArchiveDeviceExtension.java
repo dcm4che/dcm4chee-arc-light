@@ -287,6 +287,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration patientVerificationRetryInterval;
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
+    private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
+    private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
     private volatile HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy = HL7OrderMissingAdmissionIDPolicy.ACCEPT;
     private volatile HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy =
@@ -2999,6 +3001,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
+    public Issuer getHL7PrimaryAssigningAuthorityOfPatientID() {
+        return hl7PrimaryAssigningAuthorityOfPatientID;
+    }
+
+    public void setHL7PrimaryAssigningAuthorityOfPatientID(Issuer hl7PrimaryAssigningAuthorityOfPatientID) {
+        this.hl7PrimaryAssigningAuthorityOfPatientID = hl7PrimaryAssigningAuthorityOfPatientID;
+    }
+
+    public HL7OtherPatientIDs getHL7OtherPatientIDs() {
+        return hl7OtherPatientIDs;
+    }
+
+    public void setHL7OtherPatientIDs(HL7OtherPatientIDs hl7OtherPatientIDs) {
+        this.hl7OtherPatientIDs = hl7OtherPatientIDs;
+    }
+
     public HL7OrderMissingStudyIUIDPolicy getHl7OrderMissingStudyIUIDPolicy() {
         return hl7OrderMissingStudyIUIDPolicy;
     }
@@ -3517,6 +3535,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
         csvUploadChunkSize = arcdev.csvUploadChunkSize;
         validateUID = arcdev.validateUID;
+        hl7PrimaryAssigningAuthorityOfPatientID = arcdev.hl7PrimaryAssigningAuthorityOfPatientID;
+        hl7OtherPatientIDs = arcdev.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7OrderMissingAdmissionIDPolicy = arcdev.hl7OrderMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;

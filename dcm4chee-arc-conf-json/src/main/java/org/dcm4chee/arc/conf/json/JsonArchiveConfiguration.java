@@ -348,6 +348,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getPatientVerificationMaxRetries(), 0);
         writer.writeNotNullOrDef("dcmPatientVerificationMaxStaleness",
                 arcDev.getPatientVerificationMaxStaleness(), null);
+        writer.writeNotNullOrDef("hl7PrimaryAssigningAuthorityOfPatientID",
+                arcDev.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
+        writer.writeNotNullOrDef("hl7OtherPatientIDs", arcDev.getHL7OtherPatientIDs(),
+                HL7OtherPatientIDs.OTHER);
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", arcDev.getHl7OrderMissingStudyIUIDPolicy(),
                 HL7OrderMissingStudyIUIDPolicy.GENERATE);
         writer.writeNotNullOrDef("hl7OrderMissingAdmissionIDPolicy", arcDev.getHl7OrderMissingAdmissionIDPolicy(),
@@ -1971,6 +1975,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmSchedulerMinStartDelay":
                     arcDev.setSchedulerMinStartDelay(reader.intValue());
                     break;
+                case "hl7PrimaryAssigningAuthorityOfPatientID":
+                    arcDev.setHL7PrimaryAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
+                    break;
+                case "hl7OtherPatientIDs":
+                    arcDev.setHL7OtherPatientIDs(HL7OtherPatientIDs.valueOf(reader.stringValue()));
+                    break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     arcDev.setHl7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
                     break;
@@ -3036,7 +3046,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return issuers;
     }
 
-    private static Issuer toIssuer(String issuerOfPatientID) {
+    static Issuer toIssuer(String issuerOfPatientID) {
         return issuerOfPatientID != null ? new Issuer(issuerOfPatientID) : null;
     }
 

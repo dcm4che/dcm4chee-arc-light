@@ -40,9 +40,7 @@
 
 package org.dcm4chee.arc.hl7;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
@@ -65,6 +63,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import java.net.Socket;
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -256,14 +255,52 @@ class PatientUpdateService extends DefaultHL7Service {
 
     private static Attributes transform(UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
         try {
-            return SAXTransformer.transform(
+            Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
+            Attributes attrs = SAXTransformer.transform(
                     msg,
                     arcHL7App,
                     arcHL7App.patientUpdateTemplateURI(),
-                    null);
+                    tr -> {
+                        if (hl7PrimaryAssigningAuthorityOfPatientID != null)
+                            tr.setParameter("hl7PrimaryAssigningAuthorityOfPatientID",
+                                    hl7PrimaryAssigningAuthorityOfPatientID.toString());
+                    });
+            adjustOtherPIDs(attrs, arcHL7App);
+            return attrs;
         } catch (Exception e) {
             throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
         }
+    }
+
+    private static void adjustOtherPIDs(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App) {
+        Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
+        IDWithIssuer primaryPatIdentifier = IDWithIssuer.pidOf(attrs);
+        switch (arcHL7App.hl7OtherPatientIDs()) {
+            case ALL:
+                break;
+            case NONE:
+                attrs.remove(Tag.OtherPatientIDsSequence);
+                break;
+            default:
+                Iterator<Attributes> otherPIDs = attrs.getSequence(Tag.OtherPatientIDsSequence).iterator();
+                while (otherPIDs.hasNext()) {
+                    IDWithIssuer otherPID = IDWithIssuer.pidOf(otherPIDs.next());
+                    if (otherPID == null || !otherPID.equals(primaryPatIdentifier))
+                        continue;
+
+                    otherPIDs.remove();
+                }
+                if (attrs.getSequence(Tag.OtherPatientIDsSequence).isEmpty())
+                    attrs.remove(Tag.OtherPatientIDsSequence);
+        }
+
+        if (hl7PrimaryAssigningAuthorityOfPatientID == null
+                || primaryPatIdentifier == null
+                || hl7PrimaryAssigningAuthorityOfPatientID.equals(primaryPatIdentifier.getIssuer()))
+            return;
+
+        LOG.info("None of the patient identifier pairs in PID-3 match with configured " +
+                "Primary Assigning Authority of Patient ID : {}", hl7PrimaryAssigningAuthorityOfPatientID);
     }
 
     private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat) {

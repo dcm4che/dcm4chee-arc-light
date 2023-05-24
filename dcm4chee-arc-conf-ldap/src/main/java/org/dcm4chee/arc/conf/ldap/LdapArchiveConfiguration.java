@@ -529,6 +529,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getKeyValueRetentionFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeyValueRetentionPeriod",
                 ext.getKeyValueRetentionPeriod(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PrimaryAssigningAuthorityOfPatientID",
+                ext.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OtherPatientIDs", 
+                ext.getHL7OtherPatientIDs(), HL7OtherPatientIDs.OTHER);
     }
 
     @Override
@@ -860,6 +864,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setUpdateCharsetFetchSize(LdapUtils.intValue(attrs.get("dcmUpdateCharsetFetchSize"), 100));
         ext.setAuditAssigningAuthorityOfPatientID(
                 toIssuer(LdapUtils.stringValue(attrs.get("dcmAuditAssigningAuthorityOfPatientID"), null)));
+        ext.setHL7PrimaryAssigningAuthorityOfPatientID(
+                toIssuer(LdapUtils.stringValue(attrs.get("hl7PrimaryAssigningAuthorityOfPatientID"), null)));
+        ext.setHL7OtherPatientIDs(LdapUtils.enumValue(
+                HL7OtherPatientIDs.class, attrs.get("hl7OtherPatientIDs"), HL7OtherPatientIDs.OTHER));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
         ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), false));
         ext.setAuditHL7MsgLimit(LdapUtils.intValue(attrs.get("dcmAuditHL7MsgLimit"), 1000));
@@ -1351,6 +1359,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getCSVUploadChunkSize(),
                 bb.getCSVUploadChunkSize(),
                 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PrimaryAssigningAuthorityOfPatientID",
+                aa.getHL7PrimaryAssigningAuthorityOfPatientID(),
+                bb.getHL7PrimaryAssigningAuthorityOfPatientID(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OtherPatientIDs",
+                aa.getHL7OtherPatientIDs(), bb.getHL7OtherPatientIDs(),
+                HL7OtherPatientIDs.OTHER);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderMissingStudyIUIDPolicy",
                 aa.getHl7OrderMissingStudyIUIDPolicy(), bb.getHl7OrderMissingStudyIUIDPolicy(),
                 HL7OrderMissingStudyIUIDPolicy.GENERATE);
@@ -5926,7 +5941,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return issuers;
     }
 
-    private static Issuer toIssuer(String issuerOfPatientID) {
+    static Issuer toIssuer(String issuerOfPatientID) {
         return issuerOfPatientID != null ? new Issuer(issuerOfPatientID) : null;
     }
 

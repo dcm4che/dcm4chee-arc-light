@@ -76,6 +76,9 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
+        writer.writeNotNullOrDef("hl7PrimaryAssigningAuthorityOfPatientID",
+                ext.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
+        writer.writeNotNullOrDef("hl7OtherPatientIDs", ext.getHL7OtherPatientIDs(), null);
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", ext.getHL7OrderMissingStudyIUIDPolicy(), null);
         writer.writeNotNullOrDef("hl7OrderMissingAdmissionIDPolicy", ext.getHl7OrderMissingAdmissionIDPolicy(), null);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy",
@@ -163,6 +166,12 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7UseNullValue":
                     ext.setHL7UseNullValue(reader.booleanValue());
+                    break;
+                case "hl7PrimaryAssigningAuthorityOfPatientID":
+                    ext.setHL7PrimaryAssigningAuthorityOfPatientID(JsonArchiveConfiguration.toIssuer(reader.stringValue()));
+                    break;
+                case "hl7OtherPatientIDs":
+                    ext.setHL7OtherPatientIDs(HL7OtherPatientIDs.valueOf(reader.stringValue()));
                     break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     ext.setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));

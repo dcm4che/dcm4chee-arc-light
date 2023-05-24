@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
 
@@ -63,6 +64,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private Boolean hl7UseNullValue;
+    private Issuer hl7PrimaryAssigningAuthorityOfPatientID;
+    private HL7OtherPatientIDs hl7OtherPatientIDs;
     private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
     private HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy;
     private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
@@ -112,6 +115,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7UseNullValue = arcapp.hl7UseNullValue;
+        hl7PrimaryAssigningAuthorityOfPatientID = arcapp.hl7PrimaryAssigningAuthorityOfPatientID;
+        hl7OtherPatientIDs = arcapp.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
         hl7OrderMissingAdmissionIDPolicy = arcapp.hl7OrderMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
@@ -492,6 +497,34 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 throw new IllegalArgumentException("XSLT parameter in incorrect format : " + s);
             setImportReportTemplateParam(s.substring(0, index), s.substring(index+1));
         }
+    }
+
+    public Issuer getHL7PrimaryAssigningAuthorityOfPatientID() {
+        return hl7PrimaryAssigningAuthorityOfPatientID;
+    }
+
+    public void setHL7PrimaryAssigningAuthorityOfPatientID(Issuer hl7PrimaryAssigningAuthorityOfPatientID) {
+        this.hl7PrimaryAssigningAuthorityOfPatientID = hl7PrimaryAssigningAuthorityOfPatientID;
+    }
+
+    public Issuer hl7PrimaryAssigningAuthorityOfPatientID() {
+        return hl7PrimaryAssigningAuthorityOfPatientID != null
+                ? hl7PrimaryAssigningAuthorityOfPatientID
+                : getArchiveDeviceExtension().getHL7PrimaryAssigningAuthorityOfPatientID();
+    }
+
+    public HL7OtherPatientIDs getHL7OtherPatientIDs() {
+        return hl7OtherPatientIDs;
+    }
+
+    public void setHL7OtherPatientIDs(HL7OtherPatientIDs hl7OtherPatientIDs) {
+        this.hl7OtherPatientIDs = hl7OtherPatientIDs;
+    }
+
+    public HL7OtherPatientIDs hl7OtherPatientIDs() {
+        return hl7OtherPatientIDs != null
+                ? hl7OtherPatientIDs
+                : getArchiveDeviceExtension().getHL7OtherPatientIDs();
     }
 
     public HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy() {
