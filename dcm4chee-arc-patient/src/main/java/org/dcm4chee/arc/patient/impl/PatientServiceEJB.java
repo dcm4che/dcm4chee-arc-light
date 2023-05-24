@@ -326,14 +326,6 @@ public class PatientServiceEJB {
         updatePatientAttrs(pat, ctx, attrs, modified);
     }
 
-    private boolean matches(Collection<IDWithIssuer> pids, IDWithIssuer other) {
-        if (pids != null)
-            for (IDWithIssuer pid : pids)
-                if (pid.matches(other))
-                    return true;
-        return false;
-    }
-
     private static void setNullIfMissing(Attributes attrs, int tag, VR vr) {
         if (!attrs.contains(tag)) attrs.setNull(tag, vr);
     }
