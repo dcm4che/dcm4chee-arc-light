@@ -496,9 +496,7 @@ public class QidoRS {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
             ctx.setReturnKeys(queryAttrs.isIncludeAll()
                     ? null
-                    : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
-                    ? queryAttrs.getReturnKeys(qido.includetags)
-                    : queryAttrs.getQueryKeys());
+                    : queryAttrs.getReturnKeys(includeDefaults() ? qido.includetags : qido.uids));
             Date lastModified = null;
             if (etag && arcAE.qidoETag()) {
                 LOG.debug("Query Last Modified date of {}", model);
