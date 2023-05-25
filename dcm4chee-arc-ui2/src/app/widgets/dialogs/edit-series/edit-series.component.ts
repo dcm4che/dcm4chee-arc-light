@@ -13,7 +13,21 @@ import {SelectDropdown} from "../../../interfaces";
     selector: 'edit-series',
     templateUrl: './edit-series.component.html',
     styles: [`
-
+        .form_input{
+            display: grid;
+            grid-template-columns: 1fr 1.36fr;
+            margin-bottom: 15px;
+            grid-gap: 12px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .form_input label{
+            text-align: right;
+        }
+        .form_input input, .form_input dcm-drop-down{
+            width: 96%;
+            min-height: 30px;
+        }
     `]
 })
 export class EditSeriesComponent{
@@ -35,11 +49,18 @@ export class EditSeriesComponent{
         new SelectDropdown("COERCE", "COERCE"),
         new SelectDropdown("CORRECT", "CORRECT"),
     ]
+    updatePolicy:SelectDropdown<any>[] = [
+        new SelectDropdown("SUPPLEMENT", "SUPPLEMENT"),
+        new SelectDropdown("MERGE", "MERGE"),
+        new SelectDropdown("OVERWRITE", "OVERWRITE"),
+    ]
 
     _seriesResult = {
+        editMode: 'single',
         series: undefined,
         sourceOfPrevVals: '',
-        reasonForModificationResult: undefined
+        reasonForModificationResult: undefined,
+        updatePolicyResult: 'OVERWRITE'
     }
 
     @Output() onChange = new EventEmitter();

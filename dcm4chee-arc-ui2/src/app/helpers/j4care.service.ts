@@ -1642,6 +1642,29 @@ export class j4care {
         }
     }
 
+    static prepareCountMessageUpdateMatching(preMessage:string, returnedObject:any) {
+        let msg = "<br>\n";
+        try{
+            if(_.hasIn(returnedObject,"updated")){
+                msg += $localize `:@@preparemsg.updated:- updated successfully for \:${returnedObject.updated}:@@updated:<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"failed")){
+                msg += $localize `:@@preparemsg.failed:- failed to update for \:${returnedObject.failed}:@@failed:<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"count")
+                && !(_.hasIn(returnedObject,"failed"))
+                    && !(_.hasIn(returnedObject,"updated"))) {
+                msg += $localize `:@@preparemsg.noop:- resulted in No Op for \:${returnedObject.count}:@@count:<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"error")){
+                msg += $localize `:@@preparemsg.error:Error\:${returnedObject.error}:@@error:<br>\n`;
+            }
+        }catch (e) {
+            msg = "";
+        }
+        return `${preMessage}${msg != "" ? ':':''}${msg}`;
+    }
+
     static prepareCountMessage(preMessage:string, returnedObject:any){
         let msg = "<br>\n";
         try{
