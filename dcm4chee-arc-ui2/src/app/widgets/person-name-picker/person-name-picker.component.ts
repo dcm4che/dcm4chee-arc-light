@@ -32,7 +32,9 @@ export class PersonNamePickerComponent implements OnInit {
   set model(value: string) {
     this._model = value;
     this.asFilterModel = value;
-    this.internModel = value;
+    if(!this._internModel){
+      this.internModel = value;
+    }
   }
   @Output() modelChange = new EventEmitter();
   constructor(
@@ -87,7 +89,7 @@ export class PersonNamePickerComponent implements OnInit {
     this._internModel = value;
   }
   onComponentChange(){
-    const collected = [
+    let collected = [
       this.familyName,
       this.givenName,
       this.middleName,
@@ -95,13 +97,14 @@ export class PersonNamePickerComponent implements OnInit {
       this.nameSuffix
     ];
     if(collected.join("") != ""){
-      this.asFilterModel = collected.join("^");
+      this.asFilterModel = this.personNameService.addCarets(this.familyName, this.givenName, this.middleName, this.namePrefix, this.nameSuffix);
       this._internModel = this.personNameService.convertPNameFromDicomFormToFormatted(this._asFilterModel, this.format)
     }else{
       this.asFilterModel = "";
       this._internModel = "";
     }
   }
+
   get asFilterModel(): string {
     return this._asFilterModel;
   }

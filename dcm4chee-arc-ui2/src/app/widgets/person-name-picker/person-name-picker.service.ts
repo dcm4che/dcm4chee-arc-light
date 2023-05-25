@@ -52,17 +52,13 @@ export class PersonNamePickerService {
         this.mapOnEqual(splittedFormat, splittedName,collectedParts);
       }
     }
-    return `${
-      collectedParts["FAMILY-NAME"] || ""
-    }^${
-      collectedParts["GIVEN-NAME"] || ""
-    }^${
-      collectedParts["MIDDLE-NAME"] || ""
-    }^${
-      collectedParts["NAME-PREFIX"] || ""
-    }^${
-      collectedParts["NAME-SUFFIX"] || ""
-    }`;
+    return this.addCarets(
+        collectedParts["FAMILY-NAME"] || "",
+        collectedParts["GIVEN-NAME"] || "",
+        collectedParts["MIDDLE-NAME"] || "",
+        collectedParts["NAME-PREFIX"] || "",
+        collectedParts["NAME-SUFFIX"] || ""
+    )
   }
   mapOnEqual(formats, names, collectedParts){
     for(let i = 0;i < formats.length; i++){
@@ -112,7 +108,7 @@ export class PersonNamePickerService {
   }
   extractPatientComponent(formatterKey, key,string){
     try{
-      const regexString = formatterKey.replace(`{${key}}`,`([\\w. -]+)`);
+      const regexString = formatterKey.replace(`{${key}}`,`([\\w. *-]+)`);
       const regex = new RegExp(regexString);
       let extracted = regex.exec(string);
       return extracted[1];
@@ -139,6 +135,33 @@ export class PersonNamePickerService {
   }
   convertPNameFromDicomFormToFormatted(input:string, format = `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`):string{
     const formatPipe = new PersonNamePipe();
-    return formatPipe.transform(input, format);
+    return formatPipe.transform(input.replace(/\*/,""), format);
+  }
+  addCarets(familyName, givenName, middleName, namePrefix, nameSuffix){
+    let collected = [
+      familyName,
+      givenName,
+      middleName,
+      namePrefix,
+      nameSuffix
+    ];
+    if(collected.join("") != ""){
+      collected = this.removeLastEmptyParts(collected);
+    }
+    return collected
+        .map(element=>element == '' || element == undefined ? '*' : element)
+        .join("^");
+  }
+
+  removeLastEmptyParts(array):any[]{
+    let stop = false;
+    while( array.length > 0 && !stop){
+      if(array[array.length - 1] == "" || array[array.length - 1] == undefined){
+        array = array.slice(0,-1)
+      }else{
+        stop = true;
+      }
+    }
+    return array;
   }
 }
