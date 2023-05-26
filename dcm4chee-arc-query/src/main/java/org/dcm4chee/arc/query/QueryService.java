@@ -53,7 +53,6 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
 
-import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaQuery;
 import java.io.IOException;
 import java.util.Collection;
@@ -151,7 +150,7 @@ public interface QueryService {
 
     List<String> getDistinctInstitutions(String entity);
 
-    List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
+    List<Study> unknownSizeStudies(Date dt, int fetchSize);
 
     CriteriaQuery<PatientID> createPatientIDWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
 

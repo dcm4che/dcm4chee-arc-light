@@ -42,6 +42,7 @@ import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.PatientID;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.event.StudySizeEvent;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.impl.QueryAttributesEJB;
@@ -96,27 +97,24 @@ public class StudySizeScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int calculated = 0;
-        List<Tuple> studies;
+        List<Study> studies;
         int studySizeFetchSize;
         do {
             studies = queryService.unknownSizeStudies(
                     updatedTime(arcDev.getStudySizeDelay()),
                     studySizeFetchSize = arcDev.getCalculateStudySizeFetchSize());
-            for (Tuple studyTuple : studies) {
-                Long studyPk = studyTuple.get(0, Long.class);
+            for (Study study : studies) {
                 try {
-                    long studySize = querySizeEJB.claimAndCalculateStudySize(studyPk);
+                    long studySize = querySizeEJB.claimAndCalculateStudySize(study.getPk());
                     if (studySize > 0L) {
                         if (arcDev.isCalculateQueryAttributes())
-                            queryAttrsEJB.calculateStudyQueryAttributes(studyPk);
+                            queryAttrsEJB.calculateStudyQueryAttributes(study.getPk());
                         calculated++;
-                        studySizeEvent.fire(new StudySizeEvent(
-                                studyTuple.get(1, String.class),
-                                studyTuple.get(2, PatientID.class).getIDWithIssuer()));
+                        studySizeEvent.fire(new StudySizeEvent(study));
                     }
                 } catch (Exception e) {
-                    LOG.warn("Failed to update DB with calculated size or query attributes for Study[pk={}]:{}",
-                            studyPk, System.lineSeparator(), e);
+                    LOG.warn("Failed to update DB with calculated size or query attributes for {}}:{}",
+                            study, System.lineSeparator(), e);
                 }
             }
         } while (studies.size() == studySizeFetchSize && getPollingInterval() != null);

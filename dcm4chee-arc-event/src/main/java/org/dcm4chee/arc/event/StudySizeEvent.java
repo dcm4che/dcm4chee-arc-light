@@ -39,31 +39,33 @@
 package org.dcm4chee.arc.event;
 
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4chee.arc.entity.PatientID;
+import org.dcm4chee.arc.entity.Study;
+
+import java.util.Collection;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2020
  */
 public class StudySizeEvent {
-    private final String studyIUID;
-    private final IDWithIssuer patientID;
-
-    public StudySizeEvent(String studyIUID, IDWithIssuer patientID) {
-        this.studyIUID = studyIUID;
-        this.patientID = patientID;
+    private final Study study;
+    public StudySizeEvent(Study study) {
+        this.study = study;
     }
 
     public String getStudyIUID() {
-        return studyIUID;
+        return study.getStudyInstanceUID();
     }
 
     public IDWithIssuer getPatientID() {
-        return patientID;
+        Collection<PatientID> patientIDs = study.getPatient().getPatientIDs();
+        return patientIDs.isEmpty() ? null : patientIDs.iterator().next().getIDWithIssuer();
     }
 
     @Override
     public String toString() {
-        return "StudySizeEvent[uid=" + studyIUID
-                + ", pid=" + patientID + "]";
+        return "StudySizeEvent[uid=" + getStudyIUID()
+                + ", pid=" + getPatientID() + "]";
     }
 }

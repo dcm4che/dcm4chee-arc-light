@@ -522,8 +522,8 @@ public class QueryServiceEJB {
             null);
     }
 
-    public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
-        return em.createNamedQuery(Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE, Tuple.class)
+    public List<Study> unknownSizeStudies(Date dt, int fetchSize) {
+        return em.createNamedQuery(Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE, Study.class)
                 .setParameter(1, dt)
                 .setMaxResults(fetchSize)
                 .getResultList();

@@ -64,7 +64,6 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
-import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -897,7 +896,7 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
+    public List<Study> unknownSizeStudies(Date dt, int fetchSize) {
         return ejb.unknownSizeStudies(dt, fetchSize);
     }
 
