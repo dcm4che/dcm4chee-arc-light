@@ -219,12 +219,14 @@ public class HL7PSUEJB {
         MPPS mpps = task.getMpps();
         if (mpps != null) {
             attrs = mpps.getAttributes();
+            Attributes.unifyCharacterSets(attrs, mpps.getPatient().getAttributes());
             attrs.addAll(mpps.getPatient().getAttributes());
             return attrs;
         }
 
         if (mwl != null) {
             attrs = mwl.getAttributes();
+            Attributes.unifyCharacterSets(attrs, mwl.getPatient().getAttributes());
             attrs.addAll(mwl.getPatient().getAttributes());
             return attrs;
         }
@@ -240,6 +242,7 @@ public class HL7PSUEJB {
 
         Study study = series.getStudy();
         attrs = new Attributes(series.getAttributes());
+        Attributes.unifyCharacterSets(attrs, study.getAttributes(), study.getPatient().getAttributes());
         attrs.addAll(study.getAttributes());
         attrs.addAll(study.getPatient().getAttributes());
         return attrs;
