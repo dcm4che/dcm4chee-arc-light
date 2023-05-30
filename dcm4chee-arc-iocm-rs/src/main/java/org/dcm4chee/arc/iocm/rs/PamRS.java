@@ -266,7 +266,7 @@ public class PamRS {
             return errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST);
 
         boolean mergePatients = Boolean.parseBoolean(merge);
-        boolean patientMatch = priorPatientID.equals(targetPatientIDs);
+        boolean patientMatch = targetPatientIDs.contains(priorPatientID);
         if (patientMatch && mergePatients)
             return errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST);
 
