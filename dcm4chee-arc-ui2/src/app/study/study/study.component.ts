@@ -3874,6 +3874,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.titleLabel = config.titleLabel;
             this.dialogRef.afterClosed().subscribe(result => {
                 if (result){
+                    j4care.removeKeyFromObject(patient.attrs, ["required","enum", "multi"]);
                     if(mode === "create"){
                         this.service.modifyPatient(undefined,patient.attrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.patient_created_successfully:Patient created successfully`);
