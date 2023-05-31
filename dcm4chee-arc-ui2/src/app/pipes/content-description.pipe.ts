@@ -30,7 +30,7 @@ export class ContentDescriptionPipe implements PipeTransform {
                   valueOf(attrs, '0040A496'), // PreliminaryFlag
                   valueOf(attrs, '0040A491'), // CompletionFlag
                   valueOf(attrs, '0040A493'), // VerificationFlag
-                  valueOf(code, '0080104')  // CodeMeaning
+                  valueOf(code, '00080104')  // CodeMeaning
               ].filter(function (obj) { return obj; }).join(' ');
       };
       return valueOf(value, '00700081') // ContentDescription
