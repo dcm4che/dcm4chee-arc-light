@@ -357,10 +357,9 @@ public class PurgeStorageScheduler extends Scheduler {
             try {
                 int limit = arcDev.getDeleteStudyChunkSize();
                 int n;
-                do {
-                    n = ejb.deleteStudy(ctx, limit, false).size();
+                while ((n = ejb.deleteStudy(ctx, limit, false).size()) > 0) {
                     LOG.debug("Deleted {} instances of Study[pk={}]", n, pkUID.pk);
-                } while (n == limit);
+                }
                 removed++;
                 LOG.info("Successfully delete {} on {}", ctx.getStudy(), desc);
             } catch (Exception e) {
