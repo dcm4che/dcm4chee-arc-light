@@ -360,7 +360,7 @@ public final class StorageDescriptor {
 
     public List<String> getStudyStorageIDs(List<String> otherStorageIDs) {
         return exportStorageID.length > 0
-                ? addPowerSet(false, otherStorageIDs, storageIDWithExportStorages())
+                ? studyStorageIDsWithExportStorages(false, otherStorageIDs, storageIDWithExportStorages())
                 : addPowerSet(false, otherStorageIDs, storageID);
     }
 
@@ -412,5 +412,15 @@ public final class StorageDescriptor {
             Arrays.sort(a);
             return StringUtils.concat(a, '\\');
         }).collect(Collectors.toList());
+    }
+
+    private List<String> studyStorageIDsWithExportStorages(
+            boolean excludeEmptySet, List<String> storageIDs, String... common) {
+        List<String> studyStorageIDs = new ArrayList<>();
+        for (String exportStorage : exportStorageID)
+            studyStorageIDs.addAll(addPowerSet(excludeEmptySet, storageIDs, storageID, exportStorage));
+
+        studyStorageIDs.addAll(addPowerSet(excludeEmptySet, storageIDs, common));
+        return studyStorageIDs;
     }
 }
