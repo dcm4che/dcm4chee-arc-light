@@ -674,9 +674,8 @@ public class DeletionServiceEJB {
     }
 
     private List<String> getStudyStorageIDs(StorageDescriptor desc) {
-        return desc.getStudyStorageIDs(
-                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                        .getOtherStorageIDs(desc));
+        return desc.getStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                        .getOtherStorageIDs(desc), null, true);
     }
 
     public List<Study> findExpiredStudies(int studyFetchSize) {
