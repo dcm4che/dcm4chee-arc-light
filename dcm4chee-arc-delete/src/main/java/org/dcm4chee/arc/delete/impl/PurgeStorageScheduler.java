@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.delete.impl;
 
-import org.apache.http.impl.execchain.ServiceUnavailableRetryExec;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.dict.archive.PrivateTag;

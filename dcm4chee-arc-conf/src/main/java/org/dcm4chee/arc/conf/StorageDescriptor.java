@@ -358,69 +358,52 @@ public final class StorageDescriptor {
         this.storageClusterID = storageClusterID;
     }
 
-    public List<String> getStudyStorageIDs(List<String> otherStorageIDs) {
-        return exportStorageID.length > 0
-                ? studyStorageIDsWithExportStorages(false, otherStorageIDs, storageIDWithExportStorages())
-                : addPowerSet(false, otherStorageIDs, storageID);
-    }
-
     public List<String> getStudyStorageIDs(List<String> otherStorageIDs,
                                            Boolean storageClustered, Boolean storageExported) {
-        if (storageClusterID == null || storageClustered != null && !storageClustered) {
-            return exportStorageID.length == 0 || storageExported != null && !storageExported
-                    ? Collections.singletonList(storageID)
-                    : storageExported == null
-                        ? addPowerSet(false, Arrays.asList(exportStorageID), storageID)
-                        : addPowerSet(false, Collections.emptyList(), storageIDWithExportStorages());
-        }
-
-        if (exportStorageID.length == 0 || storageExported != null && !storageExported) {
-            return addPowerSet(storageClustered != null, otherStorageIDs, storageID);
-        }
-
-        List<String> studyStorageIDs = addPowerSet(
-                storageClustered != null, otherStorageIDs, storageIDWithExportStorages());
-        if (storageExported == null)
-            studyStorageIDs.addAll(addPowerSet(storageClustered != null, otherStorageIDs, storageID));
-
-        return studyStorageIDs;
+        String[][] combinations = {{ storageID }};
+        if (!otherStorageIDs.isEmpty() && (storageClustered == null || storageClustered))
+            combinations = join(combinations,
+                    powerSetOf(storageClustered != null, otherStorageIDs));
+        if (exportStorageID.length > 0 && (storageExported == null || storageExported))
+            combinations = join(combinations,
+                    powerSetOf(storageExported != null, Arrays.asList(exportStorageID)));
+        return toStudyStorageIDs(combinations);
     }
 
-    private String[] storageIDWithExportStorages() {
-        String[] storageIDWithExportStorages = new String[exportStorageID.length + 1];
-        storageIDWithExportStorages[0] = storageID;
-        System.arraycopy(exportStorageID, 0, storageIDWithExportStorages, 1, exportStorageID.length);
-        Arrays.sort(storageIDWithExportStorages);
-        return storageIDWithExportStorages;
-    }
-
-    private static List<String> addPowerSet(boolean excludeEmptySet, List<String> storageIDs, String... common) {
-        if (storageIDs.isEmpty()) {
-            if (excludeEmptySet)
-                return Collections.emptyList();
-
-            return Collections.singletonList(StringUtils.concat(common, '\\'));
-        }
-        return IntStream.range(excludeEmptySet ? 1 : 0, 1 << storageIDs.size()).mapToObj(i -> {
-            String[] a = Arrays.copyOf(common, common.length + Integer.bitCount(i));
-            int j = common.length;
-            int mask = 1;
-            for (String storageID : storageIDs) {
-                if ((i & mask) != 0) a[j++] = storageID;
-                mask <<= 1;
+    private static String[][] powerSetOf(boolean excludeEmptySet, List<String> storageIDs) {
+        int skip = excludeEmptySet ? 1 : 0;
+        String[][] result = new String[(1 << storageIDs.size()) - skip][];
+        for (int i = 0; i < result.length; i++) {
+            int n = i + skip;
+            result[i] = new String[Integer.bitCount(n)];
+            for (int j = 0, k = 0; j < storageIDs.size(); j++) {
+                if ((n & (1 << j)) != 0) {
+                    result[i][k++] = storageIDs.get(j);
+                }
             }
-            Arrays.sort(a);
-            return StringUtils.concat(a, '\\');
-        }).collect(Collectors.toList());
+        }
+        return result;
     }
 
-    private List<String> studyStorageIDsWithExportStorages(
-            boolean excludeEmptySet, List<String> storageIDs, String... common) {
-        List<String> studyStorageIDs = new ArrayList<>();
-        for (String exportStorage : exportStorageID)
-            studyStorageIDs.addAll(addPowerSet(excludeEmptySet, storageIDs, storageID, exportStorage));
-
-        studyStorageIDs.addAll(addPowerSet(excludeEmptySet, storageIDs, common));
-        return studyStorageIDs;
+    private static String[][] join(String[][] a, String[][] b) {
+        String[][] result = new String[a.length * b.length][];
+        for (int i = 0, k = 0; i < a.length; i++) {
+            for (int j = 0; j < b.length; j++, k++) {
+                result[k] = new String[a[i].length + b[j].length];
+                System.arraycopy(a[i], 0, result[k], 0, a[i].length);
+                System.arraycopy(b[j], 0, result[k], a[i].length, b[j].length);
+            }
+        }
+        return result;
     }
+
+    private static List<String> toStudyStorageIDs(String[][] a) {
+        String[] result = new String[a.length];
+        for (int i = 0; i < a.length; i++) {
+            Arrays.sort(a[i]);
+            result[i] = StringUtils.concat(a[i], '\\');
+        }
+        return Arrays.asList(result);
+    }
+
 }
