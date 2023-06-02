@@ -358,15 +358,22 @@ public final class StorageDescriptor {
         this.storageClusterID = storageClusterID;
     }
 
-    public List<String> getStudyStorageIDs(List<String> otherStorageIDs,
-                                           Boolean storageClustered, Boolean storageExported) {
+    public List<String> getStudyStorageIDs(
+            List<String> otherStorageIDsOfStorageCLuster,
+            List<String> exportFromStorageIDs,
+            Boolean storageClustered,
+            Boolean storageExported) {
         String[][] combinations = {{ storageID }};
-        if (!otherStorageIDs.isEmpty() && (storageClustered == null || storageClustered))
+        if (!otherStorageIDsOfStorageCLuster.isEmpty() && (storageClustered == null || storageClustered))
             combinations = join(combinations,
-                    powerSetOf(storageClustered != null, otherStorageIDs));
+                    powerSetOf(storageClustered != null, otherStorageIDsOfStorageCLuster));
         if (exportStorageID.length > 0 && (storageExported == null || storageExported))
             combinations = join(combinations,
                     powerSetOf(storageExported != null, Arrays.asList(exportStorageID)));
+        if (!exportFromStorageIDs.isEmpty())
+            combinations = join(combinations, powerSetOf(false, exportFromStorageIDs));
+        if (retrieveCacheStorageID != null && !exportFromStorageIDs.contains(retrieveCacheStorageID))
+            combinations = join(combinations, new String[][]{{},{ retrieveCacheStorageID }});
         return toStudyStorageIDs(combinations);
     }
 

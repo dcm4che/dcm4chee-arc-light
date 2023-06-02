@@ -1926,7 +1926,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 .map(StorageDescriptor::getStorageID);
     }
 
-    public List<String> getOtherStorageIDs(StorageDescriptor desc) {
+    public List<String> getOtherStorageIDsOfStorageCluster(StorageDescriptor desc) {
         return desc.getStorageClusterID() != null
                 ? getStorageIDsOfCluster(desc.getStorageClusterID())
                     .filter(storageID -> !storageID.equals(desc.getStorageID()))
@@ -1937,8 +1937,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public List<String> getStudyStorageIDs(String storageID, Boolean storageClustered, Boolean storageExported) {
         StorageDescriptor desc = getStorageDescriptor(storageID);
         return desc != null
-                ? desc.getStudyStorageIDs(getOtherStorageIDs(desc), storageClustered, storageExported)
+                ? desc.getStudyStorageIDs(
+                        getOtherStorageIDsOfStorageCluster(desc),
+                        getExportedFromStorageIDs(storageID),
+                        storageClustered,
+                        storageExported)
                 : Collections.emptyList();
+    }
+
+    private List<String> getExportedFromStorageIDs(String exportStorageID) {
+        return storageDescriptorMap.values().stream()
+                .filter(desc -> Arrays.asList(desc.getExportStorageID()).contains(exportStorageID))
+                .map(StorageDescriptor::getStorageID)
+                .collect(Collectors.toList());
     }
 
     public QueueDescriptor getQueueDescriptor(String queueName) {
