@@ -225,10 +225,8 @@ public class DeletionServiceImpl implements DeletionService {
         }
         int limit = arcDev.getDeleteStudyChunkSize();
         List<Location> locations1;
-        while (!(locations1 = ejb.deleteStudy(ctx, limit, retainObj || reimport)).isEmpty()) {
-            LOG.debug("Deleted {} instances of {}", locations1.size(), study);
+        while (!(locations1 = ejb.deleteStudy(ctx, limit, retainObj || reimport)).isEmpty())
             locations.addAll(locations1);
-        }
         LOG.info("Successfully delete {} from database", study);
         return locations;
     }
