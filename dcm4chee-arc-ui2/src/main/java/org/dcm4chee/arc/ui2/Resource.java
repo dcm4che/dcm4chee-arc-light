@@ -88,6 +88,7 @@ public class Resource {
         sb.append("\",\"super-user-role\":\"").append(System.getProperty("super-user-role", "root"));
         sb.append("\",\"management-http-port\":").append(intSystemProperty("jboss.management.http.port", 9990));
         sb.append(",\"management-https-port\":").append(intSystemProperty("jboss.management.https.port", 9993));
+        sb.append(",\"ui2-web-app-title\":\"").append(System.getProperty("ui2-web-app-title", "dcm4chee-arc-ui")).append("\"");
         sb.append("}");
         return sb.toString();
     }
