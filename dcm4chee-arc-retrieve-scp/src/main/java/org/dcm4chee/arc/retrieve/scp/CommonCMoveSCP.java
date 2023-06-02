@@ -143,7 +143,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                     LOG.info("{}: {} objects of study{} not locally accessable - send C-MOVE RQ to {}",
                             as, notAccessableNext.getValue().size(), Arrays.toString(ctx.getStudyInstanceUIDs()),
                             otherCMoveSCP);
-                    moveSCU.forwardMoveRQ(ctx, pc, rq, keys, null, otherCMoveSCP, otherMoveDest);
+                    moveSCU.forwardMoveRQ(ctx, pc, rq, keys, as.getCallingAET(), otherCMoveSCP, otherMoveDest);
                     notAccessableNext = notAccessableIter.next();
                     otherCMoveSCP = notAccessableNext.getKey();
                     otherMoveDest = otherCMoveSCP.equals(altCMoveSCP) ? null : arcAE.externalRetrieveAEDestination();
@@ -152,7 +152,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                     as, notAccessableNext.getValue().size(), Arrays.toString(ctx.getStudyInstanceUIDs()),
                     otherCMoveSCP);
                 if (!retryFailedRetrieve && ctx.getMatches().isEmpty()) {
-                    return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, null, otherCMoveSCP, otherMoveDest);
+                    return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, as.getCallingAET(), otherCMoveSCP, otherMoveDest);
                 }
                 moveSCU.forwardMoveRQ(ctx, pc, rq, keys, null, otherCMoveSCP, otherMoveDest);
             }
