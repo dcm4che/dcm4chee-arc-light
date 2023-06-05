@@ -1920,15 +1920,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return list;
     }
 
-    public Stream<String> getStorageIDsOfCluster(String clusterID) {
+    public Stream<StorageDescriptor> getStorageDescriptorsOfCluster(String clusterID) {
         return storageDescriptorMap.values().stream()
-                .filter(desc -> clusterID.equals(desc.getStorageClusterID()))
-                .map(StorageDescriptor::getStorageID);
+                .filter(desc -> clusterID.equals(desc.getStorageClusterID()));
     }
 
     public List<String> getOtherStorageIDsOfStorageCluster(StorageDescriptor desc) {
         return desc.getStorageClusterID() != null
-                ? getStorageIDsOfCluster(desc.getStorageClusterID())
+                ? getStorageDescriptorsOfCluster(desc.getStorageClusterID())
+                    .map(StorageDescriptor::getStorageID)
                     .filter(storageID -> !storageID.equals(desc.getStorageID()))
                     .collect(Collectors.toList())
                 : Collections.emptyList();
