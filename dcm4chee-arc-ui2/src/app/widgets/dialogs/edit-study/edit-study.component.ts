@@ -33,6 +33,7 @@ import {SelectDropdown} from "../../../interfaces";
 export class EditStudyComponent{
 
 
+
     opendropdown = false;
 
     addStudyAttribut = '';
@@ -53,6 +54,18 @@ export class EditStudyComponent{
         new SelectDropdown("OVERWRITE", "OVERWRITE"),
     ]
 
+    private _tagStudy:any;
+
+    get tagStudy() {
+        return this._tagStudy;
+    }
+
+    @Input()
+    set tagStudy(value:any) {
+        this._tagStudy = value;
+        this.studyResult.study = value;
+    }
+
     _studyResult = {
         editMode: 'single',
         study: undefined,
@@ -66,6 +79,10 @@ export class EditStudyComponent{
     options = Globalvar.OPTIONS;
 
     DCM4CHE = DCM4CHE;
+
+    @Input()
+    hideAdditionalParams:boolean;
+
     constructor(public dialogRef: MatDialogRef<EditStudyComponent>, public mainservice: AppService) {
         console.log("this.study",this._studyResult.study);
 /*
@@ -146,6 +163,7 @@ export class EditStudyComponent{
         return this._studyResult;
     }
 
+    @Input()
     set studyResult(value: any) {
         this._studyResult = value;
     }
