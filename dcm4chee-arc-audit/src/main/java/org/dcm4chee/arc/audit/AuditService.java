@@ -342,8 +342,8 @@ public class AuditService {
         try {
             AuditInfoBuilder auditInfoBuilder = new AuditInfoBuilder.Builder()
                                                     .callingUserID(device.getDeviceName())
-                                                    .studyIUID(event.getStudyIUID())
-                                                    .patID(event.getPatientID(), getArchiveDevice())
+                                                    .studyUIDAccNumDate(event.getStudy().getAttributes(), getArchiveDevice())
+                                                    .pIDAndName(event.getStudy().getPatient().getAttributes(), getArchiveDevice())
                                                     .build();
             writeSpoolFile(AuditUtils.EventType.STUDY_READ, null, auditInfoBuilder);
         } catch (Exception e) {
