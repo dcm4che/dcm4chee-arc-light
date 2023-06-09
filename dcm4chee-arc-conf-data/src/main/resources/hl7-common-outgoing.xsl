@@ -54,37 +54,27 @@
     </xsl:template>
 
     <xsl:template name="PID">
+        <xsl:param name="patientIdentifiers" />
         <xsl:param name="includeNullValues" />
         <PID>
             <field/>
-            <xsl:variable name="otherPIDSq" select="DicomAttribute[@tag='00101002']" />
+            <field/>
             <field>
-                <xsl:call-template name="otherPID">
-                    <xsl:with-param name="includeNullValues" select="$includeNullValues" />
-                    <xsl:with-param name="sq" select="$otherPIDSq" />
-                    <xsl:with-param name="itemNo" select="'1'" />
-                </xsl:call-template>
-            </field>
-            <field>
-                <xsl:call-template name="pidWithIssuer">
+                <xsl:call-template name="patientIdentifier">
+                    <xsl:with-param name="cx" select="$patientIdentifiers"/>
                     <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                    <xsl:with-param name="repeat" select="'N'"/>
                 </xsl:call-template>
             </field>
+            <field/>
             <field>
-                <xsl:call-template name="otherPID">
-                    <xsl:with-param name="includeNullValues" select="$includeNullValues" />
-                    <xsl:with-param name="sq" select="$otherPIDSq" />
-                    <xsl:with-param name="itemNo" select="'2'" />
-                </xsl:call-template>
-            </field>
-            <field>
-                <xsl:call-template name="name">
+                <xsl:call-template name="personName">
                     <xsl:with-param name="tag" select="'00100010'" />
                     <xsl:with-param name="includeNullValues" select="$includeNullValues" />
                 </xsl:call-template>
             </field>
             <field>
-                <xsl:call-template name="name">
+                <xsl:call-template name="personName">
                     <xsl:with-param name="tag" select="'00101060'" />
                     <xsl:with-param name="includeNullValues" select="$includeNullValues" />
                 </xsl:call-template>
@@ -105,7 +95,7 @@
                 </xsl:call-template>
             </field>
             <field>
-                <xsl:call-template name="name">
+                <xsl:call-template name="personName">
                     <xsl:with-param name="tag" select="'00102297'" />
                     <xsl:with-param name="includeNullValues" select="$includeNullValues" />
                 </xsl:call-template>
@@ -217,35 +207,6 @@
         </xsl:choose>
     </xsl:template>
 
-    <xsl:template name="pidWithIssuer">
-        <xsl:param name="includeNullValues"/>
-        <xsl:variable name="id" select="DicomAttribute[@tag='00100020']/Value" />
-        <xsl:choose>
-            <xsl:when test="$id">
-                <xsl:value-of select="$id" />
-                <xsl:variable name="issuerOfPID" select="DicomAttribute[@tag='00100021']/Value" />
-                <xsl:variable name="issuerOfPIDSq" select="DicomAttribute[@tag='00100024']/Item" />
-                <xsl:if test="$issuerOfPID">
-                    <component/><component/>
-                    <component>
-                        <xsl:value-of select="$issuerOfPID" />
-                        <xsl:if test="$issuerOfPIDSq">
-                            <subcomponent>
-                                <xsl:value-of select="$issuerOfPIDSq/DicomAttribute[@tag='00400032']/Value" />
-                            </subcomponent>
-                            <subcomponent>
-                                <xsl:value-of select="$issuerOfPIDSq/DicomAttribute[@tag='00400033']/Value" />
-                            </subcomponent>
-                        </xsl:if>
-                    </component>
-                </xsl:if>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$includeNullValues" />
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-
     <xsl:template name="attr">
         <xsl:param name="tag"/>
         <xsl:param name="includeNullValues" />
@@ -269,7 +230,7 @@
         </xsl:choose>
     </xsl:template>
 
-    <xsl:template name="name">
+    <xsl:template name="personName">
         <xsl:param name="tag" />
         <xsl:param name="includeNullValues" />
         <xsl:variable name="name" select="DicomAttribute[@tag=$tag]/PersonName[1]/Alphabetic" />
@@ -311,29 +272,6 @@
         <component>
             <xsl:value-of select="substring-after($ns, ' ')" />
         </component>
-    </xsl:template>
-
-    <xsl:template name="otherPID">
-        <xsl:param name="includeNullValues" />
-        <xsl:param name="sq" />
-        <xsl:param name="itemNo" />
-        <xsl:variable name="item" select="$sq/Item[$itemNo]" />
-        <xsl:variable name="id" select="$item/DicomAttribute[@tag='00100020']/Value" />
-        <xsl:choose>
-            <xsl:when test="$id">
-                <xsl:value-of select="$id" />
-                <xsl:variable name="issuerOfPID" select="$item/DicomAttribute[@tag='00100021']/Value" />
-                <xsl:if test="$issuerOfPID">
-                    <component/><component/>
-                    <component>
-                        <xsl:value-of select="$issuerOfPID" />
-                    </component>
-                </xsl:if>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$includeNullValues" />
-            </xsl:otherwise>
-        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="neutered">
@@ -385,6 +323,97 @@
         <component>
             <xsl:value-of select="$item/DicomAttribute[@tag='00080102']/Value" />
         </component>
+    </xsl:template>
+
+    <xsl:template name="patientIdentifier">
+        <xsl:param name="cx"/>
+        <xsl:param name="includeNullValues"/>
+        <xsl:param name="repeat"/>
+        <xsl:choose>
+            <xsl:when test="contains($cx, '~')">
+                <xsl:variable name="cx1" select="substring-before($cx, '~')"/>
+                <xsl:variable name="cxRemaining" select="substring-after($cx, '~')"/>
+                <xsl:call-template name="patientIdentifierComp">
+                    <xsl:with-param name="patientIdentifier" select="$cx1"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                    <xsl:with-param name="repeat" select="$repeat"/>
+                </xsl:call-template>
+                <xsl:call-template name="patientIdentifier">
+                    <xsl:with-param name="cx" select="$cxRemaining"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                    <xsl:with-param name="repeat" select="'Y'"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:call-template name="patientIdentifierComp">
+                    <xsl:with-param name="patientIdentifier" select="$cx"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                    <xsl:with-param name="repeat" select="$repeat"/>
+                </xsl:call-template>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="patientIdentifierComp">
+        <xsl:param name="patientIdentifier"/>
+        <xsl:param name="includeNullValues"/>
+        <xsl:param name="repeat"/>
+        <xsl:choose>
+            <xsl:when test="string-length($patientIdentifier) > 0">
+                <xsl:choose>
+                    <xsl:when test="$repeat = 'Y'">
+                        <repeat>
+                            <xsl:call-template name="addPatientIdentifier">
+                                <xsl:with-param name="patientIdentifier" select="$patientIdentifier"/>
+                            </xsl:call-template>
+                        </repeat>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="addPatientIdentifier">
+                            <xsl:with-param name="patientIdentifier" select="$patientIdentifier"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$includeNullValues" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="addPatientIdentifier">
+        <xsl:param name="patientIdentifier"/>
+        <xsl:choose>
+            <xsl:when test="contains($patientIdentifier, '^^^')">
+                <xsl:variable name="patientID" select="substring-before($patientIdentifier, '^^^')"/>
+                <xsl:variable name="issuer" select="substring-after($patientIdentifier, '^^^')"/>
+                <xsl:value-of select="$patientID"/>
+                <component/><component/>
+                <component>
+                    <xsl:choose>
+                        <xsl:when test="contains($issuer, '&amp;')">
+                            <xsl:variable name="issuerOfPatientID" select="substring-before($issuer, '&amp;')"/>
+                            <xsl:variable name="issuerOfPIDQualifier" select="substring-after($issuer, '&amp;')"/>
+                            <xsl:variable name="universalEntityID" select="substring-before($issuerOfPIDQualifier, '&amp;')"/>
+                            <xsl:variable name="universalEntityIDType" select="substring-after($issuerOfPIDQualifier, '&amp;')"/>
+                            <xsl:value-of select="$issuerOfPatientID"/>
+                            <subcomponent>
+                                <xsl:value-of select="$universalEntityID"/>
+                            </subcomponent>
+                            <subcomponent>
+                                <xsl:value-of select="$universalEntityIDType"/>
+                            </subcomponent>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="$issuer"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </component>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$patientIdentifier"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
 </xsl:stylesheet>

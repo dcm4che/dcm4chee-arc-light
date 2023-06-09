@@ -321,7 +321,6 @@ public class PamRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
 
-        final Attributes attrs;
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[8192];
             int length;
@@ -329,10 +328,13 @@ public class PamRS {
                 baos.write(buffer, 0, length);
 
             InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
-            attrs = parseOtherPatientIDs(is1);
-            for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
-                mergePatient(patientID, otherPID, arcAE);
-
+            priorPatientIdentifiers(is1).forEach(priorPatientIdentifier -> {
+                try {
+                    mergePatient(patientID, priorPatientIdentifier, arcAE);
+                } catch (Exception e) {
+                    LOG.info("Failed to merge prior patient {} to target patient {}", priorPatientIdentifier, patientID);
+                }
+            });
             rsForward.forward(RSOperation.MergePatient, arcAE, baos.toByteArray(), null, request);
             return Response.noContent().build();
         } catch (JsonParsingException e) {
@@ -676,11 +678,10 @@ public class PamRS {
             new QueryAttributes(uriInfo, null);
     }
 
-    private Attributes parseOtherPatientIDs(InputStream in) {
+    private List<Attributes> priorPatientIdentifiers(InputStream in) {
         JsonParser parser = Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8));
-        Attributes attrs = new Attributes(10);
         expect(parser, JsonParser.Event.START_ARRAY);
-        Sequence otherPIDseq = attrs.newSequence(Tag.OtherPatientIDsSequence, 10);
+        List<Attributes> priorPatientIDs = new ArrayList<>();
         while (parser.next() == JsonParser.Event.START_OBJECT) {
             Attributes otherPID = new Attributes(5);
             while (parser.next() == JsonParser.Event.KEY_NAME) {
@@ -703,12 +704,12 @@ public class PamRS {
                                 errResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
                 }
             }
-            otherPIDseq.add(otherPID);
+            priorPatientIDs.add(otherPID);
         }
-        if (otherPIDseq.isEmpty())
+        if (priorPatientIDs.isEmpty())
             throw new WebApplicationException(
                     errResponse("Patients to be merged not sent in the request.", Response.Status.BAD_REQUEST));
-        return attrs;
+        return priorPatientIDs;
     }
 
     private Attributes parseIssuerOfPIDQualifier(JsonParser parser) {

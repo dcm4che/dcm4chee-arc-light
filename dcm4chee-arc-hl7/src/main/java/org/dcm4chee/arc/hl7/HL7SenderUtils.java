@@ -53,6 +53,7 @@ import org.xml.sax.SAXException;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -71,10 +72,13 @@ public class HL7SenderUtils {
             if (!sender.getHL7SendingCharacterSet().equals("ASCII"))
                 tr.setParameter("charset", sender.getHL7SendingCharacterSet());
             tr.setParameter("msgType", msgType);
+            tr.setParameter("patientIdentifiers", IDWithIssuer.pidsOf(attrs).stream()
+                                                            .map(IDWithIssuer::toString)
+                                                            .collect(Collectors.joining("~")));
             if (prev != null) {
-                IDWithIssuer prevPID = IDWithIssuer.pidOf(prev);
-                if (prevPID != null)
-                    tr.setParameter("priorPatientID", prevPID.toString());
+                tr.setParameter("priorPatientIdentifiers", IDWithIssuer.pidsOf(prev).stream()
+                                                                    .map(IDWithIssuer::toString)
+                                                                    .collect(Collectors.joining("~")));
                 String prevPatName = prev.getString(Tag.PatientName);
                 if (msgType.equals("ADT^A40^ADT_A39") && prevPatName != null)
                     tr.setParameter("priorPatientName", prevPatName);

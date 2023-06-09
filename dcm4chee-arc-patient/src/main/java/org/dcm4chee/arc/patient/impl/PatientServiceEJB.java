@@ -281,10 +281,8 @@ public class PatientServiceEJB {
             moveUPS(prev, pat);
         }
         if (ctx.getHttpServletRequestInfo() != null) {
-            if (pat.getPatientName() != null)
-                ctx.getAttributes().setString(Tag.PatientName, VR.PN, pat.getPatientName().toString());
-            if (prev.getPatientName() != null)
-                ctx.getPreviousAttributes().setString(Tag.PatientName, VR.PN, prev.getPatientName().toString());
+            ctx.setAttributes(pat.getAttributes());
+            ctx.setPreviousAttributes(prev.getAttributes());
         }
         prev.setMergedWith(pat);
         return pat;
