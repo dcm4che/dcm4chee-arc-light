@@ -9,7 +9,7 @@
         <div mat-dialog-content>
             <iod-form-generator *ngIf="_studyResult.study && _studyResult.study['attrs']" [object]="_studyResult.study['attrs']" [prefix]="" [mode]="mode"  (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
         </div>
-        <div class="inputpart">
+        <div class="inputpart" *ngIf="!hideAdditionalParams">
             <div class="form_input" *ngIf="_studyResult.editMode != 'single'">
                 <label i18n="@@update_policy_label">Update Policy :</label>
                 <dcm-drop-down [options]="updatePolicy" [(model)]="_studyResult.updatePolicyResult"

@@ -77,6 +77,7 @@ import {filter, map, switchMap} from "rxjs/operators";
 import {ModifyUpsComponent} from "../../widgets/dialogs/modify-ups/modify-ups.component";
 import {Subscriber} from "rxjs/index";
 import {Device} from "../../models/device";
+import {environment} from "../../../environments/environment";
 
 declare var DCM4CHE: any;
 

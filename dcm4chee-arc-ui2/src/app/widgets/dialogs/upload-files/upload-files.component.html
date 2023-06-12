@@ -51,9 +51,9 @@
             </ng-container>-->
             <button class="edit_attribute_button" *ngIf="file" (click)="showMoreAttributes()" i18n="@@edit_attributes">Edit Attributes</button>
 
-            <!--<div class="edit_attribute_block" *ngIf="moreAttributes && file">
-                <edit-study [studyResult.study]="tempAttributes" [iod]="iod" [mode]="'edit'" [dropdown]="dropdown" (onChange)="onStudyChange($event)"></edit-study>
-            </div>-->
+            <div class="edit_attribute_block" *ngIf="moreAttributes && file">
+                <edit-study [tagStudy]="tempAttributes" [iod]="iod" [mode]="'edit'" [dropdown]="dropdown" (onChange)="onStudyChange($event)" [hideAdditionalParams]="true"></edit-study>
+            </div>
             <div mat-dialog-content>
                 <ng-container *ngIf="showFileList">
                     <div class="upload_state" *ngFor="let file of fileList">
