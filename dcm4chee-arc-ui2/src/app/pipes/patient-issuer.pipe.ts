@@ -23,7 +23,7 @@ export class PatientIssuerPipe implements PipeTransform {
           }
       }
 
-      function issuerOf(attrs) {
+      function patientIdentifiersOf(attrs) {
           let pid = valueOf(attrs, '00100020');
           let issuerOfPID = valueOf(attrs, '00100021');
           let typeOfPID = valueOf(attrs, '00100022');
@@ -50,10 +50,10 @@ export class PatientIssuerPipe implements PipeTransform {
                             ? pid
                             : pid + '^^^^' + typeOfPID
                         : typeOfPID === false
-                            ? pid + '^^^' + issuer
+                            ? pid + '^^^' + issuer 
                             : pid + '^^^' + issuer + '^' + typeOfPID;
       }
-      return issuerOf(attrs);
+      return patientIdentifiersOf(attrs);
   }
 
 }
