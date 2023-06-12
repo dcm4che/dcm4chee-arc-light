@@ -24,7 +24,9 @@ export class PatientIssuerPipe implements PipeTransform {
       }
 
       function issuerOf(attrs) {
+          let pid = valueOf(attrs, '00100020');
           let issuerOfPID = valueOf(attrs, '00100021');
+          //let typeOfPID = valueOf(attrs, '00100022');
           let issuerOfPIDQualifiersUniversalEntityID = valueOfItem(attrs, '00100024', '00400032');
           let issuerOfPIDQualifiersUniversalEntityIDType = valueOfItem(attrs, '00100024', '00400033');
           let issuerOfPIDQualifiers = issuerOfPIDQualifiersUniversalEntityID === false
@@ -34,15 +36,28 @@ export class PatientIssuerPipe implements PipeTransform {
                                         : issuerOfPIDQualifiersUniversalEntityIDType == false
                                             ? issuerOfPIDQualifiersUniversalEntityID + '&'
                                             : issuerOfPIDQualifiersUniversalEntityID + '&' + issuerOfPIDQualifiersUniversalEntityIDType;
-          return issuerOfPID === false
-                    ? issuerOfPIDQualifiers === false
-                        ? ''
-                        : '&' + issuerOfPIDQualifiers
-                    : issuerOfPIDQualifiers === false
-                        ? issuerOfPID
-                        : issuerOfPID + '&' + issuerOfPIDQualifiers;
+          let issuer = issuerOfPID === false
+                          ? issuerOfPIDQualifiers === false
+                              ? ''
+                              : '&' + issuerOfPIDQualifiers
+                          : issuerOfPIDQualifiers === false
+                              ? issuerOfPID
+                              : issuerOfPID + '&' + issuerOfPIDQualifiers;
+          // return pid === false
+          //           ? ''
+          //           : issuer === false
+          //               ? typeOfPID === false
+          //                   ? pid
+          //                   : pid + '^^^^' + typeOfPID
+          //               : typeOfPID === false
+          //                   ? pid + '^^^' + issuer
+          //                   : pid + '^^^' + issuer + '^' + typeOfPID;
+          return pid === false
+                    ? ''
+                    : issuer === false
+                      ? pid
+                      : pid + '^^^' + issuer;
       }
-
       return issuerOf(attrs);
   }
 
