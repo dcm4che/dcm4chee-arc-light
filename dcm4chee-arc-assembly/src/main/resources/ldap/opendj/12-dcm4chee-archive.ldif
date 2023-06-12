@@ -2184,7 +2184,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.448 NAME 'dcmMergeLocalMWLWorklistLabel
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.449 NAME 'hl7PrimaryAssigningAuthorityOfPatientID'
-  DESC 'Assigning Authority of Patient ID in received HL7 message used to search primary qualified patient identifier in the list of identifiers in PID-3. This qualified patient identifier shall be used on the root dataset. If absent, by default the first patient identifier pair in PID-3 shall be used as primary patient identifier on root dataset. If none of the qualified patient identifiers in the list match with the configured issuer, archive server log shall contain a log INFO message and by default the first qualified patient identifier in PID-3 shall be used. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}].'
+  DESC 'Assigning Authority of Patient ID in received HL7 message used to search primary qualified patient identifier in the list of identifiers in PID-3 / MRG.1. This qualified patient identifier shall be used on the root dataset. If absent, by default the first patient identifier pair in PID-3 / MRG.1 shall be used as primary patient identifier on root dataset. If none of the qualified patient identifiers in the list match with the configured issuer, archive server log shall contain a log INFO message and by default the first qualified patient identifier in PID-3 / MRG.1 shall be used. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}].'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
