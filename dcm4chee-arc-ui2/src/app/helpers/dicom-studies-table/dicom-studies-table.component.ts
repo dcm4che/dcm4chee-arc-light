@@ -113,6 +113,9 @@ export class DicomStudiesTableComponent implements OnInit {
             }
         }else{
             if(table.type==="pipe" || table.pipe){
+                if(table.hideTooltip){
+                    return ;
+                }
                 if(table.pathToValue){
                     if(table.saveTheOriginalValueOnTooltip){
                         let extractOriginal = _.get(object.attrs,table.pathToValue);

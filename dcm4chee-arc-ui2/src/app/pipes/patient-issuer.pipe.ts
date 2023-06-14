@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import * as _ from 'lodash-es';
 
 @Pipe({
   name: 'patientIssuer'
@@ -53,7 +54,13 @@ export class PatientIssuerPipe implements PipeTransform {
                             ? pid + '^^^' + issuer
                             : pid + '^^^' + issuer + '^' + typeOfPID;
       }
-      return patientIdentifiersOf(attrs);
+      const allParts = [patientIdentifiersOf(attrs)]
+      if(_.hasIn(attrs,'["00101002"].Value')){
+          _.get(attrs,'["00101002"].Value').forEach(subAttrs=>{
+              allParts.push(patientIdentifiersOf(subAttrs));
+          })
+      }
+      return allParts.join(", ");
   }
 
 }

@@ -28,6 +28,7 @@ export class TableSchemaElement {
     showBorder?:boolean;
     showBorderPath?:string;
     saveTheOriginalValueOnTooltip?:boolean;
+    hideTooltip?: boolean;
 
     constructor(
         options:{
@@ -50,6 +51,7 @@ export class TableSchemaElement {
             showIf?:Function,
             showBorder?:boolean,
             showBorderPath?:string,
+            hideTooltip?:boolean,
             saveTheOriginalValueOnTooltip?:boolean
         } = {}
     ){
@@ -71,6 +73,7 @@ export class TableSchemaElement {
         this.description = options.description;
         this.showIf = options.showIf;
         this.showBorder = options.showBorder;
+        this.hideTooltip = options.hideTooltip;
         this.showBorderPath = options.showBorderPath;
         this.saveTheOriginalValueOnTooltip = options.saveTheOriginalValueOnTooltip;
 
