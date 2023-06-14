@@ -45,12 +45,12 @@ export class PatientIssuerPipe implements PipeTransform {
                               : issuerOfPID + '&' + issuerOfPIDQualifiers;
           return pid === false
                     ? ''
-                    : issuer === false
+                    : issuer == ''
                         ? typeOfPID === false
                             ? pid
                             : pid + '^^^^' + typeOfPID
                         : typeOfPID === false
-                            ? pid + '^^^' + issuer 
+                            ? pid + '^^^' + issuer
                             : pid + '^^^' + issuer + '^' + typeOfPID;
       }
       return patientIdentifiersOf(attrs);
