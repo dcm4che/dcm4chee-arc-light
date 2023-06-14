@@ -438,25 +438,25 @@ export class Globalvar {
                 value: '-ScheduledProcedureStepStartDateTime',
                 label: $localize `:@@desc_scheduled_procedure_step_start_date_and_time:<label class="order_label">Newest SPS Start DateTime first</label><span class=\"orderbydatedesc_uwl\"></span>`,
                 mode: 'uwl',
-                title:$localize `:@@desc_scheduled_procedure_step_start_date_and_time_tooltip:Newest Scheduled Procedure Step Start Date and Time first`
+                title:$localize `:@@desc_scheduled_procedure_step_start_date_and_time_tooltip:Scheduled Procedure Step Start Date and Time - new to old`
             },
             {
                 value: 'ScheduledProcedureStepStartDateTime',
                 label: $localize `:@@asc_scheduled_procedure_step_start_date_and_time:<label class="order_label">Oldest SPS Start DateTime first</label></span><span class=\"orderbydateasc_uwl\"></span>`,
                 mode: 'uwl',
-                title:$localize `:@@asc_scheduled_procedure_step_start_date_and_time_tooltip:Oldest Scheduled Procedure Step Start Date and Time first`
+                title:$localize `:@@asc_scheduled_procedure_step_start_date_and_time_tooltip:Scheduled Procedure Step Start Date and Time - old to new`
             },
             {
                 value: '-ExpectedCompletionDateTime',
                 label: $localize `:@@desc_expected_completion_date_and_time:<label class="order_label">Newest Expected Completion DateTime first</label><span class=\"orderbydatedesc_uwl\"></span>`,
                 mode: 'uwl',
-                title:$localize `:@@desc_expected_completion_date_and_time_tooltip:Newest Expected Completion Date and Time first`
+                title:$localize `:@@desc_expected_completion_date_and_time_tooltip:Expected Completion Date and Time - new to old`
             },
             {
                 value: 'ExpectedCompletionDateTime',
                 label: $localize `:@@asc_expected_completion_date_and_time:<label class="order_label">Oldest Expected Completion DateTime first</label><span class=\"orderbydateasc_uwl\"></span>`,
                 mode: 'uwl',
-                title:$localize `:@@asc_expected_completion_date_and_time_tooltip:Oldest Expected Completion Date and Time first`
+                title:$localize `:@@asc_expected_completion_date_and_time_tooltip:Expected Completion Date and Time - old to new`
             }
         ];
 
