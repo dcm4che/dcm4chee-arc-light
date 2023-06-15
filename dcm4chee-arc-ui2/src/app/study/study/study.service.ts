@@ -1686,7 +1686,7 @@ export class StudyService {
                     headerDescription: $localize `:@@patient_identifiers:Patient Identifiers`,
                     widthWeight: 2,
                     cssClass:"big_field",
-                    hideTooltip:true,
+                    // hideTooltip:true,
                     calculatedWidth: "40%",
                     pipe: new DynamicPipe(PatientIssuerPipe, undefined)
                 }),

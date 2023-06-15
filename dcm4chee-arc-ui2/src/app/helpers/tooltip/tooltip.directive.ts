@@ -33,7 +33,7 @@ export class TooltipDirective implements OnDestroy{
         var rect = el.getBoundingClientRect(),
             scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
             scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
+        return { top: rect.top + scrollTop, left: rect.left + scrollLeft , right: rect.right + scrollLeft}
     }
     @HostListener('mouseleave') onMouseLeave() {
         if (this.placeholderSet){
@@ -112,7 +112,11 @@ export class TooltipDirective implements OnDestroy{
     setPositionOfDiv(){
         let position = this.offset(this.el.nativeElement);
         this.div.style.position = "absolute";
-        this.div.style.left = (position.left + 15*1)+'px';
+        if(this.el.nativeElement.className && this.el.nativeElement.className.indexOf("big_field") > -1){
+            this.div.style.left = (position.right - 15*1)+'px';
+        }else{
+            this.div.style.left = (position.left + 15*1)+'px';
+        }
         this.div.style.top = (position.top+25*1) +'px';
         this.div.addEventListener('mouseenter',(e)=>{
             this.showTooltip();
