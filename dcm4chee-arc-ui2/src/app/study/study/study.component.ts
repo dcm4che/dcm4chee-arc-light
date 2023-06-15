@@ -2612,9 +2612,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             filterModel["includefield"] = "all";
         }
         this.service.getPatients(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
-            if(!environment.production){
-                res = [{"00080005":{"vr":"CS","Value":["ISO_IR 192"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"Aigner^Marie"}]},"00100020":{"vr":"LO","Value":["MM2"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100022":{"vr":"CS","Value":["BARCODE"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]},"00100030":{"vr":"DA","Value":["19560620"]},"00100040":{"vr":"CS","Value":["F"]},"00101002":{"vr":"SQ","Value":[{"00100020":{"vr":"LO","Value":["MM2"]},"00100021":{"vr":"LO","Value":["JMS2"]}},{"00100020":{"vr":"LO","Value":["MM2"]},"00100021":{"vr":"LO","Value":["JMS22"]}},{"00100020":{"vr":"LO","Value":["MM2"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3.4.5.6.7"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["TO123456"]},"00100021":{"vr":"LO","Value":["zxcv55"]},"00100022":{"vr":"CS","Value":["RFID"]}},{"00100020":{"vr":"LO","Value":["CH090986"]},"00100021":{"vr":"LO","Value":["zxcv55"]},"00100022":{"vr":"CS","Value":["BARCODE"]}}]},"00101060":{"vr":"PN"},"00201200":{"vr":"IS","Value":["0"]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20230612094520.923+0200"]},"77771011":{"vr":"DT","Value":["20230612094520.929+0200"]}}];
-            }
             this.patients = [];
             this._filter.filterModel.offset = filterModel.offset;
             if (_.size(res) > 0){
