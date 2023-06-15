@@ -107,7 +107,7 @@ public class PatientServiceUtils {
             Iterator<IDWithIssuer> iter = updatedPids.iterator();
             while (iter.hasNext()) {
                 IDWithIssuer updatedPid = iter.next();
-                if (pid.matchesWithoutIssuer(updatedPid)) {
+                if (pid.matches(updatedPid, true, true)) {
                     iter.remove();
                     if (updatedPid.getIssuer() == null) return false;
                     Issuer issuer = pid.getIssuer();

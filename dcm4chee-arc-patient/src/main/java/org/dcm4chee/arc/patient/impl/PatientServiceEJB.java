@@ -107,7 +107,7 @@ public class PatientServiceEJB {
                 .setParameter(1, pid.getID())
                 .getResultList();
         if (pid.getIssuer() != null)
-            list.removeIf(id -> id.getIssuer() != null && !id.getIssuer().matches(pid.getIssuer()));
+            list.removeIf(id -> id.getIssuer() != null && !id.getIssuer().matches(pid.getIssuer(), true, true));
         return list;
     }
 
