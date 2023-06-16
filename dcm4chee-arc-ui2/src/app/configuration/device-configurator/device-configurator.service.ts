@@ -613,11 +613,7 @@ export class DeviceConfiguratorService{
                         }else{
                             if(!_.hasIn(m.formatValue,'state')){
                                 _.forEach(m.enum, (opt) => {
-                                    options.push({
-                                        label: opt,
-                                        value: opt,
-                                        active: (opt === value)
-                                    });
+                                    this.addEnumValueToOption(opt, options, value);
                                 });
                             }
                         }
@@ -836,11 +832,7 @@ export class DeviceConfiguratorService{
                             });
                        }else{
                            _.forEach(m.enum, (opt) => {
-                               options.push({
-                                   key: opt,
-                                   value: opt,
-                                   active: (opt === value)
-                               });
+                               this.addEnumValueToOption(opt, options, value, true);
                            });
                        }
                     }else{
@@ -897,11 +889,7 @@ export class DeviceConfiguratorService{
                     console.log('this.device', this.device);
                     if (_.hasIn(m, 'items.enum')){
                         _.forEach(m.items.enum, (opt) => {
-                            options.push({
-                                key: opt,
-                                value: opt,
-                                active: (opt === value || _.indexOf(value, opt) > -1)
-                            });
+                            this.addEnumValueToOption(opt, options, value, true, true);
                         });
                         form.push(
                             new Checkbox({
@@ -1081,11 +1069,7 @@ export class DeviceConfiguratorService{
             case 'integer':
                 if(_.hasIn(m, 'enum')){
                     _.forEach(m.enum, (opt) => {
-                        options.push({
-                            label: opt,
-                            value: opt,
-                            active: (opt === value)
-                        });
+                        this.addEnumValueToOption(opt,options,value);
                     });
                     form.push(
                         new DropdownList({
@@ -1378,5 +1362,32 @@ export class DeviceConfiguratorService{
             console.error(e);
         }
         return this.controlService.reloadArchive(archiveUrl);
+    }
+    addEnumValueToOption(opt, options, value, useKey?:boolean, checkContainingIndex?:boolean){
+        let optObject = {};
+        if(opt.indexOf("|") > -1){
+            let [optValue, description,label] = opt.split("|");
+            optObject = {
+                description:description ?? '',
+                value: optValue ?? '',
+                active: (optValue === value || ( checkContainingIndex && _.indexOf(value, optValue) > -1))
+            };
+            if(useKey){
+                optObject["key"] = label || optValue || '';
+            }else{
+                optObject["label"] = label || optValue || '';
+            }
+        }else {
+            optObject = {
+                value: opt,
+                active: (opt === value || (checkContainingIndex && _.indexOf(value, opt) > -1))
+            };
+            if(useKey){
+                optObject["key"] = opt;
+            }else{
+                optObject["label"] = opt;
+            }
+        }
+        options.push(optObject);
     }
 }
