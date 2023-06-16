@@ -515,9 +515,28 @@ public class PatientServiceEJB {
         patientID.setIssuer(idWithIssuer.getIssuer());
         Patient patient = patientID.getPatient();
         Attributes patAttrs = patient.getAttributes();
-        ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
+        supplementIssuer(patAttrs, idWithIssuer);
+        ctx.setAttributes(patAttrs);
         updatePatientIDAttrs(ctx, patient);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        return true;
+    }
+
+    private boolean supplementIssuer(Attributes patAttrs, IDWithIssuer idWithIssuer) {
+        if (supplementIssuer1(patAttrs, idWithIssuer)) return true;
+        Sequence sequence = patAttrs.getSequence(Tag.OtherPatientIDsSequence);
+        if (sequence == null) return false;
+        for (Attributes item : sequence) {
+            if (supplementIssuer1(item, idWithIssuer)) return true;
+        }
+        return false;
+    }
+
+    private boolean supplementIssuer1(Attributes attrs, IDWithIssuer idWithIssuer) {
+        IDWithIssuer idWithIssuer0 = IDWithIssuer.pidOf(attrs);
+        if (idWithIssuer0.getIssuer() != null || !idWithIssuer0.getID().equals(idWithIssuer.getID()))
+            return false;
+        idWithIssuer.getIssuer().toIssuerOfPatientID(attrs);
         return true;
     }
 
