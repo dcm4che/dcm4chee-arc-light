@@ -1364,30 +1364,34 @@ export class DeviceConfiguratorService{
         return this.controlService.reloadArchive(archiveUrl);
     }
     addEnumValueToOption(opt, options, value, useKey?:boolean, checkContainingIndex?:boolean){
-        let optObject = {};
-        if(opt.indexOf("|") > -1){
-            let [optValue, description,label] = opt.split("|");
-            optObject = {
-                description:description ?? '',
-                value: optValue ?? '',
-                active: (optValue === value || ( checkContainingIndex && _.indexOf(value, optValue) > -1))
-            };
-            if(useKey){
-                optObject["key"] = label || optValue || '';
-            }else{
-                optObject["label"] = label || optValue || '';
+        try{
+            let optObject = {};
+            if(opt && opt.indexOf("|") > -1){
+                let [optValue, description,label] = opt.split("|");
+                optObject = {
+                    description:description ?? '',
+                    value: optValue ?? '',
+                    active: (optValue === value || ( checkContainingIndex && _.indexOf(value, optValue) > -1))
+                };
+                if(useKey){
+                    optObject["key"] = label || optValue || '';
+                }else{
+                    optObject["label"] = label || optValue || '';
+                }
+            }else {
+                optObject = {
+                    value: opt,
+                    active: (opt === value || (checkContainingIndex && _.indexOf(value, opt) > -1))
+                };
+                if(useKey){
+                    optObject["key"] = opt;
+                }else{
+                    optObject["label"] = opt;
+                }
             }
-        }else {
-            optObject = {
-                value: opt,
-                active: (opt === value || (checkContainingIndex && _.indexOf(value, opt) > -1))
-            };
-            if(useKey){
-                optObject["key"] = opt;
-            }else{
-                optObject["label"] = opt;
-            }
+            options.push(optObject);
+        }catch (e) {
+            console.error(e)
         }
-        options.push(optObject);
     }
 }
