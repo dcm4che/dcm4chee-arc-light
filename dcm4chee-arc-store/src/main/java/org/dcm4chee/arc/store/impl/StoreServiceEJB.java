@@ -891,8 +891,9 @@ public class StoreServiceEJB {
         storedAttrs.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified,
                 Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
         if (!modified.isEmpty() && recordAttributeModification(ctx))
-            result.setStoredAttributes(storedAttrs.addOriginalAttributes(
-                    null, now, reason, device.getDeviceName(), modified));
+            storedAttrs.addOriginalAttributes(
+                    null, now, reason, device.getDeviceName(), modified);
+        result.setStoredAttributes(storedAttrs);
     }
 
     private boolean checkMissingPatientID(StoreContext ctx) {
