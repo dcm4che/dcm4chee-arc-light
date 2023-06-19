@@ -3430,10 +3430,10 @@ export class Globalvar {
                 }, {
                     tag: "select",
                     options: [
-                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`, $localize `:@@patient_unverified:Patient not verified against any Patient Demographics Query Provider`),
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`, $localize `:@@patient_verified:Patient verified against a Patient Demographics Query Provider`),
+                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`, $localize `:@@patient_not_found:Patient verification against a Patient Demographics Query Provider resulted in no patient found`),
+                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`, $localize `:@@patient_verification_failed:Patient verification against a Patient Demographics Query Provider failed`)
                     ],
                     showStar: true,
                     filterKey: "patientVerificationStatus",
@@ -3684,10 +3684,10 @@ export class Globalvar {
                 }, {
                     tag: "select",
                     options: [
-                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`, $localize `:@@patient_unverified:Patient not verified against any Patient Demographics Query Provider`),
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`, $localize `:@@patient_verified:Patient verified against a Patient Demographics Query Provider`),
+                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`, $localize `:@@patient_not_found:Patient verification against a Patient Demographics Query Provider resulted in no patient found`),
+                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`, $localize `:@@patient_verification_failed:Patient verification against a Patient Demographics Query Provider failed`)
                     ],
                     showStar: true,
                     filterKey: "patientVerificationStatus",
@@ -3838,10 +3838,10 @@ export class Globalvar {
                 }, {
                     tag: "select",
                     options: [
-                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`, $localize `:@@patient_unverified:Patient not verified against any Patient Demographics Query Provider`),
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`, $localize `:@@patient_verified:Patient verified against a Patient Demographics Query Provider`),
+                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`, $localize `:@@patient_not_found:Patient verification against a Patient Demographics Query Provider resulted in no patient found`),
+                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`, $localize `:@@patient_verification_failed:Patient verification against a Patient Demographics Query Provider failed`)
                     ],
                     showStar: true,
                     filterKey: "patientVerificationStatus",
@@ -4121,10 +4121,10 @@ export class Globalvar {
                 }, {
                     tag: "select",
                     options: [
-                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`, $localize `:@@patient_unverified:Patient not verified against any Patient Demographics Query Provider`),
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`, $localize `:@@patient_verified:Patient verified against a Patient Demographics Query Provider`),
+                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`, $localize `:@@patient_not_found:Patient verification against a Patient Demographics Query Provider resulted in no patient found`),
+                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`, $localize `:@@patient_verification_failed:Patient verification against a Patient Demographics Query Provider failed`)
                     ],
                     showStar: true,
                     filterKey: "patientVerificationStatus",
@@ -4519,10 +4519,10 @@ export class Globalvar {
                 }, {
                     tag: "select",
                     options: [
-                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`, $localize `:@@patient_unverified:Patient not verified against any Patient Demographics Query Provider`),
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`, $localize `:@@patient_verified:Patient verified against a Patient Demographics Query Provider`),
+                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`, $localize `:@@patient_not_found:Patient verification against a Patient Demographics Query Provider resulted in no patient found`),
+                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`, $localize `:@@patient_verification_failed:Patient verification against a Patient Demographics Query Provider failed`)
                     ],
                     showStar: true,
                     filterKey: "patientVerificationStatus",
@@ -4805,10 +4805,10 @@ export class Globalvar {
                 }, {
                     tag: "select",
                     options: [
-                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                        new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`, $localize `:@@patient_unverified:Patient not verified against any Patient Demographics Query Provider`),
+                        new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`, $localize `:@@patient_verified:Patient verified against a Patient Demographics Query Provider`),
+                        new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`, $localize `:@@patient_not_found:Patient verification against a Patient Demographics Query Provider resulted in no patient found`),
+                        new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`, $localize `:@@patient_verification_failed:Patient verification against a Patient Demographics Query Provider failed`)
                     ],
                     showStar: true,
                     filterKey: "patientVerificationStatus",
@@ -5295,10 +5295,10 @@ export class Globalvar {
             }, {
                 tag: "select",
                 options: [
-                    new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                    new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                    new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                    new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
+                    new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`, $localize `:@@patient_unverified:Patient not verified against any Patient Demographics Query Provider`),
+                    new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`, $localize `:@@patient_verified:Patient verified against a Patient Demographics Query Provider`),
+                    new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`, $localize `:@@patient_not_found:Patient verification against a Patient Demographics Query Provider resulted in no patient found`),
+                    new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`, $localize `:@@patient_verification_failed:Patient verification against a Patient Demographics Query Provider failed`)
                 ],
                 showStar: true,
                 filterKey: "patientVerificationStatus",
