@@ -46,7 +46,7 @@
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="radiobuttons_parent" *ngSwitchCase="'radio'">
-                    <div  *ngFor="let opt of formelement.options"  title="opt.description">
+                    <div  *ngFor="let opt of formelement.options"  [title]="opt.description || ''">
                         <input  [id]="formelement.key" [formControlName]="formelement.key" [value]="opt.value" type="radio" [checked]="opt.active">{{opt.key}}<br>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="checkbox_parent"  *ngSwitchCase="'checkbox'" [formArrayName]="formelement.key" [ngClass]="{'long_mode':formelement.options && formelement.options.length && formelement.options.length > 9}">
                     <input type="text" *ngIf="formelement.controlType === 'checkbox' && formelement.options && formelement.options.length && formelement.options.length > 9" [formControl]="search" i18n-placeholder="@@search_dot" placeholder="Search...">
-                    <div *ngFor="let opt of formelement.options|search:search.value"  [title]="opt.description">
+                    <div *ngFor="let opt of formelement.options|search:search.value"  [title]="opt.description || ''">
                         <input  [id]="formelement.key" [name]="opt.value" [value]="opt.value" (change)="checkboxChange($event, formelement);opt.active = !opt.active" [checked]="opt.active" type="checkbox">{{opt.key}}<br>
                     </div>
                 </div>
