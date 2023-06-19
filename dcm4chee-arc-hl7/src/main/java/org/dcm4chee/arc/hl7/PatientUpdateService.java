@@ -282,7 +282,9 @@ class PatientUpdateService extends DefaultHL7Service {
                 attrs.remove(Tag.OtherPatientIDsSequence);
                 break;
             default:
-                Iterator<Attributes> otherPIDs = attrs.getSequence(Tag.OtherPatientIDsSequence).iterator();
+                Sequence seq = attrs.getSequence(Tag.OtherPatientIDsSequence);
+                if (seq == null) break;
+                Iterator<Attributes> otherPIDs = seq.iterator();
                 while (otherPIDs.hasNext()) {
                     IDWithIssuer otherPID = IDWithIssuer.pidOf(otherPIDs.next());
                     if (otherPID == null || !otherPID.equals(primaryPatIdentifier))
@@ -290,7 +292,7 @@ class PatientUpdateService extends DefaultHL7Service {
 
                     otherPIDs.remove();
                 }
-                if (attrs.getSequence(Tag.OtherPatientIDsSequence).isEmpty())
+                if (seq.isEmpty())
                     attrs.remove(Tag.OtherPatientIDsSequence);
         }
 

@@ -43,10 +43,7 @@ package org.dcm4chee.arc.patient;
 import org.dcm4che3.data.*;
 import org.dcm4chee.arc.conf.AttributeFilter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -58,26 +55,40 @@ public class PatientServiceUtils {
         int[] selection = without(filter.getSelection(false),
                 Tag.PatientID,
                 Tag.IssuerOfPatientID,
+                Tag.TypeOfPatientID,
                 Tag.IssuerOfPatientIDQualifiersSequence,
                 Tag.OtherPatientIDsSequence);
-        int mergedIssuers = 0;
+        int pidUpdated = 0;
         Sequence otherPIDs = attrs.getSequence(Tag.OtherPatientIDsSequence);
-        List<IDWithIssuer> updatedPids = new ArrayList<>(IDWithIssuer.pidsOf(newAttrs));
-        if (mergeIssuer(attrs, updatedPids)) mergedIssuers++;
+        Set<IDWithIssuer> updatedPids = IDWithIssuer.pidsOf(newAttrs);
+        if (mergeIssuer(attrs, updatedPids)) pidUpdated++;
         if (otherPIDs != null)
             for (Attributes item : otherPIDs) {
-                if (mergeIssuer(item, updatedPids)) mergedIssuers++;
+                if (mergeIssuer(item, updatedPids)) pidUpdated++;
             }
-        if (!updatedPids.isEmpty()) {
-            if (otherPIDs == null) {
-                otherPIDs = attrs.newSequence(Tag.OtherPatientIDsSequence, updatedPids.size());
+        Set<IDWithIssuer> pids = IDWithIssuer.pidsOf(attrs);
+        if (addOtherPID(attrs, newAttrs, pids)) pidUpdated++;
+        Sequence newOtherPIDs = newAttrs.getSequence(Tag.OtherPatientIDsSequence);
+        if (newOtherPIDs != null)
+            for (Attributes item : newOtherPIDs) {
+                if (addOtherPID(attrs, item, pids)) pidUpdated++;
             }
-            for (IDWithIssuer updatedPid : updatedPids) {
-                otherPIDs.add(updatedPid.exportPatientIDWithIssuer(null));
-            }
-            mergedIssuers++;
+        return attrs.updateSelected(updatePolicy, newAttrs, modified, selection) || pidUpdated > 0;
+    }
+
+    private static boolean addOtherPID(Attributes attrs, Attributes newAttrs, Set<IDWithIssuer> pids) {
+        IDWithIssuer newPID = IDWithIssuer.pidOf(newAttrs);
+        if (newPID == null) return false;
+        for (IDWithIssuer pid : pids) {
+            if (pid.matches(newPID, true, true)) return false;
         }
-        return attrs.updateSelected(updatePolicy, newAttrs, modified, selection) || mergedIssuers > 0;
+        attrs.ensureSequence(Tag.OtherPatientIDsSequence, 1).add(
+                new Attributes(newAttrs,
+                        Tag.PatientID,
+                        Tag.IssuerOfPatientID,
+                        Tag.TypeOfPatientID,
+                        Tag.IssuerOfPatientIDQualifiersSequence ));
+        return true;
     }
 
     private static int[] without(int[] src, int... tags) {
@@ -101,14 +112,11 @@ public class PatientServiceUtils {
         return dest;
     }
 
-    private static boolean mergeIssuer(Attributes attrs, List<IDWithIssuer> updatedPids) {
+    private static boolean mergeIssuer(Attributes attrs, Set<IDWithIssuer> updatedPids) {
         IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
         if (pid != null) {
-            Iterator<IDWithIssuer> iter = updatedPids.iterator();
-            while (iter.hasNext()) {
-                IDWithIssuer updatedPid = iter.next();
+            for (IDWithIssuer updatedPid : updatedPids) {
                 if (pid.matches(updatedPid, true, true)) {
-                    iter.remove();
                     if (updatedPid.getIssuer() == null) return false;
                     Issuer issuer = pid.getIssuer();
                     if (issuer == null)
