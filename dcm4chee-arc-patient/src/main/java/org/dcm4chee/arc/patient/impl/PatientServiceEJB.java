@@ -522,22 +522,20 @@ public class PatientServiceEJB {
         return true;
     }
 
-    private boolean supplementIssuer(Attributes patAttrs, IDWithIssuer idWithIssuer) {
-        if (supplementIssuer1(patAttrs, idWithIssuer)) return true;
+    private void supplementIssuer(Attributes patAttrs, IDWithIssuer idWithIssuer) {
+        supplementIssuer1(patAttrs, idWithIssuer);
         Sequence sequence = patAttrs.getSequence(Tag.OtherPatientIDsSequence);
-        if (sequence == null) return false;
-        for (Attributes item : sequence) {
-            if (supplementIssuer1(item, idWithIssuer)) return true;
+        if (sequence != null) {
+            for (Attributes item : sequence) {
+                supplementIssuer1(item, idWithIssuer);
+            }
         }
-        return false;
     }
 
-    private boolean supplementIssuer1(Attributes attrs, IDWithIssuer idWithIssuer) {
+    private void supplementIssuer1(Attributes attrs, IDWithIssuer idWithIssuer) {
         IDWithIssuer idWithIssuer0 = IDWithIssuer.pidOf(attrs);
-        if (idWithIssuer0.getIssuer() != null || !idWithIssuer0.getID().equals(idWithIssuer.getID()))
-            return false;
-        idWithIssuer.getIssuer().toIssuerOfPatientID(attrs);
-        return true;
+        if (idWithIssuer0.getIssuer() == null && idWithIssuer0.getID().equals(idWithIssuer.getID()))
+            idWithIssuer.getIssuer().toIssuerOfPatientID(attrs);
     }
 
     public Long countPatientIDWithIssuers(IDWithIssuer idWithIssuer) {
