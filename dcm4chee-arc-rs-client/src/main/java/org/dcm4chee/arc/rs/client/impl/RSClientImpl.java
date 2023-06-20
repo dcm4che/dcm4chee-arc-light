@@ -61,7 +61,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -90,40 +92,26 @@ public class RSClientImpl implements RSClient {
 
     @Override
     public void scheduleRequest(
-            RSOperation rsOp,
-            String requestURI,
-            String requestQueryStr,
-            String webAppName,
-            String patientID,
-            byte[] content,
-            boolean tlsAllowAnyHostName,
-            boolean tlsDisableTrustManager) {
+            RSOperation rsOp, HttpServletRequest request, String webAppName, String patientID, byte[] content) {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(QUEUE_NAME);
         task.setType(Task.Type.REST);
         task.setScheduledTime(new Date());
         task.setRSOperation(rsOp.name());
-        task.setRequestURI(requestURI);
-        task.setQueryString(requestQueryStr);
+        task.setRequestURI(request.getRequestURI());
+        task.setQueryString(request.getQueryString());
         task.setWebApplicationName(webAppName);
         task.setPatientID(patientID);
-        task.setTLSAllowAnyHostname(tlsAllowAnyHostName);
-        task.setTLSDisableTrustManager(tlsDisableTrustManager);
         task.setPayload(content);
         task.setStatus(Task.Status.SCHEDULED);
         taskManager.scheduleTask(task);
     }
 
     @Override
-    public Outcome request(String rsOp,
-                           String requestURI,
-                           String requestQueryString,
-                           String webAppName,
-                           String patientID,
-                           boolean tlsAllowAnyHostname,
-                           boolean tlsDisableTrustManager,
-                           byte[] content) throws Exception {
+    public Outcome request(
+            String rsOp, String requestURI, String requestQueryString, String webAppName, String patientID, byte[] content)
+            throws Exception {
         RSOperation rsOperation = RSOperation.valueOf(rsOp);
         WebApplication webApplication;
         Task.Status status = Task.Status.WARNING;
@@ -143,13 +131,11 @@ public class RSClientImpl implements RSClient {
         if (requestQueryString != null)
             targetURI += "?" + requestQueryString;
 
-        Response response = toResponse(
-                getMethod(rsOperation),
-                targetURI,
-                tlsAllowAnyHostname,
-                tlsDisableTrustManager,
-                content,
-                accessTokenFromWebApp(webApplication));
+        Response response = toResponse(getMethod(rsOperation),
+                                        targetURI,
+                                        webApplication.getProperties(),
+                                        content,
+                                        accessTokenFromWebApp(webApplication));
         Outcome outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
         response.close();
         return outcome;
@@ -183,15 +169,11 @@ public class RSClientImpl implements RSClient {
         return targetURI;
     }
 
-    private Response toResponse(String method,
-                                String uri,
-                                boolean allowAnyHostname,
-                                boolean disableTrustManager,
-                                byte[] content,
-                                String authorization) throws Exception {
+    private Response toResponse(
+            String method, String uri, Map<String, String> properties, byte[] content, String authorization)
+            throws Exception {
 
-        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, allowAnyHostname, disableTrustManager)
-                .build();
+        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, properties).build();
         WebTarget target = client.target(uri);
         Invocation.Builder request = target.request();
         if (authorization != null)
@@ -216,11 +198,14 @@ public class RSClientImpl implements RSClient {
         String targetURI = null;
         String requestURI = request.getRequestURI();
         Device device = iDeviceCache.findDevice(deviceName);
+        Map<String, String> properties = Collections.emptyMap();
         for (WebApplication webApplication : device.getWebApplications())
-            if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC))
+            if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC)) {
                 targetURI = webApplication.getServiceURL().toString()
-                                + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1))
-                                + "?" + request.getQueryString() + append;
+                        + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1))
+                        + "?" + request.getQueryString() + append;
+                properties = webApplication.getProperties();
+            }
 
         return targetURI == null
                 ? Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -228,8 +213,7 @@ public class RSClientImpl implements RSClient {
                             + deviceName
                             + " or HTTP connection not configured for WebApplication with Service Class 'DCM4CHEE_ARC' of this device.")
                     .build()
-                : toResponse("POST", targetURI, true, false,
-                null, authorization);
+                : toResponse("POST", targetURI, properties, null, authorization);
     }
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {

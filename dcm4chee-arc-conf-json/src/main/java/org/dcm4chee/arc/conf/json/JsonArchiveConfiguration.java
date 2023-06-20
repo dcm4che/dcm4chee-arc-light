@@ -933,8 +933,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
             writer.writeNotNullOrDef("dcmWebAppName", rule.getWebAppName(), null);
             writer.writeNotEmpty("dcmRSOperation", rule.getRSOperations());
-            writer.writeNotDef("dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
-            writer.writeNotDef("dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
             writer.writeNotNullOrDef("dcmURIPattern", rule.getRequestURLPattern(), null);
             writer.writeNotNullOrDef("dcmHostnamePattern", rule.getRemoteHostnamePattern(), null);
             writer.writeNotNullOrDef("dcmIPAddressPattern", rule.getRemoteIPAddressPattern(), null);
@@ -3314,12 +3312,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRSOperation":
                         rule.setRSOperations(reader.enumArray(RSOperation.class));
-                        break;
-                    case "dcmTLSAllowAnyHostname":
-                        rule.setTlsAllowAnyHostname(reader.booleanValue());
-                        break;
-                    case "dcmTLSDisableTrustManager":
-                        rule.setTlsDisableTrustManager(reader.booleanValue());
                         break;
                     case "dcmURIPattern":
                         rule.setRequestURLPattern(reader.stringValue());

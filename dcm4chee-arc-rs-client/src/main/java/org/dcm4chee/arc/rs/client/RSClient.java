@@ -54,25 +54,11 @@ import javax.ws.rs.core.Response;
 public interface RSClient {
     String QUEUE_NAME = "RSClient";
 
-    void scheduleRequest(
-            RSOperation rsOp,
-            String requestURI,
-            String requestQueryStr,
-            String webAppName,
-            String patientID,
-            byte[] content,
-            boolean tlsAllowAnyHostName,
-            boolean tlsDisableTrustManager);
+    void scheduleRequest(RSOperation rsOp, HttpServletRequest request, String webAppName, String patientID, byte[] content);
 
     Outcome request(
-            String rsOp,
-            String requestURI,
-            String requestQueryStr,
-            String webAppName,
-            String patientID,
-            boolean tlsAllowAnyHostname,
-            boolean tlsDisableTrustManager,
-            byte[] content) throws Exception;
+            String rsOp, String requestURI, String requestQueryStr, String webAppName, String patientID, byte[] content)
+            throws Exception;
 
     Response forward(HttpServletRequest request, String deviceName, String append) throws Exception;
 }

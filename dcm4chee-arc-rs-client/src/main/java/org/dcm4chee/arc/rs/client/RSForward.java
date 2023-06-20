@@ -45,7 +45,6 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.RSForwardRule;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,27 +89,11 @@ public class RSForward {
     public void forward(
             RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, String patientID, HttpServletRequest request) {
         arcAE.rsForwardRules()
-                .filter(rule -> match(rule, rsOp, request))
-                .forEach(
-                rule -> apply(rule, rsOp, in, patientID, request));
-    }
-
-    private boolean match(RSForwardRule rule, RSOperation rsOp, HttpServletRequest request) {
-        return rule.containsRSOperations(rsOp) && rule.matchesRequest(request);
-    }
-
-    private void apply(RSForwardRule rule, RSOperation rsOp, byte[] in, String patientID,
-        HttpServletRequest request) {
-        LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
-        rsClient.scheduleRequest(
-                rsOp,
-                request.getRequestURI(),
-                request.getQueryString(),
-                rule.getWebAppName(),
-                patientID,
-                in,
-                rule.isTlsAllowAnyHostname(),
-                rule.isTlsDisableTrustManager());
+                .filter(rule -> rule.containsRSOperations(rsOp) && rule.matchesRequest(request))
+                .forEach(rule -> {
+                    LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
+                    rsClient.scheduleRequest(rsOp, request, rule.getWebAppName(), patientID, in);
+                });
     }
 
     private static byte[] toContent(Attributes attrs, ArchiveAEExtension arcAE) {

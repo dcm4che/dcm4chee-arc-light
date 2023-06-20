@@ -171,11 +171,7 @@ public class Dcm2UpsExporter extends AbstractExporter {
 
         String url = destWebApp.getServiceURL().append("/workitems").toString();
         Map<String, String> properties = destWebApp.getProperties();
-        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
-                url,
-                Boolean.parseBoolean(properties.get("allow-any-hostname")),
-                Boolean.parseBoolean(properties.get("disable-trust-manager")))
-                .build();
+        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, properties).build();
         WebTarget target = client.target(url);
         Invocation.Builder request = target.request();
         String token = authorization(destWebApp);

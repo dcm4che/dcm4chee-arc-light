@@ -141,6 +141,16 @@ public class AccessTokenRequestor {
         return tmp;
     }
 
+    public ResteasyClientBuilder resteasyClientBuilder(String url, Map<String, String> properties) throws Exception {
+        return resteasyClientBuilder(url,
+                Boolean.parseBoolean(properties.get("allow-any-hostname")),
+                Boolean.parseBoolean(properties.get("disable-trust-manager")));
+    }
+
+    public ResteasyClientBuilder resteasyClientBuilder(KeycloakClient kc) throws Exception {
+        return resteasyClientBuilder(kc.getKeycloakServerURL(), kc.isTLSAllowAnyHostname(), kc.isTLSDisableTrustManager());
+    }
+
     public ResteasyClientBuilder resteasyClientBuilder(
             String url, boolean allowAnyHostname, boolean disableTrustManager) throws Exception {
         ResteasyClientBuilder builder = (ResteasyClientBuilder) ClientBuilder.newBuilder();
@@ -175,8 +185,7 @@ public class AccessTokenRequestor {
                 .username(kc.getUserID())
                 .password(kc.getPassword())
                 .grantType(kc.getKeycloakGrantType().name())
-                .resteasyClient(resteasyClientBuilder(
-                        kc.getKeycloakServerURL(), kc.isTLSAllowAnyHostname(), kc.isTLSDisableTrustManager()).build())
+                .resteasyClient(resteasyClientBuilder(kc).build())
                 .build();
     }
 
@@ -206,11 +215,7 @@ public class AccessTokenRequestor {
                 && tmp.kid.equals(kid)) {
             return tmp.key;
         }
-        ResteasyClient client = resteasyClientBuilder(
-                    kc.getKeycloakServerURL(),
-                    kc.isTLSAllowAnyHostname(),
-                    kc.isTLSDisableTrustManager())
-                .build();
+        ResteasyClient client = resteasyClientBuilder(kc).build();
         try {
             WebTarget target = client.target(jwksUrl);
             Invocation.Builder request = target.request();
