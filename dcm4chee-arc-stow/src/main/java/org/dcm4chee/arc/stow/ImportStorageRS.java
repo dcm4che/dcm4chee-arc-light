@@ -265,13 +265,13 @@ public class ImportStorageRS {
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
-            LOG.info("{}: Failed to import instance on storage SopClassUID={}, StoragePath={}",
-                    session, UID.nameOf(ctx.getSopClassUID()), storagePath, e);
+            LOG.info("{}: Failed to import instance on storage StoragePath={}",
+                    session, storagePath, e);
             response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         } catch (IOException e) {
-            LOG.info("{}: Failed to import instance on storage SopClassUID={}, StoragePath={}",
-                    session, UID.nameOf(ctx.getSopClassUID()), storagePath, e);
+            LOG.info("{}: Failed to import instance on storage StoragePath={}",
+                    session, storagePath, e);
             response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
         }
     }
