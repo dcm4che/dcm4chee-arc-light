@@ -110,6 +110,7 @@ public class AccessTokenRequestor {
                 accessToken.getExpiresIn());
     }
 
+    //used in J4Care proprietary code
     public AccessTokenWithExpiration getAccessToken2(KeycloakClient keycloakClient) throws Exception {
         CachedKeycloak tmp = toCachedKeycloakClient(keycloakClient);
         TokenManager tokenManager = tmp.keycloak.tokenManager();
