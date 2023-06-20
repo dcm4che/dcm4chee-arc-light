@@ -8,9 +8,9 @@
         <h5 i18n="@@size-range-picker.title">Set Size Range:</h5>
         <div class="input_block" (keyup)="onInputChange()">
             <div class="input_part">
-                <input class="min" type="text" min="1" [(ngModel)]="value.min" i18n-placeholder="@@placeholder.min" placeholder="min"/>
+                <input class="min" type="number" min="1" [(ngModel)]="value.min" i18n-placeholder="@@placeholder.min" placeholder="min"/>
                 <span class="minus">-</span>
-                <input class="max" type="text" min="1" [(ngModel)]="value.max" i18n-placeholder="@@placeholder.max" placeholder="max"/>
+                <input class="max" type="number" min="1" [(ngModel)]="value.max" i18n-placeholder="@@placeholder.max" placeholder="max"/>
             </div>
             <mat-select class="unit" [(ngModel)]="value.unit" i18n-placeholder="@@unit" placeholder="Unit" (selectionChange)="onInputChange()">
                 <mat-option value="">*</mat-option>
