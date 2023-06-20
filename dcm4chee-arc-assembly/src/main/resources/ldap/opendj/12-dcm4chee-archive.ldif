@@ -2891,7 +2891,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.29 NAME 'dcmAttributeSet'
     dcmProperty $
     dicomInstalled ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.30 NAME 'dcmKeycloakServer'
-  DESC 'Specifies Keycloak Server for token request'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   SUP top STRUCTURAL
   MUST (
     dcmKeycloakServerID $
