@@ -528,6 +528,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     st.getExternalRetrieveInstanceAvailability(), null);
             writer.writeNotEmpty("dcmExportStorageID", st.getExportStorageID());
             writer.writeNotNullOrDef("dcmRetrieveCacheStorageID", st.getRetrieveCacheStorageID(), null);
+            writer.writeNotDef("dcmNoRetrieveCacheOnPurgedInstanceRecords",
+                    st.isNoRetrieveCacheOnPurgedInstanceRecords(), false);
+            writer.writeNotEmpty("dcmNoRetrieveCacheOnDestinationAETitle",
+                    st.getNoRetrieveCacheOnDestinationAETitles());
             writer.writeNotDef("dcmRetrieveCacheMaxParallel", st.getRetrieveCacheMaxParallel(), 10);
             writer.writeNotEmpty("dcmDeleteStudiesOlderThan",
                     st.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.OlderThan));
@@ -2364,6 +2368,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRetrieveCacheStorageID":
                         st.setRetrieveCacheStorageID(reader.stringValue());
+                        break;
+                    case "dcmNoRetrieveCacheOnPurgedInstanceRecords":
+                        st.setNoRetrieveCacheOnPurgedInstanceRecords(reader.booleanValue());
+                        break;
+                    case "dcmNoRetrieveCacheOnDestinationAETitle":
+                        st.setNoRetrieveCacheOnDestinationAETitles(reader.stringArray());
                         break;
                     case "dcmRetrieveCacheMaxParallel":
                         st.setRetrieveCacheMaxParallel(reader.intValue());

@@ -66,7 +66,7 @@ public final class StorageDescriptor {
     private String[] exportStorageID = {};
     private String retrieveCacheStorageID;
     private boolean noRetrieveCacheOnPurgedInstanceRecords;
-    private String[] noRetrieveCacheOnDestinationAETitles;
+    private String[] noRetrieveCacheOnDestinationAETitles = {};
     private int retrieveCacheStorageMaxParallel = 10;
     private int deleterThreads = 1;
     private String[] externalRetrieveAETitles = {};

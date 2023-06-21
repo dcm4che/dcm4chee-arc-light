@@ -2689,6 +2689,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getExportStorageID());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveCacheStorageID",
                 descriptor.getRetrieveCacheStorageID(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoRetrieveCacheOnPurgedInstanceRecords",
+                descriptor.isNoRetrieveCacheOnPurgedInstanceRecords(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmNoRetrieveCacheOnDestinationAETitle",
+                descriptor.getNoRetrieveCacheOnDestinationAETitles());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveCacheMaxParallel",
                 descriptor.getRetrieveCacheMaxParallel(), 10);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleteStudiesOlderThan",
@@ -2734,6 +2738,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setExportStorageID(LdapUtils.stringArray(attrs.get("dcmExportStorageID")));
                 desc.setRetrieveCacheStorageID(
                         LdapUtils.stringValue(attrs.get("dcmRetrieveCacheStorageID"), null));
+                desc.setNoRetrieveCacheOnPurgedInstanceRecords(
+                        LdapUtils.booleanValue(attrs.get("dcmNoRetrieveCacheOnPurgedInstanceRecords"), false));
+                desc.setNoRetrieveCacheOnDestinationAETitles(
+                        LdapUtils.stringArray(attrs.get("dcmNoRetrieveCacheOnDestinationAETitle")));
                 desc.setRetrieveCacheMaxParallel(
                         LdapUtils.intValue(attrs.get("dcmRetrieveCacheMaxParallel"), 10));
                 desc.setRetentionPeriods(RetentionPeriod.DeleteStudies.OlderThan,
@@ -2819,6 +2827,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getExportStorageID(), desc.getExportStorageID());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveCacheStorageID",
                 prev.getRetrieveCacheStorageID(), desc.getRetrieveCacheStorageID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmNoRetrieveCacheOnPurgedInstanceRecords",
+                prev.isNoRetrieveCacheOnPurgedInstanceRecords(),
+                desc.isNoRetrieveCacheOnPurgedInstanceRecords(),
+                false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmNoRetrieveCacheOnDestinationAETitle",
+                prev.getNoRetrieveCacheOnDestinationAETitles(),
+                desc.getNoRetrieveCacheOnDestinationAETitles());
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveCacheMaxParallel",
                 prev.getRetrieveCacheMaxParallel(), desc.getRetrieveCacheMaxParallel(), 10);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteStudiesOlderThan",
