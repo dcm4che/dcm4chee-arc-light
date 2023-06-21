@@ -2192,6 +2192,15 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.450 NAME 'hl7OtherPatientIDs'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.451 NAME 'dcmNoRetrieveCacheOnDestinationAETitle'
+  DESC 'Specifies AE Titles of C-STORE SCPs to which objects are retrieved without copying them to a configured Retrieve Cache Storage.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.452 NAME 'dcmNoRetrieveCacheOnPurgedInstanceRecords'
+  DESC 'Indicates to NOT copying retrieved objects to a configured Retrieve Cache Storage, which corresponding Instance Records were already purged from the DB; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2671,6 +2680,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmExportStorageID $
     dcmRetrieveCacheStorageID $
     dcmRetrieveCacheMaxParallel $
+    dcmNoRetrieveCacheOnDestinationAETitle $
+    dcmNoRetrieveCacheOnPurgedInstanceRecords $
     dcmNoDeletionConstraint $
     dcmStorageDuration $
     dcmReadOnly $

@@ -49,7 +49,6 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
@@ -762,10 +761,13 @@ class RetrieveContextImpl implements RetrieveContext {
         ArchiveDeviceExtension arcdev = retrieveService.getArchiveDeviceExtension();
         for (Location location : match.getLocations()) {
             storageDescriptor = arcdev.getStorageDescriptorNotNull(location.getStorageID());
-            if (storageDescriptor.getRetrieveCacheStorageID() == null)
+            if (storageDescriptor.getRetrieveCacheStorageID() == null
+                || storageDescriptor.isNoRetrieveCacheOnDestinationAETitles(destinationAETitle)
+                || storageDescriptor.isNoRetrieveCacheOnPurgedInstanceRecords()
+                    && getInstancePurgeState(match) == Series.InstancePurgeState.PURGED)
                 return false;
         }
-        if (match != null && match.getInstancePk() == null) {
+        if (match.getInstancePk() == null) {
             try {
                 restoreInstances(match.getAttributes(), storageDescriptor.getRetrieveCacheStorageID());
             } catch (IOException e) {
@@ -774,6 +776,18 @@ class RetrieveContextImpl implements RetrieveContext {
             }
         }
         return copyToRetrieveCacheTask(storageDescriptor).schedule(match);
+    }
+
+    private Series.InstancePurgeState getInstancePurgeState(InstanceLocations match) {
+        Attributes attrs = match.getAttributes();
+        String seriesIUID = attrs.getString(Tag.SeriesInstanceUID);
+        String studyIUID = attrs.getString(Tag.StudyInstanceUID);
+        for (SeriesInfo seriesInfo : seriesInfos) {
+            if (seriesInfo.getSeriesInstanceUID().equals(seriesIUID)
+                    && seriesInfo.getStudyInstanceUID().equals(studyIUID))
+                return seriesInfo.getInstancePurgeState();
+        }
+        return null;
     }
 
     private void restoreInstances(Attributes attrs, String storageID) throws IOException {

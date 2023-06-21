@@ -83,6 +83,7 @@ class SeriesAttributes {
                         study.get(Study_.accessControlID),
                         study.get(Study_.size),
                         series.get(Series_.seriesInstanceUID),
+                        series.get(Series_.instancePurgeState),
                         series.get(Series_.failedRetrieves),
                         series.get(Series_.completeness),
                         series.get(Series_.modifiedTime),
@@ -110,6 +111,7 @@ class SeriesAttributes {
         seriesInfo = new SeriesInfoImpl(
                 studyInfo.getStudyInstanceUID(),
                 tuple.get(series.get(Series_.seriesInstanceUID)),
+                tuple.get(series.get(Series_.instancePurgeState)),
                 tuple.get(series.get(Series_.failedRetrieves)),
                 tuple.get(series.get(Series_.completeness)),
                 tuple.get(series.get(Series_.modifiedTime)),

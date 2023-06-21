@@ -47,7 +47,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -66,6 +65,8 @@ public final class StorageDescriptor {
     private String storageClusterID;
     private String[] exportStorageID = {};
     private String retrieveCacheStorageID;
+    private boolean noRetrieveCacheOnPurgedInstanceRecords;
+    private String[] noRetrieveCacheOnDestinationAETitles;
     private int retrieveCacheStorageMaxParallel = 10;
     private int deleterThreads = 1;
     private String[] externalRetrieveAETitles = {};
@@ -196,6 +197,30 @@ public final class StorageDescriptor {
 
     public void setRetrieveCacheMaxParallel(int retrieveCacheStorageMaxParallel) {
         this.retrieveCacheStorageMaxParallel = retrieveCacheStorageMaxParallel;
+    }
+
+    public boolean isNoRetrieveCacheOnPurgedInstanceRecords() {
+        return noRetrieveCacheOnPurgedInstanceRecords;
+    }
+
+    public void setNoRetrieveCacheOnPurgedInstanceRecords(boolean noRetrieveCacheOnPurgedInstanceRecords) {
+        this.noRetrieveCacheOnPurgedInstanceRecords = noRetrieveCacheOnPurgedInstanceRecords;
+    }
+
+    public String[] getNoRetrieveCacheOnDestinationAETitles() {
+        return noRetrieveCacheOnDestinationAETitles;
+    }
+
+    public void setNoRetrieveCacheOnDestinationAETitles(String... noRetrieveCacheOnDestinationAETitles) {
+        this.noRetrieveCacheOnDestinationAETitles = noRetrieveCacheOnDestinationAETitles;
+    }
+
+    public boolean isNoRetrieveCacheOnDestinationAETitles(String destinationAETitle) {
+        for (String noRetrieveCacheOnDestinationAETitle : noRetrieveCacheOnDestinationAETitles) {
+            if (noRetrieveCacheOnDestinationAETitle.equals(destinationAETitle))
+                return true;
+        }
+        return false;
     }
 
     public int getDeleterThreads() {

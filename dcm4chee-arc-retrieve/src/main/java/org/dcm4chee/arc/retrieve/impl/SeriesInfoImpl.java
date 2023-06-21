@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4chee.arc.entity.Completeness;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.SeriesInfo;
 
 import java.util.Date;
@@ -54,6 +55,7 @@ import java.util.Date;
 public class SeriesInfoImpl implements SeriesInfo {
     private final String studyInstanceUID;
     private final String seriesInstanceUID;
+    private final Series.InstancePurgeState instancePurgeState;
     private final int failedRetrieves;
     private final Completeness completeness;
     private final Date modifiedTime;
@@ -65,12 +67,14 @@ public class SeriesInfoImpl implements SeriesInfo {
     private final long seriesSize;
     private final long seriesPk;
 
-    public SeriesInfoImpl(String studyInstanceUID, String seriesInstanceUID, int failedRetrieves,
+    public SeriesInfoImpl(String studyInstanceUID, String seriesInstanceUID,
+                          Series.InstancePurgeState instancePurgeState, int failedRetrieves,
                           Completeness completeness, Date modifiedTime, String expirationDate, String sendingAET,
                           String receivingAET, String sendingPresentationAddress, String receivingPresentationAddress,
                           long seriesSize, long seriesPk) {
         this.studyInstanceUID = studyInstanceUID;
         this.seriesInstanceUID = seriesInstanceUID;
+        this.instancePurgeState = instancePurgeState;
         this.failedRetrieves = failedRetrieves;
         this.completeness = completeness;
         this.modifiedTime = modifiedTime;
@@ -91,6 +95,11 @@ public class SeriesInfoImpl implements SeriesInfo {
     @Override
     public String getSeriesInstanceUID() {
         return seriesInstanceUID;
+    }
+
+    @Override
+    public Series.InstancePurgeState getInstancePurgeState() {
+        return instancePurgeState;
     }
 
     @Override
