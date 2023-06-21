@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.keycloak;
 
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.KeycloakClient;
 import org.dcm4che3.net.WebApplication;
@@ -73,6 +74,7 @@ import javax.ws.rs.client.WebTarget;
 import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -141,10 +143,15 @@ public class AccessTokenRequestor {
         return tmp;
     }
 
-    public ResteasyClientBuilder resteasyClientBuilder(String url, Map<String, String> properties) throws Exception {
-        return resteasyClientBuilder(url,
-                Boolean.parseBoolean(properties.get("allow-any-hostname")),
-                Boolean.parseBoolean(properties.get("disable-trust-manager")));
+    public ResteasyClientBuilder resteasyClientBuilder(String url, WebApplication webApp) throws Exception {
+        Map<String, String> properties = webApp.getProperties();
+        ResteasyClientBuilder builder = resteasyClientBuilder(url,
+                                                        Boolean.parseBoolean(properties.get("allow-any-hostname")),
+                                                        Boolean.parseBoolean(properties.get("disable-trust-manager")));
+        Connection connection = webApp.firstInstalledConnection();
+        builder.connectTimeout(connection.getConnectTimeout(), TimeUnit.MILLISECONDS);
+        builder.readTimeout(connection.getResponseTimeout(), TimeUnit.MILLISECONDS);
+        return builder;
     }
 
     public ResteasyClientBuilder resteasyClientBuilder(KeycloakClient kc) throws Exception {

@@ -170,8 +170,7 @@ public class Dcm2UpsExporter extends AbstractExporter {
         }
 
         String url = destWebApp.getServiceURL().append("/workitems").toString();
-        Map<String, String> properties = destWebApp.getProperties();
-        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, properties).build();
+        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, destWebApp).build();
         WebTarget target = client.target(url);
         Invocation.Builder request = target.request();
         String token = authorization(destWebApp);
@@ -183,7 +182,7 @@ public class Dcm2UpsExporter extends AbstractExporter {
         Attributes upsInfo = queryService.createUPSInfo(
                 ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), descriptor);
 
-        return outcome(request.post(EntityType.valueOf(mediaType(properties.get("content-type")))
+        return outcome(request.post(EntityType.valueOf(mediaType(destWebApp.getProperties().get("content-type")))
                 .entity(upsAttrs(upsInfo))));
     }
 

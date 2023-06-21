@@ -61,9 +61,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -133,7 +131,7 @@ public class RSClientImpl implements RSClient {
 
         Response response = toResponse(getMethod(rsOperation),
                                         targetURI,
-                                        webApplication.getProperties(),
+                                        webApplication,
                                         content,
                                         accessTokenFromWebApp(webApplication));
         Outcome outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
@@ -170,10 +168,8 @@ public class RSClientImpl implements RSClient {
     }
 
     private Response toResponse(
-            String method, String uri, Map<String, String> properties, byte[] content, String authorization)
-            throws Exception {
-
-        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, properties).build();
+            String method, String uri, WebApplication webApp, byte[] content, String authorization) throws Exception {
+        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, webApp).build();
         WebTarget target = client.target(uri);
         Invocation.Builder request = target.request();
         if (authorization != null)
@@ -195,25 +191,23 @@ public class RSClientImpl implements RSClient {
         LOG.info("Forward {} {} from {}@{} to device {}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost(), deviceName);
         String authorization = request.getHeader("Authorization");
-        String targetURI = null;
         String requestURI = request.getRequestURI();
         Device device = iDeviceCache.findDevice(deviceName);
-        Map<String, String> properties = Collections.emptyMap();
         for (WebApplication webApplication : device.getWebApplications())
             if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC)) {
-                targetURI = webApplication.getServiceURL().toString()
-                        + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1))
-                        + "?" + request.getQueryString() + append;
-                properties = webApplication.getProperties();
+                StringBuilder targetURI = webApplication.getServiceURL()
+                                    .append(requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1)))
+                                    .append("?")
+                                    .append(request.getQueryString())
+                                    .append(append);
+                return toResponse("POST", targetURI.toString(), webApplication, null, authorization);
             }
 
-        return targetURI == null
-                ? Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Either Web Application with Service Class 'DCM4CHEE_ARC' not configured for device: "
                             + deviceName
                             + " or HTTP connection not configured for WebApplication with Service Class 'DCM4CHEE_ARC' of this device.")
-                    .build()
-                : toResponse("POST", targetURI, properties, null, authorization);
+                    .build();
     }
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {

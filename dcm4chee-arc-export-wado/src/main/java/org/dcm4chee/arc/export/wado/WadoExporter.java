@@ -365,9 +365,7 @@ public class WadoExporter extends AbstractExporter {
         Invocation.Builder openConnection(Object[] params, AccessTokenRequestor accessTokenRequestor)
                 throws Exception {
             targetURL = format.format(params);
-            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
-                                                        targetURL, queryRetrieveWebApp.getProperties())
-                                                        .build();
+            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(targetURL, queryRetrieveWebApp).build();
             WebTarget target = client.target(targetURL);
             Invocation.Builder request = target.request();
             headerFields.forEach((k,v) -> request.header(k.toString(), v));
