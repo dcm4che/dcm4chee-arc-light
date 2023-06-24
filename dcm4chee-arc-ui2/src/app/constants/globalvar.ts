@@ -4546,15 +4546,25 @@ export class Globalvar {
                     placeholder:$localize `:@@storage_id:Storage ID`,
                     description:$localize `:@@storage_id_tooltip:Only query studies whose objects are on a particular storage system`
                 }, {
-                    tag:"checkbox",
+                    tag:"select",
                     filterKey:"storageClustered",
-                    text:$localize `:@@storage_clustered:Storage Clustered`,
-                    description:$localize `:@@storage_clustered_tooltip:Only query studies whose objects is on storage system selected by 'Storage ID' and also on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs`
-                }, {
-                    tag:"checkbox",
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`, $localize `:@@storage_clustered_yes:Query studies whose objects are also on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`, $localize `:@@storage_clustered_no:Do not query studies whose objects are on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs`)
+                    ],
+                    placeholder:$localize `:@@storage_clustered:Storage Clustered`,
+                    description:$localize `:@@storage_clustered_tooltip:Query studies whose objects are also on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs; applicable only in combination with 'Storage ID' filter`
+                },  {
+                    tag:"select",
                     filterKey:"storageExported",
-                    text:$localize `:@@storage_exported:Storage Exported`,
-                    description:$localize `:@@storage_exported_tooltip:Only query studies whose objects are on storage systems selected by 'Storage ID' and its corresponding configured 'Export Storage ID'`
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`, $localize `:@@storage_exported_yes:Query studies whose objects are also on configured 'Export Storage ID' storage systems of selected 'Storage ID'`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`, $localize `:@@storage_exported_no:Do not query studies whose objects are on configured 'Export Storage ID' storage systems of selected 'Storage ID'`)
+                    ],
+                    placeholder:$localize `:@@storage_exported:Storage Exported`,
+                    description:$localize `:@@storage_exported_tooltip:Query studies whose objects are also on configured 'Export Storage ID' storage systems of selected 'Storage ID'; applicable only in combination with 'Storage ID' filter`
                 }, {
                     tag:"select",
                     filterKey:"requested",
@@ -5237,16 +5247,26 @@ export class Globalvar {
                     placeholder:$localize `:@@storage_id:Storage ID`,
                     description:$localize `:@@storage_id_tooltip:Only query studies whose objects are on a particular storage system`
                 }, {
-                    tag:"checkbox",
+                    tag:"select",
                     filterKey:"storageClustered",
-                    text:$localize `:@@storage_clustered:Storage Clustered`,
-                    description:$localize `:@@storage_clustered_tooltip:Only query studies whose objects is on storage system selected by 'Storage ID' and also on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs`
-                }, {
-                    tag:"checkbox",
-                    filterKey:"storageExported",
-                    text:$localize `:@@storage_exported:Storage Exported`,
-                    description:$localize `:@@storage_exported_tooltip:Only query studies whose objects are on storage systems selected by 'Storage ID' and its corresponding configured 'Export Storage ID'`
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`, $localize `:@@storage_clustered_yes:Query studies whose objects are also on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`, $localize `:@@storage_clustered_no:Do not query studies whose objects are on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs`)
+                    ],
+                    placeholder:$localize `:@@storage_clustered:Storage Clustered`,
+                    description:$localize `:@@storage_clustered_tooltip:Query studies whose objects are also on other storage systems of the 'Storage Cluster' to which selected 'Storage ID' belongs; applicable only in combination with 'Storage ID' filter`
                 },  {
+                    tag:"select",
+                    filterKey:"storageExported",
+                    showStar:true,
+                    options:[
+                        new SelectDropdown("true", $localize `:@@YES:YES`, $localize `:@@storage_exported_yes:Query studies whose objects are also on configured 'Export Storage ID' storage systems of selected 'Storage ID'`),
+                        new SelectDropdown("false", $localize `:@@NO:NO`, $localize `:@@storage_exported_no:Do not query studies whose objects are on configured 'Export Storage ID' storage systems of selected 'Storage ID'`)
+                    ],
+                    placeholder:$localize `:@@storage_exported:Storage Exported`,
+                    description:$localize `:@@storage_exported_tooltip:Query studies whose objects are also on configured 'Export Storage ID' storage systems of selected 'Storage ID'; applicable only in combination with 'Storage ID' filter`
+                }, {
                     tag:"range-picker-limit",
                     type:"text",
                     filterKey:"StudyDate",
