@@ -4570,11 +4570,11 @@ export class Globalvar {
                     filterKey:"requested",
                     showStar:true,
                     options:[
-                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`),
-                        new SelectDropdown("true", $localize `:@@requested:Requested`)
+                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`, $localize `:@@unscheduled_studies_unscheduled_desc:Studies with no Series having Request Attributes Sequence (0040,0275) in it`),
+                        new SelectDropdown("true", $localize `:@@requested:Requested`, $localize `:@@unscheduled_studies_requested_desc:Studies with at least one Series having Request Attributes Sequence (0040,0275) in it`)
                     ],
-                    description:$localize `:@@unscheduled_studies:Unscheduled Studies`,
-                    placeholder:$localize `:@@unscheduled_studies:Unscheduled Studies`,
+                    placeholder:$localize `:@@unscheduled_studies:(Un-)Scheduled Studies`,
+                    description:$localize `:@@unscheduled_studies_desc:Query Studies with(-out) Series having Request Attributes Sequence (0040,0275) in it`,
                 }, {
                     tag:"input",
                     type:"text",
@@ -5312,11 +5312,11 @@ export class Globalvar {
                     filterKey:"requested",
                     showStar:true,
                     options:[
-                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`),
-                        new SelectDropdown("true", $localize `:@@requested:Requested`)
+                        new SelectDropdown("false", $localize `:@@unscheduled:Unscheduled`, $localize `:@@unscheduled_series_unscheduled_desc:Series not having Request Attributes Sequence (0040,0275) in it`),
+                        new SelectDropdown("true", $localize `:@@requested:Requested`, $localize `:@@unscheduled_series_requested_desc:Series having Request Attributes Sequence (0040,0275) in it`)
                     ],
-                    description:$localize `:@@unscheduled_studies:Unscheduled Studies`,
-                    placeholder:$localize `:@@unscheduled_studies:Unscheduled Studies`,
+                    placeholder:$localize `:@@unscheduled_series:(Un-)Scheduled Series`,
+                    description:$localize `:@@unscheduled_series_desc:Query Series with(-out) Request Attributes Sequence (0040,0275) in it`,
                 }, {
                     tag:"checkbox",
                     filterKey:"incomplete",
