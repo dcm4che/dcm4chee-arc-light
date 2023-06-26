@@ -4845,8 +4845,13 @@ export class Globalvar {
                     description:$localize `:@@series_description:Series Description`,
                     placeholder:$localize `:@@series_description:Series Description`
                 }, {
-                    tag:"input",
+                    tag:"editable-multi-select",
                     type:"text",
+                    optionsTree:[
+                        {
+                            options:aets
+                        }
+                    ],
                     filterKey:"ReceivingApplicationEntityTitleOfSeries",
                     description:$localize `:@@receiving_application_entity_title_of_series:Receiving Application Entity Title of Series`,
                     placeholder:$localize `:@@receiving_aet_of_series:Receiving AET of Series`
@@ -5630,8 +5635,13 @@ export class Globalvar {
                     description:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`,
                     placeholder:$localize `:@@receiving_presentation_addr_of_series:Receiving Presentation Address of Series`
                 }, {
-                    tag:"input",
+                    tag:"editable-multi-select",
                     type:"text",
+                    optionsTree:[
+                        {
+                            options:aets
+                        }
+                    ],
                     filterKey:"ReceivingApplicationEntityTitleOfSeries",
                     description:$localize `:@@receiving_application_entity_title_of_series:Receiving Application Entity Title of Series`,
                     placeholder:$localize `:@@receiving_aet_of_series:Receiving AET of Series`
