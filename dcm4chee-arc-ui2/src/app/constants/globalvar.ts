@@ -5065,8 +5065,13 @@ export class Globalvar {
                 description:$localize `:@@institutional_department_name:Institutional Department Name`,
                 placeholder:$localize `:@@institutional_department_name:Institutional Department Name`
             }, {
-                tag:"input",
+                tag:"editable-multi-select",
                 type:"text",
+                optionsTree:[
+                    {
+                        options:aets
+                    }
+                ],
                 filterKey:"SendingApplicationEntityTitleOfSeries",
                 description:$localize `:@@sending_application_entity_title_of_series:Sending Application Entity Title of Series`,
                 placeholder:$localize `:@@sending_aet_of_series:Sending AET of Series`
@@ -5312,8 +5317,13 @@ export class Globalvar {
                 filterKey:"ModalitiesInStudy",
                 placeholder:$localize `:@@modality:Modality`,
             }, {
-                tag:"input",
+                tag:"editable-multi-select",
                 type:"text",
+                optionsTree:[
+                    {
+                        options:aets
+                    }
+                ],
                 filterKey:"SendingApplicationEntityTitleOfSeries",
                 description:$localize `:@@sending_application_entity_title_of_series:Sending Application Entity Title of Series`,
                 placeholder:$localize `:@@sending_aet_of_series:Sending AET of Series`
@@ -5781,8 +5791,13 @@ export class Globalvar {
                 placeholder:$localize `:@@Performing_physician_family_name:Performing physician family name`,
                 description:$localize `:@@person_family_name_tooltip:Order of name components in the search field differs from the rendered person names in the list`
             }, {
-                tag:"input",
+                tag:"editable-multi-select",
                 type:"text",
+                optionsTree:[
+                    {
+                        options:aets
+                    }
+                ],
                 filterKey:"SendingApplicationEntityTitleOfSeries",
                 description:$localize `:@@sending_application_entity_title_of_series:Sending Application Entity Title of Series`,
                 placeholder:$localize `:@@sending_aet_of_series:Sending AET of Series`
