@@ -66,6 +66,7 @@
             <module name="org.dcm4che.image" export="TRUE"/>
             <module name="org.dcm4che.soundex" export="TRUE"/>
             <module name="org.dcm4che.xdsi" export="TRUE"/>
+            <module name="org.dcm4che.xroad" export="TRUE"/>
             <!-- apache-cxf modules -->
             <module name="org.apache.cxf.impl" export="TRUE"/>
             <!-- jclouds modules -->

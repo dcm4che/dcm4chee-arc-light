@@ -42,11 +42,16 @@
 package org.dcm4chee.arc.pdq.xroad;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.xroad.*;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.AbstractPDQService;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.pdq.PDQServiceException;
-import org.dcm4chee.arc.xroad.XRoadServiceProvider;
+
+import javax.xml.ws.Holder;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -54,20 +59,32 @@ import org.dcm4chee.arc.xroad.XRoadServiceProvider;
  */
 public class XRoadPDQService extends AbstractPDQService {
 
-    private final XRoadServiceProvider serviceProvider;
+    private final Device device;
+    private final XRoadService service;
 
-    public XRoadPDQService(PDQServiceDescriptor descriptor, XRoadServiceProvider serviceProvider) {
+    public XRoadPDQService(PDQServiceDescriptor descriptor, Device device, XRoadService service) {
         super(descriptor);
-        this.serviceProvider = serviceProvider;
+        this.device = device;
+        this.service = service;
     }
 
     @Override
     public Attributes query(PDQServiceContext ctx) throws PDQServiceException {
         try {
-            return serviceProvider.rr441(
-                    descriptor.getPDQServiceURI().getSchemeSpecificPart(),
-                    descriptor.getProperties(),
-                    ctx.getPatientID().getID());
+            Map<String, String> props = descriptor.getProperties();
+            XRoadAdapterPortType port = service.getXRoadServicePort();
+            XRoadUtils.setEndpointAddress(port, descriptor.getPDQServiceURI().getSchemeSpecificPart());
+            if (descriptor.getPDQServiceURI().getSchemeSpecificPart().startsWith("https")) {
+                XRoadUtils.setTlsClientParameters(port, device,
+                        props.get("TLS.protocol"),
+                        StringUtils.split(props.get("TLS.cipherSuites"), ','),
+                        Boolean.parseBoolean(props.getOrDefault("TLS.disableCNCheck", "false")));
+            }
+            RR441RequestType rq = XRoadUtils.createRR441RequestType(props, ctx.getPatientID().getID());
+            RR441ResponseType rsp = XRoadException.validate(XRoadUtils.rr441(port, props, rq, new Holder<>()));
+            return XRoadUtils.toAttributes(
+                    props.getOrDefault("SpecificCharacterSet", "ISO_IR 100"),
+                    rsp);
         } catch (Exception e) {
             throw new PDQServiceException(e);
         }

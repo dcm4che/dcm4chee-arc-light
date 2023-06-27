@@ -41,10 +41,11 @@
 
 package org.dcm4chee.arc.pdq.xroad;
 
+import org.dcm4che3.net.Device;
+import org.dcm4che3.xroad.XRoadService;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.pdq.PDQService;
 import org.dcm4chee.arc.pdq.PDQServiceProvider;
-import org.dcm4chee.arc.xroad.XRoadServiceProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -58,10 +59,11 @@ import javax.inject.Named;
 @Named("pdq-xroad")
 public class XRoadPDQServiceProvider implements PDQServiceProvider {
     @Inject
-    private XRoadServiceProvider serviceProvider;
+    private Device device;
 
+    private final XRoadService service = new XRoadService();
     @Override
     public PDQService getPDQService(PDQServiceDescriptor descriptor) {
-        return new XRoadPDQService(descriptor, serviceProvider);
+        return new XRoadPDQService(descriptor, device, service);
     }
 }
