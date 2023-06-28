@@ -61,11 +61,12 @@ import java.util.stream.Collectors;
  */
 public class HL7SenderUtils {
 
-    public static byte[] data(HL7Application sender, HL7Application receiver, Attributes attrs, Attributes prev,
-                              String msgType, String uri, String ppsStatus, ArchiveAEExtension arcAE)
+    public static byte[] data(
+            HL7Application sender, String sendingAppWithFacility, HL7Application receiver,
+            Attributes attrs, Attributes prev, String msgType, String uri, String ppsStatus, ArchiveAEExtension arcAE)
             throws TransformerConfigurationException, UnsupportedEncodingException, SAXException {
         return SAXTransformer.transform(attrs, sender.getHL7SendingCharacterSet(), uri, tr -> {
-            tr.setParameter("sender", sender.getApplicationName());
+            tr.setParameter("sender", sendingAppWithFacility);
             tr.setParameter("receiver", receiver.getApplicationName());
             tr.setParameter("dateTime", HL7Segment.timeStamp(new Date()));
             tr.setParameter("msgControlID", HL7Segment.nextMessageControlID());

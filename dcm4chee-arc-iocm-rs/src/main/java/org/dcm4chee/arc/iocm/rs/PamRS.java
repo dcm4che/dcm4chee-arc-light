@@ -757,7 +757,7 @@ public class PamRS {
         return sw.toString();
     }
 
-    public void notifyHL7Receivers(String msgType, PatientMgtContext ctx) throws Exception {
+    public void notifyHL7Receivers(String msgType, PatientMgtContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String sendingAppFacility = arcDev.getHL7ADTSendingApplication();
         if (sendingAppFacility == null)
@@ -772,7 +772,8 @@ public class PamRS {
         for (String receivingAppFacility : arcDev.getHL7ADTReceivingApplication()) {
             try {
                 HL7Application receiver = hl7AppCache.findHL7Application(receivingAppFacility);
-                byte[] data = HL7SenderUtils.data(sender, receiver, ctx.getAttributes(), ctx.getPreviousAttributes(),
+                byte[] data = HL7SenderUtils.data(sender, sendingAppFacility, receiver,
+                                                ctx.getAttributes(), ctx.getPreviousAttributes(),
                                                 msgType, arcDev.getOutgoingPatientUpdateTemplateURI(),
                                                 null, null);
                 hl7Sender.scheduleMessage(ctx.getHttpServletRequestInfo(), data);

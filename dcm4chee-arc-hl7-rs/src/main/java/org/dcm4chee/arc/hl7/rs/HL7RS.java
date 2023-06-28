@@ -211,7 +211,7 @@ public class HL7RS {
             HL7Application receiver = hl7AppCache.findHL7Application(externalAppName);
             String outgoingPatientUpdateTemplateURI = device.getDeviceExtension(ArchiveDeviceExtension.class)
                                                             .getOutgoingPatientUpdateTemplateURI();
-            byte[] data = HL7SenderUtils.data(sender, receiver, ctx.getAttributes(), ctx.getPreviousAttributes(),
+            byte[] data = HL7SenderUtils.data(sender, appName, receiver, ctx.getAttributes(), ctx.getPreviousAttributes(),
                                             msgType, outgoingPatientUpdateTemplateURI,null, null);
             if (queue) {
                 hl7Sender.scheduleMessage(ctx.getHttpServletRequestInfo(), data);

@@ -184,6 +184,11 @@ public class HL7PSUEJB {
 
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
                                       .getHL7Application(hl7PSUSendingApplication, true);
+        if (sender == null) {
+            LOG.info("HL7 Procedure Status Update Sending Application not configured : {}", hl7PSUSendingApplication);
+            return;
+        }
+
         UnparsedHL7Message hl7Msg = null;
         MPPS mpps = task.getMpps();
         String uri = mpps != null ? arcAE.hl7PSUMppsTemplateURI() : arcAE.hl7PSUStudyTemplateURI();
@@ -191,7 +196,8 @@ public class HL7PSUEJB {
             try {
                 HL7Application receiver = hl7AppCache.findHL7Application(hl7PSUReceivingApplication);
                 if (hl7Msg == null)
-                    hl7Msg = new UnparsedHL7Message(HL7SenderUtils.data(sender, receiver, attrs, null,
+                    hl7Msg = new UnparsedHL7Message(HL7SenderUtils.data(sender, hl7PSUSendingApplication, receiver,
+                                                                        attrs, null,
                                                                         arcAE.hl7PSUMessageType().name(), uri,
                                                                         mpps != null ? task.getPPSStatus().name() : null,
                                                                         arcAE));
