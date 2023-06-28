@@ -275,6 +275,22 @@ class PatientUpdateService extends DefaultHL7Service {
     private static void adjustOtherPIDs(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App) {
         Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
         IDWithIssuer primaryPatIdentifier = IDWithIssuer.pidOf(attrs);
+        adjustOtherPatientIDs(attrs, arcHL7App);
+        Attributes mergedPatientAttrs = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
+        if (mergedPatientAttrs != null)
+            adjustOtherPatientIDs(mergedPatientAttrs, arcHL7App);
+        
+        if (hl7PrimaryAssigningAuthorityOfPatientID == null
+                || primaryPatIdentifier == null
+                || hl7PrimaryAssigningAuthorityOfPatientID.equals(primaryPatIdentifier.getIssuer()))
+            return;
+
+        LOG.info("None of the patient identifier pairs in PID-3 match with configured " +
+                "Primary Assigning Authority of Patient ID : {}", hl7PrimaryAssigningAuthorityOfPatientID);
+    }
+
+    private static void adjustOtherPatientIDs(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App) {
+        IDWithIssuer primaryPatIdentifier = IDWithIssuer.pidOf(attrs);
         switch (arcHL7App.hl7OtherPatientIDs()) {
             case ALL:
                 break;
@@ -295,14 +311,6 @@ class PatientUpdateService extends DefaultHL7Service {
                 if (seq.isEmpty())
                     attrs.remove(Tag.OtherPatientIDsSequence);
         }
-
-        if (hl7PrimaryAssigningAuthorityOfPatientID == null
-                || primaryPatIdentifier == null
-                || hl7PrimaryAssigningAuthorityOfPatientID.equals(primaryPatIdentifier.getIssuer()))
-            return;
-
-        LOG.info("None of the patient identifier pairs in PID-3 match with configured " +
-                "Primary Assigning Authority of Patient ID : {}", hl7PrimaryAssigningAuthorityOfPatientID);
     }
 
     private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat) {
