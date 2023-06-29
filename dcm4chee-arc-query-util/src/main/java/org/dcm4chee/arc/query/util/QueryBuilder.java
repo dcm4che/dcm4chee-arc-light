@@ -898,6 +898,8 @@ public class QueryBuilder {
                 false);
         if (queryParam.getExpirationDate() != null)
             dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
+        if (queryParam.getExpirationState() != null)
+            predicates.add(series.get(Series_.expirationState).in(queryParam.getExpirationState()));
         return predicates;
     }
 
