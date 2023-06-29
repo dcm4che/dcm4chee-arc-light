@@ -211,7 +211,7 @@
                               [model]="model[line[index]?.filterKey]"
                               (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                               [datePickerMode]="true"
-                              placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                              placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                               dateFormat="YYYYMMDD"
                               title="{{line[index]?.description}}"
                       ></range-picker>
@@ -223,7 +223,7 @@
                             [defaultTime]="line[index].defaultTime"
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
-                            placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                            placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                             title="{{line[index]?.description}}"
                     ></range-picker>
                     <range-picker
@@ -234,7 +234,7 @@
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
                             [defaultTime]="line[index].defaultTime"
-                            placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                            placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                             title="{{line[index]?.description}}"
                             dateRange="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
@@ -247,7 +247,7 @@
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
                             [defaultTime]="line[index].defaultTime"
-                            placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                            placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                             title="{{line[index]?.description}}"
                             onlyTime="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
@@ -258,7 +258,7 @@
                           [onlyDate]="line[index].onlyDate"
                           [model]="model[line[index]?.filterKey]"
                           (modelChange)="dateChanged(line[index]?.filterKey, $event)"
-                          placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                          placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                           dateFormat="YYYYMMDD"
                           onlySingleMode="true"3
                           defaultTime="00:00:00"
