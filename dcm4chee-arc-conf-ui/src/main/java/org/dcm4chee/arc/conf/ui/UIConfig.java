@@ -57,6 +57,8 @@ public class UIConfig {
     private String backgroundUrl;
     private String dateTimeFormat;
     private boolean hideClock;
+
+    private boolean showAllPatientIDs;
     private String pageTitle;
     private String personNameFormat;
     private String logoUrl;
@@ -133,6 +135,13 @@ public class UIConfig {
         return hideClock;
     }
 
+    public boolean isShowAllPatientIDs() {
+        return showAllPatientIDs;
+    }
+
+    public void setShowAllPatientIDs(boolean showAllPatientIDs) {
+        this.showAllPatientIDs = showAllPatientIDs;
+    }
     public void setHideClock(boolean hideClock) {
         this.hideClock = hideClock;
     }
