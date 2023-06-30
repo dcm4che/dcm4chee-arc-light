@@ -250,7 +250,7 @@
   },
   "study.access": {
     "put": {
-      "tags": [
+      "post": [
         "ACCESS-RS"
       ],
       "summary": "Update Study Access Control ID",
@@ -280,7 +280,7 @@
     }
   },
   "study.restore": {
-    "put": {
+    "post": {
       "tags": [
         "RESTORE-RS"
       ],
