@@ -1957,5 +1957,14 @@
         "SCHEDULED_COERCE_STUDY"
       ]
     }
+  },
+  "purgeAfterDelay": {
+    "name": "purge",
+    "in": "query",
+    "description": "If present with a value of true, Instance Records with be purged again according configured Purge Instance Records Delay.",
+    "schema": {
+      "type": "boolean",
+      "default": false
+    }
   }
 }

@@ -279,6 +279,77 @@
       }
     }
   },
+  "study.restore": {
+    "put": {
+      "tags": [
+        "RESTORE-RS"
+      ],
+      "summary": "Restore Purged Instance Records of Study",
+      "operationId": "RestorePurgedInstanceRecordsOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/purgeAfterDelay"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Purged Instance records of at least one Series of the Study were successfully restored."
+        },
+        "404": {
+          "description": "No such Archive AE Title or Study"
+        },
+        "409": {
+          "description": "Instance records of none of the Series of the Study are purged."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.restore": {
+    "put": {
+      "tags": [
+        "RESTORE-RS"
+      ],
+      "summary": "Restore Purged Instance Records of Study",
+      "operationId": "RestorePurgedInstanceRecordsOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/purgeAfterDelay"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Purged Instance records of the Series were successfully restored."
+        },
+        "404": {
+          "description": "No such Archive AE Title or Series"
+        },
+        "409": {
+          "description": "Instance records of the Series are not purged."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "studies.access": {
     "post": {
       "tags": [
