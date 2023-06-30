@@ -318,8 +318,8 @@
       "tags": [
         "RESTORE-RS"
       ],
-      "summary": "Restore Purged Instance Records of Study",
-      "operationId": "RestorePurgedInstanceRecordsOfStudy",
+      "summary": "Restore Purged Instance Records of Series",
+      "operationId": "RestorePurgedInstanceRecordsOfSeries",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
