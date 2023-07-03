@@ -1688,7 +1688,7 @@ export class StudyService {
                     cssClass:"big_field",
                     // hideTooltip:true,
                     calculatedWidth: "40%",
-                    pipe: new DynamicPipe(PatientIssuerPipe, undefined)
+                    pipe: new DynamicPipe(PatientIssuerPipe, [this.appService.global])
                 }),
                 new TableSchemaElement({
                     type: "pipe",

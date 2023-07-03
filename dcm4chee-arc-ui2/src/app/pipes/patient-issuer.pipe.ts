@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import * as _ from 'lodash-es';
+import {j4care} from "../helpers/j4care.service";
 
 @Pipe({
   name: 'patientIssuer'
@@ -54,13 +55,18 @@ export class PatientIssuerPipe implements PipeTransform {
                             ? pid + '^^^' + issuer
                             : pid + '^^^' + issuer + '^' + typeOfPID;
       }
-      const allParts = [patientIdentifiersOf(attrs)]
-      if(_.hasIn(attrs,'["00101002"].Value')){
-          _.get(attrs,'["00101002"].Value').forEach(subAttrs=>{
-              allParts.push(patientIdentifiersOf(subAttrs));
-          })
+
+      if(j4care.is(args,"dcmuiPatientIdVisibility", true)){
+          const allParts = [patientIdentifiersOf(attrs)]
+          if(_.hasIn(attrs,'["00101002"].Value')){
+              _.get(attrs,'["00101002"].Value').forEach(subAttrs=>{
+                  allParts.push(patientIdentifiersOf(subAttrs));
+              })
+          }
+          return allParts.join(", ");
+      }else{
+          return patientIdentifiersOf(attrs);
       }
-      return allParts.join(", ");
   }
 
 }
