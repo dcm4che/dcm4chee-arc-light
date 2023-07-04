@@ -4695,7 +4695,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     editStudy(study){
         let config:{saveLabel:string,titleLabel:string} = {
             saveLabel:$localize `:@@SAVE:SAVE`,
-            titleLabel:$localize `:@@study.edit_study:patient:Edit study of patient `
+            titleLabel:$localize `:@@study.edit_study:Edit study of patient `
         };
         config.titleLabel += ((_.hasIn(study, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + study.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
         config.titleLabel += ((_.hasIn(study, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + study.attrs['00100020'].Value[0] + '</b>' : '');

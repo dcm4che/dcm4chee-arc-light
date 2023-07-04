@@ -40,7 +40,9 @@
 
 package org.dcm4chee.arc.restore.rs;
 
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,25 +73,32 @@ public class RestoreInstancesRS {
     @PathParam("aet")
     private String aet;
 
-    @QueryParam("readPixelData")
+    @QueryParam("purge")
     @Pattern(regexp = "true|false")
     private String purgeAfterDelay;
 
     @Context
     private HttpServletRequest request;
 
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
     @POST
-    @Path("/studies/{StudyInstanceUID}/stgver")
+    @Path("/studies/{StudyInstanceUID}/restore")
     @Produces("application/dicom+json,application/json")
-    public Response studyStorageCommit(
+    public Response restorePurgedInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyUID) {
         return restoreInstances(studyUID, null);
     }
 
     @POST
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgver")
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/restore")
     @Produces("application/dicom+json,application/json")
-    public Response seriesStorageCommit(
+    public Response restorePurgedInstancesOfSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID) {
         return restoreInstances(studyUID, seriesUID);
@@ -104,4 +113,16 @@ public class RestoreInstancesRS {
         throw new WebApplicationException("Not yet implemented");
     }
 
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}",
+                request.getMethod(),
+                this,
+                request.getRemoteUser(),
+                request.getRemoteHost());
+    }
 }
