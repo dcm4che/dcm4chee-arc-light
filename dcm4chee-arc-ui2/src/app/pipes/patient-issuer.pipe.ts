@@ -57,6 +57,8 @@ export class PatientIssuerPipe implements PipeTransform {
       }
 
       if(j4care.is(args,"dcmuiPatientIdVisibility", true)){
+          return patientIdentifiersOf(attrs);
+      }else{
           const allParts = [patientIdentifiersOf(attrs)]
           if(_.hasIn(attrs,'["00101002"].Value')){
               _.get(attrs,'["00101002"].Value').forEach(subAttrs=>{
@@ -64,8 +66,6 @@ export class PatientIssuerPipe implements PipeTransform {
               })
           }
           return allParts.join(", ");
-      }else{
-          return patientIdentifiersOf(attrs);
       }
   }
 

@@ -161,19 +161,16 @@ export class AppComponent implements OnInit {
                 if(_.hasIn(global, "uiConfig.dcmuiHideClock") && !this.dcmuiHideClock){
                     this.dcmuiHideClock = _.get(global, "uiConfig.dcmuiHideClock");
                     global["dcmuiHideClock"] = this.dcmuiHideClock;
-                    console.log("hideClock", this.dcmuiHideClock);
                     this.mainservice.setGlobal(global);
                 }
                 if(_.hasIn(global, "uiConfig.dcmuiPatientIdVisibility") && !this.dcmuiPatientIdVisibility){
                     this.dcmuiPatientIdVisibility = _.get(global, "uiConfig.dcmuiPatientIdVisibility");
                     global["dcmuiPatientIdVisibility"] = this.dcmuiPatientIdVisibility;
-                    console.log("hideClock", this.dcmuiPatientIdVisibility);
                     this.mainservice.setGlobal(global);
                 }
                 if(_.hasIn(global, "uiConfig.dcmuiPageTitle") && !this.dcmuiPageTitle){
                     this.dcmuiPageTitle = _.get(global, "uiConfig.dcmuiPageTitle");
                     global["dcmuiPageTitle"] = this.dcmuiPageTitle;
-                    console.log("hideClock", this.dcmuiPageTitle);
                     if(this.dcmuiPageTitle && this.dcmuiPageTitle != ""){
                         this.title.setTitle(this.dcmuiPageTitle);
                     }
