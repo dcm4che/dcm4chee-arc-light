@@ -42,8 +42,12 @@ package org.dcm4chee.arc.restore.rs;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,15 +58,20 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2023
  */
 @RequestScoped
 @Path("aets/{aet}/rs")
-public class RestoreInstancesRS {
-    private static final Logger LOG = LoggerFactory.getLogger(RestoreInstancesRS.class);
+public class RestorePurgedInstancesRS {
+    private static final Logger LOG = LoggerFactory.getLogger(RestorePurgedInstancesRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
 
     @Inject
     private Device device;
@@ -109,8 +118,25 @@ public class RestoreInstancesRS {
     }
 
     private Response restoreInstances(String studyUID, String seriesUID) {
-        //TODO
-        throw new WebApplicationException("Not yet implemented");
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        try {
+            //TODO - to be tested
+            StoreSession session = storeService.newStoreSession(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), aet, null);
+            return storeService.restoreInstances(
+                    session, studyUID, seriesUID, purgeAfterDelay() ? arcAE.purgeInstanceRecordsDelay() : null).size() > 0
+                    ? Response.accepted().build()
+                    : notFound(studyUID, seriesUID);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private ArchiveAEExtension getArchiveAE() {
@@ -124,5 +150,51 @@ public class RestoreInstancesRS {
                 this,
                 request.getRemoteUser(),
                 request.getRemoteHost());
+    }
+
+    private Response notFound(String studyUID, String seriesUID) {
+        Response.Status status = Response.Status.NOT_FOUND;
+        return seriesUID == null
+                ? errResponseAsTextPlain("No such study : " + studyUID, status)
+                : errResponseAsTextPlain("No such series " + seriesUID + " or study : " + studyUID, status);
+    }
+
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.info("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
     }
 }
