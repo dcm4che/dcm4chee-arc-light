@@ -56,7 +56,7 @@ export class PatientIssuerPipe implements PipeTransform {
                             : pid + '^^^' + issuer + '^' + typeOfPID;
       }
 
-      if(j4care.is(args,"dcmuiPatientIdVisibility", true)){
+      if(j4care.is(args,"dcmuiHideOtherPatientIDs", true)){
           return patientIdentifiersOf(attrs);
       }else{
           const allParts = [patientIdentifiersOf(attrs)]

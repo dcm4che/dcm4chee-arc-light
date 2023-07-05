@@ -45,6 +45,7 @@ import java.util.*;
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Shefki Esadi <shralsheki@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2017
  */
 public class UIConfig {
@@ -58,7 +59,7 @@ public class UIConfig {
     private String dateTimeFormat;
     private boolean hideClock;
 
-    private boolean showAllPatientIDs;
+    private boolean hideOtherPatientIDs;
     private String pageTitle;
     private String personNameFormat;
     private String logoUrl;
@@ -135,12 +136,12 @@ public class UIConfig {
         return hideClock;
     }
 
-    public boolean isShowAllPatientIDs() {
-        return showAllPatientIDs;
+    public boolean isHideOtherPatientIDs() {
+        return hideOtherPatientIDs;
     }
 
-    public void setShowAllPatientIDs(boolean showAllPatientIDs) {
-        this.showAllPatientIDs = showAllPatientIDs;
+    public void setHideOtherPatientIDs(boolean hideOtherPatientIDs) {
+        this.hideOtherPatientIDs = hideOtherPatientIDs;
     }
     public void setHideClock(boolean hideClock) {
         this.hideClock = hideClock;

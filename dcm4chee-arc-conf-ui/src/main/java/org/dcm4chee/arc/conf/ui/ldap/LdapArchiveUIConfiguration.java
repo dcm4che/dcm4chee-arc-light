@@ -118,7 +118,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiBackgroundURL", uiConfig.getBackgroundUrl(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiDateTimeFormat", uiConfig.getDateTimeFormat(),null);
         LdapUtils.storeNotDef(ldapObj,attrs, "dcmuiHideClock", uiConfig.isHideClock(),false);
-        LdapUtils.storeNotDef(ldapObj,attrs, "dcmuiPatientIdVisibility", uiConfig.isShowAllPatientIDs(),false);
+        LdapUtils.storeNotDef(ldapObj,attrs, "dcmuiHideOtherPatientIDs", uiConfig.isHideOtherPatientIDs(),false);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiPageTitle", uiConfig.getPageTitle(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiPersonNameFormat", uiConfig.getPersonNameFormat(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiLogoURL", uiConfig.getLogoUrl(),null);
@@ -535,7 +535,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setBackgroundUrl(LdapUtils.stringValue(attrs.get("dcmuiBackgroundURL"),null));
         uiConfig.setDateTimeFormat(LdapUtils.stringValue(attrs.get("dcmuiDateTimeFormat"),null));
         uiConfig.setHideClock(LdapUtils.booleanValue(attrs.get("dcmuiHideClock"),false));
-        uiConfig.setShowAllPatientIDs(LdapUtils.booleanValue(attrs.get("dcmuiPatientIdVisibility"),false));
+        uiConfig.setHideOtherPatientIDs(LdapUtils.booleanValue(attrs.get("dcmuiHideOtherPatientIDs"),false));
         uiConfig.setPageTitle(LdapUtils.stringValue(attrs.get("dcmuiPageTitle"),null));
         uiConfig.setPersonNameFormat(LdapUtils.stringValue(attrs.get("dcmuiPersonNameFormat"),null));
         uiConfig.setLogoUrl(LdapUtils.stringValue(attrs.get("dcmuiLogoURL"),null));
@@ -940,19 +940,31 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeWebAppLists(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
-    private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UIConfig prevUIConfig, UIConfig uiConfig, ArrayList<ModificationItem> mods) throws NamingException {
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets",prevUIConfig.getWidgetAets(),uiConfig.getWidgetAets());
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiMWLWorklistLabel",prevUIConfig.getMWLWorklistLabels(),uiConfig.getMWLWorklistLabels());
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",prevUIConfig.getXdsUrl(),uiConfig.getXdsUrl(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",prevUIConfig.getBackgroundUrl(),uiConfig.getBackgroundUrl(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiDateTimeFormat",prevUIConfig.getDateTimeFormat(),uiConfig.getDateTimeFormat(),null);
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiHideClock",prevUIConfig.isHideClock(),uiConfig.isHideClock(),false);
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiPatientIdVisibility",prevUIConfig.isShowAllPatientIDs(),uiConfig.isShowAllPatientIDs(),false);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiPageTitle",prevUIConfig.getPageTitle(),uiConfig.getPageTitle(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiPersonNameFormat",prevUIConfig.getPersonNameFormat(),uiConfig.getPersonNameFormat(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiLogoURL",prevUIConfig.getLogoUrl(),uiConfig.getLogoUrl(),null);
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",prevUIConfig.getDefaultWidgetAets(),uiConfig.getDefaultWidgetAets());
+    private List<ModificationItem> storeDiff(
+            ConfigurationChanges.ModifiedObject ldapObj, UIConfig prevUIConfig, UIConfig uiConfig, ArrayList<ModificationItem> mods)
+            throws NamingException {
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities", prevUIConfig.getModalities(), uiConfig.getModalities());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets", prevUIConfig.getWidgetAets(), uiConfig.getWidgetAets());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiMWLWorklistLabel",
+                prevUIConfig.getMWLWorklistLabels(), uiConfig.getMWLWorklistLabels());
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",
+                prevUIConfig.getXdsUrl(), uiConfig.getXdsUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",
+                prevUIConfig.getBackgroundUrl(), uiConfig.getBackgroundUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiDateTimeFormat",
+                prevUIConfig.getDateTimeFormat(), uiConfig.getDateTimeFormat(),null);
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiHideClock",
+                prevUIConfig.isHideClock(), uiConfig.isHideClock(),false);
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiHideOtherPatientIDs",
+                prevUIConfig.isHideOtherPatientIDs(), uiConfig.isHideOtherPatientIDs(), false);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiPageTitle",
+                prevUIConfig.getPageTitle(), uiConfig.getPageTitle(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiPersonNameFormat",
+                prevUIConfig.getPersonNameFormat(), uiConfig.getPersonNameFormat(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiLogoURL",
+                prevUIConfig.getLogoUrl(), uiConfig.getLogoUrl(),null);
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",
+                prevUIConfig.getDefaultWidgetAets(), uiConfig.getDefaultWidgetAets());
         return mods;
     }
 

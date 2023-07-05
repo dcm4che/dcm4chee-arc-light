@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
     }
     dcmuiHideClock:boolean = false;
     dcmuiPageTitle:string;
-    dcmuiPatientIdVisibility: boolean = false;
+    dcmuiHideOtherPatientIDs: boolean = false;
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -163,9 +163,9 @@ export class AppComponent implements OnInit {
                     global["dcmuiHideClock"] = this.dcmuiHideClock;
                     this.mainservice.setGlobal(global);
                 }
-                if(_.hasIn(global, "uiConfig.dcmuiPatientIdVisibility") && !this.dcmuiPatientIdVisibility){
-                    this.dcmuiPatientIdVisibility = _.get(global, "uiConfig.dcmuiPatientIdVisibility");
-                    global["dcmuiPatientIdVisibility"] = this.dcmuiPatientIdVisibility;
+                if(_.hasIn(global, "uiConfig.dcmuiHideOtherPatientIDs") && !this.dcmuiHideOtherPatientIDs){
+                    this.dcmuiHideOtherPatientIDs = _.get(global, "uiConfig.dcmuiHideOtherPatientIDs");
+                    global["dcmuiHideOtherPatientIDs"] = this.dcmuiHideOtherPatientIDs;
                     this.mainservice.setGlobal(global);
                 }
                 if(_.hasIn(global, "uiConfig.dcmuiPageTitle") && !this.dcmuiPageTitle){

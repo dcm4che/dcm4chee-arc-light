@@ -91,7 +91,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmuiBackgroundURL", uiConfig.getBackgroundUrl(),null);
         writer.writeNotNullOrDef("dcmuiDateTimeFormat", uiConfig.getDateTimeFormat(),null);
         writer.writeNotDef("dcmuiHideClock", uiConfig.isHideClock(),false);
-        writer.writeNotDef("dcmuiPatientIdVisibility", uiConfig.isShowAllPatientIDs(),false);
+        writer.writeNotDef("dcmuiHideOtherPatientIDs", uiConfig.isHideOtherPatientIDs(),false);
         writer.writeNotNullOrDef("dcmuiPageTitle", uiConfig.getPageTitle(),null);
         writer.writeNotNullOrDef("dcmuiPersonNameFormat", uiConfig.getPersonNameFormat(),null);
         writer.writeNotNullOrDef("dcmuiLogoURL", uiConfig.getLogoUrl(),null);
@@ -434,8 +434,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiHideClock":
                     uiConfig.setHideClock(reader.booleanValue());
                     break;
-                case "dcmuiPatientIdVisibility":
-                    uiConfig.setShowAllPatientIDs(reader.booleanValue());
+                case "dcmuiHideOtherPatientIDs":
+                    uiConfig.setHideOtherPatientIDs(reader.booleanValue());
                     break;
                 case "dcmuiPageTitle":
                     uiConfig.setPageTitle(reader.stringValue());
