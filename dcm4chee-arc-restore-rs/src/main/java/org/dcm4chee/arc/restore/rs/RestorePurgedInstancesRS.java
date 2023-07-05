@@ -118,6 +118,7 @@ public class RestorePurgedInstancesRS {
     }
 
     private Response restoreInstances(String studyUID, String seriesUID) {
+        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -127,13 +128,12 @@ public class RestorePurgedInstancesRS {
             validateWebAppServiceClass();
 
         try {
-            //TODO - to be tested
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), aet, null);
             return storeService.restoreInstances(
                     session, studyUID, seriesUID, purgeAfterDelay() ? arcAE.purgeInstanceRecordsDelay() : null).size() > 0
                     ? Response.accepted().build()
-                    : notFound(studyUID, seriesUID);
+                    : restoreFailed(studyUID, seriesUID);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -152,11 +152,24 @@ public class RestorePurgedInstancesRS {
                 request.getRemoteHost());
     }
 
+    private Response restoreFailed(String studyUID, String seriesUID) {
+        return storeService.findInstancePurgeState(studyUID, seriesUID) == null
+                ? notFound(studyUID, seriesUID)
+                : conflict(studyUID, seriesUID);
+    }
+
+    private Response conflict(String studyUID, String seriesUID) {
+        return errResponseAsTextPlain(seriesUID == null
+                    ? "Instance records of none of the Series of the Study : " + studyUID + " are purged."
+                    : "Instance records of the Series : " + seriesUID + " of Study : " + studyUID + " are not purged.",
+                Response.Status.CONFLICT);
+    }
+
     private Response notFound(String studyUID, String seriesUID) {
-        Response.Status status = Response.Status.NOT_FOUND;
-        return seriesUID == null
-                ? errResponseAsTextPlain("No such study : " + studyUID, status)
-                : errResponseAsTextPlain("No such series " + seriesUID + " or study : " + studyUID, status);
+        return errResponseAsTextPlain(seriesUID == null
+                        ? "No such Study : " + studyUID
+                        : "No such Series : " + seriesUID + " or Study : " + studyUID,
+                Response.Status.NOT_FOUND);
     }
 
     private Response errResponse(String msg, Response.Status status) {

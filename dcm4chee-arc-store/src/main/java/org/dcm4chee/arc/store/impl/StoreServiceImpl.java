@@ -841,6 +841,11 @@ class StoreServiceImpl implements StoreService {
         return ejb.restoreInstances(session, studyUID, seriesUID, duration);
     }
 
+    @Override
+    public Integer findInstancePurgeState(String studyUID, String seriesUID) {
+        return ejb.findInstancePurgeState(studyUID, seriesUID);
+    }
+
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {
         ImageDescriptor imageDescriptor = transcoder.getImageDescriptor();
         if (imageDescriptor == null) // not an image

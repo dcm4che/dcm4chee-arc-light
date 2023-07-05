@@ -405,6 +405,21 @@ public class StoreServiceEJB {
         return instList;
     }
 
+    public Integer findInstancePurgeState(String studyUID, String seriesUID) {
+        try {
+            return (seriesUID == null
+                        ? em.createNamedQuery(Series.FIND_INSTANCE_PURGE_STATE_BY_STUDY, Series.InstancePurgeState.class)
+                            .setParameter(1, studyUID)
+                        : em.createNamedQuery(Series.FIND_INSTANCE_PURGE_STATE_BY_SERIES, Series.InstancePurgeState.class)
+                            .setParameter(1, studyUID)
+                            .setParameter(2, seriesUID))
+                    .getSingleResult()
+                    .ordinal();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     private void restoreInstances(StoreSession session, Series series, String studyUID, Duration duration,
                                   List <Instance> instList)
             throws DicomServiceException {
