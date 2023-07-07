@@ -396,6 +396,9 @@ public class ProcedureServiceEJB {
                         modified)
                     : studyAttr,
                     studyFilter, true, arcDev.getFuzzyStr());
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                    .setParameter(1, study)
+                    .executeUpdate();
         }
         Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
@@ -432,6 +435,9 @@ public class ProcedureServiceEJB {
             requestAttributes.add(request);
         }
         series.setAttributes(seriesAttr, filter, true, fuzzyStr);
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                .setParameter(1, series.getPk())
+                .executeUpdate();
     }
 
     public void updateStudySeriesAttributes(ProcedureContext ctx) {
