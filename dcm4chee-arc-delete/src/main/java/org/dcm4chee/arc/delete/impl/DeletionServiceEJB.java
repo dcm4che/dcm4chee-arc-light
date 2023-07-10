@@ -508,7 +508,7 @@ public class DeletionServiceEJB {
                     study.getPatient().decrementNumberOfStudies();
 
                 em.remove(study);
-                if (arcDev().isDeletePatientOnDeleteLastStudy() && countStudiesOfPatient(study.getPatient()) == 0) {
+                if (allowDeletePatient(ctx)) {
                     PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler();
                     patMgtCtx.setPatient(study.getPatient());
                     patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Delete);
@@ -523,6 +523,12 @@ public class DeletionServiceEJB {
                 study.setModifiedTime(new Date());
             }
         }
+    }
+
+    private boolean allowDeletePatient(StudyDeleteContext ctx) {
+        return arcDev().isDeletePatientOnDeleteLastStudy()
+                && countStudiesOfPatient(ctx.getStudy().getPatient()) == 0
+                && !ctx.isPatientDeletionTriggered();
     }
 
     private boolean hasRejectedInstances(Series series) {

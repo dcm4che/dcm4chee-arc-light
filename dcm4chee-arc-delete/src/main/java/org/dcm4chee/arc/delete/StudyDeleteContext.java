@@ -69,4 +69,8 @@ public interface StudyDeleteContext {
     HttpServletRequestInfo getHttpServletRequestInfo();
 
     void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
+
+    boolean isPatientDeletionTriggered();
+
+    void setPatientDeletionTriggered(boolean patientDeletionTriggered);
 }

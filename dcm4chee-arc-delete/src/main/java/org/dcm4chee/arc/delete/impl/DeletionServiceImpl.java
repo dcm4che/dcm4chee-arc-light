@@ -132,10 +132,18 @@ public class DeletionServiceImpl implements DeletionService {
     }
 
     @Override
+    public StudyDeleteContext createStudyDeleteContext(Study study, HttpServletRequestInfo httpServletRequestInfo) {
+        StudyDeleteContext ctx = new StudyDeleteContextImpl(study.getPk());
+        ctx.setHttpServletRequestInfo(httpServletRequestInfo);
+        ctx.setStudy(study);
+        return ctx;
+    }
+
+    @Override
     public void deleteStudy(
             String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, boolean retainObj)
             throws Exception {
-        deleteStudy(findStudy(studyUID), httpServletRequestInfo, arcAE, null, retainObj, false);
+        deleteStudy(createStudyDeleteContext(findStudy(studyUID), httpServletRequestInfo), arcAE, retainObj, false);
     }
 
     private Study findStudy(String studyUID) throws StudyNotFoundException {
@@ -151,15 +159,16 @@ public class DeletionServiceImpl implements DeletionService {
     @Override
     public List<Location> reimportStudy(String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE)
             throws Exception {
-        return deleteStudy(findStudy(studyUID), httpServletRequestInfo, arcAE, null, false, true);
+        return deleteStudy(
+                createStudyDeleteContext(findStudy(studyUID), httpServletRequestInfo), arcAE, false, true);
     }
 
-    private List<Location> deleteStudy(Study study, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE,
-                       PatientMgtContext pCtx, boolean retainObj, boolean reimport) throws Exception {
-        StudyDeleteContext ctx = createStudyDeleteContext(study.getPk(), httpServletRequestInfo);
+    private List<Location> deleteStudy(
+            StudyDeleteContext ctx, ArchiveAEExtension arcAE, boolean retainObj, boolean reimport) throws Exception {
+        Study study = ctx.getStudy();
         try {
             LOG.info("Start deleting {} from database", study);
-            return deleteStudy(ctx, study, arcAE, pCtx, retainObj, reimport);
+            return deleteStudy(ctx, study, arcAE, retainObj, reimport);
         } catch (Exception e) {
             LOG.warn("Failed to delete {} from database:\n", study, e);
             ctx.setException(e);
@@ -182,7 +191,9 @@ public class DeletionServiceImpl implements DeletionService {
                 .getResultList();
         try {
             for (Study study : resultList) {
-                deleteStudy(study, ctx.getHttpServletRequestInfo(), arcAE, ctx, false, false);
+                StudyDeleteContext studyDeleteCtx = createStudyDeleteContext(study, ctx.getHttpServletRequestInfo());
+                studyDeleteCtx.setPatientDeletionTriggered(true);
+                deleteStudy(studyDeleteCtx, arcAE, false, false);
             }
             patientService.deletePatient(ctx);
             LOG.info("Successfully delete {} from database", ctx.getPatient());
@@ -194,13 +205,13 @@ public class DeletionServiceImpl implements DeletionService {
         }
     }
 
-    private List<Location> deleteStudy(StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, PatientMgtContext pCtx,
-                             boolean retainObj, boolean reimport)
+    private List<Location> deleteStudy(
+            StudyDeleteContext ctx, Study study, ArchiveAEExtension arcAE, boolean retainObj, boolean reimport)
             throws Exception {
         List<Location> locations = new ArrayList<>();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         RejectionState rejectionState = study.getRejectionState();
-        if (pCtx == null) {
+        if (!ctx.isPatientDeletionTriggered()) {
             if (!reimport && arcAE.allowDeleteStudy() == AllowDeleteStudyPermanently.REJECTED
                 && (rejectionState == RejectionState.NONE || rejectionState == RejectionState.PARTIAL)) {
                 ctx.setStudy(study);
