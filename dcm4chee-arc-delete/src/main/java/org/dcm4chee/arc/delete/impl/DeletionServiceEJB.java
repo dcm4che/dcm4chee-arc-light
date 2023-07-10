@@ -54,7 +54,6 @@ import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.qmgt.TaskManager;
-import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.impl.StoreServiceEJB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,9 +100,6 @@ public class DeletionServiceEJB {
     private StoreServiceEJB storeEjb;
 
     @Inject
-    private QueryService queryService;
-
-    @Inject
     private TaskManager taskManager;
 
     public List<Location> findLocationsWithStatus(String storageID, Location.Status status, int limit) {
@@ -122,17 +118,24 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public List<Study.PKUID> findStudiesForDeletionOnStorage(StorageDescriptor desc, boolean retentionPeriods,
-            int limit) {
+    public List<Study.PKUID> findStudiesForDeletionOnStorage(
+            ArchiveDeviceExtension arcDev,
+            StorageDescriptor desc,
+            boolean retentionPeriods) {
         List<String> studyStorageIDs = getStudyStorageIDs(desc);
         LOG.debug("Query for Studies for deletion on {} with StorageIDs={}", desc, studyStorageIDs);
-        return em.createQuery(queryStudiesForDeletionOnStorage(desc, studyStorageIDs, retentionPeriods))
-                .setMaxResults(limit)
-                .getResultList();
+        CriteriaQuery<Study.PKUID> query = queryStudiesForDeletionOnStorage(
+                arcDev, desc, studyStorageIDs, retentionPeriods);
+        return query != null
+                ? em.createQuery(query).setMaxResults(arcDev.getDeleteStudyBatchSize()).getResultList()
+                : Collections.emptyList();
     }
 
     private CriteriaQuery<Study.PKUID> queryStudiesForDeletionOnStorage(
-            StorageDescriptor desc, List<String> studyStorageIDs, boolean retentionPeriods) {
+            ArchiveDeviceExtension arcDev,
+            StorageDescriptor desc,
+            List<String> studyStorageIDs,
+            boolean retentionPeriods) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Study.PKUID> query = cb.createQuery(Study.PKUID.class);
         Root<Study> study = query.from(Study.class);
@@ -143,9 +146,46 @@ public class DeletionServiceEJB {
             predicates.add(study.get(Study_.externalRetrieveAET).in(Arrays.asList(externalRetrieveAETitles)));
         if (retentionPeriods)
             retentionPeriods(predicates, cb, study, desc);
-        return query.select(cb.construct(Study.PKUID.class, study.get(Study_.pk), study.get(Study_.studyInstanceUID)))
-                .where(predicates.toArray(new Predicate[0]))
-                .orderBy(cb.asc(study.get(Study_.accessTime)));
+        Duration deleteStudyInterval = arcDev.getDeleteStudyInterval();
+        if (deleteStudyInterval != null) {
+            Date minAccessTime = minAccessTime(arcDev, desc, studyStorageIDs, retentionPeriods);
+            if (minAccessTime == null) return null;
+            long before = minAccessTime.getTime() + deleteStudyInterval.getSeconds() * 1000;
+            predicates.add(cb.lessThan(study.get(Study_.accessTime), new Date(before)));
+        } else {
+            Duration preserveStudyInterval = arcDev.getPreserveStudyInterval();
+            if (preserveStudyInterval != null) {
+                long before = System.currentTimeMillis() - preserveStudyInterval.getSeconds() * 1000;
+                predicates.add(cb.lessThan(study.get(Study_.accessTime), new Date(before)));
+            }
+        }
+        query.where(predicates.toArray(new Predicate[0]));
+        if (arcDev.isDeleteStudyLeastRecentlyAccessedFirst())
+            query.orderBy(cb.asc(study.get(Study_.accessTime)));
+        return query.select(cb.construct(Study.PKUID.class, study.get(Study_.pk), study.get(Study_.studyInstanceUID)));
+    }
+
+    private Date minAccessTime(
+            ArchiveDeviceExtension arcDev,
+            StorageDescriptor desc,
+            List<String> studyStorageIDs,
+            boolean retentionPeriods) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Date> query = cb.createQuery(Date.class);
+        Root<Study> study = query.from(Study.class);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(study.get(Study_.storageIDs).in(studyStorageIDs));
+        String[] externalRetrieveAETitles = desc.getExternalRetrieveAETitles();
+        if (externalRetrieveAETitles.length > 0)
+            predicates.add(study.get(Study_.externalRetrieveAET).in(Arrays.asList(externalRetrieveAETitles)));
+        if (retentionPeriods)
+            retentionPeriods(predicates, cb, study, desc);
+        Duration preserveStudyInterval = arcDev.getPreserveStudyInterval();
+        if (preserveStudyInterval != null) {
+            long before = System.currentTimeMillis() - preserveStudyInterval.getSeconds() * 1000;
+            predicates.add(cb.lessThan(study.get(Study_.accessTime), new Date(before)));
+        }
+        return em.createQuery(query.select(cb.least(study.get(Study_.accessTime)))).getSingleResult();
     }
 
     private void retentionPeriods(List<Predicate> predicates, CriteriaBuilder cb, Root<Study> study, StorageDescriptor desc) {
@@ -357,7 +397,7 @@ public class DeletionServiceEJB {
 
     private Availability remainingInstanceAvailability(StorageDescriptor desc) {
         Availability availability1 = desc.getExportStorageID().length > 0
-                ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                ? arcDev()
                     .getStorageDescriptorNotNull(desc.getExportStorageID()[0])
                     .getInstanceAvailability()
                 : null;
@@ -661,7 +701,7 @@ public class DeletionServiceEJB {
     }
 
     private ArchiveDeviceExtension arcDev() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class);
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
     public void updateStudyAccessTime(Long studyPk) {
@@ -672,7 +712,7 @@ public class DeletionServiceEJB {
 
     private List<String> getStorageIDsOfCluster(StorageDescriptor desc) {
         return desc.getStorageClusterID() != null
-            ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+            ? arcDev()
                 .getStorageDescriptorsOfCluster(desc.getStorageClusterID())
                 .filter(other -> other.getStorageDuration() != StorageDuration.PERMANENT)
                 .map(StorageDescriptor::getStorageID)
@@ -683,7 +723,7 @@ public class DeletionServiceEJB {
 
     private List<String> getStudyStorageIDs(StorageDescriptor desc) {
         return desc.getStudyStorageIDs(
-                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getOtherStorageIDsOfStorageCluster(desc),
+                arcDev().getOtherStorageIDsOfStorageCluster(desc),
                 Collections.emptyList(),
                 null,
                 true);

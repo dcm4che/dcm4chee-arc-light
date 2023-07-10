@@ -227,8 +227,7 @@ public class PurgeStorageScheduler extends Scheduler {
 
     private List<Study.PKUID> findStudiesForDeletion(ArchiveDeviceExtension arcDev, StorageDescriptor desc,
             boolean retentionPeriods) {
-        int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
-        List<Study.PKUID> studyPks = ejb.findStudiesForDeletionOnStorage(desc, retentionPeriods, deleteStudyBatchSize);
+        List<Study.PKUID> studyPks = ejb.findStudiesForDeletionOnStorage(arcDev, desc, retentionPeriods);
         String storageID = desc.getStorageID();
         String[] exportStorageID = desc.getExportStorageID();
         StoreSession storeSession = storeService.newStoreSession(device.getApplicationEntities().iterator().next());

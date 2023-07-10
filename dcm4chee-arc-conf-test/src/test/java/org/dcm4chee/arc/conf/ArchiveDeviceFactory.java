@@ -1336,6 +1336,7 @@ class ArchiveDeviceFactory {
     static final Duration DELETE_UPS_CANCELED_DELAY = Duration.valueOf("P7D");
     static final Duration DELETE_UPS_COMPLETED_DELAY = Duration.valueOf("P1D");
     static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.valueOf("PT5M");
+    static final Duration DELETE_STUDY_INTERVAL = Duration.valueOf("P1D");
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.valueOf("PT5M");
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
     static final Duration AUDIT_POLLING_INTERVAL = Duration.valueOf("PT1M");
@@ -1829,7 +1830,7 @@ class ArchiveDeviceFactory {
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);
         ext.setPurgeTaskPollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
-        ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
+        ext.setDeleteStudyInterval(DELETE_STUDY_INTERVAL);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
         ext.setPurgeStgCmtCompletedDelay(PURGE_STGCMT_COMPLETED_DELAY);
         ext.setPurgeStgCmtPollingInterval(PURGE_STGCMT_POLLING_INTERVAL);

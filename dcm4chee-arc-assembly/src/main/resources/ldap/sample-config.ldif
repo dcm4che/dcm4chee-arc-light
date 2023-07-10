@@ -163,6 +163,7 @@ hl7PatientArrivalMessageType: ADT^A10
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmWadoCDA2HtmlTemplateURI: /dcm4chee-arc/xsl/cda.xsl
 dcmAudit2XmlFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl
+dcmDeleteStudyInterval: P1D
 dcmKeyStoreType: PKCS12
 dcmTrustStoreURL: ${jboss.server.config.url}/keystores/cacerts.p12
 dcmRejectExpiredStudiesAETitle: DCM4CHEE

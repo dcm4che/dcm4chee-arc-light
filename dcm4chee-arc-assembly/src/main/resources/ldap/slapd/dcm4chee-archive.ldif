@@ -2201,6 +2201,21 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.452 NAME 'dcmNoRetrieveCacheOnPurged
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.453 NAME 'dcmDeleteStudyInterval'
+  DESC 'Specifies maximum range in ISO-8601 duration format PnDTnHnMnS of access time of Studies to delete from the Storage System, if the usable space fall below configured Usable Space, before checking the usable space again. If absent, the number of Studies to delete is only limited by configured dcmDeleteStudyBatchSize.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.454 NAME 'dcmPreserveStudyInterval'
+  DESC 'Protect Studies accessed more recently than the specified time interval in ISO-8601 duration format PnDTnHnMnS from deletion from the Storage System, if the usable space fall below configured Usable Space. If absent, also most recently accessed Study get deleted from the Storage System, if no less recently accessed studies were found, or if dcmDeleteStudyLeastRecentlyAccessedFirst is set to FALSE.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.455 NAME 'dcmDeleteStudyLeastRecentlyAccessedFirst'
+  DESC 'Indicates to delete studies beginning with the least recently accessed one, if the usable space fall below configured Usable Space. TRUE if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2319,6 +2334,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFailedToDeletePollingInterval $
     dcmFailedToDeleteFetchSize $
     dcmDeleteStudyBatchSize $
+    dcmDeleteStudyInterval $
+    dcmPreserveStudyInterval $
+    dcmDeleteStudyLeastRecentlyAccessedFirst $
     dcmDeleteStudyChunkSize $
     dcmDeletePatientOnDeleteLastStudy $
     dcmDeleteRejectedPollingInterval $

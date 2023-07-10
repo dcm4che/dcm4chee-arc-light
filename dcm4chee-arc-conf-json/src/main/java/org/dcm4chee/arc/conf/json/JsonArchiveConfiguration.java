@@ -164,6 +164,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmFailedToDeletePollingInterval", arcDev.getFailedToDeletePollingInterval(), null);
         writer.writeNotDef("dcmFailedToDeleteFetchSize", arcDev.getFailedToDeleteFetchSize(), 100);
         writer.writeNotDef("dcmDeleteStudyBatchSize", arcDev.getDeleteStudyBatchSize(), 10);
+        writer.writeNotNullOrDef("dcmDeleteStudyInterval", arcDev.getDeleteStudyInterval(), null);
+        writer.writeNotNullOrDef("dcmPreserveStudyInterval", arcDev.getPreserveStudyInterval(), null);
+        writer.writeNotDef("dcmDeleteStudyLeastRecentlyAccessedFirst", arcDev.isDeleteStudyLeastRecentlyAccessedFirst(), true);
         writer.writeNotDef("dcmDeletePatientOnDeleteLastStudy", arcDev.isDeletePatientOnDeleteLastStudy(), false);
         writer.writeNotNullOrDef("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval(), null);
         writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
@@ -1570,6 +1573,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmDeleteStudyBatchSize":
                     arcDev.setDeleteStudyBatchSize(reader.intValue());
+                    break;
+                case "dcmDeleteStudyInterval":
+                    arcDev.setDeleteStudyInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmPreserveStudyInterval":
+                    arcDev.setPreserveStudyInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmDeleteStudyLeastRecentlyAccessedFirst":
+                    arcDev.setDeleteStudyLeastRecentlyAccessedFirst(reader.booleanValue());
                     break;
                 case "dcmDeletePatientOnDeleteLastStudy":
                     arcDev.setDeletePatientOnDeleteLastStudy(reader.booleanValue());

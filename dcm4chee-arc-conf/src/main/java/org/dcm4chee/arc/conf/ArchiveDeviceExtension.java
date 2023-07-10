@@ -155,6 +155,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeStoragePollingInterval;
     private volatile int purgeStorageFetchSize = 100;
     private volatile int deleteStudyBatchSize = 10;
+    private volatile Duration deleteStudyInterval;
+    private volatile Duration preserveStudyInterval;
+    private volatile boolean deleteStudyLeastRecentlyAccessedFirst = true;
     private volatile int deleteStudyChunkSize = 100;
     private volatile boolean deletePatientOnDeleteLastStudy = false;
     private volatile Duration failedToDeletePollingInterval;
@@ -1082,6 +1085,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setDeleteStudyBatchSize(int deleteStudyBatchSize) {
         this.deleteStudyBatchSize = greaterZero(deleteStudyBatchSize, "deleteStudyBatchSize");
+    }
+
+    public Duration getDeleteStudyInterval() {
+        return deleteStudyInterval;
+    }
+
+    public void setDeleteStudyInterval(Duration deleteStudyInterval) {
+        this.deleteStudyInterval = deleteStudyInterval;
+    }
+
+    public Duration getPreserveStudyInterval() {
+        return preserveStudyInterval;
+    }
+
+    public void setPreserveStudyInterval(Duration preserveStudyInterval) {
+        this.preserveStudyInterval = preserveStudyInterval;
+    }
+
+    public boolean isDeleteStudyLeastRecentlyAccessedFirst() {
+        return deleteStudyLeastRecentlyAccessedFirst;
+    }
+
+    public void setDeleteStudyLeastRecentlyAccessedFirst(boolean deleteStudyLeastRecentlyAccessedFirst) {
+        this.deleteStudyLeastRecentlyAccessedFirst = deleteStudyLeastRecentlyAccessedFirst;
     }
 
     public int getDeleteStudyChunkSize() {
@@ -3421,6 +3448,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeStoragePollingInterval = arcdev.purgeStoragePollingInterval;
         purgeStorageFetchSize = arcdev.purgeStorageFetchSize;
         deleteStudyBatchSize = arcdev.deleteStudyBatchSize;
+        deleteStudyInterval = arcdev.deleteStudyInterval;
+        preserveStudyInterval = arcdev.preserveStudyInterval;
+        deleteStudyLeastRecentlyAccessedFirst = arcdev.deleteStudyLeastRecentlyAccessedFirst;
         deleteStudyChunkSize = arcdev.deleteStudyChunkSize;
         deletePatientOnDeleteLastStudy = arcdev.deletePatientOnDeleteLastStudy;
         failedToDeletePollingInterval = arcdev.failedToDeletePollingInterval;
