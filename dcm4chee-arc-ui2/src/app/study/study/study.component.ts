@@ -5112,7 +5112,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag:"label",
-                            text:$localize `:@@retainObj:Retain objects on the filesystem`
+                            text:$localize `:@@retainObj:Retain objects on filesystem`
                         },
                         {
                             tag:"checkbox",
