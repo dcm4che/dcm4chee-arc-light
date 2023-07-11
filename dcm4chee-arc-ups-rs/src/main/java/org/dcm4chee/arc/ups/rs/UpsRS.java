@@ -459,7 +459,9 @@ public class UpsRS {
     }
 
     private Response errResponse(IntFunction<Response.Status> httpStatusOf, DicomServiceException e) {
-        return Response.status(httpStatusOf.apply(e.getStatus()))
+        Response.Status status = httpStatusOf.apply(e.getStatus());
+        LOG.info("Response {} caused by {}", status, e.getMessage());
+        return Response.status(status)
                 .header("Warning", toWarning(e.getMessage()))
                 .build();
     }
