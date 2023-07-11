@@ -6441,31 +6441,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 description:$localize `:@@storage_IDs:Storage IDs`,
                                 placeholder:$localize `:@@storage_IDs:Storage IDs`
                             }
-                        ],
-                        [
-                            {
-                                tag: "label",
-                                text: $localize`:@@batch_ID:Batch ID`
-                            },
-                            {
-                                tag: "input",
-                                type: "text",
-                                filterKey: "batchID",
-                                description: $localize`:@@batch_ID:Batch ID`,
-                                placeholder: $localize`:@@batch_ID:Batch ID`
-                            }
-                        ],
-                        [
-                            {
-                                tag: "label",
-                                text: $localize`:@@schedule_at:Schedule at`
-                            },
-                            {
-                                tag:"single-date-time-picker",
-                                type:"text",
-                                filterKey:"scheduledTime",
-                                description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
-                            },
                         ]
                     ]
                 ],
