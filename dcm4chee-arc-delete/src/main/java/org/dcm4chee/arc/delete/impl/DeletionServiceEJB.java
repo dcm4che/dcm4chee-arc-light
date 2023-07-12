@@ -185,6 +185,7 @@ public class DeletionServiceEJB {
             long before = System.currentTimeMillis() - preserveStudyInterval.getSeconds() * 1000;
             predicates.add(cb.lessThan(study.get(Study_.accessTime), new Date(before)));
         }
+        query.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(query.select(cb.least(study.get(Study_.accessTime)))).getSingleResult();
     }
 
