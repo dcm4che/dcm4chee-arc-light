@@ -52,6 +52,13 @@ export class SelectionsDicomObjects {
         }
     }
 
+    hasIn(dicomLevel:DicomLevel, uniqueSelectIdObject:UniqueSelectIdObject){
+        try{
+            return this[dicomLevel][uniqueSelectIdObject.id];
+        }catch (e) {
+            return false;
+        }
+    }
 
     toggle(dicomLevel:DicomLevel,uniqueSelectIdObject:UniqueSelectIdObject, object){
         if(_.hasIn(this,`${dicomLevel}["${uniqueSelectIdObject.id}"]`)){

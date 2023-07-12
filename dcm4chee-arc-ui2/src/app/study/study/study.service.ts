@@ -1064,6 +1064,19 @@ export class StudyService {
         return idObject;
     }
 
+    addObjectOnSelectedElements(dicomLevel:DicomLevel, selectedValue:boolean, object, selectedElements:SelectionActionElement){
+        try{
+            const uniqueID:UniqueSelectIdObject = this.getObjectUniqueId(object.attrs, dicomLevel);
+            //console.log("check=",selectedElements.hasIn(dicomLevel, uniqueID));
+            if(selectedValue && !selectedElements.hasIn(dicomLevel, uniqueID)){
+                selectedElements.preActionElements.toggle(dicomLevel, uniqueID, object);
+            }
+        }catch (e) {
+            console.error(e)
+        }
+
+    }
+
     getURL(attrs, webApp: DcmWebApp, dicomLevel: DicomLevel) {
         if (dicomLevel === "series")
             return this.seriesURL(attrs, webApp);

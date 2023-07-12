@@ -22,7 +22,7 @@ import {
     UPSModifyMode,
     UPSSubscribeType,
     ModifyConfig,
-    StudyTagConfig, CreateDialogTemplate
+    StudyTagConfig, CreateDialogTemplate, UniqueSelectIdObject
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -209,7 +209,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("export_multiple_study",$localize `:@@study.export_multiple:Export matching studies`),
             new SelectDropdown("apply_retention_multiple_series",$localize `:@@study.apply_retention_multiple_series:Apply retention policy to matching series`),
             new SelectDropdown("export_multiple_series",$localize `:@@study.export_multiple_series:Export matching series`),
-            new SelectDropdown("reject_multiple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
+            new SelectDropdown("reject_multifple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
             new SelectDropdown("reject_multiple_series",$localize `:@@study.reject_multiple_series:Reject matching series`),
             new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
@@ -637,7 +637,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.exporter(
                 undefined,
                 $localize `:@@study.export_selected_object:Export selected objects`,
-                $localize `:@@single:single`,
+               "multipleExport",
                 undefined,
                 undefined,
                 this.selectedElements
@@ -889,16 +889,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.patients.forEach(patient=>{
             if(resetIds.indexOf("patient") > -1){
                 patient.selected = selectedValue;
+                this.service.addObjectOnSelectedElements("patient", selectedValue, patient, this.selectedElements);
             }
             if(patient.studies && resetIds.indexOf("study") > -1)
                 patient.studies.forEach(study=>{
                     study.selected = selectedValue;
+                    this.service.addObjectOnSelectedElements("study", selectedValue, study, this.selectedElements);
                     if(study.series && resetIds.indexOf("series") > -1)
                         study.series.forEach(serie=>{
                             serie.selected = selectedValue;
+                            this.service.addObjectOnSelectedElements("series", selectedValue, serie, this.selectedElements);
                             if(serie.instances && resetIds.indexOf("instance") > -1)
                                 serie.instances.forEach(instance=>{
                                     instance.selected = selectedValue;
+                                    this.service.addObjectOnSelectedElements("instance", selectedValue, instance, this.selectedElements);
                                 })
                         })
                 });
@@ -907,7 +911,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     study.selected = selectedValue;
                 });
             }
-        })
+        });
     }
 
     select(object, dicomLevel:DicomLevel){
@@ -2677,7 +2681,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
                 if(!environment.production) {
-                    res = [{"00080005":{"vr":"CS","Value":["ISO_IR 192"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"Aigner^Marie2"}]},"00100020":{"vr":"LO","Value":["MM13"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]},"00100030":{"vr":"DA","Value":["19860620"]},"00100040":{"vr":"CS","Value":["F"]},"00101002":{"vr":"SQ","Value":[{"00100020":{"vr":"LO","Value":["MM13"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM14"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM15"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM16"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}}]},"00101060":{"vr":"PN"},"00201200":{"vr":"IS","Value":["0"]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20230704090740.748+0200"]},"77771011":{"vr":"DT","Value":["20230704090740.773+0200"]}}]
+/*                    res = [{"00080005":{"vr":"CS","Value":["ISO_IR 192"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"Aigner^Marie2"}]},"00100020":{"vr":"LO","Value":["MM13"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]},"00100030":{"vr":"DA","Value":["19860620"]},"00100040":{"vr":"CS","Value":["F"]},"00101002":{"vr":"SQ","Value":[{"00100020":{"vr":"LO","Value":["MM13"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM14"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM15"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM16"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}}]},"00101060":{"vr":"PN"},"00201200":{"vr":"IS","Value":["0"]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20230704090740.748+0200"]},"77771011":{"vr":"DT","Value":["20230704090740.773+0200"]}}]*/
 
                     /*
                                         res = [{
@@ -5957,7 +5961,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.externalInternalAetMode = !this.internal || mode === "multiple-retrieve" ? "external" : "internal";
         this.dialogRef.componentInstance.title = title;
-        this.dialogRef.componentInstance.mode = mode;
+        this.dialogRef.componentInstance.mode = mode == "multipleExport" ? 'single': mode;
         this.dialogRef.componentInstance.queues = this.queues;
         this.dialogRef.componentInstance.newStudyPage = true;
         // this.dialogRef.componentInstance.count = this.count;
@@ -6019,6 +6023,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             }else{
                                 this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
                             }
+                            if (result.exportType === 'dicom') {
+                                id = 'dicom:' + result.selectedAet;
+                            }
+                            else if (result.exportType === 'stow'){
+                                id = 'stowrs:' + result.selectedStowWebapp;
+                            }
+                            else {
+                                id = result.selectedExporter;
+                            }
+                            singleUrlSuffix = '/export/' + id + '?'+ params1;
                             fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                         });
                     }else{
