@@ -4033,6 +4033,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.start();
                 this.service.recreateDBRecord(ok.schema_model, this.studyWebService.selectedWebService,model).subscribe(res=>{
                     this.cfpLoadingBar.complete();
+                    this.appService.showMsg($localize `:@@process_executed:Process executed successfully`);
                     console.log("res",res)
                 },err=>{
                     this.cfpLoadingBar.complete();
