@@ -32,6 +32,15 @@ $hoverBlue:#5293C1;
       }
     }
   }
+  .confirm{
+    filter-generator{
+      .filter{
+        .filter_block{
+          overflow-y: visible;
+        }
+      }
+    }
+  }
 }
 @media screen and (max-width: 1400px) {
   .hideOn1400px{

@@ -6242,6 +6242,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.confirm({
                 content: $localize`:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Studies`,
                 doNotSave: true,
+                cssClass:"has_date_picker",
                 form_schema: [
                     [
                         [
