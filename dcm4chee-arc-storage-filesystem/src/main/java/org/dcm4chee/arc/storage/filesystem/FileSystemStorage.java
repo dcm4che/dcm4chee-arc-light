@@ -67,11 +67,7 @@ public class FileSystemStorage extends AbstractStorage {
 
     private final URI rootURI;
     private final Path checkMountFilePath;
-    private final boolean noopOnFileExists;
-    private final boolean randomPathOnFileExists;
-    private final OpenOption[] openOptions;
     private final CreateDirectories createDirectories;
-    private final int retryCreateDirectories;
 
     @FunctionalInterface
     private interface CreateDirectories {
@@ -81,19 +77,11 @@ public class FileSystemStorage extends AbstractStorage {
     public FileSystemStorage(StorageDescriptor descriptor, MetricsService metricsService) {
         super(descriptor, metricsService);
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
-        String checkMountFile = descriptor.getProperty("checkMountFile", null);
+        String checkMountFile = descriptor.getCheckMountFilePath();
         checkMountFilePath = checkMountFile != null ?  Paths.get(rootURI.resolve(checkMountFile)) : null;
-        String onFileExists = descriptor.getProperty("onFileExists", null);
-        randomPathOnFileExists = onFileExists == null;
-        noopOnFileExists = "NOOP".equalsIgnoreCase(onFileExists);
-        String fileOpenOption = descriptor.getProperty("fileOpenOption", null);
-        openOptions = fileOpenOption != null
-                ? new OpenOption[]{ StandardOpenOption.CREATE_NEW, StandardOpenOption.valueOf(fileOpenOption) }
-                : new OpenOption[]{ StandardOpenOption.CREATE_NEW };
-        createDirectories = Boolean.parseBoolean(descriptor.getProperty("altCreateDirectories", null))
+        createDirectories = descriptor.isAltCreateDirectories()
             ? FileSystemStorage::altCreateDirectories
             : Files::createDirectories;
-        retryCreateDirectories = Integer.parseInt(descriptor.getProperty("retryCreateDirectories", "0"));
     }
 
     @Override
@@ -161,7 +149,7 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     private Path createDirectories(Path path) throws IOException {
-        int retries = retryCreateDirectories;
+        int retries = descriptor.getRetryCreateDirectories();
         for (;;) {
             try {
                 return createDirectories.apply(path);
@@ -187,17 +175,17 @@ public class FileSystemStorage extends AbstractStorage {
         while (true)
             try {
                 ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
-                return Files.newOutputStream(path, openOptions);
+                return Files.newOutputStream(path, descriptor.getFileOpenOptions());
             } catch (FileAlreadyExistsException e) {
-                if (noopOnFileExists) {
-                    ctx.setDeletionLock(true);
-                    return OutputStream.nullOutputStream();
-                }
-                if (randomPathOnFileExists)
-                    path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
-                else {
-                    ctx.setDeletionLock(true);
-                    throw e;
+                switch (descriptor.getOnStoragePathAlreadyExists()) {
+                    case NOOP:
+                        ctx.setDeletionLock(true);
+                        return OutputStream.nullOutputStream();
+                    case FAILURE:
+                        ctx.setDeletionLock(true);
+                        throw e;
+                    case RANDOM_PATH:
+                        path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
                 }
             }
     }

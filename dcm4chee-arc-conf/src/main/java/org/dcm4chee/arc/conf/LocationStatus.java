@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2013-2021
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,30 +35,33 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
- *
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.store;
-
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.conf.LocationStatus;
+package org.dcm4chee.arc.conf;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Dec 2018
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Jul 2023
  */
-public class UpdateLocation {
-    public final InstanceLocations instanceLocation;
-    public Location location;
-    public final LocationStatus newStatus;
-    public final String newDigest;
-
-    public UpdateLocation(InstanceLocations instanceLocation, Location location,
-                          LocationStatus newStatus, String newDigest) {
-        this.instanceLocation = instanceLocation;
-        this.location = location;
-        this.newStatus = newStatus;
-        this.newDigest = newDigest;
-    }
+public enum LocationStatus {
+    OK,                                     // 0
+    TO_DELETE,                              // 1
+    FAILED_TO_DELETE,                       // 2
+    MISSING_OBJECT,                         // 3
+    FAILED_TO_FETCH_METADATA,               // 4
+    FAILED_TO_FETCH_OBJECT,                 // 5
+    DIFFERING_OBJECT_SIZE,                  // 6
+    DIFFERING_OBJECT_CHECKSUM,              // 7
+    DIFFERING_S3_MD5SUM,                    // 8
+    FAILED_TO_DELETE2,                      // 9
+    ORPHANED,                               // 10
+    VERIFY_QSTAR_ACCESS_STATE,              // 11
+    QSTAR_ACCESS_STATE_NONE,                // 12
+    QSTAR_ACCESS_STATE_EMPTY,               // 13
+    QSTAR_ACCESS_STATE_UNSTABLE,            // 14
+    QSTAR_ACCESS_STATE_OUT_OF_CACHE,        // 15
+    QSTAR_ACCESS_STATE_OFFLINE,             // 16
+    QSTAR_ACCESS_STATE_ERROR_STATUS,        // 17
+    UNKNOWN_STORAGE,                        // 18
 }

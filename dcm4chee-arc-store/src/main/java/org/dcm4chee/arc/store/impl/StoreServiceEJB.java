@@ -154,7 +154,7 @@ public class StoreServiceEJB {
 
         static LocationOp valueOf(List<Location> locations) {
             return locations.isEmpty() ? CREATE
-                    : locations.get(0).getStatus() == Location.Status.ORPHANED
+                    : locations.get(0).getStatus() == LocationStatus.ORPHANED
                         ? ORPHANED
                         : COPY;
         }
@@ -700,7 +700,7 @@ public class StoreServiceEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void removeOrMarkLocationAs(Location location, Location.Status status) {
+    public void removeOrMarkLocationAs(Location location, LocationStatus status) {
         location = em.merge(location);
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
@@ -708,7 +708,7 @@ public class StoreServiceEJB {
             markLocationAs(location, status);
     }
     
-    private void markLocationAs(Location location, Location.Status status) {
+    private void markLocationAs(Location location, LocationStatus status) {
         location.setMultiReference(null);
         location.setUidMap(null);
         location.setInstance(null);
@@ -728,7 +728,7 @@ public class StoreServiceEJB {
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
-            removeOrMarkLocationAs(location, Location.Status.TO_DELETE);
+            removeOrMarkLocationAs(location, LocationStatus.TO_DELETE);
         }
         for (UIDMap uidMap : uidMaps.values())
             removeOrphaned(uidMap);
@@ -803,7 +803,7 @@ public class StoreServiceEJB {
             return false;
 
         for (Location location : locations) {
-            if (location.getStatus() != Location.Status.OK)
+            if (location.getStatus() != LocationStatus.OK)
                 continue;
 
             byte[] digest2 = location.getDigest();
@@ -1088,7 +1088,7 @@ public class StoreServiceEJB {
         createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
                 ctx.getWriteContext(Location.ObjectType.DICOM_FILE), ctx.getStoreTranferSyntax());
         for (Location location : inst.getLocations()) {
-            removeOrMarkLocationAs(em.find(Location.class, location.getPk()), Location.Status.TO_DELETE);
+            removeOrMarkLocationAs(em.find(Location.class, location.getPk()), LocationStatus.TO_DELETE);
         }
     }
 
@@ -1594,7 +1594,7 @@ public class StoreServiceEJB {
 
     private Location updateLocation(StoreContext ctx, Instance instance) {
         Location location = ctx.getLocations().get(0);
-        location.setStatus(Location.Status.OK);
+        location.setStatus(LocationStatus.OK);
         location.setInstance(instance);
         em.merge(location);
         LOG.info("{}: Update {}", ctx.getStoreSession(), location);
@@ -1611,6 +1611,7 @@ public class StoreServiceEJB {
                 .storagePath(readContext.getStoragePath())
                 .transferSyntaxUID(transferSyntaxUID)
                 .objectType(objectType)
+                .status(descriptor.getLocationStatus())
                 .size(readContext.getSize())
                 .digest(readContext.getDigest())
                 .build();
@@ -1658,7 +1659,7 @@ public class StoreServiceEJB {
         addLocation(session, instancePk, newLocation);
         for (Location location : replaceLocations) {
             LOG.info("{}: Mark to delete {}", session, location);
-            removeOrMarkLocationAs(em.find(Location.class, location.getPk()), Location.Status.TO_DELETE);
+            removeOrMarkLocationAs(em.find(Location.class, location.getPk()), LocationStatus.TO_DELETE);
         }
     }
 
@@ -1826,7 +1827,7 @@ public class StoreServiceEJB {
                 .executeUpdate();
     }
 
-    public int setStatus(Long pk, Location.Status status) {
+    public int setStatus(Long pk, LocationStatus status) {
         return em.createNamedQuery(Location.SET_STATUS)
                 .setParameter(1, pk)
                 .setParameter(2, status)

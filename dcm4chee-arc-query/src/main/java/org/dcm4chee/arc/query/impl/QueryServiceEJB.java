@@ -50,6 +50,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
@@ -257,7 +258,7 @@ public class QueryServiceEJB {
                 if (results.get(location.get(Location_.digest)) != null)
                     item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest, VR.LO,
                             results.get(location.get(Location_.digest)));
-                if (results.get(location.get(Location_.status)) != Location.Status.OK)
+                if (results.get(location.get(Location_.status)) != LocationStatus.OK)
                     item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
                             results.get(location.get(Location_.status)).name());
                 if (results.get(location.get(Location_.multiReference)) != null)

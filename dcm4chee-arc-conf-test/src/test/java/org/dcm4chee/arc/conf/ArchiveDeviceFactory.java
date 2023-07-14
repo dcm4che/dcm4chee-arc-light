@@ -1241,7 +1241,6 @@ class ArchiveDeviceFactory {
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
     static final String STORAGE_ID = "fs1";
     static final String STORAGE_URI = "${jboss.server.data.url}/fs1/";
-    static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
     static final String NEARLINE_STORAGE_ID = "nearline";
     static final String NEARLINE_STORAGE_URI = "${jboss.server.data.url}/nearline/";
     static final String NEARLINE_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
@@ -1889,8 +1888,7 @@ class ArchiveDeviceFactory {
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURIStr(STORAGE_URI);
-        storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
-        storageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+        storageDescriptor.setCheckMountFilePath("NO_MOUNT");
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
         ext.addStorageDescriptor(storageDescriptor);

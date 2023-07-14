@@ -342,7 +342,7 @@ public class PurgeStorageScheduler extends Scheduler {
             return false;
 
         String status = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus);
-        return status == null || status.equals(Location.Status.OK.name());
+        return status == null || status.equals(LocationStatus.OK.name());
     }
 
     private int deleteStudiesFromDB(ArchiveDeviceExtension arcDev, StorageDescriptor desc,
@@ -463,7 +463,7 @@ public class PurgeStorageScheduler extends Scheduler {
         do {
             if (arcDev.getPurgeStoragePollingInterval() == null) return;
             LOG.debug("Query for objects marked for deletion at {}", desc);
-            locations = ejb.findLocationsWithStatus(desc.getStorageID(), Location.Status.TO_DELETE, fetchSize);
+            locations = ejb.findLocationsWithStatus(desc.getStorageID(), LocationStatus.TO_DELETE, fetchSize);
             if (locations.isEmpty()) {
                 LOG.debug("No objects marked for deletion found at {}", desc);
                 break;
@@ -505,7 +505,7 @@ public class PurgeStorageScheduler extends Scheduler {
 
     private void deleteLocation(Storage storage, Location location, AtomicInteger success, AtomicInteger skipped) {
         String storagePath = location.getStoragePath();
-        if (storage.getStorageDescriptor().isTarArchiver()) {
+        if (storage.getStorageDescriptor().isArchiveSeriesAsTAR()) {
             int endTarPath = storagePath.indexOf('!');
             if (endTarPath > 0) storagePath = storagePath.substring(0, endTarPath);
         }

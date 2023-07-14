@@ -51,6 +51,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
@@ -84,12 +85,14 @@ public class StorageExporter extends AbstractExporter {
 
     private final RetrieveService retrieveService;
     private final StoreService storeService;
+    private final String storageID;
 
     public StorageExporter(ExporterDescriptor descriptor, RetrieveService retrieveService,
                            StoreService storeService) {
         super(descriptor);
         this.retrieveService = retrieveService;
         this.storeService = storeService;
+        this.storageID = descriptor.getExportURI().getSchemeSpecificPart();
     }
 
     @Override
@@ -101,7 +104,6 @@ public class StorageExporter extends AbstractExporter {
                 exportContext.getSeriesInstanceUID(),
                 exportContext.getSopInstanceUID())) {
             retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
-            String storageID = descriptor.getExportURI().getSchemeSpecificPart();
             ApplicationEntity ae = retrieveContext.getLocalApplicationEntity();
             StoreSession storeSession = storeService.newStoreSession(ae).withObjectStorageID(storageID);
             storeService.restoreInstances(
@@ -114,13 +116,14 @@ public class StorageExporter extends AbstractExporter {
 
             try {
                 Storage storage = retrieveService.getStorage(storageID, retrieveContext);
-                retrieveContext.setDestinationStorage(storage.getStorageDescriptor());
-                boolean tarArchiver = storage.getStorageDescriptor().isTarArchiver();
+                StorageDescriptor storageDescriptor = storage.getStorageDescriptor();
+                retrieveContext.setDestinationStorage(storageDescriptor);
+                boolean tarArchiver = storageDescriptor.isArchiveSeriesAsTAR();
                 Map<String,Map<String,Map<String, InstanceLocations>>> matchesByTar =
                         tarArchiver ? null : new HashMap<>();
                 for (Iterator<InstanceLocations> it = retrieveContext.getMatches().iterator(); it.hasNext();) {
                     InstanceLocations match = it.next();
-                    if (locationsOnStorage(match, storageID).anyMatch(Location::isStatusOK)) {
+                    if (locationsOnStorage(match).anyMatch(Location::isStatusOK)) {
                         it.remove();
                         retrieveContext.setNumberOfMatches(retrieveContext.getNumberOfMatches() - 1);
                     } else {
@@ -128,11 +131,12 @@ public class StorageExporter extends AbstractExporter {
                             matchesByTar = null;
                     }
                 }
+                LocationStatus status = storageDescriptor.getLocationStatus();
                 Collection<String> seriesIUIDs = tarArchiver
-                        ? tarFiles(retrieveContext, storeSession, storage)
+                        ? tarFiles(retrieveContext, storeSession, storage, status)
                         : matchesByTar != null
-                        ? untarFiles(retrieveContext, storeSession, storage, matchesByTar)
-                        : copyFiles(retrieveContext, storeSession, storage);
+                        ? untarFiles(retrieveContext, storeSession, storage, matchesByTar, status)
+                        : copyFiles(retrieveContext, storeSession, storage, status);
                 retrieveContext.getRetrieveService().updateInstanceAvailability(retrieveContext);
                 if (!seriesIUIDs.isEmpty()) {
                     storeService.addStorageID(studyIUID, storageID);
@@ -157,7 +161,7 @@ public class StorageExporter extends AbstractExporter {
             return false;
         Location location = locations.get(0);
         String storageID = location.getStorageID();
-        if (!retrieveContext.getRetrieveService().getStorage(storageID, retrieveContext).getStorageDescriptor().isTarArchiver())
+        if (!retrieveContext.getRetrieveService().getStorage(storageID, retrieveContext).getStorageDescriptor().isArchiveSeriesAsTAR())
             return false;
         String storagePath = location.getStoragePath();
         int tarPathEnd = storagePath.indexOf('!');
@@ -173,9 +177,8 @@ public class StorageExporter extends AbstractExporter {
 
     private Collection<String> untarFiles(
             RetrieveContext retrieveContext, StoreSession storeSession, Storage storage,
-            Map<String, Map<String, Map<String, InstanceLocations>>> matchesByTar) {
+            Map<String, Map<String, Map<String, InstanceLocations>>> matchesByTar, LocationStatus status) {
         Collection<String> seriesIUIDs = new HashSet<>();
-        String storageID = storage.getStorageDescriptor().getStorageID();
         for (Map.Entry<String, Map<String, Map<String, InstanceLocations>>> entry : matchesByTar.entrySet()) {
             String tarStorageID = entry.getKey();
             Map<String, Map<String, InstanceLocations>> matchesByTar2 = entry.getValue();
@@ -185,8 +188,8 @@ public class StorageExporter extends AbstractExporter {
                     Map<String, InstanceLocations> matchByTarEntry = mapEntry.getValue();
                     ReadContext readContext = tarStorage.createReadContext();
                     readContext.setStoragePath(tarPath);
-                    untarFiles(retrieveContext, storeSession, storage, seriesIUIDs, storageID, tarStorage, tarPath,
-                            matchByTarEntry, readContext);
+                    untarFiles(retrieveContext, storeSession, storage, seriesIUIDs, tarStorage, tarPath,
+                            matchByTarEntry, readContext, status);
                 }
             } catch (IOException e) {
                 LOG.warn("Failed to close {}", storage.getStorageDescriptor());
@@ -196,16 +199,17 @@ public class StorageExporter extends AbstractExporter {
     }
 
     private void untarFiles(RetrieveContext retrieveContext, StoreSession storeSession, Storage storage,
-                           Collection<String> seriesIUIDs, String storageID, Storage tarStorage, String tarPath,
-                           Map<String, InstanceLocations> matchByTarEntry, ReadContext readContext) {
+                            Collection<String> seriesIUIDs, Storage tarStorage, String tarPath,
+                            Map<String, InstanceLocations> matchByTarEntry, ReadContext readContext,
+                            LocationStatus status) {
         try (TarArchiveInputStream tar = new TarArchiveInputStream(
                 new BufferedInputStream(tarStorage.openInputStream(readContext)))) {
             TarArchiveEntry tarEntry;
             while ((tarEntry = tar.getNextTarEntry()) != null) {
                 InstanceLocations match = matchByTarEntry.remove(tarEntry.getName());
                 if (match != null)
-                    copyTo(retrieveContext, storeSession, storage, seriesIUIDs, storageID, tarStorage, tar,
-                            tarEntry, match);
+                    copyTo(retrieveContext, storeSession, storage, seriesIUIDs, tarStorage, tar,
+                            tarEntry, match, status);
             }
             for (InstanceLocations match : matchByTarEntry.values()) {
                 LOG.warn("Failed to copy {} to {}: No such ", match, storage.getStorageDescriptor());
@@ -222,16 +226,17 @@ public class StorageExporter extends AbstractExporter {
     }
 
     private void copyTo(RetrieveContext retrieveContext, StoreSession storeSession, Storage storage,
-                           Collection<String> seriesIUIDs, String storageID, Storage tarStorage,
-                           TarArchiveInputStream tar, TarArchiveEntry tarEntry, InstanceLocations match) {
+                        Collection<String> seriesIUIDs, Storage tarStorage,
+                        TarArchiveInputStream tar, TarArchiveEntry tarEntry, InstanceLocations match,
+                        LocationStatus status) {
         WriteContext writeCtx = storage.createWriteContext(match.getAttributes());
         writeCtx.setContentLength(tarEntry.getSize());
         LOG.debug("Start copying {} to {}", match, storage.getStorageDescriptor());
         try {
             storage.copy(tar, writeCtx);
-            Location location = mkLocation(match.getLocations().get(0), storageID, writeCtx.getStoragePath());
+            Location location = mkLocation(match.getLocations().get(0), writeCtx.getStoragePath(), status);
             storeService.replaceLocation(storeSession, match.getInstancePk(), location,
-                    locationsOnStorage(match, storageID).collect(Collectors.toList()));
+                    locationsOnStorage(match).collect(Collectors.toList()));
             storage.commitStorage(writeCtx);
             retrieveContext.incrementCompleted();
             LOG.debug("Finished copying {} to {}", match, storage.getStorageDescriptor());
@@ -254,21 +259,22 @@ public class StorageExporter extends AbstractExporter {
         }
     }
 
-    private static Location mkLocation(Location srcLocation, String storageID, String storagePath) {
+    private Location mkLocation(Location srcLocation, String storagePath, LocationStatus status) {
         return new Location.Builder()
                 .storageID(storageID)
                 .storagePath(storagePath)
                 .transferSyntaxUID(srcLocation.getTransferSyntaxUID())
                 .objectType(Location.ObjectType.DICOM_FILE)
+                .status(status)
                 .size(srcLocation.getSize())
                 .digest(srcLocation.getDigest())
                 .uidMap(srcLocation.getUidMap())
                 .build();
     }
 
-    private Collection<String> copyFiles(RetrieveContext retrieveContext, StoreSession storeSession, Storage storage) {
+    private Collection<String> copyFiles(RetrieveContext retrieveContext, StoreSession storeSession, Storage storage,
+                                         LocationStatus status) {
         Collection<String> seriesIUIDs = new HashSet<>();
-        String storageID = storage.getStorageDescriptor().getStorageID();
         for (InstanceLocations match : retrieveContext.getMatches()) {
             WriteContext writeCtx = storage.createWriteContext(match.getAttributes());
             writeCtx.setStudyInstanceUID(retrieveContext.getStudyInstanceUID());
@@ -277,9 +283,9 @@ public class StorageExporter extends AbstractExporter {
                 LOG.debug("Start copying {} to {}", match, storage.getStorageDescriptor());
                 writeCtx.setContentLength(locationInputStream.location.getSize());
                 storage.copy(locationInputStream.stream, writeCtx);
-                Location location = mkLocation(locationInputStream.location, storageID, writeCtx.getStoragePath());
+                Location location = mkLocation(locationInputStream.location, writeCtx.getStoragePath(), status);
                 storeService.replaceLocation(storeSession, match.getInstancePk(), location,
-                        locationsOnStorage(match, storageID).collect(Collectors.toList()));
+                        locationsOnStorage(match).collect(Collectors.toList()));
                 storage.commitStorage(writeCtx);
                 retrieveContext.incrementCompleted();
                 LOG.debug("Finished copying {} to {}", match, storage.getStorageDescriptor());
@@ -298,13 +304,13 @@ public class StorageExporter extends AbstractExporter {
         return seriesIUIDs;
     }
 
-    private static Stream<Location> locationsOnStorage(InstanceLocations match, String storageID) {
+    private Stream<Location> locationsOnStorage(InstanceLocations match) {
         return match.getLocations().stream().filter(l -> l.getStorageID().equals(storageID));
      }
 
-    private Collection<String> tarFiles(RetrieveContext retrieveContext, StoreSession storeSession, Storage storage) {
+    private Collection<String> tarFiles(RetrieveContext retrieveContext, StoreSession storeSession, Storage storage,
+                                        LocationStatus status) {
         Collection<String> seriesIUIDs = new HashSet<>();
-        String storageID = storage.getStorageDescriptor().getStorageID();
         Map<String, List<TarEntry>> tars = new HashMap<>();
         for (InstanceLocations instanceLocations : retrieveContext.getMatches()) {
             String tarEntryPath = storage.storagePathOf(instanceLocations.getAttributes());
@@ -334,7 +340,7 @@ public class StorageExporter extends AbstractExporter {
                         LOG.debug("Start copying {} to TAR {} at {}", tarEntry.match,
                                 storagePath, storage.getStorageDescriptor());
                         tarEntry.newLocation = copyTo(retrieveContext, tarEntry.match,
-                                tar, storageID, storagePath, tarEntry.entryName, copyBuffer);
+                                tar, storagePath, tarEntry.entryName, copyBuffer, status);
                         LOG.debug("Finished copying {} to TAR {} at {}", tarEntry.match,
                                 storagePath, storage.getStorageDescriptor());
                         tarEntry.newLocation.setMultiReference(entry.getKey().hashCode());
@@ -357,7 +363,7 @@ public class StorageExporter extends AbstractExporter {
                 storage.commitStorage(writeCtx);
                 for (TarEntry tarEntry : tarEntries) {
                     storeService.replaceLocation(storeSession, tarEntry.match.getInstancePk(),
-                            tarEntry.newLocation, locationsOnStorage(tarEntry.match, storageID).collect(Collectors.toList()));
+                            tarEntry.newLocation, locationsOnStorage(tarEntry.match).collect(Collectors.toList()));
                     completed++;
                     retrieveContext.incrementCompleted();
                     seriesIUIDs.add(tarEntry.match.getAttributes().getString(Tag.SeriesInstanceUID));
@@ -376,8 +382,8 @@ public class StorageExporter extends AbstractExporter {
     }
 
     private Location copyTo(RetrieveContext retrieveContext, InstanceLocations instanceLocations,
-                            TarArchiveOutputStream tar, String storageID, String storagePath, String entryName,
-                            byte[] copyBuffer)
+                            TarArchiveOutputStream tar, String storagePath, String entryName,
+                            byte[] copyBuffer, LocationStatus status)
             throws IOException {
         try (LocationInputStream locationInputStream = retrieveService.openLocationInputStream(
                 retrieveContext, instanceLocations)) {
@@ -386,7 +392,7 @@ public class StorageExporter extends AbstractExporter {
             tar.putArchiveEntry(archiveEntry);
             StreamUtils.copy(locationInputStream.stream, tar, copyBuffer);
             tar.closeArchiveEntry();
-            return mkLocation(locationInputStream.location, storageID, storagePath + '!' + entryName);
+            return mkLocation(locationInputStream.location, storagePath + '!' + entryName, status);
         }
     }
 

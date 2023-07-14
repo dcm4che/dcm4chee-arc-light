@@ -807,7 +807,7 @@ class RetrieveContextImpl implements RetrieveContext {
         CopyToRetrieveCacheTask task = copyToRetrieveCacheTask;
         if (task == null) {
             copyToRetrieveCacheTask = task = new CopyToRetrieveCacheTask(this, storageDescriptor);
-            if (!storageDescriptor.isTarArchiver()) retrieveService.getDevice().execute(task);
+            if (!storageDescriptor.isArchiveSeriesAsTAR()) retrieveService.getDevice().execute(task);
         }
         return task;
     }

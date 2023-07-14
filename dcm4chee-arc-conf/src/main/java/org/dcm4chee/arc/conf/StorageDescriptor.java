@@ -39,9 +39,12 @@
  */
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 
 import java.net.URI;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Period;
@@ -55,9 +58,23 @@ import java.util.stream.Stream;
  * @since Jul 2015
  */
 public final class StorageDescriptor {
+    public enum OnStoragePathAlreadyExists {
+        RANDOM_PATH, NOOP, FAILURE
+    }
+    public static final String DEFAULT_PATH_FORMAT_STR =
+            "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+    private static final AttributesFormat DEFAULT_ATTRIBUTES_FORMAT = new AttributesFormat(DEFAULT_PATH_FORMAT_STR);
     private String storageID;
     private String storageURIStr;
     private URI storageURI;
+    private AttributesFormat storagePathFormat = DEFAULT_ATTRIBUTES_FORMAT;
+    private OnStoragePathAlreadyExists onStoragePathAlreadyExists = OnStoragePathAlreadyExists.RANDOM_PATH;
+    private String checkMountFilePath;
+    private OpenOption[] fileOpenOptions = { StandardOpenOption.CREATE_NEW };
+    private boolean altCreateDirectories;
+    private int retryCreateDirectories;
+    private boolean archiveSeriesAsTAR;
+    private LocationStatus locationStatus = LocationStatus.OK;
     private String digestAlgorithm;
     private int maxRetries;
     private Duration retryDelay;
@@ -110,8 +127,70 @@ public final class StorageDescriptor {
         return storageURI;
     }
 
-    public boolean isTarArchiver() {
-        return "tar".equals(properties.get("archiver"));
+    public AttributesFormat getStoragePathFormat() {
+        return storagePathFormat;
+    }
+
+    public void setStoragePathFormat(String storagePathFormat) {
+        this.storagePathFormat = new AttributesFormat(storagePathFormat);
+    }
+
+    public OnStoragePathAlreadyExists getOnStoragePathAlreadyExists() {
+        return onStoragePathAlreadyExists;
+    }
+
+    public void setOnStoragePathAlreadyExists(OnStoragePathAlreadyExists onStoragePathAlreadyExists) {
+        this.onStoragePathAlreadyExists = Objects.requireNonNull(onStoragePathAlreadyExists);
+    }
+
+    public String getCheckMountFilePath() {
+        return checkMountFilePath;
+    }
+
+    public void setCheckMountFilePath(String checkMountFilePath) {
+        this.checkMountFilePath = checkMountFilePath;
+    }
+
+    public OpenOption[] getFileOpenOptions() {
+        return fileOpenOptions;
+    }
+
+    public void setFileOpenOptions(OpenOption[] fileOpenOptions) {
+        this.fileOpenOptions = fileOpenOptions;
+    }
+
+    public boolean isAltCreateDirectories() {
+        return altCreateDirectories;
+    }
+
+    public void setAltCreateDirectories(boolean altCreateDirectories) {
+        this.altCreateDirectories = altCreateDirectories;
+    }
+
+    public int getRetryCreateDirectories() {
+        return retryCreateDirectories;
+    }
+
+    public void setRetryCreateDirectories(int retryCreateDirectories) {
+        if (retryCreateDirectories < 0)
+            throw new IllegalArgumentException("retryCreateDirectories: " + retryCreateDirectories);
+        this.retryCreateDirectories = retryCreateDirectories;
+    }
+
+    public boolean isArchiveSeriesAsTAR() {
+        return archiveSeriesAsTAR;
+    }
+
+    public void setArchiveSeriesAsTAR(boolean archiveSeriesAsTAR) {
+        this.archiveSeriesAsTAR = archiveSeriesAsTAR;
+    }
+
+    public LocationStatus getLocationStatus() {
+        return locationStatus;
+    }
+
+    public void setLocationStatus(LocationStatus locationStatus) {
+        this.locationStatus = Objects.requireNonNull(locationStatus);
     }
 
     public String getDigestAlgorithm() {

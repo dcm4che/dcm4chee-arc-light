@@ -102,7 +102,7 @@ public class DeletionServiceEJB {
     @Inject
     private TaskManager taskManager;
 
-    public List<Location> findLocationsWithStatus(String storageID, Location.Status status, int limit) {
+    public List<Location> findLocationsWithStatus(String storageID, LocationStatus status, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
                 .setParameter(1, storageID)
                 .setParameter(2, status)
@@ -229,7 +229,7 @@ public class DeletionServiceEJB {
         onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS_AND_STATUS, Long.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, Arrays.asList(desc.getExportStorageID()))
-                .setParameter(3, Location.Status.OK)
+                .setParameter(3, LocationStatus.OK)
                 .getResultList());
         return onStorage.size();
     }
@@ -245,16 +245,16 @@ public class DeletionServiceEJB {
     public boolean claimDeleteObject(Location location) {
         return em.createNamedQuery(Location.UPDATE_STATUS_FROM)
                 .setParameter(1, location.getPk())
-                .setParameter(2, Location.Status.TO_DELETE)
-                .setParameter(3, Location.Status.FAILED_TO_DELETE)
+                .setParameter(2, LocationStatus.TO_DELETE)
+                .setParameter(3, LocationStatus.FAILED_TO_DELETE)
                 .executeUpdate() > 0;
     }
 
     public boolean claimResolveFailedToDelete(Location location) {
         return em.createNamedQuery(Location.UPDATE_STATUS_FROM)
                 .setParameter(1, location.getPk())
-                .setParameter(2, Location.Status.FAILED_TO_DELETE)
-                .setParameter(3, Location.Status.FAILED_TO_DELETE2)
+                .setParameter(2, LocationStatus.FAILED_TO_DELETE)
+                .setParameter(3, LocationStatus.FAILED_TO_DELETE2)
                 .executeUpdate() > 0;
     }
 
@@ -269,8 +269,8 @@ public class DeletionServiceEJB {
     public boolean rescheduleDeleteObject(Location location) {
         return em.createNamedQuery(Location.UPDATE_STATUS_FROM)
                 .setParameter(1, location.getPk())
-                .setParameter(2, Location.Status.FAILED_TO_DELETE2)
-                .setParameter(3, Location.Status.TO_DELETE)
+                .setParameter(2, LocationStatus.FAILED_TO_DELETE2)
+                .setParameter(3, LocationStatus.TO_DELETE)
                 .executeUpdate() > 0;
     }
 
@@ -498,7 +498,7 @@ public class DeletionServiceEJB {
             storeEjb.removeOrMarkLocationAs(
                     location,
                     orphaned && location.getObjectType() == Location.ObjectType.DICOM_FILE
-                        ? Location.Status.ORPHANED : Location.Status.TO_DELETE);
+                        ? LocationStatus.ORPHANED : LocationStatus.TO_DELETE);
         }
         for (UIDMap uidMap : uidMaps.values())
             storeEjb.removeOrphaned(uidMap);
@@ -637,7 +637,7 @@ public class DeletionServiceEJB {
                     break;
                 case METADATA:
                     location.setInstance(null);
-                    location.setStatus(Location.Status.TO_DELETE);
+                    location.setStatus(LocationStatus.TO_DELETE);
                     break;
             }
         }

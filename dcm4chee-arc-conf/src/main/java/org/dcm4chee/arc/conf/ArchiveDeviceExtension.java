@@ -54,6 +54,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.Period;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -290,6 +291,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration patientVerificationRetryInterval;
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
+    private volatile Duration qStarVerificationPollingInterval;
+    private volatile int qStarVerificationFetchSize = 100;
+    private volatile Duration qStarVerificationDelay;
+    private volatile String qStarVerificationURL;
+    private volatile String qStarVerificationUser;
+    private volatile String qStarVerificationPassword;
+    private volatile String qStarVerificationURLwoUserInfo;
+    private volatile Integer qStarVerificationMockAccessState;
     private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
     private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
@@ -2891,6 +2900,69 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.patientVerificationMaxStaleness = patientVerificationMaxStaleness;
     }
 
+    public Duration getQStarVerificationPollingInterval() {
+        return qStarVerificationPollingInterval;
+    }
+
+    public void setQStarVerificationPollingInterval(Duration qStarVerificationPollingInterval) {
+        this.qStarVerificationPollingInterval = qStarVerificationPollingInterval;
+    }
+
+    public int getQStarVerificationFetchSize() {
+        return qStarVerificationFetchSize;
+    }
+
+    public void setQStarVerificationFetchSize(int qStarVerificationFetchSize) {
+        this.qStarVerificationFetchSize = qStarVerificationFetchSize;
+    }
+
+    public Duration getQStarVerificationDelay() {
+        return qStarVerificationDelay;
+    }
+
+    public void setQStarVerificationDelay(Duration qStarVerificationDelay) {
+        this.qStarVerificationDelay = qStarVerificationDelay;
+    }
+
+    public String getQStarVerificationURL() {
+        return qStarVerificationURL;
+    }
+
+    public void setQStarVerificationURL(String qStarVerificationURL) {
+        if (qStarVerificationURL != null) {
+            Matcher matcher = Pattern.compile("(https?://)(\\w+):(\\w+)@(\\w+.*)").matcher(qStarVerificationURL);
+            if (!matcher.matches()) throw new IllegalArgumentException(qStarVerificationURL);
+            qStarVerificationUser = matcher.group(2);
+            qStarVerificationPassword = matcher.group(3);
+            qStarVerificationURLwoUserInfo =  matcher.group(1) + matcher.group(4);
+        } else {
+            qStarVerificationUser = null;
+            qStarVerificationPassword = null;
+            qStarVerificationURLwoUserInfo =  null;
+        }
+        this.qStarVerificationURL = qStarVerificationURL;
+    }
+
+    public String getQStarVerificationUser() {
+        return qStarVerificationUser;
+    }
+
+    public String getQStarVerificationPassword() {
+        return qStarVerificationPassword;
+    }
+
+    public String getQStarVerificationURLwoUserInfo() {
+        return qStarVerificationURLwoUserInfo;
+    }
+
+    public Integer getQStarVerificationMockAccessState() {
+        return qStarVerificationMockAccessState;
+    }
+
+    public void setQStarVerificationMockAccessState(Integer qStarVerificationMockAccessState) {
+        this.qStarVerificationMockAccessState = qStarVerificationMockAccessState;
+    }
+
     public MultipleStoreAssociations[] getMultipleStoreAssociations() {
         return multipleStoreAssociations;
     }
@@ -3574,6 +3646,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
+        qStarVerificationPollingInterval = arcdev.qStarVerificationPollingInterval;
+        qStarVerificationFetchSize = arcdev.qStarVerificationFetchSize;
+        qStarVerificationDelay = arcdev.qStarVerificationDelay;
+        qStarVerificationURL = arcdev.qStarVerificationURL;
+        qStarVerificationMockAccessState = arcdev.qStarVerificationMockAccessState;
         csvUploadChunkSize = arcdev.csvUploadChunkSize;
         validateUID = arcdev.validateUID;
         hl7PrimaryAssigningAuthorityOfPatientID = arcdev.hl7PrimaryAssigningAuthorityOfPatientID;

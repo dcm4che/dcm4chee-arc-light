@@ -91,7 +91,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
         this.storageID = storageDescriptor.getRetrieveCacheStorageID();
         this.maxParallel = storageDescriptor.getRetrieveCacheMaxParallel();
         this.semaphore = new Semaphore(maxParallel);
-        this.matchesByTar = storageDescriptor.isTarArchiver() ? new HashMap<>() : null;
+        this.matchesByTar = storageDescriptor.isArchiveSeriesAsTAR() ? new HashMap<>() : null;
     }
 
     public boolean schedule(InstanceLocations match) {

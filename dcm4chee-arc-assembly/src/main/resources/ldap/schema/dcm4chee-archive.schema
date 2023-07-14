@@ -2662,6 +2662,83 @@ attributetype ( 1.2.40.0.13.1.15.110.3.455 NAME 'dcmDeleteStudyLeastRecentlyAcce
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.456 NAME 'dcmArchiveSeriesAsTAR'
+  DESC 'Indicates that binary DICOM objects of one Series are packed in one TAR archive on this Storage System; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.457 NAME 'dcmStoragePathFormat'
+  DESC 'Format of file path of DICOM binary objects, metadata in JSON format or of ZIP archives containing metadata in JSON format for each DICOM object of one Series, written to this Storage System. "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}", if absent.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.458 NAME 'dcmOnStoragePathAlreadyExists'
+  DESC 'Specifies behavior if there is already exists an object with the storage path assembled according configured dcmStoragePathFormat on the Storage System: "RANDOM_PATH" (= replace last path element be random 8 hex digit number and try again), "NOOP" (= proceed without writing the new object) - or "FAILURE" (= signals failure writing the new object)"; "RANDOM_PATH" if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.459 NAME 'dcmRetryCreateDirectories'
+  DESC 'Specifies number of retries to create parent directories of the storage file path - may workaround issues concerning NFS; 0 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.460 NAME 'dcmAltCreateDirectories'
+  DESC 'Indicate to do not rely on java.nio.file.Files::createDirectories to create all nonexistent parent directories first, but instead explicitly create parent directories on catch of NoSuchFileException - may workaround issues concerning NFS; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.461 NAME 'dcmCheckMountFilePath'
+  DESC 'Indicates to check if a mounted file system did not got detached from its mountpoint, by specifying the path of a shadow file in the directory used as mount point, failing if that file becomes accessible.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.462 NAME 'dcmFileOpenOption'
+  DESC 'Options specifying how the file is opened for writing: "CREATE_NEW" (= Create a new file, failing if the file already exists), "DSYNC" (= Requires that every update to the file content be written synchronously to the underlying storage device), "SYNC" (= Requires that every update to the file content or metadata be written synchronously to the underlying storage device); "CREATE_NEW" if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.463 NAME 'dcmLocationStatus'
+  DESC 'Initial Location Status of DICOM files written to this Storage System: "OK" or "VERIFY_QSTAR_ACCESS_STATE"; "OK" if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.464 NAME 'dcmQStarVerificationPollingInterval'
+  DESC 'Polling Interval for Verification of Access State of objects stored on QStar Tape File System in ISO-8601 duration format PnDTnHnMnS. If absent, Access State of objects stored objects stored on QStar Tape File System will to be verified.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.465 NAME 'dcmQStarVerificationFetchSize'
+  DESC 'Limit result set of DB query for Verification of Access State of objects stored on QStar Tape File System; 100 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.466 NAME 'dcmQStarVerificationDelay'
+  DESC 'Delay for Verification of Access State after objects stored on QStar Tape File System in ISO-8601 duration format PnDTnHnMnS. If absent, Access State of objects stored objects stored on QStar Tape File System will to be verified.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.467 NAME 'dcmQStarVerificationURL'
+  DESC 'URL of QStar Archive Storage Manager WEB Services - including username and password (http://username:password@qstar.host:port/) - invoked for Verification of Access State after objects stored on QStar Tape File System. If absent, Access State of objects stored objects stored on QStar Tape File System will to be verified.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.468 NAME 'dcmQStarVerificationMockAccessState'
+  DESC 'Indicates to mock invoke of QStar Archive Storage Manager (ASM) WEB Services by return of specified Access State (0 - ACCESS_STATE_NONE, 1 - ACCESS_STATE_EMPTY, 2 - ACCESS_STATE_UNSTABLE, 3 - ACCESS_STATE_STABLE, 4 - ACCESS_STATE_OUT_OF_CACHE, 5 - ACCESS_STATE_OFFLINE, -1 - simulate error response) for testing.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2881,6 +2958,11 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmPatientVerificationMaxRetries $
     dcmPatientVerificationMaxStaleness $
     dcmPatientVerificationAdjustIssuerOfPatientID $
+    dcmQStarVerificationPollingInterval $
+    dcmQStarVerificationFetchSize $
+    dcmQStarVerificationDelay $
+    dcmQStarVerificationURL $
+    dcmQStarVerificationMockAccessState $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
@@ -3129,6 +3211,14 @@ objectclass ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmStorageID $
     dcmURI )
   MAY (
+    dcmArchiveSeriesAsTAR $
+    dcmStoragePathFormat $
+    dcmOnStoragePathAlreadyExists $
+    dcmRetryCreateDirectories $
+    dcmAltCreateDirectories $
+    dcmCheckMountFilePath $
+    dcmFileOpenOption $
+    dcmLocationStatus $
     dcmDigestAlgorithm $
     dcmMaxRetries $
     dcmRetryDelay $

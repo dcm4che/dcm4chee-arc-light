@@ -350,6 +350,12 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
+      <artifactId>dcm4che-qstar</artifactId>
+      <version>${dcm4che.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
       <artifactId>dcm4che-xdsi</artifactId>
       <version>${dcm4che.version}</version>
       <scope>provided</scope>
@@ -547,6 +553,7 @@
     <module>dcm4chee-arc-qido</module>
     <module>dcm4chee-arc-qmgt</module>
     <module>dcm4chee-arc-qmgt-rs</module>
+    <module>dcm4chee-arc-qstar-scheduler</module>
     <module>dcm4chee-arc-query</module>
     <module>dcm4chee-arc-query-scu</module>
     <module>dcm4chee-arc-query-scp</module>

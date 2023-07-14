@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * Portions created by the Initial Developer are Copyright (C) 2013-2021
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,30 +35,48 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
- *
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.store;
+package org.dcm4chee.arc.qstar.scheduler;
 
-import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.conf.LocationStatus;
+import org.dcm4chee.arc.entity.Location;
+
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.Date;
+import java.util.List;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Dec 2018
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Jul 2023
  */
-public class UpdateLocation {
-    public final InstanceLocations instanceLocation;
-    public Location location;
-    public final LocationStatus newStatus;
-    public final String newDigest;
+@Stateless
+public class QStarVerificationEJB {
+    @PersistenceContext(unitName="dcm4chee-arc")
+    private EntityManager em;
 
-    public UpdateLocation(InstanceLocations instanceLocation, Location location,
-                          LocationStatus newStatus, String newDigest) {
-        this.instanceLocation = instanceLocation;
-        this.location = location;
-        this.newStatus = newStatus;
-        this.newDigest = newDigest;
+    public List<Location> findByLocationsWithStatusCreatedBefore(LocationStatus status, Date before, int limit) {
+        return em.createNamedQuery(Location.FIND_BY_STATUS_CREATED_BEFORE, Location.class)
+                .setParameter(1, status)
+                .setParameter(2, before)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    public int setLocationStatus(Long pk, LocationStatus status) {
+        return em.createNamedQuery(Location.SET_STATUS, Location.class)
+                .setParameter(1, pk)
+                .setParameter(2, status)
+                .executeUpdate();
+    }
+
+    public int setLocationStatusByMultiRef(Integer multiRef, LocationStatus status) {
+        return em.createNamedQuery(Location.SET_STATUS_BY_MULTI_REF, Location.class)
+                .setParameter(1, multiRef)
+                .setParameter(2, status)
+                .executeUpdate();
     }
 }

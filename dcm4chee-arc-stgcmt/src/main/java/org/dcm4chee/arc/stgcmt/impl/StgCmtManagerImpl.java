@@ -54,6 +54,7 @@ import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -469,49 +470,49 @@ public class StgCmtManagerImpl implements StgCmtManager {
     }
 
     private static class CheckResult {
-        final Location.Status status;
+        final LocationStatus status;
         final IOException ioException;
 
-        CheckResult(Location.Status status, IOException ioException) {
+        CheckResult(LocationStatus status, IOException ioException) {
             this.status = status;
             this.ioException = ioException;
         }
 
-        CheckResult(Location.Status status) {
+        CheckResult(LocationStatus status) {
             this(status, null);
         }
 
         boolean ok() {
-            return status == Location.Status.OK;
+            return status == LocationStatus.OK;
         }
     }
 
     private CheckResult objectExists(ReadContext readContext) {
         return (readContext.getStorage().exists(readContext))
-                ? new CheckResult(Location.Status.OK)
-                : new CheckResult(Location.Status.MISSING_OBJECT);
+                ? new CheckResult(LocationStatus.OK)
+                : new CheckResult(LocationStatus.MISSING_OBJECT);
     }
 
     private CheckResult compareObjectSize(ReadContext readContext, Location l) {
         try {
             return (readContext.getStorage().getContentLength(readContext) == l.getSize())
-                    ? new CheckResult(Location.Status.OK)
-                    : new CheckResult(Location.Status.DIFFERING_OBJECT_SIZE);
+                    ? new CheckResult(LocationStatus.OK)
+                    : new CheckResult(LocationStatus.DIFFERING_OBJECT_SIZE);
         } catch (NoSuchFileException e) {
-            return new CheckResult(Location.Status.MISSING_OBJECT, e);
+            return new CheckResult(LocationStatus.MISSING_OBJECT, e);
         } catch (IOException e) {
-            return new CheckResult(Location.Status.FAILED_TO_FETCH_METADATA, e);
+            return new CheckResult(LocationStatus.FAILED_TO_FETCH_METADATA, e);
         }
     }
 
     private CheckResult fetchObject(ReadContext readContext) {
         try (InputStream stream = readContext.getStorage().openInputStream(readContext)) {
             StreamUtils.copy(stream, null);
-            return new CheckResult(Location.Status.OK);
+            return new CheckResult(LocationStatus.OK);
         } catch (NoSuchFileException e) {
-            return new CheckResult(Location.Status.MISSING_OBJECT, e);
+            return new CheckResult(LocationStatus.MISSING_OBJECT, e);
         } catch (IOException e) {
-            return new CheckResult(Location.Status.FAILED_TO_FETCH_OBJECT, e);
+            return new CheckResult(LocationStatus.FAILED_TO_FETCH_OBJECT, e);
         }
     }
 
@@ -532,8 +533,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
         }
 
         return (calculatedDigest.equals(digest))
-                ? new CheckResult(Location.Status.OK)
-                : new CheckResult(Location.Status.DIFFERING_OBJECT_CHECKSUM);
+                ? new CheckResult(LocationStatus.OK)
+                : new CheckResult(LocationStatus.DIFFERING_OBJECT_CHECKSUM);
     }
 
     private CheckResult compareS3md5Sum(ReadContext readContext, InstanceLocations inst, Location l,
@@ -549,9 +550,9 @@ public class StgCmtManagerImpl implements StgCmtManager {
         try {
             contentMD5 = readContext.getStorage().getContentMD5(readContext);
         } catch (NoSuchFileException e) {
-            return new CheckResult(Location.Status.MISSING_OBJECT, e);
+            return new CheckResult(LocationStatus.MISSING_OBJECT, e);
         } catch (IOException e) {
-            return new CheckResult(Location.Status.FAILED_TO_FETCH_METADATA, e);
+            return new CheckResult(LocationStatus.FAILED_TO_FETCH_METADATA, e);
         }
         if (contentMD5 == null) {
             LOG.info("S3 MD5SUM not supported by {} -> recalculate object checksum instead compare S3 MD5",
@@ -567,8 +568,8 @@ public class StgCmtManagerImpl implements StgCmtManager {
             digest = TagUtils.toHexString(readContext.getDigest());
         }
         return (TagUtils.toHexString(contentMD5).equals(digest))
-                ? new CheckResult(Location.Status.OK)
-                : new CheckResult(Location.Status.DIFFERING_S3_MD5SUM);
+                ? new CheckResult(LocationStatus.OK)
+                : new CheckResult(LocationStatus.DIFFERING_S3_MD5SUM);
     }
 
     private static class SeriesResult {
