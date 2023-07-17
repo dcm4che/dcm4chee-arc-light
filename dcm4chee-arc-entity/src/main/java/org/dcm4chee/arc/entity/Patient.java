@@ -235,9 +235,9 @@ public class Patient {
 
     private static void appendIdOrHash(StringBuilder sb, IDWithIssuer idWithIssuer) {
         if (showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID) {
-            sb.append(idWithIssuer);
-        } else {
             sb.append(idWithIssuer.hashCode());
+        } else {
+            sb.append(idWithIssuer);
         }
     }
 
