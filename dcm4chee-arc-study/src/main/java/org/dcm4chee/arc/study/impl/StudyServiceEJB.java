@@ -402,6 +402,8 @@ public class StudyServiceEJB {
         ctx.setPatient(study.getPatient());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         study.setAccessControlID(ctx.getAccessControlID());
+        LOG.info("Access Control ID : {} successfully applied to study : {}",
+                ctx.getAccessControlID(), ctx.getStudyInstanceUID());
     }
 
     public void moveStudyToPatient(String studyUID, PatientMgtContext ctx)

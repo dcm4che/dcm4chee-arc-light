@@ -197,16 +197,18 @@ public class UpdateStudyAccessMatchingRS {
         try {
             QueryContext qCtx = queryContext(ae);
             int count;
+            String accessControlID1 = "null".equals(accessControlID) ? "*" : accessControlID;
             try (Query query = queryService.createQuery(qCtx)) {
                 int queryMaxNumberOfResults = qCtx.getArchiveAEExtension().queryMaxNumberOfResults();
                 if (queryMaxNumberOfResults > 0 && !qCtx.containsUniqueKey()
                         && query.fetchCount() > queryMaxNumberOfResults)
                     return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
 
-                UpdateStudyAccess updateStudyAccess = new UpdateStudyAccess(ae, query, accessControlID);
+                UpdateStudyAccess updateStudyAccess = new UpdateStudyAccess(ae, query, accessControlID1);
                 runInTx.execute(updateStudyAccess);
                 count = updateStudyAccess.getCount();
             }
+            LOG.info("Access Control ID : {} successfully applied to {} studies.", accessControlID1, count);
             return Response.ok("{\"count\":" + count + '}').build();
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -245,7 +247,7 @@ public class UpdateStudyAccessMatchingRS {
                     StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                             HttpServletRequestInfo.valueOf(request), ae);
                     ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
-                    ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
+                    ctx.setAccessControlID(accessControlID);
                     ctx.setAttributes(match);
                     ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
                     studyService.updateAccessControlID(ctx);
