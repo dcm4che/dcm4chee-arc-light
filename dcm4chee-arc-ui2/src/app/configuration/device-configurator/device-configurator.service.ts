@@ -1366,7 +1366,7 @@ export class DeviceConfiguratorService{
     addEnumValueToOption(opt, options, value, useKey?:boolean, checkContainingIndex?:boolean){
         try{
             let optObject = {};
-            if(opt && opt.indexOf("|") > -1){
+            if(opt && typeof opt === "string" && opt.indexOf("|") > -1){
                 let [optValue, description,label] = opt.split("|");
                 optObject = {
                     description:description ?? '',
