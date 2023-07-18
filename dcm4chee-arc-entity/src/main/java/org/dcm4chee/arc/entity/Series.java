@@ -197,7 +197,8 @@ import java.util.stream.Stream;
                 "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
                 "from Series se " +
                 "left join se.metadata metadata " +
-                "where se.metadataScheduledUpdateTime < current_timestamp"),
+                "where se.metadataScheduledUpdateTime < current_timestamp and se.pk not in (" +
+                "select l.instance.seriesFk from Location l where l.status != org.dcm4chee.arc.conf.LocationStatus.OK)"),
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
         query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
