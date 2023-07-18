@@ -61,6 +61,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.json.stream.JsonParser;
 import java.net.URI;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 import java.time.Period;
 import java.util.Collection;
 import java.util.Map;
@@ -512,6 +514,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmStorageID", st.getStorageID(), null);
             writer.writeNotNullOrDef("dcmURI", st.getStorageURIStr(), null);
+            writer.writeNotDef("dcmArchiveSeriesAsTAR", st.isArchiveSeriesAsTAR(), false);
+            writer.writeNotNullOrDef("dcmStoragePathFormat",
+                    st.getStoragePathFormat(), StorageDescriptor.DEFAULT_PATH_FORMAT_STR);
+            writer.writeNotNullOrDef("dcmOnStoragePathAlreadyExists",
+                    st.getOnStoragePathAlreadyExists(), StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH);
+            writer.writeNotDef("dcmRetryCreateDirectories", st.getRetryCreateDirectories(), 0);
+            writer.writeNotDef("dcmAltCreateDirectories", st.isAltCreateDirectories(), false);
+            writer.writeNotNullOrDef("dcmCheckMountFilePath", st.getCheckMountFilePath(), "NO_MOUNT");
+            writer.writeNotEmpty("dcmFileOpenOption", st.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
             writer.writeNotNullOrDef("dcmLocationStatus", st.getLocationStatus(), LocationStatus.OK);
             writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);
             writer.writeNotNullOrDef("dcmInstanceAvailability",
@@ -2334,6 +2345,27 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case  "dcmURI":
                         st.setStorageURIStr(reader.stringValue());
                         break;
+                    case "dcmArchiveSeriesAsTAR":
+                        st.setArchiveSeriesAsTAR(reader.booleanValue());
+                        break;
+                    case "dcmStoragePathFormat":
+                        st.setStoragePathFormat(reader.stringValue());
+                        break;
+                    case "dcmOnStoragePathAlreadyExists":
+                        st.setOnStoragePathAlreadyExists(StorageDescriptor.OnStoragePathAlreadyExists.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmRetryCreateDirectories":
+                        st.setRetryCreateDirectories(reader.intValue());
+                        break;
+                    case "dcmAltCreateDirectories":
+                        st.setAltCreateDirectories(reader.booleanValue());
+                        break;
+                    case "dcmCheckMountFilePath":
+                        st.setCheckMountFilePath(reader.stringValue());
+                        break;
+                    case "dcmFileOpenOption":
+                        st.setFileOpenOptions(toOpenOptions(reader.stringArray()));
+                        break;
                     case "dcmLocationStatus":
                         st.setLocationStatus(LocationStatus.valueOf(reader.stringValue()));
                         break;
@@ -2417,6 +2449,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             arcDev.addStorageDescriptor(st);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private OpenOption[] toOpenOptions(String... ss) {
+        OpenOption[] openOptions = new OpenOption[ss.length];
+        for (int i = 0; i < ss.length; i++)
+            openOptions[i] = StandardOpenOption.valueOf(ss[i]);
+        return openOptions;
     }
 
     private void loadQueryRetrieveViewFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {

@@ -66,6 +66,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 import java.net.URI;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 import java.time.Period;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -2673,6 +2675,19 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "dcmStorage");
         attrs.put("dcmStorageID", descriptor.getStorageID());
         attrs.put("dcmURI", descriptor.getStorageURIStr());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmArchiveSeriesAsTAR",
+                descriptor.isArchiveSeriesAsTAR(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoragePathFormat",
+                descriptor.getStoragePathFormat(), StorageDescriptor.DEFAULT_PATH_FORMAT_STR);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOnStoragePathAlreadyExists",
+                descriptor.getOnStoragePathAlreadyExists(), StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryCreateDirectories", descriptor.getRetryCreateDirectories(), 0);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmAltCreateDirectories",
+                descriptor.isAltCreateDirectories(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCheckMountFilePath",
+                descriptor.getCheckMountFilePath(), "NO_MOUNT");
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption",
+                descriptor.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLocationStatus",
                 descriptor.getLocationStatus(), LocationStatus.OK);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDigestAlgorithm",
@@ -2733,6 +2748,17 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 StorageDescriptor desc = new StorageDescriptor(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
                 desc.setStorageURIStr(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                desc.setArchiveSeriesAsTAR(LdapUtils.booleanValue(attrs.get("dcmArchiveSeriesAsTAR"), false));
+                desc.setStoragePathFormat(LdapUtils.stringValue(attrs.get("dcmStoragePathFormat"),
+                        StorageDescriptor.DEFAULT_PATH_FORMAT_STR));
+                desc.setOnStoragePathAlreadyExists(
+                        LdapUtils.enumValue(StorageDescriptor.OnStoragePathAlreadyExists.class,
+                                attrs.get("dcmOnStoragePathAlreadyExists"),
+                                StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH));
+                desc.setRetryCreateDirectories(LdapUtils.intValue(attrs.get("dcmRetryCreateDirectories"), 0));
+                desc.setAltCreateDirectories(LdapUtils.booleanValue(attrs.get("dcmAltCreateDirectories"), false));
+                desc.setCheckMountFilePath(LdapUtils.stringValue(attrs.get("dcmCheckMountFilePath"), "NO_MOUNT"));
+                desc.setFileOpenOptions(toOpenOptions(LdapUtils.stringArray(attrs.get("dcmFileOpenOption"))));
                 desc.setLocationStatus(
                         LdapUtils.enumValue(LocationStatus.class, attrs.get("dcmLocationStatus"), LocationStatus.OK));
                 desc.setDigestAlgorithm(LdapUtils.stringValue(attrs.get("dcmDigestAlgorithm"), null));
@@ -2779,6 +2805,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private OpenOption[] toOpenOptions(String... ss) {
+        OpenOption[] openOptions = new OpenOption[ss.length];
+        for (int i = 0; i < ss.length; i++)
+            openOptions[i] = StandardOpenOption.valueOf(ss[i]);
+        return openOptions;
+    }
+
     private static StorageThreshold toStorageThreshold(Attribute attr) throws NamingException {
         return attr != null ? StorageThreshold.valueOf((String) attr.get()) : null;
     }
@@ -2819,6 +2852,24 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getStorageURIStr(), desc.getStorageURIStr(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDigestAlgorithm",
                 prev.getDigestAlgorithm(), desc.getDigestAlgorithm(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmArchiveSeriesAsTAR",
+                prev.isArchiveSeriesAsTAR(), desc.isArchiveSeriesAsTAR(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoragePathFormat",
+                prev.getStoragePathFormat(),
+                desc.getStoragePathFormat(),
+                StorageDescriptor.DEFAULT_PATH_FORMAT_STR);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmOnStoragePathAlreadyExists",
+                prev.getOnStoragePathAlreadyExists(),
+                desc.getOnStoragePathAlreadyExists(),
+                StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetryCreateDirectories",
+                prev.getRetryCreateDirectories(), desc.getRetryCreateDirectories(), 0);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAltCreateDirectories",
+                prev.isAltCreateDirectories(), desc.isAltCreateDirectories(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCheckMountFilePath",
+                prev.getCheckMountFilePath(), desc.getCheckMountFilePath(), "NO_MOUNT");
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFileOpenOption",
+                prev.getFileOpenOptions(), desc.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLocationStatus",
                 prev.getLocationStatus(), desc.getLocationStatus(), LocationStatus.OK);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
