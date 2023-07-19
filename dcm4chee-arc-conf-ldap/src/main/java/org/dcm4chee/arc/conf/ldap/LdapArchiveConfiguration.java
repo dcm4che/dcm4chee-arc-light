@@ -2677,7 +2677,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("dcmURI", descriptor.getStorageURIStr());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmArchiveSeriesAsTAR",
                 descriptor.isArchiveSeriesAsTAR(), false);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoragePathFormat", descriptor.getStoragePathFormat(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoragePathFormat", descriptor.getStoragePathFormat(),
+                StorageDescriptor.DEFAULT_ATTRIBUTES_FORMAT);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOnStoragePathAlreadyExists",
                 descriptor.getOnStoragePathAlreadyExists(), StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryCreateDirectories", descriptor.getRetryCreateDirectories(), 0);
@@ -2748,7 +2749,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 StorageDescriptor desc = new StorageDescriptor(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
                 desc.setStorageURIStr(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 desc.setArchiveSeriesAsTAR(LdapUtils.booleanValue(attrs.get("dcmArchiveSeriesAsTAR"), false));
-                desc.setStoragePathFormat(LdapUtils.stringValue(attrs.get("dcmStoragePathFormat"), null));
+                desc.setStoragePathFormat(LdapUtils.stringValue(attrs.get("dcmStoragePathFormat"),
+                        StorageDescriptor.DEFAULT_PATH_FORMAT_STR));
                 desc.setOnStoragePathAlreadyExists(
                         LdapUtils.enumValue(StorageDescriptor.OnStoragePathAlreadyExists.class,
                                 attrs.get("dcmOnStoragePathAlreadyExists"),

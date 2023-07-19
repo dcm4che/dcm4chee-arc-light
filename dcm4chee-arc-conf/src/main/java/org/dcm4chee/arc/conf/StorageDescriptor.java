@@ -63,7 +63,7 @@ public final class StorageDescriptor {
     }
     public static final String DEFAULT_PATH_FORMAT_STR =
             "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
-    private static final AttributesFormat DEFAULT_ATTRIBUTES_FORMAT = new AttributesFormat(DEFAULT_PATH_FORMAT_STR);
+    public static final AttributesFormat DEFAULT_ATTRIBUTES_FORMAT = new AttributesFormat(DEFAULT_PATH_FORMAT_STR);
     private String storageID;
     private String storageURIStr;
     private URI storageURI;

@@ -515,7 +515,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmStorageID", st.getStorageID(), null);
             writer.writeNotNullOrDef("dcmURI", st.getStorageURIStr(), null);
             writer.writeNotDef("dcmArchiveSeriesAsTAR", st.isArchiveSeriesAsTAR(), false);
-            writer.writeNotNullOrDef("dcmStoragePathFormat", st.getStoragePathFormat(), null);
+            writer.writeNotNullOrDef("dcmStoragePathFormat",
+                    st.getStoragePathFormat(), StorageDescriptor.DEFAULT_ATTRIBUTES_FORMAT);
             writer.writeNotNullOrDef("dcmOnStoragePathAlreadyExists",
                     st.getOnStoragePathAlreadyExists(), StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH);
             writer.writeNotDef("dcmRetryCreateDirectories", st.getRetryCreateDirectories(), 0);
