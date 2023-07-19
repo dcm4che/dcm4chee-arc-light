@@ -2222,12 +2222,12 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.456 NAME 'dcmArchiveSeriesAsTAR'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.457 NAME 'dcmStoragePathFormat'
-  DESC 'Format of file path of DICOM binary objects, metadata in JSON format or of ZIP archives containing metadata in JSON format for each DICOM object of one Series, written to this Storage System. "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}", if absent.'
+  DESC 'Format of file path of DICOM binary objects or metadata in JSON format or of ZIP archives containing metadata in JSON format for each DICOM object of one Series, written to this Storage System. "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}", if absent.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.458 NAME 'dcmOnStoragePathAlreadyExists'
-  DESC 'Specifies behavior if there is already exists an object with the storage path assembled according configured dcmStoragePathFormat on the Storage System: "RANDOM_PATH" (= replace last path element be random 8 hex digit number and try again), "NOOP" (= proceed without writing the new object) - or "FAILURE" (= signals failure writing the new object)"; "RANDOM_PATH" if absent.'
+  DESC 'Specifies behavior if an object already exists on the storage path on the storage system, assembled according to the configured "Storage Path Format". Default behaviour "RANDOM_PATH". Enumerated values : "RANDOM_PATH" (= replace last path element be random 8 hex digit number and try again), "NOOP" (= proceed without writing the new object) - or "FAILURE" (= signals failure writing the new object)"'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -2237,17 +2237,17 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.459 NAME 'dcmRetryCreateDirectories'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.460 NAME 'dcmAltCreateDirectories'
-  DESC 'Indicate to do not rely on java.nio.file.Files::createDirectories to create all nonexistent parent directories first, but instead explicitly create parent directories on catch of NoSuchFileException - may workaround issues concerning NFS; false if absent.'
+  DESC 'Indicate to not rely on "createDirectories" function in "java.nio.file.Files" Java class, to create all nonexistent parent directories first, but instead explicitly create parent directories if NoSuchFileException is thrown. May workaround issues concerning NFS.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.461 NAME 'dcmCheckMountFilePath'
-  DESC 'Indicates to check if a mounted file system did not got detached from its mountpoint, by specifying the path of a shadow file in the directory used as mount point, failing if that file becomes accessible.'
+  DESC 'Indicates to check if a mounted file system did not get detached from its mount point, by specifying the path of a shadow file in the directory used as mount point. If the shadow file becomes inaccessible, write to storage operation fails. Checked for each DICOM object storage (write operation). Typically applicable to NFS / external file systems.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.462 NAME 'dcmFileOpenOption'
-  DESC 'Options specifying how the file is opened for writing: "CREATE_NEW" (= Create a new file, failing if the file already exists), "DSYNC" (= Requires that every update to the file content be written synchronously to the underlying storage device), "SYNC" (= Requires that every update to the file content or metadata be written synchronously to the underlying storage device); "CREATE_NEW" if absent.'
+  DESC 'Options specifying how the file is opened for writing. Default behaviour "CREATE_NEW". Enumerated values : "CREATE_NEW" (= Create a new file, failing if the file already exists), "DSYNC" (= Requires that every update to the file content be written synchronously to the underlying storage device), "SYNC" (= Requires that every update to the file content or metadata be written synchronously to the underlying storage device)'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.463 NAME 'dcmLocationStatus'
