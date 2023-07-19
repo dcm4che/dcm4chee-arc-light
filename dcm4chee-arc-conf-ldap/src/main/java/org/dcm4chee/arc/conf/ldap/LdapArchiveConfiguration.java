@@ -541,6 +541,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OtherPatientIDs", 
                 ext.getHL7OtherPatientIDs(), HL7OtherPatientIDs.OTHER);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQStarVerificationPollingInterval",
+                ext.getQStarVerificationPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmQStarVerificationFetchSize",
+                ext.getQStarVerificationFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQStarVerificationDelay",
+                ext.getQStarVerificationDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmQStarVerificationURL",
+                ext.getQStarVerificationURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmQStarVerificationMockAccessState",
+                ext.getQStarVerificationMockAccessState(), null);
     }
 
     @Override
@@ -888,6 +898,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setKeyValueRetentionPollingInterval(toDuration(attrs.get("dcmKeyValueRetentionPollingInterval"), null));
         ext.setKeyValueRetentionFetchSize(LdapUtils.intValue(attrs.get("dcmKeyValueRetentionFetchSize"), 100));
         ext.setKeyValueRetentionPeriod(toDuration(attrs.get("dcmKeyValueRetentionPeriod"), null));
+        ext.setQStarVerificationPollingInterval(toDuration(attrs.get("dcmQStarVerificationPollingInterval"), null));
+        ext.setQStarVerificationFetchSize(LdapUtils.intValue(attrs.get("dcmQStarVerificationFetchSize"), 100));
+        ext.setQStarVerificationDelay(toDuration(attrs.get("dcmQStarVerificationDelay"), null));
+        ext.setQStarVerificationURL(LdapUtils.stringValue(attrs.get("dcmQStarVerificationURL"), null));
+        ext.setQStarVerificationMockAccessState(
+                LdapUtils.intValue(attrs.get("dcmQStarVerificationMockAccessState"), null));
     }
 
     @Override
@@ -1538,6 +1554,19 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeyValueRetentionPeriod",
                 aa.getKeyValueRetentionPeriod(), bb.getKeyValueRetentionPeriod(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQStarVerificationPollingInterval",
+                aa.getQStarVerificationPollingInterval(),
+                bb.getQStarVerificationPollingInterval(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQStarVerificationFetchSize",
+                aa.getQStarVerificationFetchSize(),
+                bb.getQStarVerificationFetchSize(),
+                100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQStarVerificationDelay",
+                aa.getQStarVerificationDelay(), bb.getQStarVerificationDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQStarVerificationURL",
+                aa.getQStarVerificationURL(), bb.getQStarVerificationURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQStarVerificationMockAccessState",
+                aa.getQStarVerificationMockAccessState(), bb.getQStarVerificationMockAccessState(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

@@ -430,6 +430,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getKeyValueRetentionPollingInterval(), null);
         writer.writeNotDef("dcmKeyValueRetentionFetchSize", arcDev.getKeyValueRetentionFetchSize(), 100);
         writer.writeNotNullOrDef("dcmKeyValueRetentionPeriod", arcDev.getKeyValueRetentionPeriod(), null);
+        writer.writeNotNullOrDef("dcmQStarVerificationPollingInterval",
+                arcDev.getQStarVerificationPollingInterval(), null);
+        writer.writeNotDef("dcmQStarVerificationFetchSize", arcDev.getQStarVerificationFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmQStarVerificationDelay", arcDev.getQStarVerificationDelay(), null);
+        writer.writeNotNullOrDef("dcmQStarVerificationURL", arcDev.getQStarVerificationURL(), null);
+        writer.writeNotNullOrDef("dcmQStarVerificationMockAccessState",
+                arcDev.getQStarVerificationMockAccessState(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -2149,6 +2156,21 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmKeyValueRetentionPeriod":
                     arcDev.setKeyValueRetentionPeriod(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmQStarVerificationPollingInterval":
+                    arcDev.setQStarVerificationPollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmQStarVerificationFetchSize":
+                    arcDev.setQStarVerificationFetchSize(reader.intValue());
+                    break;
+                case "dcmQStarVerificationDelay":
+                    arcDev.setQStarVerificationDelay(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmQStarVerificationURL":
+                    arcDev.setQStarVerificationURL(reader.stringValue());
+                    break;
+                case "dcmQStarVerificationMockAccessState":
+                    arcDev.setQStarVerificationMockAccessState(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
