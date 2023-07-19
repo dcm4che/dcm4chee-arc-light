@@ -5086,7 +5086,7 @@ export class StudyService {
         if(this.institutions){
             return of(this.institutions);
         }else{
-            return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`).pipe(delay(10000));
+            return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
         }
     }
 
