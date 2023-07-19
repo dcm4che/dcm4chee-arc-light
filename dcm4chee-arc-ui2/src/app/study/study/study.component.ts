@@ -384,6 +384,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this._filter.filterModel["webApp"] = this.studyWebService.selectedWebService.dcmWebAppName;
                 };
                 this.studyConfig.title = this.tabToTitleMap(params.tab);
+                this.initWebApps();
                 if(this.studyConfig.tab === "diff"){
                     this.getDiffAttributeSet(this, ()=>{
                         this.route.queryParams.subscribe(queryParams=>{

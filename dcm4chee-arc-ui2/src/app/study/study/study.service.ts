@@ -43,7 +43,7 @@ import {StudyWebService} from "./study-web-service.model";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
-import {catchError, map, switchMap, tap} from "rxjs/operators";
+import {catchError, map, switchMap, tap, delay} from "rxjs/operators";
 import {FormatTMPipe} from "../../pipes/format-tm.pipe";
 import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
@@ -65,6 +65,7 @@ export class StudyService {
     jsonHeader = new HttpHeaders({'Content-Type': 'application/json'});
 
     selectedElements:SelectionActionElement;
+    institutions;
     constructor(
         private aeListService: AeListService,
         private $http: J4careHttpService,
@@ -5081,7 +5082,13 @@ export class StudyService {
 
     getRejectNotes = (params?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`);
 
-    getInstitutions = (entity?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
+    getInstitutions = (entity?: any) => {
+        if(this.institutions){
+            return of(this.institutions);
+        }else{
+            return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`).pipe(delay(10000));
+        }
+    }
 
     createEmptyStudy = (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp), patientDicomAttrs, this.dicomHeader);
 

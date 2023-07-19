@@ -1,10 +1,11 @@
-import {FilterSchema, LanguageObject, SelectDropdown} from "../interfaces";
+import {FilterSchema, FilterSchemaElement, LanguageObject, SelectDropdown} from "../interfaces";
 import {DicomTableSchema, DynamicPipe} from "../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 import {ContentDescriptionPipe} from "../pipes/content-description.pipe";
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
 declare var DCM4CHE: any;
 const sopObject = DCM4CHE.SOPClass.nameOf("all");
 import * as _ from "lodash-es";
+import {j4care} from "../helpers/j4care.service";
 
 export const MY_FORMATS = {
     parse: {
@@ -4102,17 +4103,7 @@ export class Globalvar {
                     ],
                     description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
-                }, {
-                    tag:"editable-multi-select",
-                    type:"text",
-                    optionsTree:[
-                        {
-                            options:institutions
-                        }
-                    ],
-                    filterKey:"InstitutionName",
-                    placeholder:$localize `:@@institution_name:Institution Name`
-                }, {
+                }, this.getInstitutionFilterSchemaElement(institutions), {
                     tag:"input",
                     type:"text",
                     filterKey:"StudyInstanceUID",
@@ -5048,17 +5039,7 @@ export class Globalvar {
                 filterKey:"allOfModalitiesInStudy",
                 text:$localize `:@@all_modalities_in_study:All of Modalities in Study`,
                 description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
-            }, {
-                tag:"editable-multi-select",
-                type:"text",
-                optionsTree:[
-                    {
-                        options:institutions
-                    }
-                ],
-                filterKey:"InstitutionName",
-                placeholder:$localize `:@@institution_name:Institution Name`
-            }, {
+            }, this.getInstitutionFilterSchemaElement(institutions), {
                 tag:"input",
                 type:"text",
                 filterKey:"InstitutionalDepartmentName",
@@ -5092,6 +5073,28 @@ export class Globalvar {
                 placeholder:$localize `:@@limit_of_studies:Limit of studies`
             }
         ];
+    }
+    static getInstitutionFilterSchemaElement(institutions):FilterSchemaElement{
+        if( j4care.isSet(institutions)){
+            return {
+                tag:"editable-multi-select",
+                type:"text",
+                optionsTree:[
+                    {
+                        options:institutions
+                    }
+                ],
+                filterKey:"InstitutionName",
+                placeholder:$localize `:@@institution_name:Institution Name`
+            };
+        }else{
+            return  {
+                tag:"input",
+                type:"text",
+                filterKey:"InstitutionName",
+                placeholder:$localize `:@@institution_name:Institution Name`
+            };
+        }
     }
     static DIFF_FILTER_SCHEMA(aets, attributeSet, institutions, hidden?):FilterSchema{
         if(hidden) {
@@ -5327,17 +5330,9 @@ export class Globalvar {
                 filterKey:"SendingApplicationEntityTitleOfSeries",
                 description:$localize `:@@sending_application_entity_title_of_series:Sending Application Entity Title of Series`,
                 placeholder:$localize `:@@sending_aet_of_series:Sending AET of Series`
-            }, {
-                tag:"editable-multi-select",
-                type:"text",
-                optionsTree:[
-                    {
-                        options:institutions
-                    }
-                ],
-                filterKey:"InstitutionName",
-                placeholder:$localize `:@@institution_name:Institution Name`
-            }, {
+            },
+            this.getInstitutionFilterSchemaElement(institutions),
+            {
                 tag:"input",
                 type:"text",
                 filterKey:"InstitutionalDepartmentName",
@@ -5801,17 +5796,9 @@ export class Globalvar {
                 filterKey:"SendingApplicationEntityTitleOfSeries",
                 description:$localize `:@@sending_application_entity_title_of_series:Sending Application Entity Title of Series`,
                 placeholder:$localize `:@@sending_aet_of_series:Sending AET of Series`
-            }, {
-                tag:"editable-multi-select",
-                type:"text",
-                optionsTree:[
-                    {
-                        options:institutions
-                    }
-                ],
-                filterKey:"InstitutionName",
-                placeholder:$localize `:@@institution_name:Institution Name`
-            }, {
+            },
+            this.getInstitutionFilterSchemaElement(institutions),
+            {
                 tag:"input",
                 type:"text",
                 filterKey:"InstitutionalDepartmentName",
