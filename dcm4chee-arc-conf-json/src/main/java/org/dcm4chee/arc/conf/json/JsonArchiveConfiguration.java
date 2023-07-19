@@ -515,13 +515,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmStorageID", st.getStorageID(), null);
             writer.writeNotNullOrDef("dcmURI", st.getStorageURIStr(), null);
             writer.writeNotDef("dcmArchiveSeriesAsTAR", st.isArchiveSeriesAsTAR(), false);
-            writer.writeNotNullOrDef("dcmStoragePathFormat",
-                    st.getStoragePathFormat(), StorageDescriptor.DEFAULT_PATH_FORMAT_STR);
+            writer.writeNotNullOrDef("dcmStoragePathFormat", st.getStoragePathFormat(), null);
             writer.writeNotNullOrDef("dcmOnStoragePathAlreadyExists",
                     st.getOnStoragePathAlreadyExists(), StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH);
             writer.writeNotDef("dcmRetryCreateDirectories", st.getRetryCreateDirectories(), 0);
             writer.writeNotDef("dcmAltCreateDirectories", st.isAltCreateDirectories(), false);
-            writer.writeNotNullOrDef("dcmCheckMountFilePath", st.getCheckMountFilePath(), "NO_MOUNT");
+            writer.writeNotNullOrDef("dcmCheckMountFilePath", st.getCheckMountFilePath(), null);
             writer.writeNotEmpty("dcmFileOpenOption", st.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
             writer.writeNotNullOrDef("dcmLocationStatus", st.getLocationStatus(), LocationStatus.OK);
             writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);

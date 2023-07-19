@@ -2677,15 +2677,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("dcmURI", descriptor.getStorageURIStr());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmArchiveSeriesAsTAR",
                 descriptor.isArchiveSeriesAsTAR(), false);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoragePathFormat",
-                descriptor.getStoragePathFormat(), StorageDescriptor.DEFAULT_PATH_FORMAT_STR);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoragePathFormat", descriptor.getStoragePathFormat(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOnStoragePathAlreadyExists",
                 descriptor.getOnStoragePathAlreadyExists(), StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryCreateDirectories", descriptor.getRetryCreateDirectories(), 0);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAltCreateDirectories",
                 descriptor.isAltCreateDirectories(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCheckMountFilePath",
-                descriptor.getCheckMountFilePath(), "NO_MOUNT");
+                descriptor.getCheckMountFilePath(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption",
                 descriptor.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLocationStatus",
@@ -2749,15 +2748,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 StorageDescriptor desc = new StorageDescriptor(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
                 desc.setStorageURIStr(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 desc.setArchiveSeriesAsTAR(LdapUtils.booleanValue(attrs.get("dcmArchiveSeriesAsTAR"), false));
-                desc.setStoragePathFormat(LdapUtils.stringValue(attrs.get("dcmStoragePathFormat"),
-                        StorageDescriptor.DEFAULT_PATH_FORMAT_STR));
+                desc.setStoragePathFormat(LdapUtils.stringValue(attrs.get("dcmStoragePathFormat"), null));
                 desc.setOnStoragePathAlreadyExists(
                         LdapUtils.enumValue(StorageDescriptor.OnStoragePathAlreadyExists.class,
                                 attrs.get("dcmOnStoragePathAlreadyExists"),
                                 StorageDescriptor.OnStoragePathAlreadyExists.RANDOM_PATH));
                 desc.setRetryCreateDirectories(LdapUtils.intValue(attrs.get("dcmRetryCreateDirectories"), 0));
                 desc.setAltCreateDirectories(LdapUtils.booleanValue(attrs.get("dcmAltCreateDirectories"), false));
-                desc.setCheckMountFilePath(LdapUtils.stringValue(attrs.get("dcmCheckMountFilePath"), "NO_MOUNT"));
+                desc.setCheckMountFilePath(LdapUtils.stringValue(attrs.get("dcmCheckMountFilePath"), null));
                 desc.setFileOpenOptions(toOpenOptions(LdapUtils.stringArray(attrs.get("dcmFileOpenOption"))));
                 desc.setLocationStatus(
                         LdapUtils.enumValue(LocationStatus.class, attrs.get("dcmLocationStatus"), LocationStatus.OK));
@@ -2855,9 +2853,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmArchiveSeriesAsTAR",
                 prev.isArchiveSeriesAsTAR(), desc.isArchiveSeriesAsTAR(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoragePathFormat",
-                prev.getStoragePathFormat(),
-                desc.getStoragePathFormat(),
-                StorageDescriptor.DEFAULT_PATH_FORMAT_STR);
+                prev.getStoragePathFormat(), desc.getStoragePathFormat(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmOnStoragePathAlreadyExists",
                 prev.getOnStoragePathAlreadyExists(),
                 desc.getOnStoragePathAlreadyExists(),
@@ -2867,7 +2863,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmAltCreateDirectories",
                 prev.isAltCreateDirectories(), desc.isAltCreateDirectories(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCheckMountFilePath",
-                prev.getCheckMountFilePath(), desc.getCheckMountFilePath(), "NO_MOUNT");
+                prev.getCheckMountFilePath(), desc.getCheckMountFilePath(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFileOpenOption",
                 prev.getFileOpenOptions(), desc.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLocationStatus",
