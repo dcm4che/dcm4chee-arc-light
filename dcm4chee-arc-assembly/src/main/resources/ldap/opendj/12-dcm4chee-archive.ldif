@@ -2257,7 +2257,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.463 NAME 'dcmLocationStatus'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.464 NAME 'dcmQStarVerificationPollingInterval'
-  DESC 'Polling Interval for Verification of Access State of objects stored on QStar Tape File System in ISO-8601 duration format PnDTnHnMnS. If absent, Access State of objects stored objects stored on QStar Tape File System will to be verified.'
+  DESC 'Polling Interval for Verification of Access State of objects stored on QStar Tape File System in ISO-8601 duration format PnDTnHnMnS. If absent, Access State of objects stored objects stored on QStar Tape File System will not be verified.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -2267,12 +2267,12 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.465 NAME 'dcmQStarVerificationFetchSize
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.466 NAME 'dcmQStarVerificationDelay'
-  DESC 'Delay for Verification of Access State after objects stored on QStar Tape File System in ISO-8601 duration format PnDTnHnMnS. If absent, Access State of objects stored objects stored on QStar Tape File System will to be verified.'
+  DESC 'Delay for Verification of Access State after objects stored on QStar Tape File System in ISO-8601 duration format PnDTnHnMnS. If absent, Access State of objects stored objects stored on QStar Tape File System will not be verified.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.467 NAME 'dcmQStarVerificationURL'
-  DESC 'URL of QStar Archive Storage Manager WEB Services - including username and password (http://username:password@qstar.host:port/) - invoked for Verification of Access State after objects stored on QStar Tape File System. If absent, Access State of objects stored objects stored on QStar Tape File System will to be verified.'
+  DESC 'URL of QStar Archive Storage Manager WEB Services - including username and password (http://username:password@qstar.host:port/) - invoked for Verification of Access State after objects stored on QStar Tape File System. If absent, Access State of objects stored objects stored on QStar Tape File System will not be verified.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
