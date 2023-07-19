@@ -322,9 +322,6 @@ public class Instance {
     @JoinColumn(name = "series_fk")
     private Series series;
 
-    @Column(name = "series_fk", insertable = false, updatable = false)
-    private Long seriesFk;
-
     @Override
     public String toString() {
         return "Instance[pk=" + pk
