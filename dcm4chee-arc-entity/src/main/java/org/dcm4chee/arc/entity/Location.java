@@ -107,6 +107,8 @@ import java.util.Date;
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
                 query = "select count(l) from Location l where l.uidMap=?1"),
+        @NamedQuery(name = Location.COUNT_BY_SERIES_PK_AND_NOT_STATUS,
+                query = "select count(l) from Location l where l.instance.series.pk=?1 and l.status!=?2"),
         @NamedQuery(name = Location.SET_DIGEST,
                 query = "update Location l set l.digest = ?2 where l.pk = ?1"),
         @NamedQuery(name = Location.SET_STATUS,
@@ -146,6 +148,7 @@ public class Location {
     public static final String FIND_BY_MULTI_REF = "Location.FindByMultiRef";
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
     public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
+    public static final String COUNT_BY_SERIES_PK_AND_NOT_STATUS = "Location.CountBySeriesPkAndNotStatus";
     public static final String SET_DIGEST = "Location.SetDigest";
     public static final String SET_STATUS = "Location.SetStatus";
     public static final String SET_STATUS_BY_MULTI_REF = "Location.SetStatusByMultiRef";

@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.metadata;
 
+import org.dcm4chee.arc.conf.LocationStatus;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Series;
 
@@ -64,6 +66,13 @@ public class UpdateMetadataEJB {
         return em.createNamedQuery(Series.SCHEDULED_METADATA_UPDATE, Series.MetadataUpdate.class)
                 .setMaxResults(fetchSize)
                 .getResultList();
+    }
+
+    public Long countLocationsNotStatusOK(Series.MetadataUpdate metadataUpdate) {
+        return em.createNamedQuery(Location.COUNT_BY_SERIES_PK_AND_NOT_STATUS, Long.class)
+                .setParameter(1, metadataUpdate.seriesPk)
+                .setParameter(2, LocationStatus.OK)
+                .getSingleResult();
     }
 
     public boolean claim(Series.MetadataUpdate metadataUpdate) {

@@ -65,7 +65,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import java.io.IOException;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -196,8 +195,16 @@ public class UpdateMetadataScheduler extends Scheduler {
 
     private void updateMetadata(ArchiveDeviceExtension arcDev, Storage storage, Series.MetadataUpdate metadataUpdate,
                                 AtomicInteger success, AtomicInteger skipped) {
+        if (!claim(metadataUpdate, storage)) {
+            skipped.getAndIncrement();
+            return;
+        }
+        if (!checkLocationStatus(metadataUpdate)) {
+            incrementMetadataUpdateFailure(arcDev, metadataUpdate);
+            return;
+        }
         try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
-            if (claim(metadataUpdate, storage) && retrieveService.calculateMatches(ctx)) {
+            if (retrieveService.calculateMatches(ctx)) {
                 LOG.debug("Creating/Updating Metadata for Series[pk={}] on {}",
                         metadataUpdate.seriesPk,
                         storage.getStorageDescriptor());
@@ -220,13 +227,7 @@ public class UpdateMetadataScheduler extends Scheduler {
                             metadataUpdate.seriesPk,
                             storage.getStorageDescriptor(),
                             e);
-                    try {
-                        ejb.incrementMetadataUpdateFailures(
-                                metadataUpdate.seriesPk,
-                                nextRetry(arcDev, metadataUpdate.updateFailures));
-                    } catch (Exception e1) {
-                        LOG.warn("Failed to update Metadata Update time", e1);
-                    }
+                    incrementMetadataUpdateFailure(arcDev, metadataUpdate);
                     try {
                         storage.revokeStorage(writeCtx);
                     } catch (Exception e1) {
@@ -243,6 +244,31 @@ public class UpdateMetadataScheduler extends Scheduler {
             }
         } catch (Exception e) {
             LOG.error("Unexpected exception on closing Retrieve Context for {}:\n", metadataUpdate, e);
+        }
+    }
+
+    private boolean checkLocationStatus(Series.MetadataUpdate metadataUpdate) {
+        try {
+            long count = ejb.countLocationsNotStatusOK(metadataUpdate);
+            if (count == 0L) return true;
+            LOG.info("Failed to Create/Update Metadata for Series[pk={}] caused by {} locations with status != OK.",
+                    metadataUpdate.seriesPk,
+                    count);
+        } catch (Exception e) {
+            LOG.warn("Failed to check Location Status of Series[pk={}]]:\n",
+                    metadataUpdate.seriesPk,
+                    e);
+        }
+        return false;
+    }
+
+    private void incrementMetadataUpdateFailure(ArchiveDeviceExtension arcDev, Series.MetadataUpdate metadataUpdate) {
+        try {
+            ejb.incrementMetadataUpdateFailures(
+                    metadataUpdate.seriesPk,
+                    nextRetry(arcDev, metadataUpdate.updateFailures));
+        } catch (Exception e1) {
+            LOG.warn("Failed to update Metadata Update time", e1);
         }
     }
 
