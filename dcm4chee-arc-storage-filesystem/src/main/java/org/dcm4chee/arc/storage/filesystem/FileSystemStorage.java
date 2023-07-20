@@ -171,7 +171,6 @@ public class FileSystemStorage extends AbstractStorage {
         Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
         Path dir = path.getParent();
         createDirectories(dir);
-        OutputStream stream = null;
         while (true)
             try {
                 ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
