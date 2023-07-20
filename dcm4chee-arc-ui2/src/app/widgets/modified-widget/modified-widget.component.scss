@@ -70,7 +70,7 @@ $height:27px;
     width: 100%;
     border:1px solid black;
     dcm-drop-down{
-      width:calc( 100% - 24px);
+      width:calc( 100% - 9px);
       float: left;
     }
     i.material-icons{
@@ -85,7 +85,7 @@ $height:27px;
 
 .content_block{
   display: block;
-  position: absolute;
+  position: fixed;
   background: white;
   z-index: 9999;
   box-shadow: 7px 10px 10px 5px #444;
@@ -94,6 +94,9 @@ $height:27px;
   border-top: 20px solid rgba(6, 29, 47, 0.84);
   border-top-right-radius: 5px;
   border-top-left-radius: 5px;
+  left: 50%;
+  top:50%;
+  transform: translate(-50%, -50%);
   h5{
     font-size: 18px;
   }
@@ -114,18 +117,22 @@ $height:27px;
     }
   }
   ul{
-    padding:0;
     list-style: none;
     float: left;
     max-height: 125px;
     overflow: auto;
     width: 100%;
+    padding: 3px;
+    &.not-empty{
+      border: 1px solid #6d6d6d;
+    }
     li{
       border: 1px solid;
       padding-left: 9px;
       float: left;
       width: 100%;
       vertical-align: middle;
+      margin-bottom: 2px;
       label{
         width:calc( 100% - 24px);
         float: left;
