@@ -257,7 +257,8 @@ public class ProcedureServiceImpl implements ProcedureService {
     public void deleteProcedure(ProcedureContext ctx) {
         ejb.deleteProcedure(ctx);
         if (ctx.getEventActionCode() != null) {
-            LOG.info("Successfully deleted MWLItem {} from database." + ctx.getSpsID());
+            LOG.info("Successfully deleted MWLItem [StudyUID={}, SPSID={}] from database.",
+                    ctx.getStudyInstanceUID(), ctx.getSpsID());
             procedureEvent.fire(ctx);
         }
     }
