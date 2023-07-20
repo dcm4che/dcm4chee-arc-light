@@ -2715,8 +2715,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.isAltCreateDirectories(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCheckMountFilePath",
                 descriptor.getCheckMountFilePath(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption",
-                descriptor.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption", descriptor.getFileOpenOptions());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLocationStatus",
                 descriptor.getLocationStatus(), LocationStatus.OK);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDigestAlgorithm",
@@ -2896,7 +2895,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCheckMountFilePath",
                 prev.getCheckMountFilePath(), desc.getCheckMountFilePath(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFileOpenOption",
-                prev.getFileOpenOptions(), desc.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
+                prev.getFileOpenOptions(), desc.getFileOpenOptions());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLocationStatus",
                 prev.getLocationStatus(), desc.getLocationStatus(), LocationStatus.OK);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
