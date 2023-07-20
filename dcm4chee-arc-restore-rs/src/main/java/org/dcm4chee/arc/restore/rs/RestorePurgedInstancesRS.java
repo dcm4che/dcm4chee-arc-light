@@ -153,20 +153,20 @@ public class RestorePurgedInstancesRS {
     }
 
     private Response restoreFailed(String studyUID, String seriesUID) {
-        return storeService.findInstancePurgeState(studyUID, seriesUID) == null
+        return storeService.countNotPurgedInstances(studyUID, seriesUID) == 0
                 ? notFound(studyUID, seriesUID)
                 : conflict(studyUID, seriesUID);
     }
 
     private Response conflict(String studyUID, String seriesUID) {
-        return errResponseAsTextPlain(seriesUID == null
+        return errResponse(seriesUID == null
                     ? "Instance records of none of the Series of the Study : " + studyUID + " are purged."
                     : "Instance records of the Series : " + seriesUID + " of Study : " + studyUID + " are not purged.",
                 Response.Status.CONFLICT);
     }
 
     private Response notFound(String studyUID, String seriesUID) {
-        return errResponseAsTextPlain(seriesUID == null
+        return errResponse(seriesUID == null
                         ? "No such Study : " + studyUID
                         : "No such Series : " + seriesUID + " or Study : " + studyUID,
                 Response.Status.NOT_FOUND);

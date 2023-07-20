@@ -174,14 +174,16 @@ import java.util.stream.Stream;
                 "and se.seriesInstanceUID = ?2 " +
                 "and se.instancePurgeState = ?3"),
 @NamedQuery(
-        name = Series.FIND_INSTANCE_PURGE_STATE_BY_STUDY,
-        query = "select se.instancePurgeState from Series se " +
-                "where se.study.studyInstanceUID = ?1"),
-@NamedQuery(
-        name = Series.FIND_INSTANCE_PURGE_STATE_BY_SERIES,
-        query = "select se.instancePurgeState from Series se " +
+        name = Series.COUNT_BY_STUDY_AND_NOT_PURGED,
+        query = "select count(se) from Series se " +
                 "where se.study.studyInstanceUID = ?1 " +
-                "and se.seriesInstanceUID = ?2"),
+                "and se.instancePurgeState != ?2"),
+@NamedQuery(
+        name = Series.COUNT_BY_SERIES_AND_NOT_PURGED,
+        query = "select count(se) from Series se " +
+                "where se.study.studyInstanceUID = ?1 " +
+                "and se.seriesInstanceUID = ?2 " +
+                "and se.instancePurgeState != ?3"),
 @NamedQuery(
         name=Series.COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE,
         query="select count(se) from Series se " +
@@ -360,8 +362,8 @@ public class Series {
     public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
     public static final String FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE = "Series.FindSeriesOfStudyByInstancePurgeState";
     public static final String FIND_BY_SERIES_IUID_AND_INSTANCE_PURGE_STATE = "Series.FindBySeriesIUIDAndInstancePurgeState";
-    public static final String FIND_INSTANCE_PURGE_STATE_BY_STUDY = "Series.FindInstancePurgeStateByStudy";
-    public static final String FIND_INSTANCE_PURGE_STATE_BY_SERIES = "Series.FindInstancePurgeStateBySeries";
+    public static final String COUNT_BY_STUDY_AND_NOT_PURGED = "Series.CountByStudyAndNotPurged";
+    public static final String COUNT_BY_SERIES_AND_NOT_PURGED = "Series.CountBySeriesAndNotPurged";
     public static final String COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE = "Series.countSeriesOfStudyWithOtherRejectionState";
     public static final String SERIES_IUIDS_OF_STUDY = "Series.seriesIUIDsOfStudy";
     public static final String SCHEDULED_METADATA_UPDATE = "Series.scheduledMetadataUpdate";

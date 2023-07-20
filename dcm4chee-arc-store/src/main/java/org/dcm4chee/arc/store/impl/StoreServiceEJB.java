@@ -405,19 +405,16 @@ public class StoreServiceEJB {
         return instList;
     }
 
-    public Integer findInstancePurgeState(String studyUID, String seriesUID) {
-        try {
-            return (seriesUID == null
-                        ? em.createNamedQuery(Series.FIND_INSTANCE_PURGE_STATE_BY_STUDY, Series.InstancePurgeState.class)
-                            .setParameter(1, studyUID)
-                        : em.createNamedQuery(Series.FIND_INSTANCE_PURGE_STATE_BY_SERIES, Series.InstancePurgeState.class)
-                            .setParameter(1, studyUID)
-                            .setParameter(2, seriesUID))
-                    .getSingleResult()
-                    .ordinal();
-        } catch (NoResultException e) {
-            return null;
-        }
+    public Long countNotPurgedInstances(String studyUID, String seriesUID) {
+        return (seriesUID == null
+                ? em.createNamedQuery(Series.COUNT_BY_STUDY_AND_NOT_PURGED, Long.class)
+                    .setParameter(1, studyUID)
+                    .setParameter(2, Series.InstancePurgeState.PURGED)
+                : em.createNamedQuery(Series.COUNT_BY_SERIES_AND_NOT_PURGED, Long.class)
+                    .setParameter(1, studyUID)
+                    .setParameter(2, seriesUID)
+                    .setParameter(3, Series.InstancePurgeState.PURGED))
+                .getSingleResult();
     }
 
     private void restoreInstances(StoreSession session, Series series, String studyUID, Duration duration,
