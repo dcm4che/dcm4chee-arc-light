@@ -842,8 +842,8 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Long countNotPurgedInstances(String studyUID, String seriesUID) {
-        return ejb.countNotPurgedInstances(studyUID, seriesUID);
+    public int countSeries(String studyUID, String seriesUID) {
+        return ejb.countSeries(studyUID, seriesUID);
     }
 
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {

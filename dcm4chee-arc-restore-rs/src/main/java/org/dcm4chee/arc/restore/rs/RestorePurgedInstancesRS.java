@@ -153,7 +153,7 @@ public class RestorePurgedInstancesRS {
     }
 
     private Response restoreFailed(String studyUID, String seriesUID) {
-        return storeService.countNotPurgedInstances(studyUID, seriesUID) == 0
+        return storeService.countSeries(studyUID, seriesUID) == 0
                 ? notFound(studyUID, seriesUID)
                 : conflict(studyUID, seriesUID);
     }

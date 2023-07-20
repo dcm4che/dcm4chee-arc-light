@@ -125,7 +125,7 @@ public interface StoreService {
     List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
             throws IOException;
 
-    Long countNotPurgedInstances(String studyUID, String seriesUID);
+    int countSeries(String studyUID, String seriesUID);
 
     List<String> studyIUIDsByAccessionNo(String accNo);
 
