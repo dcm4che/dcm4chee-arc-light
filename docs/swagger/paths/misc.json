@@ -314,7 +314,7 @@
     }
   },
   "series.restore": {
-    "put": {
+    "post": {
       "tags": [
         "RESTORE-RS"
       ],
