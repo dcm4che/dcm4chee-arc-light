@@ -67,14 +67,14 @@ public class QStarVerificationEJB {
     }
 
     public int setLocationStatus(Long pk, LocationStatus status) {
-        return em.createNamedQuery(Location.SET_STATUS, Location.class)
+        return em.createNamedQuery(Location.SET_STATUS)
                 .setParameter(1, pk)
                 .setParameter(2, status)
                 .executeUpdate();
     }
 
     public int setLocationStatusByMultiRef(Integer multiRef, LocationStatus status) {
-        return em.createNamedQuery(Location.SET_STATUS_BY_MULTI_REF, Location.class)
+        return em.createNamedQuery(Location.SET_STATUS_BY_MULTI_REF)
                 .setParameter(1, multiRef)
                 .setParameter(2, status)
                 .executeUpdate();
