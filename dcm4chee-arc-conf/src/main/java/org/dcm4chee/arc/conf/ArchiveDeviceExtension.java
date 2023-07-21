@@ -247,6 +247,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Attributes.UpdatePolicy copyMoveUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
     private volatile Attributes.UpdatePolicy linkMWLEntryUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
     private volatile boolean hl7TrackChangedPatientID = true;
+    private volatile boolean identifyPatientByOtherPatientIDs;
     private volatile boolean auditSoftwareConfigurationVerbose = false;
     private volatile boolean hl7UseNullValue = false;
 
@@ -2564,6 +2565,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.linkMWLEntryUpdatePolicy = linkMWLEntryUpdatePolicy;
     }
 
+    public boolean isIdentifyPatientByOtherPatientIDs() {
+        return identifyPatientByOtherPatientIDs;
+    }
+
+    public void setIdentifyPatientByOtherPatientIDs(boolean identifyPatientByOtherPatientIDs) {
+        this.identifyPatientByOtherPatientIDs = identifyPatientByOtherPatientIDs;
+    }
+
     public boolean isHL7TrackChangedPatientID() {
         return hl7TrackChangedPatientID;
     }
@@ -3605,6 +3614,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
         linkMWLEntryUpdatePolicy = arcdev.linkMWLEntryUpdatePolicy;
+        identifyPatientByOtherPatientIDs = arcdev.identifyPatientByOtherPatientIDs;
         hl7TrackChangedPatientID = arcdev.hl7TrackChangedPatientID;
         hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
         hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;

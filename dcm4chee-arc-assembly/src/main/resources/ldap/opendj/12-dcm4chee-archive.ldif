@@ -2286,6 +2286,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.469 NAME 'dcmCountLocationsByStatus'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.470 NAME 'dcmIdentifyPatientByOtherPatientIDs'
+  DESC 'Indicate to use multiple Patient IDs - provided in the Other Patient ID Sequence of DICOM objects or in repeating PID-3 Patient Identifier List fields in HL7 v2 messages - for Patient Identification. If false or absent, only the primary Patient ID of DICOM objects and only the first - or with the Assigning Authority specified by hl7PrimaryAssigningAuthorityOfPatientID - in repeating PID-3 Patient Identifier List fields in HL7 v2 messages will be used.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2340,6 +2345,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAcceptMissingPatientID $
     dcmAcceptConflictingPatientID $
     dcmRejectConflictingPatientAttribute $
+    dcmIdentifyPatientByOtherPatientIDs $
     hl7TrackChangedPatientID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
