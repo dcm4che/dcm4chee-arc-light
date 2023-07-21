@@ -47,6 +47,7 @@ import org.dcm4chee.arc.entity.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashSet;
@@ -57,6 +58,7 @@ import java.util.Set;
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Jun 2023
  */
+@ApplicationScoped
 public class QStarVerificationScheduler extends Scheduler {
     private static final Logger LOG = LoggerFactory.getLogger(QStarVerificationScheduler.class);
 
