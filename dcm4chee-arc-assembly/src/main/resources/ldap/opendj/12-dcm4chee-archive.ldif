@@ -2287,7 +2287,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.469 NAME 'dcmCountLocationsByStatus'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.470 NAME 'dcmIdentifyPatientByOtherPatientIDs'
-  DESC 'Indicate to use multiple Patient IDs - provided in the Other Patient ID Sequence of DICOM objects or in repeating PID-3 Patient Identifier List fields in HL7 v2 messages - for Patient Identification. If false or absent, only the primary Patient ID of DICOM objects and only the first - or with the Assigning Authority specified by hl7PrimaryAssigningAuthorityOfPatientID - in repeating PID-3 Patient Identifier List fields in HL7 v2 messages will be used.'
+  DESC 'Indicates to use multiple Patient IDs - provided in the Other Patient ID Sequence of DICOM objects or in repeating PID-3 Patient Identifier List field in HL7 v2 messages - for Patient Identification. If false, only the primary patient identifier of DICOM objects or for HL7 messages (with repeating patient identifiers in PID-3) only the patient identifier picked by Assigning Authority specified in hl7PrimaryAssigningAuthorityOfPatientID, will be used.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
