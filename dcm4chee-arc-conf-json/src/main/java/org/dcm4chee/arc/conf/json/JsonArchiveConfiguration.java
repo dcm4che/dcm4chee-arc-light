@@ -437,6 +437,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmQStarVerificationURL", arcDev.getQStarVerificationURL(), null);
         writer.writeNotNullOrDef("dcmQStarVerificationMockAccessState",
                 arcDev.getQStarVerificationMockAccessState(), null);
+        writer.writeNotDef("dcmIdentifyPatientByOtherPatientIDs",
+                arcDev.isIdentifyPatientByOtherPatientIDs(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -2172,6 +2174,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmQStarVerificationMockAccessState":
                     arcDev.setQStarVerificationMockAccessState(reader.intValue());
+                    break;
+                case "dcmIdentifyPatientByOtherPatientIDs":
+                    arcDev.setIdentifyPatientByOtherPatientIDs(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
