@@ -531,6 +531,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmCheckMountFilePath", st.getCheckMountFilePath(), null);
             writer.writeNotEmpty("dcmFileOpenOption", st.getFileOpenOptions());
             writer.writeNotNullOrDef("dcmLocationStatus", st.getLocationStatus(), LocationStatus.OK);
+            writer.writeNotDef("dcmCountLocationsByStatus", st.isCountLocationsByStatus(), false);
             writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);
             writer.writeNotNullOrDef("dcmInstanceAvailability",
                     st.getInstanceAvailability(), Availability.ONLINE);
@@ -2390,6 +2391,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmLocationStatus":
                         st.setLocationStatus(LocationStatus.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmCountLocationsByStatus":
+                        st.setCountLocationsByStatus(reader.booleanValue());
                         break;
                     case "dcmDigestAlgorithm":
                         st.setDigestAlgorithm(reader.stringValue());

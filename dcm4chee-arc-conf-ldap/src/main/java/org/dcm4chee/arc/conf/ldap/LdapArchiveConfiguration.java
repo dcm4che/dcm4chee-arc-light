@@ -2718,6 +2718,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption", descriptor.getFileOpenOptions());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLocationStatus",
                 descriptor.getLocationStatus(), LocationStatus.OK);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmCountLocationsByStatus",
+                descriptor.isCountLocationsByStatus(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDigestAlgorithm",
                 descriptor.getDigestAlgorithm(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInstanceAvailability",
@@ -2789,6 +2791,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setFileOpenOptions(toOpenOptions(LdapUtils.stringArray(attrs.get("dcmFileOpenOption"))));
                 desc.setLocationStatus(
                         LdapUtils.enumValue(LocationStatus.class, attrs.get("dcmLocationStatus"), LocationStatus.OK));
+                desc.setCountLocationsByStatus(LdapUtils.booleanValue(attrs.get("dcmCountLocationsByStatus"), false));
                 desc.setDigestAlgorithm(LdapUtils.stringValue(attrs.get("dcmDigestAlgorithm"), null));
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
@@ -2898,6 +2901,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getFileOpenOptions(), desc.getFileOpenOptions());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLocationStatus",
                 prev.getLocationStatus(), desc.getLocationStatus(), LocationStatus.OK);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCountLocationsByStatus",
+                prev.isCountLocationsByStatus(), desc.isCountLocationsByStatus(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageDuration",
