@@ -120,8 +120,8 @@ export class ModifiedWidgetComponent implements OnInit {
       }
       //this.stateText = Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", ");
       this.stateTextHover = Array.from(this.modifiedAttr.values()).map(kode=>this.studyService.getLabelFromIODTag(kode)).join(", ");
+      this.selectorOpen = false;
     }
-    this.selectorOpen = false;
   }
   clear(){
     this.modifiedAttr.clear();

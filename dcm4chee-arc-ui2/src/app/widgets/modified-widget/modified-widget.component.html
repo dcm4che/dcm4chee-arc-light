@@ -58,7 +58,7 @@
                     </ng-container>-->
                 </div>
                 <div class="dialogbuttons">
-                    <button class="set_button save" (click)="setFilter()" i18n="@@Set">Set</button>
+                    <button class="set_button save"  [disabled]="!(modifiedAttr && modifiedAttr.size > 0)" (click)="setFilter()" i18n="@@Set">Set</button>
                     <button class="cancle" type="button" (click)="clear()" i18n="@@Clear">Clear</button>
                 </div>
             </div>

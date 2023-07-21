@@ -24,8 +24,9 @@
         border: 0;
         padding-left: 0;
         height: 30px;
-        border-bottom: 1px solid #ccc;
+        //border-bottom: 1px solid #ccc;
         outline: none;
+        background:transparent;
         &:focus{
           outline: none;
         }

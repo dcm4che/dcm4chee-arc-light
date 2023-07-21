@@ -3638,6 +3638,9 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
       &.active{
         font-style: normal;
       }
+      span{
+        padding-left:4px;
+      }
     }
     .mat-select-placeholder {
       font-style: italic;
