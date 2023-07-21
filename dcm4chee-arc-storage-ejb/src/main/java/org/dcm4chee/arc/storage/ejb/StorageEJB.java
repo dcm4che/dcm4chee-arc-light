@@ -38,29 +38,28 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.conf;
+package org.dcm4chee.arc.storage.ejb;
+
+import org.dcm4chee.arc.entity.Location;
+
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
  * @since Jul 2023
  */
-public enum LocationStatus {
-    OK,                                     // 0
-    TO_DELETE,                              // 1
-    FAILED_TO_DELETE,                       // 2
-    MISSING_OBJECT,                         // 3
-    FAILED_TO_FETCH_METADATA,               // 4
-    FAILED_TO_FETCH_OBJECT,                 // 5
-    DIFFERING_OBJECT_SIZE,                  // 6
-    DIFFERING_OBJECT_CHECKSUM,              // 7
-    DIFFERING_S3_MD5SUM,                    // 8
-    FAILED_TO_DELETE2,                      // 9
-    ORPHANED,                               // 10
-    VERIFY_QSTAR_ACCESS_STATE,              // 11
-    QSTAR_ACCESS_STATE_NONE,                // 12
-    QSTAR_ACCESS_STATE_EMPTY,               // 13
-    QSTAR_ACCESS_STATE_UNSTABLE,            // 14
-    QSTAR_ACCESS_STATE_OUT_OF_CACHE,        // 15
-    QSTAR_ACCESS_STATE_OFFLINE,             // 16
-    QSTAR_ACCESS_STATE_ERROR_STATUS         // 17
+@Stateless
+public class StorageEJB {
+
+    @PersistenceContext(unitName="dcm4chee-arc")
+    private EntityManager em;
+
+    public List<Location.StatusCounts> locationStatusCounts(String storageID) {
+        return em.createNamedQuery(Location.STATUS_COUNTS_BY_STORAGE_ID, Location.StatusCounts.class)
+                .setParameter(1, storageID)
+                .getResultList();
+    }
 }

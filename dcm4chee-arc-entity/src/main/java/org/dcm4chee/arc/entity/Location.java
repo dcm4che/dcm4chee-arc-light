@@ -120,7 +120,12 @@ import java.util.Date;
         @NamedQuery(name = Location.DELETE_BY_PK,
                 query = "delete from Location l where l.pk = ?1"),
         @NamedQuery(name = Location.EXISTS,
-                query = "select l.pk from Location l where l.pk = ?1")
+                query = "select l.pk from Location l where l.pk = ?1"),
+        @NamedQuery(name = Location.STATUS_COUNTS_BY_STORAGE_ID,
+                query = "select new org.dcm4chee.arc.entity.Location$StatusCounts(l.status, count(l)) " +
+                        "from Location l " +
+                        "where l.storageID = ?1 and l.status != org.dcm4chee.arc.conf.LocationStatus.OK " +
+                        "group by l.status")
 })
 @NamedNativeQueries({
         @NamedNativeQuery(name = Location.SIZE_OF_SERIES,
@@ -156,8 +161,19 @@ public class Location {
     public static final String DELETE_BY_PK = "Location.DeleteByPk";
     public static final String SIZE_OF_SERIES = "Location.SizeOfSeries";
     public static final String EXISTS = "Location.Exists";
+    public static final String STATUS_COUNTS_BY_STORAGE_ID = "Location.StatusCountsByStorageID";
 
     public enum ObjectType { DICOM_FILE, METADATA }
+
+    public static class StatusCounts {
+        public final LocationStatus status;
+        public final long count;
+
+        public StatusCounts(LocationStatus status, long count) {
+            this.status = status;
+            this.count = count;
+        }
+    }
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

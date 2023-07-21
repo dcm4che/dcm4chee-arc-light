@@ -573,6 +573,7 @@
     <module>dcm4chee-arc-stgcmt-rs</module>
     <module>dcm4chee-arc-storage</module>
     <module>dcm4chee-arc-storage-cloud</module>
+    <module>dcm4chee-arc-storage-ejb</module>
     <module>dcm4chee-arc-storage-emc-ecs</module>
     <module>dcm4chee-arc-storage-filesystem</module>
     <module>dcm4chee-arc-storage-rs</module>

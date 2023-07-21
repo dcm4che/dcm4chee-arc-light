@@ -74,6 +74,7 @@ public final class StorageDescriptor {
     private boolean altCreateDirectories;
     private int retryCreateDirectories;
     private boolean archiveSeriesAsTAR;
+    private boolean countLocationsByStatus;
     private LocationStatus locationStatus = LocationStatus.OK;
     private String digestAlgorithm;
     private int maxRetries;
@@ -183,6 +184,14 @@ public final class StorageDescriptor {
 
     public void setArchiveSeriesAsTAR(boolean archiveSeriesAsTAR) {
         this.archiveSeriesAsTAR = archiveSeriesAsTAR;
+    }
+
+    public boolean isCountLocationsByStatus() {
+        return countLocationsByStatus;
+    }
+
+    public void setCountLocationsByStatus(boolean countLocationsByStatus) {
+        this.countLocationsByStatus = countLocationsByStatus;
     }
 
     public LocationStatus getLocationStatus() {

@@ -2238,7 +2238,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.459 NAME 'dcmRetryCreateDirectories'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.460 NAME 'dcmAltCreateDirectories'
-  DESC 'Indicate to not rely on "createDirectories" function in "java.nio.file.Files" Java class, to create all nonexistent parent directories first, but instead explicitly create parent directories if NoSuchFileException is thrown. May workaround issues concerning NFS.'
+  DESC 'Indicate to not rely on "createDirectories" function in "java.nio.file.Files" Java class, to create all nonexistent parent directories first, but instead explicitly create parent directories if NoSuchFileException is thrown. May workaround issues concerning NFS. false if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -2280,6 +2280,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.468 NAME 'dcmQStarVerificationMockAcces
   DESC 'Indicates to mock invoke of QStar Archive Storage Manager (ASM) WEB Services by return of specified Access State (0 - ACCESS_STATE_NONE, 1 - ACCESS_STATE_EMPTY, 2 - ACCESS_STATE_UNSTABLE, 3 - ACCESS_STATE_STABLE, 4 - ACCESS_STATE_OUT_OF_CACHE, 5 - ACCESS_STATE_OFFLINE, -1 - simulate error response) for testing.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.469 NAME 'dcmCountLocationsByStatus'
+  DESC 'Indicate to include counts of locations with status != 0 (=OK) for this Storage System by RESTful service to list Storage Systems; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -2750,6 +2755,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmURI )
   MAY (
     dcmArchiveSeriesAsTAR $
+    dcmCountLocationsByStatus $
     dcmStoragePathFormat $
     dcmOnStoragePathAlreadyExists $
     dcmRetryCreateDirectories $

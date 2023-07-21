@@ -46,8 +46,10 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.storage.ejb.StorageEJB;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +83,9 @@ public class StorageRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private StorageEJB storageEJB;
 
     @Inject
     private StorageFactory storageFactory;
@@ -121,7 +126,7 @@ public class StorageRS {
             return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                getStorageSystems().forEach(ss -> {
+                for (StorageSystem ss : getStorageSystems()) {
                     StorageDescriptor desc = ss.desc;
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
@@ -155,10 +160,15 @@ public class StorageRS {
                     writer.writeNotEmpty("dcmDeleteStudiesNotUsedSince",
                             desc.getRetentionPeriodsAsStrings(RetentionPeriod.DeleteStudies.NotUsedSince));
                     writer.writeNotEmpty("usages", ss.usages);
+                    if (desc.isCountLocationsByStatus()) {
+                        for (Location.StatusCounts lsc : storageEJB.locationStatusCounts(desc.getStorageID())) {
+                            gen.write("status." + lsc.status, lsc.count);
+                        }
+                    }
                     gen.write("usableSpace", ss.usableSpace);
                     gen.write("totalSpace", ss.totalSpace);
                     gen.writeEnd();
-                });
+                }
                 gen.writeEnd();
                 gen.flush();
             }).build();
