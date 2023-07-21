@@ -17,6 +17,29 @@
       "VERIFICATION_FAILED"
     ]
   },
+  "locationStatus": {
+    "type": "string",
+    "enum": [
+      "OK",
+      "TO_DELETE",
+      "FAILED_TO_DELETE",
+      "MISSING_OBJECT",
+      "FAILED_TO_FETCH_METADATA",
+      "FAILED_TO_FETCH_OBJECT",
+      "DIFFERING_OBJECT_SIZE",
+      "DIFFERING_OBJECT_CHECKSUM",
+      "DIFFERING_S3_MD5SUM",
+      "FAILED_TO_DELETE2",
+      "ORPHANED",
+      "VERIFY_QSTAR_ACCESS_STATE",
+      "QSTAR_ACCESS_STATE_NONE",
+      "QSTAR_ACCESS_STATE_EMPTY",
+      "QSTAR_ACCESS_STATE_UNSTABLE",
+      "QSTAR_ACCESS_STATE_OUT_OF_CACHE",
+      "QSTAR_ACCESS_STATE_OFFLINE",
+      "QSTAR_ACCESS_STATE_ERROR_STATUS"
+    ]
+  },
   "linkStrategy": {
     "type": "string",
     "enum": [

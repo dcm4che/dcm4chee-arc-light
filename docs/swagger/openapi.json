@@ -115,6 +115,10 @@
       "description": "Archive Monitoring"
     },
     {
+      "name": "STORAGE-RS",
+      "description": "Storage System Management"
+    },
+    {
       "name": "MWL-RS",
       "description": "Modality Worklist Management"
     },
@@ -815,6 +819,9 @@
     },
     "/storage": {
       "$ref": "paths/config.json#/storage"
+    },
+    "/storage/{storageID}/changestatus": {
+      "$ref": "paths/misc.json#/storageChangeStatus"
     },
     "/token2/{webAppName}": {
       "$ref": "paths/misc.json#/token.webapp"

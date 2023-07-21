@@ -1010,6 +1010,24 @@
       "$ref": "schemas.json#/patientVerificationStatus"
     }
   },
+  "fromLocationStatus": {
+    "name": "from",
+    "in": "query",
+    "required": true,
+    "description": "change location status from this value",
+    "schema": {
+      "$ref": "schemas.json#/locationStatus"
+    }
+  },
+  "toLocationStatus": {
+    "name": "to",
+    "in": "query",
+    "required": true,
+    "description": "change location status to that value",
+    "schema": {
+      "$ref": "schemas.json#/locationStatus"
+    }
+  },
   "merged": {
     "name": "merged",
     "in": "query",

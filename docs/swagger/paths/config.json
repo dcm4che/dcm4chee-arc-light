@@ -953,7 +953,7 @@
   "storage": {
     "get": {
       "tags": [
-        "CONFIG-RS"
+        "STORAGE-RS"
       ],
       "summary": "List Storage Systems",
       "operationId": "listStorageSystems",

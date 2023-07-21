@@ -117,6 +117,8 @@ import java.util.Date;
                 query = "update Location l set l.status = ?2 where l.multiReference = ?1"),
         @NamedQuery(name = Location.UPDATE_STATUS_FROM,
                 query = "update Location l set l.status = ?3 where l.pk = ?1 and l.status = ?2"),
+        @NamedQuery(name = Location.UPDATE_STATUS_BY_STORAGE_ID_FROM,
+                query = "update Location l set l.status = ?3 where l.storageID = ?1 and l.status = ?2"),
         @NamedQuery(name = Location.DELETE_BY_PK,
                 query = "delete from Location l where l.pk = ?1"),
         @NamedQuery(name = Location.EXISTS,
@@ -158,6 +160,7 @@ public class Location {
     public static final String SET_STATUS = "Location.SetStatus";
     public static final String SET_STATUS_BY_MULTI_REF = "Location.SetStatusByMultiRef";
     public static final String UPDATE_STATUS_FROM = "Location.UpdateStatusFrom";
+    public static final String UPDATE_STATUS_BY_STORAGE_ID_FROM = "Location.UpdateStatusByStorageIDFrom";
     public static final String DELETE_BY_PK = "Location.DeleteByPk";
     public static final String SIZE_OF_SERIES = "Location.SizeOfSeries";
     public static final String EXISTS = "Location.Exists";

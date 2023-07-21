@@ -662,5 +662,36 @@
         }
       }
     }
+  },
+  "storageChangeStatus": {
+    "post": {
+      "tags": [
+        "STORAGE-RS"
+      ],
+      "summary": "Change Status of Locations on Storage System",
+      "operationId": "storageChangeStatus",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/storageIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/fromLocationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/toLocationStatus"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
   }
 }

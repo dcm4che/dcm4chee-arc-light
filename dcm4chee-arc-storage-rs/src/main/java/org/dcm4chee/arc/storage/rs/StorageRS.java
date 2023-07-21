@@ -178,6 +178,58 @@ public class StorageRS {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
+    @POST
+    @Path("/{storageID}/changestatus")
+    @Produces("application/json")
+    public Response changeStatus(
+            @PathParam("storageID") String storageID,
+            @Pattern(regexp = "OK" +
+                    "|TO_DELETE" +
+                    "|FAILED_TO_DELETE" +
+                    "|MISSING_OBJECT" +
+                    "|FAILED_TO_FETCH_METADATA" +
+                    "|FAILED_TO_FETCH_OBJECT" +
+                    "|DIFFERING_OBJECT_SIZE" +
+                    "|DIFFERING_OBJECT_CHECKSUM" +
+                    "|DIFFERING_S3_MD5SUM" +
+                    "|FAILED_TO_DELETE2" +
+                    "|ORPHANED" +
+                    "|VERIFY_QSTAR_ACCESS_STATE" +
+                    "|QSTAR_ACCESS_STATE_NONE" +
+                    "|QSTAR_ACCESS_STATE_EMPTY" +
+                    "|QSTAR_ACCESS_STATE_UNSTABLE" +
+                    "|QSTAR_ACCESS_STATE_OUT_OF_CACHE" +
+                    "|QSTAR_ACCESS_STATE_OFFLINE" +
+                    "|QSTAR_ACCESS_STATE_ERROR_STATUS")
+            @QueryParam("from") String from,
+            @Pattern(regexp = "OK" +
+                    "|TO_DELETE" +
+                    "|FAILED_TO_DELETE" +
+                    "|MISSING_OBJECT" +
+                    "|FAILED_TO_FETCH_METADATA" +
+                    "|FAILED_TO_FETCH_OBJECT" +
+                    "|DIFFERING_OBJECT_SIZE" +
+                    "|DIFFERING_OBJECT_CHECKSUM" +
+                    "|DIFFERING_S3_MD5SUM" +
+                    "|FAILED_TO_DELETE2" +
+                    "|ORPHANED" +
+                    "|VERIFY_QSTAR_ACCESS_STATE" +
+                    "|QSTAR_ACCESS_STATE_NONE" +
+                    "|QSTAR_ACCESS_STATE_EMPTY" +
+                    "|QSTAR_ACCESS_STATE_UNSTABLE" +
+                    "|QSTAR_ACCESS_STATE_OUT_OF_CACHE" +
+                    "|QSTAR_ACCESS_STATE_OFFLINE" +
+                    "|QSTAR_ACCESS_STATE_ERROR_STATUS")
+            @QueryParam("to") String to) {
+        logRequest();
+        try {
+            return Response.ok("{\"count\":" +
+                    storageEJB.updateStatus(storageID, LocationStatus.valueOf(from), LocationStatus.valueOf(to)) +
+                    '}').build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}",

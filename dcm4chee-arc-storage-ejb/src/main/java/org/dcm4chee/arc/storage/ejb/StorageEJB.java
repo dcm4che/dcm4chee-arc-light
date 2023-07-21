@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.storage.ejb;
 
+import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.entity.Location;
 
 import javax.ejb.Stateless;
@@ -61,5 +62,12 @@ public class StorageEJB {
         return em.createNamedQuery(Location.STATUS_COUNTS_BY_STORAGE_ID, Location.StatusCounts.class)
                 .setParameter(1, storageID)
                 .getResultList();
+    }
+    public long updateStatus(String storageID, LocationStatus from, LocationStatus to) {
+        return em.createNamedQuery(Location.UPDATE_STATUS_BY_STORAGE_ID_FROM)
+                .setParameter(1, storageID)
+                .setParameter(2, from)
+                .setParameter(3, to)
+                .executeUpdate();
     }
 }
