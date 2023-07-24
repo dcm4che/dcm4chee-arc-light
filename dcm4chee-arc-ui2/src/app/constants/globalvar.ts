@@ -5034,18 +5034,23 @@ export class Globalvar {
                 ],
                 filterKey:"ModalitiesInStudy",
                 placeholder:$localize `:@@modality:Modality`,
-            }, {
+                description:$localize `:@@modality_desc:Return studies which have series with ANY of the selected modalities. If 'All of Modalities in Study' filter is checked, returns studies which have series with ALL selected modalities`,
+            },
+            {
                 tag:"checkbox",
                 filterKey:"allOfModalitiesInStudy",
                 text:$localize `:@@all_modalities_in_study:All of Modalities in Study`,
-                description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
-            }, this.getInstitutionFilterSchemaElement(institutions), {
+                description:$localize `:@@all_modalities_in_study_desc:Return studies which have series with ALL modalities specified by 'Modality' filter. Effectively applicable when 2 or more modalities are set in 'Modality' filter`
+            },
+            this.getInstitutionFilterSchemaElement(institutions),
+            {
                 tag:"input",
                 type:"text",
                 filterKey:"InstitutionalDepartmentName",
                 description:$localize `:@@institutional_department_name:Institutional Department Name`,
                 placeholder:$localize `:@@institutional_department_name:Institutional Department Name`
-            }, {
+            },
+            {
                 tag:"editable-multi-select",
                 type:"text",
                 optionsTree:[
@@ -5318,7 +5323,7 @@ export class Globalvar {
                     }
                 ],
                 filterKey:"ModalitiesInStudy",
-                placeholder:$localize `:@@modality:Modality`,
+                placeholder:$localize `:@@modality:Modality`
             }, {
                 tag:"editable-multi-select",
                 type:"text",
