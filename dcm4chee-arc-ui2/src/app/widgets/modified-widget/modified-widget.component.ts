@@ -96,7 +96,7 @@ export class ModifiedWidgetComponent implements OnInit {
   }
   changeAllModified(e){
     this.allModified = e.target.checked;
-    if(this.allModified){
+    if(this.allModified && this.modifiedAttr.size > 0){
       this.stateText = "All modified";
       this.stateTextHover = "All modified";
     }else{
