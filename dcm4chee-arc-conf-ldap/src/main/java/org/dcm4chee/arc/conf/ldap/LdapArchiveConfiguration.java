@@ -551,8 +551,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getQStarVerificationURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmQStarVerificationMockAccessState",
                 ext.getQStarVerificationMockAccessState(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmIdentifyPatientByOtherPatientIDs",
-                ext.isIdentifyPatientByOtherPatientIDs(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmTrustedIssuerOfPatientID",
+                ext.getTrustedIssuerOfPatientID());
     }
 
     @Override
@@ -906,8 +906,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQStarVerificationURL(LdapUtils.stringValue(attrs.get("dcmQStarVerificationURL"), null));
         ext.setQStarVerificationMockAccessState(
                 LdapUtils.intValue(attrs.get("dcmQStarVerificationMockAccessState"), null));
-        ext.setIdentifyPatientByOtherPatientIDs(
-                LdapUtils.booleanValue(attrs.get("dcmIdentifyPatientByOtherPatientIDs"), false));
+        ext.setTrustedIssuerOfPatientID(toIssuers(LdapUtils.stringArray(attrs.get("dcmTrustedIssuerOfPatientID"))));
     }
 
     @Override
@@ -1571,10 +1570,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getQStarVerificationURL(), bb.getQStarVerificationURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQStarVerificationMockAccessState",
                 aa.getQStarVerificationMockAccessState(), bb.getQStarVerificationMockAccessState(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmIdentifyPatientByOtherPatientIDs",
-                aa.isIdentifyPatientByOtherPatientIDs(),
-                bb.isIdentifyPatientByOtherPatientIDs(),
-                false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmTrustedIssuerOfPatientID",
+                aa.getTrustedIssuerOfPatientID(),
+                bb.getTrustedIssuerOfPatientID());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

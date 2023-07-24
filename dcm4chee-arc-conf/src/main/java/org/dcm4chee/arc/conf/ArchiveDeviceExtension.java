@@ -247,7 +247,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Attributes.UpdatePolicy copyMoveUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
     private volatile Attributes.UpdatePolicy linkMWLEntryUpdatePolicy = Attributes.UpdatePolicy.PRESERVE;
     private volatile boolean hl7TrackChangedPatientID = true;
-    private volatile boolean identifyPatientByOtherPatientIDs;
     private volatile boolean auditSoftwareConfigurationVerbose = false;
     private volatile boolean hl7UseNullValue = false;
 
@@ -300,6 +299,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String qStarVerificationPassword;
     private volatile String qStarVerificationURLwoUserInfo;
     private volatile Integer qStarVerificationMockAccessState;
+    private volatile Issuer[] trustedIssuerOfPatientID;
     private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
     private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
@@ -2565,14 +2565,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.linkMWLEntryUpdatePolicy = linkMWLEntryUpdatePolicy;
     }
 
-    public boolean isIdentifyPatientByOtherPatientIDs() {
-        return identifyPatientByOtherPatientIDs;
-    }
-
-    public void setIdentifyPatientByOtherPatientIDs(boolean identifyPatientByOtherPatientIDs) {
-        this.identifyPatientByOtherPatientIDs = identifyPatientByOtherPatientIDs;
-    }
-
     public boolean isHL7TrackChangedPatientID() {
         return hl7TrackChangedPatientID;
     }
@@ -3120,6 +3112,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
+    public Issuer[] getTrustedIssuerOfPatientID() {
+        return trustedIssuerOfPatientID;
+    }
+
+    public void setTrustedIssuerOfPatientID(Issuer... trustedIssuerOfPatientID) {
+        this.trustedIssuerOfPatientID = trustedIssuerOfPatientID;
+    }
+
     public Issuer getHL7PrimaryAssigningAuthorityOfPatientID() {
         return hl7PrimaryAssigningAuthorityOfPatientID;
     }
@@ -3614,7 +3614,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
         linkMWLEntryUpdatePolicy = arcdev.linkMWLEntryUpdatePolicy;
-        identifyPatientByOtherPatientIDs = arcdev.identifyPatientByOtherPatientIDs;
         hl7TrackChangedPatientID = arcdev.hl7TrackChangedPatientID;
         hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
         hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;
@@ -3663,6 +3662,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         qStarVerificationMockAccessState = arcdev.qStarVerificationMockAccessState;
         csvUploadChunkSize = arcdev.csvUploadChunkSize;
         validateUID = arcdev.validateUID;
+        trustedIssuerOfPatientID = arcdev.trustedIssuerOfPatientID;
         hl7PrimaryAssigningAuthorityOfPatientID = arcdev.hl7PrimaryAssigningAuthorityOfPatientID;
         hl7OtherPatientIDs = arcdev.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
