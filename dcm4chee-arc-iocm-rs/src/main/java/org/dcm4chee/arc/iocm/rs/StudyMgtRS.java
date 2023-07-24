@@ -186,7 +186,7 @@ public class StudyMgtRS {
 
         final Attributes attrs = toAttributes(in);
         Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
-        if (patientIDs == null || !attrs.containsValue(Tag.StudyInstanceUID)
+        if (patientIDs.isEmpty() || !attrs.containsValue(Tag.StudyInstanceUID)
                 || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
             return errResponse("Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload",
                             Response.Status.BAD_REQUEST);
@@ -212,12 +212,12 @@ public class StudyMgtRS {
                             .build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (PatientMismatchException e) {
-            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (NonUniquePatientException | PatientMergedException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+            return e.getCause() instanceof PatientMismatchException
+                    ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)
+                    : errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -239,8 +239,8 @@ public class StudyMgtRS {
 
         final Attributes attrs = toAttributes(in);
         Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
-        if (patientIDs == null || !attrs.containsValue(Tag.SeriesInstanceUID))
-            return errResponse("Missing Patient ID or Series Instance UID in request payload",
+        if (patientIDs.isEmpty() || !attrs.containsValue(Tag.SeriesInstanceUID))
+            return errResponse("Missing patient identifier or Series Instance UID in request payload",
                             Response.Status.BAD_REQUEST);
 
         if (!seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID)))
@@ -270,12 +270,12 @@ public class StudyMgtRS {
                             .build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (PatientMismatchException e) {
-            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
         } catch (NonUniquePatientException | PatientMergedException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+            return e.getCause() instanceof PatientMismatchException
+                    ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)
+                    : errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 

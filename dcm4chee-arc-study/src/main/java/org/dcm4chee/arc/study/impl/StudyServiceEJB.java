@@ -102,8 +102,9 @@ public class StudyServiceEJB {
         if (ctx.getPatient() == null)
             ctx.setPatient(study.getPatient());
         else if (study.getPatient().getPk() != ctx.getPatient().getPk())
-            throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
-                    study.getPatient() + " in existing " + study);
+            throw new PatientMismatchException(ctx.getPatient()
+                    + " found using patient identifiers sent in request payload does not match with "
+                    + study.getPatient() + " of " + study);
 
         Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
@@ -121,6 +122,7 @@ public class StudyServiceEJB {
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                 .setParameter(1, study)
                 .executeUpdate();
+        LOG.info("{} updated successfully.", study);
     }
 
     public void updateSeries(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException {
@@ -137,8 +139,9 @@ public class StudyServiceEJB {
         if (ctx.getPatient() == null)
             ctx.setPatient(series.getStudy().getPatient());
         else if (series.getStudy().getPatient().getPk() != ctx.getPatient().getPk())
-            throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
-                    series.getStudy().getPatient() + " in existing " + series.getStudy());
+            throw new PatientMismatchException(ctx.getPatient()
+                    + " found using patient identifiers sent in request payload does not match with "
+                    + series.getStudy().getPatient() + " of " + series);
 
         Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
@@ -155,6 +158,7 @@ public class StudyServiceEJB {
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
                 .setParameter(1, series.getPk())
                 .executeUpdate();
+        LOG.info("{} updated successfully.", series);
     }
 
     public void updateStudyRequest(StudyMgtContext ctx) throws StudyMissingException {
