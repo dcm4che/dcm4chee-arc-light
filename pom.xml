@@ -508,6 +508,7 @@
     <module>dcm4chee-arc-export-dicom</module>
     <module>dcm4chee-arc-export-impax-report</module>
     <module>dcm4chee-arc-export-mgt</module>
+    <module>dcm4chee-arc-export-noop</module>
     <module>dcm4chee-arc-export-pr2ko</module>
     <module>dcm4chee-arc-export-rs</module>
     <module>dcm4chee-arc-export-storage</module>
