@@ -2746,13 +2746,13 @@ attributetype ( 1.2.40.0.13.1.15.110.3.469 NAME 'dcmCountLocationsByStatus'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.470 NAME 'dcmTrustedIssuerOfPatientID'
-  DESC 'Trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. Patient IDs not qualified by one of the specified Assigning Authorities, will not be used for identifying the Patient. If neither this nor dcmTrustedIssuerOfPatientIDPattern is present, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient. Format: [<Issuer of Patient ID>] [& <Universal Entity ID> & <Universal Entity ID Type>].'
+  DESC 'Trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. If both, this field and "Trusted Issuer of Patient ID Pattern" are configured, Patient IDs not qualified by trusted Assigning Authority matching the pattern specified in "Trusted Issuer of Patient ID Pattern", will be checked against one of the specified Assigning Authorities in this field. If Patient IDs are not qualified by either of these fields, they will not be used for identifying the Patient. If neither this field nor "Trusted Issuer of Patient ID Pattern" is configured, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}].'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.471 NAME 'dcmTrustedIssuerOfPatientIDPattern'
-  DESC 'Regular Expression of Issuer of Patient ID / Namespace ID identifying trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. Patient IDs not qualified by an trusted Assigning Authority, will not be used for identifying the Patient. If neither this nor dcmTrustedIssuerOfPatientID is present, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient.'
+  DESC 'Regular Expression identifying trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. If both, this field and "Trusted Issuer of Patient ID" are configured, Patient IDs not qualified by trusted Assigning Authority matching the specified pattern, will be checked against one of the specified Assigning Authorities in "Trusted Issuer of Patient ID" field. If Patient IDs are not qualified by either of these fields, they will not be used for identifying the Patient. If neither this field nor "Trusted Issuer of Patient ID" is configured, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15

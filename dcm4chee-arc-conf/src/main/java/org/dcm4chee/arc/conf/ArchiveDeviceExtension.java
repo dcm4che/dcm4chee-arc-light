@@ -3130,13 +3130,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public boolean isTrustedIssuerOfPatientID(Issuer other) {
-        if (trustedIssuerOfPatientID.length == 0 && trustedIssuerOfPatientIDPattern == null)
-            return true;
-        if (other == null) {
+        if (other != null) {
             if (trustedIssuerOfPatientIDPattern != null
                     && other.getLocalNamespaceEntityID() != null
                     && trustedIssuerOfPatientIDPattern.matcher(other.getLocalNamespaceEntityID()).matches())
                 return true;
+
             for (Issuer issuer : trustedIssuerOfPatientID)
                 if (other.matches(issuer))
                     return true;
@@ -3145,8 +3144,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public Collection<IDWithIssuer> withTrustedIssuerOfPatientID(Collection<IDWithIssuer> ids) {
-        if (trustedIssuerOfPatientID.length == 0)
+        if (trustedIssuerOfPatientID.length == 0 && trustedIssuerOfPatientIDPattern == null)
             return ids;
+
         Collection<IDWithIssuer> filtered = new ArrayList<>(ids.size());
         for (IDWithIssuer id : ids)
             if (isTrustedIssuerOfPatientID(id.getIssuer()))
