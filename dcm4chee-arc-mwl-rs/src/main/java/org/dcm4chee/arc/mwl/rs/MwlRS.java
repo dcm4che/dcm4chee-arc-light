@@ -57,6 +57,9 @@ import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.patient.NonUniquePatientException;
+import org.dcm4chee.arc.patient.PatientMergedException;
+import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -130,19 +133,19 @@ public class MwlRS {
 
         final Attributes attrs = toAttributes(in);
         Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
-        if (patientIDs == null)
-            return errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+        if (patientIDs.isEmpty())
+            return errResponse("Missing patient identifiers in request payload", Response.Status.BAD_REQUEST);
 
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (spsItem == null)
-            return errResponse("Missing or empty (0040,0100) Scheduled Procedure Step Sequence",
+            return errResponse("Missing or empty Scheduled Procedure Step Sequence (0040,0100) in request payload",
                     Response.Status.BAD_REQUEST);
 
-        Patient patient = patientService.findPatient(patientIDs);
-        if (patient == null)
-            return errResponse("Patient[id=" + patientIDs + "] does not exists", Response.Status.NOT_FOUND);
-
         try {
+            Patient patient = patientService.findPatient(patientIDs);
+            if (patient == null)
+                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
+
             if (!attrs.containsValue(Tag.AccessionNumber))
                 idService.newAccessionNumber(arcAE.mwlAccessionNumberGenerator(), attrs);
             if (!attrs.containsValue(Tag.RequestedProcedureID))
@@ -171,8 +174,12 @@ public class MwlRS {
                                         }
                                 })
                             .build();
+        } catch (NonUniquePatientException | PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+            return e.getCause() instanceof PatientMismatchException
+                    ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)
+                    : errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 

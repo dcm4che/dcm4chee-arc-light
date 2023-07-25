@@ -148,10 +148,17 @@ public class ProcedureServiceEJB {
         ctx.setSpsID(attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence).getString(Tag.ScheduledProcedureStepID));
 
         MWLItem mwlItem = findMWLItem(ctx);
-        if (mwlItem == null)
+        if (mwlItem == null) {
             createMWL(ctx);
-        else
-            updateMWL(ctx, mwlItem);
+            return;
+        }
+
+        if (mwlItem.getPatient().getPk() != ctx.getPatient().getPk())
+            throw new PatientMismatchException(ctx.getPatient()
+                    + " found using patient identifiers sent in request payload does not match with "
+                    + mwlItem.getPatient() + " of " + mwlItem);
+
+        updateMWL(ctx, mwlItem);
     }
 
     public MWLItem findMWLItem(ProcedureContext ctx) {
