@@ -300,6 +300,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String qStarVerificationURLwoUserInfo;
     private volatile Integer qStarVerificationMockAccessState;
     private volatile Issuer[] trustedIssuerOfPatientID;
+    private volatile Pattern trustedIssuerOfPatientIDPattern;
     private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
     private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
@@ -3120,6 +3121,39 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.trustedIssuerOfPatientID = trustedIssuerOfPatientID;
     }
 
+    public Pattern getTrustedIssuerOfPatientIDPattern() {
+        return trustedIssuerOfPatientIDPattern;
+    }
+
+    public void setTrustedIssuerOfPatientIDPattern(Pattern trustedIssuerOfPatientIDPattern) {
+        this.trustedIssuerOfPatientIDPattern = trustedIssuerOfPatientIDPattern;
+    }
+
+    public boolean isTrustedIssuerOfPatientID(Issuer other) {
+        if (trustedIssuerOfPatientID.length == 0 && trustedIssuerOfPatientIDPattern == null)
+            return true;
+        if (other == null) {
+            if (trustedIssuerOfPatientIDPattern != null
+                    && other.getLocalNamespaceEntityID() != null
+                    && trustedIssuerOfPatientIDPattern.matcher(other.getLocalNamespaceEntityID()).matches())
+                return true;
+            for (Issuer issuer : trustedIssuerOfPatientID)
+                if (other.matches(issuer))
+                    return true;
+        }
+        return false;
+    }
+
+    public Collection<IDWithIssuer> withTrustedIssuerOfPatientID(Collection<IDWithIssuer> ids) {
+        if (trustedIssuerOfPatientID.length == 0)
+            return ids;
+        Collection<IDWithIssuer> filtered = new ArrayList<>(ids.size());
+        for (IDWithIssuer id : ids)
+            if (isTrustedIssuerOfPatientID(id.getIssuer()))
+                filtered.add(id);
+        return filtered;
+    }
+
     public Issuer getHL7PrimaryAssigningAuthorityOfPatientID() {
         return hl7PrimaryAssigningAuthorityOfPatientID;
     }
@@ -3663,6 +3697,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         csvUploadChunkSize = arcdev.csvUploadChunkSize;
         validateUID = arcdev.validateUID;
         trustedIssuerOfPatientID = arcdev.trustedIssuerOfPatientID;
+        trustedIssuerOfPatientIDPattern = arcdev.trustedIssuerOfPatientIDPattern;
         hl7PrimaryAssigningAuthorityOfPatientID = arcdev.hl7PrimaryAssigningAuthorityOfPatientID;
         hl7OtherPatientIDs = arcdev.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;

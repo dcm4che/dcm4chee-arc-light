@@ -2746,10 +2746,17 @@ attributetype ( 1.2.40.0.13.1.15.110.3.469 NAME 'dcmCountLocationsByStatus'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.470 NAME 'dcmTrustedIssuerOfPatientID'
-  DESC 'Trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. Patient IDs not qualified by one of the specified Assigning Authorities, will not be used for identifying the Patient. If not present, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient. Format: [<Issuer of Patient ID>] [& <Universal Entity ID> & <Universal Entity ID Type>].'
+  DESC 'Trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. Patient IDs not qualified by one of the specified Assigning Authorities, will not be used for identifying the Patient. If neither this nor dcmTrustedIssuerOfPatientIDPattern is present, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient. Format: [<Issuer of Patient ID>] [& <Universal Entity ID> & <Universal Entity ID Type>].'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.471 NAME 'dcmTrustedIssuerOfPatientIDPattern'
+  DESC 'Regular Expression of Issuer of Patient ID / Namespace ID identifying trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. Patient IDs not qualified by an trusted Assigning Authority, will not be used for identifying the Patient. If neither this nor dcmTrustedIssuerOfPatientID is present, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -2806,6 +2813,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAcceptConflictingPatientID $
     dcmRejectConflictingPatientAttribute $
     dcmTrustedIssuerOfPatientID $
+    dcmTrustedIssuerOfPatientIDPattern $
     hl7TrackChangedPatientID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $

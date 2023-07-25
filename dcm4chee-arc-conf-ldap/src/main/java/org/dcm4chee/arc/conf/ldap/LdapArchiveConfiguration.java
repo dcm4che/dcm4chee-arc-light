@@ -553,6 +553,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getQStarVerificationMockAccessState(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmTrustedIssuerOfPatientID",
                 ext.getTrustedIssuerOfPatientID());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmTrustedIssuerOfPatientIDPattern",
+                ext.getTrustedIssuerOfPatientIDPattern(), null);
     }
 
     @Override
@@ -907,6 +909,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQStarVerificationMockAccessState(
                 LdapUtils.intValue(attrs.get("dcmQStarVerificationMockAccessState"), null));
         ext.setTrustedIssuerOfPatientID(toIssuers(LdapUtils.stringArray(attrs.get("dcmTrustedIssuerOfPatientID"))));
+        ext.setTrustedIssuerOfPatientIDPattern(toPattern(attrs.get("dcmTrustedIssuerOfPatientIDPattern")));
     }
 
     @Override
@@ -1573,6 +1576,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmTrustedIssuerOfPatientID",
                 aa.getTrustedIssuerOfPatientID(),
                 bb.getTrustedIssuerOfPatientID());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmTrustedIssuerOfPatientIDPattern",
+                aa.getTrustedIssuerOfPatientIDPattern(),
+                bb.getTrustedIssuerOfPatientIDPattern(),
+                null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

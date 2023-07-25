@@ -234,6 +234,11 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
+    public void setPreviousPatientIDs(Collection<IDWithIssuer> previousPatientIDs) {
+        this.previousPatientIDs = previousPatientIDs;
+    }
+
+    @Override
     public Patient getPatient() {
         return patient;
     }

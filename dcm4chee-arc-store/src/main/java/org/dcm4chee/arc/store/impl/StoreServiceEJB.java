@@ -842,10 +842,13 @@ public class StoreServiceEJB {
                 : patientService.createPatientMgtContextHL7(
                         session.getLocalHL7Application(), session.getSocket(), session.getUnparsedHL7Message());
         patMgtCtx.setAttributes(ctx.getAttributes());
+        patMgtCtx.setPatientIDs(
+                session.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(
+                        patMgtCtx.getPatientIDs()));
         if (series == null) {
             Study study = findStudy(ctx);
             if (study == null) {
-                if (!checkMissingPatientID(ctx))
+                if (!checkMissingPatientID(session.getAcceptMissingPatientID(), patMgtCtx))
                     throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
                             StoreService.PATIENT_ID_MISSING_IN_OBJECT_MSG);
 
@@ -853,7 +856,6 @@ public class StoreServiceEJB {
                 checkStorePermission(ctx, pat);
 
                 if (pat == null) {
-                    patMgtCtx.setPatientIDs(IDWithIssuer.pidsOf(ctx.getAttributes()));
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
                 } else {
@@ -906,16 +908,22 @@ public class StoreServiceEJB {
         result.setStoredAttributes(storedAttrs);
     }
 
-    private boolean checkMissingPatientID(StoreContext ctx) {
-        AcceptMissingPatientID acceptMissingPatientID = ctx.getStoreSession().getAcceptMissingPatientID();
+    private boolean checkMissingPatientID(AcceptMissingPatientID acceptMissingPatientID, PatientMgtContext patMgtCtx) {
         if (acceptMissingPatientID == AcceptMissingPatientID.YES
-                || ctx.getAttributes().containsValue(Tag.PatientID))
+                || !patMgtCtx.getPatientIDs().isEmpty())
             return true;
 
         if (acceptMissingPatientID == AcceptMissingPatientID.NO)
             return false;
 
-        idService.newPatientID(ctx.getAttributes());
+        Attributes pidAttrs = patMgtCtx.getAttributes();
+        if (pidAttrs.contains(Tag.PatientID)) {
+            Sequence seq = pidAttrs.ensureSequence(Tag.OtherPatientIDsSequence, 1);
+            seq.add(pidAttrs = new Attributes());
+        }
+        idService.newPatientID(pidAttrs);
+        List<IDWithIssuer> pids = new ArrayList<>(patMgtCtx.getPatientIDs());
+        pids.add(IDWithIssuer.pidOf(pidAttrs));
         return true;
     }
 

@@ -49,6 +49,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7ReferredMergedPatientPolicy;
 import org.dcm4chee.arc.conf.SPSStatus;
@@ -74,8 +75,8 @@ import java.util.Iterator;
 @Typed(HL7Service.class)
 class PatientUpdateService extends DefaultHL7Service {
     private static final Logger LOG = LoggerFactory.getLogger(PatientUpdateService.class);
-    private static final String PATIENT_IDENTIFIER = "PID^1^3^1^1";
-    private static final String PRIOR_PATIENT_IDENTIFIER = "MRG^1^1^1^1";
+    private static final String PATIENT_IDENTIFIER = "PID^1^3";
+    private static final String PRIOR_PATIENT_IDENTIFIER = "MRG^1^1";
     private static final String CHANGE_PATIENT_IDENTIFIER = "ADT^A47";
     private static final String MERGE_PATIENT_IDENTIFIER = "ADT^A40";
 
@@ -138,6 +139,15 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setErrorLocation(PATIENT_IDENTIFIER)
                             .setUserMessage("Missing patient identifier"));
 
+        ArchiveDeviceExtension arcdev = hl7App.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        ctx.setPatientIDs(arcdev.withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+        if (ctx.getPatientIDs().isEmpty()) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.UNKNOWN_KEY_IDENTIFIER)
+                            .setErrorLocation(PATIENT_IDENTIFIER)
+                            .setUserMessage("Missing patient identifier with trusted assigning authority"));
+        }
         Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
         if (mrg == null)
             return createOrUpdatePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
@@ -150,6 +160,14 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setErrorLocation(PRIOR_PATIENT_IDENTIFIER)
                             .setUserMessage("Missing prior patient identifier"));
 
+        ctx.setPreviousPatientIDs(arcdev.withTrustedIssuerOfPatientID(ctx.getPreviousPatientIDs()));
+        if (ctx.getPreviousPatientIDs().isEmpty()) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.UNKNOWN_KEY_IDENTIFIER)
+                            .setErrorLocation(PRIOR_PATIENT_IDENTIFIER)
+                            .setUserMessage("Missing prior patient identifier with trusted assigning authority"));
+        }
         return changePIDOrMergePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
     }
 

@@ -101,6 +101,8 @@ public interface PatientMgtContext {
 
     void setPatientIDs(Collection<IDWithIssuer> patientIDs);
 
+    void setPreviousPatientIDs(Collection<IDWithIssuer> previousPatientIDs);
+
     Patient getPatient();
 
     void setPatient(Patient patient);
