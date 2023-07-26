@@ -1335,7 +1335,7 @@ export class StudyService {
                                     }, e);
                                 },
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET") && !(_.hasIn(e,'attrs.77771015'))
                                 },
                                 title: $localize `:@@study.edit_this_patient:Edit this Patient`,
                                 permission: {
@@ -1363,10 +1363,10 @@ export class StudyService {
                                 },
                                 showIf: (e, config) => {
                                     return (
-                                        (
-                                            _.hasIn(e,'attrs.00201200.Value[0]') &&
-                                            e.attrs['00201200'].Value[0] == "0" &&
-                                            !(_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "NEVER")
+                                        (!(_.hasIn(e,'attrs.77771015'))
+                                            && _.hasIn(e,'attrs.00201200.Value[0]')
+                                            && e.attrs['00201200'].Value[0] == "0"
+                                            && !(_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "NEVER")
                                         ) ||
                                         (_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "ALWAYS")
                                     ) && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET");
@@ -1384,7 +1384,7 @@ export class StudyService {
                                         action: "create_mwl"
                                     }, e);
                                 },showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET") && !(_.hasIn(e,'attrs.77771015'))
                                 },
                                 title: $localize `:@@study.add_new_mwl:Add new MWL`,
                                 permission: {
@@ -1405,6 +1405,8 @@ export class StudyService {
                                         level: "patient",
                                         action: "upload_file"
                                     }, e);
+                                },showIf:(e,config)=>{
+                                    return !(_.hasIn(e,'attrs.77771015'));
                                 },
                                 id:"patient_upload_file",
                                 title: $localize `:@@upload_file:Upload file`,
@@ -1453,7 +1455,7 @@ export class StudyService {
                                     param: 'visible'
                                 },
                                 showIf: (e, config) => {
-                                    return _.hasIn(options,"selectedWebService.IID_PATIENT_URL");
+                                    return _.hasIn(options,"selectedWebService.IID_PATIENT_URL") && !(_.hasIn(e,'attrs.77771015'));
                                 }
                             }, {
                                 icon: {
