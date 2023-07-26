@@ -836,13 +836,14 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    public int restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration,
+                                List<Instance> instances)
             throws IOException {
-        return ejb.restoreInstances(session, studyUID, seriesUID, duration);
+        return ejb.restoreInstances(session, studyUID, seriesUID, duration, instances);
     }
 
     @Override
-    public int countSeries(String studyUID, String seriesUID) {
+    public long countSeries(String studyUID, String seriesUID) {
         return ejb.countSeries(studyUID, seriesUID);
     }
 
@@ -923,8 +924,9 @@ class StoreServiceImpl implements StoreService {
 
     private void restoreInstances(ArchiveAEExtension arcAE, String studyIUID, String seriesIUID,
                                   List<UpdateLocation> updateLocations) throws IOException {
-        List<Instance> instances = ejb.restoreInstances(newStoreSession(arcAE.getApplicationEntity()),
-                studyIUID, seriesIUID, arcAE.getPurgeInstanceRecordsDelay());
+        List<Instance> instances = new ArrayList<>();
+        ejb.restoreInstances(newStoreSession(arcAE.getApplicationEntity()),
+                studyIUID, seriesIUID, arcAE.getPurgeInstanceRecordsDelay(), instances);
         Map<String, Map<String, Location>> restoredLocations = instances.stream()
                 .flatMap(inst -> inst.getLocations().stream())
                 .collect(Collectors.groupingBy(l -> l.getStorageID(),

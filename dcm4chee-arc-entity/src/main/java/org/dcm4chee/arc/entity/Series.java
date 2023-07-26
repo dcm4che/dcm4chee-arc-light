@@ -174,12 +174,12 @@ import java.util.stream.Stream;
                 "and se.seriesInstanceUID = ?2 " +
                 "and se.instancePurgeState = ?3"),
 @NamedQuery(
-        name = Series.FIND_PK_BY_STUDY_UID,
-        query = "select se.pk from Series se " +
+        name = Series.COUNT_BY_STUDY_UID,
+        query = "select count(se) from Series se " +
                 "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
-        name = Series.FIND_PK_BY_SERIES_UID,
-        query = "select se.pk from Series se " +
+        name = Series.COUNT_BY_SERIES_UID,
+        query = "select count(se) from Series se " +
                 "where se.study.studyInstanceUID = ?1 " +
                 "and se.seriesInstanceUID = ?2"),
 @NamedQuery(
@@ -360,8 +360,8 @@ public class Series {
     public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
     public static final String FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE = "Series.FindSeriesOfStudyByInstancePurgeState";
     public static final String FIND_BY_SERIES_IUID_AND_INSTANCE_PURGE_STATE = "Series.FindBySeriesIUIDAndInstancePurgeState";
-    public static final String FIND_PK_BY_STUDY_UID = "Series.FindPkByStudyUID";
-    public static final String FIND_PK_BY_SERIES_UID = "Series.FindPkBySeriesUID";
+    public static final String COUNT_BY_STUDY_UID = "Series.CountByStudyUID";
+    public static final String COUNT_BY_SERIES_UID = "Series.CountBySeriesUID";
     public static final String COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE = "Series.countSeriesOfStudyWithOtherRejectionState";
     public static final String SERIES_IUIDS_OF_STUDY = "Series.seriesIUIDsOfStudy";
     public static final String SCHEDULED_METADATA_UPDATE = "Series.scheduledMetadataUpdate";

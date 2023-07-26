@@ -122,10 +122,11 @@ public interface StoreService {
             StoreSession session, String storageID, String storagePath, String studyUID)
             throws IOException;
 
-    List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    int restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration,
+                         List<Instance> instances)
             throws IOException;
 
-    int countSeries(String studyUID, String seriesUID);
+    long countSeries(String studyUID, String seriesUID);
 
     List<String> studyIUIDsByAccessionNo(String accNo);
 

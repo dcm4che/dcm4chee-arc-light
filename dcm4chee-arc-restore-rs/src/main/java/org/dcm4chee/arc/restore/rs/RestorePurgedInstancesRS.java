@@ -130,10 +130,13 @@ public class RestorePurgedInstancesRS {
         try {
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), aet, null);
-            return storeService.restoreInstances(
-                    session, studyUID, seriesUID, purgeAfterDelay() ? arcAE.purgeInstanceRecordsDelay() : null).size() > 0
-                    ? Response.accepted().build()
-                    : restoreFailed(studyUID, seriesUID);
+            int count = storeService.restoreInstances(
+                    session, studyUID, seriesUID, purgeAfterDelay() ? arcAE.purgeInstanceRecordsDelay() : null, null);
+            return count > 0
+                    ? Response.ok("{\"count\":" + count + '}').build()
+                    : storeService.countSeries(studyUID, seriesUID) == 0
+                    ? notFound(studyUID, seriesUID)
+                    : conflict(studyUID, seriesUID);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -150,12 +153,6 @@ public class RestorePurgedInstancesRS {
                 this,
                 request.getRemoteUser(),
                 request.getRemoteHost());
-    }
-
-    private Response restoreFailed(String studyUID, String seriesUID) {
-        return storeService.countSeries(studyUID, seriesUID) == 0
-                ? notFound(studyUID, seriesUID)
-                : conflict(studyUID, seriesUID);
     }
 
     private Response conflict(String studyUID, String seriesUID) {

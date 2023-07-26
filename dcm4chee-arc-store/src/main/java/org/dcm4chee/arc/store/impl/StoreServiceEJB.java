@@ -96,7 +96,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -387,7 +386,8 @@ public class StoreServiceEJB {
         return time.getTime() + duration.getSeconds() * 1000L < System.currentTimeMillis();
     }
 
-    public List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    public int restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration,
+                                List<Instance> instList)
             throws DicomServiceException {
         List<Series> seriesList = (seriesUID == null
                 ? em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE, Series.class)
@@ -398,39 +398,40 @@ public class StoreServiceEJB {
                 .setParameter(2, seriesUID)
                 .setParameter(3, Series.InstancePurgeState.PURGED))
                 .getResultList();
-        List<Instance> instList = new ArrayList<>();
+        int count = 0;
         for (Series series : seriesList) {
-            restoreInstances(session, series, studyUID, duration, instList);
+            count += restoreInstances(session, series, studyUID, duration, instList);
         }
-        return instList;
+        return count;
     }
 
-    public int countSeries(String studyUID, String seriesUID) {
+    public long countSeries(String studyUID, String seriesUID) {
         return (seriesUID == null
-                ? em.createNamedQuery(Series.FIND_PK_BY_STUDY_UID, Long.class)
+                ? em.createNamedQuery(Series.COUNT_BY_STUDY_UID, Long.class)
                     .setParameter(1, studyUID)
-                : em.createNamedQuery(Series.FIND_PK_BY_SERIES_UID, Long.class)
+                : em.createNamedQuery(Series.COUNT_BY_SERIES_UID, Long.class)
                     .setParameter(1, studyUID)
                     .setParameter(2, seriesUID))
-                .getResultList().size();
+                .getSingleResult();
     }
 
-    private void restoreInstances(StoreSession session, Series series, String studyUID, Duration duration,
+    private int restoreInstances(StoreSession session, Series series, String studyUID, Duration duration,
                                   List <Instance> instList)
             throws DicomServiceException {
         if (series == null || series.getInstancePurgeState() == Series.InstancePurgeState.NO)
-            return;
+            return 0;
 
         LOG.info("Restore Instance records of Series[pk={}]", series.getPk());
+        int count = 0;
         Metadata metadata = series.getMetadata();
         try ( ZipInputStream zip = session.getStoreService()
                 .openZipInputStream(session, metadata.getStorageID(), metadata.getStoragePath(), studyUID)) {
-            ZipEntry entry;
-            while ((entry = zip.getNextEntry()) != null) {
+            while ((zip.getNextEntry()) != null) {
                 JSONReader jsonReader = new JSONReader(Json.createParser(
                         new InputStreamReader(zip, StandardCharsets.UTF_8)));
                 jsonReader.setSkipBulkDataURI(true);
                 Instance inst = restoreInstance(session, series, jsonReader.readDataset(null));
+                count++;
                 if (instList != null)
                     instList.add(inst);
             }
@@ -440,6 +441,7 @@ public class StoreServiceEJB {
         }
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         series.scheduleInstancePurge(duration);
+        return count;
     }
 
     private Instance restoreInstance(StoreSession session, Series series, Attributes attrs) {

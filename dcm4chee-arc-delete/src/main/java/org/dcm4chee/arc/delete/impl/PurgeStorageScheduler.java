@@ -237,7 +237,7 @@ public class PurgeStorageScheduler extends Scheduler {
             if (exportStorageID.length == 0) {
                 try {
                     storeService.restoreInstances(
-                            storeSession, studyPkUID.uid, null, purgeInstanceRecordsDelay);
+                            storeSession, studyPkUID.uid, null, purgeInstanceRecordsDelay, null);
                 } catch (Exception e) {
                     LOG.warn("Failed to restore Instance records of {} - defer deletion of Study from {}\n",
                             studyPkUID, desc, e);
@@ -273,7 +273,7 @@ public class PurgeStorageScheduler extends Scheduler {
                             storeService.restoreInstances(storeSession.withObjectStorageID(storageID),
                                     studyPkUID.uid,
                                     series.getSeriesInstanceUID(),
-                                    purgeInstanceRecordsDelay);
+                                    purgeInstanceRecordsDelay, null);
                         } catch (Exception e) {
                             LOG.warn("Failed to restore Instance records of Series[pk={}] - defer deletion of objects from Storage[id={}]\n",
                                     series.getPk(), desc, e);

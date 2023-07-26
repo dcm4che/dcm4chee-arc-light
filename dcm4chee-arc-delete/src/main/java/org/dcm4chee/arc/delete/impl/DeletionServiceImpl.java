@@ -231,7 +231,7 @@ public class DeletionServiceImpl implements DeletionService {
                         session,
                         study.getStudyInstanceUID(),
                         series.getSeriesInstanceUID(),
-                        arcDev.getPurgeInstanceRecordsDelay());
+                        arcDev.getPurgeInstanceRecordsDelay(), null);
             }
         }
         int limit = arcDev.getDeleteStudyChunkSize();

@@ -237,9 +237,9 @@ class IocmUtils {
         String studyUID = sopInstanceRefs.getString(Tag.StudyInstanceUID);
         Sequence seq = sopInstanceRefs.getSequence(Tag.ReferencedSeriesSequence);
         if (seq == null || seq.isEmpty())
-            storeService.restoreInstances(session, studyUID, null, null);
+            storeService.restoreInstances(session, studyUID, null, null, null);
         else for (Attributes item : seq)
-            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID), null);
+            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID), null, null);
     }
 
     private static Attributes parseSOPInstanceReferences(InputStream in) {

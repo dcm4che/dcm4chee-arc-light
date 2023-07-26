@@ -413,6 +413,25 @@
       }
     }
   },
+  "restorePurgedInstanceRecords": {
+    "description": "Successfully restored purged DB records.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "description": "Number of restored Instance Records",
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
   "createUpdateSPSSuccessful": {
     "description": "Create Update SPS completed successfully, and the attributes are contained in the payload",
     "content": {

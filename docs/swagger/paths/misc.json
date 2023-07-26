@@ -298,8 +298,8 @@
         }
       ],
       "responses": {
-        "204": {
-          "description": "Purged Instance records of at least one Series of the Study were successfully restored."
+        "200": {
+          "$ref": "../responses.json#/restorePurgedInstanceRecords"
         },
         "404": {
           "description": "No such Archive AE Title or Study"
@@ -335,8 +335,8 @@
         }
       ],
       "responses": {
-        "204": {
-          "description": "Purged Instance records of the Series were successfully restored."
+        "200": {
+          "$ref": "../responses.json#/restorePurgedInstanceRecords"
         },
         "404": {
           "description": "No such Archive AE Title or Series"

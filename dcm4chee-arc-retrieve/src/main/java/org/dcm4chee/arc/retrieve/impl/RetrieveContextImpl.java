@@ -49,6 +49,7 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
@@ -792,13 +793,14 @@ class RetrieveContextImpl implements RetrieveContext {
 
     private void restoreInstances(Attributes attrs, String storageID) throws IOException {
         StoreService storeService = retrieveService.getStoreService();
+        List<Instance> instances = new ArrayList<>();
         storeService.restoreInstances(
                     storeService.newStoreSession(getLocalApplicationEntity())
                             .withObjectStorageID(storageID),
                     attrs.getString(Tag.StudyInstanceUID),
                     attrs.getString(Tag.SeriesInstanceUID),
-                    arcAE.purgeInstanceRecordsDelay())
-                .stream().forEach(inst -> matches.stream()
+                    arcAE.purgeInstanceRecordsDelay(), instances);
+        instances.stream().forEach(inst -> matches.stream()
                         .filter(match1 -> match1.getSopInstanceUID().equals(inst.getSopInstanceUID()))
                         .findFirst().ifPresent(match1 -> match1.setInstancePk(inst.getPk())));
     }

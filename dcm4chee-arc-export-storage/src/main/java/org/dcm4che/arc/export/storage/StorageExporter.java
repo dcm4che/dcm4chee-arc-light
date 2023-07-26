@@ -110,7 +110,7 @@ public class StorageExporter extends AbstractExporter {
                     storeSession,
                     studyIUID,
                     exportContext.getSeriesInstanceUID(),
-                    ae.getAEExtensionNotNull(ArchiveAEExtension.class).purgeInstanceRecordsDelay());
+                    ae.getAEExtensionNotNull(ArchiveAEExtension.class).purgeInstanceRecordsDelay(), null);
             if (!retrieveService.calculateMatches(retrieveContext))
                 return new Outcome(Task.Status.WARNING, noMatches(exportContext));
 
