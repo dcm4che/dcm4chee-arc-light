@@ -210,6 +210,7 @@ public class PatientServiceEJB {
         }
 
         updatePatientAttrs(pat, ctx, attrs, modified);
+        LOG.info("{} updated successfully.", pat);
     }
 
     private void updatePatientAttrs(Patient pat, PatientMgtContext ctx, Attributes attrs, Attributes modified) {
