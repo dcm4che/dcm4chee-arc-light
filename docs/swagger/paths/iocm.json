@@ -1448,7 +1448,7 @@
           "description": "Patient ID not specified by Query Parameter."
         },
         "403": {
-          "description": "Patient already merged for Patient ID with Issuer specified in Query Parameters."
+          "description": "Move Study to Patient forbidden for already merged patients"
         },
         "404": {
           "description": "There is no Archive AE with the specified Title or no Study with the specified Study Instance UID."

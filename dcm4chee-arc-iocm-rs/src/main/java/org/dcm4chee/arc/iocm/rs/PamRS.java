@@ -192,8 +192,10 @@ public class PamRS {
             deletionService.deletePatient(ctx, arcAE);
             rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
             return Response.noContent().build();
-        } catch (NonUniquePatientException | PatientMergedException e) {
+        } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -263,7 +265,7 @@ public class PamRS {
         ctx.setArchiveAEExtension(arcAE);
         Collection<IDWithIssuer> targetPatientIDs = ctx.getPatientIDs();
         if (targetPatientIDs.isEmpty())
-            return errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+            return errResponse("Missing patient identifiers in request payload", Response.Status.BAD_REQUEST);
 
         boolean mergePatients = Boolean.parseBoolean(merge);
         boolean patientMatch = targetPatientIDs.contains(priorPatientID);
@@ -339,8 +341,10 @@ public class PamRS {
             return Response.noContent().build();
         } catch (JsonParsingException e) {
             return errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST);
-        } catch (NonUniquePatientException | PatientMergedException | CircularPatientMergeException e) {
+        } catch (NonUniquePatientException | CircularPatientMergeException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -368,10 +372,11 @@ public class PamRS {
             rsForward.forward(RSOperation.MergePatient, arcAE, null, request);
             return Response.noContent().build();
         } catch (NonUniquePatientException
-                | PatientMergedException
                 | CircularPatientMergeException
                 | VerifyMergePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

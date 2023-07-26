@@ -212,8 +212,10 @@ public class StudyMgtRS {
                             .build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (NonUniquePatientException | PatientMergedException e) {
+        } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return e.getCause() instanceof PatientMismatchException
                     ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)
@@ -270,8 +272,10 @@ public class StudyMgtRS {
                             .build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (NonUniquePatientException | PatientMergedException e) {
+        } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return e.getCause() instanceof PatientMismatchException
                     ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)

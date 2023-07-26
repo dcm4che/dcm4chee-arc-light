@@ -174,8 +174,10 @@ public class MwlRS {
                                         }
                                 })
                             .build();
-        } catch (NonUniquePatientException | PatientMergedException e) {
+        } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return e.getCause() instanceof PatientMismatchException
                     ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)

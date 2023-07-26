@@ -77,6 +77,9 @@
         "400": {
           "description": "Missing Patient ID or Scheduled Procedure Step Sequence in request body or Patient found using patient identifiers sent in request payload does not match with patient of MWL"
         },
+        "403": {
+          "description": "Create/Update MWL forbidden for already merged patients"
+        },
         "404": {
           "description": "There is no Archive AE with the specified Title or Patient does not exist."
         },
