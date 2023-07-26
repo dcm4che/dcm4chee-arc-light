@@ -299,7 +299,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String qStarVerificationPassword;
     private volatile String qStarVerificationURLwoUserInfo;
     private volatile Integer qStarVerificationMockAccessState;
-    private volatile Issuer[] trustedIssuerOfPatientID;
+    private volatile Issuer[] trustedIssuerOfPatientID = {};
     private volatile Pattern trustedIssuerOfPatientIDPattern;
     private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
     private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
