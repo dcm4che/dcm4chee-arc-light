@@ -2728,7 +2728,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.isAltCreateDirectories(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCheckMountFilePath",
                 descriptor.getCheckMountFilePath(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption", descriptor.getFileOpenOptions());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption",
+                descriptor.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLocationStatus",
                 descriptor.getLocationStatus(), LocationStatus.OK);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmCountLocationsByStatus",
@@ -2801,7 +2802,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setRetryCreateDirectories(LdapUtils.intValue(attrs.get("dcmRetryCreateDirectories"), 0));
                 desc.setAltCreateDirectories(LdapUtils.booleanValue(attrs.get("dcmAltCreateDirectories"), false));
                 desc.setCheckMountFilePath(LdapUtils.stringValue(attrs.get("dcmCheckMountFilePath"), null));
-                desc.setFileOpenOptions(toOpenOptions(LdapUtils.stringArray(attrs.get("dcmFileOpenOption"))));
+                desc.setFileOpenOptions(toOpenOptions(attrs.get("dcmFileOpenOption"), StandardOpenOption.CREATE_NEW));
                 desc.setLocationStatus(
                         LdapUtils.enumValue(LocationStatus.class, attrs.get("dcmLocationStatus"), LocationStatus.OK));
                 desc.setCountLocationsByStatus(LdapUtils.booleanValue(attrs.get("dcmCountLocationsByStatus"), false));
@@ -2849,10 +2850,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private OpenOption[] toOpenOptions(String... ss) {
-        OpenOption[] openOptions = new OpenOption[ss.length];
-        for (int i = 0; i < ss.length; i++)
-            openOptions[i] = StandardOpenOption.valueOf(ss[i]);
+    private OpenOption[] toOpenOptions(Attribute attr, OpenOption... defVals) throws NamingException {
+        if (attr == null)
+            return defVals;
+
+        OpenOption[] openOptions = new OpenOption[attr.size()];
+        for (int i = 0; i < openOptions.length; i++)
+            openOptions[i] = StandardOpenOption.valueOf((String) attr.get(i));
         return openOptions;
     }
 
@@ -2911,7 +2915,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCheckMountFilePath",
                 prev.getCheckMountFilePath(), desc.getCheckMountFilePath(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFileOpenOption",
-                prev.getFileOpenOptions(), desc.getFileOpenOptions());
+                prev.getFileOpenOptions(), desc.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLocationStatus",
                 prev.getLocationStatus(), desc.getLocationStatus(), LocationStatus.OK);
         LdapUtils.storeDiff(ldapObj, mods, "dcmCountLocationsByStatus",

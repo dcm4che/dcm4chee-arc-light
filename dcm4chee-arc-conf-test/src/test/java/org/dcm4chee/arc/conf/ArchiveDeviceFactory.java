@@ -1977,14 +1977,14 @@ class ArchiveDeviceFactory {
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
             metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
-            metadataStorageDescriptor.setProperty("pathFormat", METADATA_PATH_FORMAT);
-            metadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            metadataStorageDescriptor.setStoragePathFormat(METADATA_PATH_FORMAT);
+            metadataStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(metadataStorageDescriptor);
 
             StorageDescriptor seriesMetadataStorageDescriptor = new StorageDescriptor(SERIES_METADATA_STORAGE_ID);
             seriesMetadataStorageDescriptor.setStorageURIStr(SERIES_METADATA_STORAGE_URI);
-            seriesMetadataStorageDescriptor.setProperty("pathFormat", SERIES_METADATA_PATH_FORMAT);
-            seriesMetadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            seriesMetadataStorageDescriptor.setStoragePathFormat(SERIES_METADATA_PATH_FORMAT);
+            seriesMetadataStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(seriesMetadataStorageDescriptor);
             ext.setSeriesMetadataStorageIDs(SERIES_METADATA_STORAGE_ID);
             ext.setSeriesMetadataDelay(SERIES_METADATA_DELAY);
@@ -1992,26 +1992,26 @@ class ArchiveDeviceFactory {
 
             StorageDescriptor wadoJpegStorageDescriptor = new StorageDescriptor(WADO_JPEG_STORAGE_ID);
             wadoJpegStorageDescriptor.setStorageURIStr(WADO_JPEG_STORAGE_URI);
-            wadoJpegStorageDescriptor.setProperty("pathFormat", WADO_JPEG_PATH_FORMAT);
-            wadoJpegStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            wadoJpegStorageDescriptor.setStoragePathFormat(WADO_JPEG_PATH_FORMAT);
+            wadoJpegStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(wadoJpegStorageDescriptor);
 
             StorageDescriptor wadoJsonStorageDescriptor = new StorageDescriptor(WADO_JSON_STORAGE_ID);
             wadoJsonStorageDescriptor.setStorageURIStr(WADO_JSON_STORAGE_URI);
-            wadoJsonStorageDescriptor.setProperty("pathFormat", WADO_JSON_PATH_FORMAT);
-            wadoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            wadoJsonStorageDescriptor.setStoragePathFormat(WADO_JSON_PATH_FORMAT);
+            wadoJsonStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(wadoJsonStorageDescriptor);
 
             StorageDescriptor qidoJsonStorageDescriptor = new StorageDescriptor(QIDO_JSON_STORAGE_ID);
             qidoJsonStorageDescriptor.setStorageURIStr(QIDO_JSON_STORAGE_URI);
-            qidoJsonStorageDescriptor.setProperty("pathFormat", QIDO_JSON_PATH_FORMAT);
-            qidoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            qidoJsonStorageDescriptor.setStoragePathFormat(QIDO_JSON_PATH_FORMAT);
+            qidoJsonStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(qidoJsonStorageDescriptor);
 
             StorageDescriptor nearlineStorageDescriptor = new StorageDescriptor(NEARLINE_STORAGE_ID);
             nearlineStorageDescriptor.setStorageURIStr(NEARLINE_STORAGE_URI);
-            nearlineStorageDescriptor.setProperty("pathFormat", NEARLINE_PATH_FORMAT);
-            nearlineStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            nearlineStorageDescriptor.setStoragePathFormat(NEARLINE_PATH_FORMAT);
+            nearlineStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             nearlineStorageDescriptor.setInstanceAvailability(Availability.NEARLINE);
             ext.addStorageDescriptor(nearlineStorageDescriptor);
 

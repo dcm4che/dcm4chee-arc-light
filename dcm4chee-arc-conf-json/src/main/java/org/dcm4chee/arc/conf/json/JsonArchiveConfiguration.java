@@ -532,7 +532,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRetryCreateDirectories", st.getRetryCreateDirectories(), 0);
             writer.writeNotDef("dcmAltCreateDirectories", st.isAltCreateDirectories(), false);
             writer.writeNotNullOrDef("dcmCheckMountFilePath", st.getCheckMountFilePath(), null);
-            writer.writeNotEmpty("dcmFileOpenOption", st.getFileOpenOptions());
+            writer.writeNotEmpty("dcmFileOpenOption", st.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
             writer.writeNotNullOrDef("dcmLocationStatus", st.getLocationStatus(), LocationStatus.OK);
             writer.writeNotDef("dcmCountLocationsByStatus", st.isCountLocationsByStatus(), false);
             writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);

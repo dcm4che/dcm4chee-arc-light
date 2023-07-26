@@ -3557,16 +3557,16 @@ hl7OrderControlStatus: CA_CA
 objectClass: hl7OrderSPSStatus
 
 dn: dcmStorageID=metadata,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json
-dcmProperty: checkMountFile=NO_MOUNT
+dcmCheckMountFilePath: NO_MOUNT
+dcmStoragePathFormat: {now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json
 objectClass: dcmStorage
 dcmStorageID: metadata
 dcmURI: ${jboss.server.data.url}/metadata/
 
 dn: dcmStorageID=nearline,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmInstanceAvailability: NEARLINE
-dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}
-dcmProperty: checkMountFile=NO_MOUNT
+dcmCheckMountFilePath: NO_MOUNT
+dcmStoragePathFormat: {now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}
 objectClass: dcmStorage
 dcmStorageID: nearline
 dcmURI: ${jboss.server.data.url}/nearline/
@@ -3673,22 +3673,22 @@ hl7OrderControlStatus: XO_SC
 objectClass: hl7OrderSPSStatus
 
 dn: dcmStorageID=qido-json,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmProperty: pathFormat={0020000D}-{0020000E}.json
-dcmProperty: checkMountFile=NO_MOUNT
+dcmCheckMountFilePath: NO_MOUNT
+dcmStoragePathFormat: {0020000D}-{0020000E}.json
 objectClass: dcmStorage
 dcmStorageID: qido-json
 dcmURI: ${jboss.server.data.url}/qido/
 
 dn: dcmStorageID=wado-jpeg,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmProperty: pathFormat={0020000D}/{0020000E}/{00080018}/{00081160}.jpeg
-dcmProperty: checkMountFile=NO_MOUNT
+dcmCheckMountFilePath: NO_MOUNT
+dcmStoragePathFormat: {0020000D}/{0020000E}/{00080018}/{00081160}.jpeg
 objectClass: dcmStorage
 dcmStorageID: wado-jpeg
 dcmURI: ${jboss.server.data.url}/wado/
 
 dn: dcmStorageID=wado-json,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmProperty: pathFormat={0020000D}-{0020000E}.json
-dcmProperty: checkMountFile=NO_MOUNT
+dcmCheckMountFilePath: NO_MOUNT
+dcmStoragePathFormat: {0020000D}-{0020000E}.json
 objectClass: dcmStorage
 dcmStorageID: wado-json
 dcmURI: ${jboss.server.data.url}/wado/
@@ -3973,8 +3973,8 @@ objectClass: dcmMetrics
 dcmUnit: MB/s
 
 dn: dcmStorageID=series-metadata,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{now,date,HHmmss}.zip
-dcmProperty: checkMountFile=NO_MOUNT
+dcmCheckMountFilePath: NO_MOUNT
+dcmStoragePathFormat: {now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{now,date,HHmmss}.zip
 objectClass: dcmStorage
 dcmStorageID: series-metadata
 dcmURI: ${jboss.server.data.url}/series-metadata/
