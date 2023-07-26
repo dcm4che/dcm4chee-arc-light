@@ -1847,6 +1847,8 @@ app-studies{
     }
     img{
       vertical-align: middle;
+		width:15px;
+		height: auto;
     }
     span{
       margin-left: 5px;
@@ -1878,8 +1880,10 @@ app-studies{
       }
     }
     img{
-      float: left;
-      padding-top: 7px;
+		float: left;
+		padding-top: 7px;
+		width:15px;
+		height: auto;
     }
     span{
       float: left;
