@@ -3130,6 +3130,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public boolean isTrustedIssuerOfPatientID(Issuer other) {
+        if (trustedIssuerOfPatientID.length == 0 && trustedIssuerOfPatientIDPattern == null)
+            return true;
         if (other != null) {
             if (trustedIssuerOfPatientIDPattern != null
                     && other.getLocalNamespaceEntityID() != null
