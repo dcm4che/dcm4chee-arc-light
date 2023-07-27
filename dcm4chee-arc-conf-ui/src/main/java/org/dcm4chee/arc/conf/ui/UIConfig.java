@@ -59,6 +59,8 @@ public class UIConfig {
     private String dateTimeFormat;
     private boolean hideClock;
 
+    private String institutionNameFilterType;
+    private String[] institutionNames = {};
     private boolean hideOtherPatientIDs;
     private String pageTitle;
     private String personNameFormat;
@@ -136,6 +138,21 @@ public class UIConfig {
         return hideClock;
     }
 
+    public String getInstitutionNameFilterType() {
+        return institutionNameFilterType;
+    }
+
+    public void setInstitutionNameFilterType(String institutionNameFilterType) {
+        this.institutionNameFilterType = institutionNameFilterType;
+    }
+
+    public String[] getInstitutionNames() {
+        return institutionNames;
+    }
+
+    public void setInstitutionNames(String[] institutionNames) {
+        this.institutionNames = institutionNames;
+    }
     public boolean isHideOtherPatientIDs() {
         return hideOtherPatientIDs;
     }

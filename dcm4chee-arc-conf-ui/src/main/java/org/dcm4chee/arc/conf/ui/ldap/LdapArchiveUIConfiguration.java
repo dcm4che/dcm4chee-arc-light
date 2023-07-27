@@ -124,6 +124,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
+        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiInstitutionNameFilterType", uiConfig.getInstitutionNameFilterType(),null);
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiInstitutionName", uiConfig.getInstitutionNames());
         return attrs;
     }
 
@@ -541,6 +543,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setLogoUrl(LdapUtils.stringValue(attrs.get("dcmuiLogoURL"),null));
         uiConfig.setDefaultWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiDefaultWidgetAets")));
         uiConfig.setMWLWorklistLabels(LdapUtils.stringArray(attrs.get("dcmuiMWLWorklistLabel")));
+        uiConfig.setInstitutionNameFilterType(LdapUtils.stringValue(attrs.get("dcmuiInstitutionNameFilterType"), null));
+        uiConfig.setInstitutionNames(LdapUtils.stringArray(attrs.get("dcmuiInstitutionName")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
@@ -947,6 +951,10 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets", prevUIConfig.getWidgetAets(), uiConfig.getWidgetAets());
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiMWLWorklistLabel",
                 prevUIConfig.getMWLWorklistLabels(), uiConfig.getMWLWorklistLabels());
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiInstitutionNameFilterType",
+                prevUIConfig.getInstitutionNameFilterType(), uiConfig.getInstitutionNameFilterType(),null);
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiInstitutionName",
+                prevUIConfig.getInstitutionNames(), uiConfig.getInstitutionNames());
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",
                 prevUIConfig.getXdsUrl(), uiConfig.getXdsUrl(),null);
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",

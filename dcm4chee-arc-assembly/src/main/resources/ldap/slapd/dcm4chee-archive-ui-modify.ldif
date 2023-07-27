@@ -414,6 +414,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.86 NAME 'dcmuiInstitutionName'
    EQUALITY caseIgnoreMatch
    SUBSTR caseIgnoreSubstringsMatch
    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.87 NAME 'dcmuiInstitutionNameFilterType'
+  DESC 'Selectable mode which will define from where to get the InstitutionNames'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE)
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
@@ -423,7 +428,6 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
     dcmuiConfigName )
   MAY (
     dcmuiModalities $
-    dcmuiInstitutionName $
     dcmuiDefaultWidgetAets $
     dcmuiXDSInterfaceURL $
     dcmuiBackgroundURL $
@@ -437,6 +441,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
     dcmDefaultLanguage $
     dcmLanguages $
     dcmuiWidgetAets $
+    dcmuiInstitutionNameFilterType $
+    dcmuiInstitutionName $
     dcmuiMWLWorklistLabel ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.2 NAME 'dcmuiPermission'
   DESC 'Permission for UI Action'

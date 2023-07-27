@@ -97,6 +97,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         writer.writeNotEmpty("dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
         writer.writeNotEmpty("dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
+        writer.writeNotNullOrDef("dcmuiInstitutionNameFilterType", uiConfig.getInstitutionNameFilterType(), null);
+        writer.writeNotEmpty("dcmuiInstitutionName", uiConfig.getInstitutionNames());
         writeUIPermissions(writer, uiConfig.getPermissions());
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
@@ -451,6 +453,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiMWLWorklistLabel":
                     uiConfig.setMWLWorklistLabels(reader.stringArray());
+                    break;
+                case "dcmuiInstitutionNameFilterType":
+                    uiConfig.setInstitutionNameFilterType(reader.stringValue());
+                    break;
+                case "dcmuiInstitutionName":
+                    uiConfig.setInstitutionNames(reader.stringArray());
                     break;
                 case "dcmuiPermission":
                     loadUIPermissions(uiConfig, reader);
