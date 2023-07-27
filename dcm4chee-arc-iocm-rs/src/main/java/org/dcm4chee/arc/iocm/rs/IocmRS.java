@@ -273,6 +273,7 @@ public class IocmRS {
         attrs.addAll(patAttrs);
         attrs.setString(Tag.StudyDescription, VR.LO, mwlItemAttrs.getString(Tag.RequestedProcedureDescription));
         attrs.setString(Tag.StudyID, VR.SH, mwlItemAttrs.getString(Tag.RequestedProcedureID));
+        attrs.setString(Tag.InstitutionName, VR.LO, mwlItemAttrs.getString(Tag.InstitutionName));
         mwlItem.addItemToRequestAttributesSequence(attrs.newSequence(Tag.RequestAttributesSequence, 1));
         return attrs;
     }
