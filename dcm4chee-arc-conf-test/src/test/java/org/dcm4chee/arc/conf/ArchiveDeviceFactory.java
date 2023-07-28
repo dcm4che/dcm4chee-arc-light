@@ -347,6 +347,7 @@ class ArchiveDeviceFactory {
             Tag.AccessionNumber,
             Tag.IssuerOfAccessionNumberSequence,
             Tag.ReferringPhysicianName,
+            Tag.ReferringPhysicianIdentificationSequence,
             Tag.TimezoneOffsetFromUTC,
             Tag.StudyDescription,
             Tag.ProcedureCodeSequence,

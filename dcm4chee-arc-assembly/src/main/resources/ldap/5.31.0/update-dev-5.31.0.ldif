@@ -14,3 +14,9 @@ add: dcmCheckMountFilePath
 dcmCheckMountFilePath: NO_MOUNT
 -
 delete: dcmProperty
+
+dn: dcmEntity=Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 00080096
+-

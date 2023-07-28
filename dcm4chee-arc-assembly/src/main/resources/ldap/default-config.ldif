@@ -2725,6 +2725,7 @@ dcmTag: 00080030
 dcmTag: 00080050
 dcmTag: 00080051
 dcmTag: 00080090
+dcmTag: 00080096
 dcmTag: 00080201
 dcmTag: 00081030
 dcmTag: 00081032
