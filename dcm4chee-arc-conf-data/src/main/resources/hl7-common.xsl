@@ -773,8 +773,7 @@
       <xsl:with-param name="val" select="string(field[2]/text())"/>
     </xsl:call-template>
     <!-- Referring Physician Name -->
-    <xsl:call-template name="cn2pnAttr">
-      <xsl:with-param name="tag" select="'00080090'"/>
+    <xsl:call-template name="referringPhysician">
       <xsl:with-param name="cn" select="field[8]"/>
     </xsl:call-template>
     <xsl:call-template name="attr">
@@ -786,6 +785,32 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="referringPhysician">
+    <xsl:param name="cn"/>
+    <!-- Referring Physician Name -->
+    <xsl:call-template name="cn2pnAttr">
+      <xsl:with-param name="tag" select="'00080090'"/>
+      <xsl:with-param name="cn" select="$cn"/>
+    </xsl:call-template>
+    <!-- Referring Physician identification Sequence -->
+    <xsl:variable name="id" select="$cn/text()"/>
+    <xsl:if test="$id">
+      <DicomAttribute tag="00080096" vr="SQ">
+        <Item number="1">
+          <DicomAttribute tag="00401101" vr="SQ">
+            <Item number="1">
+              <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'00080100'"/>
+                <xsl:with-param name="vr" select="'SH'"/>
+                <xsl:with-param name="val" select="$id"/>
+              </xsl:call-template>
+            </Item>
+          </DicomAttribute>
+        </Item>
+      </DicomAttribute>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="pregnancyStatus">
