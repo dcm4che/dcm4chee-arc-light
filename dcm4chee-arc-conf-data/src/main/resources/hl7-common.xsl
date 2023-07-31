@@ -772,7 +772,7 @@
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="val" select="string(field[2]/text())"/>
     </xsl:call-template>
-    <!-- Referring Physician Name -->
+    <!-- Referring Physician -->
     <xsl:call-template name="referringPhysician">
       <xsl:with-param name="cn" select="field[8]"/>
     </xsl:call-template>
