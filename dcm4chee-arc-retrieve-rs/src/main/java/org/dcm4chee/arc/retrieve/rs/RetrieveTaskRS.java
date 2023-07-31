@@ -108,7 +108,7 @@ public class RetrieveTaskRS {
     private String studyIUID;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|SCHEDULED_FOR_RETRY|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -312,11 +312,20 @@ public class RetrieveTaskRS {
         return sw.toString();
     }
 
+    private void scheduledForRetry(TaskQueryParam taskQueryParam) {
+        if (status == null || !status.equals("SCHEDULED_FOR_RETRY")) {
+            taskQueryParam.setStatus(status);
+            return;
+        }
+
+        taskQueryParam.setStatus("SCHEDULED");
+        taskQueryParam.setFailed(true);
+    }
+
     private TaskQueryParam taskQueryParam(String deviceName) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setDeviceName(deviceName);
-        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
@@ -329,6 +338,7 @@ public class RetrieveTaskRS {
         taskQueryParam.setRemoteAET(remoteAET);
         taskQueryParam.setStudyIUID(studyIUID);
         taskQueryParam.setDestinationAET(destinationAET);
+        scheduledForRetry(taskQueryParam);
         return taskQueryParam;
     }
 

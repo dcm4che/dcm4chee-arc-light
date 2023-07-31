@@ -74,6 +74,7 @@ public class TaskQueryParam {
     private String checkMissing;
     private String checkDifferent;
     private String compareFields;
+    private boolean failed;
     private List<String> exporterIDs = new ArrayList<>();
 
     public Long getTaskPK() {
@@ -259,6 +260,14 @@ public class TaskQueryParam {
 
     public void setCheckDifferent(String checkDifferent) {
         this.checkDifferent = checkDifferent;
+    }
+
+    public boolean hasFailed() {
+        return failed;
+    }
+
+    public void setFailed(boolean failed) {
+        this.failed = failed;
     }
 
     @Override
