@@ -56,6 +56,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     tableHovered = false;
     statuses = [
         "SCHEDULED",
+        "SCHEDULED FOR RETRY",
         "IN PROCESS",
         "COMPLETED",
         "WARNING",
