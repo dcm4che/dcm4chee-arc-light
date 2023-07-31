@@ -94,7 +94,7 @@ public class QueueManagerRS {
     private List<String> newDeviceName;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|SCHEDULED_FOR_RETRY|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|SCHEDULED FOR RETRY|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("offset")
@@ -238,7 +238,7 @@ public class QueueManagerRS {
     }
 
     private void scheduledForRetry(TaskQueryParam taskQueryParam) {
-        if (status == null || !status.equals("SCHEDULED_FOR_RETRY")) {
+        if (status == null || !status.equals("SCHEDULED FOR RETRY")) {
             taskQueryParam.setStatus(status);
             return;
         }
