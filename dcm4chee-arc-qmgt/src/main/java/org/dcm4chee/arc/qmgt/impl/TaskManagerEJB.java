@@ -143,7 +143,7 @@ public class TaskManagerEJB {
 //            return;
 //        }
 //        LOG.warn("Failed processing of {}", entity);
-        scheduledForRetryOrFailed(entity, null);
+        scheduledForRetry(entity, null);
     }
 
     public void onProcessingFailed(Task task, Throwable e) {
@@ -155,6 +155,7 @@ public class TaskManagerEJB {
 
         entity.setErrorMessage(e.getMessage());
         entity.setProcessingEndTime(new Date());
+        entity.setStatus(Task.Status.FAILED);
 //        QueueDescriptor descriptor = descriptorOf(entity.getQueueName());
 //        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
 //        if (delay >= 0) {
@@ -167,10 +168,10 @@ public class TaskManagerEJB {
 //        }
 //        LOG.warn("Failed processing of {}:\n", entity, e);
 //        entity.setStatus(Task.Status.FAILED);
-        scheduledForRetryOrFailed(entity, e);
+        scheduledForRetry(entity, e);
     }
 
-    private void scheduledForRetryOrFailed(Task entity, Throwable e) {
+    private void scheduledForRetry(Task entity, Throwable e) {
         long delay = descriptorOf(entity.getQueueName())
                         .getRetryDelayInSeconds(entity.incrementNumberOfFailures());
         Date scheduledTime = new Date(System.currentTimeMillis() + delay * 1000L);
@@ -191,8 +192,6 @@ public class TaskManagerEJB {
             LOG.warn("Failed processing of {}", entity);
         else
             LOG.warn("Failed processing of {}:\n", entity, e);
-
-        entity.setStatus(Task.Status.FAILED);
     }
 
     private QueueDescriptor descriptorOf(String queueName) {
