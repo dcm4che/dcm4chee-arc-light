@@ -315,20 +315,11 @@ public class ExportTaskRS {
         return sw.toString();
     }
 
-    private void scheduledForRetry(TaskQueryParam taskQueryParam) {
-        if (status == null || !status.equals("SCHEDULED FOR RETRY")) {
-            taskQueryParam.setStatus(status);
-            return;
-        }
-
-        taskQueryParam.setStatus("SCHEDULED");
-        taskQueryParam.setFailed(true);
-    }
-
     private TaskQueryParam taskQueryParam(String deviceName) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
@@ -338,7 +329,6 @@ public class ExportTaskRS {
         taskQueryParam.setExporterIDs(exporterIDs.stream()
                 .flatMap(exporterID -> Stream.of(StringUtils.split(exporterID, ',')))
                 .collect(Collectors.toList()));
-        scheduledForRetry(taskQueryParam);
         return taskQueryParam;
     }
 

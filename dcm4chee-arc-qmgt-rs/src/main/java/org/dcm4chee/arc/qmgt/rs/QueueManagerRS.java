@@ -237,28 +237,18 @@ public class QueueManagerRS {
         return sw.toString();
     }
 
-    private void scheduledForRetry(TaskQueryParam taskQueryParam) {
-        if (status == null || !status.equals("SCHEDULED FOR RETRY")) {
-            taskQueryParam.setStatus(status);
-            return;
-        }
-
-        taskQueryParam.setStatus("SCHEDULED");
-        taskQueryParam.setFailed(true);
-    }
-
     private TaskQueryParam taskQueryParam(String deviceName) {
         TaskQueryParam taskQueryParam = new TaskQueryParam();
         taskQueryParam.setTaskPK(taskID);
         taskQueryParam.setQueueNames(Collections.singletonList(queueName));
         taskQueryParam.setDeviceName(deviceName);
+        taskQueryParam.setStatus(status);
         taskQueryParam.setBatchID(batchID);
         taskQueryParam.setLocalAET(localAET);
         taskQueryParam.setRemoteAET(remoteAET);
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
-        scheduledForRetry(taskQueryParam);
         return taskQueryParam;
     }
 

@@ -61,6 +61,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -85,7 +86,7 @@ public class TaskManagerEJB {
         return em.createNamedQuery(Task.FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS, Long.class)
                 .setParameter(1, device.getDeviceName())
                 .setParameter(2, queueName)
-                .setParameter(3, Task.Status.SCHEDULED)
+                .setParameter(3, Arrays.asList(Task.Status.SCHEDULED, Task.Status.SCHEDULED_FOR_RETRY))
                 .setMaxResults(maxResults)
                 .getResultList();
     }
@@ -106,7 +107,7 @@ public class TaskManagerEJB {
         Task entity = em.find(Task.class, pk);
         if (entity == null) {
             LOG.info("Suppress processing of already deleted Task[pk={}]", pk);
-        } else if (entity.getStatus() != Task.Status.SCHEDULED) {
+        } else if (entity.getStatus() != Task.Status.SCHEDULED && entity.getStatus() != Task.Status.SCHEDULED_FOR_RETRY) {
             LOG.info("Suppress processing {}", entity);
         } else {
             entity.setProcessingStartTime(new Date());
@@ -116,61 +117,82 @@ public class TaskManagerEJB {
         return null;
     }
 
-    public Task onProcessingSuccessful(Task task, Outcome outcome) {
+    public void onProcessingSuccessful(Task task, Outcome outcome) {
         Task entity = em.find(Task.class, task.getPk());
         if (entity == null) {
             LOG.info("Finished processing of {}", task);
-            return null;
+            return;
         }
         Task.Status status = outcome.getStatus();
-        String queueName = entity.getQueueName();
         entity.setProcessingEndTime(new Date());
         entity.setOutcomeMessage(outcome.getDescription());
-        entity.setStatus(status);
-        QueueDescriptor descriptor = descriptorOf(queueName);
+        entity.setStatus(outcome.getStatus());
+        QueueDescriptor descriptor = descriptorOf(entity.getQueueName());
         if (status == Task.Status.COMPLETED || status == Task.Status.CANCELED
                 || status == Task.Status.WARNING && !descriptor.isRetryOnWarning()) {
             LOG.info("Finished processing of {}", entity);
-            return entity;
+            return;
         }
-        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
-        if (delay >= 0) {
-            LOG.info("Failed processing of {} - retry", entity);
-            entity.setStatus(Task.Status.SCHEDULED);
-            rescheduleTask(entity, new Date(System.currentTimeMillis() + delay * 1000L));
-            return entity;
-        }
-        LOG.warn("Failed processing of {}", entity);
-        entity.setStatus(status);
-        return entity;
+//        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
+//        if (delay >= 0) {
+//            LOG.info("Failed processing of {} - retry", entity);
+//            entity.setScheduledTime(new Date(System.currentTimeMillis() + delay * 1000L));
+//            entity.setStatus(Task.Status.SCHEDULED_FOR_RETRY);
+//            entity.setDeviceName(device.getDeviceName());
+//            LOG.info("Reschedule {}", entity);
+//            return;
+//        }
+//        LOG.warn("Failed processing of {}", entity);
+        scheduledForRetryOrFailed(entity, null);
     }
 
-    public Task onProcessingFailed(Task task, Throwable e) {
+    public void onProcessingFailed(Task task, Throwable e) {
         Task entity = em.find(Task.class, task.getPk());
         if (entity == null) {
-            LOG.warn("Failed processing of {}}:\n", task, e);
-            return null;
+            LOG.warn("Failed processing of {}:\n", task, e);
+            return;
         }
 
         entity.setErrorMessage(e.getMessage());
         entity.setProcessingEndTime(new Date());
-        QueueDescriptor descriptor = descriptorOf(entity.getQueueName());
-        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
-        if (delay < 0) {
-            LOG.warn("Failed processing of {}:\n", entity, e);
-            entity.setStatus(Task.Status.FAILED);
-        } else {
-            LOG.info("Failed processing of {} - retry:\n", entity, e);
-            rescheduleTask(entity, new Date(System.currentTimeMillis() + delay * 1000L));
-        }
-        return entity;
+//        QueueDescriptor descriptor = descriptorOf(entity.getQueueName());
+//        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
+//        if (delay >= 0) {
+//            LOG.info("Failed processing of {} - retry:\n", entity, e);
+//            entity.setScheduledTime(new Date(System.currentTimeMillis() + delay * 1000L));
+//            entity.setStatus(Task.Status.SCHEDULED_FOR_RETRY);
+//            entity.setDeviceName(device.getDeviceName());
+//            LOG.info("Reschedule {}", entity);
+//            return;
+//        }
+//        LOG.warn("Failed processing of {}:\n", entity, e);
+//        entity.setStatus(Task.Status.FAILED);
+        scheduledForRetryOrFailed(entity, e);
     }
 
-    private void rescheduleTask(Task entity, Date scheduledTime) {
-        entity.setScheduledTime(scheduledTime);
-        entity.setStatus(Task.Status.SCHEDULED);
-        entity.setDeviceName(device.getDeviceName());
-        LOG.info("Reschedule {}", entity);
+    private void scheduledForRetryOrFailed(Task entity, Throwable e) {
+        long delay = descriptorOf(entity.getQueueName())
+                        .getRetryDelayInSeconds(entity.incrementNumberOfFailures());
+        Date scheduledTime = new Date(System.currentTimeMillis() + delay * 1000L);
+        if (delay >= 0) {
+            if (e == null)
+                LOG.info("Failed processing of {} - retry", entity);
+            else
+                LOG.info("Failed processing of {} - retry:\n", entity, e);
+
+            entity.setScheduledTime(scheduledTime);
+            entity.setStatus(Task.Status.SCHEDULED_FOR_RETRY);
+            entity.setDeviceName(device.getDeviceName());
+            LOG.info("Reschedule {}", entity);
+            return;
+        }
+
+        if (e == null)
+            LOG.warn("Failed processing of {}", entity);
+        else
+            LOG.warn("Failed processing of {}:\n", entity, e);
+
+        entity.setStatus(Task.Status.FAILED);
     }
 
     private QueueDescriptor descriptorOf(String queueName) {

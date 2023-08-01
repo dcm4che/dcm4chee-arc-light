@@ -532,12 +532,8 @@ public class QueryBuilder {
             predicates.add(task.get(Task_.queueName).in(taskQueryParam.getQueueNames()));
         if (taskQueryParam.getNotStatus() != null)
             predicates.add(cb.notEqual(task.get(Task_.status), taskQueryParam.getNotStatus()));
-        Task.Status status = taskQueryParam.getStatus();
-        if (status != null) {
-            predicates.add(cb.equal(task.get(Task_.status), status));
-            if (status == Task.Status.SCHEDULED && taskQueryParam.hasFailed())
-                predicates.add(cb.greaterThan(task.get(Task_.numberOfFailures), 0));
-        }
+        if (taskQueryParam.getStatus() != null)
+            predicates.add(cb.equal(task.get(Task_.status), taskQueryParam.getStatus()));
         if (taskQueryParam.getDeviceName() != null)
             predicates.add(cb.equal(task.get(Task_.deviceName), taskQueryParam.getDeviceName()));
         if (taskQueryParam.getBatchID() != null)
