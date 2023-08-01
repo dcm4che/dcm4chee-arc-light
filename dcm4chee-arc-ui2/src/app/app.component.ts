@@ -70,6 +70,8 @@ export class AppComponent implements OnInit {
     dcmuiHideClock:boolean = false;
     dcmuiPageTitle:string;
     dcmuiHideOtherPatientIDs: boolean = false;
+    dcmuiInstitutionNameFilterType:string;
+    dcmuiInstitutionName:string[];
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -135,7 +137,19 @@ export class AppComponent implements OnInit {
             this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig), this.mainservice.user);
         }
         this.mainservice.globalSet$.subscribe(global=>{
+            console.log("******...global1",global);
             if(_.hasIn(global,"uiConfig")){
+                if(_.hasIn(global, "uiConfig.dcmuiInstitutionNameFilterType") && !this.dcmuiInstitutionNameFilterType){
+                    this.dcmuiInstitutionNameFilterType = _.get(global, "uiConfig.dcmuiInstitutionNameFilterType");
+                    global["dcmuiInstitutionNameFilterType"] = this.dcmuiInstitutionNameFilterType;
+                    this.mainservice.setGlobal(global);
+
+                }
+                if(_.hasIn(global, "uiConfig.dcmuiInstitutionName") && !this.dcmuiInstitutionName){
+                    this.dcmuiInstitutionName = _.get(global, "uiConfig.dcmuiInstitutionName");
+                    global["dcmuiInstitutionName"] = this.dcmuiInstitutionName;
+                    this.mainservice.setGlobal(global);
+                }
                 if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
                     if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) { //TODO comparing with stringify is not a good idea
                         localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
@@ -176,6 +190,7 @@ export class AppComponent implements OnInit {
                     }
                     this.mainservice.setGlobal(global);
                 }
+
             }
         });
     }

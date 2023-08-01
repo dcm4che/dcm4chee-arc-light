@@ -70,7 +70,7 @@ import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-tr
 import {MwlDicom} from "../../models/mwl-dicom";
 import {MppsDicom} from "../../models/mpps-dicom";
 import {ChangeDetectorRef} from "@angular/core";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
 import {filter, map, switchMap} from "rxjs/operators";
@@ -319,8 +319,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         }
     }
-    ngOnInit() {
 
+    ngOnInit() {
         this.largeIntFormat = new LargeIntFormatPipe();
         if(this.service.selectedElements){
             this.selectedElements = this.service.selectedElements;
@@ -6728,12 +6728,106 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.httpErrorHandler.handleError(err);
         });
     }
-
+    dcmuiInstitutionNameFilterType;
+    dcmuiInstitutionName;
     getInstitutions($this, entity?: any, callback?:Function) {
+/*        this.appService.globalSet$.subscribe(global=>{
+                if(_.hasIn(global, "uiConfig.dcmuiInstitutionNameFilterType")){
+                    if(!this.dcmuiInstitutionNameFilterType){
+                        this.dcmuiInstitutionNameFilterType = _.get(global, "uiConfig.dcmuiInstitutionNameFilterType");
+                        callback.call($this);
+                    }
+                    if(this.dcmuiInstitutionNameFilterType === "ui_config"){
+                        if(_.hasIn(global, "uiConfig.dcmuiInstitutionName")){
+                            if(!this.dcmuiInstitutionName){
+                                this.dcmuiInstitutionName = _.get(global, "uiConfig.dcmuiInstitutionName");
+                            }
+                        }
+                        if(this.dcmuiInstitutionName && this.dcmuiInstitutionName.length > 0){
+                            this.institutions = this.dcmuiInstitutionName.map((institution:string) => {
+                                return new SelectDropdown(institution, institution);
+                            });
+                        }
+                        callback.call($this);
+                    }
+                    if(this.dcmuiInstitutionNameFilterType === "db"){
+                        this.service.getInstitutions(entity).subscribe(institutions=>{
+                            this.institutions = institutions.Institutions.map((institution:string) => {
+                                return new SelectDropdown(institution, institution);
+                            });
+                            callback.call($this);
+                        });
+                    }
+                }else{
+                    callback.call($this);
+                }
+            },
+            err => {
+                this.httpErrorHandler.handleError(err);
+                this.institutions = undefined;
+                callback.call($this);
+            }
+        );*/
+
+/*        this.appService.globalSet$.pipe(
+            map(global=>{
+                if(_.hasIn(global, "uiConfig.dcmuiInstitutionNameFilterType")){
+                    if(!this.dcmuiInstitutionNameFilterType){
+                        this.dcmuiInstitutionNameFilterType = _.get(global, "uiConfig.dcmuiInstitutionNameFilterType");
+                    }
+                    if(this.dcmuiInstitutionNameFilterType === "ui_config"){
+                        if(_.hasIn(global, "uiConfig.dcmuiInstitutionName")){
+                            if(!this.dcmuiInstitutionName){
+                                this.dcmuiInstitutionName = _.get(global, "uiConfig.dcmuiInstitutionName");
+                            }
+                        }
+                        if(this.dcmuiInstitutionName && this.dcmuiInstitutionName.length > 0){
+                            return this.dcmuiInstitutionName;
+                        }1
+                    }
+                    if(this.dcmuiInstitutionNameFilterType === "db"){
+                        return "db";
+                    }
+                }
+                return;
+            }),
+            switchMap(state => {
+                if(state && state === "db"){
+                    return this.service.getInstitutions(entity);
+                }
+                if(state && state.length && state.length > 0){
+                    return of({
+                        Institutions:state
+                    });
+                }
+                return of();
+            }),
+        ).subscribe((institutions:any) => {
+            if(institutions){
+                this.institutions = institutions.Institutions.map((institution:string) => {
+                    return new SelectDropdown(institution, institution);
+                });
+            }
+            callback.call($this);
+        }, err => {
+            this.httpErrorHandler.handleError(err);
+            this.institutions;
+            callback.call($this);
+        });*/
+/*        this.appService.globalSet$.subscribe(global=>{
+            console.log("************global2", global)
+        });*/
         this.service.getInstitutions(entity).subscribe((institutions:any) => {
-            this.institutions = institutions.Institutions.map((institution:string) => {
-                return new SelectDropdown(institution, institution);
-            });
+            if(
+                _.hasIn(institutions,"Institutions") &&
+                typeof institutions.Institutions === "object" &&
+                institutions.Institutions.length > 0 &&
+                institutions.Institutions.join("") != ""
+            ){
+                this.institutions = institutions.Institutions.map((institution:string) => {
+                    return new SelectDropdown(institution, institution);
+                });
+            }
             callback.call($this);
         }, err => {
             this.httpErrorHandler.handleError(err);

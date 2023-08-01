@@ -4,7 +4,7 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import {AppService} from "./app.service";
 import {j4care} from "./helpers/j4care.service";
 import {forkJoin, of} from "rxjs";
-import {catchError, combineLatest, map, switchMap} from "rxjs/operators";
+import {catchError, combineLatest, map, shareReplay, switchMap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import * as _ from 'lodash-es';
 import {DcmWebApp} from "./models/dcm-web-app";
@@ -54,7 +54,7 @@ export class AppRequestsService {
     }
     getDcm4cheeArc(){
         let tempDcm4cheeArch;
-        if(this._dcm4cheeArcConfig){3
+        if(this._dcm4cheeArcConfig){
             return of(this._dcm4cheeArcConfig);
         }else{
             return this.$httpClient.get("./rs/dcm4chee-arc").pipe(
@@ -94,6 +94,7 @@ export class AppRequestsService {
                     this.appService.dcm4cheeArcConfig = tempDcm4cheeArch;
                     return tempDcm4cheeArch;
                 }),
+                shareReplay(1),
                 catchError(err=>{
                     return err;
                 })
@@ -126,7 +127,8 @@ export class AppRequestsService {
                             this.appService.showError($localize `:@@permission_not_found:Permission not found!`);
                         }
                         return res;
-                    })
+                    }),
+                    shareReplay(1)
                 );
         }
     }

@@ -54,6 +54,7 @@ import {DatePipe} from "@angular/common";
 import {CustomDatePipe} from "../../pipes/custom-date.pipe";
 import {SeriesDicom} from "../../models/series-dicom";
 import {StudyDicom} from "../../models/study-dicom";
+import {AppRequestsService} from "../../app-requests.service";
 
 @Injectable()
 export class StudyService {
@@ -74,7 +75,8 @@ export class StudyService {
         private webAppListService: WebAppsListService,
         private permissionService: PermissionService,
         private _keycloakService:KeycloakService,
-        private appService:AppService
+        private appService:AppService,
+        private appRequest:AppRequestsService
     ) {}
 
     getWebApps(filter?:any) {
@@ -5084,11 +5086,45 @@ export class StudyService {
 
     getRejectNotes = (params?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`);
 
+
+    dcmuiInstitutionNameFilterType;
     getInstitutions = (entity?: any) => {
         if(this.institutions){
             return of(this.institutions);
         }else{
-            return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
+            return this.appRequest.getUiConfig().pipe(map(uiConfig=>{
+                    if(_.hasIn(uiConfig, "dcmuiInstitutionNameFilterType")){
+                        if(!this.dcmuiInstitutionNameFilterType){
+                            this.dcmuiInstitutionNameFilterType = _.get(uiConfig, "dcmuiInstitutionNameFilterType");
+                        }
+                        if(this.dcmuiInstitutionNameFilterType === "ui_config"){
+                            if(_.hasIn(uiConfig, "dcmuiInstitutionName")){
+                                if(!this.institutions){
+                                    this.institutions = _.get(uiConfig, "dcmuiInstitutionName");
+                                }
+                            }
+                            if(this.institutions && this.institutions.length > 0){
+                                return this.institutions;
+                            }
+                        }
+                        if(this.dcmuiInstitutionNameFilterType === "db"){
+                            return "db";
+                        }
+                    }
+                    return;
+                }),
+                switchMap(state => {
+                    if(state && state === "db"){
+                        return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
+                    }
+                    if(state && state.length && state.length > 0){
+                        return of({
+                            Institutions:state
+                        });
+                    }
+                    return of();
+                }))
+            //return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
         }
     }
 
