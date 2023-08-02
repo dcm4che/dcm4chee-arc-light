@@ -67,6 +67,7 @@ export class StudyService {
 
     selectedElements:SelectionActionElement;
     institutions;
+    dcmuiInstitutionNameFilterType;
     constructor(
         private aeListService: AeListService,
         private $http: J4careHttpService,
@@ -5087,7 +5088,6 @@ export class StudyService {
     getRejectNotes = (params?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`);
 
 
-    dcmuiInstitutionNameFilterType;
     getInstitutions = (entity?: any) => {
         if(this.institutions){
             return of(this.institutions);
