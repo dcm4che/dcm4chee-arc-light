@@ -137,7 +137,6 @@ export class AppComponent implements OnInit {
             this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig), this.mainservice.user);
         }
         this.mainservice.globalSet$.subscribe(global=>{
-            console.log("******...global1",global);
             if(_.hasIn(global,"uiConfig")){
                 if(_.hasIn(global, "uiConfig.dcmuiInstitutionNameFilterType") && !this.dcmuiInstitutionNameFilterType){
                     this.dcmuiInstitutionNameFilterType = _.get(global, "uiConfig.dcmuiInstitutionNameFilterType");
