@@ -919,7 +919,7 @@ public class StoreServiceEJB {
             return false;
 
         Attributes pidAttrs = patMgtCtx.getAttributes();
-        if (pidAttrs.contains(Tag.PatientID)) {
+        if (pidAttrs.containsValue(Tag.PatientID)) {
             Sequence seq = pidAttrs.ensureSequence(Tag.OtherPatientIDsSequence, 1);
             seq.add(pidAttrs = new Attributes());
         }
