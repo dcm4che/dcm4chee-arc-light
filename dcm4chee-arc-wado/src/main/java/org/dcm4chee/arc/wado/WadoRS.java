@@ -1208,6 +1208,10 @@ public class WadoRS {
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/stl.png";
             case UID.PrivateDcm4cheEncapsulatedGenozipStorage:
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/dna.png";
+            case UID.PrivateDcm4cheEncapsulatedBzip2VCFStorage:
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/dna.png";
+            case UID.PrivateDcm4cheEncapsulatedBzip2DocumentStorage:
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/bz2.png";
             case UID.KeyObjectSelectionDocumentStorage:
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/ko.png";
             case UID.RawDataStorage:
@@ -1335,6 +1339,8 @@ public class WadoRS {
             case EncapsulatedOBJ:
             case EncapsulatedMTL:
             case EncapsulatedGenozip:
+            case EncapsulatedVCFBzip2:
+            case EncapsulatedBzip2:
                 entity = new BulkdataOutput(ctx, inst, Tag.EncapsulatedDocument);
                 break;
             default:

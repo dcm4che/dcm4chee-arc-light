@@ -431,6 +431,8 @@ public class WadoURI {
             case EncapsulatedOBJ:
             case EncapsulatedMTL:
             case EncapsulatedGenozip:
+            case EncapsulatedVCFBzip2:
+            case EncapsulatedBzip2:
                 return decapsulateDocument(service.openDicomInputStream(ctx, inst));
             case MPEG2Video:
             case MPEG4Video:
