@@ -11,7 +11,9 @@
   <xsl:param name="VerifyingOrganization">Verifying Organization</xsl:param>
   <xsl:template match="/hl7">
     <NativeDicomModel>
-      <xsl:call-template name="const-attrs"/>
+      <xsl:call-template name="const-attrs">
+        <xsl:with-param name="observationID" select="OBX[field[2]/text()='ED']/field[3]"/>
+      </xsl:call-template>
       <xsl:variable name="valueType" select="OBX/field[2]"/>
       <xsl:call-template name="institution">
         <xsl:with-param name="performingOrganizationName" select="OBX/field[23]/text()"/>
@@ -216,6 +218,7 @@
   </xsl:template>
 
   <xsl:template name="const-attrs">
+    <xsl:param name="observationID"/>
     <!--Study Date-->
     <DicomAttribute tag="00080020" vr="DA"/>
     <!--Study Time-->
@@ -247,12 +250,24 @@
       <xsl:with-param name="val" select="'CONTAINER'"/>
     </xsl:call-template>
     <!--Concept Name Code Sequence-->
-    <xsl:call-template name="codeItem">
-      <xsl:with-param name="sqtag">0040A043</xsl:with-param>
-      <xsl:with-param name="code" select="$docTitleCodeValue"/>
-      <xsl:with-param name="scheme" select="$docTitleCodingSchemeDesignator"/>
-      <xsl:with-param name="meaning" select="$docTitleCodeMeaning"/>
-    </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test="$observationID and $observationID/text() and $observationID/component[1] and $observationID/component[2]">
+        <xsl:call-template name="codeItem">
+          <xsl:with-param name="sqtag">0040A043</xsl:with-param>
+          <xsl:with-param name="code" select="$observationID/text()"/>
+          <xsl:with-param name="scheme" select="$observationID/component[2]"/>
+          <xsl:with-param name="meaning" select="$observationID/component[1]"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="codeItem">
+          <xsl:with-param name="sqtag">0040A043</xsl:with-param>
+          <xsl:with-param name="code" select="$docTitleCodeValue"/>
+          <xsl:with-param name="scheme" select="$docTitleCodingSchemeDesignator"/>
+          <xsl:with-param name="meaning" select="$docTitleCodeMeaning"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
     <!--Continuity Of Content-->
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'0040A050'"/>
