@@ -974,6 +974,8 @@ class ArchiveDeviceFactory {
 
     static final String[] PRIVATE_CUIDS = {
             UID.PrivateDcm4cheEncapsulatedGenozipStorage,
+            UID.PrivateDcm4cheEncapsulatedBzip2VCFStorage,
+            UID.PrivateDcm4cheEncapsulatedBzip2DocumentStorage,
             UID.PrivateAgfaArrivalTransaction,
             UID.PrivateAgfaBasicAttributePresentationState,
             UID.PrivateAgfaDictationTransaction,
