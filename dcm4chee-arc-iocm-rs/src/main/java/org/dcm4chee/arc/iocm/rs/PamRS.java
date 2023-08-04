@@ -158,9 +158,17 @@ public class PamRS {
         return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
+    private Collection<IDWithIssuer> trustedPatientIDs(String multiplePatientIDs, ArchiveAEExtension arcAE) {
+        String[] patientIDs = multiplePatientIDs.split("~");
+        Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
+        for (String cx : patientIDs)
+            patientIdentifiers.add(new IDWithIssuer(cx));
+        return arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(patientIdentifiers);
+    }
+
     @DELETE
     @Path("/patients/{PatientID}")
-    public Response deletePatient(@PathParam("PatientID") IDWithIssuer patientID) {
+    public Response deletePatient(@PathParam("PatientID") String multiplePatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -170,22 +178,28 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            Patient patient = patientService.findPatient(Collections.singleton(patientID));
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse("Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            Patient patient = patientService.findPatient(trustedPatientIDs);
             if (patient == null)
-                return errResponse("Patient having patient ID : " + patientID + " not found.",
+                return errResponse("Patient with patient identifiers " + trustedPatientIDs + " not found.",
                         Response.Status.NOT_FOUND);
+
             AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
             String patientDeleteForbidden = allowDeletePatient == AllowDeletePatient.NEVER
                     ? "Patient deletion as per configuration is never allowed."
                     : allowDeletePatient == AllowDeletePatient.WITHOUT_STUDIES && patient.getNumberOfStudies() > 0
-                    ? "Patient having patient ID : " + patientID + " has non empty studies."
+                    ? "Patient with patient identifiers " + trustedPatientIDs + " has non empty studies."
                     : null;
             if (patientDeleteForbidden != null)
                 return errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN);
 
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
-            ctx.setPatientIDs(Collections.singleton(patientID));
+            ctx.setPatientIDs(trustedPatientIDs);
             ctx.setAttributes(patient.getAttributes());
             ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
             ctx.setPatient(patient);
@@ -246,11 +260,20 @@ public class PamRS {
         return ctx;
     }
 
+    private boolean isPatientMatch(
+            Collection<IDWithIssuer> targetPatientIDs, Collection<IDWithIssuer> trustedPriorPatientIDs) {
+        for (IDWithIssuer trustedPriorPatientID : trustedPriorPatientIDs)
+            if (targetPatientIDs.contains(trustedPriorPatientID))
+                return true;
+
+        return false;
+    }
+
     @PUT
     @Path("/patients/{priorPatientID}")
     @Consumes("application/dicom+json,application/json")
     public Response updatePatient(
-            @PathParam("priorPatientID") IDWithIssuer priorPatientID,
+            @PathParam("priorPatientID") String multiplePriorPatientIDs,
             @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
             InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -261,14 +284,21 @@ public class PamRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
 
+        Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
+        if (trustedPriorPatientIDs.isEmpty())
+            return errResponse("Missing patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                    Response.Status.BAD_REQUEST);
+
         PatientMgtContext ctx = patientMgtCtx(in);
         ctx.setArchiveAEExtension(arcAE);
-        Collection<IDWithIssuer> targetPatientIDs = ctx.getPatientIDs();
+        Collection<IDWithIssuer> targetPatientIDs = trustedPatientIDs(ctx.getPatientIDs().toString(), arcAE);
         if (targetPatientIDs.isEmpty())
-            return errResponse("Missing patient identifiers in request payload", Response.Status.BAD_REQUEST);
+            return errResponse(
+                    "Missing patient identifier with trusted assigning authority in request payload" + ctx.getPatientIDs(),
+                    Response.Status.BAD_REQUEST);
 
         boolean mergePatients = Boolean.parseBoolean(merge);
-        boolean patientMatch = targetPatientIDs.contains(priorPatientID);
+        boolean patientMatch = isPatientMatch(targetPatientIDs, trustedPriorPatientIDs);
         if (patientMatch && mergePatients)
             return errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST);
 
@@ -282,7 +312,7 @@ public class PamRS {
                     msgType = "ADT^A31^ADT_A05";
                 }
             } else {
-                ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+                ctx.setPreviousPatientIDs(trustedPriorPatientIDs);
                 if (mergePatients) {
                     msgType = "ADT^A40^ADT_A39";
                     rsOp = RSOperation.MergePatient2;
