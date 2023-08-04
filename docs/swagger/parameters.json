@@ -146,7 +146,7 @@
   "patientPathParam": {
     "name": "patientID",
     "in": "path",
-    "description": "Patient ID and Issuer encoded as HL7 CX",
+    "description": "Multiple Patient IDs and their Issuers encoded as HL7 CX separated by repetition character ~",
     "required": true,
     "schema": {
       "type": "string"
@@ -155,7 +155,7 @@
   "priorPatientPathParam": {
     "name": "priorPatientID",
     "in": "path",
-    "description": "Prior Patient ID and Issuer encoded as HL7 CX",
+    "description": "Multiple prior Patient IDs and their Issuers encoded as HL7 CX separated by repetition character ~",
     "required": true,
     "schema": {
       "type": "string"

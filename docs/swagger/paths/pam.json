@@ -161,7 +161,7 @@
           "description": "successful operation"
         },
         "400": {
-          "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed."
+          "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed or Missing (prior) patient identifier with trusted assigning authority in specified / sent patient identifiers in request URL / payload."
         },
         "403": {
           "description": "Update, Create, Merge or Change Patient ID of already merged patient forbidden"
@@ -194,6 +194,9 @@
       "responses": {
         "204": {
           "description": "successful operation"
+        },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "403": {
           "description": "Patient Deletion never allowed as per configuration or Patient has non empty studies or Attempt to delete already merged patient"
