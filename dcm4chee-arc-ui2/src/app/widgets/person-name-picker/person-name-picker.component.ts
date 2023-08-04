@@ -111,9 +111,9 @@ export class PersonNamePickerComponent implements OnInit {
 
   set asFilterModel(value: string) {
     this._asFilterModel = value;
-    if(value.indexOf("=") > -1){
+/*    if(value.indexOf("=") > -1){
       this.modelChange.emit(value.replace("=","%3D"));
-    }
+    }*/
     this.modelChange.emit(value);
   }
   clear(){

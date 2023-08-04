@@ -43,7 +43,7 @@ import {StudyWebService} from "./study-web-service.model";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
-import {catchError, map, switchMap, tap, delay} from "rxjs/operators";
+import {catchError, map, switchMap, tap, delay, shareReplay} from "rxjs/operators";
 import {FormatTMPipe} from "../../pipes/format-tm.pipe";
 import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
@@ -981,10 +981,19 @@ export class StudyService {
     }
 
     getDiffAttributeSet = (baseUrl?: string) => this.$http.get(`${baseUrl ? j4care.addLastSlash(baseUrl): j4care.addLastSlash(this.appService.baseUrl)}attribute-set/DIFF_RS`);
-
-    getAets = () => this.aeListService.getAets();
-
-    getAes = () => this.aeListService.getAes();
+    sharedObservables$ = {};
+    getAets(){
+        if(!this.sharedObservables$["aets"]){
+            this.sharedObservables$["aets"] = this.aeListService.getAets().pipe(shareReplay(1))
+        }
+        return this.sharedObservables$["aets"];
+    };
+    getAes(){
+        if(!this.sharedObservables$["aes"]){
+            this.sharedObservables$["aes"] = this.aeListService.getAes().pipe(shareReplay(1))
+        }
+        return this.sharedObservables$["aes"];
+    };
 
     equalsIgnoreSpecificCharacterSet(attrs, other) {
         return Object.keys(attrs).filter(tag => tag != '00080005')
@@ -5083,10 +5092,19 @@ export class StudyService {
         }
     };
 
-    getQueueNames = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}queue`);
+    getQueueNames(){
+        if(!this.sharedObservables$["queue_names"]){
+            this.sharedObservables$["queue_names"] = this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}queue`).pipe(shareReplay(1));
+        }
+        return this.sharedObservables$["queue_names"];
+    };
 
-    getRejectNotes = (params?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`);
-
+    getRejectNotes(params?: any){
+        if(!this.sharedObservables$["reject_notes"]){
+            this.sharedObservables$["reject_notes"] = this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`).pipe(shareReplay(1));
+        }
+        return this.sharedObservables$["reject_notes"];
+    };
 
     getInstitutions = (entity?: any) => {
         if(this.institutions){

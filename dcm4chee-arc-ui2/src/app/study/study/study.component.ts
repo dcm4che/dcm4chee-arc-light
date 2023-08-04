@@ -3138,6 +3138,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.synchronizeSelectedWebAppWithFilter();
             this._filter.filterSchemaMain.lineLength = undefined;
             this._filter.filterSchemaExpand.lineLength = undefined;
+            this._filter.filterSchemaMain.schema = undefined;
+            this._filter.filterSchemaExpand.schema = undefined;
             this.setMainSchema();
             this._filter.filterSchemaExpand  = this.service.getFilterSchema(
                 this.studyConfig.tab,
@@ -3147,6 +3149,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.storages,
                 this.institutions
             );
+            this.changeDetector.detectChanges();
         }catch (e) {
             j4care.log("Error on schema set",e);
         }
@@ -5714,7 +5717,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if (!this.trash.rjcode){
                 this.service.getRejectNotes({dcmRevokeRejection:true})
                     .subscribe((res)=>{
-                        this.trash.rjcode = res[0];
+                        this.trash.rjcode = undefined;
+                        setTimeout(()=>{
+                            this.trash.rjcode = res[0];
+                            this.setSchema();
+                        },1);
                     });
             }
             this.trash.active = true;
@@ -6540,6 +6547,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         return 0;
                     });
                     this.trash.reject = this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator;
+                    this.setSchema();
                 },
                 err => {
                     if (retries)
@@ -6619,6 +6627,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                             $this.exporterID = res[0].id;
                                         }*/
                     // $this.appService.setGlobal({exporterID:$this.exporterID});
+                    this.setSchema();
                 },
                 (res)=> {
                     if (retries)
@@ -6696,23 +6705,30 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     getQueueNames(){
         this.service.getQueueNames().subscribe(names=>{
-            this.queues = names.map(name=> new SelectDropdown(name.name, name.description));
+            this.queues = undefined
+            setTimeout(()=>{
+                this.queues = names.map(name=> new SelectDropdown(name.name, name.description));
+                this.setSchema();
+            },1)
         },err=>{
             this.httpErrorHandler.handleError(err);
         })
     }
     getRetrieveQueueNames(){
         this.service.getQueueNames().subscribe(names=>{
-            this.retrieveQueues = names
-                .filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1)
-                .sort((a,b)=>{
-                    try{
-                        return parseInt(a.name.replace(/Retrieve/g,"")) - parseInt(b.name.replace(/Retrieve/g,""))
-                    }catch (e) {
-                        return 1;
-                    }
-                })
-                .map(name=> new SelectDropdown(name.name, name.description));
+            try{
+                this.retrieveQueues = names
+                    .filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1)
+                    .sort((a,b)=>{
+                        try{
+                            return parseInt(a.name.replace(/Retrieve/g,"")) - parseInt(b.name.replace(/Retrieve/g,""))
+                        }catch (e) {
+                            return 1;
+                        }
+                    })
+                    .map(name=> new SelectDropdown(name.name, name.description));
+            }catch (e){}
+                this.setSchema();
         },err=>{
             this.httpErrorHandler.handleError(err);
         })

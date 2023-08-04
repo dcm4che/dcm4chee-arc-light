@@ -16,6 +16,7 @@ import {environment} from "../environments/environment";
 export class AppRequestsService {
     private _dcm4cheeArcConfig;
     baseUrl;
+    sharedObservables$:any = {};
     get dcm4cheeArcConfig() {
         return this._dcm4cheeArcConfig;
     }
@@ -44,7 +45,6 @@ export class AppRequestsService {
     getDeviceInfo(dicomDeviceName:string, url?:string){
         return this.$http.get(`${url ? j4care.addLastSlash(url) : j4care.addLastSlash(this.appService.baseUrl)}devices?dicomDeviceName=${dicomDeviceName}`)
     }
-    sharedObservables$:any = {};
     deviceNameRequest$(url):Observable<any>{
         if(!(this.sharedObservables$["devicename"] && this.sharedObservables$["devicename"][url])){
             this.sharedObservables$["devicename"] = this.sharedObservables$["devicename"] || {};
@@ -60,7 +60,6 @@ export class AppRequestsService {
           })
       );
     }
-    dcm4cheeArcRequestObservable$:Observable<any>|undefined;
     dcm4cheeArcRequest$():Observable<any>{
         if(!this.sharedObservables$["rs_dcm4chee-arc"]){
             this.sharedObservables$["rs_dcm4chee-arc"] = this.$httpClient.get("./rs/dcm4chee-arc").pipe(shareReplay(1));
@@ -70,7 +69,7 @@ export class AppRequestsService {
     devicesRequest$(deviceName){
         if(!(this.sharedObservables$["devices"] && this.sharedObservables$["devices"][deviceName])){
             this.sharedObservables$["devices"] = this.sharedObservables$["devices"] || {};
-            this.sharedObservables$["devices"][deviceName] = this.$httpClient.get(`${j4care.addLastSlash(this.baseUrl)}devices/${deviceName}`);
+            this.sharedObservables$["devices"][deviceName] = this.$httpClient.get(`${j4care.addLastSlash(this.baseUrl)}devices/${deviceName}`).pipe(shareReplay(1));
         }
         return this.sharedObservables$["devices"][deviceName];
     }
