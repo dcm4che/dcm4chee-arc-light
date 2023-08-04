@@ -702,6 +702,8 @@ public class StowRS {
                 case UID.EncapsulatedOBJStorage:
                 case UID.EncapsulatedMTLStorage:
                 case UID.PrivateDcm4cheEncapsulatedGenozipStorage:
+                case UID.PrivateDcm4cheEncapsulatedBzip2VCFStorage:
+                case UID.PrivateDcm4cheEncapsulatedBzip2DocumentStorage:
                     throw missingAttribute(Tag.EncapsulatedDocument);
             }
         }
