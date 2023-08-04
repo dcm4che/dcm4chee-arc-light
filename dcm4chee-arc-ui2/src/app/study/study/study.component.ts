@@ -638,7 +638,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.exporter(
                 undefined,
                 $localize `:@@study.export_selected_object:Export selected objects`,
-               "multipleExport",
+               "multipleExportSelections",
                 undefined,
                 undefined,
                 this.selectedElements
@@ -5970,7 +5970,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.externalInternalAetMode = !this.internal || mode === "multiple-retrieve" ? "external" : "internal";
         this.dialogRef.componentInstance.title = title;
-        this.dialogRef.componentInstance.mode = mode == "multipleExport" ? 'single': mode;
+        this.dialogRef.componentInstance.mode = mode == "multipleExportSelections" ? 'single': mode;
         this.dialogRef.componentInstance.queues = this.queues;
         this.dialogRef.componentInstance.newStudyPage = true;
         // this.dialogRef.componentInstance.count = this.count;
@@ -6013,7 +6013,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                     });
                 }else{
-                    if(mode === 'multipleExport'){
+                    if(mode === 'multipleExportSelections'){
                         this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                             this.studyWebService,
                             "DCM4CHEE_ARC_AET",
@@ -6042,6 +6042,28 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 id = result.selectedExporter;
                             }
                             singleUrlSuffix = '/export/' + id + '?'+ params1;
+                            fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
+                        });
+                    }
+                    if(mode === 'multipleExport'){
+                        this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
+                            this.studyWebService,
+                            "DCM4CHEE_ARC_AET",
+                            "MOVE_MATCHING"
+                        ).subscribe(webApp=>{
+                            if(webApp){
+                                urlRest = `${
+                                    this.service.getDicomURL("export",webApp)
+                                }/${
+                                    result.selectedExporter
+                                }?${
+                                    params1
+                                }${
+                                    this.appService.param(this.createStudyFilterParams(true,true))
+                                }`;
+                            }else{
+                                this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
+                            }
                             fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                         });
                     }else{
