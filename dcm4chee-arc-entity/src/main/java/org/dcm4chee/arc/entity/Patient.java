@@ -214,7 +214,9 @@ public class Patient {
         StringBuilder sb = new StringBuilder(256);
         sb.append("Patient[pk=").append(pk);
         if (patientIDs != null) {
-            sb.append(showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID ? ", #id=[" : ", id=[");
+            sb.append(showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID
+                    ? ", #idWithTrustedIssuers=["
+                    : ", idWithTrustedIssuers=[");
             Iterator<PatientID> itr = patientIDs.iterator();
             if (itr.hasNext()) {
                 appendIdOrHash(sb, itr.next().getIDWithIssuer());

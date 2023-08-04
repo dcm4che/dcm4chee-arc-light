@@ -231,14 +231,23 @@ public class PamRS {
         try {
             PatientMgtContext ctx = patientMgtCtx(in);
             ctx.setArchiveAEExtension(arcAE);
-            if (!ctx.getAttributes().containsValue(Tag.PatientID)) {
+            if (ctx.getPatientIDs().isEmpty()) {
                 idService.newPatientID(ctx.getAttributes());
                 ctx.setPatientIDs(IDWithIssuer.pidsOf(ctx.getAttributes()));
             }
+            ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+            if (ctx.getPatientIDs().isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in request payload " + ctx.getPatientIDs(),
+                        Response.Status.BAD_REQUEST);
+
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
             notifyHL7Receivers("ADT^A28^ADT_A05", ctx);
-            return Response.ok("{\"PatientID\":\"" + IDWithIssuer.pidOf(ctx.getAttributes()) + "\"}").build();
+            return Response.ok("{\"Patient Identifiers with Trusted Issuers\":\""
+                                        + IDWithIssuer.pidsOf(ctx.getAttributes())
+                                        + "\"}")
+                    .build();
         } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
@@ -291,14 +300,14 @@ public class PamRS {
 
         PatientMgtContext ctx = patientMgtCtx(in);
         ctx.setArchiveAEExtension(arcAE);
-        Collection<IDWithIssuer> targetPatientIDs = trustedPatientIDs(ctx.getPatientIDs().toString(), arcAE);
-        if (targetPatientIDs.isEmpty())
+        ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+        if (ctx.getPatientIDs().isEmpty())
             return errResponse(
-                    "Missing patient identifier with trusted assigning authority in request payload" + ctx.getPatientIDs(),
+                    "Missing patient identifier with trusted assigning authority in request payload " + ctx.getPatientIDs(),
                     Response.Status.BAD_REQUEST);
 
         boolean mergePatients = Boolean.parseBoolean(merge);
-        boolean patientMatch = isPatientMatch(targetPatientIDs, trustedPriorPatientIDs);
+        boolean patientMatch = isPatientMatch(ctx.getPatientIDs(), trustedPriorPatientIDs);
         if (patientMatch && mergePatients)
             return errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST);
 

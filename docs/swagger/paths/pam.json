@@ -80,6 +80,9 @@
         "200": {
           "$ref": "../responses.json#/PatientID"
         },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
+        },
         "403": {
           "description": "Creation of already merged patient forbidden"
         },
