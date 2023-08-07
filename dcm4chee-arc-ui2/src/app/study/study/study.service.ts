@@ -4377,7 +4377,12 @@ export class StudyService {
         if(fileTypeOrExt === "mtl"
             || fileTypeOrExt === "obj"
             || fileTypeOrExt === "stl"
-            || fileTypeOrExt === "genozip") {
+            || fileTypeOrExt === "genozip"
+            || fileTypeOrExt === "vcf.bz2"
+            || fileTypeOrExt === "vcfbzip2"
+            || fileTypeOrExt === "vcfbz2"
+            || fileTypeOrExt === "boz"
+            || fileTypeOrExt === "bz2") {
             //"patient"
             iodFileNames = [
                 "study",
@@ -4419,6 +4424,8 @@ export class StudyService {
                 || fileTypeOrExt.indexOf("model/obj") > -1
                 || fileTypeOrExt.indexOf("application/x-tgif") > -1
                 || fileTypeOrExt.indexOf("application/vnd.genozip") > -1
+                || fileTypeOrExt.indexOf("application/prs.vcfbzip2") > -1
+                || fileTypeOrExt.indexOf("application/x-bzip2") > -1
                 || fileTypeOrExt.indexOf("application/sla") > -1
                 || fileTypeOrExt.indexOf("model/x.stl-binary") > -1
                 || fileTypeOrExt.indexOf("model/stl") > -1) {

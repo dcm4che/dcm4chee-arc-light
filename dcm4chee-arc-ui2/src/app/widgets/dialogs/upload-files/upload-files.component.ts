@@ -230,6 +230,15 @@ export class UploadFilesComponent implements OnInit {
                 else if (fileTypeOrExt === "genozip"
                     || fileTypeOrExt === "application/vnd.genozip")
                     this.supplementEncapsulatedGENOZIPAttrs();
+                else if (fileTypeOrExt === "vcf.bz2"
+                    || fileTypeOrExt === "vcfbzip2"
+                    || fileTypeOrExt === "vcfbz2"
+                    || fileTypeOrExt === "application/prs.vcfbzip2")
+                    this.supplementEncapsulatedBzip2VCFStorageAttrs();
+                else if (fileTypeOrExt === "boz"
+                    || fileTypeOrExt === "bz2"
+                    || fileTypeOrExt === "application/x-bzip2")
+                    this.supplementEncapsulatedBzip2DocumentStorageAttrs();
                 else {
                     if (file0.type.indexOf("video") > -1) {
                         this._dicomObject.attrs["00080016"] = {
@@ -475,6 +484,56 @@ export class UploadFilesComponent implements OnInit {
         };
     }
 
+    private supplementEncapsulatedBzip2VCFStorageAttrs() {
+        this._dicomObject.attrs["00420011"] = {
+            "vr": "OB",
+            "BulkDataURI": "file/" + this.fileList[0].name
+        };
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.40.0.13.1.5.1.4.1.1.104.2"
+            ]
+        }
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                "application/prs.vcfbzip2"
+            ]
+        };
+        this._dicomObject.attrs["00080070"] = {
+            "vr": "LO",
+            "Value": [
+                ""
+            ]
+        };
+    }
+
+    private supplementEncapsulatedBzip2DocumentStorageAttrs() {
+        this._dicomObject.attrs["00420011"] = {
+            "vr": "OB",
+            "BulkDataURI": "file/" + this.fileList[0].name
+        };
+        this._dicomObject.attrs["00080016"] = {
+            "vr": "UI",
+            "Value": [
+                "1.2.40.0.13.1.5.1.4.1.1.104.3"
+            ]
+        }
+        this._dicomObject.attrs["00420012"] = {
+            "vr": "LO",
+            "Value": [
+                "application/x-bzip2"
+            ]
+        };
+        this._dicomObject.attrs["00080070"] = {
+            "vr": "LO",
+            "Value": [
+                ""
+            ]
+        };
+    }
+
     showMoreAttributes(){
         console.log("this.dicomObject",this.dicomObject);
         if(!this._dicomObject){
@@ -635,6 +694,19 @@ export class UploadFilesComponent implements OnInit {
             case "application/vnd.genozip":
                 descriptionPart = "GENOZIP";
                 $this.modality = "DNA";
+                break;
+            case "vcf.bz2":
+            case "vcfbzip2":
+            case "vcfbz2":
+            case "application/prs.vcfbzip2":
+                descriptionPart = "Bzip2 compressed genomic data VCF file";
+                $this.modality = "DNA";
+                break;
+            case "boz":
+            case "bz2":
+            case "application/x-bzip2":
+                descriptionPart = "Bzip2 compressed genomic data Document file";
+                $this.modality = "OT";
                 break;
         }
 
