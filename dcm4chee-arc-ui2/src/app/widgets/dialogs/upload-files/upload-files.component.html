@@ -12,11 +12,12 @@
                     <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
                 </mat-select>
             </ng-container>
-            <label i18n="@@chose_a_file_to_upload">Choose a File to upload:</label><br>
+            <label i18n="@@upload-bulkdata.choose_bulkdata_files_to_upload">Choose Bulkdata Files to upload:</label><br>
             <input type="file"
                    [(ngModel)]="file"
                    (change)="fileChange($event)"
-                   title="Choose DICOM, JPEG, MPEG4, PDF files to upload"
+                   i18n-title="@@upload-bulkdata.choose_bulkdata_files_to_upload_title"
+                   title="Choose JPEG, PNG, TIFF or GIF Images; or MPEG2, MPEG4 or Quicktime Videos; or PDF or CDA Documents; or MTL, OBJ, STL files; or Genozip compressed genomic files to upload"
                    i18n-placeholder="@@upload_file"
                    placeholder="Upload file"
                    multiple>

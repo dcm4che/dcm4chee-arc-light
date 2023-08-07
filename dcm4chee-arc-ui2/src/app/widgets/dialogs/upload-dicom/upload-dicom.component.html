@@ -15,8 +15,11 @@
                 </mat-select>
             </ng-container>
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
-            <label i18n="@@upload-dicom.chose_dicom_files_to_upload">Choose DICOM Files to upload:</label>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" i18n-placeholder="@@upload_file" placeholder="Upload file"  multiple>
+            <label i18n="@@upload-dicom.choose_dicom_files_to_upload">Choose DICOM Files to upload:</label>
+            <input type="file" [(ngModel)]="file" (change)="fileChange($event)"
+                   i18n-title="upload-dicom.choose_dicom_files_to_upload_title"
+                   title="Choose DICOM files to upload"
+                   i18n-placeholder="@@upload_file" placeholder="Upload file"  multiple>
             <div mat-dialog-content>
                 <div class="upload_state" *ngFor="let file of fileList">
                     {{file.name}}
