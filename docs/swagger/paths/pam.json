@@ -318,6 +318,9 @@
         "204": {
           "description": "successful operation"
         },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
+        },
         "404": {
           "description": "No such Application Entity or Patient."
         },

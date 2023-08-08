@@ -423,7 +423,7 @@ public class PamRS {
 
     @POST
     @Path("/patients/{PatientID}/unmerge")
-    public Response unmergePatient(@PathParam("PatientID") IDWithIssuer patientID) {
+    public Response unmergePatient(@PathParam("PatientID") String multiplePriorPatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -433,12 +433,17 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
+            Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
+            if (trustedPriorPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                        Response.Status.BAD_REQUEST);
+
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             patMgtCtx.setArchiveAEExtension(arcAE);
-            patMgtCtx.setPatientIDs(Collections.singleton(patientID));
-            patMgtCtx.setAttributes(patientID.exportPatientIDWithIssuer(null));
+            patMgtCtx.setPatientIDs(trustedPriorPatientIDs);
             if (!patientService.unmergePatient(patMgtCtx))
-                return errResponse("Patient with patient ID " + patientID + " not found.",
+                return errResponse("Patient with patient identifiers " + trustedPriorPatientIDs + " not found.",
                                     Response.Status.NOT_FOUND);
 
             rsForward.forward(RSOperation.UnmergePatient, arcAE, null, request);
