@@ -453,6 +453,9 @@
         "204": {
           "description": "successful operation"
         },
+        "400": {
+          "description": "Missing prior or target patient identifiers with trusted assigning authority in specified patient identifiers"
+        },
         "403": {
           "description": "Change Patient ID of already merged patient forbidden"
         },

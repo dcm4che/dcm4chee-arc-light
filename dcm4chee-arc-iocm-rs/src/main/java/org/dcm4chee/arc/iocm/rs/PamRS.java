@@ -676,8 +676,8 @@ public class PamRS {
 
     @POST
     @Path("/patients/{priorPatientID}/changeid/{patientID}")
-    public Response changePatientID(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
-                                @PathParam("patientID") IDWithIssuer patientID) {
+    public Response changePatientID(@PathParam("priorPatientID") String multiplePriorPatientIDs,
+                                @PathParam("patientID") String multiplePatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -687,12 +687,24 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            Patient prevPatient = patientService.findPatient(Collections.singleton(priorPatientID));
+            Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
+            if (trustedPriorPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            Patient prevPatient = patientService.findPatient(trustedPriorPatientIDs);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-            ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
-            ctx.setAttributes(patientID.exportPatientIDWithIssuer(prevPatient.getAttributes()));
+            ctx.setPreviousAttributes(prevPatient.getAttributes());
+            ctx.setAttributes(exportPatientIDsWithIssuer(new Attributes(prevPatient.getAttributes()), trustedPatientIDs));
             patientService.changePatientID(ctx);
             notifyHL7Receivers("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
@@ -705,6 +717,21 @@ public class PamRS {
         } catch(Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Attributes exportPatientIDsWithIssuer(Attributes attrs, Collection<IDWithIssuer> idWithIssuers) {
+        attrs.setNull(Tag.PatientID, VR.LO);
+        attrs.setNull(Tag.IssuerOfPatientID, VR.LO);
+        attrs.setNull(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+        attrs.setNull(Tag.OtherPatientIDsSequence, VR.SQ);
+        Iterator<IDWithIssuer> iter = idWithIssuers.iterator();
+        attrs = iter.next().exportPatientIDWithIssuer(attrs);
+        Sequence otherPatientIDsSequence = attrs.ensureSequence(
+                Tag.OtherPatientIDsSequence,
+                idWithIssuers.size() - 1);
+        while (iter.hasNext())
+            otherPatientIDsSequence.add(iter.next().exportPatientIDWithIssuer(null));
+        return attrs;
     }
 
     private ArchiveAEExtension getArchiveAE() {
