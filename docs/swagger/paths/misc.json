@@ -562,6 +562,9 @@
             }
           }
         },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
+        },
         "404": {
           "description": "no patient found"
         },

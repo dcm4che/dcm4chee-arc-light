@@ -576,6 +576,9 @@
         "202": {
           "description": "Patient was not found by the specified PDQ Service"
         },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
+        },
         "404": {
           "description": "no such PDQ Service"
         },
@@ -613,6 +616,9 @@
               }
             }
           }
+        },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "404": {
           "description": "No such PDQ Service or Patient was not found by the specified PDQ Service"

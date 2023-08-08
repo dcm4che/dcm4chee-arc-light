@@ -67,7 +67,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.ws.Holder;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -88,7 +91,7 @@ public class XRoadRS {
     @NoCache
     @Path("/RR441/{PatientID}")
     @Produces("application/dicom+json,application/json")
-    public Response rr441(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
+    public Response rr441(@PathParam("PatientID") String multiplePatientIDs) throws Exception {
         logRequest();
         Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getXRoadProperties();
@@ -98,6 +101,12 @@ public class XRoadRS {
 
         Attributes attrs;
         try {
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
             XRoadAdapterPortType port = new XRoadService().getXRoadServicePort();
             XRoadUtils.setEndpointAddress(port, endpoint);
             if (endpoint.startsWith("https")) {
@@ -106,7 +115,7 @@ public class XRoadRS {
                         StringUtils.split(props.get("TLS.cipherSuites"), ','),
                         Boolean.parseBoolean(props.getOrDefault("TLS.disableCNCheck", "false")));
             }
-            RR441RequestType rq = XRoadUtils.createRR441RequestType(props, patientID.getID());
+            RR441RequestType rq = XRoadUtils.createRR441RequestType(props, trustedPatientIDs.iterator().next().getID());
             RR441ResponseType rsp = XRoadException.validate(XRoadUtils.rr441(port, props, rq, new Holder<>()));
             attrs = XRoadUtils.toAttributes(
                     props.getOrDefault("SpecificCharacterSet", "ISO_IR 100"),
@@ -115,6 +124,15 @@ public class XRoadRS {
             return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
         }
         return (attrs == null ? Response.status(Response.Status.NOT_FOUND) : Response.ok(toJSON(attrs))).build();
+    }
+
+    private Collection<IDWithIssuer> trustedPatientIDs(String multiplePatientIDs) {
+        String[] patientIDs = multiplePatientIDs.split("~");
+        Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
+        for (String cx : patientIDs)
+            patientIdentifiers.add(new IDWithIssuer(cx));
+        return device.getDeviceExtension(ArchiveDeviceExtension.class)
+                     .withTrustedIssuerOfPatientID(patientIdentifiers);
     }
 
     private void logRequest() {
