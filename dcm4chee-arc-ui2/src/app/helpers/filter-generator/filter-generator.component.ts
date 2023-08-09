@@ -25,7 +25,8 @@ import {StudyService} from "../../study/study/study.service";
 })
 export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContentChecked {
 
-    @Input() schema;
+
+    private _schema;
     @Input() model;
     private _filterTreeHeight;
     @Input() filterID;
@@ -63,7 +64,15 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
             delete_title:$localize `:@@delete_title:Remove`
         }
     }
+    get schema() {
+        return this._schema;
+    }
 
+    @Input()
+    set schema(value) {
+        this._schema = value;
+        this.saveDataInMemory();
+    }
     constructor(
         private inj:Injector,
         private appService:AppService,
@@ -76,6 +85,34 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         private studyService:StudyService
     ) {
         console.log("test",this._filterTreeHeight)
+        this.getDataFromMemory();
+    }
+
+    getDataFromMemory(){
+        try{
+            if((!j4care.isSet(this._schema) || this._schema.length === 0) && this.filterID){
+                const savedSchema = localStorage.getItem('schema_' + this.filterID);
+                this._schema = JSON.parse(savedSchema);
+            }
+            if(!j4care.isSet(this._filterTreeHeight) && this.filterID){
+                const savedTreeHeight = localStorage.getItem('tree_height_' + this.filterID);
+                this._schema = JSON.parse(savedTreeHeight);
+            }
+            if(j4care.isSet(this._schema) && this._filterTreeHeight){
+                this.hideLoader = true;
+            }
+        }catch (e) {}
+    }
+
+    saveDataInMemory(){
+        try{
+            if(j4care.isSet(this._schema) && this.filterID){
+                localStorage.setItem('schema_' + this.filterID, JSON.stringify(this._schema));
+            }
+            if(j4care.isSet(this._filterTreeHeight) && this.filterID){
+                localStorage.setItem('tree_height_' + this.filterID, JSON.stringify(this._filterTreeHeight));
+            }
+        }catch (e) {}
     }
     get filterTreeHeight() {
         return this._filterTreeHeight;
@@ -87,9 +124,11 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         if(this._filterTreeHeight) {
             this.cssBlockClass = `height_${this._filterTreeHeight}`;
         }
+        this.saveDataInMemory();
     }
 
     ngOnInit() {
+        this.getDataFromMemory();
         if(this._filterTreeHeight) {
             this.cssBlockClass = `height_${this._filterTreeHeight}`;
         }
@@ -127,11 +166,11 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
                this.onTemplateSet.emit(this.model);
            }
         }
-        if(this.schema){
+        if(this._schema){
 /*            const test = _.flattenDepth(this.schema,this._filterTreeHeight).forEach(element=>{
                 console.log("element",element);
             });*/
-            j4care.penetrateArrayToObject(this.schema,(obj)=>{
+            j4care.penetrateArrayToObject(this._schema,(obj)=>{
                 if(obj.hasOwnProperty("tag") && obj["tag"] === "dynamic-attributes" && obj.hasOwnProperty("iodFileNames")){
                     console.log("iodFilenames",obj["iodFileNames"]);
                     const iodFileNames = obj["iodFileNames"] || [
@@ -187,9 +226,9 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     }
     filterChange(test){
         console.log("this.model",this.model);
-        console.log("this.schema",this.schema);
+        console.log("this.schema",this._schema);
         if(this.onFilterChangeHook){
-            this.onFilterChangeHook(event,this.model,this.schema);
+            this.onFilterChangeHook(event,this.model,this._schema);
         }
         this.onChange.emit(this.model);
 
@@ -395,6 +434,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
                 })
             }
             localStorage.setItem(this.filterID, JSON.stringify(this.model));
+            this.saveDataInMemory();
         }
     }
 }
