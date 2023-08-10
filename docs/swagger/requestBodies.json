@@ -242,6 +242,38 @@
                     "type": "string"
                   }
                 }
+              },
+              "OtherPatientIDsSequence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "PatientID"
+                  ],
+                  "properties": {
+                    "PatientID": {
+                      "type": "string"
+                    },
+                    "IssuerOfPatientID": {
+                      "type": "string"
+                    },
+                    "IssuerOfPatientIDQualifiers": {
+                      "type": "object",
+                      "required": [
+                        "UniversalEntityID",
+                        "UniversalEntityIDType"
+                      ],
+                      "properties": {
+                        "UniversalEntityID": {
+                          "type": "string"
+                        },
+                        "UniversalEntityIDType": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }

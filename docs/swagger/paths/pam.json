@@ -239,7 +239,7 @@
           "description": "successful operation"
         },
         "400": {
-          "description": "JSON request body was not well formed"
+          "description": "JSON request body was not well formed or missing prior or target patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "403": {
           "description": "Merging to already merged patient forbidden"
@@ -280,6 +280,9 @@
       "responses": {
         "204": {
           "description": "successful operation"
+        },
+        "400": {
+          "description": "Missing prior or target patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "403": {
           "description": "Merging to already merged patient forbidden"
