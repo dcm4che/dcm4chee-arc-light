@@ -124,6 +124,7 @@ public class MergeAttribute {
             Attributes item = getItem(attrs);
             if (item != null && item.containsValue(tag)) {
                 if (modified != null) {
+                    Attributes.unifyCharacterSets(modified, attrs);
                     ensureItem(modified).addSelected(item, null, tag);
                 }
                 item.setNull(tag, dict.vrOf(tag));
