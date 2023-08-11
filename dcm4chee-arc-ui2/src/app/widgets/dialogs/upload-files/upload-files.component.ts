@@ -48,14 +48,14 @@ export class UploadFilesComponent implements OnInit {
 
     set mode(value) {
         this._mode = value;
-        console.log("MODE",value);
         if(value === "patient"){
-            this.title = $localize `:@@upload-file.title:Upload objects to the Patient: ${this.dicomObject.attrs['00100010'].Value[0].Alphabetic}`;
+            this.title = $localize `:@@upload-file.title:Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to patient`;
         }
         if(value === "study"){
-            this.title = $localize `:@@upload-file.title_upload_study:Upload objects to the Study`;
-        }if(value === "series"){
-            this.title = $localize `:@@upload-file.title_upload_series:Upload objects to the Series`;
+            this.title = $localize `:@@upload-file.title_upload_study:Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to study`;
+        }
+        if(value === "series"){
+            this.title = $localize `:@@upload-file.title_upload_series:Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to series`;
         }
 
     }
