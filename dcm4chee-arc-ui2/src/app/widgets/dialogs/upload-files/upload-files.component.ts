@@ -41,7 +41,25 @@ export class UploadFilesComponent implements OnInit {
     private _dicomObject;
     private _fromExternalWebApp;
     private _preselectedWebApp:DcmWebApp;
-    mode;
+    private _mode;
+    get mode() {
+        return this._mode;
+    }
+
+    set mode(value) {
+        this._mode = value;
+        console.log("MODE",value);
+        if(value === "patient"){
+            this.title = $localize `:@@upload-file.title:Upload objects to the Patient: ${this.dicomObject.attrs['00100010'].Value[0].Alphabetic}`;
+        }
+        if(value === "study"){
+            this.title = $localize `:@@upload-file.title_upload_study:Upload objects to the Study`;
+        }if(value === "series"){
+            this.title = $localize `:@@upload-file.title_upload_series:Upload objects to the Series`;
+        }
+
+    }
+    title = $localize `:@@upload-file.title:Upload objects to the Patient`;
     file;
     fileList: File[];
     xmlHttpRequest;
@@ -145,12 +163,12 @@ export class UploadFilesComponent implements OnInit {
             }
             if(fileTypeOrExt === "application/dicom"){
                 this.sourceOfPreviousValuesBlock = true;
-                if(this.mode === "mwl"){
+                if(this._mode === "mwl"){
                     this.coerceStudyCheckbox = true;
                 }
             }
 
-            this.studyService.getIodFromContext(fileTypeOrExt, this.mode).subscribe(iods=>{
+            this.studyService.getIodFromContext(fileTypeOrExt, this._mode).subscribe(iods=>{
                 console.log("iods",iods);
                 if(!this._dicomObject){
                     this._dicomObject = {
@@ -734,11 +752,11 @@ export class UploadFilesComponent implements OnInit {
                 return (i.toString().indexOf("777") === -1);
             });
             if(fileTypeOrExt === "application/dicom"){
-                console.log("mode",this.mode);
+                console.log("mode",this._mode);
                 let queryParameters:any = {
                     sourceOfPreviousValues:this.sourceOfPreviousValues
                 }
-                if(this.mode === "mwl"){
+                if(this._mode === "mwl"){
                     if(this.coerceStudyCheckboxValue){
                         queryParameters["irwf"] = "SCHEDULED_COERCE_STUDY";
                     }else{
@@ -789,7 +807,7 @@ export class UploadFilesComponent implements OnInit {
                     fileIndex + 1
                 ]
             };
-            if(this.mode === "series" && _.hasIn(studyObject, "00201209.Value[0]")){
+            if(this._mode === "series" && _.hasIn(studyObject, "00201209.Value[0]")){
                 studyObject["00200011"] = studyObject["00200011"] || { // "00200011":$localize `:@@upload-files.series_number:Series Number`
                     "vr": "IS",
                     "Value": [
@@ -816,7 +834,7 @@ export class UploadFilesComponent implements OnInit {
                     ]
                 };
             }
-            if (_.hasIn(studyObject, "0020000D.Value[0]") && this.mode != "series") {
+            if (_.hasIn(studyObject, "0020000D.Value[0]") && this._mode != "series") {
                 studyObject["0020000E"] = studyObject["0020000E"] || { ///"0020000E":$localize `:@@upload-files.series_instance_uid:Series Instance UID` //Decides if the file in the same series appear
                     "vr": "UI",
                     "Value": [
