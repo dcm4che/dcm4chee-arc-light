@@ -806,11 +806,11 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getExternalWadoRSWebApplication();
     }
 
-    public int getExternalWadoRSHttpStatusCode() {
+    public Integer getExternalWadoRSHttpStatusCode() {
         return externalWadoRSHttpStatusCode;
     }
 
-    public void setExternalWadoRSHttpStatusCode(int externalWadoRSHttpStatusCode) {
+    public void setExternalWadoRSHttpStatusCode(Integer externalWadoRSHttpStatusCode) {
         this.externalWadoRSHttpStatusCode = externalWadoRSHttpStatusCode;
     }
 

@@ -774,7 +774,7 @@ public class WadoRS {
                     LOG.warn("Failed to redirect to {}:\n", webAppName, e);
                 }
             }
-            if (ctx.getNumberOfMatches() == 0)
+            if (ctx.getMatches().isEmpty())
                 throw new WebApplicationException(errResponse("No longer accessible.", Response.Status.GONE));
             responseStatus = Response.Status.PARTIAL_CONTENT;
             warning = HttpServletRequestUtils.miscPersistentWarning(request, "" + notAccessable.size() + " objects no longer accessible.");
