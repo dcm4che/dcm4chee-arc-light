@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.wado;
 
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.image.ICCProfile;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
@@ -56,6 +57,7 @@ import org.dcm4che3.util.*;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestUtils;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
@@ -128,6 +130,9 @@ public class WadoRS {
     private HttpHeaders headers;
 
     @Inject
+    private IWebApplicationCache iWebAppCache;
+
+    @Inject
     private Device device;
 
     @Inject @RetrieveStart
@@ -188,6 +193,7 @@ public class WadoRS {
     private CompressedFramesOutput compressedFramesOutput;
     private DecompressFramesOutput decompressFramesOutput;
     private Response.Status responseStatus;
+    private String warning;
     private java.nio.file.Path spoolDirectory;
     private java.nio.file.Path dicomdirPath;
     private String dicomRootPartTransferSyntax;
@@ -751,8 +757,28 @@ public class WadoRS {
         LOG.info("retrieve{}: {} Matches", target, ctx.getNumberOfMatches());
         if (ctx.getNumberOfMatches() == 0)
             throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
-//            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
-        responseStatus = Response.Status.OK;
+        Map<String, Collection<InstanceLocations>> notAccessable = service.removeNotAccessableMatches(ctx);
+        if (notAccessable.isEmpty()) {
+            responseStatus = Response.Status.OK;
+        } else {
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            String webAppName = arcAE.externalWadoRSWebApplication();
+            if (webAppName != null) {
+                try {
+                    ar.resume(Response.status(arcAE.externalWadoRSHttpStatusCode())
+                            .location(RedirectUtils.redirectURI(request, device, iWebAppCache, webAppName,
+                                    WebApplication.ServiceClass.WADO_RS))
+                            .build());
+                    return;
+                } catch (Exception e) {
+                    LOG.warn("Failed to redirect to {}:\n", webAppName, e);
+                }
+            }
+            if (ctx.getNumberOfMatches() == 0)
+                throw new WebApplicationException(errResponse("No longer accessible.", Response.Status.GONE));
+            responseStatus = Response.Status.PARTIAL_CONTENT;
+            warning = HttpServletRequestUtils.miscPersistentWarning(request, "" + notAccessable.size() + " objects no longer accessible.");
+        }
         if (frameList != null) {
             Attributes attrs = ctx.getMatches().get(0).getAttributes();
             if (!attrs.containsValue(Tag.Rows))
@@ -770,8 +796,13 @@ public class WadoRS {
                     : errResponse("Not accepted instances present.", Response.Status.NOT_ACCEPTABLE);
             throw new WebApplicationException(errResp);
         }
-        if (!notAccepted.isEmpty())
+        if (!notAccepted.isEmpty()) {
             responseStatus = Response.Status.PARTIAL_CONTENT;
+            warning = HttpServletRequestUtils.miscPersistentWarning(request,
+                    (notAccessable.isEmpty() ? ""
+                            : "" + notAccessable.size() + " objects no longer accessible and ")
+                            + notAccepted.size() + " objects not acceptable.");
+        }
 
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx, ignorePatientUpdate);
@@ -788,7 +819,12 @@ public class WadoRS {
                 retrieveEnd.fire(ctx);
         });
         Object entity = output.entity(this, target, ctx, frameList, attributePath);
-        ar.resume(output.response(this, lastModified, entity).build());
+        Response.ResponseBuilder builder = output.response(this, lastModified, entity);
+        if (warning != null) {
+            LOG.warn("Response {} caused by {}", responseStatus, warning);
+            builder.header("Warning", warning);
+        }
+        ar.resume(builder.build());
     }
 
     private static boolean matchPresentionState(RetrieveContext ctx) {

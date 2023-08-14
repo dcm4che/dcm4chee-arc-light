@@ -2297,6 +2297,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.471 NAME 'dcmTrustedIssuerOfPatientI
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.472 NAME 'dcmExternalWadoRSWebAppName'
+  DESC 'Name of external Web Application to redirect WADO RS requests if some of the requested objects are no longer accessible on this archive.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.473 NAME 'dcmExternalWadoRSHttpStatusCode'
+  DESC 'HTTP Status code of Redirect Response configured by dcmExternalWadoRSWebAppName. 303 (See Other) if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2401,6 +2411,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFallbackCMoveSCPStudyOlderThan $
     dcmFallbackWadoURIWebAppName $
     dcmFallbackWadoURIHttpStatusCode $
+    dcmExternalWadoRSWebAppName $
+    dcmExternalWadoRSHttpStatusCode $
     dcmExternalRetrieveAEDestination $
     dcmXDSiImagingDocumentSourceAETitle $
     dcmAltCMoveSCP $
@@ -2655,6 +2667,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmFallbackCMoveSCPStudyOlderThan $
     dcmFallbackWadoURIWebAppName $
     dcmFallbackWadoURIHttpStatusCode $
+    dcmExternalWadoRSWebAppName $
+    dcmExternalWadoRSHttpStatusCode $
     dcmExternalRetrieveAEDestination $
     dcmAltCMoveSCP $
     dcmDiffStudiesIncludefieldAll $

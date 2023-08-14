@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.wado;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -81,7 +80,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Stream;
@@ -316,7 +314,8 @@ public class WadoURI {
             if (webAppName != null) {
                 try {
                     ar.resume(Response.status(arcAE.fallbackWadoURIHttpStatusCode())
-                            .location(redirectURI(webAppName))
+                            .location(RedirectUtils.redirectURI(request, device, iWebAppCache, webAppName,
+                                    WebApplication.ServiceClass.WADO_URI))
                             .build());
                     return;
                 } catch (Exception e) {
@@ -358,35 +357,6 @@ public class WadoURI {
 
     private boolean ignorePatientUpdates() {
         return contentTypes != null && contentTypes.ignorePatientUpdates;
-    }
-
-    private URI redirectURI(String webAppName) throws ConfigurationException {
-        WebApplication webApp = iWebAppCache.findWebApplication(webAppName);
-        if (!webApp.containsServiceClass(WebApplication.ServiceClass.WADO_URI)) {
-            throw new ConfigurationException("WebApplication: " + webAppName
-                    + " does not provide WADO-URI service");
-        }
-        if (webApp.getDevice().getDeviceName().equals(device.getDeviceName())) {
-            throw new ConfigurationException("WebApplication: " + webAppName
-                    + " is provided by this Device: " + device.getDeviceName() + " - prevent redirect to itself");
-        }
-        return URI.create(webApp.getServiceURL(selectConnection(webApp))
-                .append('?').append(request.getQueryString()).toString());
-    }
-
-    private Connection selectConnection(WebApplication webApp) throws ConfigurationException {
-        boolean https = "https:".equalsIgnoreCase(request.getRequestURL().substring(0,6));
-        Connection altConn = null;
-        for (Connection conn : webApp.getConnections()) {
-            if (conn.isInstalled() && (altConn = conn).isTls() == https) {
-                return conn;
-            }
-        }
-        if (altConn == null) {
-            throw new ConfigurationException(
-                    "No installed Network Connection for WebApplication: " + webApp.getApplicationName());
-        }
-        return altConn;
     }
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {

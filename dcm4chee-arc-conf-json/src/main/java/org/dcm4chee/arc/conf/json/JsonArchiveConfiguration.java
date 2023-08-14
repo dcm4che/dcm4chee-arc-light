@@ -138,6 +138,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getFallbackWadoURIWebApplication(), null);
         writer.writeNotDef("dcmFallbackWadoURIHttpStatusCode",
                 arcDev.getFallbackWadoURIHttpStatusCode(), 303);
+        writer.writeNotNullOrDef("dcmExternalWadoRSWebAppName",
+                arcDev.getExternalWadoRSWebApplication(), null);
+        writer.writeNotDef("dcmExternalWadoRSHttpStatusCode",
+                arcDev.getExternalWadoRSHttpStatusCode(), 303);
         writer.writeNotDef("dcmWadoIgnorePresentationLUTShape", arcDev.isWadoIgnorePresentationLUTShape(), false);
         writer.writeNotDef("dcmWadoMetadataExcludePrivate", arcDev.isWadoMetadataWithoutPrivate(), false);
         writer.writeNotDef("dcmQueryFetchSize", arcDev.getQueryFetchSize(), 100);
@@ -1264,6 +1268,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmWadoThumbnailViewport", arcAE.getWadoThumbnailViewPort(), null);
         writer.writeNotNullOrDef("dcmFallbackWadoURIWebAppName", arcAE.getFallbackWadoURIWebApplication(), null);
         writer.writeNotNull("dcmFallbackWadoURIHttpStatusCode", arcAE.getFallbackWadoURIHttpStatusCode());
+        writer.writeNotNullOrDef("dcmExternalWadoRSWebAppName", arcAE.getExternalWadoRSWebApplication(), null);
+        writer.writeNotNull("dcmExternalWadoRSHttpStatusCode", arcAE.getExternalWadoRSHttpStatusCode());
         writer.writeNotNull("dcmWadoIgnorePresentationLUTShape", arcAE.getWadoIgnorePresentationLUTShape());
         writer.writeNotNull("dcmWadoMetadataExcludePrivate", arcAE.getWadoMetadataWithoutPrivate());
         writer.writeNotNull("dcmQueryMaxNumberOfResults", arcAE.getQueryMaxNumberOfResults());
@@ -1515,6 +1521,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackWadoURIHttpStatusCode":
                     arcDev.setFallbackWadoURIHttpStatusCode(reader.intValue());
+                    break;
+                case "dcmExternalWadoRSWebAppName":
+                    arcDev.setExternalWadoRSWebApplication(reader.stringValue());
+                    break;
+                case "dcmExternalWadoRSHttpStatusCode":
+                    arcDev.setExternalWadoRSHttpStatusCode(reader.intValue());
                     break;
                 case "dcmWadoIgnorePresentationLUTShape":
                     arcDev.setWadoIgnorePresentationLUTShape(reader.booleanValue());
@@ -4085,6 +4097,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackWadoURIHttpStatusCode":
                     arcAE.setFallbackWadoURIHttpStatusCode(reader.intValue());
+                    break;
+                case "dcmExternalWadoRSWebAppName":
+                    arcAE.setExternalWadoRSWebApplication(reader.stringValue());
+                    break;
+                case "dcmExternalWadoRSHttpStatusCode":
+                    arcAE.setExternalWadoRSHttpStatusCode(reader.intValue());
                     break;
                 case "dcmWadoIgnorePresentationLUTShape":
                     arcAE.setWadoIgnorePresentationLUTShape(reader.booleanValue());

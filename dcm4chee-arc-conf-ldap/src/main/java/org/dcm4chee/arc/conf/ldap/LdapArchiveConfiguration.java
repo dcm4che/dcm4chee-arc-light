@@ -168,6 +168,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getFallbackWadoURIWebApplication(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
                 ext.getFallbackWadoURIHttpStatusCode(), 303);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalWadoRSWebAppName",
+                ext.getExternalWadoRSWebApplication(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmExternalWadoRSHttpStatusCode",
+                ext.getExternalWadoRSHttpStatusCode(), 303);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
                 ext.isWadoIgnorePresentationLUTShape(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmWadoMetadataExcludePrivate",
@@ -617,6 +621,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ArchiveDeviceExtension.WADO_THUMBNAIL_VIEWPORT));
         ext.setFallbackWadoURIWebApplication(LdapUtils.stringValue(attrs.get("dcmFallbackWadoURIWebAppName"), null));
         ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(attrs.get("dcmFallbackWadoURIHttpStatusCode"), 303));
+        ext.setExternalWadoRSWebApplication(LdapUtils.stringValue(attrs.get("dcmExternalWadoRSWebAppName"), null));
+        ext.setExternalWadoRSHttpStatusCode(LdapUtils.intValue(attrs.get("dcmExternalWadoRSHttpStatusCode"), 303));
         ext.setWadoIgnorePresentationLUTShape(LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), false));
         ext.setWadoMetadataWithoutPrivate(LdapUtils.booleanValue(attrs.get("dcmWadoMetadataExcludePrivate"), false));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
@@ -1049,6 +1055,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
                 aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), 303);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalWadoRSWebAppName",
+                aa.getExternalWadoRSWebApplication(),
+                bb.getExternalWadoRSWebApplication(),
+                null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExternalWadoRSHttpStatusCode",
+                aa.getExternalWadoRSHttpStatusCode(), bb.getExternalWadoRSHttpStatusCode(), 303);
         LdapUtils.storeDiff(ldapObj, mods, "dcmWadoIgnorePresentationLUTShape",
                 aa.isWadoIgnorePresentationLUTShape(),
                 bb.isWadoIgnorePresentationLUTShape(),
@@ -1777,6 +1789,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getFallbackWadoURIWebApplication(), null);
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmFallbackWadoURIHttpStatusCode",
                 ext.getFallbackWadoURIHttpStatusCode());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalWadoRSWebAppName",
+                ext.getExternalWadoRSWebApplication(), null);
+        LdapUtils.storeNotNull(ldapObj, attrs, "dcmExternalWadoRSHttpStatusCode",
+                ext.getExternalWadoRSHttpStatusCode());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
                 ext.getWadoIgnorePresentationLUTShape(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoMetadataExcludePrivate",
@@ -1960,6 +1976,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmFallbackWadoURIWebAppName"), null));
         ext.setFallbackWadoURIHttpStatusCode(LdapUtils.intValue(
                 attrs.get("dcmFallbackWadoURIHttpStatusCode"), null));
+        ext.setExternalWadoRSWebApplication(LdapUtils.stringValue(
+                attrs.get("dcmExternalWadoRSWebAppName"), null));
+        ext.setExternalWadoRSHttpStatusCode(LdapUtils.intValue(
+                attrs.get("dcmExternalWadoRSHttpStatusCode"), null));
         ext.setWadoIgnorePresentationLUTShape(
                 LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), null));
         ext.setWadoMetadataWithoutPrivate(LdapUtils.booleanValue(attrs.get("dcmWadoMetadataExcludePrivate"), null));
@@ -2166,6 +2186,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackWadoURIHttpStatusCode",
                 aa.getFallbackWadoURIHttpStatusCode(), bb.getFallbackWadoURIHttpStatusCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalWadoRSWebAppName",
+                aa.getExternalWadoRSWebApplication(),
+                bb.getExternalWadoRSWebApplication(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalWadoRSHttpStatusCode",
+                aa.getExternalWadoRSHttpStatusCode(), bb.getExternalWadoRSHttpStatusCode(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoIgnorePresentationLUTShape",
                 aa.getWadoIgnorePresentationLUTShape(),
                 bb.getWadoIgnorePresentationLUTShape(), null);
