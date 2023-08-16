@@ -39,6 +39,8 @@ DCM4CHE.elementName.addDictionary({
 "7777xx41":"Instance Update Date Time",
 "7777xx42":"Rejection Code Sequence",
 "7777xx43":"Instance External Retrieve AE Title",
+"7777xx44":"Series External Retrieve AE Title",
+"7777xx45":"Study External Retrieve AE Title",
 "7777xx50":"Storage ID",
 "7777xx51":"Storage Path",
 "7777xx52":"Storage Transfer Syntax UID",
