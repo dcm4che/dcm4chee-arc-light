@@ -311,7 +311,7 @@ public class WadoURI {
         boolean hasMatches = service.calculateMatches(ctx);
         Map<String, Collection<InstanceLocations>> notAccessable = service.removeNotAccessableMatches(ctx);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        if (hasMatches ? notAccessable.isEmpty() : arcAE.fallbackWadoURIRedirectOnNotFound()) {
+        if (hasMatches ? !notAccessable.isEmpty() : arcAE.fallbackWadoURIRedirectOnNotFound()) {
             String webAppName = arcAE.fallbackWadoURIWebApplication();
             if (webAppName != null) {
                 try {
