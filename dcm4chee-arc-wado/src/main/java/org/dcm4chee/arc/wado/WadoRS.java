@@ -753,29 +753,30 @@ public class WadoRS {
     private void buildResponse(Target target, int[] frameList, int[] attributePath, AsyncResponse ar, Output output,
             final RetrieveContext ctx, Date lastModified) throws IOException {
         LOG.debug("Query for matching {}", target);
-        service.calculateMatches(ctx);
+        boolean hasMatches = service.calculateMatches(ctx);
         LOG.info("retrieve{}: {} Matches", target, ctx.getNumberOfMatches());
-        if (ctx.getNumberOfMatches() == 0)
-            throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
         Map<String, Collection<InstanceLocations>> notAccessable = service.removeNotAccessableMatches(ctx);
-        if (notAccessable.isEmpty()) {
+        if (hasMatches && notAccessable.isEmpty()) {
             responseStatus = Response.Status.OK;
         } else {
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             String webAppName = arcAE.externalWadoRSWebApplication();
-            if (webAppName != null) {
+            if (webAppName != null && hasMatches || arcAE.externalWadoRSRedirectOnNotFound()) {
                 try {
-                    ar.resume(Response.status(arcAE.externalWadoRSHttpStatusCode())
-                            .location(RedirectUtils.redirectURI(request, device, iWebAppCache, webAppName,
-                                    WebApplication.ServiceClass.WADO_RS))
-                            .build());
+                    String pathInfo = request.getPathInfo();
+                    String path = pathInfo.substring(pathInfo.indexOf("/studies"));
+                    URI location = RedirectUtils.redirectURI(request, path, device, iWebAppCache, webAppName,
+                            WebApplication.ServiceClass.WADO_RS);
+                    ar.resume(Response.status(arcAE.externalWadoRSHttpStatusCode()).location(location).build());
                     return;
                 } catch (Exception e) {
                     LOG.warn("Failed to redirect to {}:\n", webAppName, e);
                 }
             }
             if (ctx.getMatches().isEmpty())
-                throw new WebApplicationException(errResponse("No longer accessible.", Response.Status.GONE));
+                throw hasMatches
+                        ? new WebApplicationException(errResponse("No longer accessible.", Response.Status.GONE))
+                        : new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
             responseStatus = Response.Status.PARTIAL_CONTENT;
             warning = HttpServletRequestUtils.miscPersistentWarning(request, "" + notAccessable.size() + " objects no longer accessible.");
         }

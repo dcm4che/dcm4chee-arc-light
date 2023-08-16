@@ -55,7 +55,7 @@ import java.net.URI;
  */
 class RedirectUtils {
     private RedirectUtils() {}
-    public static URI redirectURI(HttpServletRequest request, Device device, IWebApplicationCache iWebAppCache,
+    public static URI redirectURI(HttpServletRequest request, String path,  Device device, IWebApplicationCache iWebAppCache,
                                   String webAppName, WebApplication.ServiceClass serviceClass)
             throws ConfigurationException {
         WebApplication webApp = iWebAppCache.findWebApplication(webAppName);
@@ -67,13 +67,15 @@ class RedirectUtils {
             throw new ConfigurationException("WebApplication: " + webAppName
                     + " is provided by this Device: " + device.getDeviceName() + " - prevent redirect to itself");
         }
-        return URI.create(webApp.getServiceURL(selectConnection(webApp, request))
-                .append('?').append(request.getQueryString()).toString());
+        boolean https = "https:".equalsIgnoreCase(request.getRequestURL().substring(0,6));
+        StringBuilder serviceURL = webApp.getServiceURL(selectConnection(webApp, https));
+        if (path != null) serviceURL.append(path);
+        String queryString = request.getQueryString();
+        if (queryString != null) serviceURL.append('?').append(queryString);
+        return URI.create(serviceURL.toString());
     }
 
-    private static Connection selectConnection(WebApplication webApp, HttpServletRequest request)
-            throws ConfigurationException {
-        boolean https = "https:".equalsIgnoreCase(request.getRequestURL().substring(0,6));
+    private static Connection selectConnection(WebApplication webApp, boolean https) throws ConfigurationException {
         Connection altConn = null;
         for (Connection conn : webApp.getConnections()) {
             if (conn.isInstalled() && (altConn = conn).isTls() == https) {

@@ -146,8 +146,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int fallbackCMoveSCPRetries;
     private volatile String fallbackWadoURIWebApplication;
     private volatile int fallbackWadoURIHttpStatusCode = 303;
+    private volatile boolean fallbackWadoURIRedirectOnNotFound;
     private volatile String externalWadoRSWebApplication;
     private volatile int externalWadoRSHttpStatusCode = 303;
+    private volatile boolean externalWadoRSRedirectOnNotFound;
     private volatile String externalRetrieveAEDestination;
     private volatile String xdsiImagingDocumentSourceAETitle;
     private volatile String alternativeCMoveSCP;
@@ -988,6 +990,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.fallbackWadoURIHttpStatusCode = fallbackWadoURIHttpStatusCode;
     }
 
+    public boolean isFallbackWadoURIRedirectOnNotFound() {
+        return fallbackWadoURIRedirectOnNotFound;
+    }
+
+    public void setFallbackWadoURIRedirectOnNotFound(boolean fallbackWadoURIRedirectOnNotFound) {
+        this.fallbackWadoURIRedirectOnNotFound = fallbackWadoURIRedirectOnNotFound;
+    }
+
     public String getExternalWadoRSWebApplication() {
         return externalWadoRSWebApplication;
     }
@@ -1010,6 +1020,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setExternalRetrieveAEDestination(String externalRetrieveAEDestination) {
         this.externalRetrieveAEDestination = externalRetrieveAEDestination;
+    }
+
+    public boolean isExternalWadoRSRedirectOnNotFound() {
+        return externalWadoRSRedirectOnNotFound;
+    }
+
+    public void setExternalWadoRSRedirectOnNotFound(boolean externalWadoRSRedirectOnNotFound) {
+        this.externalWadoRSRedirectOnNotFound = externalWadoRSRedirectOnNotFound;
     }
 
     public String getXDSiImagingDocumentSourceAETitle() {
@@ -3573,8 +3591,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCPRetries = arcdev.fallbackCMoveSCPRetries;
         fallbackWadoURIWebApplication = arcdev.fallbackWadoURIWebApplication;
         fallbackWadoURIHttpStatusCode = arcdev.fallbackWadoURIHttpStatusCode;
+        fallbackWadoURIRedirectOnNotFound = arcdev.fallbackWadoURIRedirectOnNotFound;
         externalWadoRSWebApplication = arcdev.externalWadoRSWebApplication;
         externalWadoRSHttpStatusCode = arcdev.externalWadoRSHttpStatusCode;
+        externalWadoRSRedirectOnNotFound = arcdev.externalWadoRSRedirectOnNotFound;
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;
         xdsiImagingDocumentSourceAETitle = arcdev.xdsiImagingDocumentSourceAETitle;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;

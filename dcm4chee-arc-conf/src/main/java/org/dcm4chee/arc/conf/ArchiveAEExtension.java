@@ -107,8 +107,10 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCPStudyOlderThan;
     private String fallbackWadoURIWebApplication;
     private Integer fallbackWadoURIHttpStatusCode;
+    private Boolean fallbackWadoURIRedirectOnNotFound;;
     private String externalWadoRSWebApplication;
     private Integer externalWadoRSHttpStatusCode;
+    private Boolean externalWadoRSRedirectOnNotFound;
     private String externalRetrieveAEDestination;
     private String alternativeCMoveSCP;
     private Integer queryMaxNumberOfResults;
@@ -792,6 +794,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackWadoURIHttpStatusCode();
     }
 
+    public Boolean getFallbackWadoURIRedirectOnNotFound() {
+        return fallbackWadoURIRedirectOnNotFound;
+    }
+
+    public void setFallbackWadoURIRedirectOnNotFound(Boolean fallbackWadoURIRedirectOnNotFound) {
+        this.fallbackWadoURIRedirectOnNotFound = fallbackWadoURIRedirectOnNotFound;
+    }
+
+    public boolean fallbackWadoURIRedirectOnNotFound() {
+        return fallbackWadoURIRedirectOnNotFound != null
+                ? fallbackWadoURIRedirectOnNotFound
+                : getArchiveDeviceExtension().isFallbackWadoURIRedirectOnNotFound();
+    }
+
     public String getExternalWadoRSWebApplication() {
         return externalWadoRSWebApplication;
     }
@@ -818,6 +834,20 @@ public class ArchiveAEExtension extends AEExtension {
         return externalWadoRSHttpStatusCode != null
                 ? externalWadoRSHttpStatusCode
                 : getArchiveDeviceExtension().getExternalWadoRSHttpStatusCode();
+    }
+
+    public Boolean getExternalWadoRSRedirectOnNotFound() {
+        return externalWadoRSRedirectOnNotFound;
+    }
+
+    public void setExternalWadoRSRedirectOnNotFound(Boolean externalWadoRSRedirectOnNotFound) {
+        this.externalWadoRSRedirectOnNotFound = externalWadoRSRedirectOnNotFound;
+    }
+
+    public boolean externalWadoRSRedirectOnNotFound() {
+        return externalWadoRSRedirectOnNotFound != null
+                ? externalWadoRSRedirectOnNotFound
+                : getArchiveDeviceExtension().isExternalWadoRSRedirectOnNotFound();
     }
 
     public String getExternalRetrieveAEDestination() {
@@ -2042,8 +2072,10 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
         fallbackWadoURIWebApplication = aeExt.fallbackWadoURIWebApplication;
         fallbackWadoURIHttpStatusCode = aeExt.fallbackWadoURIHttpStatusCode;
+        fallbackWadoURIRedirectOnNotFound = aeExt.fallbackWadoURIRedirectOnNotFound;
         externalWadoRSWebApplication = aeExt.externalWadoRSWebApplication;
         externalWadoRSHttpStatusCode = aeExt.externalWadoRSHttpStatusCode;
+        externalWadoRSRedirectOnNotFound = aeExt.externalWadoRSRedirectOnNotFound;
         externalRetrieveAEDestination = aeExt.externalRetrieveAEDestination;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         queryMaxNumberOfResults = aeExt.queryMaxNumberOfResults;

@@ -308,13 +308,15 @@ public class WadoURI {
 
     private void buildResponse(@Suspended AsyncResponse ar, final RetrieveContext ctx, Date lastModified) throws IOException {
         LOG.debug("Query for requested instance");
-        if (!service.calculateMatches(ctx)) {
-            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        boolean hasMatches = service.calculateMatches(ctx);
+        Map<String, Collection<InstanceLocations>> notAccessable = service.removeNotAccessableMatches(ctx);
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        if (hasMatches ? notAccessable.isEmpty() : arcAE.fallbackWadoURIRedirectOnNotFound()) {
             String webAppName = arcAE.fallbackWadoURIWebApplication();
             if (webAppName != null) {
                 try {
                     ar.resume(Response.status(arcAE.fallbackWadoURIHttpStatusCode())
-                            .location(RedirectUtils.redirectURI(request, device, iWebAppCache, webAppName,
+                            .location(RedirectUtils.redirectURI(request, null, device, iWebAppCache, webAppName,
                                     WebApplication.ServiceClass.WADO_URI))
                             .build());
                     return;
@@ -322,10 +324,13 @@ public class WadoURI {
                     LOG.warn("Failed to redirect to {}:\n", webAppName, e);
                 }
             }
-            throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
         }
 
         List<InstanceLocations> matches = ctx.getMatches();
+        if (matches.isEmpty())
+            throw hasMatches
+                    ? new WebApplicationException(errResponse("No longer accessible.", Response.Status.GONE))
+                    : new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
         int numMatches = matches.size();
         if (numMatches > 1)
             LOG.debug("{} matches found. Return {}. match", numMatches, numMatches >>> 1);
