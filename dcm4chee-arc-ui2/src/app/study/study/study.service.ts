@@ -113,40 +113,49 @@ export class StudyService {
         } else {
             obj = patient;
         }
+        const allParts = [this.getPatientIdentifierOf(obj)]
+        if(_.hasIn(obj,'["00101002"].Value')){
+            _.get(obj,'["00101002"].Value').forEach(subAttrs=>{
+                allParts.push(this.getPatientIdentifierOf(subAttrs));
+            })
+        }
+        return allParts.join("~");
+    }
+    getPatientIdentifierOf(attrs){
         let patientId = '';
-        if (obj.PatientID || (_.hasIn(obj, '["00100020"].Value[0]') && obj["00100020"].Value[0] != '')) {
-            if (obj.PatientID) {
-                patientId = obj.PatientID;
+        if (attrs.PatientID || (_.hasIn(attrs, '["00100020"].Value[0]') && attrs["00100020"].Value[0] != '')) {
+            if (attrs.PatientID) {
+                patientId = attrs.PatientID;
             }
-            if (obj.IssuerOfPatientID && obj.IssuerOfPatientID != "") {
-                patientId += '^^^' + obj.IssuerOfPatientID;
+            if (attrs.IssuerOfPatientID && attrs.IssuerOfPatientID != "") {
+                patientId += '^^^' + attrs.IssuerOfPatientID;
             }
-            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityID') && _.get(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityID') != "") {
-                patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityID;
+            if (_.hasIn(attrs, 'IssuerOfPatientIDQualifiers.UniversalEntityID') && _.get(attrs, 'IssuerOfPatientIDQualifiers.UniversalEntityID') != "") {
+                patientId += '&' + attrs.IssuerOfPatientIDQualifiers.UniversalEntityID;
             }
-            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') && _.get(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') != "") {
-                patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
+            if (_.hasIn(attrs, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') && _.get(attrs, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') != "") {
+                patientId += '&' + attrs.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
             }
-            if (_.hasIn(obj, '["00100020"].Value[0]') && _.get(obj, '["00100020"].Value[0]') != "") {
-                patientId += obj["00100020"].Value[0];
+            if (_.hasIn(attrs, '["00100020"].Value[0]') && _.get(attrs, '["00100020"].Value[0]') != "") {
+                patientId += attrs["00100020"].Value[0];
             }
-            if (_.hasIn(obj, '["00100021"].Value[0]') && _.get(obj, '["00100021"].Value[0]') != "")
-                patientId += '^^^' + obj["00100021"].Value[0];
+            if (_.hasIn(attrs, '["00100021"].Value[0]') && _.get(attrs, '["00100021"].Value[0]') != "")
+                patientId += '^^^' + attrs["00100021"].Value[0];
             else {
                 if ((
-                        _.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') &&
-                        _.get(obj, '["00100024"].Value[0]["00400032"].Value[0]') != ""
+                        _.hasIn(attrs, '["00100024"].Value[0]["00400032"].Value[0]') &&
+                        _.get(attrs, '["00100024"].Value[0]["00400032"].Value[0]') != ""
                     ) ||
-                        _.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]') &&
-                        _.get(obj, '["00100024"].Value[0]["00400033"].Value[0]') != ""
-                    )
+                    _.hasIn(attrs, '["00100024"].Value[0]["00400033"].Value[0]') &&
+                    _.get(attrs, '["00100024"].Value[0]["00400033"].Value[0]') != ""
+                )
                     patientId += '^^^';
             }
-            if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') && _.get(obj, '["00100024"].Value[0]["00400032"].Value[0]') != "") {
-                patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
+            if (_.hasIn(attrs, '["00100024"].Value[0]["00400032"].Value[0]') && _.get(attrs, '["00100024"].Value[0]["00400032"].Value[0]') != "") {
+                patientId += '&' + attrs['00100024'].Value[0]['00400032'].Value[0];
             }
-            if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]') && _.get(obj, '["00100024"].Value[0]["00400033"].Value[0]') != "") {
-                patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
+            if (_.hasIn(attrs, '["00100024"].Value[0]["00400033"].Value[0]') && _.get(attrs, '["00100024"].Value[0]["00400033"].Value[0]') != "") {
+                patientId += '&' + attrs['00100024'].Value[0]['00400033'].Value[0];
             }
             return _.replace(patientId,"/","%2F");
         } else {
