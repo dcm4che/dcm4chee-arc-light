@@ -78,16 +78,18 @@ public class Resource {
         StringBuilder sb = new StringBuilder(256);
         sb.append('{');
         String arcURLs = System.getProperty("dcm4chee-arc-urls", "/dcm4chee-arc");
-        if (arcURLs != null) {
-            StringTokenizer urls = new StringTokenizer(arcURLs, " ");
-            sb.append("\"dcm4chee-arc-urls\":[\"").append(urls.nextToken());
-            while (urls.hasMoreTokens()) sb.append("\",\"").append(urls.nextToken());
-                sb.append("\"],");
-            }
+        StringTokenizer urls = new StringTokenizer(arcURLs, " ");
+        sb.append("\"dcm4chee-arc-urls\":[\"").append(urls.nextToken());
+        while (urls.hasMoreTokens()) sb.append("\",\"").append(urls.nextToken());
+            sb.append("\"],");
         sb.append("\"dicomDeviceName\":\"").append(System.getProperty("dcm4chee-arc.DeviceName", "dcm4chee-arc"));
         sb.append("\",\"super-user-role\":\"").append(System.getProperty("super-user-role", "root"));
-        sb.append("\",\"management-http-port\":").append(intSystemProperty("jboss.management.http.port", 9990));
-        sb.append(",\"management-https-port\":").append(intSystemProperty("jboss.management.https.port", 9993));
+        sb.append("\",\"management-http-port\":").append(
+                intSystemProperty("jboss.redirect.management.http.port",
+                        intSystemProperty("jboss.management.http.port", 9990)));
+        sb.append(",\"management-https-port\":").append(
+                intSystemProperty("jboss.redirect.management.https.port",
+                        intSystemProperty("jboss.management.https.port", 9993)));
         sb.append("}");
         return sb.toString();
     }
