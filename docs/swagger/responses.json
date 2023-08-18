@@ -1019,19 +1019,11 @@
         "schema": {
           "type": "object",
           "required": [
-            "dicomDeviceName",
-            "management-http-port",
-            "management-https-port"
+            "dicomDeviceName"
           ],
           "properties": {
             "dicomDeviceName": {
               "type": "string"
-            },
-            "management-http-port": {
-              "type": "integer"
-            },
-            "management-https-port": {
-              "type": "integer"
             },
             "xRoad": {
               "type": "boolean"
