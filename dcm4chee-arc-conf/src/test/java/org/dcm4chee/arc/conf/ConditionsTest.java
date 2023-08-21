@@ -92,11 +92,16 @@ public class ConditionsTest {
         assertTrue(notmodality.match(null, null, null, null, mr));
         assertTrue(notmodality.match(null, null, null, null, emptyModality));
         assertTrue(notmodality.match(null, null, null, null, empty));
-        Conditions nomodality = new Conditions("Modality!=.+");
+        Conditions nomodality = new Conditions("Modality=");
         assertFalse(nomodality.match(null, null, null, null, ct));
         assertFalse(nomodality.match(null, null, null, null, mr));
         assertTrue(nomodality.match(null, null, null, null, emptyModality));
         assertTrue(nomodality.match(null, null, null, null, empty));
+        Conditions anymodality = new Conditions("Modality!=");
+        assertTrue(anymodality.match(null, null, null, null, ct));
+        assertTrue(anymodality.match(null, null, null, null, mr));
+        assertFalse(anymodality.match(null, null, null, null, emptyModality));
+        assertFalse(anymodality.match(null, null, null, null, empty));
         Attributes spsItemCT = spsItem(ct);
         Attributes spsItemMR = spsItem(mr);
         Attributes spsItemEmpty = spsItem(empty);
