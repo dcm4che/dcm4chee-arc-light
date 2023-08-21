@@ -310,7 +310,8 @@ class SeriesQuery extends AbstractQuery {
         if (results.get(series.get(Series_.compressionFailures)) != 0)
             attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailuresOfLastCompressionOfSeries, VR.US,
                     results.get(series.get(Series_.compressionFailures)));
-        if (!results.get(series.get(Series_.externalRetrieveAET.getName())).equals("*"))
+        if (results.get(series.get(Series_.externalRetrieveAET)) != null
+                && !results.get(series.get(Series_.externalRetrieveAET.getName())).equals("*"))
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExternalRetrieveAETitle, VR.AE,
                     results.get(series.get(Series_.externalRetrieveAET)));
         if (results.get(metadata.get(Metadata_.storageID)) != null) {
