@@ -2455,25 +2455,38 @@ objectClass: dcmTransferCapability
 cn: Intravascular Optical Coherence Tomography Image Storage - For Presentation SCP
 
 dn: cn=hl7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomHostname: localhost
+dcmClientBindAddress: 0.0.0.0
+dcmTCPConnectTimeout: 5000
+dcmResponseTimeout: 5000
+dcmIdleTimeout: 300000
 dcmBindAddress: 0.0.0.0
-dicomPort: 2575
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dcmProtocol: HL7
-dcmClientBindAddress: 0.0.0.0
 cn: hl7
+dicomHostname: localhost
+dicomPort: 2575
 
 dn: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomHostname: localhost
-dcmBindAddress: 0.0.0.0
-dicomPort: 11112
+dcmSendTimeout: 5000
+dcmRetrieveTimeout: 300000
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
-dcmMaxOpsInvoked: 0
-dcmMaxOpsPerformed: 0
-dcmClientBindAddress: 0.0.0.0
+dcmTCPConnectTimeout: 5000
 cn: dicom
+dcmClientBindAddress: 0.0.0.0
+dcmAAACTimeout: 5000
+dcmIdleTimeout: 300000
+dcmAATimeout: 5000
+dcmMaxOpsPerformed: 0
+dcmARRPTimeout: 5000
+dcmResponseTimeout: 5000
+dcmAARQTimeout: 5000
+dicomHostname: localhost
+dcmMaxOpsInvoked: 0
+dcmStoreTimeout: 300000
+dcmBindAddress: 0.0.0.0
+dicomPort: 11112
 
 dn: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
@@ -2484,28 +2497,41 @@ dcmClientBindAddress: 0.0.0.0
 cn: syslog
 
 dn: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomHostname: localhost
+dcmClientBindAddress: 0.0.0.0
+dcmTCPConnectTimeout: 5000
+dcmIdleTimeout: 300000
+dcmResponseTimeout: 5000
 dcmBindAddress: 0.0.0.0
-dicomPort: 12575
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
+dcmProtocol: HL7
+cn: hl7-tls
+dicomHostname: localhost
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
-dcmProtocol: HL7
-dcmClientBindAddress: 0.0.0.0
-cn: hl7-tls
+dicomPort: 12575
 
 dn: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmClientBindAddress: 0.0.0.0
-dcmMaxOpsInvoked: 0
-dcmBindAddress: 0.0.0.0
+dcmSendTimeout: 5000
+dcmRetrieveTimeout: 300000
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
-dcmMaxOpsPerformed: 0
+dcmTCPConnectTimeout: 5000
 cn: dicom-tls
-dicomHostname: localhost
+dcmClientBindAddress: 0.0.0.0
+dcmAAACTimeout: 5000
+dcmIdleTimeout: 300000
+dcmAATimeout: 5000
+dcmMaxOpsPerformed: 0
+dcmARRPTimeout: 5000
+dcmResponseTimeout: 5000
+dcmAARQTimeout: 5000
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dicomHostname: localhost
+dcmMaxOpsInvoked: 0
+dcmStoreTimeout: 300000
+dcmBindAddress: 0.0.0.0
 dicomPort: 2762
 
 dn: cn=syslog-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

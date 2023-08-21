@@ -1490,18 +1490,10 @@ class ArchiveDeviceFactory {
                                              Device scheduledStation, Device storescu, Device mppsscu)  {
         Device device = new Device(name);
         String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
-        Connection dicom = new Connection("dicom", archiveHost, 11112);
-        dicom.setBindAddress("0.0.0.0");
-        dicom.setClientBindAddress("0.0.0.0");
-        dicom.setMaxOpsInvoked(0);
-        dicom.setMaxOpsPerformed(0);
+        Connection dicom = dicomConnection("dicom", archiveHost, 11112);
         device.addConnection(dicom);
 
-        Connection dicomTLS = new Connection("dicom-tls", archiveHost, 2762);
-        dicomTLS.setBindAddress("0.0.0.0");
-        dicomTLS.setClientBindAddress("0.0.0.0");
-        dicomTLS.setMaxOpsInvoked(0);
-        dicomTLS.setMaxOpsPerformed(0);
+        Connection dicomTLS = dicomConnection("dicom-tls", archiveHost, 2762);
         dicomTLS.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
@@ -1671,6 +1663,25 @@ class ArchiveDeviceFactory {
         return device;
     }
 
+    private static Connection dicomConnection(String commonName, String hostname, int port) {
+        Connection dicom = new Connection(commonName, hostname, port);
+        dicom.setBindAddress("0.0.0.0");
+        dicom.setClientBindAddress("0.0.0.0");
+        dicom.setMaxOpsInvoked(0);
+        dicom.setMaxOpsPerformed(0);
+        dicom.setConnectTimeout(5000);
+        dicom.setRequestTimeout(5000);
+        dicom.setAcceptTimeout(5000);
+        dicom.setReleaseTimeout(5000);
+        dicom.setSendTimeout(5000);
+        dicom.setStoreTimeout(300000);
+        dicom.setResponseTimeout(5000);
+        dicom.setRetrieveTimeout(300000);
+        dicom.setIdleTimeout(300000);
+        dicom.setAbortTimeout(5000);
+        return dicom;
+    }
+
     private static void addImageWriterParam(ImageWriterFactory writerFactory, String tsuid, Property prop) {
         ImageWriterFactory.ImageWriterParam param = writerFactory.remove(tsuid);
         writerFactory.put(tsuid, new ImageWriterFactory.ImageWriterParam(
@@ -1776,22 +1787,27 @@ class ArchiveDeviceFactory {
         hl7App.setHL7SendingCharacterSet("8859/1");
         ext.addHL7Application(hl7App);
 
-        Connection hl7 = new Connection("hl7", archiveHost, 2575);
-        hl7.setBindAddress("0.0.0.0");
-        hl7.setClientBindAddress("0.0.0.0");
-        hl7.setProtocol(Connection.Protocol.HL7);
+        Connection hl7 = hl7Connection("hl7", archiveHost, 2575);
         device.addConnection(hl7);
         hl7App.addConnection(hl7);
 
-        Connection hl7TLS = new Connection("hl7-tls", archiveHost, 12575);
-        hl7TLS.setBindAddress("0.0.0.0");
-        hl7TLS.setClientBindAddress("0.0.0.0");
-        hl7TLS.setProtocol(Connection.Protocol.HL7);
+        Connection hl7TLS = hl7Connection("hl7-tls", archiveHost, 12575);
         hl7TLS.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
         device.addConnection(hl7TLS);
         hl7App.addConnection(hl7TLS);
+    }
+
+    private static Connection hl7Connection(String commonName, String hostname, int port) {
+        Connection hl7 = new Connection(commonName, hostname, port);
+        hl7.setBindAddress("0.0.0.0");
+        hl7.setClientBindAddress("0.0.0.0");
+        hl7.setProtocol(Connection.Protocol.HL7);
+        hl7.setConnectTimeout(5000);
+        hl7.setResponseTimeout(5000);
+        hl7.setIdleTimeout(300000);
+        return hl7;
     }
 
     private static void addArchiveDeviceExtension(Device device, ConfigType configType,
