@@ -19,6 +19,15 @@ export class UploadFilesService {
         return "model/obj";
       case "genozip":
         return "application/vnd.genozip";
+      case "vcf.bz2":
+      case "vcfbzip2":
+      case "vcfbz2":
+      case "application/prs.vcfbzip2":
+        return "application/prs.vcfbzip2";
+      case "boz":
+      case "bz2":
+      case "application/x-bzip2":
+        return "application/x-bzip2";
       default:
         return fileTypeOrExt;
     }
