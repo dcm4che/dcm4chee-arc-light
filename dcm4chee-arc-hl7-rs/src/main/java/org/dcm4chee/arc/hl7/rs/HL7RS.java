@@ -43,8 +43,7 @@ package org.dcm4chee.arc.hl7.rs;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
@@ -78,6 +77,9 @@ import java.io.*;
 import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -125,7 +127,13 @@ public class HL7RS {
     @Produces("application/json")
     public Response createPatient(InputStream in) {
         logRequest();
-        return scheduleOrSendHL7("ADT^A28^ADT_A05", toPatientMgtContext(toAttributes(in)));
+        PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
+        if (ctx.getPatientIDs().isEmpty())
+            return errResponse(
+                    "Missing patient identifier with trusted assigning authority in " + ctx.getPatientIDs(),
+                    Response.Status.BAD_REQUEST);
+
+        return scheduleOrSendHL7("ADT^A28^ADT_A05", ctx);
     }
 
     @PUT
@@ -133,16 +141,27 @@ public class HL7RS {
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
     public Response updatePatient(
-            @PathParam("priorPatientID") IDWithIssuer priorPatientID,
+            @PathParam("priorPatientID") String multiplePriorPatientIDs,
             @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
             InputStream in) {
         logRequest();
+        Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs);
+        if (trustedPriorPatientIDs.isEmpty())
+            return errResponse(
+                    "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                    Response.Status.BAD_REQUEST);
+
         String msgType = "ADT^A31^ADT_A05";
         PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
-        Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
+        if (ctx.getPatientIDs().isEmpty())
+            return errResponse(
+                    "Missing patient identifier with trusted assigning authority in " + ctx.getPatientIDs(),
+                    Response.Status.BAD_REQUEST);
+
         boolean mergePatients = Boolean.parseBoolean(merge);
-        if (!patientIDs.contains(priorPatientID)) {
-            ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+        boolean patientMatch = isPatientMatch(ctx.getPatientIDs(), trustedPriorPatientIDs);
+        if (!patientMatch) {
+            ctx.setPreviousAttributes(exportPatientIDsWithIssuer(new Attributes(), trustedPriorPatientIDs));
             msgType = mergePatients ? "ADT^A40^ADT_A39" : "ADT^A47^ADT_A30";
         } else if (mergePatients)
             return errResponse("Circular merge of patients not allowed.", Response.Status.BAD_REQUEST);
@@ -150,17 +169,43 @@ public class HL7RS {
         return scheduleOrSendHL7(msgType, ctx);
     }
 
+    private boolean isPatientMatch(
+            Collection<IDWithIssuer> targetPatientIDs, Collection<IDWithIssuer> trustedPriorPatientIDs) {
+        for (IDWithIssuer trustedPriorPatientID : trustedPriorPatientIDs)
+            if (targetPatientIDs.contains(trustedPriorPatientID))
+                return true;
+
+        return false;
+    }
+
     @PUT
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
     public Response updatePatient1(InputStream in) {
         logRequest();
-        return scheduleOrSendHL7("ADT^A31^ADT_A05", toPatientMgtContext(toAttributes(in)));
+        PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
+        if (ctx.getPatientIDs().isEmpty())
+            return errResponse(
+                    "Missing patient identifier with trusted assigning authority in " + ctx.getPatientIDs(),
+                    Response.Status.BAD_REQUEST);
+
+        return scheduleOrSendHL7("ADT^A31^ADT_A05", ctx);
+    }
+
+    private Collection<IDWithIssuer> trustedPatientIDs(String multiplePatientIDs) {
+        String[] patientIDs = multiplePatientIDs.split("~");
+        Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
+        for (String cx : patientIDs)
+            patientIdentifiers.add(new IDWithIssuer(cx));
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                     .withTrustedIssuerOfPatientID(patientIdentifiers);
     }
 
     private PatientMgtContext toPatientMgtContext(Attributes attrs) {
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
         ctx.setAttributes(attrs);
+        ctx.setPatientIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                            .withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
         return ctx;
     }
 
@@ -182,23 +227,57 @@ public class HL7RS {
     @Path("/{priorPatientID}/merge")
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
-    public Response mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID, InputStream in) {
-        return mergePatientOrChangePID(priorPatientID, in, "ADT^A40^ADT_A39");
+    public Response mergePatient(@PathParam("priorPatientID") String multiplePriorPatientIDs, InputStream in) {
+        Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs);
+        if (trustedPriorPatientIDs.isEmpty())
+            return errResponse(
+                    "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                    Response.Status.BAD_REQUEST);
+
+        return mergePatientOrChangePID(trustedPriorPatientIDs, in, "ADT^A40^ADT_A39");
     }
 
     @POST
     @Path("/{priorPatientID}/changeid")
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
-    public Response changePatientID(@PathParam("priorPatientID") IDWithIssuer priorPatientID, InputStream in) {
-        return mergePatientOrChangePID(priorPatientID, in, "ADT^A47^ADT_A30");
+    public Response changePatientID(@PathParam("priorPatientID") String multiplePriorPatientIDs, InputStream in) {
+        Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs);
+        if (trustedPriorPatientIDs.isEmpty())
+            return errResponse(
+                    "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                    Response.Status.BAD_REQUEST);
+
+        return mergePatientOrChangePID(trustedPriorPatientIDs, in, "ADT^A47^ADT_A30");
     }
 
-    private Response mergePatientOrChangePID(IDWithIssuer priorPatientID, InputStream in, String msgType) {
+    private Response mergePatientOrChangePID(
+            Collection<IDWithIssuer> trustedPriorPatientIDs, InputStream in, String msgType) {
         logRequest();
         PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
-        ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+        if (ctx.getPatientIDs().isEmpty())
+            return errResponse(
+                    "Missing patient identifier with trusted assigning authority in " + ctx.getPatientIDs(),
+                    Response.Status.BAD_REQUEST);
+
+        ctx.setPreviousPatientIDs(trustedPriorPatientIDs);
+        ctx.setPreviousAttributes(exportPatientIDsWithIssuer(new Attributes(), trustedPriorPatientIDs));
         return scheduleOrSendHL7(msgType, ctx);
+    }
+
+    private Attributes exportPatientIDsWithIssuer(Attributes attrs, Collection<IDWithIssuer> idWithIssuers) {
+        attrs.setNull(Tag.PatientID, VR.LO);
+        attrs.setNull(Tag.IssuerOfPatientID, VR.LO);
+        attrs.setNull(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+        attrs.setNull(Tag.OtherPatientIDsSequence, VR.SQ);
+        Iterator<IDWithIssuer> iter = idWithIssuers.iterator();
+        attrs = iter.next().exportPatientIDWithIssuer(attrs);
+        Sequence otherPatientIDsSequence = attrs.ensureSequence(
+                Tag.OtherPatientIDsSequence,
+                idWithIssuers.size() - 1);
+        while (iter.hasNext())
+            otherPatientIDsSequence.add(iter.next().exportPatientIDWithIssuer(null));
+        return attrs;
     }
 
     private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) {
@@ -217,12 +296,11 @@ public class HL7RS {
                 hl7Sender.scheduleMessage(ctx.getHttpServletRequestInfo(), data);
                 return Response.accepted().build();
             }
-            else {
-                ArchiveHL7Message hl7Msg = new ArchiveHL7Message(data);
-                hl7Msg.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
-                UnparsedHL7Message rsp = hl7Sender.sendMessage(sender, receiver, hl7Msg);
-                return response(HL7Message.parse(rsp.data(), sender.getHL7DefaultCharacterSet()));
-            }
+
+            ArchiveHL7Message hl7Msg = new ArchiveHL7Message(data);
+            hl7Msg.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
+            UnparsedHL7Message rsp = hl7Sender.sendMessage(sender, receiver, hl7Msg);
+            return response(HL7Message.parse(rsp.data(), sender.getHL7DefaultCharacterSet()));
         } catch (ConnectException e) {
             return errResponse(e.getMessage(), Response.Status.GATEWAY_TIMEOUT);
         } catch (IOException e) {
