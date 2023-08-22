@@ -1448,7 +1448,8 @@ export class StudyService {
                                         action: "download_csv"
                                     }, e);
                                 },showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return _.get(e,"attrs[00201200].Value[0]") > 0
+                                        && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
                                 id:"study_download_csv",
                                 title: $localize `:@@study.download_as_csv:Download as CSV`,
