@@ -111,6 +111,7 @@ class RetrieveAuditService {
     private AuditInfoBuilder createCompletedRetrieveInfo() {
         AuditInfoBuilder.Builder retrieveInfo = new AuditInfoBuilder.Builder();
         retrieveInfo.warning(warningMsg);
+        retrieveInfo.outcome(outcomeDesc());
         return addUserParticipantDetails(retrieveInfo);
     }
 
