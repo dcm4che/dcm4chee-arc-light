@@ -3911,13 +3911,6 @@ export class Globalvar {
                     "restore":undefined,
                 }
             },
-            "action-patients-merge":{
-                type:"action",
-                title:"Action - Patients - Merge",
-                params:{
-                    "visible":undefined,
-                }
-            },
             "action-studies-copy_merge_move":{
                 type:"action",
                 title:"Action - Studies - Copy Merge Move",

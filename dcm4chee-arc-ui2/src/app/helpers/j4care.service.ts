@@ -1826,24 +1826,4 @@ export class j4care {
             return false;
         }
     }
-
-    static extractPropertiesFromWebApp(dcmWebApp:DcmWebApp){
-        try{
-            let properties = {};
-            const regex = /([\w-]*)=([\w -]*)/;
-            let m;
-            if(_.hasIn(dcmWebApp,"dcmProperty")){
-                dcmWebApp.dcmProperty.forEach(prop=>{
-                    if ((m = regex.exec(prop)) !== null) {
-                        properties[m[1]] = m[2];
-                    }
-                })
-            }
-            return properties;
-        }catch(e){
-            this.log("Error on getting properties dcmWebApp:",dcmWebApp);
-            this.log("e:",e);
-            return {};
-        }
-    }
 }
