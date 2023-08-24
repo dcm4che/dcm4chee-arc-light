@@ -53,7 +53,6 @@ import jakarta.ws.rs.container.AsyncResponse;
 import jakarta.ws.rs.container.CompletionCallback;
 import jakarta.ws.rs.container.Suspended;
 import jakarta.ws.rs.core.*;
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -62,7 +61,6 @@ import org.dcm4che3.image.ICCProfile;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.StringUtils;
@@ -84,7 +82,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Stream;
@@ -313,23 +310,29 @@ public class WadoURI {
 
     private void buildResponse(@Suspended AsyncResponse ar, final RetrieveContext ctx, Date lastModified) throws IOException {
         LOG.debug("Query for requested instance");
-        if (!service.calculateMatches(ctx)) {
-            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        boolean hasMatches = service.calculateMatches(ctx);
+        Map<String, Collection<InstanceLocations>> notAccessable = service.removeNotAccessableMatches(ctx);
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        if (hasMatches ? !notAccessable.isEmpty() : arcAE.fallbackWadoURIRedirectOnNotFound()) {
             String webAppName = arcAE.fallbackWadoURIWebApplication();
             if (webAppName != null) {
                 try {
                     ar.resume(Response.status(arcAE.fallbackWadoURIHttpStatusCode())
-                            .location(redirectURI(webAppName))
+                            .location(RedirectUtils.redirectURI(request, null, device, iWebAppCache, webAppName,
+                                    WebApplication.ServiceClass.WADO_URI))
                             .build());
                     return;
                 } catch (Exception e) {
                     LOG.warn("Failed to redirect to {}:\n", webAppName, e);
                 }
             }
-            throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
         }
 
         List<InstanceLocations> matches = ctx.getMatches();
+        if (matches.isEmpty())
+            throw hasMatches
+                    ? new WebApplicationException(errResponse("No longer accessible.", Response.Status.GONE))
+                    : new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
         int numMatches = matches.size();
         if (numMatches > 1)
             LOG.debug("{} matches found. Return {}. match", numMatches, numMatches >>> 1);
@@ -361,35 +364,6 @@ public class WadoURI {
 
     private boolean ignorePatientUpdates() {
         return contentTypes != null && contentTypes.ignorePatientUpdates;
-    }
-
-    private URI redirectURI(String webAppName) throws ConfigurationException {
-        WebApplication webApp = iWebAppCache.findWebApplication(webAppName);
-        if (!webApp.containsServiceClass(WebApplication.ServiceClass.WADO_URI)) {
-            throw new ConfigurationException("WebApplication: " + webAppName
-                    + " does not provide WADO-URI service");
-        }
-        if (webApp.getDevice().getDeviceName().equals(device.getDeviceName())) {
-            throw new ConfigurationException("WebApplication: " + webAppName
-                    + " is provided by this Device: " + device.getDeviceName() + " - prevent redirect to itself");
-        }
-        return URI.create(webApp.getServiceURL(selectConnection(webApp))
-                .append('?').append(request.getQueryString()).toString());
-    }
-
-    private Connection selectConnection(WebApplication webApp) throws ConfigurationException {
-        boolean https = "https:".equalsIgnoreCase(request.getRequestURL().substring(0,6));
-        Connection altConn = null;
-        for (Connection conn : webApp.getConnections()) {
-            if (conn.isInstalled() && (altConn = conn).isTls() == https) {
-                return conn;
-            }
-        }
-        if (altConn == null) {
-            throw new ConfigurationException(
-                    "No installed Network Connection for WebApplication: " + webApp.getApplicationName());
-        }
-        return altConn;
     }
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
@@ -434,10 +408,12 @@ public class WadoURI {
             case EncapsulatedOBJ:
             case EncapsulatedMTL:
             case EncapsulatedGenozip:
+            case EncapsulatedVCFBzip2:
+            case EncapsulatedBzip2:
                 return decapsulateDocument(service.openDicomInputStream(ctx, inst));
             case MPEG2Video:
             case MPEG4Video:
-                return decapsulateVideo(service.openDicomInputStream(ctx, inst));
+                return new CompressedPixelDataOutput(ctx, inst);
             case SRDocument:
                 return new DicomXSLTOutput(ctx, inst, mimeType, wadoURL());
         }
@@ -497,16 +473,6 @@ public class WadoURI {
 
     private String wadoURL() {
         return device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request).toString();
-    }
-
-    private StreamingOutput decapsulateVideo(DicomInputStream dis) throws IOException {
-        dis.readDataset(-1, Tag.PixelData);
-        if (dis.tag() != Tag.PixelData || dis.length() != -1
-                || !dis.readItemHeader() || dis.length() != 0
-                || !dis.readItemHeader())
-            throw new IOException("No or incorrect encapsulated video stream in requested object");
-
-        return new StreamCopyOutput(dis, dis.length());
     }
 
     private StreamingOutput decapsulateCDA(DicomInputStream dis, String templateURI) throws IOException {

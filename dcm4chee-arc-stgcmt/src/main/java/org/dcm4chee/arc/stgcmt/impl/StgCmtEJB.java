@@ -392,7 +392,7 @@ public class StgCmtEJB {
         if (httpServletRequestInfo != null) {
             task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
             task.setRequesterHost(httpServletRequestInfo.requesterHost);
-            task.setRequestURI(httpServletRequestInfo.requestURI);
+            task.setRequestURI(requestURL(httpServletRequestInfo));
         }
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
@@ -413,6 +413,12 @@ public class StgCmtEJB {
         em.persist(task);
         LOG.info("Create {}", task);
         return true;
+    }
+
+    private String requestURL(HttpServletRequestInfo httpServletRequestInfo) {
+        String requestURI = httpServletRequestInfo.requestURI;
+        String queryString = httpServletRequestInfo.queryString;
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     public boolean scheduleStgVerTask(String localAET, String studyInstanceUID, String seriesInstanceUID, String batchID) {

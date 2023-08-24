@@ -2,18 +2,20 @@
   &.filter_loader{
     position: relative;
     text-align: center;
-    min-width: 60%;
+    min-width: 100%;
     float: left;
     //line-height: 90px;
     .filter_block{
       border:none;
       width: 100%;
     }
-    .fa-spin{
+    mat-progress-spinner{
       position: absolute;
       top: 50%;
       margin-top: -20px;
       font-size: 30px;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
   }
   .filter_block{

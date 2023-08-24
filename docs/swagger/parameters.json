@@ -134,10 +134,19 @@
       "type": "string"
     }
   },
+  "worklistLabelPathParam": {
+    "name": "worklistLabel",
+    "in": "path",
+    "description": "Worklist Label",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "patientPathParam": {
     "name": "patientID",
     "in": "path",
-    "description": "Patient ID and Issuer encoded as HL7 CX",
+    "description": "Multiple Patient IDs and their Issuers encoded as HL7 CX separated by repetition character ~",
     "required": true,
     "schema": {
       "type": "string"
@@ -146,7 +155,7 @@
   "priorPatientPathParam": {
     "name": "priorPatientID",
     "in": "path",
-    "description": "Prior Patient ID and Issuer encoded as HL7 CX",
+    "description": "Multiple prior Patient IDs and their Issuers encoded as HL7 CX separated by repetition character ~",
     "required": true,
     "schema": {
       "type": "string"
@@ -293,6 +302,19 @@
     "required": true,
     "schema": {
       "type": "string"
+    }
+  },
+  "entity": {
+    "name": "entity",
+    "in": "query",
+    "description": "Entity of which Institution Names are to be returned",
+    "required": true,
+    "schema": {
+      "type": "string",
+      "enum": [
+        "Series",
+        "MWL"
+      ]
     }
   },
   "typePathParam": {
@@ -988,6 +1010,24 @@
       "$ref": "schemas.json#/patientVerificationStatus"
     }
   },
+  "fromLocationStatus": {
+    "name": "from",
+    "in": "query",
+    "required": true,
+    "description": "change location status from this value",
+    "schema": {
+      "$ref": "schemas.json#/locationStatus"
+    }
+  },
+  "toLocationStatus": {
+    "name": "to",
+    "in": "query",
+    "required": true,
+    "description": "change location status to that value",
+    "schema": {
+      "$ref": "schemas.json#/locationStatus"
+    }
+  },
   "merged": {
     "name": "merged",
     "in": "query",
@@ -1146,6 +1186,14 @@
     "schema": {
       "type": "boolean",
       "default": false
+    }
+  },
+  "strategy": {
+    "name": "strategy",
+    "in": "query",
+    "description": "specify strategy to be used for link instance to MWL service",
+    "schema": {
+      "$ref": "schemas.json#/linkStrategy"
     }
   },
   "storageID": {
@@ -1913,6 +1961,28 @@
     "description": "Source of Previous Values (0400,0561) stored with original Attributes in Original Attributes Sequence (0400,0561)",
     "schema": {
       "type": "string"
+    }
+  },
+  "irwf": {
+    "name": "irwf",
+    "in": "query",
+    "description": "Indicates to coerce attributes of received DICOM objects according IHE Import Reconciliation Workflow Integration Profile",
+    "schema": {
+      "type": "string",
+      "enum": [
+        "UNSCHEDULED",
+        "SCHEDULED",
+        "SCHEDULED_COERCE_STUDY"
+      ]
+    }
+  },
+  "purgeAfterDelay": {
+    "name": "purge",
+    "in": "query",
+    "description": "If present with a value of true, Instance Records will be purged again according configured Purge Instance Records Delay.",
+    "schema": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

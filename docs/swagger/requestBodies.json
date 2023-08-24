@@ -49,11 +49,6 @@
         "schema": {
           "$ref": "schemas.json#/attributes"
         }
-      },
-      "application/json": {
-        "schema": {
-          "$ref": "schemas.json#/attributes"
-        }
       }
     }
   },
@@ -150,6 +145,21 @@
       }
     }
   },
+  "requestAttributes": {
+    "description": "Request Attributes",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
   "HierarchicalSOPInstanceReference": {
     "description": "References to Source Instances",
     "content": {
@@ -230,6 +240,38 @@
                   },
                   "UniversalEntityIDType": {
                     "type": "string"
+                  }
+                }
+              },
+              "OtherPatientIDsSequence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "PatientID"
+                  ],
+                  "properties": {
+                    "PatientID": {
+                      "type": "string"
+                    },
+                    "IssuerOfPatientID": {
+                      "type": "string"
+                    },
+                    "IssuerOfPatientIDQualifiers": {
+                      "type": "object",
+                      "required": [
+                        "UniversalEntityID",
+                        "UniversalEntityIDType"
+                      ],
+                      "properties": {
+                        "UniversalEntityID": {
+                          "type": "string"
+                        },
+                        "UniversalEntityIDType": {
+                          "type": "string"
+                        }
+                      }
+                    }
                   }
                 }
               }

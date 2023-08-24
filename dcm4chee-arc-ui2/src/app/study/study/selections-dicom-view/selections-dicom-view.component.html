@@ -18,6 +18,14 @@
                     </ng-container>
                 </ng-container>
                 <span *ngSwitchCase="'value'">{{_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue) || '&nbsp;'}}</span>
+                <ng-container *ngSwitchCase="'pipe'">
+                    <ng-container *ngIf="table_element.pathToValue">
+                        {{_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue) | dynamicPipe:table_element.pipe}}
+                    </ng-container>
+                    <ng-container *ngIf="!table_element.pathToValue">
+                        {{selectionsDicomObjects[id].object.attrs | dynamicPipe:table_element.pipe}}
+                    </ng-container>
+                </ng-container>
             </div>
         </div>
     </div>

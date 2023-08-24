@@ -60,6 +60,7 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     private Exception exception;
     private HttpServletRequestInfo httpServletRequestInfo;
     private Study study;
+    private boolean patientDeletionTriggered;
 
     public StudyDeleteContextImpl(Long studyPk) {
         this.studyPk = studyPk;
@@ -108,5 +109,15 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     @Override
     public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
+    }
+
+    @Override
+    public boolean isPatientDeletionTriggered() {
+        return patientDeletionTriggered;
+    }
+
+    @Override
+    public void setPatientDeletionTriggered(boolean patientDeletionTriggered) {
+        this.patientDeletionTriggered = patientDeletionTriggered;
     }
 }

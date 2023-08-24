@@ -101,7 +101,7 @@ class LocationQuery {
         } else {
             QueryBuilder builder = new QueryBuilder(cb);
             if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
-                builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
+                builder.patientIDPredicate(predicates, q, study.join(Study_.patient), ctx.getPatientIDs());
             }
             builder.accessControl(predicates, study, ctx.getAccessControlIDs());
             builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
@@ -135,6 +135,7 @@ class LocationQuery {
                 locationPath.get(Location_.digest),
                 locationPath.get(Location_.size),
                 locationPath.get(Location_.status),
+                locationPath.get(Location_.multiReference),
                 locationPath.get(Location_.uidMapFk),
                 series.get(Series_.pk),
                 instance.get(Instance_.pk),
@@ -230,7 +231,7 @@ class LocationQuery {
         if (pk == null)
             return;
 
-        Location location = new Location.Builder()
+        match.getLocations().add(new Location.Builder()
                 .pk(pk)
                 .storageID(tuple.get(locationPath.get(Location_.storageID)))
                 .storagePath(tuple.get(locationPath.get(Location_.storagePath)))
@@ -239,8 +240,8 @@ class LocationQuery {
                 .digest(tuple.get(locationPath.get(Location_.digest)))
                 .size(tuple.get(locationPath.get(Location_.size)))
                 .status(tuple.get(locationPath.get(Location_.status)))
-                .build();
-        location.setUidMap(uidMap);
-        match.getLocations().add(location);
+                .multiReference(tuple.get(locationPath.get(Location_.multiReference)))
+                .uidMap(uidMap)
+                .build());
     }
 }

@@ -129,6 +129,7 @@ public class CFindSCUImpl implements CFindSCU {
         AttributesBuilder.setNullIfAbsent(keys,
                 Tag.AccessionNumber,
                 Tag.IssuerOfAccessionNumberSequence,
+                Tag.InstitutionName,
                 Tag.ReferencedStudySequence,
                 Tag.ReferringPhysicianName,
                 Tag.PatientName,

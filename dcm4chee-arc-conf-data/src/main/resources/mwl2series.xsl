@@ -6,8 +6,12 @@
       <xsl:copy-of select="DicomAttribute[@tag='00080050']"/>
       <!-- Issuer of Accession Number Sequence -->
       <xsl:copy-of select="DicomAttribute[@tag='00080051']"/>
+      <!-- Institution Name -->
+      <xsl:copy-of select="DicomAttribute[@tag='00080080']"/>
       <!-- Referring Physician's Name -->
       <xsl:copy-of select="DicomAttribute[@tag='00080090']"/>
+      <!-- Referring Physician's Identification Sequence -->
+      <xsl:copy-of select="DicomAttribute[@tag='00080096']"/>
       <!-- Study Description from Requested Procedure Description -->
       <xsl:if test="DicomAttribute[@tag='00321060']">
         <DicomAttribute tag="00081030" vr="LO">

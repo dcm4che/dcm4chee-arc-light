@@ -80,15 +80,12 @@ import org.slf4j.LoggerFactory;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParsingException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -119,6 +116,13 @@ public class StudyMgtRS {
 
     @PathParam("AETitle")
     private String aet;
+
+    @QueryParam("reasonForModification")
+    @Pattern(regexp = "COERCE|CORRECT")
+    private String reasonForModification;
+
+    @QueryParam("sourceOfPreviousValues")
+    private String sourceOfPreviousValues;
 
     @Context
     private HttpServletRequest request;
@@ -181,21 +185,23 @@ public class StudyMgtRS {
             validateWebAppServiceClass();
 
         final Attributes attrs = toAttributes(in);
-        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null || !attrs.containsValue(Tag.StudyInstanceUID)
+        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        if (patientIDs.isEmpty() || !attrs.containsValue(Tag.StudyInstanceUID)
                 || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
             return errResponse("Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload",
                             Response.Status.BAD_REQUEST);
 
         try {
-            Patient patient = patientService.findPatient(patientID);
+            Patient patient = patientService.findPatient(patientIDs);
             if (patient == null)
-                return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
+                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
 
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
             studyService.updateStudy(ctx);
             rsForward.forward(RSOperation.UpdateStudy, arcAE, attrs, request);
             return Response.ok((StreamingOutput) out -> {
@@ -206,12 +212,14 @@ public class StudyMgtRS {
                             .build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (PatientMismatchException e) {
-            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
-        } catch (NonUniquePatientException | PatientMergedException e) {
+        } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+            return e.getCause() instanceof PatientMismatchException
+                    ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)
+                    : errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -232,9 +240,9 @@ public class StudyMgtRS {
             validateWebAppServiceClass();
 
         final Attributes attrs = toAttributes(in);
-        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null || !attrs.containsValue(Tag.SeriesInstanceUID))
-            return errResponse("Missing Patient ID or Series Instance UID in request payload",
+        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        if (patientIDs.isEmpty() || !attrs.containsValue(Tag.SeriesInstanceUID))
+            return errResponse("Missing patient identifier or Series Instance UID in request payload",
                             Response.Status.BAD_REQUEST);
 
         if (!seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID)))
@@ -242,9 +250,9 @@ public class StudyMgtRS {
                             Response.Status.BAD_REQUEST);
 
         try {
-            Patient patient = patientService.findPatient(patientID);
+            Patient patient = patientService.findPatient(patientIDs);
             if (patient == null)
-                return errResponse("Patient[id=" + patientID + "] does not exist.", Response.Status.NOT_FOUND);
+                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
 
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
@@ -252,6 +260,8 @@ public class StudyMgtRS {
             ctx.setAttributes(attrs);
             ctx.setStudyInstanceUID(studyUID);
             ctx.setSeriesInstanceUID(seriesUID);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
             studyService.updateSeries(ctx);
             rsForward.forward(RSOperation.UpdateSeries, arcAE, attrs, request);
             return Response.ok((StreamingOutput)out -> {
@@ -262,10 +272,80 @@ public class StudyMgtRS {
                             .build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (PatientMismatchException e) {
-            return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
-        } catch (NonUniquePatientException | PatientMergedException e) {
+        } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (Exception e) {
+            return e.getCause() instanceof PatientMismatchException
+                    ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)
+                    : errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
+    @Path("/studies/{study}/request")
+    @Consumes("application/dicom+json,application/json")
+    @Produces("application/json")
+    public Response updateStudyRequestAttrs(
+            @PathParam("study") String studyUID,
+            InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        final List<Attributes> requestAttrs = toRequestAttributes(in);
+        try {
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            ctx.setRequestAttributes(requestAttrs);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
+            studyService.updateStudyRequest(ctx);
+            rsForward.forward(RSOperation.UpdateStudyRequest, arcAE, request, requestAttrs);
+            return Response.accepted().build();
+        } catch (StudyMissingException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
+    @Path("/studies/{study}/series/{series}/request")
+    @Consumes("application/dicom+json,application/json")
+    @Produces("application/json")
+    public Response updateSeriesRequestAttrs(
+            @PathParam("study") String studyUID,
+            @PathParam("series") String seriesUID,
+            InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        final List<Attributes> requestAttrs = toRequestAttributes(in);
+        try {
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            ctx.setSeriesInstanceUID(seriesUID);
+            ctx.setRequestAttributes(requestAttrs);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
+            studyService.updateSeriesRequest(ctx);
+            rsForward.forward(RSOperation.UpdateSeriesRequest, arcAE, request, requestAttrs);
+            return Response.accepted().build();
+        } catch (StudyMissingException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -319,11 +399,11 @@ public class StudyMgtRS {
         if (queryKeys.getString(Tag.PatientID) == null)
             return errResponse("Missing Patient ID in query filters", Response.Status.BAD_REQUEST);
 
-        IDWithIssuer pid = IDWithIssuer.pidOf(queryKeys);
+        Collection<IDWithIssuer> pids = IDWithIssuer.pidsOf(queryKeys);
         try {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-            ctx.setPatientID(pid);
+            ctx.setPatientIDs(pids);
             ctx.setAttributes(queryKeys);
             if (updatePolicy != null)
                 ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(updatePolicy));
@@ -407,6 +487,25 @@ public class StudyMgtRS {
         try {
             return new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
                     .readDataset(null);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private List<Attributes> toRequestAttributes(InputStream in) {
+        try {
+            List<Attributes> items = new ArrayList<>();
+            PushbackInputStream pushbackInputStream = new PushbackInputStream(in);
+            int ch1 = pushbackInputStream.read();
+            if (ch1 == -1) return Collections.emptyList();
+            pushbackInputStream.unread(ch1);
+            new JSONReader(Json.createParser(new InputStreamReader(pushbackInputStream, StandardCharsets.UTF_8)))
+                    .readDatasets((fmi, dataset) -> items.add(dataset));
+            return items;
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));

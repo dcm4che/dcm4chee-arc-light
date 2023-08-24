@@ -42,7 +42,7 @@
 package org.dcm4chee.arc.store;
 
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.store.InstanceLocations;
+import org.dcm4chee.arc.conf.LocationStatus;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -51,11 +51,11 @@ import org.dcm4chee.arc.store.InstanceLocations;
 public class UpdateLocation {
     public final InstanceLocations instanceLocation;
     public Location location;
-    public final Location.Status newStatus;
+    public final LocationStatus newStatus;
     public final String newDigest;
 
     public UpdateLocation(InstanceLocations instanceLocation, Location location,
-                          Location.Status newStatus, String newDigest) {
+                          LocationStatus newStatus, String newDigest) {
         this.instanceLocation = instanceLocation;
         this.location = location;
         this.newStatus = newStatus;

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
 
@@ -54,7 +55,6 @@ import java.util.stream.Stream;
 public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     private String aeTitle;
-    private String destinationAE;
     private Boolean recordAttributeModification;
     private String patientUpdateTemplateURI;
     private String importReportTemplateURI;
@@ -64,16 +64,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private Boolean hl7UseNullValue;
+    private Issuer hl7PrimaryAssigningAuthorityOfPatientID;
+    private HL7OtherPatientIDs hl7OtherPatientIDs;
     private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
     private HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy;
     private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
     private HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy;
     private String hl7ImportReportMissingStudyIUIDCFindSCP;
+    private HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID;
     private HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy;
     private String hl7DicomCharacterSet;
     private Boolean hl7VeterinaryUsePatientName;
     private String hl7PatientArrivalMessageType;
     private HL7ORUAction[] hl7ORUAction = {};
+    private String mwlWorklistLabel;
     private String mwlAccessionNumberGenerator;
     private String mwlRequestedProcedureIDGenerator;
     private String mwlScheduledProcedureStepIDGenerator;
@@ -102,7 +106,6 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     public void reconfigure(HL7ApplicationExtension src) {
         ArchiveHL7ApplicationExtension arcapp = (ArchiveHL7ApplicationExtension) src;
         aeTitle = arcapp.aeTitle;
-        destinationAE = arcapp.destinationAE;
         recordAttributeModification = arcapp.recordAttributeModification;
         patientUpdateTemplateURI = arcapp.patientUpdateTemplateURI;
         importReportTemplateURI = arcapp.importReportTemplateURI;
@@ -112,16 +115,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7UseNullValue = arcapp.hl7UseNullValue;
+        hl7PrimaryAssigningAuthorityOfPatientID = arcapp.hl7PrimaryAssigningAuthorityOfPatientID;
+        hl7OtherPatientIDs = arcapp.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
         hl7OrderMissingAdmissionIDPolicy = arcapp.hl7OrderMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
         hl7ImportReportMissingAdmissionIDPolicy = arcapp.hl7ImportReportMissingAdmissionIDPolicy;
+        hl7ImportReportAdjustIUID = arcapp.hl7ImportReportAdjustIUID;
         hl7ImportReportMissingStudyIUIDCFindSCP = arcapp.hl7ImportReportMissingStudyIUIDCFindSCP;
         hl7ReferredMergedPatientPolicy = arcapp.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcapp.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcapp.hl7VeterinaryUsePatientName;
         hl7PatientArrivalMessageType = arcapp.hl7PatientArrivalMessageType;
         hl7ORUAction = arcapp.hl7ORUAction;
+        mwlWorklistLabel = arcapp.mwlWorklistLabel;
         mwlAccessionNumberGenerator = arcapp.mwlAccessionNumberGenerator;
         mwlRequestedProcedureIDGenerator = arcapp.mwlRequestedProcedureIDGenerator;
         mwlScheduledProcedureStepIDGenerator = arcapp.mwlScheduledProcedureStepIDGenerator;
@@ -152,14 +159,6 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setAETitle(String aeTitle) {
         this.aeTitle = aeTitle;
-    }
-
-    public String getDestinationAE() {
-        return destinationAE;
-    }
-
-    public void setDestinationAE(String destinationAE) {
-        this.destinationAE = destinationAE;
     }
 
     public Boolean getRecordAttributeModification() {
@@ -500,6 +499,34 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         }
     }
 
+    public Issuer getHL7PrimaryAssigningAuthorityOfPatientID() {
+        return hl7PrimaryAssigningAuthorityOfPatientID;
+    }
+
+    public void setHL7PrimaryAssigningAuthorityOfPatientID(Issuer hl7PrimaryAssigningAuthorityOfPatientID) {
+        this.hl7PrimaryAssigningAuthorityOfPatientID = hl7PrimaryAssigningAuthorityOfPatientID;
+    }
+
+    public Issuer hl7PrimaryAssigningAuthorityOfPatientID() {
+        return hl7PrimaryAssigningAuthorityOfPatientID != null
+                ? hl7PrimaryAssigningAuthorityOfPatientID
+                : getArchiveDeviceExtension().getHL7PrimaryAssigningAuthorityOfPatientID();
+    }
+
+    public HL7OtherPatientIDs getHL7OtherPatientIDs() {
+        return hl7OtherPatientIDs;
+    }
+
+    public void setHL7OtherPatientIDs(HL7OtherPatientIDs hl7OtherPatientIDs) {
+        this.hl7OtherPatientIDs = hl7OtherPatientIDs;
+    }
+
+    public HL7OtherPatientIDs hl7OtherPatientIDs() {
+        return hl7OtherPatientIDs != null
+                ? hl7OtherPatientIDs
+                : getArchiveDeviceExtension().getHL7OtherPatientIDs();
+    }
+
     public HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy() {
         return hl7OrderMissingStudyIUIDPolicy != null
                 ? hl7OrderMissingStudyIUIDPolicy
@@ -570,6 +597,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         this.hl7ImportReportMissingStudyIUIDCFindSCP = hl7ImportReportMissingStudyIUIDCFindSCP;
     }
 
+    public HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID() {
+        return hl7ImportReportAdjustIUID != null
+                ? hl7ImportReportAdjustIUID
+                : getArchiveDeviceExtension().getHl7ImportReportAdjustIUID();
+    }
+
+    public HL7ImportReportAdjustIUID getHl7ImportReportAdjustIUID() {
+        return hl7ImportReportAdjustIUID;
+    }
+
+    public void setHl7ImportReportAdjustIUID(HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID) {
+        this.hl7ImportReportAdjustIUID = hl7ImportReportAdjustIUID;
+    }
+
     public HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy() {
         return hl7ReferredMergedPatientPolicy != null
                 ? hl7ReferredMergedPatientPolicy
@@ -638,6 +679,14 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7ORUAction.length > 0
                 ? hl7ORUAction
                 : getArchiveDeviceExtension().getHl7ORUAction();
+    }
+
+    public String getMWLWorklistLabel() {
+        return mwlWorklistLabel;
+    }
+
+    public void setMWLWorklistLabel(String mwlWorklistLabel) {
+        this.mwlWorklistLabel = mwlWorklistLabel;
     }
 
     public String getMWLAccessionNumberGenerator() {

@@ -45,6 +45,7 @@ import java.util.*;
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Shefki Esadi <shralsheki@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2017
  */
 public class UIConfig {
@@ -52,9 +53,18 @@ public class UIConfig {
     private String name;
     private String[] modalities = {};
     private String[] widgetAets = {};
+    private String[] mwlWorklistLabels = {};
     private String xdsUrl;
     private String backgroundUrl;
     private String dateTimeFormat;
+    private boolean hideClock;
+
+
+
+    private String institutionNameFilterType;
+    private String[] institutionNames = {};
+    private boolean hideOtherPatientIDs;
+    private String pageTitle;
     private String personNameFormat;
     private String logoUrl;
     private String[] defaultWidgetAets = {};
@@ -69,6 +79,7 @@ public class UIConfig {
     private Map<String, UICreateDialogTemplate> dialogTemplate  = new HashMap<>();
     private Map<String, UIWebAppList> webAppList  = new HashMap<>();
     private Map<String, UILanguageConfig> languageConfig = new HashMap<>();
+    private Map<String, UITableConfig> tableConfig = new HashMap<>();
 
     public UIConfig() {
     }
@@ -125,6 +136,44 @@ public class UIConfig {
         this.dateTimeFormat = dateTimeFormat;
     }
 
+    public boolean isHideClock() {
+        return hideClock;
+    }
+
+
+    public String[] getInstitutionNames() {
+        return institutionNames;
+    }
+
+    public void setInstitutionNames(String[] institutionNames) {
+        this.institutionNames = institutionNames;
+    }
+
+    public String getInstitutionNameFilterType() {
+        return institutionNameFilterType;
+    }
+
+    public void setInstitutionNameFilterType(String institutionNameFilterType) {
+        this.institutionNameFilterType = institutionNameFilterType;
+    }
+    public boolean isHideOtherPatientIDs() {
+        return hideOtherPatientIDs;
+    }
+
+    public void setHideOtherPatientIDs(boolean hideOtherPatientIDs) {
+        this.hideOtherPatientIDs = hideOtherPatientIDs;
+    }
+    public void setHideClock(boolean hideClock) {
+        this.hideClock = hideClock;
+    }
+
+    public String getPageTitle() {
+        return pageTitle;
+    }
+
+    public void setPageTitle(String pageTitle) {
+        this.pageTitle = pageTitle;
+    }
     public String getPersonNameFormat() {
         return personNameFormat;
     }
@@ -147,6 +196,14 @@ public class UIConfig {
 
     public void setDefaultWidgetAets(String[] defaultWidgetAets) {
         this.defaultWidgetAets = defaultWidgetAets;
+    }
+
+    public String[] getMWLWorklistLabels() {
+        return mwlWorklistLabels;
+    }
+
+    public void setMWLWorklistLabels(String[] mwlWorklistLabels) {
+        this.mwlWorklistLabels = mwlWorklistLabels;
     }
 
     public UIPermission getPermission(String name) {
@@ -326,5 +383,21 @@ public class UIConfig {
 
     public Collection<UILanguageConfig> getLanguageConfigs() {
         return languageConfig.values();
+    }
+
+    public UITableConfig getTableConfig(String name) {
+        return tableConfig.get(name);
+    }
+
+    public void addTableConfig(UITableConfig table) {
+        tableConfig.put(table.getName(), table);
+    }
+
+    public UITableConfig removeTableConfig(String name) {
+        return tableConfig.remove(name);
+    }
+
+    public Collection<UITableConfig> getTableConfigs() {
+        return tableConfig.values();
     }
 }

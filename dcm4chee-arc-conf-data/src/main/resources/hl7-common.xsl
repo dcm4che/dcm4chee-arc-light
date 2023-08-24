@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:param name="hl7CharacterSet"/>
+  <xsl:param name="hl7PrimaryAssigningAuthorityOfPatientID"/>
 
   <xsl:template name="attr">
     <xsl:param name="tag"/>
@@ -15,6 +16,90 @@
         </xsl:if>
       </DicomAttribute>
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="cx2pidAttrsPrimary">
+    <xsl:param name="cx"/>
+    <xsl:param name="chip"/>
+    <xsl:param name="tattoo"/>
+    <xsl:variable name="primaryIssuer" select="$cx/repeat[component[3] = $hl7PrimaryAssigningAuthorityOfPatientID]"/>
+    <xsl:choose>
+      <xsl:when test="$primaryIssuer">
+        <xsl:call-template name="cx2pidAttrs">
+          <xsl:with-param name="cx" select="$primaryIssuer"/>
+          <xsl:with-param name="default-pid-issuer" select="''"/>
+          <xsl:with-param name="default-pid-type" select="''"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="cx2pidAttrs">
+          <xsl:with-param name="cx" select="$cx"/>
+          <xsl:with-param name="default-pid-issuer" select="''"/>
+          <xsl:with-param name="default-pid-type" select="''"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+
+    <xsl:variable name="repeatPatientIdentifiers" select="count($cx/repeat)"/>
+
+    <DicomAttribute tag="00101002" vr="SQ">
+      <Item number="1">
+        <xsl:call-template name="cx2pidAttrs">
+          <xsl:with-param name="cx" select="$cx"/>
+          <xsl:with-param name="default-pid-issuer" select="''"/>
+          <xsl:with-param name="default-pid-type" select="''"/>
+        </xsl:call-template>
+      </Item>
+      <xsl:for-each select="$cx/repeat">
+        <Item number="{position() + 1}">
+          <xsl:call-template name="cx2pidAttrs">
+            <xsl:with-param name="cx" select="."/>
+            <xsl:with-param name="default-pid-issuer" select="''"/>
+            <xsl:with-param name="default-pid-type" select="''"/>
+          </xsl:call-template>
+        </Item>
+      </xsl:for-each>
+      <xsl:choose>
+        <xsl:when test="string-length($chip) > 0 and string-length($tattoo) > 0">
+          <Item number="{$repeatPatientIdentifiers + 1 + 1}">
+            <xsl:call-template name="cx2pidAttrs">
+              <xsl:with-param name="cx" select="$chip"/>
+              <xsl:with-param name="default-pid-issuer" select="'CHIP'"/>
+              <xsl:with-param name="default-pid-type" select="'RFID'"/>
+            </xsl:call-template>
+          </Item>
+          <Item number="{$repeatPatientIdentifiers + 1 + 2}">
+            <xsl:call-template name="cx2pidAttrs">
+              <xsl:with-param name="cx" select="$tattoo"/>
+              <xsl:with-param name="default-pid-issuer" select="'TATTOO'"/>
+              <xsl:with-param name="default-pid-type" select="'BARCODE'"/>
+            </xsl:call-template>
+          </Item>
+        </xsl:when>
+        <xsl:when test="string-length($chip) > 0 or string-length($tattoo) > 0">
+          <Item number="{$repeatPatientIdentifiers + 1 + 1}">
+            <xsl:choose>
+              <xsl:when test="string-length($chip) > 0">
+                <xsl:call-template name="cx2pidAttrs">
+                  <xsl:with-param name="cx" select="$chip"/>
+                  <xsl:with-param name="default-pid-issuer" select="'CHIP'"/>
+                  <xsl:with-param name="default-pid-type" select="'RFID'"/>
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:when test="string-length($tattoo) > 0">
+                <xsl:call-template name="cx2pidAttrs">
+                  <xsl:with-param name="cx" select="$tattoo"/>
+                  <xsl:with-param name="default-pid-issuer" select="'TATTOO'"/>
+                  <xsl:with-param name="default-pid-type" select="'BARCODE'"/>
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise/>
+            </xsl:choose>
+          </Item>
+        </xsl:when>
+        <xsl:otherwise/>
+      </xsl:choose>
+    </DicomAttribute>
   </xsl:template>
 
   <xsl:template name="attrEmptyOrPresent">
@@ -75,7 +160,7 @@
         <xsl:value-of select="concat($val1,' ',$val2)"/>
       </xsl:otherwise>
     </xsl:choose>
-   </xsl:template>
+  </xsl:template>
 
   <xsl:template name="pnAttr">
     <xsl:param name="tag"/>
@@ -123,71 +208,69 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template name="vetPID2attr">
-    <xsl:param name="chip"/>
-    <xsl:param name="tattoo"/>
-    <xsl:if test="$chip/text() or $tattoo/text()">
-      <DicomAttribute tag="00101002" vr="SQ">
-        <xsl:if test="not(contains($chip/text(), '&quot;&quot;')) and string-length($chip/text())>0">
-          <xsl:call-template name="pidItem">
-            <xsl:with-param name="itemNo" select="'1'"/>
-            <xsl:with-param name="cx" select="$chip"/>
-            <xsl:with-param name="default-pid-issuer" select="'CHIP'"/>
-            <xsl:with-param name="pid-type" select="'RFID'"/>
-          </xsl:call-template>
-        </xsl:if>
-        <xsl:if test="not(contains($tattoo/text(), '&quot;&quot;')) and string-length($tattoo/text())>0">
-          <xsl:call-template name="pidItem">
-            <xsl:with-param name="itemNo">
-              <xsl:choose>
-                <xsl:when test="$chip/text()">
-                  <xsl:value-of select="'2'"/>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:value-of select="'1'"/>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:with-param>
-            <xsl:with-param name="cx" select="$tattoo"/>
-            <xsl:with-param name="default-pid-issuer" select="'TATTOO'"/>
-            <xsl:with-param name="pid-type" select="'BARCODE'"/>
-          </xsl:call-template>
-        </xsl:if>
-      </DicomAttribute>
-    </xsl:if>
-  </xsl:template>
-
   <xsl:template name="cx2pidAttrs">
     <xsl:param name="cx"/>
-    <DicomAttribute tag="00100020" vr="LO">
-      <Value number="1">
-        <xsl:value-of select="$cx/text()"/>
-      </Value>
-    </DicomAttribute>
+    <xsl:param name="default-pid-issuer"/>
+    <xsl:param name="default-pid-type"/>
     <xsl:variable name="hd" select="$cx/component[3]" />
-    <xsl:if test="$hd">
-      <DicomAttribute tag="00100021" vr="LO">
-        <Value number="1">
-          <xsl:value-of select="$hd/text()"/>
-        </Value>
+    <xsl:variable name="pid-type" select="$cx/component[4]" />
+
+    <!-- Patient ID -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="val" select="$cx/text()"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="tag" select="'00100020'"/>
+    </xsl:call-template>
+
+    <!-- Issuer of Patient ID -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="tag" select="'00100021'"/>
+      <xsl:with-param name="val">
+        <xsl:choose>
+          <xsl:when test="$hd">
+            <xsl:value-of select="$hd/text()"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$default-pid-issuer"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:with-param>
+    </xsl:call-template>
+
+    <!-- Issuer of Patient ID Qualifiers Sequence -->
+    <xsl:if test="$hd and $hd/subcomponent[2]">
+      <DicomAttribute tag="00100024" vr="SQ">
+        <Item number="1">
+          <xsl:call-template name="attr">
+            <xsl:with-param name="val" select="$hd/subcomponent[1]"/>
+            <xsl:with-param name="vr" select="'UT'"/>
+            <xsl:with-param name="tag" select="'00400032'"/>
+          </xsl:call-template>
+          <xsl:call-template name="attr">
+            <xsl:with-param name="val" select="$hd/subcomponent[2]"/>
+            <xsl:with-param name="vr" select="'CS'"/>
+            <xsl:with-param name="tag" select="'00400033'"/>
+          </xsl:call-template>
+        </Item>
       </DicomAttribute>
-      <xsl:if test="$hd/subcomponent[2]">
-        <DicomAttribute tag="00100024" vr="SQ">
-          <Item number="1">
-            <DicomAttribute tag="00400032" vr="UT">
-              <Value number="1">
-                <xsl:value-of select="$hd/subcomponent[1]"/>
-              </Value>
-            </DicomAttribute>
-            <DicomAttribute tag="00400033" vr="CS">
-              <Value number="1">
-                <xsl:value-of select="$hd/subcomponent[2]"/>
-              </Value>
-            </DicomAttribute>
-          </Item>
-        </DicomAttribute>
-      </xsl:if>
     </xsl:if>
+
+    <!-- Type of Patient ID -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="tag" select="'00100022'"/>
+      <xsl:with-param name="val">
+        <xsl:choose>
+          <xsl:when test="$pid-type">
+            <xsl:value-of select="$pid-type"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$default-pid-type"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="xpn2pnAttr">
@@ -467,8 +550,10 @@
       <xsl:with-param name="xpn" select="field[5]"/>
     </xsl:call-template>
     <!-- Patient ID -->
-    <xsl:call-template name="cx2pidAttrs">
+    <xsl:call-template name="cx2pidAttrsPrimary">
       <xsl:with-param name="cx" select="field[3]"/>
+      <xsl:with-param name="chip" select="field[2]"/>
+      <xsl:with-param name="tattoo" select="field[4]"/>
     </xsl:call-template>
     <!-- Patient Birth Date -->
     <xsl:call-template name="attr">
@@ -500,11 +585,6 @@
     <xsl:call-template name="xpn2pnAttr">
       <xsl:with-param name="tag" select="'00101060'"/>
       <xsl:with-param name="xpn" select="field[6]"/>
-    </xsl:call-template>
-    <!-- Other Patient IDs Sequence -->
-    <xsl:call-template name="vetPID2attr">
-      <xsl:with-param name="chip" select="field[2]" />
-      <xsl:with-param name="tattoo" select="field[4]" />
     </xsl:call-template>
     <xsl:variable name="owner" select="field[9]"/>
     <xsl:if test="$owner/text()">
@@ -548,6 +628,17 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+    <!-- Patient Comments -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00104000'"/>
+      <xsl:with-param name="vr" select="'UT'"/>
+      <xsl:with-param name="val">
+        <xsl:variable name="nte" select="following-sibling::*[1]"/>
+        <xsl:if test="name($nte)='NTE'">
+          <xsl:value-of select="$nte/field[3]"/>
+        </xsl:if>
+      </xsl:with-param>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="nullifyIfAbsent">
@@ -563,49 +654,25 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template name="pidItem">
-    <xsl:param name="itemNo"/>
-    <xsl:param name="cx"/>
-    <xsl:param name="default-pid-issuer"/>
-    <xsl:param name="pid-type"/>
-      <Item number="{$itemNo}">
-        <!-- Patient ID -->
-        <xsl:call-template name="cx2pidAttrs">
-          <xsl:with-param name="cx" select="$cx"/>
-        </xsl:call-template>
-        <xsl:if test="not($cx/component[3])">
-          <!-- Type of Patient ID -->
-          <DicomAttribute tag="00100021" vr="LO">
-            <Value number="1">
-              <xsl:value-of select="$default-pid-issuer"/>
-            </Value>
-          </DicomAttribute>
-        </xsl:if>
-        <!-- Type of Patient ID -->
-        <DicomAttribute tag="00100022" vr="CS">
-          <Value number="1">
-            <xsl:value-of select="$pid-type"/>
-          </Value>
-        </DicomAttribute>
-      </Item>
-  </xsl:template>
-
   <xsl:template match="MRG">
     <!-- Modified Attributes Sequence -->
     <DicomAttribute tag="04000550" vr="SQ">
       <Item number="1">
         <!-- Patient Name -->
         <xsl:call-template name="xpn2pnAttr">
-            <xsl:with-param name="tag" select="'00100010'"/>
-            <xsl:with-param name="xpn" select="field[7]"/>
+          <xsl:with-param name="tag" select="'00100010'"/>
+          <xsl:with-param name="xpn" select="field[7]"/>
         </xsl:call-template>
         <!-- Patient ID -->
-        <xsl:call-template name="cx2pidAttrs">
-            <xsl:with-param name="cx" select="field[1]"/>
+        <xsl:call-template name="cx2pidAttrsPrimary">
+          <xsl:with-param name="cx" select="field[1]"/>
+          <xsl:with-param name="chip" select="''"/>
+          <xsl:with-param name="tattoo" select="''"/>
         </xsl:call-template>
       </Item>
     </DicomAttribute>
   </xsl:template>
+
   <xsl:template name="ei2attr">
     <xsl:param name="tag"/>
     <xsl:param name="vr"/>
@@ -622,27 +689,27 @@
       </DicomAttribute>
       <xsl:if test="$ei/component and $val != '&quot;&quot;'">
         <DicomAttribute tag="{$sqtag}" vr="SQ">
-            <Item number="1">
-                <xsl:if test="$ei/component[1]">
-                  <DicomAttribute tag="00400031" vr="UT">
-                    <Value number="1">
-                      <xsl:value-of select="$ei/component[1]/text()"/>
-                    </Value>
-                  </DicomAttribute>
-                </xsl:if>
-                <xsl:if test="$ei/component[2] and $ei/component[3]">
-                  <DicomAttribute tag="00400032" vr="UT">
-                    <Value number="1">
-                      <xsl:value-of select="$ei/component[2]/text()"/>
-                    </Value>
-                  </DicomAttribute>
-                  <DicomAttribute tag="00400033" vr="CS">
-                    <Value number="1">
-                      <xsl:value-of select="$ei/component[3]/text()"/>
-                    </Value>
-                  </DicomAttribute>
-                </xsl:if>
-            </Item>
+          <Item number="1">
+            <xsl:if test="$ei/component[1]">
+              <DicomAttribute tag="00400031" vr="UT">
+                <Value number="1">
+                  <xsl:value-of select="$ei/component[1]/text()"/>
+                </Value>
+              </DicomAttribute>
+            </xsl:if>
+            <xsl:if test="$ei/component[2] and $ei/component[3]">
+              <DicomAttribute tag="00400032" vr="UT">
+                <Value number="1">
+                  <xsl:value-of select="$ei/component[2]/text()"/>
+                </Value>
+              </DicomAttribute>
+              <DicomAttribute tag="00400033" vr="CS">
+                <Value number="1">
+                  <xsl:value-of select="$ei/component[3]/text()"/>
+                </Value>
+              </DicomAttribute>
+            </xsl:if>
+          </Item>
         </DicomAttribute>
       </xsl:if>
     </xsl:if>
@@ -655,30 +722,30 @@
     <xsl:if test="$str">
       <DicomAttribute tag="{$datag}" vr="DA">
         <Value number="1">
-        <xsl:if test="$str != '&quot;&quot;'">
-          <xsl:value-of select="substring($str,1,8)" />
-        </xsl:if>
+          <xsl:if test="$str != '&quot;&quot;'">
+            <xsl:value-of select="substring($str,1,8)" />
+          </xsl:if>
         </Value>
       </DicomAttribute>
       <DicomAttribute tag="{$tmtag}" vr="TM">
         <Value number="1">
-        <xsl:if test="$str != '&quot;&quot;'">
-          <xsl:variable name="tm" select="substring($str,9)"/>
-          <!-- Skip Time Zone-->
-          <xsl:variable name="tm_plus" select="substring-before($tm,'+')"/>
-          <xsl:variable name="tm_minus" select="substring-before($tm,'-')"/>
-          <xsl:choose>
-            <xsl:when test="$tm_plus">
-              <xsl:value-of select="$tm_plus"/>
-            </xsl:when>
-            <xsl:when test="$tm_minus">
-              <xsl:value-of select="$tm_minus"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="$tm"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:if>
+          <xsl:if test="$str != '&quot;&quot;'">
+            <xsl:variable name="tm" select="substring($str,9)"/>
+            <!-- Skip Time Zone-->
+            <xsl:variable name="tm_plus" select="substring-before($tm,'+')"/>
+            <xsl:variable name="tm_minus" select="substring-before($tm,'-')"/>
+            <xsl:choose>
+              <xsl:when test="$tm_plus">
+                <xsl:value-of select="$tm_plus"/>
+              </xsl:when>
+              <xsl:when test="$tm_minus">
+                <xsl:value-of select="$tm_minus"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="$tm"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:if>
         </Value>
       </DicomAttribute>
     </xsl:if>
@@ -705,9 +772,8 @@
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="val" select="string(field[2]/text())"/>
     </xsl:call-template>
-    <!-- Referring Physician Name -->
-    <xsl:call-template name="cn2pnAttr">
-      <xsl:with-param name="tag" select="'00080090'"/>
+    <!-- Referring Physician -->
+    <xsl:call-template name="referringPhysician">
       <xsl:with-param name="cn" select="field[8]"/>
     </xsl:call-template>
     <xsl:call-template name="attr">
@@ -719,6 +785,32 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="referringPhysician">
+    <xsl:param name="cn"/>
+    <!-- Referring Physician Name -->
+    <xsl:call-template name="cn2pnAttr">
+      <xsl:with-param name="tag" select="'00080090'"/>
+      <xsl:with-param name="cn" select="$cn"/>
+    </xsl:call-template>
+    <!-- Referring Physician identification Sequence -->
+    <xsl:variable name="id" select="$cn/text()"/>
+    <xsl:if test="$id">
+      <DicomAttribute tag="00080096" vr="SQ">
+        <Item number="1">
+          <DicomAttribute tag="00401101" vr="SQ">
+            <Item number="1">
+              <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'00080100'"/>
+                <xsl:with-param name="vr" select="'SH'"/>
+                <xsl:with-param name="val" select="$id"/>
+              </xsl:call-template>
+            </Item>
+          </DicomAttribute>
+        </Item>
+      </DicomAttribute>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="pregnancyStatus">
@@ -762,21 +854,21 @@
       <xsl:if test="$ei/component and $val != '&quot;&quot;'">
         <DicomAttribute tag="00380014" vr="SQ">
           <Item number="1">
-              <xsl:call-template name="attr">
-                <xsl:with-param name="tag" select="'00400031'"/>
-                <xsl:with-param name="vr" select="'UT'"/>
-                <xsl:with-param name="val" select="$ei/component[3]/text()"/>
-              </xsl:call-template>
-              <xsl:call-template name="attr">
-                <xsl:with-param name="tag" select="'00400032'"/>
-                <xsl:with-param name="vr" select="'UT'"/>
-                <xsl:with-param name="val" select="$ei/component[3]/subcomponent[1]"/>
-              </xsl:call-template>
-              <xsl:call-template name="attr">
-                <xsl:with-param name="tag" select="'00400033'"/>
-                <xsl:with-param name="vr" select="'CS'"/>
-                <xsl:with-param name="val" select="$ei/component[3]/subcomponent[2]"/>
-              </xsl:call-template>
+            <xsl:call-template name="attr">
+              <xsl:with-param name="tag" select="'00400031'"/>
+              <xsl:with-param name="vr" select="'UT'"/>
+              <xsl:with-param name="val" select="$ei/component[3]/text()"/>
+            </xsl:call-template>
+            <xsl:call-template name="attr">
+              <xsl:with-param name="tag" select="'00400032'"/>
+              <xsl:with-param name="vr" select="'UT'"/>
+              <xsl:with-param name="val" select="$ei/component[3]/subcomponent[1]"/>
+            </xsl:call-template>
+            <xsl:call-template name="attr">
+              <xsl:with-param name="tag" select="'00400033'"/>
+              <xsl:with-param name="vr" select="'CS'"/>
+              <xsl:with-param name="val" select="$ei/component[3]/subcomponent[2]"/>
+            </xsl:call-template>
           </Item>
         </DicomAttribute>
       </xsl:if>

@@ -43,9 +43,7 @@ package org.dcm4chee.arc.hl7;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
@@ -54,6 +52,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7ReferredMergedPatientPolicy;
 import org.dcm4chee.arc.conf.SPSStatus;
@@ -65,6 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.Socket;
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -75,8 +75,8 @@ import java.net.Socket;
 @Typed(HL7Service.class)
 class PatientUpdateService extends DefaultHL7Service {
     private static final Logger LOG = LoggerFactory.getLogger(PatientUpdateService.class);
-    private static final String PATIENT_IDENTIFIER = "PID^1^3^1^1";
-    private static final String PRIOR_PATIENT_IDENTIFIER = "MRG^1^1^1^1";
+    private static final String PATIENT_IDENTIFIER = "PID^1^3";
+    private static final String PRIOR_PATIENT_IDENTIFIER = "MRG^1^1";
     private static final String CHANGE_PATIENT_IDENTIFIER = "ADT^A47";
     private static final String MERGE_PATIENT_IDENTIFIER = "ADT^A40";
 
@@ -132,25 +132,42 @@ class PatientUpdateService extends DefaultHL7Service {
 
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
         ctx.setAttributes(attrs);
-        if (ctx.getPatientID() == null)
+        if (ctx.getPatientIDs().isEmpty())
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
                             .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
                             .setErrorLocation(PATIENT_IDENTIFIER)
                             .setUserMessage("Missing patient identifier"));
 
+        ArchiveDeviceExtension arcdev = hl7App.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        ctx.setPatientIDs(arcdev.withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+        if (ctx.getPatientIDs().isEmpty()) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.UNKNOWN_KEY_IDENTIFIER)
+                            .setErrorLocation(PATIENT_IDENTIFIER)
+                            .setUserMessage("Missing patient identifier with trusted assigning authority"));
+        }
         Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
         if (mrg == null)
             return createOrUpdatePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
 
         ctx.setPreviousAttributes(mrg);
-        if (ctx.getPreviousPatientID() == null)
+        if (ctx.getPreviousPatientIDs().isEmpty())
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
                             .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
                             .setErrorLocation(PRIOR_PATIENT_IDENTIFIER)
                             .setUserMessage("Missing prior patient identifier"));
 
+        ctx.setPreviousPatientIDs(arcdev.withTrustedIssuerOfPatientID(ctx.getPreviousPatientIDs()));
+        if (ctx.getPreviousPatientIDs().isEmpty()) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.UNKNOWN_KEY_IDENTIFIER)
+                            .setErrorLocation(PRIOR_PATIENT_IDENTIFIER)
+                            .setUserMessage("Missing prior patient identifier with trusted assigning authority"));
+        }
         return changePIDOrMergePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
     }
 
@@ -184,7 +201,7 @@ class PatientUpdateService extends DefaultHL7Service {
             return msg.msh().getMessageType().equals(CHANGE_PATIENT_IDENTIFIER)
                     ? patientService.changePatientID(ctx)
                     : patientService.mergePatient(ctx);
-        } catch (PatientTrackingNotAllowedException e) {
+        } catch (PatientTrackingNotAllowedException|PatientAlreadyExistsException e) {
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
                             .setHL7ErrorCode(ERRSegment.DUPLICATE_KEY_IDENTIFIER)
@@ -256,13 +273,61 @@ class PatientUpdateService extends DefaultHL7Service {
 
     private static Attributes transform(UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
         try {
-            return SAXTransformer.transform(
+            Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
+            Attributes attrs = SAXTransformer.transform(
                     msg,
                     arcHL7App,
                     arcHL7App.patientUpdateTemplateURI(),
-                    null);
+                    tr -> {
+                        if (hl7PrimaryAssigningAuthorityOfPatientID != null)
+                            tr.setParameter("hl7PrimaryAssigningAuthorityOfPatientID",
+                                    hl7PrimaryAssigningAuthorityOfPatientID.toString());
+                    });
+            adjustOtherPIDs(attrs, arcHL7App);
+            return attrs;
         } catch (Exception e) {
             throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
+        }
+    }
+
+    private static void adjustOtherPIDs(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App) {
+        Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
+        IDWithIssuer primaryPatIdentifier = IDWithIssuer.pidOf(attrs);
+        adjustOtherPatientIDs(attrs, arcHL7App);
+        Attributes mergedPatientAttrs = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
+        if (mergedPatientAttrs != null)
+            adjustOtherPatientIDs(mergedPatientAttrs, arcHL7App);
+        
+        if (hl7PrimaryAssigningAuthorityOfPatientID == null
+                || primaryPatIdentifier == null
+                || hl7PrimaryAssigningAuthorityOfPatientID.equals(primaryPatIdentifier.getIssuer()))
+            return;
+
+        LOG.info("None of the patient identifier pairs in PID-3 match with configured " +
+                "Primary Assigning Authority of Patient ID : {}", hl7PrimaryAssigningAuthorityOfPatientID);
+    }
+
+    private static void adjustOtherPatientIDs(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App) {
+        IDWithIssuer primaryPatIdentifier = IDWithIssuer.pidOf(attrs);
+        switch (arcHL7App.hl7OtherPatientIDs()) {
+            case ALL:
+                break;
+            case NONE:
+                attrs.remove(Tag.OtherPatientIDsSequence);
+                break;
+            default:
+                Sequence seq = attrs.getSequence(Tag.OtherPatientIDsSequence);
+                if (seq == null) break;
+                Iterator<Attributes> otherPIDs = seq.iterator();
+                while (otherPIDs.hasNext()) {
+                    IDWithIssuer otherPID = IDWithIssuer.pidOf(otherPIDs.next());
+                    if (otherPID == null || !otherPID.equals(primaryPatIdentifier))
+                        continue;
+
+                    otherPIDs.remove();
+                }
+                if (seq.isEmpty())
+                    attrs.remove(Tag.OtherPatientIDsSequence);
         }
     }
 

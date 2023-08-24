@@ -156,7 +156,7 @@ public class CompressionScheduler extends Scheduler {
                 storeService.restoreInstances(session,
                         compr.studyInstanceUID,
                         compr.seriesInstanceUID,
-                        arcAE.getPurgeInstanceRecordsDelay());
+                        arcAE.getPurgeInstanceRecordsDelay(), null);
             } catch (Exception e) {
                 LOG.warn("Failed to restore Instance records for compression of Series[iuid={}] of Study[iuid={}]:\n",
                         compr.seriesInstanceUID, compr.studyInstanceUID, e);

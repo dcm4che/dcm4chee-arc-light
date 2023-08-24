@@ -72,9 +72,8 @@ export class TableService {
             scheduledTime: new TableSchemaElement({
                 type:"value",
                 title:$localize `:@@scheduled_time:Scheduled Time`,
-                pathToValue:"scheduledTimeRange",
-                description: $localize `:@@scheduled_time_range:Scheduled time range`,
-                hook:(data)=> this.stringifyRangeArray(data),
+                pathToValue:"scheduledTime",
+                description: $localize `:@@scheduled_time:Scheduled Time`,
                 widthWeight:1.4,
                 calculatedWidth:"20%"
             }),
@@ -84,7 +83,7 @@ export class TableService {
                 description: $localize `:@@process_delay:Process Delay`,
                 hook:(data)=> {
                     if(data)
-                        return j4care.getDifferenceTime(data['processingStartTime'],data['scheduledTime']);
+                        return j4care.getDifferenceTime(data['scheduledTime'], data['processingStartTime']);
                     return "";
                 },
                 widthWeight:1.4,
@@ -96,7 +95,7 @@ export class TableService {
                 description: $localize `:@@process_time:Process Time`,
                 hook:(data)=> {
                     if(data)
-                        return j4care.getDifferenceTime(data['processingEndTime'],data['processingStartTime']);
+                        return j4care.getDifferenceTime(data['processingStartTime'], data['processingEndTime']);
                     return "";
                 },
                 widthWeight:1.4,

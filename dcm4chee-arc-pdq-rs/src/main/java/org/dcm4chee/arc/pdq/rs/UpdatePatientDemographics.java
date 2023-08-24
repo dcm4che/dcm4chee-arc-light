@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -109,11 +109,19 @@ public class UpdatePatientDemographics {
         return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
+    private Collection<IDWithIssuer> trustedPatientIDs(String multiplePatientIDs, ArchiveAEExtension arcAE) {
+        String[] patientIDs = multiplePatientIDs.split("~");
+        Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
+        for (String cx : patientIDs)
+            patientIdentifiers.add(new IDWithIssuer(cx));
+        return arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(patientIdentifiers);
+    }
+
     @POST
     @Path("/patients/{PatientID}/pdq/{PDQServiceID}")
     @Produces("application/json")
     public Response update(@PathParam("PDQServiceID") String pdqServiceID,
-                       @PathParam("PatientID") IDWithIssuer patientID) {
+                       @PathParam("PatientID") String multiplePatientIDs) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
@@ -125,14 +133,20 @@ public class UpdatePatientDemographics {
             validateWebAppServiceClass();
 
         try {
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse("Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
             PDQServiceDescriptor descriptor = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                                 .getPDQServiceDescriptorNotNull(pdqServiceID);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
-            ctx.setPatientID(patientID);
+            ctx.setPatientIDs(trustedPatientIDs);
             ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());
             Attributes attrs;
             boolean adjustIssuerOfPatientID = adjustIssuerOfPatientID();
+            IDWithIssuer patientID = trustedPatientIDs.iterator().next();
             try {
                 PDQServiceContext pdqServiceCtx = new PDQServiceContext(adjustIssuerOfPatientID
                                                                         ? patientID.withoutIssuer()
@@ -154,7 +168,7 @@ public class UpdatePatientDemographics {
 
             ctx.setAttributes(attrs);
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
-            if (adjustIssuerOfPatientID && !ctx.getPatientID().equals(patientID)) {
+            if (adjustIssuerOfPatientID && !ctx.getPatientIDs().contains(patientID)) {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
                 LOG.info("Updated {} on verification against {}", patientID, descriptor);

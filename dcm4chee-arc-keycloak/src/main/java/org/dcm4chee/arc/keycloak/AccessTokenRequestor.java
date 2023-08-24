@@ -50,6 +50,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.KeycloakClient;
 import org.dcm4che3.net.WebApplication;
@@ -58,7 +59,6 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.token.TokenManager;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.constants.ServiceUrlConstants;
@@ -73,6 +73,7 @@ import org.keycloak.util.JsonSerialization;
 import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -110,6 +111,7 @@ public class AccessTokenRequestor {
                 accessToken.getExpiresIn());
     }
 
+    //used in J4Care proprietary code
     public AccessTokenWithExpiration getAccessToken2(KeycloakClient keycloakClient) throws Exception {
         CachedKeycloak tmp = toCachedKeycloakClient(keycloakClient);
         TokenManager tokenManager = tmp.keycloak.tokenManager();
@@ -138,6 +140,21 @@ public class AccessTokenRequestor {
             cachedKeycloakClient = tmp = new CachedKeycloak(kc.getKeycloakClientID(), toKeycloak(kc));
 
         return tmp;
+    }
+
+    public ResteasyClientBuilder resteasyClientBuilder(String url, WebApplication webApp) throws Exception {
+        Map<String, String> properties = webApp.getProperties();
+        ResteasyClientBuilder builder = resteasyClientBuilder(url,
+                                                        Boolean.parseBoolean(properties.get("allow-any-hostname")),
+                                                        Boolean.parseBoolean(properties.get("disable-trust-manager")));
+        Connection connection = webApp.firstInstalledConnection();
+        builder.connectTimeout(connection.getConnectTimeout(), TimeUnit.MILLISECONDS);
+        builder.readTimeout(connection.getResponseTimeout(), TimeUnit.MILLISECONDS);
+        return builder;
+    }
+
+    public ResteasyClientBuilder resteasyClientBuilder(KeycloakClient kc) throws Exception {
+        return resteasyClientBuilder(kc.getKeycloakServerURL(), kc.isTLSAllowAnyHostname(), kc.isTLSDisableTrustManager());
     }
 
     public ResteasyClientBuilder resteasyClientBuilder(
@@ -176,8 +193,7 @@ public class AccessTokenRequestor {
                 .username(kc.getUserID())
                 .password(kc.getPassword())
                 .grantType(kc.getKeycloakGrantType().name())
-                .resteasyClient(resteasyClientBuilder(
-                        kc.getKeycloakServerURL(), kc.isTLSAllowAnyHostname(), kc.isTLSDisableTrustManager()).build())
+                .resteasyClient(resteasyClientBuilder(kc).build())
                 .build();
 */
     }
@@ -208,11 +224,7 @@ public class AccessTokenRequestor {
                 && tmp.kid.equals(kid)) {
             return tmp.key;
         }
-        ResteasyClient client = resteasyClientBuilder(
-                    kc.getKeycloakServerURL(),
-                    kc.isTLSAllowAnyHostname(),
-                    kc.isTLSDisableTrustManager())
-                .build();
+        ResteasyClient client = resteasyClientBuilder(kc).build();
         try {
             WebTarget target = client.target(jwksUrl);
             Invocation.Builder request = target.request();

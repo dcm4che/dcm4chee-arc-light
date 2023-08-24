@@ -1448,10 +1448,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.27.tgz#a151873af5a5e851b51b3b065c9e63390a9e0eb1"
   integrity sha512-kVrqXhbclHNHGu9ztnAwSncIgJv/FaxmzXJvGXNdcCpV1b8u1/Mi6z6m0vwy0LzKeXFTPLH0NzwmoJ3fNCIq0g==
 
-"@types/node@^13.7.0":
-  version "13.13.15"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.15.tgz#fe1cc3aa465a3ea6858b793fd380b66c39919766"
-  integrity sha512-kwbcs0jySLxzLsa2nWUAGOd/s21WU1jebrEdtzhsj1D4Yps1EOuyI1Qcu+FD56dL7NRNIJtDDjcqIG22NwkgLw==
+"@types/node@~13.7.0":
+  version "13.7.7"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.7.7.tgz#1628e6461ba8cc9b53196dfeaeec7b07fa6eea99"
+  integrity sha512-Uo4chgKbnPNlxQwoFmYIwctkQVkMMmsAoGGU4JKwLuvBefF0pCq4FybNSnfkfRCpC7ZW7kttcC/TrRtAJsvGtg==
 
 "@types/q@^0.0.32":
   version "0.0.32"
@@ -5550,10 +5550,10 @@ karma@~4.1.0:
     tmp "0.0.33"
     useragent "2.3.0"
 
-keycloak-js@~19.0.1:
-  version "19.0.3"
-  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-19.0.3.tgz#f70e988b799054957e47c981b7e962c9874da00e"
-  integrity sha512-mzCBxrzfl+vB551Q7MB+T9+40IHU4i0a6g1eTatzeEGrQMis5m/BqvPC3kxTsI+/LxHbB9XYQE3u9SlWKDHQCw==
+keycloak-js@~20.0.2:
+  version "20.0.2"
+  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-20.0.2.tgz#31c337a33eb44fc2aaaed342519cc6d5e959e4bd"
+  integrity sha512-RPLeBdrsB4ybc2tWL5R+tUqdUd62ytZLVT7AWcCCqMWKuQ0AbmrOtGaPnnWMzS/3XJH447nDq1ulUOGzpj41LQ==
   dependencies:
     base64-js "^1.5.1"
     js-sha256 "^0.9.0"

@@ -42,6 +42,7 @@ package org.dcm4chee.arc.retrieve;
 
 
 import org.dcm4chee.arc.entity.Completeness;
+import org.dcm4chee.arc.entity.Series;
 
 import java.util.Date;
 
@@ -54,6 +55,8 @@ public interface SeriesInfo {
     String getStudyInstanceUID();
 
     String getSeriesInstanceUID();
+
+    Series.InstancePurgeState getInstancePurgeState();
 
     long getSeriesPk();
 

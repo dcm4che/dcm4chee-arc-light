@@ -52,21 +52,25 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import jakarta.xml.ws.Holder;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.xroad.*;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.xroad.XRoadException;
-import org.dcm4chee.arc.xroad.XRoadServiceProvider;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -83,14 +87,11 @@ public class XRoadRS {
     @Inject
     private Device device;
 
-    @Inject
-    private XRoadServiceProvider service;
-
     @GET
     @NoCache
     @Path("/RR441/{PatientID}")
     @Produces("application/dicom+json,application/json")
-    public Response rr441(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
+    public Response rr441(@PathParam("PatientID") String multiplePatientIDs) throws Exception {
         logRequest();
         Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getXRoadProperties();
@@ -100,11 +101,38 @@ public class XRoadRS {
 
         Attributes attrs;
         try {
-            attrs = service.rr441(endpoint, props, patientID.getID());
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            XRoadAdapterPortType port = new XRoadService().getXRoadServicePort();
+            XRoadUtils.setEndpointAddress(port, endpoint);
+            if (endpoint.startsWith("https")) {
+                XRoadUtils.setTlsClientParameters(port, device,
+                        props.get("TLS.protocol"),
+                        StringUtils.split(props.get("TLS.cipherSuites"), ','),
+                        Boolean.parseBoolean(props.getOrDefault("TLS.disableCNCheck", "false")));
+            }
+            RR441RequestType rq = XRoadUtils.createRR441RequestType(props, trustedPatientIDs.iterator().next().getID());
+            RR441ResponseType rsp = XRoadException.validate(XRoadUtils.rr441(port, props, rq, new Holder<>()));
+            attrs = XRoadUtils.toAttributes(
+                    props.getOrDefault("SpecificCharacterSet", "ISO_IR 100"),
+                    rsp);
         } catch (XRoadException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
         }
         return (attrs == null ? Response.status(Response.Status.NOT_FOUND) : Response.ok(toJSON(attrs))).build();
+    }
+
+    private Collection<IDWithIssuer> trustedPatientIDs(String multiplePatientIDs) {
+        String[] patientIDs = multiplePatientIDs.split("~");
+        Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
+        for (String cx : patientIDs)
+            patientIdentifiers.add(new IDWithIssuer(cx));
+        return device.getDeviceExtension(ArchiveDeviceExtension.class)
+                     .withTrustedIssuerOfPatientID(patientIdentifiers);
     }
 
     private void logRequest() {

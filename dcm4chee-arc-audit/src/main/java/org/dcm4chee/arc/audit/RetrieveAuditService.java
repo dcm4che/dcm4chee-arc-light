@@ -161,7 +161,7 @@ class RetrieveAuditService {
 
     private AuditInfoBuilder rad69OrWadoRS(AuditInfoBuilder.Builder infoBuilder) {
         return infoBuilder
-            .calledUserID(httpServletRequestInfo.requestURI)
+            .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
             .destUserID(httpServletRequestInfo.requesterUserID)
             .destNapID(ctx.getDestinationHostName())
             .build();
@@ -181,11 +181,17 @@ class RetrieveAuditService {
         return infoBuilder
             .callingUserID(httpServletRequestInfo.requesterUserID)
             .callingHost(ctx.getRequestorHostName())
-            .calledUserID(httpServletRequestInfo.requestURI)
+            .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
             .destUserID(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
             .isExport()
             .build();
+    }
+
+    private static String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     private boolean isExportTriggered(RetrieveContext ctx) {

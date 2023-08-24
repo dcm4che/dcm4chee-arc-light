@@ -81,7 +81,7 @@ import java.util.Date;
                 @Index(columnList = "study_iuid, series_iuid, sop_iuid")
         })
 @NamedQuery(name = Task.FIND_SCHEDULED_BY_DEVICE_AND_QUEUE_NAME_AND_STATUS,
-        query = "select o.pk from Task o where o.deviceName=?1 and o.queueName=?2 and o.status=?3 " +
+        query = "select o.pk from Task o where o.deviceName=?1 and o.queueName=?2 and o.status in (?3) " +
                 "and o.scheduledTime < current_timestamp order by o.scheduledTime")
 @NamedQuery(name = Task.FIND_BY_EXPORTER_ID_AND_STUDY_IUID,
         query = "select o from Task o where o.type=?4 and o.exporterID=?1 and o.studyInstanceUID=?2 " +
@@ -228,6 +228,7 @@ public class Task {
 
     public enum Status {
         SCHEDULED(false),
+        SCHEDULED_FOR_RETRY(false),
         IN_PROCESS(false),
         COMPLETED(true),
         WARNING(true),

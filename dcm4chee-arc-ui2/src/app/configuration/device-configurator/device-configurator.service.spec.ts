@@ -32,6 +32,8 @@ describe("DeviceConfiguratorService",()=> {
                 { provide: DevicesService, useClass: MyServiceDependencyStub },
                 { provide: AeListService, useClass: MyServiceDependencyStub },
                 { provide: Hl7ApplicationsService, useClass: MyServiceDependencyStub },
+                { provide: WebAppsListService, useClass: MyServiceDependencyStub },
+                { provide: ControlService, useClass: MyServiceDependencyStub },
             ],
         });
         service = TestBed.inject(DeviceConfiguratorService);

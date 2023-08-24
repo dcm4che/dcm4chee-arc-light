@@ -342,8 +342,8 @@ public class AuditService {
         try {
             AuditInfoBuilder auditInfoBuilder = new AuditInfoBuilder.Builder()
                                                     .callingUserID(device.getDeviceName())
-                                                    .studyIUID(event.getStudyIUID())
-                                                    .patID(event.getPatientID(), getArchiveDevice())
+                                                    .studyUIDAccNumDate(event.getStudy().getAttributes(), getArchiveDevice())
+                                                    .pIDAndName(event.getStudy().getPatient().getAttributes(), getArchiveDevice())
                                                     .build();
             writeSpoolFile(AuditUtils.EventType.STUDY_READ, null, auditInfoBuilder);
         } catch (Exception e) {
@@ -507,12 +507,14 @@ public class AuditService {
 
     private void spoolInstancesStored(StoreContext ctx) {
         StoreSession ss = ctx.getStoreSession();
-        HttpServletRequestInfo req = ss.getHttpRequest();
-        String callingUserID = req != null
-                ? req.requesterUserID
+        HttpServletRequestInfo httpServletRequestInfo = ss.getHttpRequest();
+        String callingUserID = httpServletRequestInfo != null
+                ? httpServletRequestInfo.requesterUserID
                 : ss.getCallingAET() != null
                 ? ss.getCallingAET() : device.getDeviceName();
-        String calledUserID = req != null ? req.requestURI : ss.getCalledAET();
+        String calledUserID = httpServletRequestInfo != null
+                                ? requestURLWithQueryParams(httpServletRequestInfo)
+                                : ss.getCalledAET();
         try {
             String outcome = ctx.getException() != null
                     ? ctx.getRejectionNote() != null
@@ -603,16 +605,16 @@ public class AuditService {
     }
 
     void spoolRetrieveWADO(RetrieveContext ctx) {
-        HttpServletRequestInfo req = ctx.getHttpServletRequestInfo();
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
         try {
             Attributes attrs = ctx.getMatches().get(0).getAttributes();
-            String suffix = '-' + req.requesterHost
+            String suffix = '-' + httpServletRequestInfo.requesterHost
                     + '-' + ctx.getLocalAETitle()
                     + '-' + ctx.getStudyInstanceUIDs()[0];
             AuditInfoBuilder info = new AuditInfoBuilder.Builder()
-                    .callingHost(req.requesterHost)
-                    .callingUserID(req.requesterUserID)
-                    .calledUserID(req.requestURI)
+                    .callingHost(httpServletRequestInfo.requesterHost)
+                    .callingUserID(httpServletRequestInfo.requesterUserID)
+                    .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
                     .studyUIDAccNumDate(attrs, getArchiveDevice())
                     .pIDAndName(attrs, getArchiveDevice())
                     .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
@@ -624,8 +626,14 @@ public class AuditService {
             writeSpoolFile(AuditUtils.EventType.WADO___URI, suffix, info, instanceInfo);
         } catch (Exception e) {
             LOG.info("Failed to spool Wado Retrieve for [StudyIUID={}] triggered by [User={}]\n",
-                    ctx.getStudyInstanceUID(), req.requesterUserID, e);
+                    ctx.getStudyInstanceUID(), httpServletRequestInfo.requesterUserID, e);
         }
+    }
+
+    private String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
+        return httpServletRequestInfo.queryString == null
+                ? httpServletRequestInfo.requestURI
+                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
     }
 
     private void auditStoreError(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
@@ -769,6 +777,13 @@ public class AuditService {
     }
 
     private void spoolIncomingHL7Msg(HL7ConnectionEvent hl7ConnEvent) {
+        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7Message, "PID");
+        if (pid == null) {
+            LOG.info("Exit spooling incoming HL7 message for message type {} as there is no PID segment.",
+                    hl7Message.msh().getMessageType());
+            return;
+        }
         try {
             UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
             if (HL7AuditUtils.isOrderMessage(hl7ConnEvent)) {
@@ -791,14 +806,14 @@ public class AuditService {
                     eventType,
                     hl7ConnEvent);
 
-            HL7Segment mrg = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "MRG");
+            HL7Segment mrg = HL7AuditUtils.getHL7Segment(hl7Message, "MRG");
             if (mrg != null && eventType != AuditUtils.EventType.PAT___READ) //spool below only for successful changePID or merge
                 writeSpoolFile(
                         patRecAuditService.getHL7IncomingPrevPatInfo(mrg),
                         AuditUtils.EventType.PAT_DELETE,
                         hl7ConnEvent);
         } catch (Exception e) {
-            LOG.info("Failed to spool HL7 Incoming for [Message={}]\n", hl7ConnEvent.getHL7Message(), e);
+            LOG.info("Failed to spool HL7 Incoming for [Message={}]\n", hl7Message, e);
         }
 
     }
@@ -854,7 +869,7 @@ public class AuditService {
             if (ctx.getPreviousAttributes() != null)
                 writeSpoolFile(AuditUtils.EventType.PAT_DELETE, null, patRecAuditService.getPrevPatAuditInfo());
         } catch (Exception e) {
-            LOG.info("Failed to spool Patient Record for [PatientID={}]\n", ctx.getPatientID(), e);
+            LOG.info("Failed to spool Patient Record for [PatientID={}]\n", ctx.getPatientIDs(), e);
         }
     }
 

@@ -86,7 +86,7 @@ class IocmUtils {
         if (instanceLocations.isEmpty())
             return null;
 
-        if (studyInstanceUID.equals(instanceRefs.getString(Tag.StudyInstanceUID))) {
+        if (isMerge(ctx, instanceRefs)) {
             procedureService.updateStudySeriesAttributes(ctx);
             result = getResult(instanceLocations);
         } else {
@@ -100,6 +100,20 @@ class IocmUtils {
             rejectInstances(instanceRefs, queryService, rjNote, session, result);
         }
         return result;
+    }
+
+    private static boolean isMerge(ProcedureContext ctx, Attributes instanceRefs) {
+        String linkStrategy = ctx.getLinkStrategy();
+        String studyInstanceUIDInstRefs = instanceRefs.getString(Tag.StudyInstanceUID);
+        if (linkStrategy == null)
+            return ctx.getStudyInstanceUID().equals(studyInstanceUIDInstRefs);
+
+        if (linkStrategy.equals("MERGE")) {
+            ctx.setStudyInstanceUIDInstRefs(studyInstanceUIDInstRefs);
+            return true;
+        }
+
+        return false;
     }
 
     static Attributes copyMove(
@@ -223,9 +237,9 @@ class IocmUtils {
         String studyUID = sopInstanceRefs.getString(Tag.StudyInstanceUID);
         Sequence seq = sopInstanceRefs.getSequence(Tag.ReferencedSeriesSequence);
         if (seq == null || seq.isEmpty())
-            storeService.restoreInstances(session, studyUID, null, null);
+            storeService.restoreInstances(session, studyUID, null, null, null);
         else for (Attributes item : seq)
-            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID), null);
+            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID), null, null);
     }
 
     private static Attributes parseSOPInstanceReferences(InputStream in) {

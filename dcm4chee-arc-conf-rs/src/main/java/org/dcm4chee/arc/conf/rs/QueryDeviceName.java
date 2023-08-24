@@ -87,8 +87,6 @@ public class QueryDeviceName {
                 JsonWriter writer = new JsonWriter(gen);
                 gen.writeStartObject();
                 gen.write("dicomDeviceName", device.getDeviceName());
-                gen.write("management-http-port", intSystemProperty("jboss.management.http.port", 9990));
-                gen.write("management-https-port", intSystemProperty("jboss.management.https.port", 9993));
                 if (arcDev != null) {
                     writer.writeNotNullOrDef("xRoad", arcDev.hasXRoadProperties(), false);
                     writer.writeNotNullOrDef("impaxReport", arcDev.hasImpaxReportProperties(), false);

@@ -6,7 +6,7 @@
         <ng-container *ngIf="studyConfig && studyConfig.tab">
           <div class="filter_line">
             <div class="filter_block" >
-              <filter-generator *ngIf="filter.filterSchemaMain.lineLength" [schema]="filter.filterSchemaMain.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" [filterTreeHeight]="filter.filterSchemaMain.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)" (onFilterClear)="onFilterClear($event)"></filter-generator>
+              <filter-generator filterID="{{'study-filter-' + studyConfig.tab}}"  [filterTreeHeight]="filter.filterSchemaMain.lineLength"  [schema]="filter.filterSchemaMain.schema" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)" (onFilterClear)="onFilterClear($event)"></filter-generator>
             </div>
           </div>
           <div class="filter_line" [hidden]="!filter.expand">
@@ -16,16 +16,16 @@
           </div>
         </ng-container>
   </div>
-      <div class="filter_line more_function_block" *ngIf="(studyConfig && (studyConfig.tab != 'mwl' && studyConfig.tab != 'mpps'))
+      <div class="filter_line more_function_block" *ngIf="studyConfig
                         || (studyWebService && studyWebService.selectedWebService
                             && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps')))
                         || (studyWebService && studyWebService.selectedWebService
                             && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps')))">
         <div class="filter single_block">
-          <div class="filter_block" *ngIf="(studyConfig && studyConfig.tab != 'mwl')">
+          <div class="filter_block" *ngIf="studyConfig">
             <div class="line">
-              <a href="" (click)="$event.preventDefault();toggleMore(true)" *ngIf="!filter.expand" class="more pull-left" i18n="@@more">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-              <a href="" (click)="$event.preventDefault();toggleMore(false)" *ngIf="filter.expand" class="more [hidden] pull-left" i18n="@@close_more_block">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
+              <a href="" (click)="$event.preventDefault();toggleMore(true)" *ngIf="!filter.expand && studyConfig.tab != 'patient'" class="more pull-left" i18n="@@more">More<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+              <a href="" (click)="$event.preventDefault();toggleMore(false)" *ngIf="filter.expand && studyConfig.tab != 'patient'" class="more [hidden] pull-left" i18n="@@close_more_block">Close More Block<i class="glyphicon glyphicon-triangle-top"></i></a>
               <input *ngIf="patients && patients.length > 0"  i18n-title="@@title.study.search_current_list" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList"  i18n-placeholder="@@placeholder.study.search_current_list" placeholder="Search current list">
             </div>
           </div>
@@ -40,7 +40,7 @@
                   [multiSelectMode]="false"
                   (modelChange)="moreFunctionChanged($event)"
                   [showStar]="false"
-                  *ngIf="(studyWebService && studyWebService.selectedWebService && !(studyConfig && studyConfig.tab === 'diff'))"
+                  *ngIf="(studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'mpps')))"
                   [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
               <dcm-drop-down
@@ -92,12 +92,12 @@
             </div>
         </div>
       </div>
-      <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') > -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+      <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService && studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') > -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
           <ul class="selection_functions">
               <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
-              <li *ngIf='studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1'><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>
-              <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>
-              <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>
+              <li *ngIf='studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1'><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected Studies/Series/Instances for copy"><i class="material-icons">content_copy</i></button></li>
+              <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected Studies/Series/Instances for move"><i class="material-icons">content_cut</i></button></li>
+              <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected Studies/Series/Instances for linking with MWL"><i class="material-icons">link</i></button></li>
               <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title="@@title.study.mark_selected_patient_for_merge" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>
               <li><button (click)="selectionAction('paste')"  i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge" title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>
           </ul>
@@ -110,7 +110,7 @@
               <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')" i18n="@@hide_checkboxes">Hide checkboxes</button></li>
           </ul>
       </div>
-    <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') == -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+    <div class="selection_actions" *ngIf="tableParam.config.showCheckboxes && studyWebService && studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') == -1" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
         <ul class="selection_functions">
             <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
 <!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>-->
@@ -128,8 +128,8 @@
             <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')" i18n="@@hide_checkboxes">Hide checkboxes</button></li>
         </ul>
     </div>
-    <div class="left_arrow arrow"   i18n-title="@@title.preview_page" title="Preview page" *ngIf="patients" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-    <div class="right_arrow arrow"  i18n-title="@@title.next_page" title="Next page" *ngIf="patients" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+    <div class="left_arrow arrow"   i18n-title="@@title.preview_page" title="Preview page" *ngIf="( patients && patients.length > 0 ) || ( patients1 && patients1.length > 0 )" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+    <div class="right_arrow arrow"  i18n-title="@@title.next_page" title="Next page" *ngIf="( patients && patients.length > 0 ) || ( patients1 && patients1.length > 0 )" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
     <dicom-studies-table [patients]="patients" [patients1]="patients1" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)" [searchList]="searchCurrentList"></dicom-studies-table>
   </div>
     <div id="clipboard" class="clipboard said"  *ngIf="selectedElements.preActionElements && selectedElements.preActionElements.size > 0">

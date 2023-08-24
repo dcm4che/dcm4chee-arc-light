@@ -7,10 +7,30 @@
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addSeriesAttribut" (click)="$event.preventDefault();addAttribute(m.code)">({{m.codeComma}}) {{m.name}}</a>
         </div>
         <div mat-dialog-content>
-            <iod-form-generator [object]="series.attrs" [prefix]="" [mode]="mode"  (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
+            <iod-form-generator *ngIf="_seriesResult.series && _seriesResult.series['attrs']" [object]="_seriesResult.series['attrs']" [prefix]="" [mode]="mode"  (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
+        </div>
+        <div class="inputpart">
+            <div class="form_input" *ngIf="_seriesResult.editMode != 'single'">
+                <label i18n="@@update_policy_label">Update Policy :</label>
+                <dcm-drop-down [options]="updatePolicy" [(model)]="_seriesResult.updatePolicyResult"
+                               [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
+                               (modelChange)="_seriesResult.updatePolicyResult = $event">
+                </dcm-drop-down>
+            </div>
+            <div class="form_input">
+                <label i18n="@@reason_for_modification_label">Reason for modification:</label>
+                <dcm-drop-down [options]="reasonForModification" [(model)]="_seriesResult.reasonForModificationResult"
+                               [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
+                               (modelChange)="_seriesResult.reasonForModificationResult = $event">
+                </dcm-drop-down>
+            </div>
+            <div class="form_input">
+                <label i18n="@@source_of_prev_vals_label">Source of previous values:</label>
+                <input type="text" [(ngModel)]="_seriesResult.sourceOfPrevVals" i18n-placeholder="source_of_previous_values" placeholder="Source of previous values">
+            </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="dialogRef.close(series)">{{saveLabel}}</button>
+            <button class="save" type="button" (click)="dialogRef.close(seriesResult)">{{saveLabel}}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
         </div>
     </div>

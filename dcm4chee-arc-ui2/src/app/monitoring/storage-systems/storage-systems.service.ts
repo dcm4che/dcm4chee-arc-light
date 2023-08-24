@@ -156,4 +156,7 @@ export class StorageSystemsService {
             }
         });
     }
+    changeLocationStatus(storageID, params){
+        return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}storage/${storageID}/changestatus${j4care.param(params)}`);
+    }
 }

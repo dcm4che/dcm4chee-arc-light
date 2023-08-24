@@ -19,6 +19,14 @@ export class SelectionActionElement {
         }
     }
 
+    public hasIn(dicomLevel:DicomLevel, uniqueSelectIdObject:UniqueSelectIdObject):boolean{
+        try{
+            return this.preActionElements.hasIn(dicomLevel,uniqueSelectIdObject) || this.postActionElements.hasIn(dicomLevel,uniqueSelectIdObject);
+        }catch (e) {
+            return false;
+        }
+    }
+
     toggle(dicomLevel:DicomLevel,uniqueSelectIdObject:UniqueSelectIdObject, object, part?){
         if(part){
             if(!this[part]){

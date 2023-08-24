@@ -80,8 +80,17 @@
         "200": {
           "$ref": "../responses.json#/PatientID"
         },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
+        },
+        "403": {
+          "description": "Creation of already merged patient forbidden"
+        },
         "404": {
           "description": "There is no Archive AE with the specified Title."
+        },
+        "409": {
+          "description": "Non Unique Patients found for patient identifiers in request payload"
         },
         "500": {
           "description": "Internal Server Error."
@@ -155,13 +164,16 @@
           "description": "successful operation"
         },
         "400": {
-          "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed."
+          "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed or Missing (prior) patient identifier with trusted assigning authority in specified / sent patient identifiers in request URL / payload."
+        },
+        "403": {
+          "description": "Update, Create, Merge or Change Patient ID of already merged patient forbidden"
         },
         "404": {
           "description": "There is no Archive AE with the specified Title."
         },
         "409": {
-          "description": "Patient Tracking Not Allowed or Circular Patient Merge exception"
+          "description": "Patient Tracking Not Allowed or Circular Patient Merge exception or Non Unique Patients found for patient identifiers in request payload"
         },
         "500": {
           "description": "Internal Server Error."
@@ -186,14 +198,17 @@
         "204": {
           "description": "successful operation"
         },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
+        },
         "403": {
-          "description": "Patient Deletion never allowed as per configuration or Patient has non empty studies"
+          "description": "Patient Deletion never allowed as per configuration or Patient has non empty studies or Attempt to delete already merged patient"
         },
         "404": {
           "description": "No such Application Entity or Patient."
         },
         "409": {
-          "description": "Non Unique Patient or Patient is already merged exception."
+          "description": "Non Unique Patients found for patient identifiers in request payload"
         },
         "500": {
           "description": "Internal Server Error."
@@ -224,13 +239,16 @@
           "description": "successful operation"
         },
         "400": {
-          "description": "JSON request body was not well formed"
+          "description": "JSON request body was not well formed or missing prior or target patient identifier with trusted assigning authority in specified patient identifiers"
+        },
+        "403": {
+          "description": "Merging to already merged patient forbidden"
         },
         "404": {
           "description": "No such Application Entity or Patient."
         },
         "409": {
-          "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          "description": "Circular Patient Merge detected"
         },
         "500": {
           "description": "Internal Server Error."
@@ -263,11 +281,17 @@
         "204": {
           "description": "successful operation"
         },
+        "400": {
+          "description": "Missing prior or target patient identifier with trusted assigning authority in specified patient identifiers"
+        },
+        "403": {
+          "description": "Merging to already merged patient forbidden"
+        },
         "404": {
           "description": "No such Archive or external C-FIND SCP Application Entity or Patient."
         },
         "409": {
-          "description": "Non unique Patient ID or Patient is already merged, a Circular Patient Merge is detected, or Studies with prior Patient ID or Studies with equal Study Instance UID but different Patient ID than the target Patient ID were found at the external C-FIND SCP."
+          "description": "Circular Patient Merge is detected or Studies with prior Patient ID or Studies with equal Study Instance UID but different Patient ID than the target Patient ID were found at the external C-FIND SCP."
         },
         "500": {
           "description": "Internal Server Error."
@@ -296,6 +320,9 @@
       "responses": {
         "204": {
           "description": "successful operation"
+        },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "404": {
           "description": "No such Application Entity or Patient."
@@ -429,11 +456,17 @@
         "204": {
           "description": "successful operation"
         },
+        "400": {
+          "description": "Missing prior or target patient identifiers with trusted assigning authority in specified patient identifiers"
+        },
+        "403": {
+          "description": "Change Patient ID of already merged patient forbidden"
+        },
         "404": {
           "description": "No such Application Entity or Patient."
         },
         "409": {
-          "description": "Non unique patient or Patient is already merged or Circular Patient Merge Exception"
+          "description": "Circular Patient Merge detected"
         },
         "500": {
           "description": "Internal Server Error."
@@ -552,6 +585,9 @@
         "202": {
           "description": "Patient was not found by the specified PDQ Service"
         },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
+        },
         "404": {
           "description": "no such PDQ Service"
         },
@@ -589,6 +625,9 @@
               }
             }
           }
+        },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "404": {
           "description": "No such PDQ Service or Patient was not found by the specified PDQ Service"

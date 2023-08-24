@@ -229,7 +229,6 @@ public class WadoExporter extends AbstractExporter {
             storage = storageFactory.getStorage(storageDescriptor);
             storageMap.put(storageDescriptor.getStorageID(), storage);
         }
-        WriteContext ctx = storage.createWriteContext();
         Attributes attrs = new Attributes(params.length);
         switch (params.length) {
             case 4:
@@ -241,7 +240,7 @@ public class WadoExporter extends AbstractExporter {
             case 1:
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, (String) params[0]);
         }
-        ctx.setAttributes(attrs);
+        WriteContext ctx = storage.createWriteContext(attrs);
         return storage.openOutputStream(ctx);
     }
 
@@ -311,8 +310,6 @@ public class WadoExporter extends AbstractExporter {
         final EnumMap<HeaderField,String> headerFields;
         final StorageDescriptor storageDescriptor;
         final String token;
-        final boolean tlsAllowAnyHostname;
-        final boolean tlsDisableTrustManager;
         final ExporterDescriptor exporterDescriptor;
         final WebApplication queryRetrieveWebApp;
         final Device device;
@@ -327,8 +324,6 @@ public class WadoExporter extends AbstractExporter {
             this.storageDescriptor = toStorageDescriptor();
             this.headerFields = toHeaderFields();
             this.token = token;
-            this.tlsAllowAnyHostname = setTLSFields("allow-any-hostname");
-            this.tlsDisableTrustManager = setTLSFields("disable-trust-manager");
         }
 
         private enum HeaderField {
@@ -338,10 +333,6 @@ public class WadoExporter extends AbstractExporter {
             public String toString() {
                 return name().replace('_', '-');
             }
-        }
-
-        private boolean setTLSFields(String key) {
-            return Boolean.parseBoolean(queryRetrieveWebApp.getProperty(key, null));
         }
 
         private StorageDescriptor toStorageDescriptor() {
@@ -374,8 +365,7 @@ public class WadoExporter extends AbstractExporter {
         Invocation.Builder openConnection(Object[] params, AccessTokenRequestor accessTokenRequestor)
                 throws Exception {
             targetURL = format.format(params);
-            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
-                    targetURL, tlsAllowAnyHostname, tlsDisableTrustManager).build();
+            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(targetURL, queryRetrieveWebApp).build();
             WebTarget target = client.target(targetURL);
             Invocation.Builder request = target.request();
             headerFields.forEach((k,v) -> request.header(k.toString(), v));

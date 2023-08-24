@@ -149,7 +149,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
 
         adjust(attrs, hl7App, s, msg);
         ProcedureContext ctx = procedureService.createProcedureContext().setSocket(s).setHL7Message(msg);
-        ctx.setLocalAET(StringUtils.maskNull(arcHL7App.getDestinationAE(), "*"));
+        ctx.setLocalAET(arcHL7App.getAETitle());
         ctx.setArchiveHL7AppExtension(arcHL7App);
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);
@@ -179,6 +179,10 @@ public class ProcedureUpdateService extends DefaultHL7Service {
 
     private void adjust(Attributes attrs, HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
         ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class);
+        String mwlWorklistLabel = arcHL7App.getMWLWorklistLabel();
+        if (mwlWorklistLabel != null) {
+            attrs.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabel);
+        }
         HL7Segment msh = msg.msh();
         boolean uidsGenerated = adjustIdentifiers(attrs, arcHL7App, msh);
 

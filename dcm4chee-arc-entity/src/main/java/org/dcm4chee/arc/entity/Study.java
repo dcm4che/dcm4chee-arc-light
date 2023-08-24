@@ -130,9 +130,10 @@ import java.util.*;
                 query = "update Study st set st.accessControlID = ?2 " +
                         "where st.studyInstanceUID = ?1"),
         @NamedQuery(
-                name = Study.FIND_PK_STUDY_UID_PID_BY_UPDATE_TIME_AND_UNKNOWN_SIZE,
-                query = "select st.pk, st.studyInstanceUID, p.patientID from Study st " +
-                        "join st.patient p " +
+                name = Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE,
+                query = "select distinct st from Study st " +
+                        "join fetch st.patient p " +
+                        "left join fetch p.patientIDs " +
                         "where st.size = -1 and st.updatedTime < ?1"),
         @NamedQuery(
                 name=Study.CLAIM_UNKNOWN_SIZE_STUDY,
@@ -184,7 +185,7 @@ public class Study {
     public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
     public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
     public static final String UPDATE_ACCESS_CONTROL_ID = "Study.updateAccessControlID";
-    public static final String FIND_PK_STUDY_UID_PID_BY_UPDATE_TIME_AND_UNKNOWN_SIZE = "Study.findPkStudyUIDPIDByUpdateTimeAndUnknownSize";
+    public static final String FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE = "Study.findByUpdateTimeAndUnknownSize";
     public static final String CLAIM_UNKNOWN_SIZE_STUDY = "Study.claimUnknownSizeStudy";
     public static final String SET_STUDY_SIZE_IF_CLAIMED = "Study.setStudySizeIfClaimed";
 

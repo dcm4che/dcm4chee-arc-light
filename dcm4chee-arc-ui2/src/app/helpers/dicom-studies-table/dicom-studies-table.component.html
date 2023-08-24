@@ -54,12 +54,12 @@
                     </mat-menu>
                 </ng-container>
                 <ng-container *ngSwitchCase="'pipe'">
-                    <ng-container *ngIf="patient_table.pathToValue">
+                    <span *ngIf="patient_table.pathToValue">
                         {{_.get(patient.attrs,patient_table.pathToValue) | dynamicPipe:patient_table.pipe}}
-                    </ng-container>
-                    <ng-container *ngIf="!patient_table.pathToValue">
+                    </span>
+                    <span *ngIf="!patient_table.pathToValue">
                         {{patient.attrs | dynamicPipe:patient_table.pipe}}
-                    </ng-container>
+                    </span>
                 </ng-container>
                 <ng-container *ngSwitchCase="'value'">
                     <ng-container *ngIf="!patient_table.hook">

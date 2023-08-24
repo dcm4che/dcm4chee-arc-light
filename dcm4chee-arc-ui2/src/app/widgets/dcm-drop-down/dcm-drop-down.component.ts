@@ -45,6 +45,7 @@ export class DcmDropDownComponent implements OnInit {
     isAllCheck:boolean = false;
     multiSelectValue = [];
     search = "";
+    addFieldPlaceholder = $localize `:@@add_element:Add element`;
     @Input() placeholder:string;
     @Input() multiSelectMode:boolean = false;
     @Input() showSearchField:boolean = false;
@@ -73,6 +74,7 @@ export class DcmDropDownComponent implements OnInit {
     @Input()
     set optionsTree(value:{label:string, options:SelectDropdown<any>[]}[]){
         this._optionsTree = value;
+        let count = 0;
         if(value){
             try{
                 value.forEach(el=>{
@@ -80,9 +82,13 @@ export class DcmDropDownComponent implements OnInit {
                         if(option.selected){
                             this.selectedDropdown = option;
                             this.selectedValue = option.value;
+                            count++;
                         }
                     });
-                })
+                });
+                if(this.multiSelectValue && count != this.multiSelectValue.length){
+                    this.selectElementInTreeByValue(this.multiSelectValue);
+                }
             }catch (e) {
                 console.error("Value not undefined but selectedValue could not be set",e);
                 console.log("Value:",value);
@@ -101,18 +107,14 @@ export class DcmDropDownComponent implements OnInit {
         if(!(this.selectedDropdown && this.selectedDropdown.value === value) && !this.multiSelectMode){
             if(value){
                 this.selectedValue = value;
-                console.log("this.getSelectDropdownFromValue(value);",this.getSelectDropdownFromValue(value));
                 this.selectedDropdown  = this.getSelectDropdownFromValue(value);
-                // this.setSelectedElement();
                 this.setSelectedElement();
             }else{
                 this.clearSelection();
             }
         }else{
             if(this.multiSelectMode){
-                console.log("model,element",value);
                 if(value && typeof value === "string"){
-                    //const valueArray = value.split(",");
                     if(value.indexOf(",") > -1 ){
                         this.multiSelectValue = value.split(",");
                     }else{
@@ -177,6 +179,29 @@ export class DcmDropDownComponent implements OnInit {
         }
         return undefined;
     }
+    selectElementInTreeByValue(values){
+        try {
+            let valueCopy = Array.from(values);
+            let i = valueCopy.length;
+            while(i--){
+                this._optionsTree.forEach(optionBlock=>{
+                    optionBlock.options.forEach((option:SelectDropdown<any>)=>{
+                        if(valueCopy[i] === option.value){
+                            option.selected = true;
+                            valueCopy.splice(i,1);
+                        }
+                    });
+                });
+            }
+            if(valueCopy.length > 0){
+                valueCopy.forEach((value:string)=>{
+                    this.optionsTree[0].options.unshift(new SelectDropdown(value, value,undefined,undefined,undefined,undefined,true));
+                })
+            }
+        }catch (e) {
+            console.error(e);
+        }
+    }
     allChecked(e){
         this.multiSelectValue = [];
         this.options.forEach(element=>{
@@ -207,6 +232,9 @@ export class DcmDropDownComponent implements OnInit {
                     this.isAllCheck = false;
                 }
                 this.modelChange.emit(this.multiSelectValue);
+            }else{
+                console.warn("in tree",this.optionsTree);
+                console.log("mutliselectvalue",this.multiSelectValue);
             }
         }else{
             if(this.options && this.selectedValue){
@@ -224,6 +252,15 @@ export class DcmDropDownComponent implements OnInit {
         }
 
         // this.changeDetectorRef.detectChanges();
+    }
+    customTreeElement;
+    addCustomElement(e){
+        try{
+            this.optionsTree[0].options.unshift(new SelectDropdown(this.customTreeElement,this.customTreeElement));
+            this.customTreeElement = "";
+        }catch (e) {
+            
+        }
     }
     select(element){
         if(this.multiSelectMode){
@@ -243,7 +280,7 @@ export class DcmDropDownComponent implements OnInit {
                     element.selected = true;
                 }
             }
-            if(this.multiSelectValue.length === this.options.length){
+            if((this.options && this.multiSelectValue.length === this.options.length) || (this.optionsTree && this.multiSelectValue.length === this.optionsTree.length) ){
                 this.isAllCheck = true;
             }else{
                 this.isAllCheck = false;

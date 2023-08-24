@@ -69,6 +69,9 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -96,7 +99,7 @@ public class QueryPatientDemographicRS {
     @NoCache
     @Path("/patients/{PatientID}")
     @Produces("application/dicom+json,application/json")
-    public Response query(@PathParam("PatientID") IDWithIssuer patientID) {
+    public Response query(@PathParam("PatientID") String multiplePatientIDs) {
         logRequest();
         Attributes attrs;
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
@@ -105,7 +108,13 @@ public class QueryPatientDemographicRS {
             if (descriptor == null)
                 return errResponse("No such PDQ Service: " + pdqServiceID, Response.Status.NOT_FOUND);
 
-            PDQServiceContext ctx = new PDQServiceContext(patientID);
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            PDQServiceContext ctx = new PDQServiceContext(trustedPatientIDs.iterator().next());
             ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
             ctx.setSearchMethod(PDQServiceContext.SearchMethod.QueryPatientDemographics);
             attrs = serviceFactory.getPDQService(descriptor).query(ctx);
@@ -119,6 +128,15 @@ public class QueryPatientDemographicRS {
         return attrs != null
                 ? Response.ok(toJSON(attrs, arcdev)).build()
                 : errResponse("Querying the PDQ Service returned null attributes", Response.Status.NOT_FOUND);
+    }
+
+    private Collection<IDWithIssuer> trustedPatientIDs(String multiplePatientIDs) {
+        String[] patientIDs = multiplePatientIDs.split("~");
+        Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
+        for (String cx : patientIDs)
+            patientIdentifiers.add(new IDWithIssuer(cx));
+        return device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .withTrustedIssuerOfPatientID(patientIdentifiers);
     }
 
     private void logRequest() {

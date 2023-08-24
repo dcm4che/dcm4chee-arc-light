@@ -16,7 +16,7 @@ if (environment.production) {
   enableProdMode();
 }
 
-if(currentSavedLanguage && currentSavedLanguage.language.code != "en"){
+if(currentSavedLanguage && currentSavedLanguage.language && currentSavedLanguage.language.code && currentSavedLanguage.language.code != "en"){
     getTranslations(`./assets/locale/${currentSavedLanguage.language.code}.json`).then(
         (data: ParsedTranslationBundle) => {
             loadTranslations(data.translations as any);

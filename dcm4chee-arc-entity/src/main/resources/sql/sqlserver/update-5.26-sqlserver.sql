@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.25
+-- part 1: can be applied on archive running archive 5.25
 alter table series
     add receiving_hl7_app       varchar(255);
 alter table series
@@ -105,6 +105,86 @@ update patient_id
     set entity_uid_type = (select issuer.entity_uid_type from issuer where issuer_fk = issuer.pk)
 where issuer_fk is not null;
 
+update mpps
+set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update mpps
+set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update mpps
+set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+
+update mwl_item
+set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update mwl_item
+set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update mwl_item
+set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+
+update mwl_item
+set admid_entity_id = (select issuer.entity_id from issuer where admid_issuer_fk = issuer.pk)
+where admid_issuer_fk is not null;
+update mwl_item
+set admid_entity_uid = (select issuer.entity_uid from issuer where admid_issuer_fk = issuer.pk)
+where admid_issuer_fk is not null;
+update mwl_item
+set admid_entity_uid_type = (select issuer.entity_uid_type from issuer where admid_issuer_fk = issuer.pk)
+where admid_issuer_fk is not null;
+
+update series_req
+set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update series_req
+set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update series_req
+set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+
+update study
+set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update study
+set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update study
+set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+
+update study
+set admid_entity_id = (select issuer.entity_id from issuer where admid_issuer_fk = issuer.pk)
+where admid_issuer_fk is not null;
+update study
+set admid_entity_uid = (select issuer.entity_uid from issuer where admid_issuer_fk = issuer.pk)
+where admid_issuer_fk is not null;
+update study
+set admid_entity_uid_type = (select issuer.entity_uid_type from issuer where admid_issuer_fk = issuer.pk)
+where admid_issuer_fk is not null;
+
+update ups
+set admid_entity_id = (select issuer.entity_id from issuer where admission_issuer_fk = issuer.pk)
+where admission_issuer_fk is not null;
+update ups
+set admid_entity_uid = (select issuer.entity_uid from issuer where admission_issuer_fk = issuer.pk)
+where admission_issuer_fk is not null;
+update ups
+set admid_entity_uid_type = (select issuer.entity_uid_type from issuer where admission_issuer_fk = issuer.pk)
+where admission_issuer_fk is not null;
+
+update ups_req
+set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update ups_req
+set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+update ups_req
+set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
+where accno_issuer_fk is not null;
+
 create index UK_ffpftwfkijejj09tlbxr7u5g8 on series (sending_hl7_app);
 create index UK_1e4aqxc5w1557hr3fb3lqm2qb on series (sending_hl7_facility);
 create index UK_gj0bxgi55bhjic9s3i4dp2aee on series (receiving_hl7_app);
@@ -122,86 +202,6 @@ create index FK_jtv4r8f88f6gfte0fa36w5y9o on rel_ups_station_name_code (station_
 create index FK_8jf5xe8ot2yammv3ksd5xrgif on rel_ups_station_name_code (ups_fk) ;
 
 -- part 2: shall be applied on stopped archive before starting 5.26
-update mpps
-    set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update mpps
-    set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update mpps
-    set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-
-update mwl_item
-    set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update mwl_item
-    set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update mwl_item
-    set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-
-update mwl_item
-    set admid_entity_id = (select issuer.entity_id from issuer where admid_issuer_fk = issuer.pk)
-where admid_issuer_fk is not null;
-update mwl_item
-    set admid_entity_uid = (select issuer.entity_uid from issuer where admid_issuer_fk = issuer.pk)
-where admid_issuer_fk is not null;
-update mwl_item
-    set admid_entity_uid_type = (select issuer.entity_uid_type from issuer where admid_issuer_fk = issuer.pk)
-where admid_issuer_fk is not null;
-
-update series_req
-    set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update series_req
-    set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update series_req
-    set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-
-update study
-    set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update study
-    set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update study
-    set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-
-update study
-    set admid_entity_id = (select issuer.entity_id from issuer where admid_issuer_fk = issuer.pk)
-where admid_issuer_fk is not null;
-update study
-    set admid_entity_uid = (select issuer.entity_uid from issuer where admid_issuer_fk = issuer.pk)
-where admid_issuer_fk is not null;
-update study
-    set admid_entity_uid_type = (select issuer.entity_uid_type from issuer where admid_issuer_fk = issuer.pk)
-where admid_issuer_fk is not null;
-
-update ups
-    set admid_entity_id = (select issuer.entity_id from issuer where admission_issuer_fk = issuer.pk)
-where admission_issuer_fk is not null;
-update ups
-    set admid_entity_uid = (select issuer.entity_uid from issuer where admission_issuer_fk = issuer.pk)
-where admission_issuer_fk is not null;
-update ups
-    set admid_entity_uid_type = (select issuer.entity_uid_type from issuer where admission_issuer_fk = issuer.pk)
-where admission_issuer_fk is not null;
-
-update ups_req
-    set accno_entity_id = (select issuer.entity_id from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update ups_req
-    set accno_entity_uid = (select issuer.entity_uid from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-update ups_req
-    set accno_entity_uid_type = (select issuer.entity_uid_type from issuer where accno_issuer_fk = issuer.pk)
-where accno_issuer_fk is not null;
-
 insert into rel_ups_station_name_code
     select ups.pk, ups.station_name_fk from ups where ups.station_name_fk is not null;
 

@@ -73,69 +73,66 @@ public class PatientServiceEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(PatientServiceEJB.class);
 
-    @PersistenceContext(unitName="dcm4chee-arc")
+    @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
 
     @Inject
     private Device device;
 
-    public List<Patient> findPatients(IDWithIssuer pid) {
-        List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID_EAGER, Patient.class)
-                .setParameter(1, pid.getID())
-                .getResultList();
-        Issuer issuer = pid.getIssuer();
-        return issuer != null ? removeNonMatchingIssuer(list, issuer) : list;
+    private static boolean matchingIssuer(Issuer issuer, Issuer other) {
+        return issuer != null && other != null
+                && (issuer.getLocalNamespaceEntityID() != null && other.getLocalNamespaceEntityID() != null
+                || issuer.getUniversalEntityID() != null && other.getUniversalEntityID() != null);
+     }
+
+    public Collection<Patient> findPatients(Collection<IDWithIssuer> pids) {
+        IdentityHashMap<Patient,Object> withoutMatchingIssuer = new IdentityHashMap<>();
+        IdentityHashMap<Patient,Object> withMatchingIssuer = new IdentityHashMap<>();
+        findPatients(pids, withoutMatchingIssuer, withMatchingIssuer);
+        return (withMatchingIssuer.isEmpty() ? withoutMatchingIssuer : withMatchingIssuer).keySet();
     }
 
-    public List<Patient> findPatientsAfter(IDWithIssuer pid, Date after) {
-        List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID_AFTER, Patient.class)
-                .setParameter(1, pid.getID())
-                .setParameter(2, after)
-                .getResultList();
-        Issuer issuer = pid.getIssuer();
-        return issuer != null ? removeNonMatchingIssuer(list, issuer) : list;
+    private void findPatients(Collection<IDWithIssuer> pids, IdentityHashMap<Patient, Object> withoutMatchingIssuer,
+                           IdentityHashMap<Patient, Object> withMatchingIssuer) {
+        for (IDWithIssuer pid : pids) {
+            for (PatientID patientID : findPatientIDs(pid)) {
+                (matchingIssuer(pid.getIssuer(), patientID.getIssuer()) ? withMatchingIssuer : withoutMatchingIssuer)
+                        .put(patientID.getPatient(), null);
+            }
+        }
     }
 
-    private List<Patient> removeNonMatchingIssuer(List<Patient> list, Issuer issuer) {
-        for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
-            Issuer other = it.next().getPatientID().getIssuer();
-            if (other != null && !other.matches(issuer))
-                it.remove();
-        }
-        if (list.size() > 1) {
-            List<Patient> withIssuer = list.stream()
-                    .filter(patient -> patient.getPatientID().getIssuer() != null)
-                    .collect(Collectors.toList());
-            if (withIssuer.size() > 1) {
-                withIssuer.removeIf(patient -> patient.getPatientID().getIssuer().getUniversalEntityID() == null);
-            }
-            if (!withIssuer.isEmpty()) {
-                return withIssuer;
-            }
-        }
+    private List<PatientID> findPatientIDs(IDWithIssuer pid) {
+        List<PatientID> list = em.createNamedQuery(PatientID.FIND_BY_PATIENT_ID_EAGER, PatientID.class)
+                .setParameter(1, pid.getID())
+                .getResultList();
+        if (pid.getIssuer() != null)
+            list.removeIf(id -> id.getIssuer() != null && !id.getIssuer().matches(pid.getIssuer(), true, true));
         return list;
     }
 
     public Patient createPatient(PatientMgtContext ctx) {
         ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
-        return createPatient(ctx, ctx.getPatientID(), ctx.getAttributes());
+        return createPatient(ctx, ctx.getPatientIDs(), ctx.getAttributes());
     }
 
-    private Patient createPatient(PatientMgtContext ctx, IDWithIssuer patientID, Attributes attributes) {
+    private Patient createPatient(PatientMgtContext ctx, Collection<IDWithIssuer> patientIDs, Attributes attributes) {
         Patient patient = new Patient();
         patient.setVerificationStatus(ctx.getPatientVerificationStatus());
         if (ctx.getPatientVerificationStatus() != Patient.VerificationStatus.UNVERIFIED)
             patient.setVerificationTime(new Date());
         patient.setAttributes(attributes, ctx.getAttributeFilter(), false, ctx.getFuzzyStr());
-        patient.setPatientID(createPatientID(patientID));
         em.persist(patient);
+        for (IDWithIssuer patientID : patientIDs) {
+            patient.getPatientIDs().add(createPatientID(patientID, patient));
+        }
         LOG.info("{}: Create {}", ctx, patient);
         return patient;
     }
 
     public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(ctx.getPatientID());
+        Patient pat = findPatient(ctx.getPatientIDs());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
                 logSuppressPatientCreate(ctx);
@@ -148,19 +145,19 @@ public class PatientServiceEJB {
     }
 
     private void logSuppressPatientCreate(PatientMgtContext ctx) {
-        LOG.info("{}: Suppress creation of Patient[id={}] by {}", ctx, ctx.getPatientID(), ctx.getUnparsedHL7Message().msh());
+        LOG.info("{}: Suppress creation of Patient[id={}] by {}", ctx, ctx.getPatientIDs(), ctx.getUnparsedHL7Message().msh());
     }
 
-    public Patient findPatient(IDWithIssuer pid)
+    public Patient findPatient(Collection<IDWithIssuer> pids)
             throws NonUniquePatientException, PatientMergedException {
-        List<Patient> list = findPatients(pid);
+        Collection<Patient> list = findPatients(pids);
         if (list.isEmpty())
             return null;
 
         if (list.size() > 1)
-            throw new NonUniquePatientException("Multiple Patients with ID " + pid);
+            throw new NonUniquePatientException("Multiple Patients with ID " + pids);
 
-        Patient pat = list.get(0);
+        Patient pat = list.iterator().next();
         Patient mergedWith = pat.getMergedWith();
         if (mergedWith != null)
             throw new PatientMergedException("" + pat + " merged with " + mergedWith);
@@ -170,18 +167,18 @@ public class PatientServiceEJB {
 
     public boolean unmergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientUnmergedException {
-        IDWithIssuer pid = ctx.getPatientID();
-        List<Patient> list = findPatients(pid);
+        Collection<IDWithIssuer> pids = ctx.getPatientIDs();
+        Collection<Patient> list = findPatients(pids);
         if (list.isEmpty())
             return false;
 
         if (list.size() > 1)
-            throw new NonUniquePatientException("Multiple Patients with ID : " + pid);
+            throw new NonUniquePatientException("Multiple Patients with ID : " + pids);
 
-        Patient pat = list.get(0);
+        Patient pat = list.iterator().next();
         Patient mergedWith = pat.getMergedWith();
         if (mergedWith == null)
-            throw new PatientUnmergedException("Patient is not merged : " + pid);
+            throw new PatientUnmergedException("Patient is not merged : " + pids);
 
         ctx.setAttributes(pat.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
@@ -208,15 +205,17 @@ public class PatientServiceEJB {
             attrs = newAttrs;
         } else {
             Attributes.unifyCharacterSets(attrs, newAttrs);
-            if (!attrs.updateSelected(updatePolicy, newAttrs, modified, filter.getSelection(false)))
+            if (!PatientServiceUtils.updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter))
                 return;
         }
 
-        if (ctx.getPatientID().getIssuer() != null) {
-            PatientID patientID = pat.getPatientID();
-            patientID.setIssuer(ctx.getPatientID().getIssuer());
-            em.merge(patientID);
-        }
+        updatePatientAttrs(pat, ctx, attrs, modified);
+        LOG.info("{} updated successfully.", pat);
+    }
+
+    private void updatePatientAttrs(Patient pat, PatientMgtContext ctx, Attributes attrs, Attributes modified) {
+        updatePatientIDs(pat, IDWithIssuer.pidsOf(attrs));
+
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(recordAttributeModification(ctx)
                 ? attrs.addOriginalAttributes(
@@ -226,16 +225,45 @@ public class PatientServiceEJB {
                         device.getDeviceName(),
                         modified)
                 : attrs,
-                filter, true, ctx.getFuzzyStr());
+                ctx.getAttributeFilter(), true, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
     }
 
+    public void updatePatientIDs(Patient pat, Collection<IDWithIssuer> patientIDs) {
+        Collection<IDWithIssuer> newPatientIDs = new LinkedList<>(patientIDs);
+        for (Iterator<PatientID> iter = pat.getPatientIDs().iterator(); iter.hasNext();) {
+            PatientID patientID = iter.next();
+            IDWithIssuer newPatientID = removeByID(newPatientIDs, patientID.getID());
+            if (newPatientID == null) {
+                em.remove(patientID);
+                iter.remove();
+            } else {
+                patientID.setIssuer(newPatientID.getIssuer());
+            }
+        }
+        for (IDWithIssuer newPatientID : newPatientIDs) {
+            pat.getPatientIDs().add(createPatientID(newPatientID, pat));
+        }
+    }
+
+    private static IDWithIssuer removeByID(Collection<IDWithIssuer> newPatientIDs, String id) {
+        Iterator<IDWithIssuer> iter = newPatientIDs.iterator();
+        while (iter.hasNext()) {
+            IDWithIssuer next = iter.next();
+            if (next.getID().equals(id)) {
+                iter.remove();
+                return next;
+            }
+        }
+        return null;
+    }
+
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(ctx.getPatientID());
-        Patient prev = findPatient(ctx.getPreviousPatientID());
+        Patient pat = findPatient(ctx.getPatientIDs());
+        Patient prev = findPatient(ctx.getPreviousPatientIDs());
         if (pat == null && prev == null && ctx.isNoPatientCreate()) {
             logSuppressPatientCreate(ctx);
             return null;
@@ -245,7 +273,7 @@ public class PatientServiceEJB {
         else
             updatePatient(pat, ctx);
         if (prev == null) {
-            prev = createPatient(ctx, ctx.getPreviousPatientID(), ctx.getPreviousAttributes());
+            prev = createPatient(ctx, ctx.getPreviousPatientIDs(), ctx.getPreviousAttributes());
             suppressMergedPatientDeletionAudit(ctx);
         } else {
             moveStudies(ctx, prev, pat);
@@ -254,10 +282,8 @@ public class PatientServiceEJB {
             moveUPS(prev, pat);
         }
         if (ctx.getHttpServletRequestInfo() != null) {
-            if (pat.getPatientName() != null)
-                ctx.getAttributes().setString(Tag.PatientName, VR.PN, pat.getPatientName().toString());
-            if (prev.getPatientName() != null)
-                ctx.getPreviousAttributes().setString(Tag.PatientName, VR.PN, prev.getPatientName().toString());
+            ctx.setAttributes(pat.getAttributes());
+            ctx.setPreviousAttributes(prev.getAttributes());
         }
         prev.setMergedWith(pat);
         return pat;
@@ -269,7 +295,7 @@ public class PatientServiceEJB {
 
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientAlreadyExistsException {
-        Patient pat = findPatient(ctx.getPreviousPatientID());
+        Patient pat = findPatient(ctx.getPreviousPatientIDs());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
                 logSuppressPatientCreate(ctx);
@@ -279,64 +305,45 @@ public class PatientServiceEJB {
             return createPatient(ctx);
         }
 
-        IDWithIssuer patientID = ctx.getPatientID();
-        Patient pat2 = findPatient(patientID);
-        if (pat2 == null)
-            pat.setPatientID(createPatientID(patientID));
-        else if (pat2 == pat) {
-            PatientID patientID1 = pat.getPatientID();
-            patientID1.setIssuer(patientID.getIssuer());
-            em.merge(patientID1);
-        } else
-            throw new PatientAlreadyExistsException("Patient with Patient ID " + pat2.getPatientID() + "already exists");
+        Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
+        Patient pat2 = findPatient(patientIDs);
+        if (pat2 != null && pat2 != pat)
+            throw new PatientAlreadyExistsException("Patient with Patient IDs " + pat2.getPatientIDs() + "already exists");
+        updatePatientIDAttrs(ctx, pat);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        updatePatientAttrs(ctx, pat);
         return pat;
     }
 
-    private void updatePatientAttrs(PatientMgtContext ctx, Patient pat) {
-        IDWithIssuer patientID = ctx.getPatientID();
-        Attributes patientAttrs = pat.getAttributes();
-        Attributes modified = new Attributes(patientAttrs,
-                Tag.PatientID,
-                Tag.IssuerOfPatientID,
-                Tag.IssuerOfPatientIDQualifiersSequence);
-        if (patientAttrs.getString(Tag.IssuerOfPatientID) != null) {
-            Issuer patientIDIssuer = patientID.getIssuer();
-            if (patientIDIssuer == null) {
-                patientAttrs.remove(Tag.IssuerOfPatientID);
-                patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
-            } else if (patientIDIssuer.getUniversalEntityID() == null) {
-                patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
-            }
-        }
-        pat.setAttributes(recordAttributeModification(ctx)
-                ? patientID.exportPatientIDWithIssuer(patientAttrs)
-                    .addOriginalAttributes(
-                        null,
-                        new Date(),
-                        Attributes.CORRECT,
-                        device.getDeviceName(),
-                        modified)
-                : patientID.exportPatientIDWithIssuer(patientAttrs),
-                ctx.getAttributeFilter(), true, ctx.getFuzzyStr());
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
-                .setParameter(1, pat)
-                .executeUpdate();
+    private void updatePatientIDAttrs(PatientMgtContext ctx, Patient pat) {
+        Attributes attrs = pat.getAttributes();
+        Attributes newIDAttrs = new Attributes(ctx.getAttributes());
+        setNullIfMissing(newIDAttrs, Tag.IssuerOfPatientID, VR.LO);
+        setNullIfMissing(newIDAttrs, Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+        setNullIfMissing(newIDAttrs, Tag.OtherPatientIDsSequence, VR.SQ);
+        Attributes modified = new Attributes();
+        attrs.update(Attributes.UpdatePolicy.OVERWRITE, false, newIDAttrs, modified);
+        updatePatientAttrs(pat, ctx, attrs, modified);
+    }
+
+    private static void setNullIfMissing(Attributes attrs, int tag, VR vr) {
+        if (!attrs.contains(tag)) attrs.setNull(tag, vr);
     }
 
     public Patient findPatient(PatientMgtContext ctx) {
-        IDWithIssuer patientID = ctx.getPatientID();
-        if (patientID == null) {
-            LOG.info("{}: No Patient ID in received object", ctx);
+        Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
+        if (patientIDs.isEmpty()) {
+            LOG.info("{}: No Patient IDs in received object", ctx);
             return null;
         }
 
-        List<Patient> list = findPatients(patientID);
-        if (patientID.getIssuer() == null && getArchiveDeviceExtension().isIdentifyPatientByAllAttributes()) {
+        IdentityHashMap<Patient,Object> withoutMatchingIssuer = new IdentityHashMap<>();
+        IdentityHashMap<Patient,Object> withMatchingIssuer = new IdentityHashMap<>();
+        findPatients(patientIDs, withoutMatchingIssuer, withMatchingIssuer);
+        Collection<Patient> list = (withMatchingIssuer.isEmpty() ? withoutMatchingIssuer : withMatchingIssuer).keySet();
+        if (withMatchingIssuer.isEmpty() && getArchiveDeviceExtension().isIdentifyPatientByAllAttributes()) {
             removeNonMatching(ctx, list);
             if (list.size() > 1) {
-                LOG.info("{}: Found {} Patients with ID: {} and matching attributes", ctx, list.size(), patientID);
+                LOG.info("{}: Found {} Patients with IDs: {} and matching attributes", ctx, list.size(), patientIDs);
                 return null;
             }
         }
@@ -344,14 +351,14 @@ public class PatientServiceEJB {
             return null;
 
         if (list.size() > 1) {
-            LOG.info("{}: Found {} Patients with ID: {}", ctx, list.size(), patientID);
+            LOG.info("{}: Found {} Patients with IDs: {}", ctx, list.size(), patientIDs);
             removeNonMatching(ctx, list);
             if (list.size() != 1)
                 return null;
-            LOG.info("{}: Select {} with matching attributes", ctx, list.get(0));
+            LOG.info("{}: Select {} with matching attributes", ctx, list.iterator().next());
         }
 
-        Patient pat = list.get(0);
+        Patient pat = list.iterator().next();
         Patient mergedWith = pat.getMergedWith();
         if (mergedWith == null)
             return pat;
@@ -359,7 +366,7 @@ public class PatientServiceEJB {
         HashSet<Long> patPks = new HashSet<>();
         do {
             if (!patPks.add(mergedWith.getPk())) {
-                LOG.warn("{}: Detected circular merged {}", ctx, patientID);
+                LOG.warn("{}: Detected circular merged {}", ctx, patientIDs);
                 return null;
             }
 
@@ -369,14 +376,14 @@ public class PatientServiceEJB {
         return pat;
     }
 
-    private static void removeNonMatching(PatientMgtContext ctx, List<Patient> list) {
+    private static void removeNonMatching(PatientMgtContext ctx, Collection<Patient> list) {
         Attributes attrs = ctx.getAttributes();
         int before = list.size();
         list.removeIf(p -> !attrs.matches(p.getAttributes(), false, true));
         int removed = before - list.size();
         if (removed > 0) {
-            LOG.info("{}: Found {} Patients with ID: {} but non-matching other attributes",
-                    ctx, removed, ctx.getPatientID());
+            LOG.info("{}: Found {} Patients with IDs: {} but non-matching other attributes",
+                    ctx, removed, ctx.getPatientIDs());
         }
     }
 
@@ -427,13 +434,15 @@ public class PatientServiceEJB {
                 .forEach(ups -> ups.setPatient(to));
     }
 
-    private PatientID createPatientID(IDWithIssuer idWithIssuer) {
+    private PatientID createPatientID(IDWithIssuer idWithIssuer, Patient patient) {
         if (idWithIssuer == null)
             return null;
 
         PatientID patientID = new PatientID();
+        patientID.setPatient(patient);
         patientID.setID(idWithIssuer.getID());
         patientID.setIssuer(idWithIssuer.getIssuer());
+        em.persist(patientID);
         return patientID;
     }
 
@@ -463,7 +472,7 @@ public class PatientServiceEJB {
     }
 
     public Patient updatePatientStatus(PatientMgtContext ctx) {
-        Patient pat = findPatient(ctx.getPatientID());
+        Patient pat = findPatient(ctx.getPatientIDs());
         if (pat != null) {
             pat.setVerificationStatus(ctx.getPatientVerificationStatus());
             pat.setVerificationTime(new Date());
@@ -496,22 +505,38 @@ public class PatientServiceEJB {
     }
 
     public boolean supplementIssuer(
-            PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Long> ambiguous) {
+            PatientMgtContext ctx, PatientID patientID, IDWithIssuer idWithIssuer, Map<IDWithIssuer, Long> ambiguous) {
         Long count = countPatientIDWithIssuers(idWithIssuer);
         if (count != null && count != 0L) {
             ambiguous.put(idWithIssuer, count);
             return false;
         }
 
-        PatientID patientID = patient.getPatientID();
+        patientID = em.merge(patientID);
         patientID.setIssuer(idWithIssuer.getIssuer());
-        em.merge(patientID);
+        Patient patient = patientID.getPatient();
         Attributes patAttrs = patient.getAttributes();
-        ctx.setAttributes(idWithIssuer.exportPatientIDWithIssuer(patAttrs));
-        updatePatientAttrs(ctx, patient);
+        supplementIssuer(patAttrs, idWithIssuer);
+        ctx.setAttributes(patAttrs);
+        updatePatientIDAttrs(ctx, patient);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        em.merge(patient);
         return true;
+    }
+
+    private void supplementIssuer(Attributes patAttrs, IDWithIssuer idWithIssuer) {
+        supplementIssuer1(patAttrs, idWithIssuer);
+        Sequence sequence = patAttrs.getSequence(Tag.OtherPatientIDsSequence);
+        if (sequence != null) {
+            for (Attributes item : sequence) {
+                supplementIssuer1(item, idWithIssuer);
+            }
+        }
+    }
+
+    private void supplementIssuer1(Attributes attrs, IDWithIssuer idWithIssuer) {
+        IDWithIssuer idWithIssuer0 = IDWithIssuer.pidOf(attrs);
+        if (idWithIssuer0.getIssuer() == null && idWithIssuer0.getID().equals(idWithIssuer.getID()))
+            idWithIssuer.getIssuer().toIssuerOfPatientID(attrs);
     }
 
     public Long countPatientIDWithIssuers(IDWithIssuer idWithIssuer) {
@@ -548,12 +573,12 @@ public class PatientServiceEJB {
         return em.merge(entity);
     }
 
-    public void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize,
+    public void testSupplementIssuers(CriteriaQuery<PatientID> query, int fetchSize,
             Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer) {
-        try (Stream<Patient> resultStream =
+        try (Stream<PatientID> resultStream =
                      em.createQuery(query).setHint(QueryHints.FETCH_SIZE, fetchSize).getResultStream()) {
             resultStream
-                    .map(p -> new IDWithIssuer(p.getPatientID().getID(), issuer.format(p.getAttributes())))
+                    .map(pid -> new IDWithIssuer(pid.getID(), issuer.format(pid.getPatient().getAttributes())))
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                     .forEach((idWithIssuer, count) -> {
                         if (count == 1) {
@@ -564,5 +589,45 @@ public class PatientServiceEJB {
                         } else ambiguous.put(idWithIssuer, count);
                     });
         }
+    }
+
+    public boolean deleteDuplicateCreatedPatient(Collection<IDWithIssuer> pids, Patient createdPatient, Study createdStudy) {
+        Collection<Patient> patients = findPatients(pids);
+        if (patients.size() == 1) {
+            LOG.info("No duplicate record with equal Patient ID found {}", createdPatient);
+            return false;
+        }
+
+        long createdPatientPk = createdPatient.getPk();
+        Optional<Patient> createdPatientFound =
+                patients.stream().filter(p -> p.getPk() == createdPatientPk).findFirst();
+        if (!createdPatientFound.isPresent()) {
+            LOG.warn("Failed to find created {}", createdPatient);
+            return false;
+        }
+
+        byte[] encodedAttrs = createdPatient.getEncodedAttributes();
+        Optional<Patient> otherPatientFound =
+                patients.stream().filter(p ->
+                                p.getPk() != createdPatientPk && Arrays.equals(p.getEncodedAttributes(), encodedAttrs))
+                        .findFirst();
+        if (!otherPatientFound.isPresent()) {
+            LOG.info("No duplicate record with equal Patient attributes found {}", createdPatient);
+            return false;
+        }
+
+        Patient otherPatient = otherPatientFound.get();
+        if (otherPatient.getMergedWith() != null) {
+            LOG.warn("Keep duplicate created {} because existing {} is circular merged",
+                    createdPatient, otherPatient);
+            return false;
+        }
+        LOG.info("Delete duplicate created {}", createdPatient);
+        if (createdStudy != null) {
+            em.merge(createdStudy).setPatient(otherPatient);
+            otherPatient.incrementNumberOfStudies();
+        }
+        em.remove(createdPatientFound.get());
+        return true;
     }
 }

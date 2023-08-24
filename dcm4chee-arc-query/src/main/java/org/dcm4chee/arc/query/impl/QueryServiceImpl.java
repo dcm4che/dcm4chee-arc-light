@@ -73,7 +73,6 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
-import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -362,6 +361,57 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public SeriesQueryAttributes calculateSeriesQueryAttributes(
+            Long seriesPk, Series.InstancePurgeState purgeState, String storageID, String storagePath,
+            QueryRetrieveView qrView) {
+        return purgeState == Series.InstancePurgeState.PURGED
+                ? qrView.isHideNotRejectedInstances() ? new SeriesQueryAttributes()
+                : calculateSeriesQueryAttributes(seriesPk, storageID, storagePath, qrView)
+                : calculateSeriesQueryAttributes(seriesPk, qrView);
+    }
+
+    private SeriesQueryAttributes calculateSeriesQueryAttributes(
+            Long seriesPk, String storageID, String storagePath, QueryRetrieveView qrView) {
+        int numberOfInstances = 0;
+        String[] retrieveAETs = null;
+        Availability availability = Availability.ONLINE;
+        Set<String> cuids = new HashSet<>();
+        Storage storage = storageFactory.getStorage(arcDev().getStorageDescriptorNotNull(storageID));
+        try (ZipInputStream seriesMetadataStream = openZipInputStream(storage, storagePath, null)) {
+            while (seriesMetadataStream.getNextEntry() != null) {
+                JSONReader jsonReader = new JSONReader(Json.createParser(
+                        new InputStreamReader(seriesMetadataStream, StandardCharsets.UTF_8)));
+                jsonReader.setSkipBulkDataURI(true);
+                Attributes metadata = jsonReader.readDataset(null);
+                String[] retrieveAETs1 = metadata.getStrings(Tag.RetrieveAETitle);
+                Availability availability1 = Availability.valueOf(metadata.getString(Tag.InstanceAvailability));
+                if (numberOfInstances++ == 0) {
+                    retrieveAETs = retrieveAETs1;
+                    availability = availability1;
+                } else {
+                    retrieveAETs = QueryAttributesEJB.intersection(retrieveAETs, retrieveAETs1);
+                    if (availability.compareTo(availability1) < 0)
+                        availability = availability1;
+                }
+                cuids.add(metadata.getString(Tag.SOPClassUID));
+                seriesMetadataStream.closeEntry();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        SeriesQueryAttributes queryAttrs = new SeriesQueryAttributes();
+        queryAttrs.setViewID(qrView.getViewID());
+        queryAttrs.setSeries(em.getReference(Series.class, seriesPk));
+        queryAttrs.setNumberOfInstances(numberOfInstances);
+        if (numberOfInstances > 0) {
+            queryAttrs.setSOPClassesInSeries(StringUtils.concat(cuids, '\\'));
+            queryAttrs.setRetrieveAETs(StringUtils.concat(retrieveAETs, '\\'));
+            queryAttrs.setAvailability(availability);
+        }
+        queryAttributesEJB.persist(queryAttrs);
+        return queryAttrs;
+    }
+
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
         int retries = arcDev().getStoreUpdateDBMaxRetries();
         for (;;) {
@@ -838,28 +888,36 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
+    public List<String> getDistinctInstitutions(String entity) {
+        return em.createNamedQuery(
+                entity.equals(Entity.Series.name()) ? Series.FIND_DISTINCT_INSTITUTIONS : MWLItem.FIND_DISTINCT_INSTITUTIONS,
+                        String.class)
+                .getResultList();
+    }
+
+    @Override
+    public List<Study> unknownSizeStudies(Date dt, int fetchSize) {
         return ejb.unknownSizeStudies(dt, fetchSize);
     }
 
     @Override
-    public CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys) {
+    public CriteriaQuery<PatientID> createPatientIDWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         QueryBuilder builder = new QueryBuilder(cb);
-        CriteriaQuery<Patient> q = cb.createQuery(Patient.class);
-        Root<Patient> patient = q.from(Patient.class);
+        CriteriaQuery<PatientID> q = cb.createQuery(PatientID.class);
+        Root<PatientID> patientID = q.from(PatientID.class);
+        Join<PatientID, Patient> patient = patientID.join(PatientID_.patient);
         patient.join(Patient_.attributesBlob);
-        patient.join(Patient_.patientID);
 
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(queryKeys);
-        List<Predicate> predicates = builder.patientPredicates(q, patient,
+        List<Predicate> predicates = builder.patientIDPredicates(q, patientID, patient,
                 idWithIssuer != null ? new IDWithIssuer[] { idWithIssuer } : IDWithIssuer.EMPTY,
                 null,
                 queryKeys,
                 queryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
-        q.orderBy(builder.orderPatients(patient, Collections.singletonList(OrderByTag.asc(Tag.PatientID))));
+        q.orderBy(cb.asc(patientID.get(PatientID_.id)));
         return q;
     }
 
@@ -927,12 +985,14 @@ class QueryServiceImpl implements QueryService {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+        Join<Patient, PatientID> patientID = patient.join(Patient_.patientIDs);
         List<Predicate> predicates = new ArrayList<>();
-        if (queryParam.localMwlSCPs.length > 0)
-            predicates.add(cb.or(mwlItem.get(MWLItem_.localAET).in(queryParam.localMwlSCPs)));
+        if (queryParam.localMwlWorklistLabels.length > 0)
+            predicates.add(cb.or(
+                    mwlItem.get(MWLItem_.worklistLabel).in(queryParam.localMwlWorklistLabels),
+                    cb.equal(mwlItem.get(MWLItem_.worklistLabel), "*")));
         if (queryParam.localMwlStatus.length > 0)
-            predicates.add(cb.or(mwlItem.get(MWLItem_.status).in(queryParam.localMwlStatus)));
+            predicates.add(mwlItem.get(MWLItem_.status).in(queryParam.localMwlStatus));
         if (queryParam.patientID != null)
             predicates.add(cb.equal(patientID.get(PatientID_.id), queryParam.patientID));
         if (queryParam.accessionNumber != null)

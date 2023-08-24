@@ -49,6 +49,7 @@ import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.DateRange;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
@@ -58,7 +59,6 @@ import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.mpps.MPPSContext;
-import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ImportResult;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -89,9 +89,6 @@ public class ProcedureServiceImpl implements ProcedureService {
     private ProcedureServiceEJB ejb;
 
     @Inject
-    private Event<PatientMgtContext> patientEvent;
-
-    @Inject
     private Event<ProcedureContext> procedureEvent;
 
     @Override
@@ -105,7 +102,12 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
-    public ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String destAET,
+    public Attributes getMWLItemAttrs(String studyInstanceUID, String spsID) {
+        return ejb.getMWLItemAttrs(studyInstanceUID, spsID);
+    }
+
+    @Override
+    public ImportResult importMWL(HttpServletRequestInfo request, String mwlscu, String mwlscp, String worklistLabel,
             int priority, Attributes filter, Attributes keys, boolean fuzzymatching, boolean filterbyscu,
             boolean delete, boolean simulate)
             throws Exception {
@@ -120,13 +122,15 @@ public class ProcedureServiceImpl implements ProcedureService {
             mwlItems.removeIf(item -> !item.matches(filter, false, false));
 
         Set<MWLItem.IDs> toDelete = delete
-                ? ejb.findMWLItemIDs(localAE, destAET, filter, fuzzymatching)
+                ? ejb.findMWLItemIDs(localAE, addWorklistLabel(filter, worklistLabel), fuzzymatching)
                 : Collections.emptySet();
 
         int created = 0;
         int updated = 0;
         List<Exception> exceptions = new ArrayList<>();
         for (Attributes mwlItem : mwlItems) {
+            if (worklistLabel != null)
+                mwlItem.setString(Tag.WorklistLabel, VR.LO, worklistLabel);
             MWLItem.IDs spsID = new MWLItem.IDs(
                     mwlItem.getNestedDataset(Tag.ScheduledProcedureStepSequence)
                             .getString(Tag.ScheduledProcedureStepID),
@@ -135,7 +139,6 @@ public class ProcedureServiceImpl implements ProcedureService {
             ProcedureContext ctx = createProcedureContext().setHttpServletRequest(request);
             ctx.setAttributes(mwlItem);
             ctx.setSpsID(spsID.scheduledProcedureStepID);
-            ctx.setLocalAET(destAET);
             ctx.setSourceMwlScp(mwlscp);
             try {
                 ejb.createOrUpdateMWLItem(ctx, simulate);
@@ -177,10 +180,18 @@ public class ProcedureServiceImpl implements ProcedureService {
         return new ImportResult(mwlItems.size(), created, updated, toDelete.size(), exceptions);
     }
 
+    private Attributes addWorklistLabel(Attributes filter, String worklistLabel) {
+        if (worklistLabel != null) {
+            filter = new Attributes(filter);
+            filter.setString(Tag.WorklistLabel, VR.LO, worklistLabel);
+        }
+        return filter;
+    }
+
     @Override
     public ImportResult importMWL(MWLImport rule) throws Exception {
         Attributes filter = toFilter(rule);
-        return importMWL(null, rule.getAETitle(), rule.getMWLSCP(), rule.getDestinationAE(), Priority.NORMAL,
+        return importMWL(null, rule.getAETitle(), rule.getMWLSCP(), rule.getMWLWorklistLabel(), Priority.NORMAL,
                 filter, toKeys(rule, filter), false, rule.isFilterBySCU(), rule.isDeleteNotFound(), false);
     }
 
@@ -246,7 +257,8 @@ public class ProcedureServiceImpl implements ProcedureService {
     public void deleteProcedure(ProcedureContext ctx) {
         ejb.deleteProcedure(ctx);
         if (ctx.getEventActionCode() != null) {
-            LOG.info("Successfully deleted MWLItem {} from database." + ctx.getSpsID());
+            LOG.info("Successfully deleted MWLItem [StudyUID={}, SPSID={}] from database.",
+                    ctx.getStudyInstanceUID(), ctx.getSpsID());
             procedureEvent.fire(ctx);
         }
     }
@@ -308,28 +320,32 @@ public class ProcedureServiceImpl implements ProcedureService {
         String mppsStatus = ctx.getAttributes().getString(Tag.PerformedProcedureStepStatus);
         if (mppsStatus != null) {
             MPPS mergedMPPS = ctx.getMPPS();
-            Attributes mergedMppsAttr = mergedMPPS.getAttributes();
-            Attributes ssaAttr = mergedMppsAttr.getNestedDataset(Tag.ScheduledStepAttributesSequence);
             ProcedureContext pCtx = createProcedureContext().setAssociation(ctx.getAssociation());
             pCtx.setPatient(mergedMPPS.getPatient());
-            pCtx.setAttributes(ssaAttr);
             pCtx.setSpsStatus(mppsStatus.equals("IN PROGRESS") ? SPSStatus.STARTED : SPSStatus.valueOf(mppsStatus));
             pCtx.setMppsUID(mergedMPPS.getSopInstanceUID());
-            try {
-                if (ssaAttr.getString(Tag.ScheduledProcedureStepID) != null)
-                    ejb.updateSPSStatus(pCtx);
-            } catch (RuntimeException e) {
-                pCtx.setException(e);
-                LOG.warn(e.getMessage());
-            } finally {
-                if (pCtx.getEventActionCode() == null) {
-                    pCtx.setStatus(mppsStatus);
-                    pCtx.setEventActionCode(ctx.getDimse() == Dimse.N_CREATE_RQ
-                            ? AuditMessages.EventActionCode.Create : AuditMessages.EventActionCode.Update);
-                }
-                procedureEvent.fire(pCtx);
+            for (Attributes attrs : mergedMPPS.getAttributes().getSequence(Tag.ScheduledStepAttributesSequence)) {
+                pCtx.setSpsID(attrs.getString(Tag.ScheduledProcedureStepID));
+                pCtx.setAttributes(attrs);
+                if (pCtx.getSpsID() != null)
+                    updateSPSStatus(pCtx, ctx);
             }
+        }
+    }
 
+    private void updateSPSStatus(ProcedureContext pCtx, MPPSContext ctx) {
+        try {
+            ejb.updateSPSStatus(pCtx);
+        } catch (RuntimeException e) {
+            pCtx.setException(e);
+            LOG.warn(e.getMessage());
+        } finally {
+            if (pCtx.getEventActionCode() == null) {
+                pCtx.setStatus(ctx.getAttributes().getString(Tag.PerformedProcedureStepStatus));
+                pCtx.setEventActionCode(ctx.getDimse() == Dimse.N_CREATE_RQ
+                        ? AuditMessages.EventActionCode.Create : AuditMessages.EventActionCode.Update);
+            }
+            procedureEvent.fire(pCtx);
         }
     }
 }

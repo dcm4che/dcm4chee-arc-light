@@ -52,6 +52,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
@@ -213,7 +214,7 @@ public class FailedToDeleteScheduler extends Scheduler {
         do {
             if (arcDev.getFailedToDeletePollingInterval() == null) return;
             LOG.debug("Query for deletion failures on {}", desc);
-            locations = ejb.findLocationsWithStatus(desc.getStorageID(), Location.Status.FAILED_TO_DELETE, fetchSize);
+            locations = ejb.findLocationsWithStatus(desc.getStorageID(), LocationStatus.FAILED_TO_DELETE, fetchSize);
             if (locations.isEmpty()) {
                 LOG.debug("No deletion failures found on {}", desc);
                 break;
@@ -275,7 +276,7 @@ public class FailedToDeleteScheduler extends Scheduler {
         }
     }
 
-    private static boolean inUse(Location.Status status) {
+    private static boolean inUse(LocationStatus status) {
         switch (status) {
             case TO_DELETE:
             case FAILED_TO_DELETE:

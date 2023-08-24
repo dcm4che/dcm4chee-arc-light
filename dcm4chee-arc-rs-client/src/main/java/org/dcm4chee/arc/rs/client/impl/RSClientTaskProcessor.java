@@ -68,8 +68,6 @@ public class RSClientTaskProcessor implements TaskProcessor {
                 task.getQueryString(),
                 task.getWebApplicationName(),
                 task.getPatientID(),
-                task.isTLSAllowAnyHostname(),
-                task.isTLSDisableTrustManager(),
                 task.getPayload(byte[].class));
     }
 }

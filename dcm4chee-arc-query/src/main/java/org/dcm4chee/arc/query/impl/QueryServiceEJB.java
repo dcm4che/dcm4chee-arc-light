@@ -56,6 +56,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
@@ -124,6 +125,7 @@ public class QueryServiceEJB {
                     study.get(Study_.accessControlID),
                     study.get(Study_.storageIDs),
                     study.get(Study_.size),
+                    study.get(Study_.externalRetrieveAET),
                     series.get(Series_.createdTime),
                     series.get(Series_.updatedTime),
                     series.get(Series_.modifiedTime),
@@ -150,6 +152,7 @@ public class QueryServiceEJB {
                     series.get(Series_.compressionTime),
                     series.get(Series_.compressionFailures),
                     series.get(Series_.transferSyntaxUID),
+                    series.get(Series_.externalRetrieveAET),
                     metadata.get(Metadata_.createdTime),
                     metadata.get(Metadata_.storageID),
                     metadata.get(Metadata_.storagePath),
@@ -176,8 +179,12 @@ public class QueryServiceEJB {
         Integer numberOfSeriesRelatedInstances =
                 result.get(seriesQueryAttributesPath.get(SeriesQueryAttributes_.numberOfInstances));
         if (numberOfSeriesRelatedInstances == null) {
-            SeriesQueryAttributes seriesQueryAttributes =
-                    queryService.calculateSeriesQueryAttributes(seriesPk, qrView);
+            SeriesQueryAttributes seriesQueryAttributes = queryService.calculateSeriesQueryAttributes(
+                            seriesPk,
+                            result.get(series.get(Series_.instancePurgeState)),
+                            result.get(metadata.get(Metadata_.storageID)),
+                            result.get(metadata.get(Metadata_.storagePath)),
+                            qrView);
             numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
         }
 
@@ -226,7 +233,8 @@ public class QueryServiceEJB {
                 location.get(Location_.transferSyntaxUID),
                 location.get(Location_.digest),
                 location.get(Location_.size),
-                location.get(Location_.status)
+                location.get(Location_.status),
+                location.get(Location_.multiReference)
         ).where(
                 cb.equal(location.get(Location_.instance).get(Instance_.pk), instancePk),
                 cb.equal(location.get(Location_.objectType), Location.ObjectType.DICOM_FILE)));
@@ -252,9 +260,12 @@ public class QueryServiceEJB {
                 if (results.get(location.get(Location_.digest)) != null)
                     item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest, VR.LO,
                             results.get(location.get(Location_.digest)));
-                if (results.get(location.get(Location_.status)) != Location.Status.OK)
-                    attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
+                if (results.get(location.get(Location_.status)) != LocationStatus.OK)
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
                             results.get(location.get(Location_.status)).name());
+                if (results.get(location.get(Location_.multiReference)) != null)
+                    item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference, VR.IS,
+                            results.get(location.get(Location_.multiReference)));
             }
         }
     }
@@ -304,6 +315,7 @@ public class QueryServiceEJB {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Series> series = q.from(Series.class);
+        Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
         Join<Series, Study> study = series.join(Series_.study);
         CollectionJoin<Series, SeriesQueryAttributes> seriesQueryAttributesPath =
                 QueryBuilder.joinSeriesQueryAttributes(cb, series, viewID);
@@ -313,6 +325,9 @@ public class QueryServiceEJB {
                 .multiselect(
                     series.get(Series_.pk),
                     series.get(Series_.modality),
+                    series.get(Series_.instancePurgeState),
+                    metadata.get(Metadata_.storageID),
+                    metadata.get(Metadata_.storagePath),
                     seriesQueryAttributesPath.get(SeriesQueryAttributes_.numberOfInstances))
                 .where(
                     cb.equal(study.get(Study_.studyInstanceUID), studyIUID),
@@ -327,7 +342,12 @@ public class QueryServiceEJB {
         if (numberOfSeriesRelatedInstances == null) {
             Long seriesPk = result.get(series.get(Series_.pk));
             SeriesQueryAttributes seriesQueryAttributes =
-                    queryService.calculateSeriesQueryAttributes(seriesPk, qrView);
+                    queryService.calculateSeriesQueryAttributes(
+                            seriesPk,
+                            result.get(series.get(Series_.instancePurgeState)),
+                            result.get(metadata.get(Metadata_.storageID)),
+                            result.get(metadata.get(Metadata_.storagePath)),
+                            qrView);
             numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
         }
         Attributes attrs = new Attributes(2);
@@ -505,8 +525,8 @@ public class QueryServiceEJB {
             null);
     }
 
-    public List<Tuple> unknownSizeStudies(Date dt, int fetchSize) {
-        return em.createNamedQuery(Study.FIND_PK_STUDY_UID_PID_BY_UPDATE_TIME_AND_UNKNOWN_SIZE, Tuple.class)
+    public List<Study> unknownSizeStudies(Date dt, int fetchSize) {
+        return em.createNamedQuery(Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE, Study.class)
                 .setParameter(1, dt)
                 .setMaxResults(fetchSize)
                 .getResultList();

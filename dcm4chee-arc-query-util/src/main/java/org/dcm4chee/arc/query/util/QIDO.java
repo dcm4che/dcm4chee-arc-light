@@ -40,6 +40,7 @@ package org.dcm4chee.arc.query.util;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.AttributesBuilder;
 
 import java.util.Arrays;
@@ -49,13 +50,13 @@ import java.util.Arrays;
  * @since Jul 2017
  */
 public enum QIDO {
-    PATIENT(
+    PATIENT(ByteUtils.EMPTY_INTS,
         Tag.PatientName,
         Tag.PatientID,
         Tag.PatientBirthDate,
         Tag.PatientSex
     ),
-    STUDY(
+    STUDY(new int[] { Tag.StudyInstanceUID },
         Tag.StudyDate,
         Tag.StudyTime,
         Tag.AccessionNumber,
@@ -70,7 +71,7 @@ public enum QIDO {
         Tag.NumberOfStudyRelatedSeries,
         Tag.NumberOfStudyRelatedInstances
     ),
-    SERIES(
+    SERIES(new int[] { Tag.SeriesInstanceUID },
         Tag.Modality,
         Tag.SeriesDescription,
         Tag.SeriesNumber,
@@ -80,7 +81,7 @@ public enum QIDO {
         Tag.PerformedProcedureStepStartTime,
         Tag.RequestAttributesSequence
     ),
-    INSTANCE(
+    INSTANCE(new int[] { Tag.SOPInstanceUID },
         Tag.SOPClassUID,
         Tag.SOPInstanceUID,
         Tag.AvailableTransferSyntaxUID,
@@ -90,7 +91,7 @@ public enum QIDO {
         Tag.BitsAllocated,
         Tag.NumberOfFrames
     ),
-    MWL(
+    MWL(ByteUtils.EMPTY_INTS,
         Tag.AccessionNumber,
         Tag.ReferringPhysicianName,
         Tag.ReferencedStudySequence,
@@ -118,7 +119,8 @@ public enum QIDO {
         Tag.RequestedProcedureID,
         Tag.RequestedProcedurePriority,
         Tag.PatientTransportArrangements,
-        Tag.ConfidentialityConstraintOnPatientDataDescription
+        Tag.ConfidentialityConstraintOnPatientDataDescription,
+        Tag.WorklistLabel
     ) {
         @Override
         public void addReturnTags(QueryAttributes queryAttributes) {
@@ -128,7 +130,7 @@ public enum QIDO {
                 AttributesBuilder.setNullIfAbsent(spsKeys, MWL_SPS.includetags);
         }
     },
-    MPPS(
+    MPPS(new int[] { Tag.SOPInstanceUID },
         Tag.SOPClassUID,
         Tag.SOPInstanceUID,
         Tag.Modality,
@@ -156,7 +158,7 @@ public enum QIDO {
         Tag.ScheduledStepAttributesSequence,
         Tag.PerformedSeriesSequence
     ),
-    UPS(
+    UPS(new int[] { Tag.SOPInstanceUID },
         Tag.SOPClassUID,
         Tag.SOPInstanceUID,
         Tag.AdmittingDiagnosesDescription,
@@ -192,10 +194,13 @@ public enum QIDO {
         Tag.ScheduledProcessingParametersSequence,
         Tag.UnifiedProcedureStepPerformedProcedureSequence
     ),
-    STUDY_SERIES(catAndSort(STUDY.includetags, SERIES.includetags)),
-    STUDY_SERIES_INSTANCE(catAndSort(STUDY.includetags, SERIES.includetags, INSTANCE.includetags)),
-    SERIES_INSTANCE(catAndSort(SERIES.includetags, INSTANCE.includetags)),
-    MWL_SPS(
+    STUDY_SERIES(new int[] { Tag.StudyInstanceUID, Tag.SeriesInstanceUID },
+            catAndSort(STUDY.includetags, SERIES.includetags)),
+    STUDY_SERIES_INSTANCE(new int[] { Tag.SOPInstanceUID, Tag.StudyInstanceUID, Tag.SeriesInstanceUID },
+            catAndSort(STUDY.includetags, SERIES.includetags, INSTANCE.includetags)),
+    SERIES_INSTANCE(new int[] { Tag.SOPInstanceUID, Tag.SeriesInstanceUID  },
+            catAndSort(SERIES.includetags, INSTANCE.includetags)),
+    MWL_SPS(ByteUtils.EMPTY_INTS,
         Tag.Modality,
         Tag.AnatomicalOrientationType,
         Tag.RequestedContrastAgent,
@@ -212,9 +217,11 @@ public enum QIDO {
         Tag.PreMedication
     );
 
+    public final int[] uids;
     public final int[] includetags;
 
-    QIDO(int... includetags) {
+    QIDO(int[] uids, int... includetags) {
+        this.uids = uids;
         this.includetags = includetags;
     }
 

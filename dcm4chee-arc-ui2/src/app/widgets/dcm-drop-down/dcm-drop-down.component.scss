@@ -24,8 +24,9 @@
         border: 0;
         padding-left: 0;
         height: 30px;
-        border-bottom: 1px solid #ccc;
+        //border-bottom: 1px solid #ccc;
         outline: none;
+        background:transparent;
         &:focus{
           outline: none;
         }
@@ -100,8 +101,22 @@
         background: rgba(28, 36, 43, 0.1);
       }
     }
+    .add_block{
+      input{
+        margin-left: 30px;
+        width: calc( 100% - 60px );
+      }
+      .glyphicon-plus{
+        width: 30px;
+        text-align: center;
+        line-height: 25px;
+        height: 28px;
+        color: white;
+        background: rgb(28 36 43 / 92%);
+      }
+    }
   }
-  .search_block{
+  .search_block,.add_block{
     width: 100%;
     height: 30px;
     float: left;
@@ -119,7 +134,12 @@
       margin: 8px 0px;
     }
   }
+
   &.single_mode{
+    input{
+      margin-left: 30px;
+      width: calc( 100% - 30px );
+    }
     .search_block{
       input[type=text]{
         width: calc(100% - 4px);

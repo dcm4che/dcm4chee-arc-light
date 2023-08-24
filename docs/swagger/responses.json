@@ -251,6 +251,87 @@
       }
     }
   },
+  "updateMatchingSuccessful": {
+    "description": "Successfully updated all matching Studies/Series",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "name": "Number of matching Studies/Series",
+              "type": "integer"
+            },
+            "updated": {
+              "name": "Number of updated Studies/Series",
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "updateMatchingWarnings": {
+    "description": "Updated some of the matching Studies/Series but warnings or failures exist for others.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "name": "Number of matching Studies/Series",
+              "type": "integer"
+            },
+            "updated": {
+              "name": "Number of updated Studies/Series",
+              "type": "integer"
+            },
+            "failed": {
+              "name": "Number of failures to update Studies/Series",
+              "type": "integer"
+            },
+            "error": {
+              "name": "Error message",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "updateMatchingFailed": {
+    "description": "Update of matching Studies/Series failed.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "name": "Number of matching Studies/Series",
+              "type": "integer"
+            },
+            "failed": {
+              "name": "Number of failures to update Studies/Series",
+              "type": "integer"
+            },
+            "error": {
+              "name": "Error message",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
   "storeInstancesSuccessful": {
     "description": "Successfully stored all Instances.",
     "content": {
@@ -328,6 +409,25 @@
       "application/json": {
         "schema": {
           "$ref": "schemas.json#/restoreFromMetadataResult"
+        }
+      }
+    }
+  },
+  "restorePurgedInstanceRecords": {
+    "description": "Successfully restored purged DB records.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "description": "Number of restored Instance Records",
+              "type": "integer"
+            }
+          }
         }
       }
     }
@@ -919,19 +1019,11 @@
         "schema": {
           "type": "object",
           "required": [
-            "dicomDeviceName",
-            "management-http-port",
-            "management-https-port"
+            "dicomDeviceName"
           ],
           "properties": {
             "dicomDeviceName": {
               "type": "string"
-            },
-            "management-http-port": {
-              "type": "integer"
-            },
-            "management-https-port": {
-              "type": "integer"
             },
             "xRoad": {
               "type": "boolean"
@@ -988,6 +1080,27 @@
           ],
           "properties": {
             "Modalities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "institutions": {
+    "description": "List of Distinct Institutions",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "Institutions"
+          ],
+          "properties": {
+            "Institutions": {
               "type": "array",
               "items": {
                 "type": "string"

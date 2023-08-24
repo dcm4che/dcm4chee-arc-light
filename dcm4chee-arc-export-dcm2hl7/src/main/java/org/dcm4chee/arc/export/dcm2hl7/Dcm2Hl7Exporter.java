@@ -106,7 +106,7 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
                     "Unknown Receiving HL7 Application : " + receivingAppFacility);
         }
 
-        return scheduleMessage(exportContext, sender, receiver);
+        return scheduleMessage(exportContext, sender, sendingAppFacility, receiver);
     }
 
     private static String[][] parseSendingAndReceivingApplicationAndFacility(String schemeSpecificPart) {
@@ -123,7 +123,8 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
         return null;
     }
 
-    private Outcome scheduleMessage(ExportContext exportContext, HL7Application sender, HL7Application receiver)
+    private Outcome scheduleMessage(
+            ExportContext exportContext, HL7Application sender, String sendingAppWithFacility, HL7Application receiver)
             throws Exception {
         String xslStylesheetURI = descriptor.getProperties().get("XSLStylesheetURI");
         if (xslStylesheetURI == null)
@@ -143,7 +144,7 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
         if (!retrieveService.calculateMatches(ctx))
             return new Outcome(Task.Status.WARNING, noMatches(exportContext));
 
-        ArchiveHL7Message hl7Msg = hl7Message(sender, receiver, ctx, msgType, xslStylesheetURI);
+        ArchiveHL7Message hl7Msg = hl7Message(sender, sendingAppWithFacility, receiver, ctx, msgType, xslStylesheetURI);
         HL7Message hl7MsgRsp = parseRsp(hl7Sender.sendMessage(sender, receiver, hl7Msg));
         return new Outcome(statusOf(hl7MsgRsp), hl7MsgRsp.toString());
     }
@@ -160,9 +161,10 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
         return HL7Message.parse(hl7MsgRsp.unescapeXdddd(), charset);
     }
 
-    private ArchiveHL7Message hl7Message(HL7Application sender, HL7Application receiver, RetrieveContext ctx,
-                                     String msgType, String uri) throws Exception {
-        byte[] data = HL7SenderUtils.data(sender, receiver, ctx.getMatches().get(0).getAttributes(), null,
+    private ArchiveHL7Message hl7Message(HL7Application sender, String sendingAppWithFacility, HL7Application receiver,
+                                         RetrieveContext ctx, String msgType, String uri) throws Exception {
+        byte[] data = HL7SenderUtils.data(sender, sendingAppWithFacility, receiver,
+                                        ctx.getMatches().get(0).getAttributes(), null,
                                         msgType, uri, null, null);
         ArchiveHL7Message hl7Msg = new ArchiveHL7Message(data);
         hl7Msg.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());

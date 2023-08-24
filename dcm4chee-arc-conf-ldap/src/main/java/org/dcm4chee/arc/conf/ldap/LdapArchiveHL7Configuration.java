@@ -67,8 +67,10 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
             return;
 
         attrs.get("objectclass").add("dcmArchiveHL7Application");
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI",
+                ext.getPatientUpdateTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportTemplateURI",
+                ext.getImportReportTemplateURI(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ImportReportTemplateParam",
                 ext.getImportReportTemplateParams());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduleProcedureTemplateURI",
@@ -78,7 +80,6 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ErrorLogFilePattern",
                 ext.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", ext.getAETitle(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDestinationAE", ext.getDestinationAE(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRecordAttributeModification",
                 ext.getRecordAttributeModification(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledProtocolCodeInOrder",
@@ -87,6 +88,9 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 ext.getHL7ScheduledStationAETInOrder(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7UseNullValue", ext.getHL7UseNullValue(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PrimaryAssigningAuthorityOfPatientID",
+                ext.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OtherPatientIDs", ext.getHL7OtherPatientIDs(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderMissingStudyIUIDPolicy",
                 ext.getHL7OrderMissingStudyIUIDPolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderMissingAdmissionIDPolicy",
@@ -97,10 +101,14 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 ext.getHl7ImportReportMissingAdmissionIDPolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportMissingStudyIUIDCFindSCP",
                 ext.getHl7ImportReportMissingStudyIUIDCFindSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportAdjustIUID",
+                ext.getHl7ImportReportAdjustIUID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7VeterinaryUsePatientName",
                 ext.getHl7VeterinaryUsePatientName(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLWorklistLabel",
+                ext.getMWLWorklistLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLAccessionNumberGenerator",
                 ext.getMWLAccessionNumberGenerator(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLRequestedProcedureIDGenerator",
@@ -147,7 +155,6 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         ext.setHL7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
         ext.setHL7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
-        ext.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
         ext.setRecordAttributeModification(LdapUtils.booleanValue(
                 attrs.get("dcmRecordAttributeModification"), null));
         ext.setHL7ScheduledProtocolCodeInOrder(LdapUtils.enumValue(ScheduledProtocolCodeInOrder.class,
@@ -156,6 +163,10 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 attrs.get("hl7ScheduledStationAETInOrder"), null));
         ext.setHL7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
         ext.setHL7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), null));
+        ext.setHL7PrimaryAssigningAuthorityOfPatientID(LdapArchiveConfiguration.toIssuer(
+                LdapUtils.stringValue(attrs.get("hl7PrimaryAssigningAuthorityOfPatientID"), null)));
+        ext.setHL7OtherPatientIDs(LdapUtils.enumValue(HL7OtherPatientIDs.class,
+                attrs.get("hl7OtherPatientIDs"), null));
         ext.setHL7OrderMissingStudyIUIDPolicy(LdapUtils.enumValue(HL7OrderMissingStudyIUIDPolicy.class,
                 attrs.get("hl7OrderMissingStudyIUIDPolicy"), null));
         ext.setHl7OrderMissingAdmissionIDPolicy(LdapUtils.enumValue(HL7OrderMissingAdmissionIDPolicy.class,
@@ -166,9 +177,12 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 attrs.get("hl7ImportReportMissingAdmissionIDPolicy"), null));
         ext.setHl7ImportReportMissingStudyIUIDCFindSCP(LdapUtils.stringValue(
                 attrs.get("hl7ImportReportMissingStudyIUIDCFindSCP"), null));
+        ext.setHl7ImportReportAdjustIUID(LdapUtils.enumValue(HL7ImportReportAdjustIUID.class,
+                attrs.get("hl7ImportReportAdjustIUID"), null));
         ext.setHl7DicomCharacterSet(LdapUtils.stringValue(attrs.get("hl7DicomCharacterSet"), null));
         ext.setHl7VeterinaryUsePatientName(LdapUtils.booleanValue(attrs.get("hl7VeterinaryUsePatientName"), null));
         ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
+        ext.setMWLWorklistLabel(LdapUtils.stringValue(attrs.get("dcmMWLWorklistLabel"), null));
         ext.setMWLAccessionNumberGenerator(LdapUtils.stringValue(attrs.get("dcmMWLAccessionNumberGenerator"), null));
         ext.setMWLRequestedProcedureIDGenerator(
                 LdapUtils.stringValue(attrs.get("dcmMWLRequestedProcedureIDGenerator"), null));
@@ -230,8 +244,6 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern",
                 aa.getHL7ErrorLogFilePattern(), bb.getHL7ErrorLogFilePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDestinationAE",
-                aa.getDestinationAE(), bb.getDestinationAE(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRecordAttributeModification",
                 aa.getRecordAttributeModification(), bb.getRecordAttributeModification(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledProtocolCodeInOrder",
@@ -242,6 +254,12 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHL7NoPatientCreateMessageTypes(), bb.getHL7NoPatientCreateMessageTypes());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7UseNullValue",
                 aa.getHL7UseNullValue(), bb.getHL7UseNullValue(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PrimaryAssigningAuthorityOfPatientID",
+                aa.getHL7PrimaryAssigningAuthorityOfPatientID(),
+                bb.getHL7PrimaryAssigningAuthorityOfPatientID(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OtherPatientIDs",
+                aa.getHL7OtherPatientIDs(), bb.getHL7OtherPatientIDs(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderMissingStudyIUIDPolicy",
                 aa.getHL7OrderMissingStudyIUIDPolicy(), bb.getHL7OrderMissingStudyIUIDPolicy(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderMissingAdmissionIDPolicy",
@@ -254,11 +272,15 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHl7ImportReportMissingStudyIUIDCFindSCP(),
                 bb.getHl7ImportReportMissingStudyIUIDCFindSCP(),
                 null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportAdjustIUID",
+                aa.getHl7ImportReportAdjustIUID(), bb.getHl7ImportReportAdjustIUID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7DicomCharacterSet",
                 aa.getHl7DicomCharacterSet(), bb.getHl7DicomCharacterSet(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7VeterinaryUsePatientName",
                 aa.getHl7VeterinaryUsePatientName(), bb.getHl7VeterinaryUsePatientName(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7ORUAction", aa.getHl7ORUAction(), bb.getHl7ORUAction());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLWorklistLabel",
+                aa.getMWLWorklistLabel(), bb.getMWLWorklistLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLAccessionNumberGenerator",
                 aa.getMWLAccessionNumberGenerator(), bb.getMWLAccessionNumberGenerator(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLRequestedProcedureIDGenerator",

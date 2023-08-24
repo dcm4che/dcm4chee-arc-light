@@ -142,6 +142,56 @@ export class j4care {
             return true;
         return false;
     }
+    static getOrNone(obj,path,defaultReturn?){
+        if(this.hasSet(obj,path)){
+            return _.get(obj,path);
+        }else{
+            if(defaultReturn != undefined){
+                return defaultReturn;
+            }
+            return "";
+        }
+    }
+    static hasBiggerAs(obj,path,value){
+        try{
+            return this.hasSet(obj,path) && _.get(obj,path) > value;
+        }catch (e) {
+            return false;
+        }
+    }
+
+    static getStudyInstanceUID(object){
+        try{
+            return _.get(object, "0020000D.Value[0]");
+        }catch (e) {
+            return undefined;
+        }
+    }
+
+    //Will merge multiple elements in the array at the position "position"
+    static mergeArrayAtPosition(array:any[], position:number, placesToMerge:number = 1, joinSpace:string = ""){
+        try{
+            return [array.slice(position, placesToMerge+1).join(joinSpace),...array.slice(position + placesToMerge + 1, array.length)]
+        }catch (e) {}
+    }
+
+    static checkInPath(object:Object,path:string, checkFunction:Function):boolean{
+        try{
+            if(_.hasIn(object,path)){
+                return checkFunction(_.get(object,path))
+            }
+            return false;
+        }catch (e) {
+            return false;
+        }
+    }
+    static hasSmallerAs(obj,path,value){
+        try{
+            return this.hasSet(obj,path) && _.get(obj,path) > value;
+        }catch (e) {
+            return false;
+        }
+    }
     static isDate(input){
         try{
             if(input && !isNaN((new Date(input)).getTime()) && typeof input != "number"){
@@ -488,8 +538,8 @@ export class j4care {
     }
 
     static extractDateTimeFromString(str):RangeObject{
-        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}$|^\d{14}.\d{1,3}|^\d{6}.\d{1,3}$/m;
-        const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)|(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}).(\d{1,3})|(\d{2})(\d{2})(\d{2}).(\d{1,3})/g;
+        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}$|^\d{14}.\d{1,3}|^\d{6}.\d{1,6}$/m;
+        const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)|(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}).(\d{1,3})|(\d{2})(\d{2})(\d{2}).(\d{1,6})/g;
         let matchString = checkRegex.exec(str);
         let match;
         let resultArray = [];
@@ -897,13 +947,13 @@ export class j4care {
     static objToUrlParams(filter, addQuestionMarktPrefix?:boolean){
         try{
             if(filter){
-                let filterMaped = Object.keys(filter).map((key) => {
+                let filterMapped = Object.keys(filter).map((key) => {
                     if (filter[key] || filter[key] === false || filter[key] === 0){
                         console.log("trimmed",filter[key]);
                         return key + '=' + (typeof filter[key] === "string" ? filter[key].trim() : filter[key]);
                     }
                 });
-                let filterCleared = _.compact(filterMaped);
+                let filterCleared = _.compact(filterMapped);
                 return (addQuestionMarktPrefix && filterCleared && filterCleared.length > 0 ? "?" : "") + filterCleared.join('&');
             }
             return "";
@@ -1243,7 +1293,7 @@ export class j4care {
         }
     }
 
-    static getDifferenceTime(starttime, endtime,mode?){
+    static getDifferenceTime(starttime, endtime, mode?){
         let start = new Date(starttime).getTime();
         let end = new Date(endtime).getTime();
         if (!start || !end || end < start){
@@ -1254,11 +1304,14 @@ export class j4care {
     };
 
     static msToTimeSimple(duration,mode?) {
-        if(mode)
+        if(mode){
             if(mode === "sec")
                 return ((duration*6 / 6000).toFixed(4)).toString() + ' s';
             else
                 return ((duration / 60000).toFixed(4)).toString() + ' min';
+        }else{
+            return this.msToTime(duration);
+        }
     }
     static msToTime(duration) {
         if (duration > 999){
@@ -1587,6 +1640,29 @@ export class j4care {
             top: rect.top + document.body.scrollTop,
             left: rect.left + document.body.scrollLeft
         }
+    }
+
+    static prepareCountMessageUpdateMatching(preMessage:string, returnedObject:any) {
+        let msg = "<br>\n";
+        try{
+            if(_.hasIn(returnedObject,"updated")){
+                msg += $localize `:@@preparemsg.updated:- updated successfully for \:${returnedObject.updated}:@@updated:<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"failed")){
+                msg += $localize `:@@preparemsg.failed:- failed to update for \:${returnedObject.failed}:@@failed:<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"count")
+                && !(_.hasIn(returnedObject,"failed"))
+                    && !(_.hasIn(returnedObject,"updated"))) {
+                msg += $localize `:@@preparemsg.noop:- resulted in No Op for \:${returnedObject.count}:@@count:<br>\n`;
+            }
+            if(_.hasIn(returnedObject,"error")){
+                msg += $localize `:@@preparemsg.error:Error\:${returnedObject.error}:@@error:<br>\n`;
+            }
+        }catch (e) {
+            msg = "";
+        }
+        return `${preMessage}${msg != "" ? ':':''}${msg}`;
     }
 
     static prepareCountMessage(preMessage:string, returnedObject:any){

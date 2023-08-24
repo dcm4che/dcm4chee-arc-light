@@ -45,11 +45,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.PDQServiceDescriptor;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.pdq.PDQService;
@@ -62,7 +66,9 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -153,9 +159,9 @@ public class PatientVerificationScheduler extends Scheduler {
                 fetchSize, adjustIssuerOfPatientID));
     }
 
-    private boolean verifyPatients(PDQService pdqService, List<Patient.IDWithPkAndVerificationStatus> patients, int fetchSize,
+    private boolean verifyPatients(PDQService pdqService, List<Patient> patients, int fetchSize,
                                    boolean adjustIssuerOfPatientID) {
-        for (Patient.IDWithPkAndVerificationStatus patient : patients) {
+        for (Patient patient : patients) {
             try {
                 if (ejb.claimPatientVerification(patient))
                     verifyPatient(pdqService, patient, adjustIssuerOfPatientID);
@@ -166,16 +172,17 @@ public class PatientVerificationScheduler extends Scheduler {
         return patients.size() == fetchSize;
     }
 
-    private void verifyPatient(PDQService pdqService, Patient.IDWithPkAndVerificationStatus patient,
+    private void verifyPatient(PDQService pdqService, Patient patient,
                                boolean adjustIssuerOfPatientID) {
         PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
-        ctx.setPatientID(patient.idWithIssuer);
+        ctx.setPatient(patient);
         ctx.setPDQServiceURI(pdqService.getPDQServiceDescriptor().getPDQServiceURI().toString());
         Attributes attrs;
+        IDWithIssuer idWithIssuer = patient.getPatientIDs().iterator().next().getIDWithIssuer();
         try {
             PDQServiceContext pdqServiceCtx = new PDQServiceContext(adjustIssuerOfPatientID
-                                                ? patient.idWithIssuer.withoutIssuer()
-                                                : patient.idWithIssuer);
+                                                ? idWithIssuer.withoutIssuer()
+                                                : idWithIssuer);
             pdqServiceCtx.setSearchMethod(PDQServiceContext.SearchMethod.PatientVerificationScheduler);
             attrs = pdqService.query(pdqServiceCtx);
         } catch (PDQServiceException e) {
@@ -192,8 +199,8 @@ public class PatientVerificationScheduler extends Scheduler {
         }
         ctx.setAttributes(attrs);
         ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
-        if (adjustIssuerOfPatientID && !ctx.getPatientID().equals(patient.idWithIssuer)) {
-            ctx.setPreviousAttributes(patient.idWithIssuer.exportPatientIDWithIssuer(null));
+        if (adjustIssuerOfPatientID && !ctx.getPatientIDs().equals(patient.getPatientIDs())) {
+            ctx.setPreviousAttributes(PatientService.exportPatientIDsWithIssuer(patient.getPatientIDs()));
             patientService.changePatientID(ctx);
             LOG.info("Updated {} on verification against {}",
                     patient,

@@ -496,9 +496,7 @@ public class QidoRS {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
             ctx.setReturnKeys(queryAttrs.isIncludeAll()
                     ? null
-                    : includeDefaults() || queryAttrs.getQueryKeys().isEmpty()
-                    ? queryAttrs.getReturnKeys(qido.includetags)
-                    : queryAttrs.getQueryKeys());
+                    : queryAttrs.getReturnKeys(includeDefaults() ? qido.includetags : qido.uids));
             Date lastModified = null;
             if (etag && arcAE.qidoETag()) {
                 LOG.debug("Query Last Modified date of {}", model);
@@ -1037,7 +1035,8 @@ public class QidoRS {
                 return allNonSeqTags(match,
                                     tags,
                                     arcDev.getAttributeFilter(Entity.Study).getSelection(),
-                                    new int[] { Tag.NumberOfPatientRelatedStudies,
+                                    new int[] { Tag.ModalitiesInStudy,
+                                                Tag.NumberOfPatientRelatedStudies,
                                                 Tag.NumberOfStudyRelatedSeries,
                                                 Tag.NumberOfStudyRelatedInstances });
             case SERIES:
@@ -1104,7 +1103,10 @@ public class QidoRS {
         try {
             for (int tag : tags)
                 try {
-                    printer.print(match.getString(tag));
+                    if (tag == Tag.ModalitiesInStudy) {
+                        printer.print(String.join("\\", match.getStrings(tag)));
+                    } else
+                        printer.print(match.getString(tag));
                 } catch (IOException e) {
                     LOG.debug("Error printing record for {}", tag);
                 }

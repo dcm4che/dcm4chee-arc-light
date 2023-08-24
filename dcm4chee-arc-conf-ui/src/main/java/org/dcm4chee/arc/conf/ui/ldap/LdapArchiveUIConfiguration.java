@@ -99,6 +99,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         storeDashboardConfigs(diffs, uiConfig, uiConfigDN);
         storeElasticsearchConfigs(diffs, uiConfig, uiConfigDN);
         storeLanguageConfigs(diffs, uiConfig, uiConfigDN);
+        storeLTableConfigs(diffs, uiConfig, uiConfigDN);
         storeDeviceURL(diffs, uiConfig, uiConfigDN);
         storeDeviceCluster(diffs, uiConfig, uiConfigDN);
         storeFiltersTemplate(diffs, uiConfig, uiConfigDN);
@@ -116,9 +117,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiXDSInterfaceURL", uiConfig.getXdsUrl(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiBackgroundURL", uiConfig.getBackgroundUrl(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiDateTimeFormat", uiConfig.getDateTimeFormat(),null);
+        LdapUtils.storeNotDef(ldapObj,attrs, "dcmuiHideClock", uiConfig.isHideClock(),false);
+        LdapUtils.storeNotDef(ldapObj,attrs, "dcmuiHideOtherPatientIDs", uiConfig.isHideOtherPatientIDs(),false);
+        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiPageTitle", uiConfig.getPageTitle(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiPersonNameFormat", uiConfig.getPersonNameFormat(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
+        LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiInstitutionNameFilterType", uiConfig.getInstitutionNameFilterType(),null);
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiInstitutionName", uiConfig.getInstitutionNames());
         return attrs;
     }
 
@@ -383,6 +390,18 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             config.createSubcontext(uiLanguageProfileDN, storeTo(ldapObj, uiLanguageProfile, new BasicAttributes(true)));
         }
     }
+    private void storeTableColumns(ConfigurationChanges diffs, String uiTableConfigDN, UITableConfig uiTableConfig)
+            throws NamingException {
+        for (UITableColumn uiTableColumn : uiTableConfig.getTableColumns()) {
+            String uiTableColumnDN = LdapUtils.dnOf("dcmuiColumnName", uiTableColumn.getColumnName(), uiTableConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj = ConfigurationChanges.addModifiedObjectIfVerbose(
+                    diffs,
+                    uiTableColumnDN,
+                    ConfigurationChanges.ChangeType.C
+            );
+            config.createSubcontext(uiTableColumnDN, storeTo(ldapObj, uiTableColumn, new BasicAttributes(true)));
+        }
+    }
 
     private void storeLanguageConfigs(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN)
             throws NamingException {
@@ -392,6 +411,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                     ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiLanguageConfigDN, ConfigurationChanges.ChangeType.C);
             config.createSubcontext(uiLanguageConfigDN, storeTo(ldapObj1, uiLanguageConfig, new BasicAttributes(true)));
             storeLanguageProfiles(diffs, uiLanguageConfigDN, uiLanguageConfig);
+        }
+    }
+    private void storeLTableConfigs(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UITableConfig uiTableConfig : uiConfig.getTableConfigs()) {
+            String uiTableConfigDN = LdapUtils.dnOf("dcmuiTableConfigName", uiTableConfig.getName(), uiConfigDN);
+            ConfigurationChanges.ModifiedObject ldapObj1 = ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiTableConfigDN, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(uiTableConfigDN, storeTo(ldapObj1, uiTableConfig, new BasicAttributes(true)));
+            storeTableColumns(diffs, uiTableConfigDN, uiTableConfig);
         }
     }
 
@@ -432,6 +460,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmLanguages", uiLanguageConfig.getLanguages());
         return attrs;
     }
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UITableConfig tableConfig, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiTableConfig"));
+        attrs.put(new BasicAttribute("dcmTableConfigName", tableConfig.getName()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiTableConfigUsername", tableConfig.getUsername());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiTableConfigRoles", tableConfig.getRoles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiTableID", tableConfig.getTableId(), null);
+        LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiTableConfigIsDefault",tableConfig.isDefault(),false);
+        return attrs;
+    }
 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIElasticsearchURL uiElasticsearchURL, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiElasticsearchURLObjects"));
@@ -448,6 +485,17 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultLanguage", uiLanguageProfile.getDefaultLanguage(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiLanguageProfileRole", uiLanguageProfile.getAcceptedUserRoles());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiLanguageProfileUsername", uiLanguageProfile.getUserName(), null);
+        return attrs;
+    }
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UITableColumn uiTableColumn, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiTableColumnConfigObjects"));
+        attrs.put(new BasicAttribute("dcmuiColumnName", uiTableColumn.getColumnName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiColumnId", uiTableColumn.getColumnId(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiColumnTitle", uiTableColumn.getColumnTitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiValuePath", uiTableColumn.getValuePath(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiValueType", uiTableColumn.getValueType(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiColumnWidth", uiTableColumn.getColumnWidth(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmuiColumnOrder", uiTableColumn.getColumnOrder(), 0);
         return attrs;
     }
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UICompareSide uiCompareSide, Attributes attrs) {
@@ -488,14 +536,21 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setXdsUrl(LdapUtils.stringValue(attrs.get("dcmuiXDSInterfaceURL"),null));
         uiConfig.setBackgroundUrl(LdapUtils.stringValue(attrs.get("dcmuiBackgroundURL"),null));
         uiConfig.setDateTimeFormat(LdapUtils.stringValue(attrs.get("dcmuiDateTimeFormat"),null));
+        uiConfig.setHideClock(LdapUtils.booleanValue(attrs.get("dcmuiHideClock"),false));
+        uiConfig.setHideOtherPatientIDs(LdapUtils.booleanValue(attrs.get("dcmuiHideOtherPatientIDs"),false));
+        uiConfig.setPageTitle(LdapUtils.stringValue(attrs.get("dcmuiPageTitle"),null));
         uiConfig.setPersonNameFormat(LdapUtils.stringValue(attrs.get("dcmuiPersonNameFormat"),null));
         uiConfig.setLogoUrl(LdapUtils.stringValue(attrs.get("dcmuiLogoURL"),null));
         uiConfig.setDefaultWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiDefaultWidgetAets")));
+        uiConfig.setMWLWorklistLabels(LdapUtils.stringArray(attrs.get("dcmuiMWLWorklistLabel")));
+        uiConfig.setInstitutionNameFilterType(LdapUtils.stringValue(attrs.get("dcmuiInstitutionNameFilterType"), null));
+        uiConfig.setInstitutionNames(LdapUtils.stringArray(attrs.get("dcmuiInstitutionName")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
         loadElasticsearchConfigs(uiConfig, uiConfigDN);
         loadLanguageConfigs(uiConfig, uiConfigDN);
+        loadTableConfigs(uiConfig, uiConfigDN);
         loadDeviceURLs(uiConfig, uiConfigDN);
         loadDeviceClusters(uiConfig, uiConfigDN);
         loadFilterTemplates(uiConfig, uiConfigDN);
@@ -765,6 +820,26 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             LdapUtils.safeClose(ne);
         }
     }
+    private void loadTableConfigs(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiTableConfig)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UITableConfig uiTableConfig = new UITableConfig((String) attrs.get("dcmuiTableConfigName").get());
+                String uiTableConfigDN = LdapUtils.dnOf("dcmuiTableConfigName" , uiTableConfig.getName(), uiConfigDN);
+                uiTableConfig.setUsername(LdapUtils.stringArray(attrs.get("dcmuiTableConfigUsername")));
+                uiTableConfig.setRoles(LdapUtils.stringArray(attrs.get("dcmuiTableConfigRoles")));
+                uiTableConfig.setTableId(LdapUtils.stringValue(attrs.get("dcmuiTableID"),null));
+                uiTableConfig.setDefault(LdapUtils.booleanValue(attrs.get("dcmuiTableConfigIsDefault"),false));
+                loadTableColumn(uiTableConfig, uiTableConfigDN);
+                uiConfig.addTableConfig(uiTableConfig);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
     private void loadLanguageProfile(UILanguageConfig uiLanguageConfig, String uiLanguageConfigDN) throws NamingException {
         NamingEnumeration<SearchResult> ne =
                 config.search(uiLanguageConfigDN, "(objectclass=dcmuiLanguageProfileObjects)");
@@ -777,6 +852,26 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiLanguageProfile.setAcceptedUserRoles(LdapUtils.stringArray(attrs.get("dcmuiLanguageProfileRole")));
                 uiLanguageProfile.setUserName(LdapUtils.stringValue(attrs.get("dcmuiLanguageProfileUsername"),null));
                 uiLanguageConfig.addLanguageProfile(uiLanguageProfile);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+    private void loadTableColumn(UITableConfig uiTableConfig, String uiTableConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiTableConfigDN, "(objectclass=dcmuiTableColumnConfigObjects)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UITableColumn uiTableColumn = new UITableColumn((String) attrs.get("dcmuiColumnName").get());
+                uiTableColumn.setColumnId(LdapUtils.stringValue(attrs.get("dcmuiColumnId"),null));
+                uiTableColumn.setColumnTitle(LdapUtils.stringValue(attrs.get("dcmuiColumnTitle"),null));
+                uiTableColumn.setValuePath(LdapUtils.stringValue(attrs.get("dcmuiValuePath"),null));
+                uiTableColumn.setValueType(LdapUtils.stringValue(attrs.get("dcmuiValueType"),null));
+                uiTableColumn.setColumnWidth(LdapUtils.stringValue(attrs.get("dcmuiColumnWidth"),null));
+                uiTableColumn.setColumnOrder(LdapUtils.intValue(attrs.get("dcmuiColumnOrder"),null));
+                uiTableConfig.addTableColumn(uiTableColumn);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -849,15 +944,35 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeWebAppLists(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
-    private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UIConfig prevUIConfig, UIConfig uiConfig, ArrayList<ModificationItem> mods) throws NamingException {
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities",prevUIConfig.getModalities(),uiConfig.getModalities());
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets",prevUIConfig.getWidgetAets(),uiConfig.getWidgetAets());
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",prevUIConfig.getXdsUrl(),uiConfig.getXdsUrl(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",prevUIConfig.getBackgroundUrl(),uiConfig.getBackgroundUrl(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiDateTimeFormat",prevUIConfig.getDateTimeFormat(),uiConfig.getDateTimeFormat(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiPersonNameFormat",prevUIConfig.getPersonNameFormat(),uiConfig.getPersonNameFormat(),null);
-        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiLogoURL",prevUIConfig.getLogoUrl(),uiConfig.getLogoUrl(),null);
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",prevUIConfig.getDefaultWidgetAets(),uiConfig.getDefaultWidgetAets());
+    private List<ModificationItem> storeDiff(
+            ConfigurationChanges.ModifiedObject ldapObj, UIConfig prevUIConfig, UIConfig uiConfig, ArrayList<ModificationItem> mods)
+            throws NamingException {
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiModalities", prevUIConfig.getModalities(), uiConfig.getModalities());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiWidgetAets", prevUIConfig.getWidgetAets(), uiConfig.getWidgetAets());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiMWLWorklistLabel",
+                prevUIConfig.getMWLWorklistLabels(), uiConfig.getMWLWorklistLabels());
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiInstitutionNameFilterType",
+                prevUIConfig.getInstitutionNameFilterType(), uiConfig.getInstitutionNameFilterType(),null);
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiInstitutionName",
+                prevUIConfig.getInstitutionNames(), uiConfig.getInstitutionNames());
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",
+                prevUIConfig.getXdsUrl(), uiConfig.getXdsUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",
+                prevUIConfig.getBackgroundUrl(), uiConfig.getBackgroundUrl(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiDateTimeFormat",
+                prevUIConfig.getDateTimeFormat(), uiConfig.getDateTimeFormat(),null);
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiHideClock",
+                prevUIConfig.isHideClock(), uiConfig.isHideClock(),false);
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiHideOtherPatientIDs",
+                prevUIConfig.isHideOtherPatientIDs(), uiConfig.isHideOtherPatientIDs(), false);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiPageTitle",
+                prevUIConfig.getPageTitle(), uiConfig.getPageTitle(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiPersonNameFormat",
+                prevUIConfig.getPersonNameFormat(), uiConfig.getPersonNameFormat(),null);
+        LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiLogoURL",
+                prevUIConfig.getLogoUrl(), uiConfig.getLogoUrl(),null);
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",
+                prevUIConfig.getDefaultWidgetAets(), uiConfig.getDefaultWidgetAets());
         return mods;
     }
 

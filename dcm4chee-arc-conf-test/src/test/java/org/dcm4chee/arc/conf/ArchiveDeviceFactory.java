@@ -118,6 +118,7 @@ class ArchiveDeviceFactory {
             "findscu",
             "getscu",
             "movescu",
+            "upsscu",
             "hl7snd"
     };
     static final String[] OTHER_DEVICE_TYPES = {
@@ -131,6 +132,7 @@ class ArchiveDeviceFactory {
             "WSD",
             "WSD",
             "WSD",
+            "DSS",
             "DSS"
     };
     static final String[] OTHER_AES = {
@@ -143,7 +145,8 @@ class ArchiveDeviceFactory {
             "MPPSSCU",
             "FINDSCU",
             "GETSCU",
-            "MOVESCU"
+            "MOVESCU",
+            "UPSSCU"
     };
     static final int SCHEDULED_STATION_INDEX = 0;
     static final int STORESCU_INDEX = 5;
@@ -167,6 +170,7 @@ class ArchiveDeviceFactory {
             SITE_A, // FINDSCU
             SITE_A, // GETSCU
             SITE_A, // MOVESCU
+            SITE_A, // UPSSCU
             null // hl7snd
     };
     static final Code[] OTHER_INST_CODES = {
@@ -180,6 +184,7 @@ class ArchiveDeviceFactory {
             null, // FINDSCU
             null, // GETSCU
             null, // MOVESCU
+            INST_A, // upsscu
             null, // hl7snd
     };
     static final int[] OTHER_PORTS = {
@@ -193,6 +198,7 @@ class ArchiveDeviceFactory {
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // FINDSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // GETSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // MOVESCU
+            11119, 2769 // UPSSCU
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
@@ -341,6 +347,7 @@ class ArchiveDeviceFactory {
             Tag.AccessionNumber,
             Tag.IssuerOfAccessionNumberSequence,
             Tag.ReferringPhysicianName,
+            Tag.ReferringPhysicianIdentificationSequence,
             Tag.TimezoneOffsetFromUTC,
             Tag.StudyDescription,
             Tag.ProcedureCodeSequence,
@@ -401,7 +408,8 @@ class ArchiveDeviceFactory {
             Tag.PerformedProcedureStepEndDate,
             Tag.PerformedProcedureStepEndTime,
             Tag.PerformedProtocolCodeSequence,
-            Tag.RequestAttributesSequence
+            Tag.RequestAttributesSequence,
+            Tag.SeriesDescriptionCodeSequence
     };
     static final int[] INSTANCE_ATTRS = {
             Tag.SpecificCharacterSet,
@@ -415,6 +423,7 @@ class ArchiveDeviceFactory {
             Tag.TimezoneOffsetFromUTC,
             Tag.ReferencedSeriesSequence,
             Tag.AnatomicRegionSequence,
+            Tag.ContributingEquipmentSequence,
             Tag.InstanceNumber,
             Tag.NumberOfFrames,
             Tag.Rows,
@@ -443,7 +452,12 @@ class ArchiveDeviceFactory {
             Tag.IssuerOfTheContainerIdentifierSequence,
             Tag.SpecimenUID,
             Tag.SpecimenIdentifier,
-            Tag.IssuerOfTheSpecimenIdentifierSequence
+            Tag.IssuerOfTheSpecimenIdentifierSequence,
+            Tag.PredecessorDocumentsSequence,
+            Tag.ImageLaterality,
+            Tag.PrimaryAnatomicStructureSequence,
+            Tag.SegmentSequence,
+            Tag.QuantityDefinitionSequence
     };
     static final int[] LEADING_CFIND_SCP_ATTRS = {
             Tag.StudyDate,
@@ -634,7 +648,8 @@ class ArchiveDeviceFactory {
             Tag.PlacerOrderNumberImagingServiceRequest,
             Tag.FillerOrderNumberImagingServiceRequest,
             Tag.ImagingServiceRequestComments,
-            Tag.StudyStatusID
+            Tag.StudyStatusID,
+            Tag.WorklistLabel
     };
     static final int[] UPS_ATTRS = {
             Tag.SpecificCharacterSet,
@@ -729,6 +744,7 @@ class ArchiveDeviceFactory {
             UID.UltrasoundImageStorageRetired,
             UID.UltrasoundImageStorage,
             UID.EnhancedUSVolumeStorage,
+            UID.PhotoacousticImageStorage,
             UID.SecondaryCaptureImageStorage,
             UID.MultiFrameGrayscaleByteSecondaryCaptureImageStorage,
             UID.MultiFrameGrayscaleWordSecondaryCaptureImageStorage,
@@ -766,7 +782,9 @@ class ArchiveDeviceFactory {
             UID.PositronEmissionTomographyImageStorage,
             UID.LegacyConvertedEnhancedPETImageStorage,
             UID.EnhancedPETImageStorage,
-            UID.RTImageStorage
+            UID.RTImageStorage,
+            UID.EnhancedRTImageStorage,
+            UID.EnhancedContinuousRTImageStorage
     };
     static final String[] PRIVATE_IMAGE_CUIDS = {
             UID.PrivateFujiCRImageStorage,
@@ -808,12 +826,21 @@ class ArchiveDeviceFactory {
     static final String[] VIDEO_TSUIDS = {
             UID.JPEGBaseline8Bit,
             UID.MPEG2MPML,
+            UID.MPEG2MPMLF,
             UID.MPEG2MPHL,
+            UID.MPEG2MPHLF,
             UID.MPEG4HP41BD,
+            UID.MPEG4HP41BDF,
             UID.MPEG4HP41,
+            UID.MPEG4HP41F,
             UID.MPEG4HP422D,
+            UID.MPEG4HP422DF,
             UID.MPEG4HP423D,
-            UID.MPEG4HP42STEREO
+            UID.MPEG4HP423DF,
+            UID.MPEG4HP42STEREO,
+            UID.MPEG4HP42STEREOF,
+            UID.HEVCMP51,
+            UID.HEVCM10P51
     };
 
     private static final String[] SR_CUIDS = {
@@ -856,6 +883,7 @@ class ArchiveDeviceFactory {
             UID.StandaloneCurveStorage,
             UID.TwelveLeadECGWaveformStorage,
             UID.GeneralECGWaveformStorage,
+            UID.General32bitECGWaveformStorage,
             UID.AmbulatoryECGWaveformStorage,
             UID.HemodynamicWaveformStorage,
             UID.CardiacElectrophysiologyWaveformStorage,
@@ -882,6 +910,7 @@ class ArchiveDeviceFactory {
             UID.VolumeRenderingVolumetricPresentationStateStorage,
             UID.SegmentedVolumeRenderingVolumetricPresentationStateStorage,
             UID.MultipleVolumeRenderingVolumetricPresentationStateStorage,
+            UID.VariableModalityLUTSoftcopyPresentationStateStorage,
             UID.ParametricMapStorage,
             UID.RawDataStorage,
             UID.SpatialRegistrationStorage,
@@ -938,12 +967,15 @@ class ArchiveDeviceFactory {
             UID.RoboticRadiationRecordStorage,
             UID.RTRadiationSetDeliveryInstructionStorage,
             UID.RTTreatmentPreparationStorage,
+            UID.RTPatientPositionAcquisitionInstructionStorage,
             UID.RTBeamsDeliveryInstructionStorage,
             UID.RTBrachyApplicationSetupDeliveryInstructionStorage,
     };
 
     static final String[] PRIVATE_CUIDS = {
             UID.PrivateDcm4cheEncapsulatedGenozipStorage,
+            UID.PrivateDcm4cheEncapsulatedBzip2VCFStorage,
+            UID.PrivateDcm4cheEncapsulatedBzip2DocumentStorage,
             UID.PrivateAgfaArrivalTransaction,
             UID.PrivateAgfaBasicAttributePresentationState,
             UID.PrivateAgfaDictationTransaction,
@@ -1212,7 +1244,6 @@ class ArchiveDeviceFactory {
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
     static final String STORAGE_ID = "fs1";
     static final String STORAGE_URI = "${jboss.server.data.url}/fs1/";
-    static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
     static final String NEARLINE_STORAGE_ID = "nearline";
     static final String NEARLINE_STORAGE_URI = "${jboss.server.data.url}/nearline/";
     static final String NEARLINE_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
@@ -1307,6 +1338,7 @@ class ArchiveDeviceFactory {
     static final Duration DELETE_UPS_CANCELED_DELAY = Duration.valueOf("P7D");
     static final Duration DELETE_UPS_COMPLETED_DELAY = Duration.valueOf("P1D");
     static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.valueOf("PT5M");
+    static final Duration DELETE_STUDY_INTERVAL = Duration.valueOf("P1D");
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.valueOf("PT5M");
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
     static final Duration AUDIT_POLLING_INTERVAL = Duration.valueOf("PT1M");
@@ -1397,14 +1429,16 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public static Device createStoreSCPDevice() {
-        Device device = createDevice("storescp", "STORESCP", "localhost", 104, -2);
+    public static Device createStoreSCPDevice(ConfigType configType) {
+        Device device = createDevice("storescp", "STORESCP",
+                configType == ConfigType.DOCKER ? "storescp-host" : "localhost", 11117, -2);
         ApplicationEntity ae = device.getApplicationEntity("STORESCP");
         addTC(ae, null, SCP, UID.Verification, UID.ImplicitVRLittleEndian);
-        String[][] CUIDS = { IMAGE_CUIDS, PRIVATE_IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS, PRIVATE_CUIDS };
+        String[][] CUIDS = { IMAGE_CUIDS, PRIVATE_IMAGE_CUIDS, SR_CUIDS, OTHER_CUIDS, PRIVATE_CUIDS };
         for (int i = 0; i < CUIDS.length; i++) {
             addTCs(ae, null, SCP, CUIDS[i], OTHER_TSUIDS);
         }
+        addTCs(ae, null, SCP, VIDEO_CUIDS, VIDEO_TSUIDS);
         return device;
     }
 
@@ -1456,18 +1490,10 @@ class ArchiveDeviceFactory {
                                              Device scheduledStation, Device storescu, Device mppsscu)  {
         Device device = new Device(name);
         String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
-        Connection dicom = new Connection("dicom", archiveHost, 11112);
-        dicom.setBindAddress("0.0.0.0");
-        dicom.setClientBindAddress("0.0.0.0");
-        dicom.setMaxOpsInvoked(0);
-        dicom.setMaxOpsPerformed(0);
+        Connection dicom = dicomConnection("dicom", archiveHost, 11112);
         device.addConnection(dicom);
 
-        Connection dicomTLS = new Connection("dicom-tls", archiveHost, 2762);
-        dicomTLS.setBindAddress("0.0.0.0");
-        dicomTLS.setClientBindAddress("0.0.0.0");
-        dicomTLS.setMaxOpsInvoked(0);
-        dicomTLS.setMaxOpsPerformed(0);
+        Connection dicomTLS = dicomConnection("dicom-tls", archiveHost, 2762);
         dicomTLS.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
@@ -1488,17 +1514,37 @@ class ArchiveDeviceFactory {
         device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
                 true, true, true, true, false, true, true, false,
-                new ArchiveAttributeCoercion2()
+                new ArchiveAttributeCoercion2[] {
+                    new ArchiveAttributeCoercion2()
                         .setCommonName("SupplementIssuerOfPatientID")
                         .setDIMSE(Dimse.C_STORE_RQ)
                         .setRole(SCU)
                         .setURI("merge-attrs:")
                         .setConditions(new Conditions("IssuerOfPatientID!=.+"))
                         .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}"),
+                    new ArchiveAttributeCoercion2()
+                        .setCommonName("SupplementIssuerOfPatientIDOnMPPS")
+                        .setDIMSE(Dimse.N_CREATE_RQ)
+                        .setSOPClasses(UID.ModalityPerformedProcedureStep)
+                        .setRole(SCU)
+                        .setURI("merge-attrs:")
+                        .setConditions(new Conditions("IssuerOfPatientID!=.+"))
+                        .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}")
+                },
                 configType, ONLY_ADMIN, USER));
         device.addApplicationEntity(createAE("WORKLIST", WORKLIST_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
-                false, false, false, false, true, true, true, true, null,
+                false, false, false, false, true, true, true, true,
+                new ArchiveAttributeCoercion2[] {
+                        new ArchiveAttributeCoercion2()
+                                .setCommonName("SupplementIssuerOfPatientIDOnMPPS")
+                                .setDIMSE(Dimse.N_CREATE_RQ)
+                                .setSOPClasses(UID.ModalityPerformedProcedureStep)
+                                .setRole(SCU)
+                                .setURI("merge-attrs:")
+                                .setConditions(new Conditions("IssuerOfPatientID!=.+"))
+                                .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}")
+                },
                 configType, ONLY_ADMIN, USER));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
@@ -1523,11 +1569,13 @@ class ArchiveDeviceFactory {
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
                 false, true, false, true, false, false, false, false,
-                new ArchiveAttributeCoercion2()
+                new ArchiveAttributeCoercion2[] {
+                    new ArchiveAttributeCoercion2()
                         .setCommonName("RetrieveAsReceived")
                         .setDIMSE(Dimse.C_STORE_RQ)
                         .setRole(SCP)
-                        .setURI(ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED + ":"),
+                        .setURI(ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED + ":")
+                },
                 configType, ONLY_ADMIN));
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
@@ -1613,6 +1661,25 @@ class ArchiveDeviceFactory {
                 "/dcm4chee-arc", null, null,
                 WebApplication.ServiceClass.DCM4CHEE_ARC));
         return device;
+    }
+
+    private static Connection dicomConnection(String commonName, String hostname, int port) {
+        Connection dicom = new Connection(commonName, hostname, port);
+        dicom.setBindAddress("0.0.0.0");
+        dicom.setClientBindAddress("0.0.0.0");
+        dicom.setMaxOpsInvoked(0);
+        dicom.setMaxOpsPerformed(0);
+        dicom.setConnectTimeout(5000);
+        dicom.setRequestTimeout(5000);
+        dicom.setAcceptTimeout(5000);
+        dicom.setReleaseTimeout(5000);
+        dicom.setSendTimeout(5000);
+        dicom.setStoreTimeout(300000);
+        dicom.setResponseTimeout(5000);
+        dicom.setRetrieveTimeout(300000);
+        dicom.setIdleTimeout(300000);
+        dicom.setAbortTimeout(5000);
+        return dicom;
     }
 
     private static void addImageWriterParam(ImageWriterFactory writerFactory, String tsuid, Property prop) {
@@ -1720,22 +1787,27 @@ class ArchiveDeviceFactory {
         hl7App.setHL7SendingCharacterSet("8859/1");
         ext.addHL7Application(hl7App);
 
-        Connection hl7 = new Connection("hl7", archiveHost, 2575);
-        hl7.setBindAddress("0.0.0.0");
-        hl7.setClientBindAddress("0.0.0.0");
-        hl7.setProtocol(Connection.Protocol.HL7);
+        Connection hl7 = hl7Connection("hl7", archiveHost, 2575);
         device.addConnection(hl7);
         hl7App.addConnection(hl7);
 
-        Connection hl7TLS = new Connection("hl7-tls", archiveHost, 12575);
-        hl7TLS.setBindAddress("0.0.0.0");
-        hl7TLS.setClientBindAddress("0.0.0.0");
-        hl7TLS.setProtocol(Connection.Protocol.HL7);
+        Connection hl7TLS = hl7Connection("hl7-tls", archiveHost, 12575);
         hl7TLS.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
         device.addConnection(hl7TLS);
         hl7App.addConnection(hl7TLS);
+    }
+
+    private static Connection hl7Connection(String commonName, String hostname, int port) {
+        Connection hl7 = new Connection(commonName, hostname, port);
+        hl7.setBindAddress("0.0.0.0");
+        hl7.setClientBindAddress("0.0.0.0");
+        hl7.setProtocol(Connection.Protocol.HL7);
+        hl7.setConnectTimeout(5000);
+        hl7.setResponseTimeout(5000);
+        hl7.setIdleTimeout(300000);
+        return hl7;
     }
 
     private static void addArchiveDeviceExtension(Device device, ConfigType configType,
@@ -1776,7 +1848,7 @@ class ArchiveDeviceFactory {
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);
         ext.setPurgeTaskPollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
-        ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
+        ext.setDeleteStudyInterval(DELETE_STUDY_INTERVAL);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
         ext.setPurgeStgCmtCompletedDelay(PURGE_STGCMT_COMPLETED_DELAY);
         ext.setPurgeStgCmtPollingInterval(PURGE_STGCMT_POLLING_INTERVAL);
@@ -1835,8 +1907,7 @@ class ArchiveDeviceFactory {
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURIStr(STORAGE_URI);
-        storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
-        storageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+        storageDescriptor.setCheckMountFilePath("NO_MOUNT");
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
         ext.addStorageDescriptor(storageDescriptor);
@@ -1925,14 +1996,14 @@ class ArchiveDeviceFactory {
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
             metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
-            metadataStorageDescriptor.setProperty("pathFormat", METADATA_PATH_FORMAT);
-            metadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            metadataStorageDescriptor.setStoragePathFormat(METADATA_PATH_FORMAT);
+            metadataStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(metadataStorageDescriptor);
 
             StorageDescriptor seriesMetadataStorageDescriptor = new StorageDescriptor(SERIES_METADATA_STORAGE_ID);
             seriesMetadataStorageDescriptor.setStorageURIStr(SERIES_METADATA_STORAGE_URI);
-            seriesMetadataStorageDescriptor.setProperty("pathFormat", SERIES_METADATA_PATH_FORMAT);
-            seriesMetadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            seriesMetadataStorageDescriptor.setStoragePathFormat(SERIES_METADATA_PATH_FORMAT);
+            seriesMetadataStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(seriesMetadataStorageDescriptor);
             ext.setSeriesMetadataStorageIDs(SERIES_METADATA_STORAGE_ID);
             ext.setSeriesMetadataDelay(SERIES_METADATA_DELAY);
@@ -1940,26 +2011,26 @@ class ArchiveDeviceFactory {
 
             StorageDescriptor wadoJpegStorageDescriptor = new StorageDescriptor(WADO_JPEG_STORAGE_ID);
             wadoJpegStorageDescriptor.setStorageURIStr(WADO_JPEG_STORAGE_URI);
-            wadoJpegStorageDescriptor.setProperty("pathFormat", WADO_JPEG_PATH_FORMAT);
-            wadoJpegStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            wadoJpegStorageDescriptor.setStoragePathFormat(WADO_JPEG_PATH_FORMAT);
+            wadoJpegStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(wadoJpegStorageDescriptor);
 
             StorageDescriptor wadoJsonStorageDescriptor = new StorageDescriptor(WADO_JSON_STORAGE_ID);
             wadoJsonStorageDescriptor.setStorageURIStr(WADO_JSON_STORAGE_URI);
-            wadoJsonStorageDescriptor.setProperty("pathFormat", WADO_JSON_PATH_FORMAT);
-            wadoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            wadoJsonStorageDescriptor.setStoragePathFormat(WADO_JSON_PATH_FORMAT);
+            wadoJsonStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(wadoJsonStorageDescriptor);
 
             StorageDescriptor qidoJsonStorageDescriptor = new StorageDescriptor(QIDO_JSON_STORAGE_ID);
             qidoJsonStorageDescriptor.setStorageURIStr(QIDO_JSON_STORAGE_URI);
-            qidoJsonStorageDescriptor.setProperty("pathFormat", QIDO_JSON_PATH_FORMAT);
-            qidoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            qidoJsonStorageDescriptor.setStoragePathFormat(QIDO_JSON_PATH_FORMAT);
+            qidoJsonStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             ext.addStorageDescriptor(qidoJsonStorageDescriptor);
 
             StorageDescriptor nearlineStorageDescriptor = new StorageDescriptor(NEARLINE_STORAGE_ID);
             nearlineStorageDescriptor.setStorageURIStr(NEARLINE_STORAGE_URI);
-            nearlineStorageDescriptor.setProperty("pathFormat", NEARLINE_PATH_FORMAT);
-            nearlineStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            nearlineStorageDescriptor.setStoragePathFormat(NEARLINE_PATH_FORMAT);
+            nearlineStorageDescriptor.setCheckMountFilePath("NO_MOUNT");
             nearlineStorageDescriptor.setInstanceAvailability(Availability.NEARLINE);
             ext.addStorageDescriptor(nearlineStorageDescriptor);
 
@@ -2150,7 +2221,7 @@ class ArchiveDeviceFactory {
 
             ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Supplement Composite")
-                    .setURI("sup-from-dev:STORESCU")
+                    .setURI("sup-from-dev:")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("STORESCU")
@@ -2158,7 +2229,7 @@ class ArchiveDeviceFactory {
 
             ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
                     .setCommonName("Supplement MPPS")
-                    .setURI("sup-from-dev:MPPSSCU")
+                    .setURI("sup-from-dev:")
                     .setDIMSE(Dimse.N_CREATE_RQ)
                     .setRole(SCU)
                     .setSendingAETitle("MPPSSCU")
@@ -2253,7 +2324,7 @@ class ArchiveDeviceFactory {
                                               Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
                                               boolean storeSCP, boolean storeSCU, boolean ianSCU, boolean querySCP,
                                               boolean mwlSCP, boolean mppsSCP, boolean mppsSCU, boolean upsSCP,
-                                              ArchiveAttributeCoercion2 coercion, ConfigType configType,
+                                              ArchiveAttributeCoercion2[] coercions, ConfigType configType,
                                               String... acceptedUserRoles) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
@@ -2316,8 +2387,10 @@ class ArchiveDeviceFactory {
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
-        if (coercion != null)
-            aeExt.addAttributeCoercion2(coercion);
+        if (coercions != null)
+            for (ArchiveAttributeCoercion2 coercion : coercions) {
+                aeExt.addAttributeCoercion2(coercion);
+            }
         return ae;
     }
 

@@ -1,5 +1,6 @@
 package org.dcm4chee.arc.storage;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 
 import java.io.Closeable;
@@ -14,7 +15,11 @@ import java.io.OutputStream;
 public interface Storage extends Closeable {
     StorageDescriptor getStorageDescriptor();
 
-    WriteContext createWriteContext();
+    WriteContext createWriteContext(String storagePath);
+
+    WriteContext createWriteContext(Attributes attrs);
+
+    String storagePathOf(Attributes attrs);
 
     ReadContext createReadContext();
 

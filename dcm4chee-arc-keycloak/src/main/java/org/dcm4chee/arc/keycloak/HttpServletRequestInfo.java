@@ -68,12 +68,12 @@ public class HttpServletRequestInfo {
         localHost = request.getServerName();
     }
 
-    private HttpServletRequestInfo(String requesterUserID, String requesterHost, String requestURI) {
+    private HttpServletRequestInfo(String requesterUserID, String requesterHost, String requestURI, String queryStr) {
         this.requesterUserID = requesterUserID;
         this.requesterHost = requesterHost;
         this.requesterPort = 0;
         this.requestURI = requestURI;
-        this.queryString = null;
+        this.queryString = queryStr;
         this.localHost = hostOfURI(requestURI);
     }
 
@@ -82,9 +82,10 @@ public class HttpServletRequestInfo {
     }
 
     public static HttpServletRequestInfo valueOf(String requesterUserID, String requesterHost, String requestURI) {
-        return requestURI != null
-                ? new HttpServletRequestInfo(requesterUserID, requesterHost, requestURI)
-                : null;
+        return requestURI == null
+                ? null
+                : new HttpServletRequestInfo(requesterUserID, requesterHost, requestURI,
+                        requestURI.contains("?") ? requestURI.substring(requestURI.indexOf("?") + 1) : null);
     }
 
     private static String hostOfURI(String requestURI) {

@@ -4,7 +4,7 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import {AppService} from "./app.service";
 import {j4care} from "./helpers/j4care.service";
 import {forkJoin, of} from "rxjs";
-import {catchError, combineLatest, map, switchMap} from "rxjs/operators";
+import {catchError, combineLatest, map, shareReplay, switchMap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import * as _ from 'lodash-es';
 import {DcmWebApp} from "./models/dcm-web-app";
@@ -16,6 +16,7 @@ import {environment} from "../environments/environment";
 export class AppRequestsService {
     private _dcm4cheeArcConfig;
     baseUrl;
+    sharedObservables$:any = {};
     get dcm4cheeArcConfig() {
         return this._dcm4cheeArcConfig;
     }
@@ -44,27 +45,41 @@ export class AppRequestsService {
     getDeviceInfo(dicomDeviceName:string, url?:string){
         return this.$http.get(`${url ? j4care.addLastSlash(url) : j4care.addLastSlash(this.appService.baseUrl)}devices?dicomDeviceName=${dicomDeviceName}`)
     }
-
-    getDeviceNameFromURL(url){
-      return this.$http.get(`${url}/devicename`).pipe(
+    deviceNameRequest$(url):Observable<any>{
+        if(!(this.sharedObservables$["devicename"] && this.sharedObservables$["devicename"][url])){
+            this.sharedObservables$["devicename"] = this.sharedObservables$["devicename"] || {};
+            this.sharedObservables$["devicename"][url] = this.$http.get(`${url}/devicename`).pipe(shareReplay(1));
+        }
+        return this.sharedObservables$["devicename"][url];
+    }
+    getDeviceNameFromURL(url):Observable<any>{
+      return this.deviceNameRequest$(url).pipe(
+          shareReplay(1),
           catchError(error => {
               return of({dicomDeviceName:"NOT_FOUND"})
           })
       );
     }
+    dcm4cheeArcRequest$():Observable<any>{
+        if(!this.sharedObservables$["rs_dcm4chee-arc"]){
+            this.sharedObservables$["rs_dcm4chee-arc"] = this.$httpClient.get("./rs/dcm4chee-arc").pipe(shareReplay(1));
+        }
+        return this.sharedObservables$["rs_dcm4chee-arc"];
+    }
+    devicesRequest$(deviceName){
+        if(!(this.sharedObservables$["devices"] && this.sharedObservables$["devices"][deviceName])){
+            this.sharedObservables$["devices"] = this.sharedObservables$["devices"] || {};
+            this.sharedObservables$["devices"][deviceName] = this.$httpClient.get(`${j4care.addLastSlash(this.baseUrl)}devices/${deviceName}`).pipe(shareReplay(1));
+        }
+        return this.sharedObservables$["devices"][deviceName];
+    }
     getDcm4cheeArc(){
         let tempDcm4cheeArch;
-        if(this._dcm4cheeArcConfig){3
+        if(this._dcm4cheeArcConfig){
             return of(this._dcm4cheeArcConfig);
         }else{
-            return this.$httpClient.get("./rs/dcm4chee-arc").pipe(
+            return this.dcm4cheeArcRequest$().pipe(
                 map(dcm4cheeArc=>{
-                    if(!environment.production){
-                        dcm4cheeArc["dcm4chee-arc-urls"] = [
-                            "http://shefki-lifebook:8080/dcm4chee-arc",
-                            "http://192.168.0.111:8080/dcm4chee-arc"
-                        ];
-                    }
                     tempDcm4cheeArch = dcm4cheeArc;
                     if(_.hasIn(dcm4cheeArc, "dcm4chee-arc-urls[0]")){
                         this.baseUrl = _.get(dcm4cheeArc, "dcm4chee-arc-urls[0]");
@@ -74,7 +89,10 @@ export class AppRequestsService {
                 }),
                 switchMap(dcm4cheeArc=>{
                     let services:Observable<any>[] = _.get(dcm4cheeArc, "dcm4chee-arc-urls").map(url=>{
-                        return this.getDeviceNameFromURL(url).pipe(catchError(error => of(error)));
+                        return this.getDeviceNameFromURL(url).pipe(
+                            shareReplay(1),
+                            catchError(error => of(error))
+                        );
                     });
                     return forkJoin(services);
                 }),
@@ -117,7 +135,7 @@ export class AppRequestsService {
                     switchMap(res => {
                         deviceName = (_.get(res,"UIConfigurationDeviceName") || _.get(res,"dicomDeviceName"));
                         archiveDeviceName = _.get(res,"dicomDeviceName");
-                        return this.$httpClient.get(`${j4care.addLastSlash(this.baseUrl)}devices/${deviceName}`)
+                        return this.devicesRequest$(deviceName);
                     }),
                     map((res)=>{
                         try{

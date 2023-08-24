@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.storage.filesystem;
 
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
@@ -67,11 +66,8 @@ public class FileSystemStorage extends AbstractStorage {
     private static final int COPY_BUFFER_SIZE = 8192;
 
     private final URI rootURI;
-    private final AttributesFormat pathFormat;
     private final Path checkMountFilePath;
-    private final OpenOption[] openOptions;
     private final CreateDirectories createDirectories;
-    private final int retryCreateDirectories;
 
     @FunctionalInterface
     private interface CreateDirectories {
@@ -81,17 +77,11 @@ public class FileSystemStorage extends AbstractStorage {
     public FileSystemStorage(StorageDescriptor descriptor, MetricsService metricsService) {
         super(descriptor, metricsService);
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
-        pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
-        String checkMountFile = descriptor.getProperty("checkMountFile", null);
+        String checkMountFile = descriptor.getCheckMountFilePath();
         checkMountFilePath = checkMountFile != null ?  Paths.get(rootURI.resolve(checkMountFile)) : null;
-        String fileOpenOption = descriptor.getProperty("fileOpenOption", null);
-        openOptions = fileOpenOption != null
-                ? new OpenOption[]{ StandardOpenOption.CREATE_NEW, StandardOpenOption.valueOf(fileOpenOption) }
-                : new OpenOption[]{ StandardOpenOption.CREATE_NEW };
-        createDirectories = Boolean.parseBoolean(descriptor.getProperty("altCreateDirectories", null))
+        createDirectories = descriptor.isAltCreateDirectories()
             ? FileSystemStorage::altCreateDirectories
             : Files::createDirectories;
-        retryCreateDirectories = Integer.parseInt(descriptor.getProperty("retryCreateDirectories", "0"));
     }
 
     @Override
@@ -159,7 +149,7 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     private Path createDirectories(Path path) throws IOException {
-        int retries = retryCreateDirectories;
+        int retries = descriptor.getRetryCreateDirectories();
         for (;;) {
             try {
                 return createDirectories.apply(path);
@@ -178,18 +168,25 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     protected OutputStream openOutputStreamA(WriteContext ctx) throws IOException {
-        Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
+        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
         Path dir = path.getParent();
         createDirectories(dir);
-        OutputStream stream = null;
-        while (stream == null)
+        while (true)
             try {
-                stream = Files.newOutputStream(path, openOptions);
+                ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
+                return Files.newOutputStream(path, descriptor.getFileOpenOptions());
             } catch (FileAlreadyExistsException e) {
-                path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+                switch (descriptor.getOnStoragePathAlreadyExists()) {
+                    case NOOP:
+                        ctx.setDeletionLock(true);
+                        return OutputStream.nullOutputStream();
+                    case FAILURE:
+                        ctx.setDeletionLock(true);
+                        throw e;
+                    case RANDOM_PATH:
+                        path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+                }
             }
-        ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
-        return stream;
     }
 
     @Override

@@ -73,10 +73,6 @@ public class RSForwardRule {
 
     private Pattern requestURLPattern;
 
-    private boolean tlsAllowAnyHostname;
-
-    private boolean tlsDisableTrustManager;
-
     public RSForwardRule() {
     }
 
@@ -107,22 +103,6 @@ public class RSForwardRule {
     public void setRSOperations(RSOperation[] rsOperations) {
         this.rsOperations.clear();
         this.rsOperations.addAll(Arrays.asList(rsOperations));
-    }
-
-    public boolean isTlsAllowAnyHostname() {
-        return tlsAllowAnyHostname;
-    }
-
-    public void setTlsAllowAnyHostname(boolean tlsAllowAnyHostname) {
-        this.tlsAllowAnyHostname = tlsAllowAnyHostname;
-    }
-
-    public boolean isTlsDisableTrustManager() {
-        return tlsDisableTrustManager;
-    }
-
-    public void setTlsDisableTrustManager(boolean tlsDisableTrustManager) {
-        this.tlsDisableTrustManager = tlsDisableTrustManager;
     }
 
     public String getRemoteHostnamePattern() {

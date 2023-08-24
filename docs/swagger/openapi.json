@@ -2,12 +2,11 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.29.0"
+    "version": "5.31.0"
   },
   "servers": [
     {
-      "url": "http://test-ng:8080/dcm4chee-arc",
-      "description": "Test server"
+      "url": "http://dcm4chee-arc:8080/dcm4chee-arc"
     }
   ],
   "tags": [
@@ -116,6 +115,10 @@
       "description": "Archive Monitoring"
     },
     {
+      "name": "STORAGE-RS",
+      "description": "Storage System Management"
+    },
+    {
       "name": "MWL-RS",
       "description": "Modality Worklist Management"
     },
@@ -130,6 +133,10 @@
     {
       "name": "PDQ-RS",
       "description": "Patient Demographics Query"
+    },
+    {
+      "name": "RESTORE-RS",
+      "description": "Restore purged Instance Records"
     },
     {
       "name": "STGCMT-RS",
@@ -204,6 +211,9 @@
     "/aets/{aet}/rs/studies/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/studies.reject"
     },
+    "/aets/{aet}/rs/studies/update": {
+      "$ref": "paths/iocm.json#/studies.update"
+    },
     "/aets/{aet}/rs/studies/stgver": {
       "$ref": "paths/stgver.json#/studies"
     },
@@ -243,6 +253,9 @@
     "/aets/{aet}/rs/studies/{study}/move/{CodeValue}^{CodingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/study.move"
     },
+    "/aets/{aet}/rs/studies/{study}/request": {
+      "$ref": "paths/iocm.json#/study.request"
+    },
     "/aets/{aet}/rs/studies/{study}/expire/{expirationDate}": {
       "$ref": "paths/iocm.json#/study.expire"
     },
@@ -254,6 +267,9 @@
     },
     "/aets/{aet}/rs/studies/{study}/stgver": {
       "$ref": "paths/stgver.json#/study"
+    },
+    "/aets/{aet}/rs/studies/{study}/restore": {
+      "$ref": "paths/misc.json#/study.restore"
     },
     "/aets/{aet}/rs/studies/{study}/export/{exporterID}": {
       "$ref": "paths/export.json#/study"
@@ -272,6 +288,9 @@
     },
     "/aets/{aet}/rs/series/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/series.reject"
+    },
+    "/aets/{aet}/rs/series/update": {
+      "$ref": "paths/iocm.json#/series.update"
     },
     "/aets/{aet}/rs/series/stgver": {
       "$ref": "paths/stgver.json#/series"
@@ -294,11 +313,17 @@
     "/aets/{aet}/rs/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/series1.reject"
     },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/request": {
+      "$ref": "paths/iocm.json#/series1.request"
+    },
     "/aets/{aet}/rs/studies/{study}/series/{series}/expire/{expirationDate}": {
       "$ref": "paths/iocm.json#/series1.expire"
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/stgver": {
       "$ref": "paths/stgver.json#/series1"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/restore": {
+      "$ref": "paths/misc.json#/series.restore"
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/export/{exporterID}": {
       "$ref": "paths/export.json#/series1"
@@ -311,6 +336,9 @@
     },
     "/aets/{aet}/rs/studies/{study}/series/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/studies.series.reject"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/update": {
+      "$ref": "paths/iocm.json#/studies.series.update"
     },
     "/aets/{aet}/rs/studies/{study}/series/stgver": {
       "$ref": "paths/stgver.json#/studies.series"
@@ -489,6 +517,9 @@
     "/modalities": {
       "$ref": "paths/misc.json#/modalities"
     },
+    "/institutions": {
+      "$ref": "paths/misc.json#/institutions"
+    },
     "/aets/{aet}/rs/studies/{study}": {
       "$ref": "paths/wado.json#/studies"
     },
@@ -540,17 +571,35 @@
     "/aets/{aet}/dimse/{findscp}/studies/count": {
       "$ref": "paths/find.json#/studies.count"
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series": {
+    "/aets/{aet}/dimse/{findscp}/series": {
       "$ref": "paths/find.json#/series"
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/count": {
+    "/aets/{aet}/dimse/{findscp}/series/count": {
       "$ref": "paths/find.json#/series.count"
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances": {
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series": {
+      "$ref": "paths/find.json#/studies.series"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/count": {
+      "$ref": "paths/find.json#/studies.series.count"
+    },
+    "/aets/{aet}/dimse/{findscp}/instances": {
       "$ref": "paths/find.json#/instances"
     },
-    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances/count": {
+    "/aets/{aet}/dimse/{findscp}/instances/count": {
       "$ref": "paths/find.json#/instances.count"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/instances": {
+      "$ref": "paths/find.json#/studies.instances"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/instances/count": {
+      "$ref": "paths/find.json#/studies.instances.count"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances": {
+      "$ref": "paths/find.json#/studies.series.instances"
+    },
+    "/aets/{aet}/dimse/{findscp}/studies/{study}/series/{series}/instances/count": {
+      "$ref": "paths/find.json#/studies.series.instances.count"
     },
     "/aets/{aet}/dimse/{findscp}/diff/{secondaryFindSCP}/studies": {
       "$ref": "paths/iocm.json#/diff.studies"
@@ -567,7 +616,7 @@
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/count": {
       "$ref": "paths/find.json#/mwlitems.count"
     },
-    "/aets/{aet}/dimse/{mwlscp}/mwlitems/import/{destination}": {
+    "/aets/{aet}/dimse/{mwlscp}/mwlitems/import/{worklistLabel}": {
       "$ref": "paths/find.json#/mwlitems.import"
     },
     "/aets/{aet}/dimse/{mwlscp}/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
@@ -770,6 +819,9 @@
     },
     "/storage": {
       "$ref": "paths/config.json#/storage"
+    },
+    "/storage/{storageID}/changestatus": {
+      "$ref": "paths/misc.json#/storageChangeStatus"
     },
     "/token2/{webAppName}": {
       "$ref": "paths/misc.json#/token.webapp"

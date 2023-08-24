@@ -11,6 +11,7 @@
     <xsl:param name="charset" />
     <xsl:param name="isPIDPV1" />
     <xsl:param name="includeNullValues" />
+    <xsl:param name="patientIdentifiers" />
     <xsl:param name="RequestedProcedureID"/>
     <xsl:param name="AccessionNumber"/>
     <xsl:param name="PlacerOrderNumberImagingServiceRequest"/>
@@ -30,8 +31,12 @@
             </xsl:call-template>
             <xsl:if test="$isPIDPV1 = true() or starts-with($msgType, 'ORU')">
                 <xsl:call-template name="PID">
+                    <xsl:with-param name="patientIdentifiers" select="$patientIdentifiers"/>
                     <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>
+                <xsl:if test="string-length(DicomAttribute[@tag='00104000']/Value) > 0">
+                    <xsl:call-template name="nte-pid" />
+                </xsl:if>
                 <xsl:call-template name="PV1" />
             </xsl:if>
             <xsl:call-template name="ORC" />
@@ -517,7 +522,7 @@
         <xsl:variable name="performingPhysicianIDCode" select="DicomAttribute[@tag='00081052']/Item"/>
         <xsl:choose>
             <xsl:when test="$hasOperator">
-                <xsl:call-template name="name">
+                <xsl:call-template name="personName">
                     <xsl:with-param name="tag" select="'00081070'"/>
                     <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>
@@ -528,7 +533,7 @@
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="$hasPerformingPhysician">
-                <xsl:call-template name="name">
+                <xsl:call-template name="personName">
                     <xsl:with-param name="tag" select="'00081050'"/>
                     <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>

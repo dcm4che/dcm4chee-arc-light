@@ -71,12 +71,14 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotNullOrDef("hl7LogFilePattern", ext.getHL7LogFilePattern(), null);
         writer.writeNotNullOrDef("hl7ErrorLogFilePattern", ext.getHL7ErrorLogFilePattern(), null);
         writer.writeNotNullOrDef("dicomAETitle", ext.getAETitle(), null);
-        writer.writeNotNullOrDef("dcmDestinationAE", ext.getDestinationAE(), null);
         writer.writeNotNull("dcmRecordAttributeModification", ext.getRecordAttributeModification());
         writer.writeNotNullOrDef("hl7ScheduledProtocolCodeInOrder", ext.getHL7ScheduledProtocolCodeInOrder(), null);
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
+        writer.writeNotNullOrDef("hl7PrimaryAssigningAuthorityOfPatientID",
+                ext.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
+        writer.writeNotNullOrDef("hl7OtherPatientIDs", ext.getHL7OtherPatientIDs(), null);
         writer.writeNotNullOrDef("hl7OrderMissingStudyIUIDPolicy", ext.getHL7OrderMissingStudyIUIDPolicy(), null);
         writer.writeNotNullOrDef("hl7OrderMissingAdmissionIDPolicy", ext.getHl7OrderMissingAdmissionIDPolicy(), null);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy",
@@ -85,9 +87,11 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                 ext.getHl7ImportReportMissingAdmissionIDPolicy(), null);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDCFindSCP",
                 ext.getHl7ImportReportMissingStudyIUIDCFindSCP(), null);
+        writer.writeNotNullOrDef("hl7ImportReportAdjustIUID", ext.getHl7ImportReportAdjustIUID(), null);
         writer.writeNotNullOrDef("hl7DicomCharacterSet", ext.getHl7DicomCharacterSet(), null);
         writer.writeNotNullOrDef("hl7VeterinaryUsePatientName", ext.getHl7VeterinaryUsePatientName(), null);
         writer.writeNotEmpty("hl7ORUAction", ext.getHl7ORUAction());
+        writer.writeNotNullOrDef("dcmMWLWorklistLabel", ext.getMWLWorklistLabel(), null);
         writer.writeNotNullOrDef("dcmMWLAccessionNumberGenerator",
                 ext.getMWLAccessionNumberGenerator(), null);
         writer.writeNotNullOrDef("dcmMWLRequestedProcedureIDGenerator",
@@ -148,9 +152,6 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                 case "dicomAETitle":
                     ext.setAETitle(reader.stringValue());
                     break;
-                case "dcmDestinationAE":
-                    ext.setDestinationAE(reader.stringValue());
-                    break;
                 case "dcmRecordAttributeModification":
                     ext.setRecordAttributeModification(reader.booleanValue());
                     break;
@@ -165,6 +166,12 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7UseNullValue":
                     ext.setHL7UseNullValue(reader.booleanValue());
+                    break;
+                case "hl7PrimaryAssigningAuthorityOfPatientID":
+                    ext.setHL7PrimaryAssigningAuthorityOfPatientID(JsonArchiveConfiguration.toIssuer(reader.stringValue()));
+                    break;
+                case "hl7OtherPatientIDs":
+                    ext.setHL7OtherPatientIDs(HL7OtherPatientIDs.valueOf(reader.stringValue()));
                     break;
                 case "hl7OrderMissingStudyIUIDPolicy":
                     ext.setHL7OrderMissingStudyIUIDPolicy(HL7OrderMissingStudyIUIDPolicy.valueOf(reader.stringValue()));
@@ -183,6 +190,9 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                 case "hl7ImportReportMissingStudyIUIDCFindSCP":
                     ext.setHl7ImportReportMissingStudyIUIDCFindSCP(reader.stringValue());
                     break;
+                case "hl7ImportReportAdjustIUID":
+                    ext.setHl7ImportReportAdjustIUID(HL7ImportReportAdjustIUID.valueOf(reader.stringValue()));
+                    break;
                 case "hl7DicomCharacterSet":
                     ext.setHl7DicomCharacterSet(reader.stringValue());
                     break;
@@ -191,6 +201,9 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7ORUAction":
                     ext.setHl7ORUAction(reader.enumArray(HL7ORUAction.class));
+                    break;
+                case "dcmMWLWorklistLabel":
+                    ext.setMWLWorklistLabel(reader.stringValue());
                     break;
                 case "dcmMWLAccessionNumberGenerator":
                     ext.setMWLAccessionNumberGenerator(reader.stringValue());

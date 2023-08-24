@@ -5,7 +5,7 @@ import {
     OnInit,
     ViewChild,
     ViewContainerRef,
-    AfterContentChecked, OnDestroy,
+    AfterContentChecked, OnDestroy, Input, Output, EventEmitter,
 } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {
@@ -15,7 +15,14 @@ import {
     SelectDropdown,
     DicomLevel,
     Quantity,
-    DicomResponseType, DiffAttributeSet, StorageSystems, AccessControlIDMode, UPSModifyMode, UPSSubscribeType, ModifyConfig,
+    DicomResponseType,
+    DiffAttributeSet,
+    StorageSystems,
+    AccessControlIDMode,
+    UPSModifyMode,
+    UPSSubscribeType,
+    ModifyConfig,
+    StudyTagConfig, CreateDialogTemplate, UniqueSelectIdObject
 } from "../../interfaces";
 import {StudyService} from "./study.service";
 import {j4care} from "../../helpers/j4care.service";
@@ -63,7 +70,7 @@ import {StudyTransferringOverviewComponent} from "../../widgets/dialogs/study-tr
 import {MwlDicom} from "../../models/mwl-dicom";
 import {MppsDicom} from "../../models/mpps-dicom";
 import {ChangeDetectorRef} from "@angular/core";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {DiffDicom} from "../../models/diff-dicom";
 import {UwlDicom} from "../../models/uwl-dicom";
 import {filter, map, switchMap} from "rxjs/operators";
@@ -71,6 +78,7 @@ import {ModifyUpsComponent} from "../../widgets/dialogs/modify-ups/modify-ups.co
 import {Subscriber} from "rxjs/index";
 import {Device} from "../../models/device";
 import {environment} from "../../../environments/environment";
+
 declare var DCM4CHE: any;
 
 
@@ -103,6 +111,11 @@ declare var DCM4CHE: any;
 export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     // model = new SelectDropdown('StudyDate,StudyTime','','', '', `<label>Study</label><span class="orderbydatedesc"></span>`);
+    @Input() studyTagConfig:StudyTagConfig;
+    @Output() onAction = new EventEmitter();
+    @Output() onFilterChange = new EventEmitter();
+    @Output() onStudyWebServiceChange = new EventEmitter();
+    @Output() onPasteEvent = new EventEmitter();
     isOpen = true;
     testToggle(){
         this.isOpen = !this.isOpen;
@@ -196,7 +209,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("export_multiple_study",$localize `:@@study.export_multiple:Export matching studies`),
             new SelectDropdown("apply_retention_multiple_series",$localize `:@@study.apply_retention_multiple_series:Apply retention policy to matching series`),
             new SelectDropdown("export_multiple_series",$localize `:@@study.export_multiple_series:Export matching series`),
-            new SelectDropdown("reject_multiple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
+            new SelectDropdown("reject_multifple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
             new SelectDropdown("reject_multiple_series",$localize `:@@study.reject_multiple_series:Reject matching series`),
             new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
@@ -213,6 +226,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("schedule_storage_commit_for_matching_series",$localize `:@@schedule_storage_commit_for_matching_series:Schedule Storage Commitment for matching Series`),
             new SelectDropdown("instance_availability_notification_for_matching_studies",$localize `:@@instance_availability_notification_for_matching_studies:Instance Availability Notification for matching Studies`),
             new SelectDropdown("instance_availability_notification_for_matching_series",$localize `:@@instance_availability_notification_for_matching_series:Instance Availability Notification for matching Series`),
+            new SelectDropdown("update_matching_studies", $localize `:@@update_matching_studies:Update matching Studies`),
+            new SelectDropdown("update_matching_series", $localize `:@@update_matching_series:Update matching Series`)
         ],
         model:undefined
     };
@@ -264,10 +279,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     currentWebAppClass = "QIDO_RS";
     diffAttributeSets:SelectDropdown<DiffAttributeSet>[];
     storages:SelectDropdown<StorageSystems>[];
+    institutions:SelectDropdown<string>[];
     headerTop = {
         "true":undefined,
         "false":undefined
     }
+    filterTemplate;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -284,9 +301,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     ) {
         console.log("in construct",this.service.selectedElements);
     }
+    querySubmit = false;
+    setFiltersFromQueryParams(queryParameter){
+        if(this.studyConfig.tab != "diff"){
+            //console.log("filter",this.service.getFilterKeysFromTab(this.studyConfig.tab));
+            const validFilters = this.service.getFilterKeysFromTab(this.studyConfig.tab);
+            validFilters.forEach(filter=>{
+                if(filter && _.hasIn(queryParameter,filter) && queryParameter[filter] != undefined)
+                this.filter.filterModel[filter] = queryParameter[filter];
+            });
+            if(_.hasIn(queryParameter,"webApp")){
+                this.filter.filterModel["webApp"] = queryParameter["webApp"];
+                this.querySubmit = true;
+                this.filterChanged();
+                //this.studyWebService.seletWebAppFromWebAppName(queryParameter["webApp"])
+                //this.triggerQueries()
+            }
+        }
+    }
 
     ngOnInit() {
-
         this.largeIntFormat = new LargeIntFormatPipe();
         if(this.service.selectedElements){
             this.selectedElements = this.service.selectedElements;
@@ -296,7 +330,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         console.log("this.studyWebService",this.studyWebService);
         this.getPatientAttributeFilters();
         this.getStudyAttributeFilters();
+/*        this.route.queryParams.subscribe(queryParams=>{
+            console.log("in query paramt",queryParams);
+            console.log("filter",this.service.getFilterKeysFromTab(this.studyConfig.tab || "study"));
+
+
+        });*/
         this.route.params.subscribe(params => {
+            this.filterTemplate = undefined;
+            this.studyWebService = undefined;
             this.patients = [];
             this.patients1 = [];
             this.internal = !this.internal;
@@ -306,6 +348,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             setTimeout(()=>{
                 this.internal = !this.internal;
                 this.studyConfig.tab = params.tab;
+                this.route.queryParams.subscribe(queryParams=>{
+                    console.log("in query paramt",queryParams);
+                    this.setFiltersFromQueryParams(queryParams);
+                });
                 /*                const id = `study_${this.studyConfig.tab}`;
                                 if (_.hasIn(this.appService.global, id) && this.appService.global[id]){
                                     _.forEach(this.appService.global[id], (m, i) => {
@@ -334,33 +380,51 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     default:
                         this.currentWebAppClass = "QIDO_RS";
                 }
-                if(_.hasIn(this.studyWebService,"selectedWebService") && !_.hasIn(this._filter,"filterModel.webApp")){
-                    this._filter.filterModel["webApp"] = this.studyWebService.selectedWebService;
+                if(_.hasIn(this.studyWebService,"selectedWebService.dcmWebAppName") && !_.hasIn(this._filter,"filterModel.webApp")){
+                    this._filter.filterModel["webApp"] = this.studyWebService.selectedWebService.dcmWebAppName;
                 };
                 this.studyConfig.title = this.tabToTitleMap(params.tab);
+                this.initWebApps();
                 if(this.studyConfig.tab === "diff"){
                     this.getDiffAttributeSet(this, ()=>{
                         this.route.queryParams.subscribe(queryParams=>{
-                           if(_.hasIn(queryParams,"taskID") && _.hasIn(queryParams,"batchID")){
-                               this.getDiff({
-                                   batchID:queryParams.batchID,
-                                   taskID:queryParams.batchID,
-                                   limit:21,
-                                   offset:0
-                               })
+                           if(_.hasIn(queryParams,"taskID") || _.hasIn(queryParams,"batchID")){
+                               if(queryParams.batchID){
+                                   this.filter.filterModel["batchID"] = queryParams.batchID;
+                               }
+                               if(queryParams.different){
+                                   this.filter.filterModel["different"] = queryParams.different;
+                               }
+                               if(queryParams.comparefield){
+                                   this.filter.filterModel["comparefield"] = queryParams.comparefield;
+                               }
+                               if(queryParams.missing){
+                                   this.filter.filterModel["missing"] = queryParams.missing;
+                               }
+                               if(queryParams.taskID){
+                                   this.filter.filterModel["taskID"] = queryParams.taskID;
+                               }
+                               this.getDiff(_.cloneDeep(this.filter.filterModel));
                            }
                         });
                         this.initWebApps();
                     });
                 }
-                if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series") {
-                    this.getStorages(this, () => {
+                if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series" || this.studyConfig.tab === "diff") {
+                    this.getInstitutions(this, "Series", () => {
+                        this.getStorages(this, () => {
+                            this.initWebApps();
+                        });
+                    });
+                }
+                if (this.studyConfig.tab === "mwl") {
+                    this.getInstitutions(this, "MWL",() => {
                         this.initWebApps();
                     });
                 }
                 this.more = false;
                 this._filter.filterModel.offset = 0;
-                this.tableParam.tableSchema  = this.getSchema();
+                this.setTableSchema();
                 if(this.studyConfig.tab != "study" && this.studyConfig.tab != "series" && this.studyConfig.tab != "diff"){
                     this.initWebApps();
                 }
@@ -392,24 +456,24 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     onFilterTemplateSet(object){
-        console.log("object",object);
-        this.filter.filterModel = {};
-        if(object && _.hasIn(object,"webApp") && object.webApp){
-            Object.keys(object).forEach(key=>{
-                if(key === "webApp" &&  this.studyWebService && this.studyWebService.webServices){
-                    this.studyWebService.seletWebAppFromWebAppName(object.webApp.dcmWebAppName)
-                    this.filter.filterModel["webApp"] = this.studyWebService.selectedWebService;
-                    this.tableParam.tableSchema  = this.getSchema();
-                    this.setMainSchema();
+        this.filterTemplate = object;
+        this.setTemplateToFilter();
+        this.onFilterChange.emit(this.filter.filterModel);
+    }
+
+    setTemplateToFilter(){
+        if(this.filterTemplate && this.studyWebService && this.studyWebService.selectDropdownWebServices && this.studyWebService.selectDropdownWebServices.length > 0){
+            this.filter.filterModel = {};
+            Object.keys(this.filterTemplate).forEach(key=>{
+                if(key === "webApp"){
+                    this.studyWebService.seletWebAppFromWebAppName(this.filterTemplate.webApp);
                 }else{
-                    this.filter.filterModel[key] = object[key];
+                    this.filter.filterModel[key] = this.filterTemplate[key];
                 }
-            })
-        }else{
-            Object.assign(this.filter.filterModel, object);
+            });
         }
-        //
-        console.log("this.studyWebService",this.studyWebService);
+        this.setTableSchema();
+        this.setSchema();
     }
 
     tabToTitleMap(tab:DicomMode){
@@ -548,6 +612,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "instance_availability_notification_for_matching_series":
                 this.sendInstanceAvailabilityNotificationMatchingSeries();
                break;
+            case "update_matching_studies":
+                this.updateMatchingStudies();
+                break;
+            case "update_matching_series":
+                this.updateMatchingSeries();
+                break;
             case "change_sps_status_on_matching":
                 this.changeSPSStatus(e, "matching");
                break;
@@ -562,13 +632,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     actionsSelectionsChanged(e){
         if(e === "toggle_checkboxes"){
             this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
-            this.tableParam.tableSchema  = this.getSchema();
+            this.setTableSchema();
         }
         if(e === "export_object"){
             this.exporter(
                 undefined,
                 $localize `:@@study.export_selected_object:Export selected objects`,
-                $localize `:@@single:single`,
+               "multipleExportSelections",
                 undefined,
                 undefined,
                 this.selectedElements
@@ -593,6 +663,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
         if(e === "send_ian_request_for_selections"){
             this.sendInstanceAvailabilityNotificationSingle();
+        }
+        if(e === "delete_object"){
+            this.deleteSelectedObjects()
         }
         setTimeout(()=>{
             this.actionsSelections.model = undefined;
@@ -656,7 +729,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case 'hide_checkboxes':{
                 this.resetSetSelectionObject();
                 this.tableParam.config.showCheckboxes = false;
-                this.tableParam.tableSchema  = this.getSchema();
+                this.setTableSchema();
                 break;
             }
         }
@@ -694,13 +767,21 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             switch (this.selectedElements.action) {
                                 case 'merge':
                                     this.service.mergePatients(this.selectedElements,this.studyWebService)
-                                        .subscribe((response) => {
+                                        .subscribe((res) => {
                                             this.appService.showMsg($localize `:@@study.patients_merged_successfully:Patients merged successfully!`);
                                             this.clearClipboard();
                                             this.cfpLoadingBar.complete();
-                                        }, (response) => {
+                                            this.onPasteEvent.emit({
+                                                mode:"success",
+                                                response:res
+                                            });
+                                        }, (err) => {
                                             this.cfpLoadingBar.complete();
-                                            this.httpErrorHandler.handleError(response);
+                                            this.httpErrorHandler.handleError(err);
+                                            this.onPasteEvent.emit({
+                                                mode:"error",
+                                                response:err
+                                            });
                                         });
                                     break;
                                 case 'link':
@@ -709,9 +790,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         this.cfpLoadingBar.complete();
                                         this.appService.showMsgCopyMoveLink(res, this.service.getTextFromAction(this.selectedElements.action));
                                         this.clearClipboard();
+                                        this.onPasteEvent.emit({
+                                            mode:"success",
+                                            response:res
+                                        });
                                     },err=>{
                                         this.cfpLoadingBar.complete();
                                         this.httpErrorHandler.handleError(err);
+                                        this.onPasteEvent.emit({
+                                            mode:"error",
+                                            response:err
+                                        });
                                     });
                                     break;
                                 default:
@@ -724,9 +813,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         }
                                         this.clearClipboard();
                                         this.cfpLoadingBar.complete();
+                                        this.onPasteEvent.emit({
+                                            mode:"success",
+                                            response:res
+                                        });
                                     },err=>{
                                         this.cfpLoadingBar.complete();
                                         this.httpErrorHandler.handleError(err);
+                                        this.onPasteEvent.emit({
+                                            mode:"error",
+                                            response:err
+                                        });
                                     });
                             }
                         }else{
@@ -735,6 +832,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             }else{*/
                                 this.clearClipboard();
                             // }
+                            this.onPasteEvent.emit({
+                                mode:"cancel",
+                                response:this.selectedElements
+                            });
                         }
                         this.dialogRef = null;
                     });
@@ -766,32 +867,52 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
 
         if(!noResetSelectElements){
-            if(this.selectedElements){
-                this.selectedElements.reset(allReset);
+            if(resetIds.length < 5){
+                resetIds.forEach((level:DicomLevel)=>{
+                    try{
+                        Object.keys(this.selectedElements.preActionElements[level]).forEach(id=>{
+                            this.selectedElements.preActionElements.toggle(level,{id:id,idParts:[]}, {});
+                        });
+                        Object.keys(this.selectedElements.postActionElements[level]).forEach(id=>{
+                            this.selectedElements.postActionElements.toggle(level,{id:id,idParts:[]}, {});
+                        });
+                    }catch(e){
+
+                    }
+                });
+            }else{
+                if(this.selectedElements){
+                    this.selectedElements.reset(allReset);
+                }
             }
         }
 
         this.patients.forEach(patient=>{
             if(resetIds.indexOf("patient") > -1){
                 patient.selected = selectedValue;
+                this.service.addObjectOnSelectedElements("patient", selectedValue, patient, this.selectedElements);
             }
             if(patient.studies && resetIds.indexOf("study") > -1)
                 patient.studies.forEach(study=>{
                     study.selected = selectedValue;
+                    this.service.addObjectOnSelectedElements("study", selectedValue, study, this.selectedElements);
                     if(study.series && resetIds.indexOf("series") > -1)
                         study.series.forEach(serie=>{
                             serie.selected = selectedValue;
+                            this.service.addObjectOnSelectedElements("series", selectedValue, serie, this.selectedElements);
                             if(serie.instances && resetIds.indexOf("instance") > -1)
                                 serie.instances.forEach(instance=>{
                                     instance.selected = selectedValue;
+                                    this.service.addObjectOnSelectedElements("instance", selectedValue, instance, this.selectedElements);
                                 })
                         })
                 });
-            if(patient.mwls && resetIds.indexOf("mwl") > -1)
+            if(patient.mwls && resetIds.indexOf("mwl") > -1){
                 patient.mwls.forEach(study=>{
                     study.selected = selectedValue;
                 });
-        })
+            }
+        });
     }
 
     select(object, dicomLevel:DicomLevel){
@@ -950,6 +1071,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "modify_expired_date"){
                 this.setExpiredDate(model);
             }
+            if(id.action === "mark_as_requested_unscheduled"){
+                this.markAsRequestedOrUnscheduled(model, id.level);
+            }
             if(id.action === "create_mwl"){
                 this.createMWL(model);
             }
@@ -1072,7 +1196,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 };
                 let removeCode = [
                     "00401001",
-                    "00400100",
+                    //"00400100",
                     "00321060",
                     "00321064"
                 ];
@@ -1088,7 +1212,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                     }
                 });
-
                 object.attrs = newObject;
             }
             this.config.viewContainerRef = this.viewContainerRef;
@@ -1215,7 +1338,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 },
                 '0020000D': { 'vr': 'UI', 'Value': ['']},
                 '00080050': { 'vr': 'SH', 'Value': ['']},
-                '00401001': { 'vr': 'SH', 'Value': ['']}
+                '00401001': { 'vr': 'SH', 'Value': ['']},
+                '00741202': { 'vr': 'LO', 'Value': ['']}
             }
         };
         let config = {
@@ -1547,11 +1671,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     /*
     * @confirmparameters is an object that can contain title, content
     * */
-    confirm(confirmparameters){
+    confirm(confirmparameters, width?:string){
+        width = width || '500px';
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: width
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -1990,6 +2115,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         // }
         // delete filterModel["allAttributes"];
         delete filterModel.webApp;
+
         return j4care.clearEmptyObject(filterModel);
     }
 
@@ -2040,30 +2166,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
     }
     submit(filterModel){
-        if (this.studyConfig
-                && this.studyConfig.tab === "series"
-                && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_RS") > -1
-                && this.studyWebService.selectedWebService.dcmWebServicePath.indexOf("/dimse/") > -1) {
-            if (_.hasIn(filterModel, ['StudyInstanceUID']) && (_.get(filterModel, "StudyInstanceUID")).length >= 1)
-                this.triggerQueries(filterModel, true);
-            else
-                this.appService.showWarning($localize `:@@external_archive_proxy_relational_query_req_warning:Query requests without (Study Instance UID) proxied to external archives may not support relational queries!`);
-            return;
-        }
         if (this.showNoFilterWarning(filterModel)) {
             this.confirm({
                 content: $localize `:@@no_filter_set_warning:No filter are set, are you sure you want to continue?`
             }).subscribe(result => {
                 if (result){
-                    this.triggerQueries(filterModel, false);
+                    this.triggerQueries(filterModel);
                 }
             });
         }else{
-            this.triggerQueries(filterModel, false);
+            this.triggerQueries(filterModel);
         }
 
     }
-    triggerQueries(filterModel, isDimseSeries: boolean){
+    triggerQueries(filterModel){
         switch (this.studyConfig.tab){
             case "study":
                 this.getStudies(filterModel);
@@ -2072,7 +2188,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.getPatients(filterModel);
                 break;
             case "series":
-                this.getSeries(filterModel, isDimseSeries);
+                this.getSeries(filterModel);
                 break;
             case "mwl":
                 this.getMWL(filterModel);
@@ -2091,17 +2207,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     getDiff(filterModel){
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
-/*        let filter = Object.assign({},params);
-        filter['offset'] = offset ? offset:0;
-        filter['limit'] = this.limit + 1;
-        let mode = 'pk';
-        this.cfpLoadingBar.start();
-        if(this.taskPK != ''){
-            filter['pk'] = this.taskPK;
-        }else{
-            mode = 'batch';
-            filter['batchID'] = this.batchID;
-        }*/
         delete filterModel.orderby;
 
         if(_.hasIn(filterModel,"taskID") || (_.hasIn(filterModel,"batchID") && !this.studyWebService.selectedWebService)){
@@ -2110,12 +2215,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.complete();
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
-                /*            this.morePatients = undefined;
-                            this.moreDiffs = undefined;
-                            this.moreStudies = undefined;*/
-
                 if (_.size(res) > 0) {
-                    // this.moreDiffs = res.length > this.limit;
                     this.prepareDiffData(res, filterModel.offset);
                 }else{
                     this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
@@ -2130,12 +2230,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.complete();
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
-                /*            this.morePatients = undefined;
-                            this.moreDiffs = undefined;
-                            this.moreStudies = undefined;*/
-
                 if (_.size(res) > 0) {
-                    // this.moreDiffs = res.length > this.limit;
                     this.prepareDiffData(res, filterModel.offset);
                 }else{
                     if(_.hasIn(filterModel,"queue") && filterModel.queue === true){
@@ -2347,7 +2442,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "patient":
                 return this.service.getPatients(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             case "series":
-                return this.service.getSeries(filterModel, this.studyWebService.selectedWebService, false, <DicomResponseType>quantity);
+                return this.service.getSeries(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             default:
                 return this.service.getStudies(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
         }
@@ -2586,6 +2681,60 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             .subscribe(res => {
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
+                if(!environment.production) {
+/*                    res = [{"00080005":{"vr":"CS","Value":["ISO_IR 192"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"Aigner^Marie2"}]},"00100020":{"vr":"LO","Value":["MM13"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]},"00100030":{"vr":"DA","Value":["19860620"]},"00100040":{"vr":"CS","Value":["F"]},"00101002":{"vr":"SQ","Value":[{"00100020":{"vr":"LO","Value":["MM13"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM14"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM15"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM16"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}}]},"00101060":{"vr":"PN"},"00201200":{"vr":"IS","Value":["0"]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20230704090740.748+0200"]},"77771011":{"vr":"DT","Value":["20230704090740.773+0200"]}}]*/
+
+                    /*
+                                        res = [{
+                                            "00080005": {"vr": "CS", "Value": ["ISO_IR 192"]},
+                                            "00100010": {"vr": "PN", "Value": [{"Alphabetic": "Aigner^Marie"}]},
+                                            "00100020": {"vr": "LO", "Value": ["MM2"]},
+                                            "00100021": {"vr": "LO", "Value": ["JMS"]},
+                                            "00100022": {"vr": "CS", "Value": ["BARCODE"]},
+                                            "00100024": {
+                                                "vr": "SQ",
+                                                "Value": [{
+                                                    "00400032": {"vr": "UT", "Value": ["1.2.3"]},
+                                                    "00400033": {"vr": "CS", "Value": ["ISO"]}
+                                                }]
+                                            },
+                                            "00100030": {"vr": "DA", "Value": ["19560620"]},
+                                            "00100040": {"vr": "CS", "Value": ["F"]},
+                                            "00101002": {
+                                                "vr": "SQ",
+                                                "Value": [{
+                                                    "00100020": {"vr": "LO", "Value": ["MM2"]},
+                                                    "00100021": {"vr": "LO", "Value": ["JMS2"]}
+                                                }, {
+                                                    "00100020": {"vr": "LO", "Value": ["MM2"]},
+                                                    "00100021": {"vr": "LO", "Value": ["JMS22"]}
+                                                }, {
+                                                    "00100020": {"vr": "LO", "Value": ["MM2"]},
+                                                    "00100024": {
+                                                        "vr": "SQ",
+                                                        "Value": [{
+                                                            "00400032": {"vr": "UT", "Value": ["1.2.3.4.5.6.7"]},
+                                                            "00400033": {"vr": "CS", "Value": ["ISO"]}
+                                                        }]
+                                                    }
+                                                }, {
+                                                    "00100020": {"vr": "LO", "Value": ["TO123456"]},
+                                                    "00100021": {"vr": "LO", "Value": ["zxcv55"]},
+                                                    "00100022": {"vr": "CS", "Value": ["RFID"]}
+                                                }, {
+                                                    "00100020": {"vr": "LO", "Value": ["CH090986"]},
+                                                    "00100021": {"vr": "LO", "Value": ["zxcv55"]},
+                                                    "00100022": {"vr": "CS", "Value": ["BARCODE"]}
+                                                }]
+                                            },
+                                            "00101060": {"vr": "PN"},
+                                            "00201200": {"vr": "IS", "Value": ["0"]},
+                                            "77770010": {"vr": "LO", "Value": ["DCM4CHEE Archive 5"]},
+                                            "77771010": {"vr": "DT", "Value": ["20230612094520.923+0200"]},
+                                            "77771011": {"vr": "DT", "Value": ["20230612094520.929+0200"]}
+                                        }]
+                    */
+                }
                 if(res){
                     this.setTopToTableHeader();
                     let index = 0;
@@ -2632,11 +2781,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
     }
 
-    getSeries(filterModel, isDimseSeries: boolean){
+    getSeries(filterModel){
         console.log("getSeriesCalled");
         this.cfpLoadingBar.start();
         this.searchCurrentList = "";
-        this.service.getSeries(filterModel, this.studyWebService.selectedWebService, isDimseSeries)
+        this.service.getSeries(filterModel, this.studyWebService.selectedWebService)
             .subscribe(res => {
                 this.patients1 = [];
                 this.studies = [];
@@ -2839,13 +2988,23 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     filterChanged(){
-        if(this.studyWebService.selectedWebService != _.get(this.filter,"filterModel.webApp")){
-            this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp.dcmWebAppName"));
+        if(this.studyWebService && _.get(this.studyWebService,"selectedWebService.dcmWebAppName") != _.get(this.filter,"filterModel.webApp")){
+            this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp"));
+            this.onStudyWebServiceChange.emit(this.studyWebService);
             this.internal = !(this.appService.archiveDeviceName && _.hasIn(this.studyWebService, "selectedWebService.dicomDeviceName") && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
             if(!this.internal){
                 delete this._filter.filterModel.includefield;
             }else{
                 this._filter.filterModel.includefield = "all";
+            }
+            if(_.hasIn(this.studyWebService.selectedWebService,"dcmProperty[0]")){
+                this.studyWebService.selectedWebService.dcmProperty.forEach(propertie=>{
+                    if(propertie.indexOf("MWLWorklistLabel=") > -1){
+                        let mwlLabel = propertie;
+                        mwlLabel = mwlLabel.replace("MWLWorklistLabel=","");
+                        this.filter.filterModel.WorklistLabel = mwlLabel;
+                    }
+                })
             }
             this.setMainSchema();
 /*            this.moreFunctionConfig.options = this.moreFunctionConfig.options.filter(option=>{
@@ -2859,8 +3018,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             // console.log("test",test);
             this.setTrash();
             this.patients = [];
+
         }
+        this.triggerSubmitOnQueryParams();
+        this.onFilterChange.emit(this.filter.filterModel);
         // this.tableParam.tableSchema  = this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {trashActive:this.trash.active});
+    }
+
+    triggerSubmitOnQueryParams(){
+        if(this.querySubmit && this.studyWebService && this.studyWebService.selectedWebService){
+            this.querySubmit = false;
+            this.search("current", {id:"submit"});
+        }
     }
 
     moreFunctionFilterPipe = (value, args) => {
@@ -2903,6 +3072,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "storage_verification_studies":
                                 case "schedule_storage_commit_for_matching_studies":
                                 case "instance_availability_notification_for_matching_studies":
+                                case "update_matching_studies":
                                     return studyConfig && studyConfig.tab === "study"
                                         && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
                                 case "apply_retention_multiple_series":
@@ -2912,6 +3082,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "storage_verification_series":
                                 case "schedule_storage_commit_for_matching_series":
                                 case "instance_availability_notification_for_matching_series":
+                                case "update_matching_series":
                                     return studyConfig && studyConfig.tab === "series"
                                         && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
                                 case "change_sps_status_on_matching":
@@ -2967,14 +3138,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.synchronizeSelectedWebAppWithFilter();
             this._filter.filterSchemaMain.lineLength = undefined;
             this._filter.filterSchemaExpand.lineLength = undefined;
+            this._filter.filterSchemaMain.schema = undefined;
+            this._filter.filterSchemaExpand.schema = undefined;
             this.setMainSchema();
             this._filter.filterSchemaExpand  = this.service.getFilterSchema(
                 this.studyConfig.tab,
                 this.applicationEntities.aes,
                 this._filter.quantityText,
                 'expand',
-                this.storages
+                this.storages,
+                this.institutions
             );
+            this.changeDetector.detectChanges();
         }catch (e) {
             j4care.log("Error on schema set",e);
         }
@@ -2989,6 +3164,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this._filter.quantityText,
             'main',
             this.storages,
+            this.institutions,
             this.studyWebService,
             this.diffAttributeSets,
             showCount,
@@ -3006,7 +3182,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     synchronizeSelectedWebAppWithFilter(){
         if(this.studyWebService && this.studyWebService.selectedWebService && (!_.hasIn(this._filter.filterModel, "webApp") || this._filter.filterModel.webApp.dcmWebAppName != this.studyWebService.selectedWebService.dcmWebAppName)){
-            this.filter.filterModel.webApp = this.studyWebService.selectedWebService;
+            this.filter.filterModel.webApp = this.studyWebService.selectedWebService.dcmWebAppName;
         }
     }
 
@@ -3721,7 +3897,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             saveButton: $localize `:@@CANCEL_UPS:Cancel UPS`
         }).subscribe((ok)=> {
             if(ok){
-                this.service.cancelUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model.requester).subscribe(res => {
+                this.service.cancelUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model.requester).subscribe(warningHeaderText => {
                     this.appService.showMsg($localize `:@@cancellation_of_the_ups_workitem_was_requested_successfully:Cancellation of the UPS Workitem was requested successfully!`);
                 }, err => {
                     this.httpErrorHandler.handleError(err);
@@ -3761,6 +3937,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.titleLabel = config.titleLabel;
             this.dialogRef.afterClosed().subscribe(result => {
                 if (result){
+                    j4care.removeKeyFromObject(patient.attrs, ["required","enum", "multi"]);
                     if(mode === "create"){
                         this.service.modifyPatient(undefined,patient.attrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.patient_created_successfully:Patient created successfully`);
@@ -3788,37 +3965,37 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     recreateDBRecord(dicomLevel:DicomLevel,model){
         this.confirm({
-            content: $localize `:@@resetto_as_received:Reset to as received`,
+            content: $localize `:@@reset_to_as_received:Reset to as received`,
             doNotSave:true,
             form_schema:[
                 [
                    [
                         {
                             tag:"label",
-                            text:$localize `:@@sourceOfPreviousValues:Source of Previous Value`
+                            text:$localize `:@@source_of_previous_values:Source of Previous Values`
                         },
                         {
                             tag:"input",
                             type:"text",
                             filterKey:"sourceOfPreviousValues",
-                            description:$localize `:@@sourceOfPreviousValues:Source of Previous Value`,
-                            placeholder:$localize `:@@sourceOfPreviousValues:Source of Previous Value`
+                            description:$localize `:@@source_of_previous_values_desc:Source of Previous Values (0400,0561) stored with original Attributes in Original Attributes Sequence (0400,0561)`,
+                            placeholder:$localize `:@@source_of_previous_values:Source of Previous Values`
                         }
                     ],[
                         {
                             tag:"label",
-                            text:$localize `:@@reasonForModification:Reason for Modification`
+                            text:$localize `:@@reason_for_modification:Reason for Modification`
                         },
                             {
                                 tag:"select",
                                 type:"text",
                                 options:[
-                                    new SelectDropdown("COERCE","COERCE"),
-                                    new SelectDropdown("CORRECT","CORRECT")
+                                    new SelectDropdown("COERCE", $localize `:@@COERCE:COERCE`),
+                                    new SelectDropdown("CORRECT", $localize `:@@CORRECT:CORRECT`)
                                 ],
                                 filterKey:"reasonForModification",
-                                description:$localize `:@@reasonForModification:Reason for Modification`,
-                                placeholder:$localize `:@@reasonForModification:Reason for Modification`
+                                description:$localize `:@@reason_for_modification_desc:Store original values of modified Attributes in Original Attributes Sequence (0400,0561) with given Reason for the Attribute Modification (0400,0565)`,
+                                placeholder:$localize `:@@reason_for_modification:Reason for Modification`
                             }
                         ],[
                         {
@@ -3829,13 +4006,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 tag:"select",
                                 type:"text",
                                 options:[
-                                    new SelectDropdown("SUPPLEMENT","SUPPLEMENT"),
-                                    new SelectDropdown("MERGE","MERGE"),
-                                    new SelectDropdown("OVERWRITE","OVERWRITE")
+                                    new SelectDropdown("SUPPLEMENT", $localize `:@@SUPPLEMENT:SUPPLEMENT`),
+                                    new SelectDropdown("MERGE", $localize `:@@MERGE:MERGE`),
+                                    new SelectDropdown("OVERWRITE", $localize `:@@OVERWRITE:OVERWRITE`)
                                 ],
                                 filterKey:"updatePolicy",
-                                description:$localize `:@@updatePolicy:Update Policy`,
-                                placeholder:$localize `:@@updatePolicy:Update Policy`
+                                description:$localize `:@@update_policy_desc:Update Policy for modification of original attributes`,
+                                placeholder:$localize `:@@update_policy:Update Policy`
                             }
                         ]
                     ,
@@ -3860,6 +4037,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.start();
                 this.service.recreateDBRecord(ok.schema_model, this.studyWebService.selectedWebService,model).subscribe(res=>{
                     this.cfpLoadingBar.complete();
+                    this.appService.showMsg($localize `:@@process_executed:Process executed successfully`);
                     console.log("res",res)
                 },err=>{
                     this.cfpLoadingBar.complete();
@@ -4475,14 +4653,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     height: 'auto',
                     width: '90%'
                 });
-                $this.dialogRef.componentInstance.series = seriesFiltered;
+                $this.dialogRef.componentInstance.seriesResult.series = seriesFiltered;
                 $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
                 $this.dialogRef.componentInstance.iod = iod;
                 $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
                 $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
                 $this.dialogRef.componentInstance.mode = mode;
-                $this.dialogRef.afterClosed().subscribe(result => {
-                    if (result){
+                $this.dialogRef.afterClosed().subscribe(ok => {
+                    if (ok){
                         $this.service.clearPatientObject(seriesFiltered.attrs);
                         $this.service.convertStringToNumber(seriesFiltered.attrs);
                         let local = {};
@@ -4492,9 +4670,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 local[i] = m;
                             }
                         });
+
+                        let params = ok.sourceOfPrevVals != ''
+                            ? ok.reasonForModificationResult != undefined
+                                ? '?sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
+                                : '?sourceOfPreviousValues=' + ok.sourceOfPrevVals
+                            : ok.reasonForModificationResult != undefined
+                                ? '?reasonForModification=' + ok.reasonForModificationResult
+                                : '';
+
                         this.service.modifySeries(local,
                             this.studyWebService,
                             new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
+                            params,
                             this.service.getStudyInstanceUID(series.attrs),
                             this.service.getSeriesInstanceUID(series.attrs)).subscribe(
                             () => {
@@ -4512,15 +4700,153 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
     }
+
     editStudy(study){
         let config:{saveLabel:string,titleLabel:string} = {
             saveLabel:$localize `:@@SAVE:SAVE`,
-            titleLabel:$localize `:@@study.edit_study:patient:Edit study of patient `
+            titleLabel:$localize `:@@study.edit_study:Edit study of patient `
         };
         config.titleLabel += ((_.hasIn(study, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + study.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
         config.titleLabel += ((_.hasIn(study, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + study.attrs['00100020'].Value[0] + '</b>' : '');
         this.modifyStudy(study, 'edit', config);
     };
+
+    updateMatchingStudies() {
+        let $this = this;
+        this.service.getStudyIod().subscribe((res) => {
+            let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
+            let study = {
+                "attrs":{}
+            };
+            Object.keys(iod).forEach(dicomAttr=>{
+                if((iod[dicomAttr].required && iod[dicomAttr].required === 1)){
+                    study["attrs"][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
+                }
+            });
+            delete study.attrs["0020000D"];
+            this.service.initEmptyValue(study.attrs);
+            let studyFiltered = _.cloneDeep(study);
+            this.dialogRef = this.dialog.open(EditStudyComponent, {
+                height: 'auto',
+                width: '90%'
+            });
+            $this.dialogRef.componentInstance.studyResult.editMode = 'matching';
+            $this.dialogRef.componentInstance.studyResult.study = studyFiltered;
+            this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
+            this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
+            this.dialogRef.componentInstance.saveLabel = $localize `:@@UPDATE:UPDATE`;
+            this.dialogRef.componentInstance.titleLabel = $localize `:@@update_matching_studies:Update matching Studies`;
+            $this.dialogRef.afterClosed().subscribe((ok) => {
+                if (ok) {
+                    j4care.removeKeyFromObject(studyFiltered.attrs, ["required","enum", "multi"]);
+                    let params = '?updatePolicy=' + ok.updatePolicyResult;
+                    params += ok.sourceOfPrevVals != ''
+                                ? ok.reasonForModificationResult != undefined
+                                    ? '&sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
+                                    : '&sourceOfPreviousValues=' + ok.sourceOfPrevVals
+                                : ok.reasonForModificationResult != undefined
+                                    ? '&reasonForModification=' + ok.reasonForModificationResult
+                                    : '';
+
+                    if(_.hasIn(studyFiltered,"attrs.0020000D"))
+                        delete studyFiltered.attrs["0020000D"];
+
+                    let local = {};
+                    $this.service.appendPatientIdTo(study.attrs, local);
+                    _.forEach(studyFiltered.attrs, function(m, i){
+                        if (res[i]){
+                            local[i] = m;
+                        }
+                    });
+
+                    this.cfpLoadingBar.start();
+                    let msg = $localize `:@@studies:Studies`;
+                    this.service.updateMatchingStudies(local,
+                        this.studyWebService,
+                        new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
+                        params).subscribe(res => {
+                        console.log("res", res);
+                        this.cfpLoadingBar.complete();
+                        msg = j4care.prepareCountMessageUpdateMatching(msg, res);
+                        this.appService.showMsg(msg);
+                    }, err => {
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    });
+                }
+            });
+        });
+    }
+
+    updateMatchingSeries() {
+        let $this = this;
+        this.service.getSeriesIod().subscribe((res) => {
+            let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
+            let series = {
+                "attrs":{}
+            };
+            Object.keys(iod).forEach(dicomAttr=>{
+                if((iod[dicomAttr].required && iod[dicomAttr].required === 1)){
+                    series["attrs"][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
+                }
+            });
+            delete series.attrs["0020000E"];
+            delete series.attrs["00080060"];
+            delete series.attrs["00080005"];
+            this.service.initEmptyValue(series.attrs);
+            let seriesFiltered = _.cloneDeep(series);
+            this.dialogRef = this.dialog.open(EditSeriesComponent, {
+                height: 'auto',
+                width: '90%'
+            });
+            $this.dialogRef.componentInstance.seriesResult.editMode = 'matching';
+            $this.dialogRef.componentInstance.seriesResult.series = seriesFiltered;
+            this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
+            this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
+            this.dialogRef.componentInstance.saveLabel = $localize `:@@UPDATE:UPDATE`;
+            this.dialogRef.componentInstance.titleLabel = $localize `:@@update_matching_series:Update matching Series`;
+            $this.dialogRef.afterClosed().subscribe((ok) => {
+                if (ok) {
+                    j4care.removeKeyFromObject(seriesFiltered.attrs, ["required","enum", "multi"]);
+                    let params = '?updatePolicy=' + ok.updatePolicyResult;
+                    params += ok.sourceOfPrevVals != ''
+                                ? ok.reasonForModificationResult != undefined
+                                    ? '&sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
+                                    : '&sourceOfPreviousValues=' + ok.sourceOfPrevVals
+                                : ok.reasonForModificationResult != undefined
+                                    ? '&reasonForModification=' + ok.reasonForModificationResult
+                                    : '';
+
+                    if(_.hasIn(seriesFiltered,"attrs.0020000E"))
+                        delete seriesFiltered.attrs["0020000E"];
+
+                    let local = {};
+                    $this.service.appendPatientIdTo(series.attrs, local);
+                    _.forEach(seriesFiltered.attrs, function(m, i){
+                        if (res[i]){
+                            local[i] = m;
+                        }
+                    });
+
+                    this.cfpLoadingBar.start();
+                    let msg = $localize `:@@series:Series`;
+                    this.service.updateMatchingSeries(local,
+                        this.studyWebService.selectedWebService,
+                        new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
+                        params).subscribe(res => {
+                        console.log("res", res);
+                        this.cfpLoadingBar.complete();
+                        msg = j4care.prepareCountMessageUpdateMatching(msg, res);
+                        this.appService.showMsg(msg);
+                    }, err => {
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    });
+                }
+            });
+        });
+    }
+
     modifyStudy(study, mode, config?:{saveLabel:string,titleLabel:string}){
         let $this = this;
         this.config.viewContainerRef = this.viewContainerRef;
@@ -4547,14 +4873,22 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     height: 'auto',
                     width: '90%'
                 });
-                $this.dialogRef.componentInstance.study = studyFiltered;
+                $this.dialogRef.componentInstance.studyResult.study = studyFiltered;
                 $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
                 $this.dialogRef.componentInstance.iod = iod;
                 $this.dialogRef.componentInstance.saveLabel = config.saveLabel;
                 $this.dialogRef.componentInstance.titleLabel = config.titleLabel;
                 $this.dialogRef.componentInstance.mode = mode;
-                $this.dialogRef.afterClosed().subscribe(result => {
-                    if (result){
+                $this.dialogRef.afterClosed().subscribe(ok => {
+                    if (ok){
+                        let params = ok.sourceOfPrevVals != ''
+                                        ? ok.reasonForModificationResult != undefined
+                                            ? '?sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
+                                            : '?sourceOfPreviousValues=' + ok.sourceOfPrevVals
+                                        : ok.reasonForModificationResult != undefined
+                                            ? '?reasonForModification=' + ok.reasonForModificationResult
+                                            : '';
+
                         $this.service.clearPatientObject(studyFiltered.attrs);
                         $this.service.convertStringToNumber(studyFiltered.attrs);
                         let local = {};
@@ -4567,6 +4901,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.service.modifyStudy(local,
                             this.studyWebService,
                             new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
+                            params,
                             this.service.getStudyInstanceUID(study.attrs)).subscribe(
                             () => {
                                 $this.appService.showMsg($localize `:@@study_saved:Study saved successfully!`);
@@ -4586,6 +4921,96 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     setExpiredDate(study){
         this.setExpiredDateQuery(study,false);
+    }
+    markAsRequestedOrUnscheduled(e, level:DicomLevel){
+        let markModeHover;
+        let markModeTitle;
+        if (level === "series") {
+            markModeHover = $localize `:@@mark_mode_series_desc:Select mark mode to mark series as Requested or Unscheduled`;
+            markModeTitle = $localize `:@@mark_mode_series_text:Mark series as Requested or Unscheduled`;
+        } else {
+            markModeHover = $localize `:@@mark_mode_study_desc:Select mark mode to mark all series of study as Requested or Unscheduled`;
+            markModeTitle = $localize `:@@mark_mode_study_text:Mark all series of study as Requested or Unscheduled`;
+        }
+
+        this.service.getRequestSchema().subscribe(([requestedSchema, iod])=>{
+            const mainSchema = [
+                [
+
+                    {
+                        tag:"label",
+                        text:$localize `:@@mark_mode:Mark mode`
+                    },
+                    {
+                        tag:"select",
+                        options:[
+                            new SelectDropdown("requested", $localize `:@@requested:Requested`),
+                            new SelectDropdown("unscheduled", $localize `:@@unscheduled:Unscheduled`)
+                        ],
+                        filterKey:"markMode",
+                        description: markModeHover,
+                        placeholder:$localize `:@@mark_mode:Mark mode`
+                    }
+                ]
+            ];
+
+            let schemaMode = "unscheduled";
+            this.confirm({
+                content: markModeTitle,
+                doNotSave:true,
+                form_schema:[
+                    mainSchema
+                ],
+                onFilterChangeHook:(e,model,schema)=>{
+                    console.log("e",e);
+                    console.log("model",model);
+                    console.log("schema",schema);
+                    if(model && model["markMode"]){
+                        if(model["markMode"] === "requested" && schemaMode != "requested"){
+                            schema[0] = [
+                                ...mainSchema,
+                                ...requestedSchema
+                            ];
+                            schemaMode = "requested";
+                        }
+                        if(model["markMode"] === "unscheduled" && schemaMode != "unscheduled"){
+                            schema[0] = mainSchema;
+                            schemaMode = "unscheduled";
+                        }
+                    }
+                },
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize `:@@SUBMIT:SUBMIT`
+            },
+                '700px'
+            ).subscribe(ok=>{
+                if(ok && _.hasIn(ok,"schema_model.markMode")){
+                    const studyInstanceUID = j4care.getStudyInstanceUID(e.attrs);
+                    let toSendObject = [];
+                    let requested = _.get(ok, "schema_model.markMode") === "requested";
+                    if(requested){
+                        toSendObject = [this.service.convertFilterModelToDICOMObject(ok.schema_model,iod,["markMode"])];
+                    }
+                    this.cfpLoadingBar.start();
+                    this.service.markAsRequestedOrUnscheduled(this.studyWebService.selectedWebService,studyInstanceUID,toSendObject, level, e).subscribe(res=>{
+                        this.cfpLoadingBar.complete();
+                        let infoMsg = level === "series"
+                                        ? requested
+                                            ? $localize `:@@mark_series_requested_successfully:Series marked as Requested successfully!`
+                                            : $localize `:@@mark_series_unscheduled_successfully:Series marked as Unscheduled successfully!`
+                                        : requested
+                                            ? $localize `:@@mark_study_requested_successfully:All Series of Study marked as Requested successfully!`
+                                            : $localize `:@@mark_study_unscheduled_successfully:All Series of Study marked as Unscheduled successfully!`;
+                        this.appService.showMsg(infoMsg);
+                    },err=>{
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    });
+                }
+            })
+        })
     }
 
     setExpiredDateQuery(study, infinit){
@@ -4664,6 +5089,28 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     }
 
+    deleteSelectedObjects(){
+        let deleteServices = ()=>{
+            if(this.selectedElements.size > 0){
+                this.cfpLoadingBar.start();
+                this.service.deleteMultipleObjects(this.selectedElements, this.studyWebService.selectedWebService).subscribe(res=>{
+                    this.appService.showMsg($localize `:@@deleting_multiple_objects_triggered_successfully:Deleting multiple objects triggered successfully!`);
+                    this.cfpLoadingBar.complete();
+                },err=>{
+                    this.cfpLoadingBar.complete();
+                    this.httpErrorHandler.handleError(err);
+                })
+            }
+        };
+        let parameters: any = {
+            content: $localize `:@@deleting_selected_object_study_patient:Delete selected Object ( Only deleting Studies and Patient objects are currently supported ) `};
+        this.confirm(parameters).subscribe(result => {
+            if (result) {
+                deleteServices();
+            }
+        });
+    }
+
     deleteStudy(study){
         console.log('study', study);
         this.confirm({
@@ -4674,7 +5121,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag:"label",
-                            text:$localize `:@@retainObj:Retain objects on the filesystem`
+                            text:$localize `:@@retainObj:Retain objects on filesystem`
                         },
                         {
                             tag:"checkbox",
@@ -4716,7 +5163,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         });
         this.confirm({
-            content: $localize `:@@select_rejected_type:Select rejected type`,
+            content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
             doNotSave:true,
             form_schema:[
                 [
@@ -4780,7 +5227,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         console.log("res",res);
                         let count = "";
                         try{
-                            count = res.count;
+                            count = res["count"];
                         }catch (e) {
                             j4care.log("Could not get count from res=",e);
                         }
@@ -4803,7 +5250,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         });
         this.confirm({
-            content: $localize `:@@select_rejected_type:Select rejected type`,
+            content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
             doNotSave:true,
             form_schema:this.service.rejectMatchingSeriesDialogSchema(rjNoteCodes),
             result: {
@@ -4879,7 +5326,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.cfpLoadingBar.start();
                 this.service.rejectRestoreMultipleObjects(this.selectedElements, this.studyWebService.selectedWebService,rejectionCode).subscribe(res=>{
                     this.appService.showMsg(msg);
-                this.cfpLoadingBar.complete();
+                    this.cfpLoadingBar.complete();
                 },err=>{
                     this.cfpLoadingBar.complete();
                     this.httpErrorHandler.handleError(err);
@@ -4900,7 +5347,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             let parameters: any = {
-                content: $localize `:@@select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
                 select: select,
                 result: {select: this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator},
                 saveButton: $localize `:@@REJECT:REJECT`
@@ -4938,7 +5385,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             this.confirm({
-                content: $localize `:@@select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -5055,7 +5502,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             this.confirm({
-                content: $localize `:@@select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -5172,7 +5619,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             });
             this.confirm({
-                content: $localize `:@@select_rejected_type:Select rejected type`,
+                content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
                 doNotSave:true,
                 form_schema:[
                     [
@@ -5270,15 +5717,24 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if (!this.trash.rjcode){
                 this.service.getRejectNotes({dcmRevokeRejection:true})
                     .subscribe((res)=>{
-                        this.trash.rjcode = res[0];
+                        this.trash.rjcode = undefined;
+                        setTimeout(()=>{
+                            this.trash.rjcode = res[0];
+                            this.setSchema();
+                        },1);
                     });
             }
             this.trash.active = true;
         }else{
             this.trash.active = false;
         }
-        this.tableParam.tableSchema  = this.getSchema();
+        this.setTableSchema();
     };
+
+    setTableSchema(){
+        this.tableParam.tableSchema = this.getSchema();
+    }
+
     getSchema(){
         let dateTimeFormat = _.hasIn(this.appService.global,"dateTimeFormat") ? this.appService.global["dateTimeFormat"] : undefined;
         let personNameFormat = _.hasIn(this.appService.global,"personNameFormat") ? this.appService.global["personNameFormat"] : undefined;
@@ -5352,6 +5808,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 tag:"editable-select",
                                 options:this.applicationEntities.aes,
                                 filterKey:"destination",
+                                showSearchField:true,
                                 description: $localize `:@@destination_aet:Destination AET`,
                                 placeholder: $localize `:@@destination_aet:Destination AET`
                             }
@@ -5513,7 +5970,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.externalInternalAetMode = !this.internal || mode === "multiple-retrieve" ? "external" : "internal";
         this.dialogRef.componentInstance.title = title;
-        this.dialogRef.componentInstance.mode = mode;
+        this.dialogRef.componentInstance.mode = mode == "multipleExportSelections" ? 'single': mode;
         this.dialogRef.componentInstance.queues = this.queues;
         this.dialogRef.componentInstance.newStudyPage = true;
         // this.dialogRef.componentInstance.count = this.count;
@@ -5556,6 +6013,38 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                     });
                 }else{
+                    if(mode === 'multipleExportSelections'){
+                        this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
+                            this.studyWebService,
+                            "DCM4CHEE_ARC_AET",
+                            "MOVE_MATCHING"
+                        ).subscribe(webApp=>{
+                            if(webApp){
+                                urlRest = `${
+                                    this.service.getDicomURL("export",webApp)
+                                }/${
+                                    result.selectedExporter
+                                }?${
+                                    params1
+                                }${
+                                    this.appService.param(this.createStudyFilterParams(true,true))
+                                }`;
+                            }else{
+                                this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
+                            }
+                            if (result.exportType === 'dicom') {
+                                id = 'dicom:' + result.selectedAet;
+                            }
+                            else if (result.exportType === 'stow'){
+                                id = 'stowrs:' + result.selectedStowWebapp;
+                            }
+                            else {
+                                id = result.selectedExporter;
+                            }
+                            singleUrlSuffix = '/export/' + id + '?'+ params1;
+                            fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
+                        });
+                    }
                     if(mode === 'multipleExport'){
                         this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                             this.studyWebService,
@@ -5784,6 +6273,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.confirm({
                 content: $localize`:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Studies`,
                 doNotSave: true,
+                cssClass:"has_date_picker",
                 form_schema: [
                     [
                         [
@@ -5890,7 +6380,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     let msg;
                     this.cfpLoadingBar.start();
                     msg = $localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`;
-                    this.service.schedulestorageVerificationStudies(_.merge(ok.schema_model, this.createStudyFilterParams(true, true)), this.studyWebService).subscribe(res => {
+                    this.service.schedulestorageVerificationStudies(_.merge(ok.schema_model, this.createStudyFilterParams(true, true)),
+                        this.studyWebService).subscribe(res => {
                         console.log("res", res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessage(msg, res);
@@ -5996,31 +6487,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 description:$localize `:@@storage_IDs:Storage IDs`,
                                 placeholder:$localize `:@@storage_IDs:Storage IDs`
                             }
-                        ],
-                        [
-                            {
-                                tag: "label",
-                                text: $localize`:@@batch_ID:Batch ID`
-                            },
-                            {
-                                tag: "input",
-                                type: "text",
-                                filterKey: "batchID",
-                                description: $localize`:@@batch_ID:Batch ID`,
-                                placeholder: $localize`:@@batch_ID:Batch ID`
-                            }
-                        ],
-                        [
-                            {
-                                tag: "label",
-                                text: $localize`:@@schedule_at:Schedule at`
-                            },
-                            {
-                                tag:"single-date-time-picker",
-                                type:"text",
-                                filterKey:"scheduledTime",
-                                description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
-                            },
                         ]
                     ]
                 ],
@@ -6103,6 +6569,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         return 0;
                     });
                     this.trash.reject = this.trash.rjnotes[0].codeValue + '^' + this.trash.rjnotes[0].codingSchemeDesignator;
+                    this.setSchema();
                 },
                 err => {
                     if (retries)
@@ -6138,10 +6605,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             })
         ).subscribe(
                 (webApps:DcmWebApp[])=> {
-                    // webApps = _.uniq([...webApps,...webAppsTemp],"dcmWebAppName");
-                    console.log("this.studyWebService",this.studyWebService);
-                    console.log("this.filter",this.filter.filterModel);
-                    this.studyWebService= new StudyWebService({
+                    if((!webApps || !_.isArray(webApps) || webApps.length < 1) && this.studyConfig.tab){
+                        this.appService.showMsg(this.service.getNoServiceSpecificWebApps(this.studyConfig.tab));
+                    }
+                    this.studyWebService = new StudyWebService({
                         webServices:webApps.map((webApp:DcmWebApp)=>{
                             aetsTemp.forEach((aet)=>{
                                 if(webApp.dicomAETitle && webApp.dicomAETitle === aet.dicomAETitle){
@@ -6154,20 +6621,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         selectedWebService:_.get(this.studyWebService,"selectedWebService"),
                         allWebServices:_.uniq([...webApps,...webAppsTemp],"dcmWebAppName"),
                     });
+                    this.onStudyWebServiceChange.emit(this.studyWebService);
                     this.applicationEntities.aets = aetsTemp.map((ae:Aet)=>{
                         return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
                     });
                     this.applicationEntities.aes = aesTemp.map((ae:Aet)=>{
                         return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
                     });
-                    // this.aets = aetsTemp;
-                    // console.log("ates",this.aets);
-                    // this.getDevices();
-                    this.setSchema();
+                    this.setTemplateToFilter();
                     this.initExporters(2);
                     this.initRjNotes(2);
                     this.getQueueNames();
                     this.getRetrieveQueueNames();
+                    this.triggerSubmitOnQueryParams();
                 },
                 (err)=> {
                     console.error("Error on getting webApps",err);
@@ -6183,6 +6649,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                             $this.exporterID = res[0].id;
                                         }*/
                     // $this.appService.setGlobal({exporterID:$this.exporterID});
+                    this.setSchema();
                 },
                 (res)=> {
                     if (retries)
@@ -6260,23 +6727,30 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     getQueueNames(){
         this.service.getQueueNames().subscribe(names=>{
-            this.queues = names.map(name=> new SelectDropdown(name.name, name.description));
+            this.queues = undefined
+            setTimeout(()=>{
+                this.queues = names.map(name=> new SelectDropdown(name.name, name.description));
+                this.setSchema();
+            },1)
         },err=>{
             this.httpErrorHandler.handleError(err);
         })
     }
     getRetrieveQueueNames(){
         this.service.getQueueNames().subscribe(names=>{
-            this.retrieveQueues = names
-                .filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1)
-                .sort((a,b)=>{
-                    try{
-                        return parseInt(a.name.replace(/Retrieve/g,"")) - parseInt(b.name.replace(/Retrieve/g,""))
-                    }catch (e) {
-                        return 1;
-                    }
-                })
-                .map(name=> new SelectDropdown(name.name, name.description));
+            try{
+                this.retrieveQueues = names
+                    .filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1)
+                    .sort((a,b)=>{
+                        try{
+                            return parseInt(a.name.replace(/Retrieve/g,"")) - parseInt(b.name.replace(/Retrieve/g,""))
+                        }catch (e) {
+                            return 1;
+                        }
+                    })
+                    .map(name=> new SelectDropdown(name.name, name.description));
+            }catch (e){}
+                this.setSchema();
         },err=>{
             this.httpErrorHandler.handleError(err);
         })
@@ -6290,6 +6764,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             callback.call($this);
         }, err => {
             this.httpErrorHandler.handleError(err);
+        });
+    }
+
+    getInstitutions($this, entity?: any, callback?:Function) {
+        this.service.getInstitutions(entity).subscribe((institutions:any) => {
+            if(
+                _.hasIn(institutions,"Institutions") &&
+                typeof institutions.Institutions === "object" &&
+                institutions.Institutions.length > 0 &&
+                institutions.Institutions.join("") != ""
+            ){
+                this.institutions = institutions.Institutions.map((institution:string) => {
+                    return new SelectDropdown(institution, institution);
+                });
+            }
+            callback.call($this);
+        }, err => {
+            this.httpErrorHandler.handleError(err);
+            this.institutions;
+            callback.call($this);
         });
     }
 

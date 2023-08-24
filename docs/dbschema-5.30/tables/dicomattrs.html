@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>dicomattrs - pacsdb Database</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="../bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="../bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="../bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="../bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="../bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='../fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='../fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="../bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="../schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="../bower/html5shiv/html5shiv.min.js"></script>
+        <script src="../bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="../index.html" class="navbar-brand"><b>pacsdb</b> Database</a>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="../index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="../columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="../constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="../relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="../orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="../anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="../routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>dicomattrs</h1><p><span id="recordNumber">0</span> rows</p><br />
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            <h3 id="Columns" class="box-title">Columns</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="standard_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th title='Are nulls allowed?'>Nulls</th>
+                                    <th title='Is column automatically updated?'>Auto</th>
+                                    <th title='Default value'>Default</th>
+                                    <th title='Columns in tables that reference this column'>Children</th>
+                                    <th title='Columns in tables that are referenced by this column'>Parents</th>
+                                    <th title='Comments' class="toggle"><span>Comments</span></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pk">pk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="global_subscription.matchkeys_fk references dicomattrs.pk via fk_f1l196ykcnh7s2pwo6qnmltw7"><a href='global_subscription.html'>global_subscription</a><span class='relatedKey'>.matchkeys_fk</span></td>
+                                                <td class="constraint detail">fk_f1l196ykcnh7s2pwo6qnmltw7<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="instance.dicomattrs_fk references dicomattrs.pk via fk_jxfu47kwjk3kkkyrwewjw8a4n"><a href='instance.html'>instance</a><span class='relatedKey'>.dicomattrs_fk</span></td>
+                                                <td class="constraint detail">fk_jxfu47kwjk3kkkyrwewjw8a4n<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="mpps.dicomattrs_fk references dicomattrs.pk via fk_o49fec996jvdo31o7ysmsn9s2"><a href='mpps.html'>mpps</a><span class='relatedKey'>.dicomattrs_fk</span></td>
+                                                <td class="constraint detail">fk_o49fec996jvdo31o7ysmsn9s2<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="mwl_item.dicomattrs_fk references dicomattrs.pk via fk_6qj8tkh6ib9w2pjqwvqe23ko"><a href='mwl_item.html'>mwl_item</a><span class='relatedKey'>.dicomattrs_fk</span></td>
+                                                <td class="constraint detail">fk_6qj8tkh6ib9w2pjqwvqe23ko<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="patient.dicomattrs_fk references dicomattrs.pk via fk_5lgndn3gn7iug3kuewiy9q124"><a href='patient.html'>patient</a><span class='relatedKey'>.dicomattrs_fk</span></td>
+                                                <td class="constraint detail">fk_5lgndn3gn7iug3kuewiy9q124<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="rel_task_dicomattrs.dicomattrs_fk references dicomattrs.pk via fk_e0gtunmen48q8imxggunt7gt7"><a href='rel_task_dicomattrs.html'>rel_task_dicomattrs</a><span class='relatedKey'>.dicomattrs_fk</span></td>
+                                                <td class="constraint detail">fk_e0gtunmen48q8imxggunt7gt7<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="series.dicomattrs_fk references dicomattrs.pk via fk_bdj2kuutidekc2en6dckev7l6"><a href='series.html'>series</a><span class='relatedKey'>.dicomattrs_fk</span></td>
+                                                <td class="constraint detail">fk_bdj2kuutidekc2en6dckev7l6<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="study.dicomattrs_fk references dicomattrs.pk via fk_5w0oynbw061mwu1rr9mrb6kj4"><a href='study.html'>study</a><span class='relatedKey'>.dicomattrs_fk</span></td>
+                                                <td class="constraint detail">fk_5w0oynbw061mwu1rr9mrb6kj4<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ups.dicomattrs_fk references dicomattrs.pk via fk_3frtpy5cstsoxk5jxw9cutr33"><a href='ups.html'>ups</a><span class='relatedKey'>.dicomattrs_fk</span></td>
+                                                <td class="constraint detail">fk_3frtpy5cstsoxk5jxw9cutr33<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="attrs">attrs</span></td>
+                                    <td>bytea</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 id="Indexes" class="box-title">Indexes</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="indexes_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Type</th>
+                                    <th>Sort</th>
+                                    <th>Column(s)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> dicomattrs_pkey</td>
+                                    <td>Primary key</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pk</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div><!-- /.box-body -->
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-code-fork"></i>
+                            <h3 id="Relationships" class="box-title">Relationships</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="nav-tabs-custom"><!-- Tabs within a box -->
+                                <h5>Close relationships within degrees of separation</h5>
+                                <ul class="nav nav-tabs pull-left ui-sortable-handle">
+                                    <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
+                                    <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
+                                </ul>
+                                <div class="tab-content no-padding">
+                                    <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="global_subscription.html" target="_top" title="global_subscription" alt="" coords="356,165,604,341">
+<area shape="rect" id="node2" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="5,1245,311,1373">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="1291,5,1485,504">
+<area shape="rect" id="node4" href="series.html" target="_top" title="series" alt="" coords="964,395,1247,1773">
+<area shape="rect" id="node9" href="study.html" target="_top" title="study" alt="" coords="659,1500,911,2292">
+<area shape="rect" id="node5" href="mpps.html" target="_top" title="mpps" alt="" coords="661,585,908,820">
+<area shape="rect" id="node6" href="patient.html" target="_top" title="patient" alt="" coords="370,1329,590,1828">
+<area shape="rect" id="node7" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="659,837,910,1483">
+<area shape="rect" id="node8" href="rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="355,1845,605,1968">
+<area shape="rect" id="node10" href="ups.html" target="_top" title="ups" alt="" coords="649,2309,920,2867">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/dicomattrs.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="1636,75,1833,163">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="409,1035,551,1123">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="1363,749,1558,1248">
+<area shape="rect" id="node5" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="5,1617,311,1745">
+<area shape="rect" id="node9" href="series.html" target="_top" title="series" alt="" coords="989,1379,1271,2757">
+<area shape="rect" id="node4" href="global_subscription.html" target="_top" title="global_subscription" alt="" coords="356,1561,604,1737">
+<area shape="rect" id="node6" href="hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="1037,263,1223,351">
+<area shape="rect" id="node7" href="mpps.html" target="_top" title="mpps" alt="" coords="661,156,908,391">
+<area shape="rect" id="node13" href="patient.html" target="_top" title="patient" alt="" coords="370,1967,590,2465">
+<area shape="rect" id="node8" href="ian_task.html" target="_top" title="ian_task" alt="" coords="1051,157,1209,245">
+<area shape="rect" id="node11" href="person_name.html" target="_top" title="person_name" alt="" coords="59,2788,257,2876">
+<area shape="rect" id="node17" href="study.html" target="_top" title="study" alt="" coords="659,2111,911,2903">
+<area shape="rect" id="node25" href="metadata.html" target="_top" title="metadata" alt="" coords="700,2005,869,2093">
+<area shape="rect" id="node10" href="instance_req.html" target="_top" title="instance_req" alt="" coords="1637,1279,1832,1367">
+<area shape="rect" id="node12" href="location.html" target="_top" title="location" alt="" coords="1657,752,1813,840">
+<area shape="rect" id="node15" href="patient_id.html" target="_top" title="patient_id" alt="" coords="73,2292,243,2380">
+<area shape="rect" id="node14" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="659,1271,910,1916">
+<area shape="rect" id="node16" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1019,1168,1241,1256">
+<area shape="rect" id="node18" href="rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="355,1827,605,1949">
+<area shape="rect" id="node19" href="task.html" target="_top" title="task" alt="" coords="92,1829,224,1917">
+<area shape="rect" id="node20" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1013,371,1247,459">
+<area shape="rect" id="node21" href="ups.html" target="_top" title="ups" alt="" coords="649,480,920,1037">
+<area shape="rect" id="node22" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="976,476,1284,564">
+<area shape="rect" id="node23" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="964,720,1296,808">
+<area shape="rect" id="node24" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="975,889,1285,977">
+<area shape="rect" id="node26" href="series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1340,1381,1581,1469">
+<area shape="rect" id="node27" href="series_req.html" target="_top" title="series_req" alt="" coords="1373,2187,1548,2275">
+<area shape="rect" id="node28" href="sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="1021,1273,1239,1361">
+<area shape="rect" id="node29" href="study_query_attrs.html" target="_top" title="study_query_attrs" alt="" coords="1011,2775,1249,2863">
+<area shape="rect" id="node30" href="subscription.html" target="_top" title="subscription" alt="" coords="1035,581,1225,669">
+<area shape="rect" id="node31" href="ups_req.html" target="_top" title="ups_req" alt="" coords="1053,1063,1207,1151">
+<area shape="rect" id="node32" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="1625,2455,1844,2543">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/dicomattrs.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="global_subscription.html" target="_top" title="global_subscription" alt="" coords="356,165,604,341">
+<area shape="rect" id="node2" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="5,1245,311,1373">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="1291,5,1485,504">
+<area shape="rect" id="node4" href="series.html" target="_top" title="series" alt="" coords="964,395,1247,1773">
+<area shape="rect" id="node9" href="study.html" target="_top" title="study" alt="" coords="659,1500,911,2292">
+<area shape="rect" id="node5" href="mpps.html" target="_top" title="mpps" alt="" coords="661,585,908,820">
+<area shape="rect" id="node6" href="patient.html" target="_top" title="patient" alt="" coords="370,1329,590,1828">
+<area shape="rect" id="node7" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="659,837,910,1483">
+<area shape="rect" id="node8" href="rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="355,1845,605,1968">
+<area shape="rect" id="node10" href="ups.html" target="_top" title="ups" alt="" coords="649,2309,920,2867">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/dicomattrs.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="1871,371,2068,459">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="644,1104,785,1192">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="1598,1011,1793,1509">
+<area shape="rect" id="node5" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="240,1168,545,1296">
+<area shape="rect" id="node10" href="series.html" target="_top" title="series" alt="" coords="1223,1535,1506,2913">
+<area shape="rect" id="node4" href="global_subscription.html" target="_top" title="global_subscription" alt="" coords="591,839,839,1015">
+<area shape="rect" id="node6" href="hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="1271,149,1458,237">
+<area shape="rect" id="node7" href="id_sequence.html" target="_top" title="id_sequence" alt="" coords="5,1467,196,1555">
+<area shape="rect" id="node8" href="mpps.html" target="_top" title="mpps" alt="" coords="896,148,1143,383">
+<area shape="rect" id="node14" href="patient.html" target="_top" title="patient" alt="" coords="605,1533,825,2032">
+<area shape="rect" id="node9" href="ian_task.html" target="_top" title="ian_task" alt="" coords="1285,5,1444,93">
+<area shape="rect" id="node12" href="person_name.html" target="_top" title="person_name" alt="" coords="293,2085,492,2173">
+<area shape="rect" id="node18" href="study.html" target="_top" title="study" alt="" coords="893,2191,1145,2983">
+<area shape="rect" id="node26" href="metadata.html" target="_top" title="metadata" alt="" coords="935,2085,1104,2173">
+<area shape="rect" id="node11" href="instance_req.html" target="_top" title="instance_req" alt="" coords="1872,1573,2067,1661">
+<area shape="rect" id="node13" href="location.html" target="_top" title="location" alt="" coords="1891,1013,2047,1101">
+<area shape="rect" id="node16" href="patient_id.html" target="_top" title="patient_id" alt="" coords="307,1859,478,1947">
+<area shape="rect" id="node15" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="894,560,1145,1205">
+<area shape="rect" id="node17" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1254,1429,1475,1517">
+<area shape="rect" id="node19" href="rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="589,663,840,785">
+<area shape="rect" id="node20" href="task.html" target="_top" title="task" alt="" coords="319,1063,467,1151">
+<area shape="rect" id="node21" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1247,557,1482,645">
+<area shape="rect" id="node22" href="ups.html" target="_top" title="ups" alt="" coords="884,1223,1155,1780">
+<area shape="rect" id="node23" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="1211,663,1519,751">
+<area shape="rect" id="node24" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="1199,1183,1531,1271">
+<area shape="rect" id="node25" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="1209,452,1520,540">
+<area shape="rect" id="node27" href="series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1575,1537,1816,1625">
+<area shape="rect" id="node28" href="series_req.html" target="_top" title="series_req" alt="" coords="1608,2304,1783,2392">
+<area shape="rect" id="node29" href="sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="1256,768,1473,856">
+<area shape="rect" id="node30" href="study_query_attrs.html" target="_top" title="study_query_attrs" alt="" coords="1246,2931,1483,3019">
+<area shape="rect" id="node31" href="subscription.html" target="_top" title="subscription" alt="" coords="1269,1077,1460,1165">
+<area shape="rect" id="node32" href="ups_req.html" target="_top" title="ups_req" alt="" coords="1288,1288,1441,1376">
+<area shape="rect" id="node33" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="1860,2607,2079,2695">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/dicomattrs.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: true
+                    }
+                </script>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.1.0</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="../bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="../bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="../bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="../bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="../bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="../bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="../bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="../bower/pdfmake/pdfmake.min.js"></script>
+        <script src="../bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="../bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="../bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="../bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="../bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="../bower/codemirror/codemirror.js"></script>
+        <script src="../bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="../bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="table.js"></script>
+        <script src="../schemaSpy.js"></script>
+    </body>
+</html>

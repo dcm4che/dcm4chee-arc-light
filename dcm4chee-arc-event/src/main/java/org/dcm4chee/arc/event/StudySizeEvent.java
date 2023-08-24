@@ -38,32 +38,32 @@
 
 package org.dcm4chee.arc.event;
 
-import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4chee.arc.entity.Study;
+
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2020
  */
 public class StudySizeEvent {
-    private final String studyIUID;
-    private final IDWithIssuer patientID;
-
-    public StudySizeEvent(String studyIUID, IDWithIssuer patientID) {
-        this.studyIUID = studyIUID;
-        this.patientID = patientID;
+    private final Study study;
+    public StudySizeEvent(Study study) {
+        this.study = study;
     }
 
-    public String getStudyIUID() {
-        return studyIUID;
-    }
-
-    public IDWithIssuer getPatientID() {
-        return patientID;
+    public Study getStudy() {
+        return study;
     }
 
     @Override
     public String toString() {
-        return "StudySizeEvent[uid=" + studyIUID
-                + ", pid=" + patientID + "]";
+        return "StudySizeEvent[uid=" + study.getStudyInstanceUID()
+                + ", pid="
+                + study.getPatient().getPatientIDs()
+                    .stream()
+                    .map(patientID -> patientID.getIDWithIssuer().toString())
+                    .collect(Collectors.joining("~"))
+                + "]";
     }
 }

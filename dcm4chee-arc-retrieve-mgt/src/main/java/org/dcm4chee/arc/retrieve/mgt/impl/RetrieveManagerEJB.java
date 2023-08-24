@@ -49,6 +49,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.entity.Task_;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -111,12 +112,18 @@ public class RetrieveManagerEJB {
         if (ctx.getHttpServletRequestInfo() != null) {
             task.setRequesterUserID(ctx.getHttpServletRequestInfo().requesterUserID);
             task.setRequesterHost(ctx.getHttpServletRequestInfo().requesterHost);
-            task.setRequestURI(ctx.getHttpServletRequestInfo().requestURI);
+            task.setRequestURI(requestURL(ctx.getHttpServletRequestInfo()));
         }
         em.persist(task);
         LOG.info("Create {}", task);
         ctx.setRetrieveTask(task);
         return true;
+    }
+
+    private String requestURL(HttpServletRequestInfo httpServletRequestInfo) {
+        String requestURI = httpServletRequestInfo.requestURI;
+        String queryString = httpServletRequestInfo.queryString;
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     private boolean isAlreadyScheduledOrRetrievedAfter(ExternalRetrieveContext ctx, Date retrievedAfter,

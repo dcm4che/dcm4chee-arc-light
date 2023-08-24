@@ -22,7 +22,7 @@
                     </div>
                     <div class="line">
                         <label>Modified DICOM attributes:</label>
-                        <div *ngIf="!allModified && iod" >
+                        <div *ngIf="iod" >
                             <div class="add_block" [ngClass]="{'empty':modifiedAttr.size === 0}">
                                 <dcm-drop-down
                                         [options]="iod"
@@ -30,10 +30,13 @@
                                         [showSearchField]="true"
                                         [multiSelectMode]="false"
                                         [placeholder]="placeholder"
+                                        (modelChange)="onDropdownChange($event)"
                                 ></dcm-drop-down>
+<!--
                                 <i title="Add" class="material-icons" (click)="addAttribute(newAttribute)">add</i>
+-->
                             </div>
-                            <ul class="modified_list">
+                            <ul class="modified_list" [ngClass]="{'not-empty':modifiedAttr && modifiedAttr.size && modifiedAttr.size > 0}">
                                 <li *ngFor="let attr of Array.from(modifiedAttr.values())">
                                     <label title="{{attr}}">{{getLabelFromIODTag(attr)}}</label><i title="Delete" (click)="remove(attr)" class="material-icons">clear</i>
                                 </li>
@@ -55,7 +58,8 @@
                     </ng-container>-->
                 </div>
                 <div class="dialogbuttons">
-                    <button class="set_button save" (click)="setFilter()" i18n="@@SET">SET</button>
+                    <button class="set_button save"  [disabled]="!(modifiedAttr && modifiedAttr.size > 0)" (click)="setFilter()" i18n="@@Set">Set</button>
+                    <button class="cancle" type="button" (click)="clear()" i18n="@@Clear">Clear</button>
                 </div>
             </div>
         </ng-container>

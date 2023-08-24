@@ -90,40 +90,26 @@ public class RSClientImpl implements RSClient {
 
     @Override
     public void scheduleRequest(
-            RSOperation rsOp,
-            String requestURI,
-            String requestQueryStr,
-            String webAppName,
-            String patientID,
-            byte[] content,
-            boolean tlsAllowAnyHostName,
-            boolean tlsDisableTrustManager) {
+            RSOperation rsOp, HttpServletRequest request, String webAppName, String patientID, byte[] content) {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(QUEUE_NAME);
         task.setType(Task.Type.REST);
         task.setScheduledTime(new Date());
         task.setRSOperation(rsOp.name());
-        task.setRequestURI(requestURI);
-        task.setQueryString(requestQueryStr);
+        task.setRequestURI(request.getRequestURI());
+        task.setQueryString(request.getQueryString());
         task.setWebApplicationName(webAppName);
         task.setPatientID(patientID);
-        task.setTLSAllowAnyHostname(tlsAllowAnyHostName);
-        task.setTLSDisableTrustManager(tlsDisableTrustManager);
         task.setPayload(content);
         task.setStatus(Task.Status.SCHEDULED);
         taskManager.scheduleTask(task);
     }
 
     @Override
-    public Outcome request(String rsOp,
-                           String requestURI,
-                           String requestQueryString,
-                           String webAppName,
-                           String patientID,
-                           boolean tlsAllowAnyHostname,
-                           boolean tlsDisableTrustManager,
-                           byte[] content) throws Exception {
+    public Outcome request(
+            String rsOp, String requestURI, String requestQueryString, String webAppName, String patientID, byte[] content)
+            throws Exception {
         RSOperation rsOperation = RSOperation.valueOf(rsOp);
         WebApplication webApplication;
         Task.Status status = Task.Status.WARNING;
@@ -143,13 +129,11 @@ public class RSClientImpl implements RSClient {
         if (requestQueryString != null)
             targetURI += "?" + requestQueryString;
 
-        Response response = toResponse(
-                getMethod(rsOperation),
-                targetURI,
-                tlsAllowAnyHostname,
-                tlsDisableTrustManager,
-                content,
-                accessTokenFromWebApp(webApplication));
+        Response response = toResponse(getMethod(rsOperation),
+                                        targetURI,
+                                        webApplication,
+                                        content,
+                                        accessTokenFromWebApp(webApplication));
         Outcome outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
         response.close();
         return outcome;
@@ -183,15 +167,9 @@ public class RSClientImpl implements RSClient {
         return targetURI;
     }
 
-    private Response toResponse(String method,
-                                String uri,
-                                boolean allowAnyHostname,
-                                boolean disableTrustManager,
-                                byte[] content,
-                                String authorization) throws Exception {
-
-        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, allowAnyHostname, disableTrustManager)
-                .build();
+    private Response toResponse(
+            String method, String uri, WebApplication webApp, byte[] content, String authorization) throws Exception {
+        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, webApp).build();
         WebTarget target = client.target(uri);
         Invocation.Builder request = target.request();
         if (authorization != null)
@@ -213,23 +191,23 @@ public class RSClientImpl implements RSClient {
         LOG.info("Forward {} {} from {}@{} to device {}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost(), deviceName);
         String authorization = request.getHeader("Authorization");
-        String targetURI = null;
         String requestURI = request.getRequestURI();
         Device device = iDeviceCache.findDevice(deviceName);
         for (WebApplication webApplication : device.getWebApplications())
-            if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC))
-                targetURI = webApplication.getServiceURL().toString()
-                                + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1))
-                                + "?" + request.getQueryString() + append;
+            if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC)) {
+                StringBuilder targetURI = webApplication.getServiceURL()
+                                    .append(requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1)))
+                                    .append("?")
+                                    .append(request.getQueryString())
+                                    .append(append);
+                return toResponse("POST", targetURI.toString(), webApplication, null, authorization);
+            }
 
-        return targetURI == null
-                ? Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Either Web Application with Service Class 'DCM4CHEE_ARC' not configured for device: "
                             + deviceName
                             + " or HTTP connection not configured for WebApplication with Service Class 'DCM4CHEE_ARC' of this device.")
-                    .build()
-                : toResponse("POST", targetURI, true, false,
-                null, authorization);
+                    .build();
     }
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {
@@ -260,7 +238,9 @@ public class RSClientImpl implements RSClient {
             case ChangePatientID2:
             case MergePatient2:
             case UpdateStudy:
+            case UpdateStudyRequest:
             case UpdateSeries:
+            case UpdateSeriesRequest:
                 method = "PUT";
                 break;
             case ChangePatientID:

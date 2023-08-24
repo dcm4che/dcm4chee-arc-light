@@ -13,7 +13,8 @@ body{
 		//background: url("../img/bg.jpg");
 		//background: url("../img/156265438.jpg");
 		//background: url("../img/155539853.jpg");
-		background: url("../img/bg2.jpg");
+		background: linear-gradient(180deg, #3b6b8f8a 0%, rgb(87 216 255 / 65%) 100%);
+		background-image: url("/resources/img/bg.jpg"), url("../img/bg.jpg");
         background-repeat: no-repeat;
         background-size: 100%;
 		-webkit-filter: blur(5px);
@@ -58,13 +59,16 @@ body{
 		}
 	}
 	.logo{
-	    height: auto;
+		background: transparent;
+		background-image: url("/resources/img/logo.png"), url("../img/logo.png");
+		background-repeat: no-repeat;
+	    height: 42px;
 	    margin-left: 10px;
 	    //opacity: 0.7;
 	    position: fixed;
 	    right: 32px;
 	    bottom: 44px;
-	    width: 140px;
+	    width: 148px;
 	    z-index: -1;
 	    &:hover{
 	    	cursor: pointer;
@@ -1843,6 +1847,8 @@ app-studies{
     }
     img{
       vertical-align: middle;
+		width:15px;
+		height: auto;
     }
     span{
       margin-left: 5px;
@@ -1874,8 +1880,10 @@ app-studies{
       }
     }
     img{
-      float: left;
-      padding-top: 7px;
+		float: left;
+		padding-top: 7px;
+		width:15px;
+		height: auto;
     }
     span{
       float: left;
@@ -2580,8 +2588,40 @@ div[tooltip]{
 	width:20px;
 	background-position:center;
 }
+.orderbydateasc_uwl{
+	background:url("../img/orderbydateasc.png");
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:13px;
+	width:82px;
+	background-position:center;
+}
+.orderbydatedesc_uwl{
+	background:url("../img/orderbydatedesc.png");
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:13px;
+	width:82px;
+	background-position:center;
+}
+.orderbyprioritydesc{
+	background:url("../img/high2low.png");
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:13px;
+	width:82px;
+	background-position:center;
+}
+.orderbypriorityasc{
+	background:url("../img/low2high.png");
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:13px;
+	width:82px;
+	background-position:center;
+}
 .orderbynamedesc{
-	background:url("../img/orderbynamedesc.png");
+	background:url("../img/orderbynamedesc-obsolete.png");
 	background-repeat:no-repeat;
 	display:inline-block;
 	height:13px;

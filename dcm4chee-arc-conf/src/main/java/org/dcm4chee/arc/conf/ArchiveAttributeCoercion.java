@@ -75,7 +75,7 @@ public class ArchiveAttributeCoercion {
     private MergeMWLMatchingKey mergeMWLMatchingKey;
     private String mergeMWLTemplateURI;
     private String mergeMWLSCP;
-    private String[] mergeLocalMWLSCPs = {};
+    private String[] mergeLocalMWLWorklistLabels = {};
     private SPSStatus[] mergeLocalMWLWithStatus = {};
     private boolean filterBySCU;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
@@ -240,12 +240,12 @@ public class ArchiveAttributeCoercion {
         return this;
     }
 
-    public String[] getMergeLocalMWLSCPs() {
-        return mergeLocalMWLSCPs;
+    public String[] getMergeLocalMWLWorklistLabels() {
+        return mergeLocalMWLWorklistLabels;
     }
 
-    public void setMergeLocalMWLSCPs(String... mergeLocalMWLSCPs) {
-        this.mergeLocalMWLSCPs = mergeLocalMWLSCPs;
+    public void setMergeLocalMWLWorklistLabels(String... mergeLocalMWLWorklistLabels) {
+        this.mergeLocalMWLWorklistLabels = mergeLocalMWLWorklistLabels;
     }
 
     public SPSStatus[] getMergeLocalMWLWithStatus() {
@@ -474,7 +474,7 @@ public class ArchiveAttributeCoercion {
                 + ", mergeMWLMatchingKey=" + mergeMWLMatchingKey
                 + ", mergeMWLTemplateURI=" + mergeMWLTemplateURI
                 + ", mergeMWLSCP=" + mergeMWLSCP
-                + ", mergeLocalMWLSCPs=" + Arrays.toString(mergeLocalMWLSCPs)
+                + ", mergeLocalMWLSCPs=" + Arrays.toString(mergeLocalMWLWorklistLabels)
                 + ", mergeLocalMWLStatus=" + Arrays.toString(mergeLocalMWLWithStatus)
                 + ", mwlImportFilterBySCU=" + filterBySCU
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy

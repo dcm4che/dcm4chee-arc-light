@@ -68,6 +68,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private UnparsedHL7Message hl7msg;
     private Patient patient;
     private String studyInstanceUID;
+    private String studyInstanceUIDInstRefs;
     private Attributes attributes;
     private String eventActionCode;
     private Exception exception;
@@ -83,6 +84,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private String sourceMwlScp;
     private String mppsUID;
     private String status;
+    private String linkStrategy;
 
     @Override
     public ProcedureContext setHttpServletRequest(HttpServletRequestInfo httpRequest) {
@@ -297,6 +299,26 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public String getLinkStrategy() {
+        return linkStrategy;
+    }
+
+    @Override
+    public void setLinkStrategy(String linkStrategy) {
+        this.linkStrategy = linkStrategy;
+    }
+
+    @Override
+    public String getStudyInstanceUIDInstRefs() {
+        return studyInstanceUIDInstRefs;
+    }
+
+    @Override
+    public void setStudyInstanceUIDInstRefs(String studyInstanceUIDInstRefs) {
+        this.studyInstanceUIDInstRefs = studyInstanceUIDInstRefs;
     }
 
     @Override

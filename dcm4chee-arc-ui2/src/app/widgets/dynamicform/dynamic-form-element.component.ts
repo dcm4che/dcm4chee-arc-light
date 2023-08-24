@@ -410,11 +410,22 @@ export class DynamicFormElementComponent implements OnDestroy{
     checkboxChange(e, formelement){
         if(!this.readOnlyMode) {
             if (e.target.checked && !_.hasIn(this.form.controls[formelement.key].value, e.target.defaultValue) && !_.hasIn((<FormArray>this.form.controls[formelement.key]).getRawValue(), e.target.defaultValue)) {
-                (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(e.target.defaultValue));
+                (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(this.tryToConvertValueToInt(e.target.defaultValue)));
             } else {
-                (<FormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value, e.target.defaultValue));
+                (<FormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value, this.tryToConvertValueToInt(e.target.defaultValue)));
             }
         }
+    }
+    private tryToConvertValueToInt(value){
+        try{
+            const convertedValue = value*1;
+            if(!isNaN(convertedValue) && typeof convertedValue === "number"){
+                return value*1;
+            }
+        }catch (e) {
+
+        }
+        return value;
     }
     navigateTo(e,options?){
         if(!this.readOnlyMode){
@@ -508,6 +519,7 @@ export class DynamicFormElementComponent implements OnDestroy{
         formelement.showPicker = false;
         formelement.showTimePicker = false;
         formelement.showLanguagePicker = false;
+        formelement.showPropertyPicker = false;
         formelement.showDurationPicker = false;
         formelement.showSchedulePicker = false;
         formelement.showCharSetPicker = false;
@@ -542,6 +554,14 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     onFocuse(formelement,i=null) {
         if(formelement.format){
+/*            if(formelement.format === 'dcmProperty'){
+                if(i != null){
+                    formelement.showPropertyPicker = formelement.showPropertyPicker || {};
+                    formelement.showPropertyPicker[i] = true;
+                }else{
+                    formelement.showPropertyPicker = true;
+                }
+            }*/
             if(formelement.format === 'dcmLanguageChooser'){
                 if(i != null){
                     formelement.showLanguagePicker = formelement.showLanguagePicker || {};
@@ -550,7 +570,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                     formelement.showLanguagePicker = true;
                 }
             }
-            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
+            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass' || formelement.format === 'dcmProperty'){
                 if(i != null){
                     formelement.showPicker = formelement.showPicker || {};
                     formelement.showPicker[i] = true;

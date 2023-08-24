@@ -40,12 +40,16 @@
 
 package org.dcm4chee.arc.storage;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.slf4j.Logger;
 
 import java.io.*;
+import java.nio.file.NoSuchFileException;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 
@@ -72,8 +76,22 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
-    public WriteContext createWriteContext() {
-        return new DefaultWriteContext(this);
+    public WriteContext createWriteContext(String storagePath) {
+        DefaultWriteContext writeContext = new DefaultWriteContext(this);
+        writeContext.setStoragePath(storagePath);
+        return writeContext;
+    }
+
+    @Override
+    public WriteContext createWriteContext(Attributes attrs) {
+        WriteContext writeContext = createWriteContext(storagePathOf(attrs));
+        writeContext.setAttributes(attrs);
+        return writeContext;
+    }
+
+    @Override
+    public String storagePathOf(Attributes attrs) {
+        return descriptor.getStoragePathFormat().format(attrs);
     }
 
     @Override
@@ -181,29 +199,10 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public void copy(InputStream in, WriteContext ctx) throws IOException {
-        checkAccessable();
-        int retries = descriptor.getMaxRetries();
-        Duration retryDelay = descriptor.getRetryDelay();
-        for (;;) {
-            try {
-                long startTime = System.nanoTime();
-                copyA(in, ctx);
-                metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),
-                        ctx.getContentLength(), startTime);
-                return;
-            } catch (IOException e) {
-                if (--retries < 0)
-                    throw e;
-                log().info("Failed to write to {} - retry:\n", descriptor, e);
-                if (retryDelay != null) {
-                    try {
-                        Thread.sleep(retryDelay.getSeconds() * 1000);
-                    } catch (InterruptedException ie) {
-                        log().info("Delay of retry got interrupted:\n", ie);
-                    }
-                }
-            }
-        }
+        long startTime = System.nanoTime();
+        copyA(in, ctx);
+        metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),
+                ctx.getContentLength(), startTime);
     }
 
     @Override
@@ -249,14 +248,16 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public void revokeStorage(WriteContext ctx) throws IOException {
-        deleteObject(ctx.getStoragePath());
+        if (!ctx.isDeletionLock()) deleteObject(ctx.getStoragePath());
     }
 
     @Override
     public InputStream openInputStream(final ReadContext ctx) throws IOException {
         checkAccessable();
         long startTime = System.nanoTime();
-        InputStream stream = openInputStreamA(ctx);
+        InputStream stream = ctx.getStorage().getStorageDescriptor().isArchiveSeriesAsTAR()
+                ? openTarEntryInputStreamA(ctx)
+                : openInputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
             stream = new DigestInputStream(stream, ctx.getMessageDigest());
         }
@@ -330,6 +331,31 @@ public abstract class AbstractStorage implements Storage {
                 }
             }
         };
+    }
+
+    private InputStream openTarEntryInputStreamA(ReadContext ctx) throws IOException {
+        String storagePath = ctx.getStoragePath();
+        int tarPathEnd = storagePath.indexOf('!');
+        if (tarPathEnd < 0) return openInputStreamA(ctx);
+        ctx.setStoragePath(storagePath.substring(0, tarPathEnd));
+        String entryName = storagePath.substring(tarPathEnd + 1);
+        boolean entryFound = false;
+        TarArchiveInputStream tar = new TarArchiveInputStream(new BufferedInputStream(openInputStreamA(ctx)));
+        try {
+            TarArchiveEntry entry;
+            while ((entry = tar.getNextTarEntry()) != null && !entry.getName().equals(entryName));
+            if (entry == null) {
+                throw new NoSuchFileException(
+                        "No entry: " + entryName +
+                        " in TAR: " + storagePath
+                        + " on " + getStorageDescriptor());
+            }
+            entryFound = true;
+            return tar;
+        } finally {
+            if (!entryFound)
+                tar.close();
+        }
     }
 
     protected abstract InputStream openInputStreamA(ReadContext ctx) throws IOException;

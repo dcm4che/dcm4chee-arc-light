@@ -184,6 +184,8 @@ public class QueryAttributes {
                 case "ExporterID":
                 case "FreezeExpirationDate":
                 case "allmodified":
+                case "irwf":
+                case "strategy":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,

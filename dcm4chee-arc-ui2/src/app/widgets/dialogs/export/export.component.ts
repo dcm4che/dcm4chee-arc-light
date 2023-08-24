@@ -221,6 +221,9 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
         if(this._mode === "reschedule"){
             return true;
         }
+        if(this._mode === "multipleExport"){
+            return _.hasIn(this._result,"scheduledTime") && _.hasIn(this._result,"selectedExporter");
+        }
         if (this._result && _.hasIn(this._result,"exportType") && this._result.exportType === 'dicom'){
            // if (this._result.dicomPrefix && this._result.selectedAet){
             if (this._result.selectedAet){

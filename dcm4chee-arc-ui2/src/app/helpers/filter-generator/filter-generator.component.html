@@ -1,9 +1,12 @@
-<div [hidden]="hideLoader" class="filter filter_loader">
-    <div class="filter_block {{cssBlockClass}} height_{{filterTreeHeight}}">
-        <i class="fa fa-circle-o-notch fa-spin"></i>
+<!--<span *ngIf="schema"> SCHEMA </span>
+<span *ngIf="filterTreeHeight"> HEIGHT </span>
+<span *ngIf="filterID"> ID </span>-->
+<div [hidden]="schema && schema.length > 0 && filterTreeHeight" class="filter filter_loader">
+    <div class="filter_block {{cssBlockClass}} height_{{filterTreeHeight || 2}}">
+        <mat-progress-spinner mode="indeterminate" [diameter]="40" ></mat-progress-spinner>
     </div>
 </div>
-<div [hidden]="!hideLoader"  class="filter" (mouseleave)="mouseLeaveFilter()" (mouseenter)="mouseEnterFilter()"  (keyup)="onKeyUp($event)">
+<div *ngIf="schema && schema.length > 0 && filterTreeHeight" class="filter" (mouseleave)="mouseLeaveFilter()" (mouseenter)="mouseEnterFilter()"  (keyup)="onKeyUp($event)">
     <div class="filter_template_function">
         <span class="clearform_button" *ngIf="showFilterButtons && !hideClearButtons">
             <ul class="buttons">
@@ -36,19 +39,30 @@
                             <mat-option *ngFor="let option of line[index].secondField.options" value="{{option.value}}" title="{{option.description || option.title}}"  [innerHtml]="option.label || option.text"></mat-option>
                         </mat-select>
                     </div>
-                  <label *ngSwitchCase="'label'" title="{{line[index].title}}">{{line[index].text}}<ng-container *ngIf="!line[index].dontShowDots">:</ng-container></label>
+                  <label *ngSwitchCase="'label'" title="{{line[index].title}}">
+                      <ng-container *ngIf="line[index].prefix">{{line[index].prefix}}</ng-container>
+                      {{line[index].text}}
+                      <ng-container *ngIf="!line[index].dontShowDots">:</ng-container>
+                  </label>
                   <modality *ngSwitchCase="'modality'" [model]="model[line[index].filterKey]" [ngStyle]="line[index].style" (modelChange)="model[line[index].filterKey] = $event;filterChange($event)"></modality>
-                    <ng-container *ngSwitchCase="'multi-checkbox'">
-                        <!--options:{{line[index]?.options|json}}-->
-                        <label *ngFor="let item of line[index]?.options">
+                <ng-container *ngSwitchCase="'multi-checkbox'">
+                    <!--options:{{line[index]?.options|json}}-->
+                    <label *ngFor="let item of line[index]?.options">
 <!--
-                            item:{{item|json}}
+                        item:{{item|json}}
 -->
-                            <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="model[item.key] = $event;filterChange($event)" [(ngModel)]="model[item.key]"  title="{{item?.description}}" />
-                            <span [ngStyle]="item?.style" >{{item.text}}</span>
-                        </label>
-                    </ng-container>
-                  <ng-container *ngIf="line[index].filterKey || line[index].tag === 'code-selector' || line[index].tag === 'modified-widget'">
+                        <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="model[item.key] = $event;filterChange($event)" [(ngModel)]="model[item.key]"  title="{{item?.description}}" />
+                        <span [ngStyle]="item?.style" >{{item.text}}</span>
+                    </label>
+                </ng-container>
+                    <person-name-picker
+                            *ngSwitchCase="'person-name-picker'"
+                            [title]="line[index]?.description"
+                            [placeholder]="line[index]?.placeholder"
+                            [model]="model[line[index].filterKey]"
+                            (modelChange)="model[line[index].filterKey] = $event"
+                    ></person-name-picker>
+                  <ng-container *ngIf="line[index].filterKey || line[index].tag === 'code-selector' || line[index].tag === 'issuer-selector' || line[index].tag === 'modified-widget'">
                     <div class="input_group_dropdown" *ngSwitchCase="'size_range_picker'">
                         <size-range-picker ngDefaultControl (modelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(model)]="model[line[index].filterKey]"></size-range-picker>
                     </div>
@@ -79,6 +93,7 @@
 
                         >
                       </ng-container>
+
                     <div class="filter_checkbox" *ngSwitchCase="'checkbox'" title="{{line[index]?.description}}" [ngClass]="{'active':model[line[index].filterKey]}">
                       <input [disabled]="line[index].disabled" type="checkbox" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]"  title="{{line[index]?.description}}" > <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
                     </div>
@@ -96,6 +111,7 @@
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'editable-select'"
                               [placeholder]="line[index]?.placeholder"
+                              [title]="line[index]?.description || ''"
                               [ngClass]="line[index].cssClass"
                               [options]="line[index].options"
                               [optionsTree]="line[index].optionsTree"
@@ -109,10 +125,28 @@
                               [showStar]="line[index].showStar"
                       ></dcm-drop-down>
                       <dcm-drop-down
+                              [ngStyle]="line[index].style"
+                              *ngSwitchCase="'editable-multi-select'"
+                              [placeholder]="line[index]?.placeholder || ''"
+                              [title]="line[index]?.description || ''"
+                              [ngClass]="line[index].cssClass"
+                              [options]="line[index].options"
+                              [optionsTree]="line[index].optionsTree"
+                              [min]="line[index].min"
+                              [max]="line[index].max"
+                              [editable]="true"
+                              [showSearchField]="true"
+                              [(model)]="model[line[index].filterKey]"
+                              [multiSelectMode]="true"
+                              (modelChange)="filterChange($event)"
+                              [showStar]="line[index].showStar"
+                      ></dcm-drop-down>
+                      <dcm-drop-down
                               [multiSelectMode]="true"
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'multi-select'"
                               [placeholder]="line[index]?.placeholder"
+                              [title]="line[index]?.description || ''"
                               [ngClass]="line[index].cssClass"
                               [optionsTree]="line[index].optionsTree"
                               [options]="line[index].options"
@@ -125,6 +159,7 @@
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'html-select'"
                               [placeholder]="line[index]?.placeholder"
+                              [title]="line[index]?.description || ''"
                               [ngClass]="line[index].cssClass"
                               [options]="line[index].options"
                               [(model)]="model[line[index].filterKey]"
@@ -183,7 +218,7 @@
                               [model]="model[line[index]?.filterKey]"
                               (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                               [datePickerMode]="true"
-                              placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                              placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                               dateFormat="YYYYMMDD"
                               title="{{line[index]?.description}}"
                       ></range-picker>
@@ -195,7 +230,7 @@
                             [defaultTime]="line[index].defaultTime"
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
-                            placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                            placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                             title="{{line[index]?.description}}"
                     ></range-picker>
                     <range-picker
@@ -206,7 +241,7 @@
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
                             [defaultTime]="line[index].defaultTime"
-                            placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                            placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                             title="{{line[index]?.description}}"
                             dateRange="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
@@ -219,7 +254,7 @@
                             (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                             mode="range"
                             [defaultTime]="line[index].defaultTime"
-                            placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                            placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                             title="{{line[index]?.description}}"
                             onlyTime="true"
                             (splitDateRangeChanged)="splitDateRangeChanged($event);"
@@ -230,7 +265,7 @@
                           [onlyDate]="line[index].onlyDate"
                           [model]="model[line[index]?.filterKey]"
                           (modelChange)="dateChanged(line[index]?.filterKey, $event)"
-                          placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                          placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                           dateFormat="YYYYMMDD"
                           onlySingleMode="true"
                           defaultTime="00:00:00"
@@ -246,8 +281,12 @@
                         [title]="line[index]?.description"
                         [codes]="line[index]?.codes"
                         placeholder="{{line[index]?.placeholder || line[index]?.description}}"
-                        (modelChange)="codeChanged(line[index]?.codes, $event)"
-                    ></code-selector>
+                        (modelChange)="codeChanged(line[index]?.codes, $event)"></code-selector>
+                    <issuer-selector *ngSwitchCase="'issuer-selector'"
+                         [title]="line[index]?.description"
+                         [issuers]="line[index]?.issuers"
+                         placeholder="{{line[index]?.placeholder || line[index]?.description}}"
+                         (modelChange)="issuerChanged(line[index]?.issuers, $event)"></issuer-selector>
                     <modified-widget *ngSwitchCase="'modified-widget'"
                         [title]="line[index]?.description"
                         [model]="model"

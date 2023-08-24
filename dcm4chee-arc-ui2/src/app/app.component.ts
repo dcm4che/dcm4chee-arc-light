@@ -23,6 +23,7 @@ import {LanguageSwitcher} from "./models/language-switcher";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {ConfiguredDateTameFormatObject, LanguageObject, LocalLanguageObject} from "./interfaces";
 import {AppRequestsService} from "./app-requests.service";
+import { Title } from '@angular/platform-browser';
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 const worker = new Worker('./server-time.worker', { type: 'module', name: 'server-time'});
@@ -66,6 +67,11 @@ export class AppComponent implements OnInit {
         label:$localize `:@@available_devices:Available devices`,
         title:$localize `:@@here_you_can_change_the_archive_device_to_which_the_calls_are_made:Here you can change the archive device to which the calls are made`
     }
+    dcmuiHideClock:boolean = false;
+    dcmuiPageTitle:string;
+    dcmuiHideOtherPatientIDs: boolean = false;
+    dcmuiInstitutionNameFilterType:string;
+    dcmuiInstitutionName:string[];
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
@@ -75,7 +81,8 @@ export class AppComponent implements OnInit {
         private permissionService:PermissionService,
         private keycloakHttpClient:KeycloakHttpClient,
         private _keycloakService: KeycloakService,
-        public httpErrorHandler:HttpErrorHandler
+        public httpErrorHandler:HttpErrorHandler,
+        private title:Title
     ){
         console.log("in app.component construct", window);
     }
@@ -131,6 +138,17 @@ export class AppComponent implements OnInit {
         }
         this.mainservice.globalSet$.subscribe(global=>{
             if(_.hasIn(global,"uiConfig")){
+                if(_.hasIn(global, "uiConfig.dcmuiInstitutionNameFilterType") && !this.dcmuiInstitutionNameFilterType){
+                    this.dcmuiInstitutionNameFilterType = _.get(global, "uiConfig.dcmuiInstitutionNameFilterType");
+                    global["dcmuiInstitutionNameFilterType"] = this.dcmuiInstitutionNameFilterType;
+                    this.mainservice.setGlobal(global);
+
+                }
+                if(_.hasIn(global, "uiConfig.dcmuiInstitutionName") && !this.dcmuiInstitutionName){
+                    this.dcmuiInstitutionName = _.get(global, "uiConfig.dcmuiInstitutionName");
+                    global["dcmuiInstitutionName"] = this.dcmuiInstitutionName;
+                    this.mainservice.setGlobal(global);
+                }
                 if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
                     if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) { //TODO comparing with stringify is not a good idea
                         localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
@@ -153,6 +171,25 @@ export class AppComponent implements OnInit {
                     console.log("Global Patient Name Format:", this.personNameFormat);
                     this.mainservice.setGlobal(global);
                 }
+                if(_.hasIn(global, "uiConfig.dcmuiHideClock") && !this.dcmuiHideClock){
+                    this.dcmuiHideClock = _.get(global, "uiConfig.dcmuiHideClock");
+                    global["dcmuiHideClock"] = this.dcmuiHideClock;
+                    this.mainservice.setGlobal(global);
+                }
+                if(_.hasIn(global, "uiConfig.dcmuiHideOtherPatientIDs") && !this.dcmuiHideOtherPatientIDs){
+                    this.dcmuiHideOtherPatientIDs = _.get(global, "uiConfig.dcmuiHideOtherPatientIDs");
+                    global["dcmuiHideOtherPatientIDs"] = this.dcmuiHideOtherPatientIDs;
+                    this.mainservice.setGlobal(global);
+                }
+                if(_.hasIn(global, "uiConfig.dcmuiPageTitle") && !this.dcmuiPageTitle){
+                    this.dcmuiPageTitle = _.get(global, "uiConfig.dcmuiPageTitle");
+                    global["dcmuiPageTitle"] = this.dcmuiPageTitle;
+                    if(this.dcmuiPageTitle && this.dcmuiPageTitle != ""){
+                        this.title.setTitle(this.dcmuiPageTitle);
+                    }
+                    this.mainservice.setGlobal(global);
+                }
+
             }
         });
     }

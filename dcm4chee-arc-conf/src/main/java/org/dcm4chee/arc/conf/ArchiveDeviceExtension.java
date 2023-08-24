@@ -54,6 +54,7 @@ import javax.json.JsonValue;
 import java.time.Period;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -145,6 +146,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int fallbackCMoveSCPRetries;
     private volatile String fallbackWadoURIWebApplication;
     private volatile int fallbackWadoURIHttpStatusCode = 303;
+    private volatile boolean fallbackWadoURIRedirectOnNotFound;
+    private volatile String externalWadoRSWebApplication;
+    private volatile int externalWadoRSHttpStatusCode = 303;
+    private volatile boolean externalWadoRSRedirectOnNotFound;
     private volatile String externalRetrieveAEDestination;
     private volatile String xdsiImagingDocumentSourceAETitle;
     private volatile String alternativeCMoveSCP;
@@ -155,6 +160,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration purgeStoragePollingInterval;
     private volatile int purgeStorageFetchSize = 100;
     private volatile int deleteStudyBatchSize = 10;
+    private volatile Duration deleteStudyInterval;
+    private volatile Duration preserveStudyInterval;
+    private volatile boolean deleteStudyLeastRecentlyAccessedFirst = true;
     private volatile int deleteStudyChunkSize = 100;
     private volatile boolean deletePatientOnDeleteLastStudy = false;
     private volatile Duration failedToDeletePollingInterval;
@@ -245,6 +253,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean hl7TrackChangedPatientID = true;
     private volatile boolean auditSoftwareConfigurationVerbose = false;
     private volatile boolean hl7UseNullValue = false;
+
+    private volatile boolean hl7AppendHashOfStudyInstanceUIDToSeriesAndSOPInstanceUID;
+
     private volatile String[] hl7ADTReceivingApplication = {};
     private volatile String hl7ADTSendingApplication;
     private volatile int queueTasksFetchSize = 100;
@@ -284,6 +295,18 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration patientVerificationRetryInterval;
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
+    private volatile Duration qStarVerificationPollingInterval;
+    private volatile int qStarVerificationFetchSize = 100;
+    private volatile Duration qStarVerificationDelay;
+    private volatile String qStarVerificationURL;
+    private volatile String qStarVerificationUser;
+    private volatile String qStarVerificationPassword;
+    private volatile String qStarVerificationURLwoUserInfo;
+    private volatile Integer qStarVerificationMockAccessState;
+    private volatile Issuer[] trustedIssuerOfPatientID = {};
+    private volatile Pattern trustedIssuerOfPatientIDPattern;
+    private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
+    private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
     private volatile HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy = HL7OrderMissingAdmissionIDPolicy.ACCEPT;
     private volatile HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy =
@@ -291,6 +314,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy =
             HL7ImportReportMissingStudyIUIDPolicy.GENERATE;
     private volatile String hl7ImportReportMissingStudyIUIDCFindSCP;
+    private volatile HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID = HL7ImportReportAdjustIUID.NONE;
     private volatile HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy =
             HL7ReferredMergedPatientPolicy.REJECT;
     private volatile String hl7DicomCharacterSet;
@@ -306,6 +330,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean stowExcludeAPPMarkers;
     private volatile boolean restrictRetrieveSilently;
     private volatile boolean stowQuicktime2MP4;
+    private volatile long stowMaxFragmentLength = 2147483646L; // Integer.MAX_VALUE - 1
     private volatile boolean identifyPatientByAllAttributes;
     private volatile String changeRequesterAET;
     private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
@@ -965,12 +990,44 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.fallbackWadoURIHttpStatusCode = fallbackWadoURIHttpStatusCode;
     }
 
+    public boolean isFallbackWadoURIRedirectOnNotFound() {
+        return fallbackWadoURIRedirectOnNotFound;
+    }
+
+    public void setFallbackWadoURIRedirectOnNotFound(boolean fallbackWadoURIRedirectOnNotFound) {
+        this.fallbackWadoURIRedirectOnNotFound = fallbackWadoURIRedirectOnNotFound;
+    }
+
+    public String getExternalWadoRSWebApplication() {
+        return externalWadoRSWebApplication;
+    }
+
+    public void setExternalWadoRSWebApplication(String externalWadoRSWebApplication) {
+        this.externalWadoRSWebApplication = externalWadoRSWebApplication;
+    }
+
+    public int getExternalWadoRSHttpStatusCode() {
+        return externalWadoRSHttpStatusCode;
+    }
+
+    public void setExternalWadoRSHttpStatusCode(int externalWadoRSHttpStatusCode) {
+        this.externalWadoRSHttpStatusCode = externalWadoRSHttpStatusCode;
+    }
+
     public String getExternalRetrieveAEDestination() {
         return externalRetrieveAEDestination;
     }
 
     public void setExternalRetrieveAEDestination(String externalRetrieveAEDestination) {
         this.externalRetrieveAEDestination = externalRetrieveAEDestination;
+    }
+
+    public boolean isExternalWadoRSRedirectOnNotFound() {
+        return externalWadoRSRedirectOnNotFound;
+    }
+
+    public void setExternalWadoRSRedirectOnNotFound(boolean externalWadoRSRedirectOnNotFound) {
+        this.externalWadoRSRedirectOnNotFound = externalWadoRSRedirectOnNotFound;
     }
 
     public String getXDSiImagingDocumentSourceAETitle() {
@@ -1075,6 +1132,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setDeleteStudyBatchSize(int deleteStudyBatchSize) {
         this.deleteStudyBatchSize = greaterZero(deleteStudyBatchSize, "deleteStudyBatchSize");
+    }
+
+    public Duration getDeleteStudyInterval() {
+        return deleteStudyInterval;
+    }
+
+    public void setDeleteStudyInterval(Duration deleteStudyInterval) {
+        this.deleteStudyInterval = deleteStudyInterval;
+    }
+
+    public Duration getPreserveStudyInterval() {
+        return preserveStudyInterval;
+    }
+
+    public void setPreserveStudyInterval(Duration preserveStudyInterval) {
+        this.preserveStudyInterval = preserveStudyInterval;
+    }
+
+    public boolean isDeleteStudyLeastRecentlyAccessedFirst() {
+        return deleteStudyLeastRecentlyAccessedFirst;
+    }
+
+    public void setDeleteStudyLeastRecentlyAccessedFirst(boolean deleteStudyLeastRecentlyAccessedFirst) {
+        this.deleteStudyLeastRecentlyAccessedFirst = deleteStudyLeastRecentlyAccessedFirst;
     }
 
     public int getDeleteStudyChunkSize() {
@@ -1915,15 +1996,15 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return list;
     }
 
-    public Stream<String> getStorageIDsOfCluster(String clusterID) {
+    public Stream<StorageDescriptor> getStorageDescriptorsOfCluster(String clusterID) {
         return storageDescriptorMap.values().stream()
-                .filter(desc -> clusterID.equals(desc.getStorageClusterID()))
-                .map(StorageDescriptor::getStorageID);
+                .filter(desc -> clusterID.equals(desc.getStorageClusterID()));
     }
 
-    public List<String> getOtherStorageIDs(StorageDescriptor desc) {
+    public List<String> getOtherStorageIDsOfStorageCluster(StorageDescriptor desc) {
         return desc.getStorageClusterID() != null
-                ? getStorageIDsOfCluster(desc.getStorageClusterID())
+                ? getStorageDescriptorsOfCluster(desc.getStorageClusterID())
+                    .map(StorageDescriptor::getStorageID)
                     .filter(storageID -> !storageID.equals(desc.getStorageID()))
                     .collect(Collectors.toList())
                 : Collections.emptyList();
@@ -1932,8 +2013,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public List<String> getStudyStorageIDs(String storageID, Boolean storageClustered, Boolean storageExported) {
         StorageDescriptor desc = getStorageDescriptor(storageID);
         return desc != null
-                ? desc.getStudyStorageIDs(getOtherStorageIDs(desc), storageClustered, storageExported)
+                ? desc.getStudyStorageIDs(
+                        getOtherStorageIDsOfStorageCluster(desc),
+                        getExportedFromStorageIDs(storageID),
+                        storageClustered,
+                        storageExported)
                 : Collections.emptyList();
+    }
+
+    private List<String> getExportedFromStorageIDs(String exportStorageID) {
+        return storageDescriptorMap.values().stream()
+                .filter(desc -> Arrays.asList(desc.getExportStorageID()).contains(exportStorageID))
+                .map(StorageDescriptor::getStorageID)
+                .collect(Collectors.toList());
     }
 
     public QueueDescriptor getQueueDescriptor(String queueName) {
@@ -2846,6 +2938,69 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.patientVerificationMaxStaleness = patientVerificationMaxStaleness;
     }
 
+    public Duration getQStarVerificationPollingInterval() {
+        return qStarVerificationPollingInterval;
+    }
+
+    public void setQStarVerificationPollingInterval(Duration qStarVerificationPollingInterval) {
+        this.qStarVerificationPollingInterval = qStarVerificationPollingInterval;
+    }
+
+    public int getQStarVerificationFetchSize() {
+        return qStarVerificationFetchSize;
+    }
+
+    public void setQStarVerificationFetchSize(int qStarVerificationFetchSize) {
+        this.qStarVerificationFetchSize = qStarVerificationFetchSize;
+    }
+
+    public Duration getQStarVerificationDelay() {
+        return qStarVerificationDelay;
+    }
+
+    public void setQStarVerificationDelay(Duration qStarVerificationDelay) {
+        this.qStarVerificationDelay = qStarVerificationDelay;
+    }
+
+    public String getQStarVerificationURL() {
+        return qStarVerificationURL;
+    }
+
+    public void setQStarVerificationURL(String qStarVerificationURL) {
+        if (qStarVerificationURL != null) {
+            Matcher matcher = Pattern.compile("(https?://)(\\w+):(\\w+)@(\\w+.*)").matcher(qStarVerificationURL);
+            if (!matcher.matches()) throw new IllegalArgumentException(qStarVerificationURL);
+            qStarVerificationUser = matcher.group(2);
+            qStarVerificationPassword = matcher.group(3);
+            qStarVerificationURLwoUserInfo =  matcher.group(1) + matcher.group(4);
+        } else {
+            qStarVerificationUser = null;
+            qStarVerificationPassword = null;
+            qStarVerificationURLwoUserInfo =  null;
+        }
+        this.qStarVerificationURL = qStarVerificationURL;
+    }
+
+    public String getQStarVerificationUser() {
+        return qStarVerificationUser;
+    }
+
+    public String getQStarVerificationPassword() {
+        return qStarVerificationPassword;
+    }
+
+    public String getQStarVerificationURLwoUserInfo() {
+        return qStarVerificationURLwoUserInfo;
+    }
+
+    public Integer getQStarVerificationMockAccessState() {
+        return qStarVerificationMockAccessState;
+    }
+
+    public void setQStarVerificationMockAccessState(Integer qStarVerificationMockAccessState) {
+        this.qStarVerificationMockAccessState = qStarVerificationMockAccessState;
+    }
+
     public MultipleStoreAssociations[] getMultipleStoreAssociations() {
         return multipleStoreAssociations;
     }
@@ -2994,6 +3149,65 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
+    public Issuer[] getTrustedIssuerOfPatientID() {
+        return trustedIssuerOfPatientID;
+    }
+
+    public void setTrustedIssuerOfPatientID(Issuer... trustedIssuerOfPatientID) {
+        this.trustedIssuerOfPatientID = trustedIssuerOfPatientID;
+    }
+
+    public Pattern getTrustedIssuerOfPatientIDPattern() {
+        return trustedIssuerOfPatientIDPattern;
+    }
+
+    public void setTrustedIssuerOfPatientIDPattern(Pattern trustedIssuerOfPatientIDPattern) {
+        this.trustedIssuerOfPatientIDPattern = trustedIssuerOfPatientIDPattern;
+    }
+
+    public boolean isTrustedIssuerOfPatientID(Issuer other) {
+        if (trustedIssuerOfPatientID.length == 0 && trustedIssuerOfPatientIDPattern == null)
+            return true;
+        if (other != null) {
+            if (trustedIssuerOfPatientIDPattern != null
+                    && other.getLocalNamespaceEntityID() != null
+                    && trustedIssuerOfPatientIDPattern.matcher(other.getLocalNamespaceEntityID()).matches())
+                return true;
+
+            for (Issuer issuer : trustedIssuerOfPatientID)
+                if (other.matches(issuer))
+                    return true;
+        }
+        return false;
+    }
+
+    public Collection<IDWithIssuer> withTrustedIssuerOfPatientID(Collection<IDWithIssuer> ids) {
+        if (trustedIssuerOfPatientID.length == 0 && trustedIssuerOfPatientIDPattern == null)
+            return ids;
+
+        Collection<IDWithIssuer> filtered = new ArrayList<>(ids.size());
+        for (IDWithIssuer id : ids)
+            if (isTrustedIssuerOfPatientID(id.getIssuer()))
+                filtered.add(id);
+        return filtered;
+    }
+
+    public Issuer getHL7PrimaryAssigningAuthorityOfPatientID() {
+        return hl7PrimaryAssigningAuthorityOfPatientID;
+    }
+
+    public void setHL7PrimaryAssigningAuthorityOfPatientID(Issuer hl7PrimaryAssigningAuthorityOfPatientID) {
+        this.hl7PrimaryAssigningAuthorityOfPatientID = hl7PrimaryAssigningAuthorityOfPatientID;
+    }
+
+    public HL7OtherPatientIDs getHL7OtherPatientIDs() {
+        return hl7OtherPatientIDs;
+    }
+
+    public void setHL7OtherPatientIDs(HL7OtherPatientIDs hl7OtherPatientIDs) {
+        this.hl7OtherPatientIDs = hl7OtherPatientIDs;
+    }
+
     public HL7OrderMissingStudyIUIDPolicy getHl7OrderMissingStudyIUIDPolicy() {
         return hl7OrderMissingStudyIUIDPolicy;
     }
@@ -3034,6 +3248,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHl7ImportReportMissingStudyIUIDCFindSCP(String hl7ImportReportMissingStudyIUIDCFindSCP) {
         this.hl7ImportReportMissingStudyIUIDCFindSCP = hl7ImportReportMissingStudyIUIDCFindSCP;
+    }
+
+    public HL7ImportReportAdjustIUID getHl7ImportReportAdjustIUID() {
+        return hl7ImportReportAdjustIUID;
+    }
+
+    public void setHl7ImportReportAdjustIUID(HL7ImportReportAdjustIUID hl7ImportReportAdjustIUID) {
+        this.hl7ImportReportAdjustIUID = hl7ImportReportAdjustIUID;
     }
 
     public HL7ReferredMergedPatientPolicy getHl7ReferredMergedPatientPolicy() {
@@ -3162,6 +3384,20 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setStowQuicktime2MP4(boolean stowQuicktime2MP4) {
         this.stowQuicktime2MP4 = stowQuicktime2MP4;
+    }
+
+    public long getStowMaxFragmentLength() {
+        return stowMaxFragmentLength;
+    }
+
+    public void setStowMaxFragmentLength(long stowMaxFragmentLength) {
+        checkStowMaxFragmentLength(stowMaxFragmentLength);
+        this.stowMaxFragmentLength = stowMaxFragmentLength;
+    }
+
+    static void checkStowMaxFragmentLength(long stowMaxFragmentLength) {
+        if (stowMaxFragmentLength < 1024 || stowMaxFragmentLength > 4294967294L)
+            throw new IllegalArgumentException("stowMaxFragmentLength not in range 1024..4294967294");
     }
 
     public boolean isIdentifyPatientByAllAttributes() {
@@ -3355,6 +3591,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCPRetries = arcdev.fallbackCMoveSCPRetries;
         fallbackWadoURIWebApplication = arcdev.fallbackWadoURIWebApplication;
         fallbackWadoURIHttpStatusCode = arcdev.fallbackWadoURIHttpStatusCode;
+        fallbackWadoURIRedirectOnNotFound = arcdev.fallbackWadoURIRedirectOnNotFound;
+        externalWadoRSWebApplication = arcdev.externalWadoRSWebApplication;
+        externalWadoRSHttpStatusCode = arcdev.externalWadoRSHttpStatusCode;
+        externalWadoRSRedirectOnNotFound = arcdev.externalWadoRSRedirectOnNotFound;
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;
         xdsiImagingDocumentSourceAETitle = arcdev.xdsiImagingDocumentSourceAETitle;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
@@ -3365,6 +3605,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeStoragePollingInterval = arcdev.purgeStoragePollingInterval;
         purgeStorageFetchSize = arcdev.purgeStorageFetchSize;
         deleteStudyBatchSize = arcdev.deleteStudyBatchSize;
+        deleteStudyInterval = arcdev.deleteStudyInterval;
+        preserveStudyInterval = arcdev.preserveStudyInterval;
+        deleteStudyLeastRecentlyAccessedFirst = arcdev.deleteStudyLeastRecentlyAccessedFirst;
         deleteStudyChunkSize = arcdev.deleteStudyChunkSize;
         deletePatientOnDeleteLastStudy = arcdev.deletePatientOnDeleteLastStudy;
         failedToDeletePollingInterval = arcdev.failedToDeletePollingInterval;
@@ -3488,13 +3731,23 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
+        qStarVerificationPollingInterval = arcdev.qStarVerificationPollingInterval;
+        qStarVerificationFetchSize = arcdev.qStarVerificationFetchSize;
+        qStarVerificationDelay = arcdev.qStarVerificationDelay;
+        qStarVerificationURL = arcdev.qStarVerificationURL;
+        qStarVerificationMockAccessState = arcdev.qStarVerificationMockAccessState;
         csvUploadChunkSize = arcdev.csvUploadChunkSize;
         validateUID = arcdev.validateUID;
+        trustedIssuerOfPatientID = arcdev.trustedIssuerOfPatientID;
+        trustedIssuerOfPatientIDPattern = arcdev.trustedIssuerOfPatientIDPattern;
+        hl7PrimaryAssigningAuthorityOfPatientID = arcdev.hl7PrimaryAssigningAuthorityOfPatientID;
+        hl7OtherPatientIDs = arcdev.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7OrderMissingAdmissionIDPolicy = arcdev.hl7OrderMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;
         hl7ImportReportMissingAdmissionIDPolicy = arcdev.hl7ImportReportMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDCFindSCP = arcdev.hl7ImportReportMissingStudyIUIDCFindSCP;
+        hl7ImportReportAdjustIUID = arcdev.hl7ImportReportAdjustIUID;
         hl7ReferredMergedPatientPolicy = arcdev.hl7ReferredMergedPatientPolicy;
         hl7DicomCharacterSet = arcdev.hl7DicomCharacterSet;
         hl7VeterinaryUsePatientName = arcdev.hl7VeterinaryUsePatientName;
@@ -3507,6 +3760,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         stowExcludeAPPMarkers = arcdev.stowExcludeAPPMarkers;
         restrictRetrieveSilently = arcdev.restrictRetrieveSilently;
         stowQuicktime2MP4 = arcdev.stowQuicktime2MP4;
+        stowMaxFragmentLength = arcdev.stowMaxFragmentLength;
         identifyPatientByAllAttributes = arcdev.identifyPatientByAllAttributes;
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
         mwlPollingInterval = arcdev.mwlPollingInterval;

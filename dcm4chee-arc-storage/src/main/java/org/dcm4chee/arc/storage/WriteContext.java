@@ -55,4 +55,8 @@ public interface WriteContext extends ReadContext {
     long getContentLength();
 
     void setContentLength(long contentLength);
+
+    boolean isDeletionLock();
+
+    void setDeletionLock(boolean deletionLock);
 }

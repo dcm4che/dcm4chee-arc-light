@@ -39,15 +39,17 @@
  */
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 
 import java.net.URI;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -56,9 +58,24 @@ import java.util.stream.Stream;
  * @since Jul 2015
  */
 public final class StorageDescriptor {
+    public enum OnStoragePathAlreadyExists {
+        RANDOM_PATH, NOOP, FAILURE
+    }
+    public static final String DEFAULT_PATH_FORMAT_STR =
+            "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+    public static final AttributesFormat DEFAULT_ATTRIBUTES_FORMAT = new AttributesFormat(DEFAULT_PATH_FORMAT_STR);
     private String storageID;
     private String storageURIStr;
     private URI storageURI;
+    private AttributesFormat storagePathFormat = DEFAULT_ATTRIBUTES_FORMAT;
+    private OnStoragePathAlreadyExists onStoragePathAlreadyExists = OnStoragePathAlreadyExists.RANDOM_PATH;
+    private String checkMountFilePath;
+    private OpenOption[] fileOpenOptions = { StandardOpenOption.CREATE_NEW };
+    private boolean altCreateDirectories;
+    private int retryCreateDirectories;
+    private boolean archiveSeriesAsTAR;
+    private boolean countLocationsByStatus;
+    private LocationStatus locationStatus = LocationStatus.OK;
     private String digestAlgorithm;
     private int maxRetries;
     private Duration retryDelay;
@@ -66,6 +83,8 @@ public final class StorageDescriptor {
     private String storageClusterID;
     private String[] exportStorageID = {};
     private String retrieveCacheStorageID;
+    private boolean noRetrieveCacheOnPurgedInstanceRecords;
+    private String[] noRetrieveCacheOnDestinationAETitles = {};
     private int retrieveCacheStorageMaxParallel = 10;
     private int deleterThreads = 1;
     private String[] externalRetrieveAETitles = {};
@@ -107,6 +126,80 @@ public final class StorageDescriptor {
 
     public URI getStorageURI() {
         return storageURI;
+    }
+
+    public AttributesFormat getStoragePathFormat() {
+        return storagePathFormat;
+    }
+
+    public void setStoragePathFormat(String storagePathFormat) {
+        this.storagePathFormat = new AttributesFormat(storagePathFormat);
+    }
+
+    public OnStoragePathAlreadyExists getOnStoragePathAlreadyExists() {
+        return onStoragePathAlreadyExists;
+    }
+
+    public void setOnStoragePathAlreadyExists(OnStoragePathAlreadyExists onStoragePathAlreadyExists) {
+        this.onStoragePathAlreadyExists = Objects.requireNonNull(onStoragePathAlreadyExists);
+    }
+
+    public String getCheckMountFilePath() {
+        return checkMountFilePath;
+    }
+
+    public void setCheckMountFilePath(String checkMountFilePath) {
+        this.checkMountFilePath = checkMountFilePath;
+    }
+
+    public OpenOption[] getFileOpenOptions() {
+        return fileOpenOptions;
+    }
+
+    public void setFileOpenOptions(OpenOption[] fileOpenOptions) {
+        this.fileOpenOptions = fileOpenOptions;
+    }
+
+    public boolean isAltCreateDirectories() {
+        return altCreateDirectories;
+    }
+
+    public void setAltCreateDirectories(boolean altCreateDirectories) {
+        this.altCreateDirectories = altCreateDirectories;
+    }
+
+    public int getRetryCreateDirectories() {
+        return retryCreateDirectories;
+    }
+
+    public void setRetryCreateDirectories(int retryCreateDirectories) {
+        if (retryCreateDirectories < 0)
+            throw new IllegalArgumentException("retryCreateDirectories: " + retryCreateDirectories);
+        this.retryCreateDirectories = retryCreateDirectories;
+    }
+
+    public boolean isArchiveSeriesAsTAR() {
+        return archiveSeriesAsTAR;
+    }
+
+    public void setArchiveSeriesAsTAR(boolean archiveSeriesAsTAR) {
+        this.archiveSeriesAsTAR = archiveSeriesAsTAR;
+    }
+
+    public boolean isCountLocationsByStatus() {
+        return countLocationsByStatus;
+    }
+
+    public void setCountLocationsByStatus(boolean countLocationsByStatus) {
+        this.countLocationsByStatus = countLocationsByStatus;
+    }
+
+    public LocationStatus getLocationStatus() {
+        return locationStatus;
+    }
+
+    public void setLocationStatus(LocationStatus locationStatus) {
+        this.locationStatus = Objects.requireNonNull(locationStatus);
     }
 
     public String getDigestAlgorithm() {
@@ -192,6 +285,30 @@ public final class StorageDescriptor {
 
     public void setRetrieveCacheMaxParallel(int retrieveCacheStorageMaxParallel) {
         this.retrieveCacheStorageMaxParallel = retrieveCacheStorageMaxParallel;
+    }
+
+    public boolean isNoRetrieveCacheOnPurgedInstanceRecords() {
+        return noRetrieveCacheOnPurgedInstanceRecords;
+    }
+
+    public void setNoRetrieveCacheOnPurgedInstanceRecords(boolean noRetrieveCacheOnPurgedInstanceRecords) {
+        this.noRetrieveCacheOnPurgedInstanceRecords = noRetrieveCacheOnPurgedInstanceRecords;
+    }
+
+    public String[] getNoRetrieveCacheOnDestinationAETitles() {
+        return noRetrieveCacheOnDestinationAETitles;
+    }
+
+    public void setNoRetrieveCacheOnDestinationAETitles(String... noRetrieveCacheOnDestinationAETitles) {
+        this.noRetrieveCacheOnDestinationAETitles = noRetrieveCacheOnDestinationAETitles;
+    }
+
+    public boolean isNoRetrieveCacheOnDestinationAETitles(String destinationAETitle) {
+        for (String noRetrieveCacheOnDestinationAETitle : noRetrieveCacheOnDestinationAETitles) {
+            if (noRetrieveCacheOnDestinationAETitle.equals(destinationAETitle))
+                return true;
+        }
+        return false;
     }
 
     public int getDeleterThreads() {
@@ -354,59 +471,59 @@ public final class StorageDescriptor {
         this.storageClusterID = storageClusterID;
     }
 
-    public List<String> getStudyStorageIDs(List<String> otherStorageIDs) {
-        return exportStorageID.length > 0
-                ? addPowerSet(false, otherStorageIDs, storageIDWithExportStorages())
-                : addPowerSet(false, otherStorageIDs, storageID);
+    public List<String> getStudyStorageIDs(
+            List<String> otherStorageIDsOfStorageCLuster,
+            List<String> exportFromStorageIDs,
+            Boolean storageClustered,
+            Boolean storageExported) {
+        String[][] combinations = {{ storageID }};
+        if (!otherStorageIDsOfStorageCLuster.isEmpty() && (storageClustered == null || storageClustered))
+            combinations = join(combinations,
+                    powerSetOf(storageClustered != null, otherStorageIDsOfStorageCLuster));
+        if (exportStorageID.length > 0 && (storageExported == null || storageExported))
+            combinations = join(combinations,
+                    powerSetOf(storageExported != null, Arrays.asList(exportStorageID)));
+        if (!exportFromStorageIDs.isEmpty())
+            combinations = join(combinations, powerSetOf(false, exportFromStorageIDs));
+        if (retrieveCacheStorageID != null && !exportFromStorageIDs.contains(retrieveCacheStorageID))
+            combinations = join(combinations, new String[][]{{},{ retrieveCacheStorageID }});
+        return toStudyStorageIDs(combinations);
     }
 
-    public List<String> getStudyStorageIDs(List<String> otherStorageIDs,
-                                           Boolean storageClustered, Boolean storageExported) {
-        if (storageClusterID == null || storageClustered != null && !storageClustered) {
-            return exportStorageID.length == 0 || storageExported != null && !storageExported
-                    ? Collections.singletonList(storageID)
-                    : storageExported == null
-                        ? addPowerSet(false, Arrays.asList(exportStorageID), storageID)
-                        : addPowerSet(false, Collections.emptyList(), storageIDWithExportStorages());
-        }
-
-        if (exportStorageID.length == 0 || storageExported != null && !storageExported) {
-            return addPowerSet(storageClustered != null, otherStorageIDs, storageID);
-        }
-
-        List<String> studyStorageIDs = addPowerSet(
-                storageClustered != null, otherStorageIDs, storageIDWithExportStorages());
-        if (storageExported == null)
-            studyStorageIDs.addAll(addPowerSet(storageClustered != null, otherStorageIDs, storageID));
-
-        return studyStorageIDs;
-    }
-
-    private String[] storageIDWithExportStorages() {
-        String[] storageIDWithExportStorages = new String[exportStorageID.length + 1];
-        storageIDWithExportStorages[0] = storageID;
-        System.arraycopy(exportStorageID, 0, storageIDWithExportStorages, 1, exportStorageID.length);
-        Arrays.sort(storageIDWithExportStorages);
-        return storageIDWithExportStorages;
-    }
-
-    private static List<String> addPowerSet(boolean excludeEmptySet, List<String> storageIDs, String... common) {
-        if (storageIDs.isEmpty()) {
-            if (excludeEmptySet)
-                return Collections.emptyList();
-
-            return Collections.singletonList(StringUtils.concat(common, '\\'));
-        }
-        return IntStream.range(excludeEmptySet ? 1 : 0, 1 << storageIDs.size()).mapToObj(i -> {
-            String[] a = Arrays.copyOf(common, common.length + Integer.bitCount(i));
-            int j = common.length;
-            int mask = 1;
-            for (String storageID : storageIDs) {
-                if ((i & mask) != 0) a[j++] = storageID;
-                mask <<= 1;
+    private static String[][] powerSetOf(boolean excludeEmptySet, List<String> storageIDs) {
+        int skip = excludeEmptySet ? 1 : 0;
+        String[][] result = new String[(1 << storageIDs.size()) - skip][];
+        for (int i = 0; i < result.length; i++) {
+            int n = i + skip;
+            result[i] = new String[Integer.bitCount(n)];
+            for (int j = 0, k = 0; j < storageIDs.size(); j++) {
+                if ((n & (1 << j)) != 0) {
+                    result[i][k++] = storageIDs.get(j);
+                }
             }
-            Arrays.sort(a);
-            return StringUtils.concat(a, '\\');
-        }).collect(Collectors.toList());
+        }
+        return result;
     }
+
+    private static String[][] join(String[][] a, String[][] b) {
+        String[][] result = new String[a.length * b.length][];
+        for (int i = 0, k = 0; i < a.length; i++) {
+            for (int j = 0; j < b.length; j++, k++) {
+                result[k] = new String[a[i].length + b[j].length];
+                System.arraycopy(a[i], 0, result[k], 0, a[i].length);
+                System.arraycopy(b[j], 0, result[k], a[i].length, b[j].length);
+            }
+        }
+        return result;
+    }
+
+    private static List<String> toStudyStorageIDs(String[][] a) {
+        String[] result = new String[a.length];
+        for (int i = 0; i < a.length; i++) {
+            Arrays.sort(a[i]);
+            result[i] = StringUtils.concat(a[i], '\\');
+        }
+        return Arrays.asList(result);
+    }
+
 }

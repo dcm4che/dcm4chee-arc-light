@@ -40,7 +40,10 @@
 
 package org.dcm4chee.arc.store.impl;
 
+import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
@@ -64,13 +67,14 @@ import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.StorePermission;
 import org.dcm4chee.arc.StorePermissionCache;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.patient.PatientServiceUtils;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -92,7 +96,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -134,6 +137,9 @@ public class StoreServiceEJB {
     @Inject
     private Device device;
 
+    @Inject
+    private StoreServiceEJB ejb;
+
     private enum LocationOp {
         CREATE(Attributes.COERCE),
         ORPHANED(Attributes.COERCE),
@@ -147,7 +153,7 @@ public class StoreServiceEJB {
 
         static LocationOp valueOf(List<Location> locations) {
             return locations.isEmpty() ? CREATE
-                    : locations.get(0).getStatus() == Location.Status.ORPHANED
+                    : locations.get(0).getStatus() == LocationStatus.ORPHANED
                         ? ORPHANED
                         : COPY;
         }
@@ -207,10 +213,12 @@ public class StoreServiceEJB {
                             logInfo(IGNORE_FROM_DIFFERENT_SOURCE, ctx);
                             return result;
                         }
-                }
-                if (hasLocationWithEqualDigest(ctx, prevInstance)) {
-                    logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
-                    return result;
+                    case ALWAYS:
+                    case SAME_SERIES:
+                        if (hasLocationWithEqualDigest(ctx, prevInstance)) {
+                            logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
+                            return result;
+                        }
                 }
             }
         }
@@ -378,7 +386,8 @@ public class StoreServiceEJB {
         return time.getTime() + duration.getSeconds() * 1000L < System.currentTimeMillis();
     }
 
-    public List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    public int restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration,
+                                List<Instance> instList)
             throws DicomServiceException {
         List<Series> seriesList = (seriesUID == null
                 ? em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE, Series.class)
@@ -389,29 +398,40 @@ public class StoreServiceEJB {
                 .setParameter(2, seriesUID)
                 .setParameter(3, Series.InstancePurgeState.PURGED))
                 .getResultList();
-        List<Instance> instList = new ArrayList<>();
+        int count = 0;
         for (Series series : seriesList) {
-            restoreInstances(session, series, studyUID, duration, instList);
+            count += restoreInstances(session, series, studyUID, duration, instList);
         }
-        return instList;
+        return count;
     }
 
-    private void restoreInstances(StoreSession session, Series series, String studyUID, Duration duration,
+    public long countSeries(String studyUID, String seriesUID) {
+        return (seriesUID == null
+                ? em.createNamedQuery(Series.COUNT_BY_STUDY_UID, Long.class)
+                    .setParameter(1, studyUID)
+                : em.createNamedQuery(Series.COUNT_BY_SERIES_UID, Long.class)
+                    .setParameter(1, studyUID)
+                    .setParameter(2, seriesUID))
+                .getSingleResult();
+    }
+
+    private int restoreInstances(StoreSession session, Series series, String studyUID, Duration duration,
                                   List <Instance> instList)
             throws DicomServiceException {
         if (series == null || series.getInstancePurgeState() == Series.InstancePurgeState.NO)
-            return;
+            return 0;
 
         LOG.info("Restore Instance records of Series[pk={}]", series.getPk());
+        int count = 0;
         Metadata metadata = series.getMetadata();
         try ( ZipInputStream zip = session.getStoreService()
                 .openZipInputStream(session, metadata.getStorageID(), metadata.getStoragePath(), studyUID)) {
-            ZipEntry entry;
-            while ((entry = zip.getNextEntry()) != null) {
+            while ((zip.getNextEntry()) != null) {
                 JSONReader jsonReader = new JSONReader(Json.createParser(
                         new InputStreamReader(zip, StandardCharsets.UTF_8)));
                 jsonReader.setSkipBulkDataURI(true);
                 Instance inst = restoreInstance(session, series, jsonReader.readDataset(null));
+                count++;
                 if (instList != null)
                     instList.add(inst);
             }
@@ -421,6 +441,7 @@ public class StoreServiceEJB {
         }
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         series.scheduleInstancePurge(duration);
+        return count;
     }
 
     private Instance restoreInstance(StoreSession session, Series series, Attributes attrs) {
@@ -444,6 +465,7 @@ public class StoreServiceEJB {
                 .digest(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest))
                 .size(attrs.getInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, -1))
                 .status(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus))
+                .multiReference(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference))
                 .build();
         location.setInstance(inst);
         inst.getLocations().add(location);
@@ -482,21 +504,12 @@ public class StoreServiceEJB {
                         throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
                                 MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE_MSG, objectUID));
 
-                    RejectedInstance rejectedInstance = findRejectedInstance(studyUID, seriesUID, objectUID);
-                    if (rejectedInstance != null) {
-                        LOG.info("{}: Detect previous {}", session, rejectedInstance);
-                        CodeEntity prevRjNoteCode = rejectedInstance.getRejectionNoteCode();
-                        if (rejectionCode.getPk() != prevRjNoteCode.getPk()) {
-                            if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
-                                throw new DicomServiceException(StoreService.REJECTION_FAILED_ALREADY_REJECTED,
-                                        MessageFormat.format(StoreService.REJECTION_FAILED_ALREADY_REJECTED_MSG, objectUID));
-                            rejectedInstance.setRejectionNoteCode(rejectionCode);
-                            LOG.info("{}: {}", session, rejectedInstance);
-                        }
-                    } else {
-                        rejectedInstance = new RejectedInstance(studyUID, seriesUID, objectUID, classUID, rejectionCode);
-                        em.persist(rejectedInstance);
-                        LOG.info("{}: {}", session, rejectedInstance);
+                    try {
+                        ejb.rejectInstance(session, rjNote, rejectionCode, studyUID, seriesUID, classUID, objectUID);
+                    } catch (EJBException e) {
+                        if (e.getCausedByException() instanceof DicomServiceException)
+                            throw (DicomServiceException) e.getCausedByException();
+                        throw e;
                     }
                 }
                 if (series != null) {
@@ -520,6 +533,27 @@ public class StoreServiceEJB {
                 }
                 deleteStudyQueryAttributes(study);
             }
+        }
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void rejectInstance(StoreSession session, RejectionNote rjNote, CodeEntity rejectionCode, String studyUID,
+                               String seriesUID, String classUID, String objectUID) throws DicomServiceException {
+        RejectedInstance rejectedInstance = findRejectedInstance(studyUID, seriesUID, objectUID);
+        if (rejectedInstance != null) {
+            LOG.info("{}: Detect previous {}", session, rejectedInstance);
+            CodeEntity prevRjNoteCode = rejectedInstance.getRejectionNoteCode();
+            if (rejectionCode.getPk() != prevRjNoteCode.getPk()) {
+                if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
+                    throw new DicomServiceException(StoreService.REJECTION_FAILED_ALREADY_REJECTED,
+                            MessageFormat.format(StoreService.REJECTION_FAILED_ALREADY_REJECTED_MSG, objectUID));
+                rejectedInstance.setRejectionNoteCode(rejectionCode);
+                LOG.info("{}: {}", session, rejectedInstance);
+            }
+        } else {
+            rejectedInstance = new RejectedInstance(studyUID, seriesUID, objectUID, classUID, rejectionCode);
+            em.persist(rejectedInstance);
+            LOG.info("{}: {}", session, rejectedInstance);
         }
     }
 
@@ -662,20 +696,23 @@ public class StoreServiceEJB {
                 .setParameter(1, uidMap).getSingleResult();
     }
 
-    public void removeOrMarkLocationAs(Location location, Location.Status status) {
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void removeOrMarkLocationAs(Location location, LocationStatus status) {
+        location = em.merge(location);
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
         else
             markLocationAs(location, status);
     }
     
-    private void markLocationAs(Location location, Location.Status status) {
+    private void markLocationAs(Location location, LocationStatus status) {
         location.setMultiReference(null);
         location.setUidMap(null);
         location.setInstance(null);
         location.setStatus(status);
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void removeOrphaned(UIDMap uidMap) {
         if (countLocationsByUIDMap(uidMap) == 0)
             em.remove(uidMap);
@@ -688,7 +725,7 @@ public class StoreServiceEJB {
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
-            removeOrMarkLocationAs(location, Location.Status.TO_DELETE);
+            removeOrMarkLocationAs(location, LocationStatus.TO_DELETE);
         }
         for (UIDMap uidMap : uidMaps.values())
             removeOrphaned(uidMap);
@@ -763,7 +800,7 @@ public class StoreServiceEJB {
             return false;
 
         for (Location location : locations) {
-            if (location.getStatus() != Location.Status.OK)
+            if (location.getStatus() != LocationStatus.OK)
                 continue;
 
             byte[] digest2 = location.getDigest();
@@ -807,10 +844,13 @@ public class StoreServiceEJB {
                 : patientService.createPatientMgtContextHL7(
                         session.getLocalHL7Application(), session.getSocket(), session.getUnparsedHL7Message());
         patMgtCtx.setAttributes(ctx.getAttributes());
+        patMgtCtx.setPatientIDs(
+                session.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(
+                        patMgtCtx.getPatientIDs()));
         if (series == null) {
             Study study = findStudy(ctx);
             if (study == null) {
-                if (!checkMissingPatientID(ctx))
+                if (!checkMissingPatientID(session.getAcceptMissingPatientID(), patMgtCtx))
                     throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
                             StoreService.PATIENT_ID_MISSING_IN_OBJECT_MSG);
 
@@ -818,7 +858,6 @@ public class StoreServiceEJB {
                 checkStorePermission(ctx, pat);
 
                 if (pat == null) {
-                    patMgtCtx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
                 } else {
@@ -866,20 +905,27 @@ public class StoreServiceEJB {
         storedAttrs.updateNotSelected(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified,
                 Tag.SpecificCharacterSet, Tag.OriginalAttributesSequence);
         if (!modified.isEmpty() && recordAttributeModification(ctx))
-            result.setStoredAttributes(storedAttrs.addOriginalAttributes(
-                    null, now, reason, device.getDeviceName(), modified));
+            storedAttrs.addOriginalAttributes(
+                    null, now, reason, device.getDeviceName(), modified);
+        result.setStoredAttributes(storedAttrs);
     }
 
-    private boolean checkMissingPatientID(StoreContext ctx) {
-        AcceptMissingPatientID acceptMissingPatientID = ctx.getStoreSession().getAcceptMissingPatientID();
+    private boolean checkMissingPatientID(AcceptMissingPatientID acceptMissingPatientID, PatientMgtContext patMgtCtx) {
         if (acceptMissingPatientID == AcceptMissingPatientID.YES
-                || ctx.getAttributes().containsValue(Tag.PatientID))
+                || !patMgtCtx.getPatientIDs().isEmpty())
             return true;
 
         if (acceptMissingPatientID == AcceptMissingPatientID.NO)
             return false;
 
-        idService.newPatientID(ctx.getAttributes());
+        Attributes pidAttrs = patMgtCtx.getAttributes();
+        if (pidAttrs.containsValue(Tag.PatientID)) {
+            Sequence seq = pidAttrs.ensureSequence(Tag.OtherPatientIDsSequence, 1);
+            seq.add(pidAttrs = new Attributes());
+        }
+        idService.newPatientID(pidAttrs);
+        List<IDWithIssuer> pids = new ArrayList<>(patMgtCtx.getPatientIDs());
+        pids.add(IDWithIssuer.pidOf(pidAttrs));
         return true;
     }
 
@@ -890,13 +936,13 @@ public class StoreServiceEJB {
         if (acceptConflictingPatientID == AcceptConflictingPatientID.YES)
             return;
 
-        IDWithIssuer pid = patMgtCtx.getPatientID();
-        IDWithIssuer pidOfStudy = IDWithIssuer.pidOf(patientOfStudy.getAttributes());
-        if (pid == null) {
-            if (pidOfStudy == null || session.getAcceptMissingPatientID() == AcceptMissingPatientID.CREATE)
+        Collection<IDWithIssuer> pids = patMgtCtx.getPatientIDs();
+        Collection<IDWithIssuer> pidsOfStudy = IDWithIssuer.pidsOf(patientOfStudy.getAttributes());
+        if (pids.isEmpty()) {
+            if (pidsOfStudy.isEmpty() || session.getAcceptMissingPatientID() == AcceptMissingPatientID.CREATE)
                 return;
-        } else if (pidOfStudy != null) {
-            if (pidOfStudy.matches(pid))
+        } else if (pidsOfStudy != null) {
+            if (pidsOfStudy.stream().anyMatch(pidOfStudy -> pids.stream().anyMatch(pid -> pidOfStudy.matches(pid, true, true))))
                 return;
 
             if (acceptConflictingPatientID == AcceptConflictingPatientID.MERGED) {
@@ -906,7 +952,7 @@ public class StoreServiceEJB {
             }
         }
         String errorMsg = MessageFormat.format(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
-                pid, pidOfStudy, ctx.getStudyInstanceUID());
+                pids, pidsOfStudy, ctx.getStudyInstanceUID());
 
         LOG.warn(errorMsg);
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED, errorMsg);
@@ -922,7 +968,7 @@ public class StoreServiceEJB {
             if (!Objects.equals(ctx.getAttributes().getString(tag), pat.getAttributes().getString(tag)))
                 throw new DicomServiceException(StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED,
                         MessageFormat.format(StoreService.CONFLICTING_PATIENT_ATTRS_REJECTED_MSG,
-                                pat.getPatientID(),
+                                pat.getPatientIDs(),
                                 Keyword.valueOf(tag),
                                 TagUtils.toString(tag)));
     }
@@ -936,15 +982,12 @@ public class StoreServiceEJB {
         Attributes attrs = pat.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
         Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection(false)))
+        if (!PatientServiceUtils.updatePatientAttrs(attrs, updatePolicy, ctx.getAttributes(), updateInfo.modified, filter))
             return pat;
 
         updateInfo.log(session, pat, attrs);
         pat = em.find(Patient.class, pat.getPk());
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(attrs);
-        if (idWithIssuer != null) {
-            pat.getPatientID().setIssuer(idWithIssuer.getIssuer());
-        }
+        patientService.updatePatientIDs(pat, IDWithIssuer.pidsOf(attrs));
         pat.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,
@@ -1044,55 +1087,13 @@ public class StoreServiceEJB {
         return series;
     }
 
-    public List<Attributes> queryMWL(StoreContext ctx, MergeMWLQueryParam queryParam) {
-        LOG.info("{}: Query for MWL Items with {}", ctx.getStoreSession(), queryParam);
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Tuple> q = cb.createTupleQuery();
-        Root<MWLItem> mwlItem = q.from(MWLItem.class);
-        Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
-        List<Predicate> predicates = new ArrayList<>();
-        if (queryParam.localMwlSCPs.length > 0)
-            predicates.add(cb.or(mwlItem.get(MWLItem_.localAET).in(queryParam.localMwlSCPs)));
-        if (queryParam.patientID != null)
-            predicates.add(cb.equal(patientID.get(PatientID_.id), queryParam.patientID));
-        if (queryParam.accessionNumber != null)
-            predicates.add(cb.equal(mwlItem.get(MWLItem_.accessionNumber), queryParam.accessionNumber));
-        if (queryParam.studyIUID != null)
-            predicates.add(cb.equal(mwlItem.get(MWLItem_.studyInstanceUID), queryParam.studyIUID));
-        if (queryParam.spsID != null)
-            predicates.add(cb.equal(mwlItem.get(MWLItem_.scheduledProcedureStepID), queryParam.spsID));
-        if (!predicates.isEmpty())
-            q.where(predicates.toArray(new Predicate[0]));
-        q.multiselect(
-                mwlItem.get(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes),
-                patient.get(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes));
-        TypedQuery<Tuple> query = em.createQuery(q);
-        List<Tuple> resultList = query.getResultList();
-        if (resultList.isEmpty()) {
-            LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
-            return null;
-        }
-
-        LOG.info("{}: Found {} matching MWL Items", ctx.getStoreSession(), resultList.size());
-        List<Attributes> mwlItems = new ArrayList<>(resultList.size());
-        for (Tuple result : resultList) {
-            Attributes mwlAttrs = AttributesBlob.decodeAttributes(result.get(0, byte[].class), null);
-            Attributes patAttrs = AttributesBlob.decodeAttributes(result.get(1, byte[].class), null);
-            Attributes.unifyCharacterSets(patAttrs, mwlAttrs);
-            mwlAttrs.addAll(patAttrs);
-            mwlItems.add(mwlAttrs);
-        }
-        return mwlItems;
-    }
-
     public void replaceLocation(StoreContext ctx, InstanceLocations inst) {
         Instance instance = new Instance();
         instance.setPk(inst.getInstancePk());
         createLocation(ctx, instance, Location.ObjectType.DICOM_FILE,
                 ctx.getWriteContext(Location.ObjectType.DICOM_FILE), ctx.getStoreTranferSyntax());
         for (Location location : inst.getLocations()) {
-            removeOrMarkLocationAs(em.find(Location.class, location.getPk()), Location.Status.TO_DELETE);
+            removeOrMarkLocationAs(em.find(Location.class, location.getPk()), LocationStatus.TO_DELETE);
         }
     }
 
@@ -1201,6 +1202,7 @@ public class StoreServiceEJB {
         switch (ctx.getStoreSession().getArchiveAEExtension().overwritePolicy()) {
             case ALWAYS:
             case SAME_SOURCE:
+            case EVEN_WITH_EQUAL_DIGEST:
                 return findInstance(ctx.getSopInstanceUID());
             default:
                 return findInstance(
@@ -1597,7 +1599,7 @@ public class StoreServiceEJB {
 
     private Location updateLocation(StoreContext ctx, Instance instance) {
         Location location = ctx.getLocations().get(0);
-        location.setStatus(Location.Status.OK);
+        location.setStatus(LocationStatus.OK);
         location.setInstance(instance);
         em.merge(location);
         LOG.info("{}: Update {}", ctx.getStoreSession(), location);
@@ -1614,6 +1616,7 @@ public class StoreServiceEJB {
                 .storagePath(readContext.getStoragePath())
                 .transferSyntaxUID(transferSyntaxUID)
                 .objectType(objectType)
+                .status(descriptor.getLocationStatus())
                 .size(readContext.getSize())
                 .digest(readContext.getDigest())
                 .build();
@@ -1661,7 +1664,7 @@ public class StoreServiceEJB {
         addLocation(session, instancePk, newLocation);
         for (Location location : replaceLocations) {
             LOG.info("{}: Mark to delete {}", session, location);
-            removeOrMarkLocationAs(em.find(Location.class, location.getPk()), Location.Status.TO_DELETE);
+            removeOrMarkLocationAs(em.find(Location.class, location.getPk()), LocationStatus.TO_DELETE);
         }
     }
 
@@ -1817,39 +1820,6 @@ public class StoreServiceEJB {
             }
     }
 
-    public void checkDuplicatePatientCreated(StoreContext ctx, IDWithIssuer pid, UpdateDBResult result, Date after) {
-        List<Patient> patients = patientService.findPatientsAfter(pid, after);
-        if (patients.size() == 1)
-            return;
-
-        Patient createdPatient = result.getCreatedPatient();
-        long createdPatientPk = createdPatient.getPk();
-        Patient otherPatient = patients.get(0);
-        if (otherPatient.getPk() == createdPatientPk) {
-            LOG.info("{}: Keep duplicate created {} because {} was created after",
-                    ctx.getStoreSession(), createdPatient, patients.get(1));
-            return;
-        }
-
-        Optional<Patient> createdPatientFound =
-                patients.stream().filter(p -> p.getPk() == createdPatientPk).findFirst();
-        if (!createdPatientFound.isPresent()) {
-            LOG.warn("{}: Failed to find created {}", ctx.getStoreSession(), createdPatient);
-            return;
-        }
-
-        if (otherPatient.getMergedWith() != null) {
-            LOG.warn("{}: Keep duplicate created {} because existing {} is circular merged",
-                    ctx.getStoreSession(), createdPatient, otherPatient);
-            return;
-        }
-        LOG.info("{}: Delete duplicate created {}", ctx.getStoreSession(), createdPatient);
-        otherPatient.incrementNumberOfStudies();
-        em.merge(result.getCreatedStudy()).setPatient(otherPatient);
-        em.remove(createdPatientFound.get());
-        result.setCreatedPatient(null);
-    }
-
     public List<String> studyIUIDsByAccessionNo(String accNo) {
         return em.createNamedQuery(Study.STUDY_IUIDS_BY_ACCESSION_NUMBER, String.class)
                 .setParameter(1, accNo).getResultList();
@@ -1862,7 +1832,7 @@ public class StoreServiceEJB {
                 .executeUpdate();
     }
 
-    public int setStatus(Long pk, Location.Status status) {
+    public int setStatus(Long pk, LocationStatus status) {
         return em.createNamedQuery(Location.SET_STATUS)
                 .setParameter(1, pk)
                 .setParameter(2, status)

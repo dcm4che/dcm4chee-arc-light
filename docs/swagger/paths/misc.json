@@ -197,6 +197,29 @@
       }
     }
   },
+  "institutions": {
+    "get": {
+      "tags": [
+        "STAT-RS"
+      ],
+      "summary": "List Distinct Institutions",
+      "operationId": "listDistinctInstitutions",
+      "description": "List distinct values for Institution Name (0008,0080) of received Series / MWLs",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/entity"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/institutions"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "token.webapp": {
     "get": {
       "tags": [
@@ -249,6 +272,77 @@
         },
         "404": {
           "description": "No such Archive AE Title or Study"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "study.restore": {
+    "post": {
+      "tags": [
+        "RESTORE-RS"
+      ],
+      "summary": "Restore Purged Instance Records of Study",
+      "operationId": "RestorePurgedInstanceRecordsOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/purgeAfterDelay"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/restorePurgedInstanceRecords"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Study"
+        },
+        "409": {
+          "description": "Instance records of none of the Series of the Study are purged."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series.restore": {
+    "post": {
+      "tags": [
+        "RESTORE-RS"
+      ],
+      "summary": "Restore Purged Instance Records of Series",
+      "operationId": "RestorePurgedInstanceRecordsOfSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/purgeAfterDelay"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/restorePurgedInstanceRecords"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Series"
+        },
+        "409": {
+          "description": "Instance records of the Series are not purged."
         },
         "500": {
           "description": "Internal Server Error."
@@ -468,6 +562,9 @@
             }
           }
         },
+        "400": {
+          "description": "Missing patient identifier with trusted assigning authority in specified patient identifiers"
+        },
         "404": {
           "description": "no patient found"
         },
@@ -562,6 +659,37 @@
         },
         "409": {
           "$ref": "../responses.json#/restoreFromMetadataFailed"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "storageChangeStatus": {
+    "post": {
+      "tags": [
+        "STORAGE-RS"
+      ],
+      "summary": "Change Status of Locations on Storage System",
+      "operationId": "storageChangeStatus",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/storageIDPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/fromLocationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/toLocationStatus"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/countResults"
+        },
+        "400": {
+          "description": "There was a problem with the request."
         },
         "500": {
           "description": "Internal Server Error."

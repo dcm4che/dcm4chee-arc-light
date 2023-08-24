@@ -347,15 +347,16 @@ export class AeListComponent implements OnInit{
                                 $this.searchAes();
                             }, (err) => {
                                 $this.cfpLoadingBar.complete();
-/*                                $this.$http.delete(
-                                    "./rs/unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
-                                ).subscribe((response) => {
-                                    $this.mainservice.setMessage({
-                                        "title": "Error",
-                                        "text": "Aet couldn't be registered!",
-                                        "status": "error"
-                                    });
-                                });*/
+                                $this.httpErrorHandler.handleError(err);
+                                /*                                $this.$http.delete(
+                                                                    "./rs/unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
+                                                                ).subscribe((response) => {
+                                                                    $this.mainservice.setMessage({
+                                                                        "title": "Error",
+                                                                        "text": "Aet couldn't be registered!",
+                                                                        "status": "error"
+                                                                    });
+                                                                });*/
                             });
                     }
                     // DeviceService.msg($scope, {

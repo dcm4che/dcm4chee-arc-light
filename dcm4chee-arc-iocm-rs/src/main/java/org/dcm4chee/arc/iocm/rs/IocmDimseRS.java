@@ -15,13 +15,11 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
+import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.MergeMWLQueryParam;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -39,6 +37,7 @@ import javax.json.stream.JsonGenerator;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.IntFunction;
 
@@ -114,8 +113,10 @@ public class IocmDimseRS {
             aeCache.findApplicationEntity(mwlscp);
             List<Attributes> mwlItems = cFindSCU.findMWLItems(
                     arcAE.getApplicationEntity(),
-                    new MergeMWLQueryParam(mwlscp, StringUtils.EMPTY_STRING, null, null, null, studyUID, spsID),
-                    Priority.NORMAL);
+                    mwlscp,
+                    EnumSet.noneOf(QueryOption.class),
+                    Priority.NORMAL,
+                    keys(studyUID, spsID));
             if (mwlItems.isEmpty())
                 return errResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
                         Response.Status.NOT_FOUND);
@@ -147,6 +148,43 @@ public class IocmDimseRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Attributes keys(String studyIUID, String spsID) {
+        Attributes sps = new Attributes(4);
+        sps.setNull(Tag.ScheduledPerformingPhysicianName, VR.PN);
+        sps.setNull(Tag.ScheduledProcedureStepDescription, VR.LO);
+        sps.setNull(Tag.ScheduledProtocolCodeSequence, VR.SQ);
+        sps.setString(Tag.ScheduledProcedureStepID, VR.SH, spsID);
+        Attributes keys = new Attributes(27);
+        keys.setNull(Tag.AccessionNumber, VR.SH);
+        keys.setNull(Tag.IssuerOfAccessionNumberSequence, VR.SQ);
+        keys.setNull(Tag.ReferencedStudySequence, VR.SQ);
+        keys.setNull(Tag.ReferringPhysicianName, VR.PN);
+        keys.setNull(Tag.PatientName, VR.PN);
+        keys.setNull(Tag.PatientID, VR.LO);
+        keys.setNull(Tag.IssuerOfPatientID, VR.LO);
+        keys.setNull(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+        keys.setNull(Tag.PatientBirthDate, VR.DA);
+        keys.setNull(Tag.PatientSex, VR.CS);
+        keys.setNull(Tag.PatientSize, VR.DS);
+        keys.setNull(Tag.PatientWeight, VR.DS);
+        keys.setNull(Tag.PatientAddress, VR.LO);
+        keys.setNull(Tag.PatientSexNeutered, VR.CS);
+        keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        keys.setNull(Tag.RequestingPhysicianIdentificationSequence, VR.SQ);
+        keys.setNull(Tag.RequestingPhysician, VR.PN);
+        keys.setNull(Tag.RequestingService, VR.LO);
+        keys.setNull(Tag.RequestingServiceCodeSequence, VR.SQ);
+        keys.setNull(Tag.RequestedProcedureDescription, VR.LO);
+        keys.setNull(Tag.RequestedProcedureCodeSequence, VR.SQ);
+        keys.setNull(Tag.AdmissionID, VR.LO);
+        keys.setNull(Tag.IssuerOfAdmissionIDSequence, VR.SQ);
+        keys.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
+        keys.setNull(Tag.RequestedProcedureID, VR.SH);
+        keys.setNull(Tag.ReasonForTheRequestedProcedure, VR.LO);
+        keys.setNull(Tag.ReasonForRequestedProcedureCodeSequence, VR.SQ);
+        return keys;
     }
 
     private Response toResponse(Attributes result) {

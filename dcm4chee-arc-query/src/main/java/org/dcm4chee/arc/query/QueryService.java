@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.query;
 
-import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
@@ -49,10 +48,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4chee.arc.MergeMWLQueryParam;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -108,7 +104,9 @@ public interface QueryService {
 
     StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView);
 
-    SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView);
+    SeriesQueryAttributes calculateSeriesQueryAttributes(
+            Long seriesPk, Series.InstancePurgeState purgeState, String storageID, String storagePath,
+            QueryRetrieveView qrView);
 
     Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
@@ -150,9 +148,11 @@ public interface QueryService {
 
     List<String> getDistinctModalities();
 
-    List<Tuple> unknownSizeStudies(Date dt, int fetchSize);
+    List<String> getDistinctInstitutions(String entity);
 
-    CriteriaQuery<Patient> createPatientWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
+    List<Study> unknownSizeStudies(Date dt, int fetchSize);
+
+    CriteriaQuery<PatientID> createPatientIDWithUnknownIssuerQuery(QueryParam queryParam, Attributes queryKeys);
 
     CriteriaQuery<AttributesBlob> createPatientAttributesQuery(QueryParam queryParam, Attributes queryKeys);
 

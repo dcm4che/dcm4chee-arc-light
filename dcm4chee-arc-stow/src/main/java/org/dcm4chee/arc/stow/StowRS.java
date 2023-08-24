@@ -53,6 +53,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.ContributingEquipmentPurposeOfReference;
 import org.dcm4che3.image.BufferedImageUtils;
 import org.dcm4che3.imageio.codec.jpeg.JPEG;
 import org.dcm4che3.imageio.codec.jpeg.JPEGParser;
@@ -74,6 +75,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -81,6 +83,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -126,6 +129,19 @@ public class StowRS {
 
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
     private static final String SUPER_USER_ROLE = "super-user-role";
+    private static final String IRWF_NOT_SUPPORTED =
+            "Query Parameter 'irwf' not supported for Metadata and Bulkdata payload";
+    private static final String IRWF_MISSING_PATIENT_ID =
+            "Query Parameter 'irwf=UNSCHEDULED' requires Query Parameter '00100020'";
+    private static final String IRWF_PATIENT_ID_NOT_SUPPORTED =
+            "Query Parameter 'irwf=SCHEDULED' can't be used with Query Parameter '00100020'";
+    private static final String IRWF_MISSING_SPS =
+            "Query Parameter 'irwf=SCHEDULED' requires Query Parameters '0020000D' and '00400100.00400009'";
+    private static final String IRWF_NOT_SCHEDULED =
+            "No Procedure Step with given '0020000D' and '00400100.00400009' scheduled";
+
+    @Inject
+    private ProcedureService procedureService;
 
     @Inject
     private StoreService service;
@@ -157,6 +173,9 @@ public class StowRS {
     @QueryParam("sourceOfPreviousValues")
     private String sourceOfPreviousValues;
 
+    @QueryParam("irwf")
+    @Pattern(regexp = "UNSCHEDULED|SCHEDULED|SCHEDULED_COERCE_STUDY")
+    private String irwf;
     private String acceptedStudyInstanceUID;
     private final Set<String> studyInstanceUIDs = new HashSet<>();
 
@@ -166,11 +185,12 @@ public class StowRS {
     private Sequence sopSequence;
     private Sequence failedSOPSequence;
     private java.nio.file.Path spoolDirectory;
-    private Map<String, BulkDataWithMediaType> bulkdataMap = new HashMap<>();
+    private Map<String, PathWithMediaType> bulkdataMap = new HashMap<>();
+    private Attributes coerce;
 
     public void validate() {
         logRequest();
-        new QueryAttributes(uriInfo, null);
+        coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
     }
 
     @Override
@@ -309,6 +329,8 @@ public class StowRS {
         validateAcceptedUserRoles(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
         if (aet.equals(ae.getAETitle()))
             validateWebAppServiceClass();
+        if (irwf != null)
+            validateIRWF(input);
         ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(
                 HttpServletRequestInfo.valueOf(request), ae, aet, null);
@@ -324,10 +346,9 @@ public class StowRS {
                             LOG.info("{}: Ignore Part with Content-Type={}", session, mediaType);
                             multipartInputStream.skipAll();
                         }
-                    } catch (JsonParsingException e) {
+                    } catch (JsonParsingException | SAXException e) {
                         throw new WebApplicationException(
-                                errResponse(e.getMessage() + " at location : " + e.getLocation(),
-                                        Response.Status.BAD_REQUEST));
+                                errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
                     } catch (Exception e) {
                         if (instances.size() == 1)
                             throw new WebApplicationException(
@@ -349,6 +370,71 @@ public class StowRS {
                     .entity(output.entity(response, ae))
                     .header("Warning", warning)
                     .build());
+    }
+
+    private void validateIRWF(Input input) {
+        if (input != Input.DICOM)
+            throw new WebApplicationException(errResponse(IRWF_NOT_SUPPORTED, Response.Status.BAD_REQUEST));
+        if ("UNSCHEDULED".equals(irwf)) {
+            if (!coerce.containsValue(Tag.PatientID))
+                throw new WebApplicationException(errResponse(IRWF_MISSING_PATIENT_ID, Response.Status.BAD_REQUEST));
+        } else { // SCHEDULED|SCHEDULED_COERCE_STUDY
+            if (coerce.contains(Tag.PatientID))
+                throw new WebApplicationException(errResponse(IRWF_PATIENT_ID_NOT_SUPPORTED, Response.Status.BAD_REQUEST));
+            Attributes sps;
+            String suid, spsid;
+            if ((suid = coerce.getString(Tag.StudyInstanceUID)) == null
+                    || (sps = coerce.getNestedDataset(Tag.ScheduledProcedureStepSequence)) == null
+                    || (spsid = sps.getString(Tag.ScheduledProcedureStepID)) == null)
+                throw new WebApplicationException(errResponse(IRWF_MISSING_SPS, Response.Status.BAD_REQUEST));
+            Attributes mwlAttrs = procedureService.getMWLItemAttrs(suid, spsid);
+            if (mwlAttrs == null)
+                throw new WebApplicationException(errResponse(IRWF_NOT_SCHEDULED, Response.Status.NOT_FOUND));
+
+            if ("SCHEDULED".equals(irwf))
+                coerce.remove(Tag.StudyInstanceUID);
+            coerce.remove(Tag.ScheduledProcedureStepSequence);
+            coerce.addSelected(mwlAttrs,
+                    Tag.SpecificCharacterSet,
+                    Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence,
+                    Tag.PatientID, Tag.IssuerOfPatientID, Tag.IssuerOfPatientIDQualifiersSequence,
+                    Tag.AdmissionID, Tag.IssuerOfAdmissionID);
+            Attributes procedureCode = mwlAttrs.getNestedDataset(Tag.RequestedProcedureCodeSequence);
+            if (procedureCode != null)
+                coerce.newSequence(Tag.ProcedureCodeSequence, 1).add(new Attributes(procedureCode));
+            coerce.newSequence(Tag.RequestAttributesSequence, 1).add(irwfRequestAttrs(mwlAttrs, spsid));
+        }
+        coerce(Tag.IssuerOfPatientID, VR.LO);
+        coerce(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+        coerce(Tag.AccessionNumber, VR.SH);
+        coerce(Tag.IssuerOfAccessionNumberSequence, VR.SQ);
+        coerce(Tag.AdmissionID, VR.SH);
+        coerce(Tag.IssuerOfAdmissionID, VR.SQ);
+        coerce.newSequence(Tag.ContributingEquipmentSequence, 1).add(irwfContributingEquipment());
+        reasonForModification = "COERCE";
+    }
+
+    private Attributes irwfContributingEquipment() {
+        Attributes attrs = new Attributes(3);
+        attrs.setString(Tag.Manufacturer, VR.LO, device.getManufacturer());
+        attrs.setString(Tag.InstitutionName, VR.LO, device.getInstitutionNames());
+        attrs.setString(Tag.StationName, VR.SH, getStationName());
+        attrs.setDate(Tag.ContributionDateTime, VR.DT, new Date());
+        attrs.newSequence(Tag.PurposeOfReferenceCodeSequence, 1)
+                .add(ContributingEquipmentPurposeOfReference.PortableMediaImporterEquipment.toItem());
+        return attrs;
+    }
+
+    private void coerce(int tag, VR vr) {
+        if (!coerce.contains(tag)) coerce.setNull(tag, vr);
+    }
+
+    private Attributes irwfRequestAttrs(Attributes mwlAttrs, String spsid) {
+        Attributes attrs = new Attributes(3);
+        attrs.setString(Tag.RequestedProcedureDescription, VR.LO, mwlAttrs.getString(Tag.RequestedProcedureDescription));
+        attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, spsid);
+        attrs.setString(Tag.RequestedProcedureID, VR.SH, mwlAttrs.getString(Tag.RequestedProcedureID));
+        return attrs;
     }
 
     private static MediaType normalize(MediaType mediaType) {
@@ -507,27 +593,60 @@ public class StowRS {
     }
 
     private void coerceAttributes(Attributes attrs) {
-        Attributes coerce = new QueryAttributes(uriInfo, null).getQueryKeys();
         if (!coerce.isEmpty()) {
+            if (irwf != null) {
+                Sequence otherPatientIDs = coerce.newSequence(Tag.OtherPatientIDsSequence, 2);
+                otherPatientIDs.add(selectPatientIDWithIssuer(attrs));
+                otherPatientIDs.add(selectPatientIDWithIssuer(coerce));
+                Attributes irwfRequestAttrs = coerce.getNestedDataset(Tag.RequestAttributesSequence);
+                if (irwfRequestAttrs != null) {
+                    irwfRequestAttrs.remove(Tag.ScheduledProcedureStepDescription);
+                    irwfRequestAttrs.remove(Tag.ScheduledProtocolCodeSequence);
+                    Attributes reqAttrs = attrs.getNestedDataset(Tag.RequestAttributesSequence);
+                    if (reqAttrs != null) {
+                        irwfRequestAttrs.addSelected(reqAttrs,
+                                Tag.ScheduledProcedureStepDescription,
+                                Tag.ScheduledProtocolCodeSequence);
+                    }
+                }
+            }
             Attributes modified = new Attributes();
             attrs.update(Attributes.UpdatePolicy.valueOf(updatePolicy), false, coerce, modified);
             if (!modified.isEmpty() && reasonForModification != null) {
                 attrs.addOriginalAttributes(sourceOfPreviousValues, new Date(),
-                        reasonForModification, device.getDeviceName(), modified);
+                        reasonForModification, getStationName(), modified);
             }
         }
+    }
+
+    private String getStationName() {
+        String stationName = device.getStationName();
+        return stationName != null ? stationName : device.getDeviceName();
+    }
+
+    private static Attributes selectPatientIDWithIssuer(Attributes src) {
+        Attributes result = new Attributes(3);
+        result.setString(Tag.PatientID, VR.LO, src.getString(Tag.PatientID));
+        String issuer = src.getString(Tag.IssuerOfPatientID);
+        if (issuer != null)
+            result.setString(Tag.IssuerOfPatientID, VR.LO, issuer);
+        Attributes qualifiers = src.getNestedDataset(Tag.IssuerOfPatientIDQualifiersSequence);
+        if (qualifiers != null)
+            result.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 1)
+                    .add(new Attributes(qualifiers));
+        return result;
     }
 
     private void storeDicomObject(StoreSession session, Attributes attrs, int instanceNumber) throws IOException {
         StoreContext ctx = service.newStoreContext(session);
         ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
         try {
-            BulkDataWithMediaType bulkdataWithMediaType = resolveBulkdataRefs(attrs);
-            if (bulkdataWithMediaType == null) 
+            PathWithMediaType pathWithMediaType = resolveBulkdataRefs(session, attrs);
+            if (pathWithMediaType == null)
                 ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
             else {
-                ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(bulkdataWithMediaType.mediaType));
-                supplementAttrs(ctx, session, attrs, instanceNumber, bulkdataWithMediaType);
+                ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(pathWithMediaType.mediaType));
+                supplementAttrs(ctx, session, attrs, instanceNumber, pathWithMediaType);
             }
             service.store(ctx, attrs);
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
@@ -541,7 +660,7 @@ public class StowRS {
     }
 
     private void supplementAttrs(StoreContext ctx, StoreSession session, Attributes attrs, int instanceNumber,
-                                 BulkDataWithMediaType bulkdata) throws DicomServiceException {
+                                 PathWithMediaType bulkdata) throws DicomServiceException {
         for (int tag : IUIDS_TAGS)
             if (!attrs.containsValue(tag)) {
                 String uid = UIDUtils.createUID();
@@ -583,25 +702,27 @@ public class StowRS {
                 case UID.EncapsulatedOBJStorage:
                 case UID.EncapsulatedMTLStorage:
                 case UID.PrivateDcm4cheEncapsulatedGenozipStorage:
+                case UID.PrivateDcm4cheEncapsulatedBzip2VCFStorage:
+                case UID.PrivateDcm4cheEncapsulatedBzip2DocumentStorage:
                     throw missingAttribute(Tag.EncapsulatedDocument);
             }
         }
     }
 
     private void supplementImagePixelModule(StoreContext ctx, StoreSession session, Attributes attrs,
-            BulkDataWithMediaType bulkdata) throws DicomServiceException {
+            PathWithMediaType bulkdata) throws DicomServiceException {
         CompressedPixelData compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
         ImageReader imageReader;
         if (compressedPixelData != null) {
-            File file = bulkdata.bulkData.getFile();
-            try (SeekableByteChannel channel = Files.newByteChannel(file.toPath())) {
-                ctx.setReceiveTransferSyntax(compressedPixelData.supplementImagePixelModule(session, channel, attrs));
+            try (SeekableByteChannel channel = Files.newByteChannel(bulkdata.path)) {
+                ctx.setReceiveTransferSyntax(compressedPixelData.supplementImagePixelModule(session, channel, attrs,
+                        bulkdata.length > session.getArchiveAEExtension().stowMaxFragmentLength()));
             } catch (IOException e) {
-                LOG.info("Failed to parse {} compressed pixel data from {}:\n", compressedPixelData, file, e);
+                LOG.info("Failed to parse {} compressed pixel data from {}:\n", compressedPixelData, bulkdata.path, e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
         } else if ((imageReader = findImageReader(bulkdata.mediaType, "com.sun.imageio")) != null) {
-            try (ImageInputStream iio = ImageIO.createImageInputStream(bulkdata.bulkData.getFile())) {
+            try (ImageInputStream iio = ImageIO.createImageInputStream(bulkdata.path.toFile())) {
                 imageReader.setInput(iio);
                 BufferedImageUtils.toImagePixelModule(imageReader, attrs);
                 ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
@@ -650,7 +771,7 @@ public class StowRS {
     }
 
     private static void verifyEncapsulatedDocumentModule(
-            StoreSession session, Attributes attrs, BulkDataWithMediaType bulkdata) throws DicomServiceException {
+            StoreSession session, Attributes attrs, PathWithMediaType bulkdata) throws DicomServiceException {
         String cuid = attrs.getString(Tag.SOPClassUID);
         if (!attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument)) {
             String mimeType = bulkdata.mediaType.toString();
@@ -661,7 +782,7 @@ public class StowRS {
         if (!attrs.containsValue(Tag.BurnedInAnnotation))
             supplementMissing(session, Tag.BurnedInAnnotation, VR.CS, "YES", attrs);
         if (!attrs.containsValue(Tag.EncapsulatedDocumentLength))
-            supplementMissing(session, Tag.EncapsulatedDocumentLength, VR.UL, bulkdata.bulkData.length(), attrs);
+            supplementMissing(session, Tag.EncapsulatedDocumentLength, VR.UL, (int) bulkdata.length, attrs);
         switch (cuid) {
             case UID.EncapsulatedSTLStorage:
             case UID.EncapsulatedMTLStorage:
@@ -707,12 +828,12 @@ public class StowRS {
                 "Missing " + DICT.keywordOf(tag) + " " + TagUtils.toString(tag));
     }
 
-    private BulkDataWithMediaType resolveBulkdataRefs(Attributes attrs) throws DicomServiceException {
-        final BulkDataWithMediaType[] bulkdataWithMediaType = new BulkDataWithMediaType[1];
+    private PathWithMediaType resolveBulkdataRefs(StoreSession session, Attributes attrs) throws DicomServiceException {
+        final PathWithMediaType[] bulkdataWithMediaType = new PathWithMediaType[1];
         try {
             attrs.accept((attrs1, tag, vr, value) -> {
                 if (value instanceof BulkData)
-                    bulkdataWithMediaType[0] = resolveBulkdataRef(attrs1, tag, vr, (BulkData) value);
+                    bulkdataWithMediaType[0] = resolveBulkdataRef(session, attrs1, tag, vr, (BulkData) value);
 
                 return true;
             }, true);
@@ -724,61 +845,68 @@ public class StowRS {
         return bulkdataWithMediaType[0];
     }
 
-    private BulkDataWithMediaType resolveBulkdataRef(Attributes attrs, int tag, VR vr, BulkData bulkdata)
+    private PathWithMediaType resolveBulkdataRef(StoreSession session, Attributes attrs, int tag, VR vr, BulkData bulkdata)
             throws IOException {
-        BulkDataWithMediaType bulkdataWithMediaType = bulkdataMap.get(bulkdata.getURI());
-        if (bulkdataWithMediaType == null)
+        PathWithMediaType pathWithMediaType = bulkdataMap.get(bulkdata.getURI());
+        if (pathWithMediaType == null)
             throw new DicomServiceException(0xA922, "Missing Bulkdata: " + bulkdata.getURI());
-        if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType))
-            bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
+        if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(pathWithMediaType.mediaType))
+            bulkdata.setURI(pathWithMediaType.path.toUri() + "?offset=0&length=" + pathWithMediaType.length);
         else
-            addFragments(attrs,
-                    new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false),
-                    tag,
-                    vr);
-        return bulkdataWithMediaType;
+            addFragments(session, attrs, pathWithMediaType, tag, vr);
+        return pathWithMediaType;
     }
 
-    private static void addFragments(Attributes attrs, BulkData bulkData, int tag, VR vr) {
-        Fragments frags = attrs.newFragments(tag, vr, 2);
+    private static void addFragments(StoreSession session, Attributes attrs, PathWithMediaType pathWithMediaType,
+                                     int tag, VR vr) {
+        String uri = pathWithMediaType.path.toUri().toString();
+        long offset = 0;
+        long remaining = pathWithMediaType.length;
+        long maxFragmentLength = session.getArchiveAEExtension().stowMaxFragmentLength();
+        Fragments frags = attrs.newFragments(tag, vr, 2 + (int)((remaining - 1) / maxFragmentLength));
         frags.add(ByteUtils.EMPTY_BYTES);
-        frags.add(bulkData);
+        while (remaining > maxFragmentLength) {
+            frags.add(new BulkData(uri, offset, maxFragmentLength, false));
+            offset += maxFragmentLength;
+            remaining -= maxFragmentLength;
+        }
+        frags.add(new BulkData(uri, offset, remaining, false));
     }
 
     private enum CompressedPixelData {
         JPEG {
             @Override
-            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs)
+            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs, boolean fragmented)
                     throws IOException {
                 JPEGParser jpegParser = new JPEGParser(channel);
                 jpegParser.getAttributes(attrs);
                 ArchiveAEExtension arcAE = session.getArchiveAEExtension();
                 adjustBulkdata(attrs, jpegParser, arcAE);
-                return adjustJPEGTransferSyntax(jpegParser.getTransferSyntaxUID(),
+                return adjustJPEGTransferSyntax(jpegParser.getTransferSyntaxUID(fragmented),
                         arcAE.stowRetiredTransferSyntax(), attrs);
             }
         },
         MPEG {
             @Override
-            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs)
+            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs, boolean fragmented)
                     throws IOException {
                 MPEG2Parser mpeg2Parser = new MPEG2Parser(channel);
                 mpeg2Parser.getAttributes(attrs);
-                return mpeg2Parser.getTransferSyntaxUID();
+                return mpeg2Parser.getTransferSyntaxUID(fragmented);
             }
         },
         MP4 {
             @Override
-            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs)
+            String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs, boolean fragmented)
                     throws IOException {
                 MP4Parser mp4Parser = new MP4Parser(channel);
                 mp4Parser.getAttributes(attrs);
                 adjustBulkdata(attrs, mp4Parser, session.getArchiveAEExtension());
-                return mp4Parser.getTransferSyntaxUID();
+                return mp4Parser.getTransferSyntaxUID(fragmented);
             }
         };
 
-        abstract String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs)
+        abstract String supplementImagePixelModule(StoreSession session, SeekableByteChannel channel, Attributes attrs, boolean fragmented)
                 throws IOException;
 
         static CompressedPixelData valueOf(MediaType mediaType) {
@@ -809,8 +937,8 @@ public class StowRS {
 
     private static void excludeAppMarkers(Attributes attrs, JPEGParser parser) {
         Fragments fragments = (Fragments) attrs.getValue(Tag.PixelData);
-        BulkData bulkData = (BulkData) fragments.remove(1);
-        fragments.add(new BulkDataWithPrefix(
+        BulkData bulkData = (BulkData) fragments.get(1);
+        fragments.set(1, new BulkDataWithPrefix(
                 bulkData.uriWithoutOffsetAndLength(),
                 parser.getPositionAfterAPPSegments(),
                 (int) (bulkData.length() - parser.getPositionAfterAPPSegments()),
@@ -876,7 +1004,7 @@ public class StowRS {
             try (OutputStream out = Files.newOutputStream(spoolFile)) {
                 StreamUtils.copy(in, out);
             }
-            bulkdataMap.put(contentLocation, new BulkDataWithMediaType(spoolFile, mediaType));
+            bulkdataMap.put(contentLocation, new PathWithMediaType(spoolFile, mediaType));
             return true;
         } catch (IOException e) {
             StringWriter sw = new StringWriter();
@@ -953,12 +1081,14 @@ public class StowRS {
                 : failedSOPSequence == null ? Response.Status.OK : Response.Status.ACCEPTED;
     }
 
-    private static class BulkDataWithMediaType {
-        final BulkData bulkData;
+    private static class PathWithMediaType {
+        final java.nio.file.Path path;
+        final long length;
         final MediaType mediaType;
 
-        private BulkDataWithMediaType(java.nio.file.Path path, MediaType mediaType) throws IOException {
-            this.bulkData = new BulkData(path.toUri().toString(), 0, (int) Files.size(path), false);
+        private PathWithMediaType(java.nio.file.Path path, MediaType mediaType) throws IOException {
+            this.path = path;
+            this.length = Files.size(path);
             this.mediaType = mediaType;
         }
     }

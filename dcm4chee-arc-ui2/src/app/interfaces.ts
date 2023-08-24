@@ -3,7 +3,7 @@ import {Device} from "./models/device";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {HttpHeaders} from "@angular/common/http";
 import {SelectionsDicomObjects} from "./study/study/selections-dicom-objects.model";
-import {TableAction} from "./helpers/dicom-studies-table/dicom-studies-table.interfaces";
+import {DicomTableSchema, TableAction} from "./helpers/dicom-studies-table/dicom-studies-table.interfaces";
 
 export interface J4careDateTime {
     FullYear:string;
@@ -32,7 +32,7 @@ export interface ConfiguredDateTameFormatObject{
 
 export type StatisticsPage = "simple"|"detailed"
 
-export type FilterTag = "button" | "input" | "checkbox" | "select" | "modality" | "range-picker-limit" | "range-picker-time" | "range-picker" | "code-selector" | "p-calendar" | "multi-select" | "html-select" | "editable-select" | "label" | "label_large" | "dummy" | "combined" | "number" | "size_range_picker" | "modified-widget";
+export type FilterTag = "button" | "input" | "checkbox" | "select" | "modality" | "range-picker-limit" | "range-picker-time" | "range-picker" | "code-selector" | "issuer-selector" | "p-calendar" | "multi-select" | "html-select" | "editable-select" | "editable-multi-select" | "label" | "label_large" | "dummy" | "combined" | "number" | "size_range_picker" | "modified-widget" | "person-name-picker";
 
 export type RangeUnit = "hour" | "day" | "week" | "month" | "year";
 
@@ -128,6 +128,11 @@ export interface Code{
     label:string;
 }
 
+export interface Issuer{
+    key:string;
+    label:string;
+}
+
 export interface FilterSchemaElement {
     tag:FilterTag;
     filterKey?:string;
@@ -154,9 +159,10 @@ export interface FilterSchemaElement {
     showRefreshIcon?:boolean;
     showDynamicLoader?:boolean;
     codes?:Code[];
+    issuers?:Issuer[];
 }
 
-export type DicomMode = "study" | "patient" | "series" | "mwl" | "mpps" | "uwl" | "diff" | "export" | "thumbnail";
+export type DicomMode = "study" | "patient" | "series" | "mwl" | "mpps" | "uwl" | "diff" | "export" | "thumbnail" | string;
 export type StudyTab = "study" | "patient" | "mwl" | "uwl" | "diff" | "mpps";
 
 export type DicomLevel = "patient" | "study" | "series" | "instance" | "diff" | "mwl" | string;
@@ -361,12 +367,18 @@ export interface StudyTagConfig {
     title:string;
     takeActionsOver?:string[]; //Array of the permissions id strings, if empty no actions button will be taken over
     addActions?:AddActions;
+    hookSchema?:(schema:DicomTableSchema, $this:any)=>DicomTableSchema;
     searchPatientAfterNoMwl?:boolean;
     tableMode?:StudyTab;
+    hidePageArrows?:boolean;
+    cssClass?:string;
+    hideEmptyActionMenu?:boolean;
+    presetFilter?:any;
+    preventClearingSelected?:boolean;
 }
 type AddActions = {
     addPath:string,
-    addFunction:(actions:Function, $this:any, currentActions:TableAction[]) => TableAction[]
+    addFunction:(actions:Function, $this:any, currentActions:TableAction[], schema?:DicomTableSchema) => TableAction[]
 };
 
 export interface CreateDialogTemplate{

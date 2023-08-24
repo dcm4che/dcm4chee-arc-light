@@ -1,4 +1,361 @@
 {
+  "studies.update": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Matching Studies",
+      "operationId": "updateMatchingStudies",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/updatePolicy"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/studyAttributes"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/updateMatchingSuccessful"
+        },
+        "202": {
+          "$ref": "../responses.json#/updateMatchingWarnings"
+        },
+        "204": {
+          "description": "No matching Studies found"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Rejection Note"
+        },
+        "409": {
+          "$ref": "../responses.json#/updateMatchingFailed"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "studies.series.update": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Matching Series of Study",
+      "operationId": "updateMatchingSeriesOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/updatePolicy"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/seriesAttributes"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/updateMatchingSuccessful"
+        },
+        "202": {
+          "$ref": "../responses.json#/updateMatchingWarnings"
+        },
+        "204": {
+          "description": "No matching Series found"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Rejection Note"
+        },
+        "409": {
+          "$ref": "../responses.json#/updateMatchingFailed"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "series.update": {
+    "post": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Matching Series",
+      "operationId": "updateMatchingSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/updatePolicy"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
+        },
+        {
+          "$ref": "../parameters.json#/filter"
+        },
+        {
+          "$ref": "../parameters.json#/fuzzymatching"
+        },
+        {
+          "$ref": "../parameters.json#/patientVerificationStatus"
+        },
+        {
+          "$ref": "../parameters.json#/incomplete"
+        },
+        {
+          "$ref": "../parameters.json#/retrievefailed"
+        },
+        {
+          "$ref": "../parameters.json#/storageVerificationFailed"
+        },
+        {
+          "$ref": "../parameters.json#/compressionfailed"
+        },
+        {
+          "$ref": "../parameters.json#/metadataUpdateFailed"
+        },
+        {
+          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
+        },
+        {
+          "$ref": "../parameters.json#/StudyReceiveDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudySizeInKB"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET"
+        },
+        {
+          "$ref": "../parameters.json#/ExternalRetrieveAET!"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationDate"
+        },
+        {
+          "$ref": "../parameters.json#/ExpirationState"
+        },
+        {
+          "$ref": "../parameters.json#/allOfModalitiesInStudy"
+        },
+        {
+          "$ref": "../parameters.json#/storageID"
+        },
+        {
+          "$ref": "../parameters.json#/storageClustered"
+        },
+        {
+          "$ref": "../parameters.json#/storageExported"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/seriesAttributes"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/updateMatchingSuccessful"
+        },
+        "202": {
+          "$ref": "../responses.json#/updateMatchingWarnings"
+        },
+        "204": {
+          "description": "No matching Series found"
+        },
+        "400": {
+          "description": "Validation for one of the query parameters failed"
+        },
+        "404": {
+          "description": "No such Archive AE Title or Rejection Note"
+        },
+        "409": {
+          "$ref": "../responses.json#/updateMatchingFailed"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
   "study.reject.csv": {
     "post": {
       "tags": [
@@ -1091,7 +1448,7 @@
           "description": "Patient ID not specified by Query Parameter."
         },
         "403": {
-          "description": "Patient already merged for Patient ID with Issuer specified in Query Parameters."
+          "description": "Move Study to Patient forbidden for already merged patients"
         },
         "404": {
           "description": "There is no Archive AE with the specified Title or no Study with the specified Study Instance UID."
@@ -1139,7 +1496,7 @@
         "200": {
           "$ref": "../responses.json#/storeInstancesSuccessful"
         },
-        "204": {
+        "202": {
           "$ref": "../responses.json#/storeInstancesWarnings"
         },
         "400": {
@@ -1147,6 +1504,46 @@
         },
         "404": {
           "description": "There is no Archive AE with the specified Title or no Study with the specified UID."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "study.request": {
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Request Attributes of all Series of Study",
+      "operationId": "UpdateRequestAttributesOfStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/requestAttributes"
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "JSON request body not well formed"
+        },
+        "404": {
+          "description": "No such Application Entity or Study"
         },
         "500": {
           "description": "Internal Server Error."
@@ -1230,6 +1627,49 @@
         },
         "404": {
           "description": "No such Application Entity, Study or Series"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "series1.request": {
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Request Attributes of Series",
+      "operationId": "UpdateRequestAttributesOfSeries",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/requestAttributes"
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "JSON request body not well formed"
+        },
+        "404": {
+          "description": "No such Application Entity or Series"
         },
         "500": {
           "description": "Internal Server Error."

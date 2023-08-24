@@ -17,6 +17,36 @@
       "VERIFICATION_FAILED"
     ]
   },
+  "locationStatus": {
+    "type": "string",
+    "enum": [
+      "OK",
+      "TO_DELETE",
+      "FAILED_TO_DELETE",
+      "MISSING_OBJECT",
+      "FAILED_TO_FETCH_METADATA",
+      "FAILED_TO_FETCH_OBJECT",
+      "DIFFERING_OBJECT_SIZE",
+      "DIFFERING_OBJECT_CHECKSUM",
+      "DIFFERING_S3_MD5SUM",
+      "FAILED_TO_DELETE2",
+      "ORPHANED",
+      "VERIFY_QSTAR_ACCESS_STATE",
+      "QSTAR_ACCESS_STATE_NONE",
+      "QSTAR_ACCESS_STATE_EMPTY",
+      "QSTAR_ACCESS_STATE_UNSTABLE",
+      "QSTAR_ACCESS_STATE_OUT_OF_CACHE",
+      "QSTAR_ACCESS_STATE_OFFLINE",
+      "QSTAR_ACCESS_STATE_ERROR_STATUS"
+    ]
+  },
+  "linkStrategy": {
+    "type": "string",
+    "enum": [
+      "MERGE",
+      "IOCM"
+    ]
+  },
   "ExpirationState": {
     "type": "string",
     "enum": [
@@ -3005,6 +3035,91 @@
         "totalSpace": {
           "title": "Total Space",
           "description": "Total Space on Storage System in bytes",
+          "type": "number"
+        },
+        "status.TO_DELETE": {
+          "title": "Status TO_DELETE count",
+          "description": "Number of Objects with status TO_DELETE",
+          "type": "number"
+        },
+        "status.FAILED_TO_DELETE": {
+          "title": "Status FAILED_TO_DELETE count",
+          "description": "Number of Objects with status FAILED_TO_DELETE",
+          "type": "number"
+        },
+        "status.MISSING_OBJECT": {
+          "title": "Status MISSING_OBJECT count",
+          "description": "Number of Objects with status MISSING_OBJECT",
+          "type": "number"
+        },
+        "status.FAILED_TO_FETCH_METADATA": {
+          "title": "Status FAILED_TO_FETCH_METADATA count",
+          "description": "Number of Objects with status FAILED_TO_FETCH_METADATA",
+          "type": "number"
+        },
+        "status.FAILED_TO_FETCH_OBJECT": {
+          "title": "Status FAILED_TO_FETCH_OBJECT count",
+          "description": "Number of Objects with status FAILED_TO_FETCH_OBJECT",
+          "type": "number"
+        },
+        "status.DIFFERING_OBJECT_SIZE": {
+          "title": "Status DIFFERING_OBJECT_SIZE count",
+          "description": "Number of Objects with status DIFFERING_OBJECT_SIZE",
+          "type": "number"
+        },
+        "status.DIFFERING_OBJECT_CHECKSUM": {
+          "title": "Status DIFFERING_OBJECT_CHECKSUM count",
+          "description": "Number of Objects with status DIFFERING_OBJECT_CHECKSUM",
+          "type": "number"
+        },
+        "status.DIFFERING_S3_MD5SUM": {
+          "title": "Status DIFFERING_S3_MD5SUM count",
+          "description": "Number of Objects with status DIFFERING_S3_MD5SUM",
+          "type": "number"
+        },
+        "status.FAILED_TO_DELETE2": {
+          "title": "Status FAILED_TO_DELETE2 count",
+          "description": "Number of Objects with status FAILED_TO_DELETE2",
+          "type": "number"
+        },
+        "status.ORPHANED": {
+          "title": "Status ORPHANED count",
+          "description": "Number of Objects with status ORPHANED",
+          "type": "number"
+        },
+        "status.VERIFY_QSTAR_ACCESS_STATE": {
+          "title": "Status VERIFY_QSTAR_ACCESS_STATE count",
+          "description": "Number of Objects with status VERIFY_QSTAR_ACCESS_STATE",
+          "type": "number"
+        },
+        "status.QSTAR_ACCESS_STATE_NONE": {
+          "title": "Status QSTAR_ACCESS_STATE_NONE count",
+          "description": "Number of Objects with status QSTAR_ACCESS_STATE_NONE",
+          "type": "number"
+        },
+        "status.QSTAR_ACCESS_STATE_EMPTY": {
+          "title": "Status QSTAR_ACCESS_STATE_EMPTY count",
+          "description": "Number of Objects with status QSTAR_ACCESS_STATE_EMPTY",
+          "type": "number"
+        },
+        "status.QSTAR_ACCESS_STATE_UNSTABLE": {
+          "title": "Status QSTAR_ACCESS_STATE_UNSTABLE count",
+          "description": "Number of Objects with status QSTAR_ACCESS_STATE_UNSTABLE",
+          "type": "number"
+        },
+        "status.QSTAR_ACCESS_STATE_OUT_OF_CACHE": {
+          "title": "Status QSTAR_ACCESS_STATE_OUT_OF_CACHE count",
+          "description": "Number of Objects with status QSTAR_ACCESS_STATE_OUT_OF_CACHE",
+          "type": "number"
+        },
+        "status.QSTAR_ACCESS_STATE_OFFLINE": {
+          "title": "Status QSTAR_ACCESS_STATE_OFFLINE count",
+          "description": "Number of Objects with status QSTAR_ACCESS_STATE_OFFLINE",
+          "type": "number"
+        },
+        "status.QSTAR_ACCESS_STATE_ERROR_STATUS": {
+          "title": "Status QSTAR_ACCESS_STATE_ERROR_STATUS count",
+          "description": "Number of Objects with status QSTAR_ACCESS_STATE_ERROR_STATUS",
           "type": "number"
         }
       }

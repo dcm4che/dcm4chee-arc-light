@@ -148,10 +148,17 @@ public class ProcedureServiceEJB {
         ctx.setSpsID(attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence).getString(Tag.ScheduledProcedureStepID));
 
         MWLItem mwlItem = findMWLItem(ctx);
-        if (mwlItem == null)
+        if (mwlItem == null) {
             createMWL(ctx);
-        else
-            updateMWL(ctx, mwlItem);
+            return;
+        }
+
+        if (mwlItem.getPatient().getPk() != ctx.getPatient().getPk())
+            throw new PatientMismatchException(ctx.getPatient()
+                    + " found using patient identifiers sent in request payload does not match with "
+                    + mwlItem.getPatient() + " of " + mwlItem);
+
+        updateMWL(ctx, mwlItem);
     }
 
     public MWLItem findMWLItem(ProcedureContext ctx) {
@@ -165,11 +172,28 @@ public class ProcedureServiceEJB {
         }
     }
 
+    public Attributes getMWLItemAttrs(String studyInstanceUID, String spsID) {
+        try {
+            Tuple results = em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, Tuple.class)
+                    .setParameter(1, studyInstanceUID)
+                    .setParameter(2, spsID)
+                    .getSingleResult();
+            Attributes mwlAttrs = AttributesBlob.decodeAttributes(results.get(0, byte[].class), null);
+            Attributes patAttrs = AttributesBlob.decodeAttributes(results.get(1, byte[].class), null);
+            Attributes.unifyCharacterSets(patAttrs, mwlAttrs);
+            Attributes attrs = new Attributes(patAttrs.size() + mwlAttrs.size() + 1);
+            attrs.addAll(patAttrs);
+            attrs.addAll(mwlAttrs);
+            return attrs;
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     private void createMWL(ProcedureContext ctx) {
         Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         MWLItem mwlItem = new MWLItem();
-        mwlItem.setLocalAET(ctx.getLocalAET());
         mwlItem.setPatient(ctx.getPatient());
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate))
@@ -244,17 +268,17 @@ public class ProcedureServiceEJB {
     }
 
     public void updateSPSStatus(ProcedureContext ctx) {
-        List<MWLItem> mwlItems = findMWLItems(ctx.getStudyInstanceUID());
+        MWLItem mwlItem = findMWLItem(ctx);
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        for (MWLItem mwl : mwlItems) {
-            Attributes mwlAttrs = mwl.getAttributes();
-            Attributes spsItemMWL = mwlAttrs
-                    .getNestedDataset(Tag.ScheduledProcedureStepSequence);
-            if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus).equals(ctx.getSpsStatus().name())) {
-                spsItemMWL.setString(Tag.ScheduledProcedureStepStatus, VR.CS, ctx.getSpsStatus().name());
-                mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
-                ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-            }
+        if (mwlItem == null)
+            return;
+
+        Attributes mwlAttrs = mwlItem.getAttributes();
+        Attributes spsItemMWL = mwlAttrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus).equals(ctx.getSpsStatus().name())) {
+            spsItemMWL.setString(Tag.ScheduledProcedureStepStatus, VR.CS, ctx.getSpsStatus().name());
+            mwlItem.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         }
     }
 
@@ -346,7 +370,10 @@ public class ProcedureServiceEJB {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
-                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+                                    .setParameter(1, ctx.getStudyInstanceUIDInstRefs() == null
+                                                                ? ctx.getStudyInstanceUID()
+                                                                : ctx.getStudyInstanceUIDInstRefs())
+                                    .getResultList();
         if (seriesList.isEmpty())
             return false;
 
@@ -359,6 +386,14 @@ public class ProcedureServiceEJB {
         Attributes.unifyCharacterSets(studyAttr, mwlAttr);
         if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
                 mwlAttr, modified, studyFilter.getSelection())) {
+            modified.setString(Tag.StudyDescription, VR.LO, studyAttr.getString(Tag.StudyDescription));
+            modified.setString(Tag.StudyID, VR.SH, studyAttr.getString(Tag.StudyID));
+            studyAttr.setString(Tag.StudyDescription, VR.LO, mwlAttr.getString(Tag.RequestedProcedureDescription));
+            studyAttr.setString(Tag.StudyID, VR.SH, mwlAttr.getString(Tag.RequestedProcedureID));
+            if (ctx.getStudyInstanceUIDInstRefs() != null) {
+                studyAttr.setString(Tag.StudyInstanceUID, VR.UI, ctx.getStudyInstanceUIDInstRefs());
+                modified.remove(Tag.StudyInstanceUID);
+            }
             study.setAttributes(recordAttributeModification(ctx)
                     ? studyAttr.addOriginalAttributes(
                         null,
@@ -368,6 +403,9 @@ public class ProcedureServiceEJB {
                         modified)
                     : studyAttr,
                     studyFilter, true, arcDev.getFuzzyStr());
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                    .setParameter(1, study)
+                    .executeUpdate();
         }
         Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
@@ -375,7 +413,10 @@ public class ProcedureServiceEJB {
                 updateSeriesAttributes(series, mwlAttr,
                         arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr(), now, ctx);
 
-        LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
+        LOG.info("Study and series attributes updated successfully for study : "
+                + (ctx.getStudyInstanceUIDInstRefs() == null
+                    ? ctx.getStudyInstanceUID()
+                    : ctx.getStudyInstanceUIDInstRefs()));
         return true;
     }
 
@@ -401,6 +442,9 @@ public class ProcedureServiceEJB {
             requestAttributes.add(request);
         }
         series.setAttributes(seriesAttr, filter, true, fuzzyStr);
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                .setParameter(1, series.getPk())
+                .executeUpdate();
     }
 
     public void updateStudySeriesAttributes(ProcedureContext ctx) {
@@ -430,14 +474,13 @@ public class ProcedureServiceEJB {
                 .getResultList();
     }
 
-    public Set<MWLItem.IDs> findMWLItemIDs(ApplicationEntity ae, String aet, Attributes keys, boolean fuzzymatching) {
+    public Set<MWLItem.IDs> findMWLItemIDs(ApplicationEntity ae, Attributes keys, boolean fuzzymatching) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         QueryParam queryParam = new QueryParam(ae);
-        queryParam.setCalledAET(aet);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(fuzzymatching);
         List<Predicate> predicates = new QueryBuilder(cb).mwlItemPredicates(q, patient, mwlItem,
@@ -456,7 +499,7 @@ public class ProcedureServiceEJB {
         Attributes attrs = ctx.getAttributes();
         PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(ctx.getHttpRequest());
         patMgtCtx.setAttributes(attrs);
-        patMgtCtx.setPatientID(IDWithIssuer.pidOf(attrs));
+        patMgtCtx.setPatientIDs(IDWithIssuer.pidsOf(attrs));
         patMgtCtx.setLocalAET(ctx.getLocalAET());
         patMgtCtx.setSourceMwlScp(ctx.getSourceMwlScp());
         ctx.setPatient(patientService.findPatient(patMgtCtx));
@@ -464,7 +507,7 @@ public class ProcedureServiceEJB {
         MWLItem mwlItem = findMWLItem(ctx);
         if (mwlItem != null) {
             if (ctx.getPatient() == null || ctx.getPatient().getPk() != mwlItem.getPatient().getPk())
-                throw new PatientMismatchException("Patient ID: " + patMgtCtx.getPatientID() + " does not match " +
+                throw new PatientMismatchException("Patient IDs: " + patMgtCtx.getPatientIDs() + " does not match " +
                         mwlItem.getPatient() + " in previous " + mwlItem);
 
             int[] mwlTags = arcdev.getAttributeFilter(Entity.MWL).getSelection(false);

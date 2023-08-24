@@ -1,0 +1,6 @@
+version: 1
+
+dn: dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dcmuiConfig
+dcmuiPersonNameFormat: {NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME} {NAME-SUFFIX}

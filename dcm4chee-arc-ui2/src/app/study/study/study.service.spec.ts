@@ -148,4 +148,173 @@ describe('StudyService', () => {
       expect(service.webAppGroupHasClass(studyWebService, "FICTIVE")).toBe(false);
   }))
 
+    fit("Collect selected objects", inject([StudyService], (service: StudyService) =>{
+            expect(service.collectSelectedObjects([
+                {
+                    "StudyInstanceUID": "1.2.840.113674.1115.261.200",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1115.261.182.300"
+                        }
+                    ]
+                },
+                {
+                    "StudyInstanceUID": "1.2.840.113674.1115.261.200",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1115.261.178.300",
+                            "ReferencedSOPSequence": [
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                    "ReferencedSOPInstanceUID": "1.2.840.113674.950809133404076.100"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "StudyInstanceUID": "1.2.840.113674.1115.261.200",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1115.261.178.300",
+                            "ReferencedSOPSequence": [
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                    "ReferencedSOPInstanceUID": "1.2.840.113674.950809133401055.100"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "StudyInstanceUID": "1.2.840.113674.1115.261.200",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1115.261.178.300",
+                            "ReferencedSOPSequence": [
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                    "ReferencedSOPInstanceUID": "1.2.840.113674.950809133405086.100"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ])).toEqual([{
+                "StudyInstanceUID": "1.2.840.113674.1115.261.200",
+                "ReferencedSeriesSequence": [
+                    {
+                        "SeriesInstanceUID": "1.2.840.113674.1115.261.182.300"
+                    },
+                    {
+                        "SeriesInstanceUID": "1.2.840.113674.1115.261.178.300",
+                        "ReferencedSOPSequence": [
+                            {
+                                "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                "ReferencedSOPInstanceUID": "1.2.840.113674.950809133404076.100"
+                            },
+                            {
+                                "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                "ReferencedSOPInstanceUID": "1.2.840.113674.950809133401055.100"
+                            },
+                            {
+                                "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                "ReferencedSOPInstanceUID": "1.2.840.113674.950809133405086.100"
+                            }
+                        ]
+                    }
+                ]
+            }]);
+            expect(service.collectSelectedObjects([
+                {
+                    "StudyInstanceUID": "1.2.840.113674.1335.106.200",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1335.106.184.300"
+                        }
+                    ]
+                },
+                {
+                    "StudyInstanceUID": "1.2.392.200036.9125.0.199302241758.16",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.392.200036.9125.0.199302241758.16",
+                            "ReferencedSOPSequence": [
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.1",
+                                    "ReferencedSOPInstanceUID": "1.2.392.200036.9125.0.19950720112207"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "StudyInstanceUID": "1.2.840.113674.1335.106.200",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1335.106.185.300",
+                            "ReferencedSOPSequence": [
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                    "ReferencedSOPInstanceUID": "1.2.840.113674.950809132816137.100"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "StudyInstanceUID": "1.2.840.113674.1335.106.200",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1335.106.185.300",
+                            "ReferencedSOPSequence": [
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                    "ReferencedSOPInstanceUID": "1.2.840.113674.950809132818158.100"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ])).toEqual([
+                {
+                    "StudyInstanceUID": "1.2.840.113674.1335.106.200",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1335.106.184.300"
+                        },
+                        {
+                            "SeriesInstanceUID": "1.2.840.113674.1335.106.185.300",
+                            "ReferencedSOPSequence": [
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                    "ReferencedSOPInstanceUID": "1.2.840.113674.950809132816137.100"
+                                },
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.4",
+                                    "ReferencedSOPInstanceUID": "1.2.840.113674.950809132818158.100"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "StudyInstanceUID": "1.2.392.200036.9125.0.199302241758.16",
+                    "ReferencedSeriesSequence": [
+                        {
+                            "SeriesInstanceUID": "1.2.392.200036.9125.0.199302241758.16",
+                            "ReferencedSOPSequence": [
+                                {
+                                    "ReferencedSOPClassUID": "1.2.840.10008.5.1.4.1.1.1",
+                                    "ReferencedSOPInstanceUID": "1.2.392.200036.9125.0.19950720112207"
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+            ]);
+        })
+    );
+
 });

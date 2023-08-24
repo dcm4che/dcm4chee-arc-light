@@ -65,7 +65,9 @@
             <module name="org.dcm4che.imageio" export="TRUE" services="export"/>
             <module name="org.dcm4che.image" export="TRUE"/>
             <module name="org.dcm4che.soundex" export="TRUE"/>
+            <module name="org.dcm4che.qstar" export="TRUE"/>
             <module name="org.dcm4che.xdsi" export="TRUE"/>
+            <module name="org.dcm4che.xroad" export="TRUE"/>
             <!-- apache-cxf modules -->
             <module name="org.apache.cxf.impl" export="TRUE"/>
             <!-- jclouds modules -->
@@ -76,7 +78,8 @@
             <module name="org.keycloak.keycloak-core" export="TRUE"/>
             <module name="org.keycloak.keycloak-adapter-core" export="TRUE" services="export"/>
             <module name="org.keycloak.admin-client" export="TRUE"/>
-            <!-- apache commons csv -->
+            <!-- apache commons modules -->
+            <module name="org.apache.commons.compress" export="TRUE"/>
             <module name="org.apache.commons.csv" export="TRUE"/>
             <!-- emc-ecs modules -->
             <module name="com.emc.ecs" export="TRUE"/>

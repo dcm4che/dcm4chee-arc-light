@@ -97,7 +97,7 @@ public class ExportTaskRS {
     private List<String> exporterIDs;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|SCHEDULED FOR RETRY|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")

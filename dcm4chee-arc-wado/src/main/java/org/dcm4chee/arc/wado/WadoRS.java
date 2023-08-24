@@ -50,6 +50,7 @@ import jakarta.ws.rs.container.AsyncResponse;
 import jakarta.ws.rs.container.CompletionCallback;
 import jakarta.ws.rs.container.Suspended;
 import jakarta.ws.rs.core.*;
+import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.image.ICCProfile;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
@@ -64,11 +65,9 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.util.*;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.HttpServletRequestUtils;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
@@ -131,6 +130,9 @@ public class WadoRS {
     private HttpHeaders headers;
 
     @Inject
+    private IWebApplicationCache iWebAppCache;
+
+    @Inject
     private Device device;
 
     @Inject @RetrieveStart
@@ -191,6 +193,7 @@ public class WadoRS {
     private CompressedFramesOutput compressedFramesOutput;
     private DecompressFramesOutput decompressFramesOutput;
     private Response.Status responseStatus;
+    private String warning;
     private java.nio.file.Path spoolDirectory;
     private java.nio.file.Path dicomdirPath;
     private String dicomRootPartTransferSyntax;
@@ -591,13 +594,19 @@ public class WadoRS {
         if (list.remove("")) {
             list.add(UID.ExplicitVRLittleEndian);
             list.add(UID.MPEG2MPML);
+            list.add(UID.MPEG2MPMLF);
             list.add(UID.MPEG2MPHL);
+            list.add(UID.MPEG2MPHLF);
             list.add(UID.MPEG4HP41);
+            list.add(UID.MPEG4HP41F);
             list.add(UID.MPEG4HP41BD);
+            list.add(UID.MPEG4HP41BDF);
             list.add(UID.MPEG4HP422D);
-            list.add(UID.MPEG4HP41BD);
+            list.add(UID.MPEG4HP422DF);
             list.add(UID.MPEG4HP423D);
+            list.add(UID.MPEG4HP423DF);
             list.add(UID.MPEG4HP42STEREO);
+            list.add(UID.MPEG4HP42STEREOF);
             list.add(UID.HEVCMP51);
             list.add(UID.HEVCM10P51);
         }
@@ -744,12 +753,33 @@ public class WadoRS {
     private void buildResponse(Target target, int[] frameList, int[] attributePath, AsyncResponse ar, Output output,
             final RetrieveContext ctx, Date lastModified) throws IOException {
         LOG.debug("Query for matching {}", target);
-        service.calculateMatches(ctx);
+        boolean hasMatches = service.calculateMatches(ctx);
         LOG.info("retrieve{}: {} Matches", target, ctx.getNumberOfMatches());
-        if (ctx.getNumberOfMatches() == 0)
-            throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
-//            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
-        responseStatus = Response.Status.OK;
+        Map<String, Collection<InstanceLocations>> notAccessable = service.removeNotAccessableMatches(ctx);
+        if (hasMatches && notAccessable.isEmpty()) {
+            responseStatus = Response.Status.OK;
+        } else {
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            String webAppName = arcAE.externalWadoRSWebApplication();
+            if (webAppName != null && hasMatches || arcAE.externalWadoRSRedirectOnNotFound()) {
+                try {
+                    String pathInfo = request.getPathInfo();
+                    String path = pathInfo.substring(pathInfo.indexOf("/studies"));
+                    URI location = RedirectUtils.redirectURI(request, path, device, iWebAppCache, webAppName,
+                            WebApplication.ServiceClass.WADO_RS);
+                    ar.resume(Response.status(arcAE.externalWadoRSHttpStatusCode()).location(location).build());
+                    return;
+                } catch (Exception e) {
+                    LOG.warn("Failed to redirect to {}:\n", webAppName, e);
+                }
+            }
+            if (ctx.getMatches().isEmpty())
+                throw hasMatches
+                        ? new WebApplicationException(errResponse("No longer accessible.", Response.Status.GONE))
+                        : new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
+            responseStatus = Response.Status.PARTIAL_CONTENT;
+            warning = HttpServletRequestUtils.miscPersistentWarning(request, "" + notAccessable.size() + " objects no longer accessible.");
+        }
         if (frameList != null) {
             Attributes attrs = ctx.getMatches().get(0).getAttributes();
             if (!attrs.containsValue(Tag.Rows))
@@ -767,8 +797,13 @@ public class WadoRS {
                     : errResponse("Not accepted instances present.", Response.Status.NOT_ACCEPTABLE);
             throw new WebApplicationException(errResp);
         }
-        if (!notAccepted.isEmpty())
+        if (!notAccepted.isEmpty()) {
             responseStatus = Response.Status.PARTIAL_CONTENT;
+            warning = HttpServletRequestUtils.miscPersistentWarning(request,
+                    (notAccessable.isEmpty() ? ""
+                            : "" + notAccessable.size() + " objects no longer accessible and ")
+                            + notAccepted.size() + " objects not acceptable.");
+        }
 
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx, ignorePatientUpdate);
@@ -785,7 +820,12 @@ public class WadoRS {
                 retrieveEnd.fire(ctx);
         });
         Object entity = output.entity(this, target, ctx, frameList, attributePath);
-        ar.resume(output.response(this, lastModified, entity).build());
+        Response.ResponseBuilder builder = output.response(this, lastModified, entity);
+        if (warning != null) {
+            LOG.warn("Response {} caused by {}", responseStatus, warning);
+            builder.header("Warning", warning);
+        }
+        ar.resume(builder.build());
     }
 
     private static boolean matchPresentionState(RetrieveContext ctx) {
@@ -1205,6 +1245,10 @@ public class WadoRS {
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/stl.png";
             case UID.PrivateDcm4cheEncapsulatedGenozipStorage:
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/dna.png";
+            case UID.PrivateDcm4cheEncapsulatedBzip2VCFStorage:
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/dna.png";
+            case UID.PrivateDcm4cheEncapsulatedBzip2DocumentStorage:
+                return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/bz2.png";
             case UID.KeyObjectSelectionDocumentStorage:
                 return "${jboss.server.temp.url}/dcm4chee-arc/thumbnails/ko.png";
             case UID.RawDataStorage:
@@ -1332,6 +1376,8 @@ public class WadoRS {
             case EncapsulatedOBJ:
             case EncapsulatedMTL:
             case EncapsulatedGenozip:
+            case EncapsulatedVCFBzip2:
+            case EncapsulatedBzip2:
                 entity = new BulkdataOutput(ctx, inst, Tag.EncapsulatedDocument);
                 break;
             default:
@@ -1565,8 +1611,15 @@ public class WadoRS {
             JsonGenerator gen = Json.createGenerator(out);
             JSONWriter writer = ctx.getArchiveAEExtension().encodeAsJSONNumber(new JSONWriter(gen));
             gen.writeStartArray();
-            for (InstanceLocations inst : ctx.getMatches())
+            for (InstanceLocations inst : ctx.getMatches()) {
+                if (!ctx.copyToRetrieveCache(inst))
+                    writer.write(loadMetadata(ctx, inst));
+            }
+            ctx.copyToRetrieveCache(null);
+            InstanceLocations inst;
+            while ((inst = ctx.copiedToRetrieveCache()) != null) {
                 writer.write(loadMetadata(ctx, inst));
+            }
             gen.writeEnd();
             gen.flush();
         } catch (Exception e) {
@@ -1585,6 +1638,15 @@ public class WadoRS {
         else if (ctx.isWithoutPrivateAttributes())
             metadata.removePrivateAttributes();
         setBulkdataURI(metadata, sb.toString());
+        List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
+        AttributesCoercion coerce;
+        if (coercions.isEmpty()) {
+            ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+            coerce = service.getAttributesCoercion(ctx, inst, rule);
+        } else {
+            coerce = service.getAttributesCoercion(ctx, inst, coercions);
+        }
+        coerce.coerce(metadata, null);
         return metadata;
     }
 

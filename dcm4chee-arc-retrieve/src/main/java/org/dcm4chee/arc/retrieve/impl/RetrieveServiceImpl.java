@@ -405,7 +405,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         List<Predicate> predicates = new ArrayList<>();
         QueryBuilder builder = new QueryBuilder(cb);
         if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
-            builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
+            builder.patientIDPredicate(predicates, q, study.join(Study_.patient), ctx.getPatientIDs());
         }
         builder.accessControl(predicates, study, ctx.getAccessControlIDs());
         builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
@@ -548,6 +548,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .digest(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest))
                 .size(attrs.getInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, -1))
                 .status(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus))
+                .multiReference(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference))
                 .build());
     }
 
@@ -857,9 +858,12 @@ public class RetrieveServiceImpl implements RetrieveService {
                 if (location.getDigestAsHexString() != null)
                     item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest, VR.LO,
                             location.getDigestAsHexString());
-                if (location.getStatus() != Location.Status.OK)
+                if (location.getStatus() != LocationStatus.OK)
                     item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
                             location.getStatus().name());
+                if (location.getMultiReference() != null)
+                    item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference, VR.IS,
+                            location.getMultiReference());
             }
         }
     }
@@ -1068,8 +1072,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                 return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
             } catch (IOException e) {
                 ex = e;
-                Location.Status errStatus = toStatus(e);
-                if (errStatus == Location.Status.MISSING_OBJECT && !exists(location)) {
+                LocationStatus errStatus = toStatus(e);
+                if (errStatus == LocationStatus.MISSING_OBJECT && !exists(location)) {
                     LOG.warn("{} of {} no longer exists", location, inst);
                     ctx.incrementMissing();
                 } else {
@@ -1090,8 +1094,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
     }
 
-    private static Location.Status toStatus(IOException e) {
-        return e instanceof NoSuchFileException ? Location.Status.MISSING_OBJECT : Location.Status.FAILED_TO_FETCH_OBJECT;
+    private static LocationStatus toStatus(IOException e) {
+        return e instanceof NoSuchFileException ? LocationStatus.MISSING_OBJECT : LocationStatus.FAILED_TO_FETCH_OBJECT;
     }
 
     @Override

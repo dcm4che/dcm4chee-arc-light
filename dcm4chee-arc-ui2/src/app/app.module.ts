@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { RouterModule }   from '@angular/router';
@@ -116,6 +116,7 @@ import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/mater
 import {MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
 import { CustomAttributeListComponent } from './helpers/custom-attribute-list/custom-attribute-list.component';
 import { CustomDatePipe } from './pipes/custom-date.pipe';
+import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.service";
 
 
 // registerLocaleData(localeDe, 'de-DE');
@@ -207,39 +208,39 @@ import { CustomDatePipe } from './pipes/custom-date.pipe';
         BrowserAnimationsModule,
         LoadingBarModule,
         RouterModule.forRoot([
-            {
-              path: '',
-              redirectTo: '/study/study',
-              pathMatch: 'full'
-            },
-            {
-                path: 'monitoring',
-                redirectTo: '/monitoring/queues',
-                pathMatch: 'full',
-                canActivate: [AuthGuard]
-            },
-            { path: 'study/:tab', component: StudyComponent , canActivate: [AuthGuard]},
-            { path: 'permission-denied', component: PermissionDeniedComponent},
-            { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/export', component: ExportComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/external', component: RetrieveMonitoringComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/queues', component: QueuesComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/associations', component: AssociationsComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/storage-systems', component: StorageSystemsComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/storage-verification', component: StorageVerificationComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/diff', component: DiffMonitorComponent,  canActivate: [AuthGuard] },
-            { path: 'monitoring/metrics', component: MetricsComponent,  canActivate: [AuthGuard] },
-            { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
-            { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
-            { path: 'device/webappslist', component: WebAppsListComponent,  canActivate: [AuthGuard] },
-            { path: 'device/hl7applications', component: Hl7ApplicationsComponent,  canActivate: [AuthGuard] },
-            { path: 'device/edit/:device', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
-            { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
-            { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
-            { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
-            { path: '**', component: PageNotFoundComponent }
-      ],
+                {
+                    path: '',
+                    redirectTo: '/study/study',
+                    pathMatch: 'full'
+                },
+                {
+                    path: 'monitoring',
+                    redirectTo: '/monitoring/queues',
+                    pathMatch: 'full',
+                    canActivate: [AuthGuard]
+                },
+                { path: 'study/:tab', component: StudyComponent , canActivate: [AuthGuard]},
+                { path: 'permission-denied', component: PermissionDeniedComponent},
+                { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/export', component: ExportComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/external', component: RetrieveMonitoringComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/queues', component: QueuesComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/associations', component: AssociationsComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/storage-systems', component: StorageSystemsComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/storage-verification', component: StorageVerificationComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/diff', component: DiffMonitorComponent,  canActivate: [AuthGuard] },
+                { path: 'monitoring/metrics', component: MetricsComponent,  canActivate: [AuthGuard] },
+                { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
+                { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
+                { path: 'device/webappslist', component: WebAppsListComponent,  canActivate: [AuthGuard] },
+                { path: 'device/hl7applications', component: Hl7ApplicationsComponent,  canActivate: [AuthGuard] },
+                { path: 'device/edit/:device', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+                { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+                { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+                { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+                { path: '**', component: PageNotFoundComponent }
+            ],
             { useHash: false })
     ],
     entryComponents: [WidgetsComponents],
@@ -285,8 +286,10 @@ import { CustomDatePipe } from './pipes/custom-date.pipe';
         MetricsService,
         WebAppsListService,
         SelectionsDicomViewService,
+        UploadFilesService,
         CustomDatePipe,
         DynamicPipePipe,
+        Title,
         {provide: LOCALE_ID, useValue: 'en-US' },
         {
             provide: DateAdapter,
@@ -297,6 +300,6 @@ import { CustomDatePipe } from './pipes/custom-date.pipe';
         {provide: MAT_DATE_FORMATS, useValue: MY_FORMATS},
     ],
     bootstrap: [AppComponent],
-    exports:[ArrayToStringPipe]
+    exports: [ArrayToStringPipe, PlaceholderchangerDirective]
 })
 export class AppModule { }

@@ -43,7 +43,7 @@ import {StudyWebService} from "./study-web-service.model";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {SelectionActionElement} from "./selection-action-element.models";
 declare var DCM4CHE: any;
-import {catchError, map, switchMap} from "rxjs/operators";
+import {catchError, map, switchMap, tap, delay, shareReplay} from "rxjs/operators";
 import {FormatTMPipe} from "../../pipes/format-tm.pipe";
 import {FormatDAPipe} from "../../pipes/format-da.pipe";
 import {FormatAttributeValuePipe} from "../../pipes/format-attribute-value.pipe";
@@ -52,6 +52,9 @@ import {MwlDicom} from "../../models/mwl-dicom";
 import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
 import {DatePipe} from "@angular/common";
 import {CustomDatePipe} from "../../pipes/custom-date.pipe";
+import {SeriesDicom} from "../../models/series-dicom";
+import {StudyDicom} from "../../models/study-dicom";
+import {AppRequestsService} from "../../app-requests.service";
 
 @Injectable()
 export class StudyService {
@@ -63,6 +66,8 @@ export class StudyService {
     jsonHeader = new HttpHeaders({'Content-Type': 'application/json'});
 
     selectedElements:SelectionActionElement;
+    institutions;
+    dcmuiInstitutionNameFilterType;
     constructor(
         private aeListService: AeListService,
         private $http: J4careHttpService,
@@ -72,7 +77,7 @@ export class StudyService {
         private permissionService: PermissionService,
         private _keycloakService:KeycloakService,
         private appService:AppService,
-        private j4careService:j4care
+        private appRequest:AppRequestsService
     ) {}
 
     getWebApps(filter?:any) {
@@ -108,40 +113,49 @@ export class StudyService {
         } else {
             obj = patient;
         }
+        const allParts = [this.getPatientIdentifierOf(obj)]
+        if(_.hasIn(obj,'["00101002"].Value')){
+            _.get(obj,'["00101002"].Value').forEach(subAttrs=>{
+                allParts.push(this.getPatientIdentifierOf(subAttrs));
+            })
+        }
+        return allParts.join("~");
+    }
+    getPatientIdentifierOf(attrs){
         let patientId = '';
-        if (obj.PatientID || (_.hasIn(obj, '["00100020"].Value[0]') && obj["00100020"].Value[0] != '')) {
-            if (obj.PatientID) {
-                patientId = obj.PatientID;
+        if (attrs.PatientID || (_.hasIn(attrs, '["00100020"].Value[0]') && attrs["00100020"].Value[0] != '')) {
+            if (attrs.PatientID) {
+                patientId = attrs.PatientID;
             }
-            if (obj.IssuerOfPatientID && obj.IssuerOfPatientID != "") {
-                patientId += '^^^' + obj.IssuerOfPatientID;
+            if (attrs.IssuerOfPatientID && attrs.IssuerOfPatientID != "") {
+                patientId += '^^^' + attrs.IssuerOfPatientID;
             }
-            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityID') && _.get(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityID') != "") {
-                patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityID;
+            if (_.hasIn(attrs, 'IssuerOfPatientIDQualifiers.UniversalEntityID') && _.get(attrs, 'IssuerOfPatientIDQualifiers.UniversalEntityID') != "") {
+                patientId += '&' + attrs.IssuerOfPatientIDQualifiers.UniversalEntityID;
             }
-            if (_.hasIn(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') && _.get(obj, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') != "") {
-                patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
+            if (_.hasIn(attrs, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') && _.get(attrs, 'IssuerOfPatientIDQualifiers.UniversalEntityIDType') != "") {
+                patientId += '&' + attrs.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
             }
-            if (_.hasIn(obj, '["00100020"].Value[0]') && _.get(obj, '["00100020"].Value[0]') != "") {
-                patientId += obj["00100020"].Value[0];
+            if (_.hasIn(attrs, '["00100020"].Value[0]') && _.get(attrs, '["00100020"].Value[0]') != "") {
+                patientId += attrs["00100020"].Value[0];
             }
-            if (_.hasIn(obj, '["00100021"].Value[0]') && _.get(obj, '["00100021"].Value[0]') != "")
-                patientId += '^^^' + obj["00100021"].Value[0];
+            if (_.hasIn(attrs, '["00100021"].Value[0]') && _.get(attrs, '["00100021"].Value[0]') != "")
+                patientId += '^^^' + attrs["00100021"].Value[0];
             else {
                 if ((
-                        _.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') &&
-                        _.get(obj, '["00100024"].Value[0]["00400032"].Value[0]') != ""
+                        _.hasIn(attrs, '["00100024"].Value[0]["00400032"].Value[0]') &&
+                        _.get(attrs, '["00100024"].Value[0]["00400032"].Value[0]') != ""
                     ) ||
-                        _.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]') &&
-                        _.get(obj, '["00100024"].Value[0]["00400033"].Value[0]') != ""
-                    )
+                    _.hasIn(attrs, '["00100024"].Value[0]["00400033"].Value[0]') &&
+                    _.get(attrs, '["00100024"].Value[0]["00400033"].Value[0]') != ""
+                )
                     patientId += '^^^';
             }
-            if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') && _.get(obj, '["00100024"].Value[0]["00400032"].Value[0]') != "") {
-                patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
+            if (_.hasIn(attrs, '["00100024"].Value[0]["00400032"].Value[0]') && _.get(attrs, '["00100024"].Value[0]["00400032"].Value[0]') != "") {
+                patientId += '&' + attrs['00100024'].Value[0]['00400032'].Value[0];
             }
-            if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]') && _.get(obj, '["00100024"].Value[0]["00400033"].Value[0]') != "") {
-                patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
+            if (_.hasIn(attrs, '["00100024"].Value[0]["00400033"].Value[0]') && _.get(attrs, '["00100024"].Value[0]["00400033"].Value[0]') != "") {
+                patientId += '&' + attrs['00100024'].Value[0]['00400033'].Value[0];
             }
             return _.replace(patientId,"/","%2F");
         } else {
@@ -281,15 +295,15 @@ export class StudyService {
                         });
                     case "series":
                         return [
-                            ...Globalvar.SERIES_FILTER_SCHEMA([], [],false),
-                            ...Globalvar.SERIES_FILTER_SCHEMA([], [],true)
+                            ...Globalvar.SERIES_FILTER_SCHEMA([], [], [],false),
+                            ...Globalvar.SERIES_FILTER_SCHEMA([], [], [],true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
                     case "mwl":
                         return [
-                            ...Globalvar.MWL_FILTER_SCHEMA(false),
-                            ...Globalvar.MWL_FILTER_SCHEMA(true)
+                            ...Globalvar.MWL_FILTER_SCHEMA([],false),
+                            ...Globalvar.MWL_FILTER_SCHEMA([],true)
                         ];
                     case "mpps":
                         return [
@@ -303,15 +317,15 @@ export class StudyService {
                         ];
                     case "diff":
                         return [
-                            ...Globalvar.DIFF_FILTER_SCHEMA([],[],false),
-                            ...Globalvar.DIFF_FILTER_SCHEMA([],[],true)
+                            ...Globalvar.DIFF_FILTER_SCHEMA([],[], [],false),
+                            ...Globalvar.DIFF_FILTER_SCHEMA([],[], [],true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
                     default:
                         return [
-                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], false),
-                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], true)
+                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], [], false),
+                            ...Globalvar.STUDY_FILTER_SCHEMA([], [], [],true)
                         ].filter(filter => {
                             return filter.filterKey != "aet";
                         });
@@ -329,6 +343,7 @@ export class StudyService {
         quantityText: { count: string, size: string },
         filterMode: ('main' | 'expand'),
         storages?:SelectDropdown<StorageSystems>[],
+        institutions?:SelectDropdown<String>[],
         studyWebService?: StudyWebService,
         attributeSet?:SelectDropdown<DiffAttributeSet>[],
         showCount?:boolean,
@@ -346,13 +361,13 @@ export class StudyService {
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "series":
-                schema = Globalvar.SERIES_FILTER_SCHEMA(aets, storages, filterMode === "expand").filter(filter => {
+                schema = Globalvar.SERIES_FILTER_SCHEMA(aets, storages, institutions,filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 lineLength = 3;
                 break;
             case "mwl":
-                schema = Globalvar.MWL_FILTER_SCHEMA( filterMode === "expand");
+                schema = Globalvar.MWL_FILTER_SCHEMA( institutions,filterMode === "expand",_.get(this.appService.global,"uiConfig.dcmuiMWLWorklistLabel"));
                 lineLength = filterMode === "expand" ? 1 : 3;
                 break;
             case "mpps":
@@ -361,42 +376,27 @@ export class StudyService {
                 break;
             case "uwl":
                 schema = Globalvar.UWL_FILTER_SCHEMA( filterMode === "expand");
-                lineLength = filterMode === "expand" ? 1 : 3;
+                lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             case "diff":
-                schema = Globalvar.DIFF_FILTER_SCHEMA(aets,attributeSet, filterMode === "expand").filter(filter => {
+                schema = Globalvar.DIFF_FILTER_SCHEMA(aets,attributeSet, institutions, filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 // lineLength = filterMode === "expand" ? 2 : 3;
                 break;
             default:
-                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, storages, filterMode === "expand").filter(filter => {
+                schema = Globalvar.STUDY_FILTER_SCHEMA(aets, storages, institutions,filterMode === "expand").filter(filter => {
                     return filter.filterKey != "aet";
                 });
                 lineLength = 3;
         }
         if (filterMode === "main") {
             if (tab != 'diff') {
-                let orderby;
-                if(tab === "uwl"){
-/*                    schema.push({
-                        tag: "dummy"
-                    });*/
-                    orderby = [
-                        new SelectDropdown('00741200', $localize `:@@asc_scheduled_procedure_step_priority:(asc)  Scheduled Procedure Step Priority`),
-                        new SelectDropdown('-00741200', $localize `:@@desc_scheduled_procedure_step_priority:(desc) Scheduled Procedure Step Priority`),
-                        new SelectDropdown('00404005', $localize `:@@asc_scheduled_procedure_step_start_date_and_time:(asc)  Scheduled Procedure Step Start Date and Time`),
-                        new SelectDropdown('-00404005', $localize `:@@desc_scheduled_procedure_step_start_date_and_time:(desc) Scheduled Procedure Step Start Date and Time`),
-                        new SelectDropdown('00404011', $localize `:@@asc_expected_completion_date_and_time:(asc)  Expected Completion Date and Time`),
-                        new SelectDropdown('-00404011', $localize `:@@desc_expected_completion_date_and_time:(desc) Expected Completion Date and Time`)
-                    ]
-                }else{
-                    orderby = Globalvar.ORDERBY_NEW
-                        .filter(order => order.mode === tab)
-                        .map(order => {
-                            return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
-                        });
-                }
+                let orderby = Globalvar.ORDERBY_NEW
+                    .filter(order => order.mode === tab)
+                    .map(order => {
+                        return new SelectDropdown(order.value, order.label, order.title, order.title, order.label);
+                    });
                 schema.push({
                     tag: "html-select",
                     options: orderby,
@@ -412,7 +412,7 @@ export class StudyService {
                 tag: "html-select",
                 options: studyWebService.webServices.map((webApp: DcmWebApp) => {
                     return new SelectDropdown(
-                        webApp,
+                        webApp.dcmWebAppName,
                         webApp.dcmWebAppName,
                         webApp.dicomDescription,
                         undefined,
@@ -436,7 +436,7 @@ export class StudyService {
                     text: $localize `:@@SUBMIT:SUBMIT`,
                     description: this.getSubmitText(tab)
                 });
-            if(tab != "diff" && tab != "uwl"){
+            if(tab != "diff" && tab != "uwl" && tab != "study" && tab != "mwl"){
                 schema.push({
                     tag: "dummy"
                 })
@@ -474,8 +474,6 @@ export class StudyService {
                     description: $localize `:@@query_only_studies_size:Query only size of studies`
                 })
             }
-            if (!j4care.arrayIsNotEmpty(studyWebService,"webServices"))
-                this.appService.showMsg(this.getNoServiceSpecificWebApps(tab));
         }
         if(hook){
             schema = hook.call(this, schema);
@@ -604,17 +602,19 @@ export class StudyService {
         let taskID;
         let url;
         if((_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != "") || (_.hasIn(filterModel,"taskID") && _.get(filterModel,"taskID") != "")){
-            if(_.hasIn(filterModel,"batchID") && _.get(filterModel,"batchID") != ""){
-                batchID = _.get(filterModel,"batchID");
-                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/batch/${batchID}/studies${j4care.param(filterModel)}`
-            }else{
-                taskID = _.get(filterModel,"taskID");
-                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/${taskID}/studies${j4care.param(filterModel)}`
-            }
+            batchID = _.get(filterModel,"batchID");
+            taskID = _.get(filterModel,"taskID");
             delete filterModel["batchID"];
             delete filterModel["taskID"];
+            if(batchID && batchID != ""){
+                url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/batch/${batchID}/studies${j4care.objToUrlParams(j4care.clearEmptyObject(filterModel),true)}`
+            }else{
+                if(taskID){
+                    url = `${j4care.addLastSlash(this.appService.baseUrl)}monitor/diff/${taskID}/studies${j4care.objToUrlParams(j4care.clearEmptyObject(filterModel),true)}`
+                }
+            }
         }
-        if(batchID || taskID){
+        if((batchID || taskID) && url){
             return this.$http.get(
                 url,
                 header
@@ -791,19 +791,15 @@ export class StudyService {
         );
     }
 
-    getSeries(filterModel, dcmWebApp: DcmWebApp, isDimseSeries: boolean, responseType?: DicomResponseType): Observable<any> {
+    getSeries(filterModel, dcmWebApp: DcmWebApp, responseType?: DicomResponseType): Observable<any> {
         let header: HttpHeaders;
         if (!responseType || responseType === "object") {
             header = this.dicomHeader
         }
         let params = j4care.objToUrlParams(filterModel);
         params = params ? `?${params}` : params;
-
-        let url = isDimseSeries
-                ? `${this.getDicomURLDimseSeries(filterModel, dcmWebApp)}${params || ''}`
-                : `${this.getDicomURL("series", dcmWebApp, responseType)}${params || ''}`;
         return this.$http.get(
-            url,
+            `${this.getDicomURL("series", dcmWebApp, responseType)}${params || ''}`,
             header,
             false,
             dcmWebApp
@@ -863,20 +859,6 @@ export class StudyService {
             return _.get(model, "0020000E.Value[0]");
         }catch (e) {
             return undefined;
-        }
-    }
-
-    getDicomURLDimseSeries(filterModel, dcmWebApp: DcmWebApp) {
-        try {
-            let url = j4care.getUrlFromDcmWebApplication(dcmWebApp, this.appService.baseUrl);
-            if(url){
-                url += '/studies/' + _.get(filterModel, "StudyInstanceUID") + '/series';
-                return url;
-            } else{
-                j4care.log('Url is undefined');
-            }
-        } catch (e) {
-            j4care.log("Error on getting dicomURL in study.service.ts", e);
         }
     }
 
@@ -1008,10 +990,19 @@ export class StudyService {
     }
 
     getDiffAttributeSet = (baseUrl?: string) => this.$http.get(`${baseUrl ? j4care.addLastSlash(baseUrl): j4care.addLastSlash(this.appService.baseUrl)}attribute-set/DIFF_RS`);
-
-    getAets = () => this.aeListService.getAets();
-
-    getAes = () => this.aeListService.getAes();
+    sharedObservables$ = {};
+    getAets(){
+        if(!this.sharedObservables$["aets"]){
+            this.sharedObservables$["aets"] = this.aeListService.getAets().pipe(shareReplay(1))
+        }
+        return this.sharedObservables$["aets"];
+    };
+    getAes(){
+        if(!this.sharedObservables$["aes"]){
+            this.sharedObservables$["aes"] = this.aeListService.getAes().pipe(shareReplay(1))
+        }
+        return this.sharedObservables$["aes"];
+    };
 
     equalsIgnoreSpecificCharacterSet(attrs, other) {
         return Object.keys(attrs).filter(tag => tag != '00080005')
@@ -1093,6 +1084,19 @@ export class StudyService {
             idObject.idParts.push(_.get(attrs,"[00400100].Value[0][00400009].Value[0]"));
         }
         return idObject;
+    }
+
+    addObjectOnSelectedElements(dicomLevel:DicomLevel, selectedValue:boolean, object, selectedElements:SelectionActionElement){
+        try{
+            const uniqueID:UniqueSelectIdObject = this.getObjectUniqueId(object.attrs, dicomLevel);
+            //console.log("check=",selectedElements.hasIn(dicomLevel, uniqueID));
+            if(selectedValue && !selectedElements.hasIn(dicomLevel, uniqueID)){
+                selectedElements.preActionElements.toggle(dicomLevel, uniqueID, object);
+            }
+        }catch (e) {
+            console.error(e)
+        }
+
     }
 
     getURL(attrs, webApp: DcmWebApp, dicomLevel: DicomLevel) {
@@ -1352,7 +1356,7 @@ export class StudyService {
                                     }, e);
                                 },
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET") && !(_.hasIn(e,'attrs.77771015'))
                                 },
                                 title: $localize `:@@study.edit_this_patient:Edit this Patient`,
                                 permission: {
@@ -1380,10 +1384,10 @@ export class StudyService {
                                 },
                                 showIf: (e, config) => {
                                     return (
-                                        (
-                                            _.hasIn(e,'attrs.00201200.Value[0]') &&
-                                            e.attrs['00201200'].Value[0] == "0" &&
-                                            !(_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "NEVER")
+                                        (!(_.hasIn(e,'attrs.77771015'))
+                                            && _.hasIn(e,'attrs.00201200.Value[0]')
+                                            && e.attrs['00201200'].Value[0] == "0"
+                                            && !(_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "NEVER")
                                         ) ||
                                         (_.hasIn(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") && _.get(options,"selectedWebService.dicomAETitleObject.dcmAllowDeletePatient") === "ALWAYS")
                                     ) && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET");
@@ -1401,7 +1405,7 @@ export class StudyService {
                                         action: "create_mwl"
                                     }, e);
                                 },showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET") && !(_.hasIn(e,'attrs.77771015'))
                                 },
                                 title: $localize `:@@study.add_new_mwl:Add new MWL`,
                                 permission: {
@@ -1422,6 +1426,8 @@ export class StudyService {
                                         level: "patient",
                                         action: "upload_file"
                                     }, e);
+                                },showIf:(e,config)=>{
+                                    return !(_.hasIn(e,'attrs.77771015'));
                                 },
                                 id:"patient_upload_file",
                                 title: $localize `:@@upload_file:Upload file`,
@@ -1442,7 +1448,8 @@ export class StudyService {
                                         action: "download_csv"
                                     }, e);
                                 },showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return _.get(e,"attrs[00201200].Value[0]") > 0
+                                        && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
                                 id:"study_download_csv",
                                 title: $localize `:@@study.download_as_csv:Download as CSV`,
@@ -1470,7 +1477,7 @@ export class StudyService {
                                     param: 'visible'
                                 },
                                 showIf: (e, config) => {
-                                    return _.hasIn(options,"selectedWebService.IID_PATIENT_URL");
+                                    return _.hasIn(options,"selectedWebService.IID_PATIENT_URL") && !(_.hasIn(e,'attrs.77771015'));
                                 }
                             }, {
                                 icon: {
@@ -1706,25 +1713,20 @@ export class StudyService {
                     header: $localize `:@@patients_name:Patient's Name`,
                     headerDescription: $localize `:@@patients_name:Patient's Name`,
                     widthWeight: 1.5,
+                    saveTheOriginalValueOnTooltip:true,
                     calculatedWidth: "20%",
                     pathToValue:"00100010.Value.0",
                     pipe: new DynamicPipe(PersonNamePipe, [options.configuredPersonNameFormat])
                 }),
                 new TableSchemaElement({
-                    type: "value",
-                    header: $localize `:@@patient_id:Patient ID`,
-                    pathToValue: "00100020.Value[0]",
-                    headerDescription: $localize `:@@patient_id:Patient ID`,
-                    widthWeight: 1,
-                    calculatedWidth: "20%"
-                }),
-                new TableSchemaElement({
                     type: "pipe",
-                    header: $localize `:@@issuer_of_patient:Issuer of Patient`,
-                    headerDescription: $localize `:@@issuer_of_patient:Issuer of Patient`,
-                    widthWeight: 1.5,
-                    calculatedWidth: "20%",
-                    pipe: new DynamicPipe(PatientIssuerPipe, undefined)
+                    header: $localize `:@@patient_identifiers:Patient Identifiers`,
+                    headerDescription: $localize `:@@patient_identifiers:Patient Identifiers`,
+                    widthWeight: 2,
+                    cssClass:"big_field",
+                    // hideTooltip:true,
+                    calculatedWidth: "40%",
+                    pipe: new DynamicPipe(PatientIssuerPipe, [this.appService.global])
                 }),
                 new TableSchemaElement({
                     type: "pipe",
@@ -1832,6 +1834,25 @@ export class StudyService {
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'edit'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'material-icons',
+                                    text: 'visibility_off'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "mark_as_requested_unscheduled"
+                                    }, e);
+                                },
+                                title: $localize `:@@mark_mode_study_text:Mark study as Requested or Unscheduled`,
+                                id:"study_mark_as_requested_unscheduled",
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'edit'
@@ -1952,9 +1973,12 @@ export class StudyService {
                                 },
                                 id:"study_recreate_record",
                                 title: $localize `:@@recreate_db_record:Recreate DB Record`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
                                 permission: {
-                                    id: 'action-studies-download',
-                                    param: 'visible'
+                                    id: 'action-studies-study',
+                                    param: 'recreate'
                                 }
                             }, {
                                 icon: {
@@ -2234,7 +2258,7 @@ export class StudyService {
                     headerDescription: $localize `:@@referring_physician_name:Referring physician name`,
                     widthWeight: 1,
                     calculatedWidth: "20%",
-                    pathToValue:"[00080090].PersonName[0]",
+                    pathToValue:"00080090.Value.0",
                     pipe: new DynamicPipe(PersonNamePipe, [options.configuredPersonNameFormat])
                 }),
                 new TableSchemaElement({
@@ -2340,6 +2364,25 @@ export class StudyService {
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
+                                permission: {
+                                    id: 'action-studies-serie',
+                                    param: 'edit'
+                                }
+                            },{
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: 'material-icons',
+                                    text: 'visibility_off'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "mark_as_requested_unscheduled"
+                                    }, e);
+                                },
+                                id:"series_mark_as_requested_unscheduled",
+                                title: $localize `:@@mark_mode_series_text:Mark series as Requested or Unscheduled`,
                                 permission: {
                                     id: 'action-studies-serie',
                                     param: 'edit'
@@ -3017,6 +3060,14 @@ export class StudyService {
                     ],
                     headerDescription: $localize `:@@actions:Actions`,
                     pxWidth: 40
+                }),
+                new TableSchemaElement({
+                    type: "value",
+                    header: $localize `:@@worklist_label:Worklist Label`,
+                    pathToValue: "00741202.Value[0]",
+                    headerDescription: $localize `:@@worklist_label:Worklist Label`,
+                    widthWeight: 1.5,
+                    calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
                     type: "value",
@@ -3749,24 +3800,21 @@ export class StudyService {
         if(j4care.is(options, "studyTagConfig")){
             Object.keys(schema).forEach((modeKey:DicomLevel)=>{
                 console.log("schema™modeKey",schema[modeKey]);
-                schema[modeKey].forEach((element)=>{
+                schema[modeKey].forEach((element,i)=>{
                     console.log("element",element);
                     if(element.type === "actions-menu" && _.hasIn(element,"menu.actions[0]")){ //To prevent showing the single action buttons in the tag mode you have to extend this function with  || element.type === "actions" so you can filter the actions too
-
-                        console.log("element.menu.actions",element.menu.actions);
-                        for(let i = element.menu.actions.length - 1; i > -1;i--){
-                            console.log("element in i:",element.menu.actions[i]);
-                            if(!_.hasIn(options,"studyTagConfig.takeActionsOver") || !(_.hasIn(element,`menu.actions[${i}].id`) && options.studyTagConfig.takeActionsOver.indexOf(element.menu.actions[i].id) > -1)){
-                                console.log("about to delete this",element.menu.actions[i]); //TODO
-                                console.log("i:",i);
-                                element.menu.actions.splice(i, 1);
-                            }
+                        element.menu.actions = element.menu.actions.filter(a=>_.hasIn(options,"studyTagConfig.takeActionsOver") && options.studyTagConfig.takeActionsOver.indexOf(a.id) > -1);
+                        if(element.menu.actions.length === 0 && options.studyTagConfig.hideEmptyActionMenu){
+                            schema[modeKey].splice(i, 1); //If there is no action button in menu left, delete the menu point!
                         }
                     }
                 })
             });
             if(_.hasIn(options,"studyTagConfig.addActions.addPath") && _.hasIn(options,"studyTagConfig.addActions.addFunction")){
-                options.studyTagConfig.addActions.addFunction(actions,$this,_.get(schema, options.studyTagConfig.addActions.addPath));
+                options.studyTagConfig.addActions.addFunction(actions,$this,_.get(schema, options.studyTagConfig.addActions.addPath), schema);
+            }
+            if(_.hasIn(options,"studyTagConfig.hookSchema")){
+                options.studyTagConfig.hookSchema(schema,$this);
             }
         }
 
@@ -3797,15 +3845,38 @@ export class StudyService {
         }
     }
 
-    modifySeries(series, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string, seriesInstanceUID?:string) {
-        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
+    modifySeries(series, deviceWebservice: StudyWebService, header: HttpHeaders, params:any,
+                 studyInstanceUID?:string, seriesInstanceUID?:string) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}/series/${seriesInstanceUID}${params}`;
         if (url) {
             return this.$http.put(url, series, header);
         }
         return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
     }
-    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, studyInstanceUID?:string) {
-        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}`;
+    getSeriesUrl(selectedWebService:DcmWebApp, series:SeriesDicom, studyInstanceUID?:string, seriesInstanceUID?:string){
+        studyInstanceUID = studyInstanceUID || this.getStudyInstanceUID(series.attrs);
+        seriesInstanceUID = seriesInstanceUID || this.getSeriesInstanceUID(series.attrs);
+        return `${this.getDicomURL("study",selectedWebService)}/${studyInstanceUID}/series/${seriesInstanceUID}`;
+    }
+
+    updateMatchingStudies(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/update${params}`;
+        if (url) {
+            return this.$http.post(url, study, header);
+        }
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
+    }
+
+    updateMatchingSeries(series, webApp:DcmWebApp, header: HttpHeaders, params:any) {
+        const url = `${this.getDicomURL("series", webApp)}/update${params}`;
+        if (url) {
+            return this.$http.post(url, series, header);
+        }
+        return throwError({error: $localize `:@@study.error_on_getting_the_webapp_url:Error on getting the WebApp URL`});
+    }
+
+    modifyStudy(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any, studyInstanceUID?:string) {
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/${studyInstanceUID}${params}`;
         if (url) {
             return this.$http.put(url, study, header);
         }
@@ -3912,8 +3983,10 @@ export class StudyService {
                 url += `/` + rejectionCode;
             }
             url += j4care.param(patientParams);
-            selectedElements.preActionElements.getAllAsArray().forEach(object=>{
-                observables.push(this.$http.post(url,object.requestReady).pipe(
+            const objects = this.collectSelectedObjects(selectedElements.preActionElements.getAllAsArray().map(object=>object.requestReady));
+            objects.forEach(object=>{
+                console.log("oncopyobject = ",object);
+                observables.push(this.$http.post(url,object).pipe(
                     catchError(err => of({isError: true, error: err})),
                 ));
             });
@@ -3922,6 +3995,52 @@ export class StudyService {
             return throwError(e);
         }
     };
+
+    collectSelectedObjects(objects:any[]){
+        let groupObject = {};
+        objects.forEach(object=>{
+            if(object.StudyInstanceUID && groupObject[object.StudyInstanceUID]){
+                if(object.ReferencedSeriesSequence && groupObject[object.StudyInstanceUID].ReferencedSeriesSequence){
+                    let foundTheSameRefSeriesSec = false;
+                    groupObject[object.StudyInstanceUID].ReferencedSeriesSequence.forEach(availableReferencedSeriesSequenceObject =>{
+                        object.ReferencedSeriesSequence.forEach(newReferencedSeriesSequenceObject =>{
+                            if(availableReferencedSeriesSequenceObject.SeriesInstanceUID === newReferencedSeriesSequenceObject.SeriesInstanceUID){
+                                foundTheSameRefSeriesSec = true;
+                                if(availableReferencedSeriesSequenceObject.ReferencedSOPSequence && newReferencedSeriesSequenceObject.ReferencedSOPSequence){
+                                    let newReferencedSOPSequence = [];
+                                    availableReferencedSeriesSequenceObject.ReferencedSOPSequence.forEach(availableReferencedSOPSeq=>{
+                                        newReferencedSeriesSequenceObject.ReferencedSOPSequence.forEach(newReferencedSOPSeq=>{
+                                            if(
+                                                availableReferencedSOPSeq.ReferencedSOPClassUID != newReferencedSOPSeq.ReferencedSOPClassUID ||
+                                                availableReferencedSOPSeq.ReferencedSOPInstanceUID != newReferencedSOPSeq.ReferencedSOPInstanceUID
+                                            ){
+                                                newReferencedSOPSequence.push(newReferencedSOPSeq);
+                                            }
+                                        });
+                                    })
+                                    if(newReferencedSOPSequence.length > 0){
+                                        availableReferencedSeriesSequenceObject.ReferencedSOPSequence = _.uniq([
+                                            ...availableReferencedSeriesSequenceObject.ReferencedSOPSequence,
+                                            ...newReferencedSOPSequence
+                                        ]);
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    if(!foundTheSameRefSeriesSec){
+                        groupObject[object.StudyInstanceUID].ReferencedSeriesSequence = _.uniq([
+                            ...groupObject[object.StudyInstanceUID].ReferencedSeriesSequence,
+                            ...object.ReferencedSeriesSequence
+                        ]);
+                    }
+                }
+            }else{
+                groupObject[object.StudyInstanceUID] = object;
+            }
+        });
+        return Object.values(groupObject);
+    }
 
     linkStudyToMwl(selectedElements:SelectionActionElement,dcmWebApp:DcmWebApp, rejectionCode):Observable<any>{
         try{
@@ -4268,7 +4387,12 @@ export class StudyService {
         if(fileTypeOrExt === "mtl"
             || fileTypeOrExt === "obj"
             || fileTypeOrExt === "stl"
-            || fileTypeOrExt === "genozip") {
+            || fileTypeOrExt === "genozip"
+            || fileTypeOrExt === "vcf.bz2"
+            || fileTypeOrExt === "vcfbzip2"
+            || fileTypeOrExt === "vcfbz2"
+            || fileTypeOrExt === "boz"
+            || fileTypeOrExt === "bz2") {
             //"patient"
             iodFileNames = [
                 "study",
@@ -4310,6 +4434,8 @@ export class StudyService {
                 || fileTypeOrExt.indexOf("model/obj") > -1
                 || fileTypeOrExt.indexOf("application/x-tgif") > -1
                 || fileTypeOrExt.indexOf("application/vnd.genozip") > -1
+                || fileTypeOrExt.indexOf("application/prs.vcfbzip2") > -1
+                || fileTypeOrExt.indexOf("application/x-bzip2") > -1
                 || fileTypeOrExt.indexOf("application/sla") > -1
                 || fileTypeOrExt.indexOf("model/x.stl-binary") > -1
                 || fileTypeOrExt.indexOf("model/stl") > -1) {
@@ -4578,6 +4704,16 @@ export class StudyService {
                 {},
                 this.jsonHeader
             );
+        }));
+    }
+    deleteMultipleObjects(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, param?:any){
+        return forkJoin(multipleObjects.getAllAsArray().map((element: SelectedDetailObject) => {
+            if(element.dicomLevel === "patient" && _.hasIn(element,"object.attrs")){
+                return this.deletePatient(selectedWebService,this.getPatientId(element.object.attrs));
+            }
+            if(element.dicomLevel === "study" && _.hasIn(element,"object.attrs")){
+                return this.deleteStudy(this.getStudyInstanceUID(element.object.attrs),selectedWebService,param);
+            }
         }));
     }
 
@@ -4973,9 +5109,59 @@ export class StudyService {
         }
     };
 
-    getQueueNames = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}queue`);
+    getQueueNames(){
+        if(!this.sharedObservables$["queue_names"]){
+            this.sharedObservables$["queue_names"] = this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}queue`).pipe(shareReplay(1));
+        }
+        return this.sharedObservables$["queue_names"];
+    };
 
-    getRejectNotes = (params?: any) => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`);
+    getRejectNotes(params?: any){
+        if(!this.sharedObservables$["reject_notes"]){
+            this.sharedObservables$["reject_notes"] = this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}reject/${j4care.param(params)}`).pipe(shareReplay(1));
+        }
+        return this.sharedObservables$["reject_notes"];
+    };
+
+    getInstitutions = (entity?: any) => {
+        if(this.institutions){
+            return of(this.institutions);
+        }else{
+            return this.appRequest.getUiConfig().pipe(map(uiConfig=>{
+                    if(_.hasIn(uiConfig, "dcmuiInstitutionNameFilterType")){
+                        if(!this.dcmuiInstitutionNameFilterType){
+                            this.dcmuiInstitutionNameFilterType = _.get(uiConfig, "dcmuiInstitutionNameFilterType");
+                        }
+                        if(this.dcmuiInstitutionNameFilterType === "ui_config"){
+                            if(_.hasIn(uiConfig, "dcmuiInstitutionName")){
+                                if(!this.institutions){
+                                    this.institutions = _.get(uiConfig, "dcmuiInstitutionName");
+                                }
+                            }
+                            if(this.institutions && this.institutions.length > 0){
+                                return this.institutions;
+                            }
+                        }
+                        if(this.dcmuiInstitutionNameFilterType === "db"){
+                            return "db";
+                        }
+                    }
+                    return;
+                }),
+                switchMap(state => {
+                    if(state && state === "db"){
+                        return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
+                    }
+                    if(state && state.length && state.length > 0){
+                        return of({
+                            Institutions:state
+                        });
+                    }
+                    return of();
+                }))
+            //return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
+        }
+    }
 
     createEmptyStudy = (patientDicomAttrs, dcmWebApp) => this.$http.post(this.getDicomURL("study", dcmWebApp), patientDicomAttrs, this.dicomHeader);
 
@@ -5072,5 +5258,141 @@ export class StudyService {
             case "mwl":
                 return $localize `:@@mwl:mwl`;
         }
+    }
+
+
+    markAsRequestedOrUnscheduled(dcmWebApp:DcmWebApp, studyInstanceUID, object, dicomLevel:string, dicomObject:StudyDicom|SeriesDicom){
+        dicomLevel = dicomLevel || "study";
+        if(dicomLevel === "study"){
+            return this.$http.put(`${this.getDicomURL(dicomLevel, dcmWebApp)}/${studyInstanceUID}/request`, object, new HttpHeaders({'Content-Type': 'application/dicom+json'}),undefined,dcmWebApp);
+        }
+        if(dicomLevel === "series"){
+            return this.$http.put(`${this.getSeriesUrl(dcmWebApp,<SeriesDicom> dicomObject)}/request`, object, new HttpHeaders({'Content-Type': 'application/dicom+json'}),undefined,dcmWebApp);
+        }
+    }
+
+    getRequestSchema(){
+        let requestSchema = [];
+        return this.getIod("series").pipe(map(res=>{
+            const requestIOD = _.get(res,"00400275.items");
+            Object.keys(requestIOD).forEach(dicomKey=>{
+                if(requestIOD[dicomKey].vr === "SQ" && _.hasIn(requestIOD[dicomKey],"items")){
+                    requestSchema.push([
+                        {
+                            tag:"label_large",
+                            text:DCM4CHE.elementName.forTag(dicomKey)
+                        }
+                    ]);
+                    const subItems = _.get(requestIOD[dicomKey],"items");
+                    Object.keys(subItems).forEach(itemKey=>{
+                        requestSchema.push([
+                            {
+                                tag:"label",
+                                text:DCM4CHE.elementName.forTag(itemKey),
+                                prefix:"> "
+                            },
+                            {
+                                tag:"input",
+                                type:"text",
+                                filterKey: `${dicomKey}.${itemKey}`,
+                                description:DCM4CHE.elementName.forTag(itemKey),
+                                placeholder:DCM4CHE.elementName.forTag(itemKey)
+                            }
+                        ])
+                    })
+                }else{
+                    requestSchema.push([
+                        {
+                            tag:"label",
+                            text:DCM4CHE.elementName.forTag(dicomKey)
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey: dicomKey,
+                            description:DCM4CHE.elementName.forTag(dicomKey),
+                            placeholder:DCM4CHE.elementName.forTag(dicomKey)
+                        }
+                    ])
+                }
+            });
+            return [requestSchema, requestIOD];
+        }));
+    }
+    /*
+     {
+        00080050: "test1",
+        00080051.00400031: "test2"
+     }
+
+     to
+     {
+        00080050:{
+            vr:"SH",
+            Value:["test1"]
+        },
+        00080051:{
+            vr:"SQ",
+            Value:[
+                {
+                    00400031:{
+                        vr:"SH",
+                        Value:["test1"]
+                    }
+                }
+            ]
+        }
+     }
+    *
+    * */
+    convertFilterModelToDICOMObject(object, iod, exception:string[]=[]){
+        let newObject = {};
+        Object.keys(object).forEach(modelKey=>{
+            if(exception.indexOf(modelKey) === -1){
+                if(modelKey.indexOf(".") > -1){
+                    const [firstKey,secondKey] = modelKey.split(".");
+                    console.log("first",firstKey)
+                    console.log("second",secondKey)
+                    const iodObject = _.get(iod,`${firstKey}.items.${secondKey}`);
+                    delete iodObject["required"];
+                    if(iodObject){
+                        if(newObject[firstKey]){
+                            _.set(newObject,`${firstKey}.Value[0].${secondKey}`,{
+                                ...iodObject,
+                                Value:[
+                                    object[modelKey]
+                                ]
+                            })
+                        }else{
+                            newObject[firstKey] = {
+                                "vr":"SQ",
+                                "Value":[
+                                    {
+                                        [secondKey]:{
+                                            ...iodObject,
+                                            Value:[
+                                                object[modelKey]
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }else{
+                    const iodObject = _.get(iod,modelKey);
+                    delete iodObject["required"];
+                    if(iodObject){
+                        newObject[modelKey] = {
+                            ...iodObject,
+                            Value:[
+                                object[modelKey]
+                            ]
+                        }
+                    }
+                }
+            }
+        });
+        return newObject;
     }
 }

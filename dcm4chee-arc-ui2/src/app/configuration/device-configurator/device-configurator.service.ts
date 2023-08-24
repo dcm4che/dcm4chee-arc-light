@@ -395,10 +395,10 @@ export class DeviceConfiguratorService{
         }
     }
     replaceCharactersInTitleKey(string, object){
-            let re = /{(.*?)}/g;
-            let m;
-            let array = [];
-            do {
+        let re = /{(.*?)}/g;
+        let m;
+        let array = [];
+        do {
             m = re.exec(string);
             if (m) {
                 if (m[1]){
@@ -443,13 +443,20 @@ export class DeviceConfiguratorService{
                         this.getFormatValue(m.format, this.device || device).subscribe(
                             (formatValue) =>{
                                 // setTimeout(()=>{
-
+                                console.log("formatValue", formatValue)
                                 if(formatValue && formatValue.length > 0){
                                     m.formatValue = formatValue.map((el)=>{
-                                        return {
-                                            label:this.replaceCharactersInTitleKey(Globalvar.DYNAMIC_FORMATER[m.format].labelKey,el),
-                                            value:el[Globalvar.DYNAMIC_FORMATER[m.format].key]
-                                        };
+                                        if(typeof el === "string"){
+                                            return {
+                                                label:el,
+                                                value:el
+                                            }
+                                        }else{
+                                            return {
+                                                label:this.replaceCharactersInTitleKey(Globalvar.DYNAMIC_FORMATER[m.format].labelKey,el),
+                                                value:el[Globalvar.DYNAMIC_FORMATER[m.format].key]
+                                            };
+                                        }
                                     });
                                 }else{
                                     if(Globalvar.DYNAMIC_FORMATER[m.format]){
@@ -600,17 +607,13 @@ export class DeviceConfiguratorService{
                                 options.push({
                                     label: opt.label,
                                     value: opt.value,
-                                    active: (opt.value === value) ? true : false
+                                    active: (opt.value === value)
                                 });
                             });
                         }else{
                             if(!_.hasIn(m.formatValue,'state')){
                                 _.forEach(m.enum, (opt) => {
-                                    options.push({
-                                        label: opt,
-                                        value: opt,
-                                        active: (opt === value) ? true : false
-                                    });
+                                    this.addEnumValueToOption(opt, options, value);
                                 });
                             }
                         }
@@ -824,16 +827,12 @@ export class DeviceConfiguratorService{
                                 options.push({
                                     key: opt.label,
                                     value: opt.value,
-                                    active: (_.indexOf(value, opt.value) > -1) ? true : false
+                                    active: (_.indexOf(value, opt.value) > -1)
                                 });
                             });
                        }else{
                            _.forEach(m.enum, (opt) => {
-                               options.push({
-                                   key: opt,
-                                   value: opt,
-                                   active: (opt === value) ? true : false
-                               });
+                               this.addEnumValueToOption(opt, options, value, true);
                            });
                        }
                     }else{
@@ -842,7 +841,7 @@ export class DeviceConfiguratorService{
                             options.push({
                                 value: '/dicomNetworkConnection/' + i,
                                 key: opt.cn + ' (' + opt.dicomHostname + ((opt.dicomPort) ? ':' + opt.dicomPort : '') + ')',
-                                active: (_.indexOf(value, '/dicomNetworkConnection/' + i) > -1) ? true : false
+                                active: (_.indexOf(value, '/dicomNetworkConnection/' + i) > -1)
                             });
                         });
                     }
@@ -890,11 +889,7 @@ export class DeviceConfiguratorService{
                     console.log('this.device', this.device);
                     if (_.hasIn(m, 'items.enum')){
                         _.forEach(m.items.enum, (opt) => {
-                            options.push({
-                                key: opt,
-                                value: opt,
-                                active: (opt === value || _.indexOf(value, opt) > -1) ? true : false
-                            });
+                            this.addEnumValueToOption(opt, options, value, true, true);
                         });
                         form.push(
                             new Checkbox({
@@ -1074,11 +1069,7 @@ export class DeviceConfiguratorService{
             case 'integer':
                 if(_.hasIn(m, 'enum')){
                     _.forEach(m.enum, (opt) => {
-                        options.push({
-                            label: opt,
-                            value: opt,
-                            active: (opt === value) ? true : false
-                        });
+                        this.addEnumValueToOption(opt,options,value);
                     });
                     form.push(
                         new DropdownList({
@@ -1371,5 +1362,36 @@ export class DeviceConfiguratorService{
             console.error(e);
         }
         return this.controlService.reloadArchive(archiveUrl);
+    }
+    addEnumValueToOption(opt, options, value, useKey?:boolean, checkContainingIndex?:boolean){
+        try{
+            let optObject = {};
+            if(opt && typeof opt === "string" && opt.indexOf("|") > -1){
+                let [optValue, description,label] = opt.split("|");
+                optObject = {
+                    description:description ?? '',
+                    value: optValue ?? '',
+                    active: (optValue === value || ( checkContainingIndex && _.indexOf(value, optValue) > -1))
+                };
+                if(useKey){
+                    optObject["key"] = label || optValue || '';
+                }else{
+                    optObject["label"] = label || optValue || '';
+                }
+            }else {
+                optObject = {
+                    value: opt,
+                    active: (opt === value || (checkContainingIndex && _.indexOf(value, opt) > -1))
+                };
+                if(useKey){
+                    optObject["key"] = opt;
+                }else{
+                    optObject["label"] = opt;
+                }
+            }
+            options.push(optObject);
+        }catch (e) {
+            console.error(e)
+        }
     }
 }

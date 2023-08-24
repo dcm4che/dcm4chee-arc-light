@@ -18,6 +18,29 @@ $hoverBlue:#5293C1;
       }
     }
   }
+  .confirm{
+    filter-generator{
+      .filter{
+        clear: both;
+        float: revert;
+        .filter_block{
+          min-width:460px;
+          width: 100%;
+          max-height: 50vh;
+          overflow-y: auto;
+        }
+      }
+    }
+  }
+  .confirm{
+    filter-generator{
+      .filter{
+        .filter_block{
+          overflow-y: visible;
+        }
+      }
+    }
+  }
 }
 @media screen and (max-width: 1400px) {
   .hideOn1400px{
@@ -2316,6 +2339,13 @@ mat-form-field{
   .description_parent{
     float:left;
     width:45%;
+    .description{
+      a{
+        color: #22359f;
+        font-style: italic;
+        text-decoration-line: underline;
+      }
+    }
   }
 }
 .device_config_back{
@@ -3607,6 +3637,9 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
       font-style: italic;
       &.active{
         font-style: normal;
+      }
+      span{
+        padding-left:4px;
       }
     }
     .mat-select-placeholder {

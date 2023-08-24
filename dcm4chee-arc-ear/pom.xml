@@ -45,7 +45,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.29.1</version>
+    <version>5.31.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -158,6 +158,11 @@
       <artifactId>dcm4chee-arc-export-mgt</artifactId>
       <version>${project.version}</version>
       <type>ejb</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-export-noop</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
@@ -319,6 +324,12 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-qstar-scheduler</artifactId>
+      <version>${project.version}</version>
+      <type>ejb</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-query</artifactId>
       <version>${project.version}</version>
       <type>ejb</type>
@@ -403,6 +414,12 @@
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-storage-cloud</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-storage-ejb</artifactId>
+      <version>${project.version}</version>
+      <type>ejb</type>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
@@ -491,11 +508,6 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-validation</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-xroad</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

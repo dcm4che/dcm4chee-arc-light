@@ -44,6 +44,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.persistence.criteria.CriteriaQuery;
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
@@ -52,11 +53,13 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.PatientID;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.*;
 
 import java.net.Socket;
-import java.util.Date;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,13 +110,13 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public List<Patient> findPatientsAfter(IDWithIssuer pid, Date after) {
-        return ejb.findPatientsAfter(pid, after);
+    public Collection<Patient> findPatients(Collection<IDWithIssuer> pids) {
+        return ejb.findPatients(pids);
     }
 
     @Override
-    public Patient findPatient(IDWithIssuer pid) {
-        return ejb.findPatient(pid);
+    public Patient findPatient(Collection<IDWithIssuer> pids) {
+        return ejb.findPatient(pids);
     }
 
     @Override
@@ -133,7 +136,11 @@ public class PatientServiceImpl implements PatientService {
     public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
         try {
-            return ejb.updatePatient(ctx);
+            Patient patient;
+            do {
+                patient = ejb.updatePatient(ctx);
+            } while (deleteDuplicateCreatedPatient(ctx, patient));
+            return patient;
         } catch (RuntimeException e) {
             ctx.setException(e);
             throw e;
@@ -144,9 +151,31 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    public void updatePatientIDs(Patient pat, Collection<IDWithIssuer> patientIDs) {
+        ejb.updatePatientIDs(pat, patientIDs);
+    }
+
+    private boolean deleteDuplicateCreatedPatient(PatientMgtContext ctx, Patient patient) {
+        if (ctx.getEventActionCode() == AuditMessages.EventActionCode.Create) {
+            if (deleteDuplicateCreatedPatient(ctx.getPatientIDs(), patient, null)) {
+                ctx.setEventActionCode(AuditMessages.EventActionCode.Read);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public synchronized boolean deleteDuplicateCreatedPatient(
+            Collection<IDWithIssuer> pids, Patient createdPatient, Study createdStudy) {
+        return ejb.deleteDuplicateCreatedPatient(pids, createdPatient, createdStudy);
+    }
+
+    @Override
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException {
-        if (ctx.getPatientID().matches(ctx.getPreviousPatientID()))
+        if (ctx.getPatientIDs().stream().anyMatch(pid ->
+                ctx.getPreviousPatientIDs().stream().anyMatch(other -> pid.matches(other, true, true))))
             throw new CircularPatientMergeException("PriorPatientID same as target PatientID");
 
         try {
@@ -177,12 +206,7 @@ public class PatientServiceImpl implements PatientService {
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException {
         if (device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isHL7TrackChangedPatientID()) {
-            if (isEitherHavingNoIssuer(ctx))
-                throw new PatientTrackingNotAllowedException(
-                        "Either previous or new Patient ID has missing issuer and change patient id tracking is enabled. "
-                                + "Disable change patient id tracking feature and retry update");
-            if (ctx.getPatientID().equals(ctx.getPreviousPatientID()))
-                throw new CircularPatientMergeException("PriorPatientID same as target PatientID");
+            checkForMatchingPatientIDs(ctx);
             createPatient(ctx);
             return mergePatient(ctx);
         }
@@ -197,11 +221,23 @@ public class PatientServiceImpl implements PatientService {
         }
     }
 
-    private boolean isEitherHavingNoIssuer(PatientMgtContext ctx) {
-        IDWithIssuer prevPatientID = ctx.getPreviousPatientID();
-        IDWithIssuer newPatientID = ctx.getPatientID();
-        return (prevPatientID.getIssuer() == null && newPatientID.getIssuer() != null)
-                || (prevPatientID.getIssuer() != null && newPatientID.getIssuer() == null);
+    private void checkForMatchingPatientIDs(PatientMgtContext ctx) {
+        Collection<IDWithIssuer> prevPatientIDs = ctx.getPreviousPatientIDs();
+        Collection<IDWithIssuer> newPatientIDs = ctx.getPatientIDs();
+        for (IDWithIssuer prevPatientID : prevPatientIDs) {
+            for (IDWithIssuer newPatientID : newPatientIDs) {
+                if (newPatientID.matches(prevPatientID, true, true)) {
+                        throw newPatientID.equals(prevPatientID)
+                                ? new CircularPatientMergeException(
+                                        "PriorPatientID same as target PatientID")
+                                : new PatientTrackingNotAllowedException(
+                                        "Previous Patient ID: \"" + prevPatientID
+                                                + "\" matches new Patient ID: \"" + newPatientID
+                                                + " and change patient id tracking is enabled. "
+                                                + "Disable change patient id tracking feature and retry update");
+                }
+            }
+        }
     }
 
     @Override
@@ -230,10 +266,10 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public boolean supplementIssuer(PatientMgtContext ctx, Patient patient, IDWithIssuer idWithIssuer,
+    public boolean supplementIssuer(PatientMgtContext ctx, PatientID patientID, IDWithIssuer idWithIssuer,
                                     Map<IDWithIssuer, Long> ambiguous) {
         try {
-            return ejb.supplementIssuer(ctx, patient, idWithIssuer, ambiguous);
+            return ejb.supplementIssuer(ctx, patientID, idWithIssuer, ambiguous);
         } finally {
             if (ctx.getEventActionCode() != null)
                 patientMgtEvent.fire(ctx);
@@ -251,8 +287,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public void testSupplementIssuers(CriteriaQuery<Patient> query, int fetchSize, Set<IDWithIssuer> success,
-            Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer) {
+    public void testSupplementIssuers(CriteriaQuery<PatientID> query, int fetchSize, Set<IDWithIssuer> success,
+                                      Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer) {
         ejb.testSupplementIssuers(query, fetchSize, success, ambiguous, issuer);
     }
 }

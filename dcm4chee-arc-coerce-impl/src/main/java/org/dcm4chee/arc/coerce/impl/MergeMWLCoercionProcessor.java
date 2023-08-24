@@ -102,7 +102,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
                 coercion.getRole() == TransferCapability.Role.SCU ? receivingAET : sendingAET,
                 mergeMWLQueryParam(coercion, attrs),
                 coercion.parseBooleanCoercionParam("filter-by-scu"),
-                TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getSchemeSpecificPart())),
+                coercion.getSchemeSpecificPart(),
                 coercion.parseBooleanCoercionParam("xsl-no-keyword"));
         if (newAttrs == null) {
             return false;
@@ -121,16 +121,16 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
         MergeMWLMatchingKey mergeMWLMatchingKey = MergeMWLMatchingKey.valueOf(
                 coercion.getCoercionParam("match-by", MergeMWLMatchingKey.ScheduledProcedureStepID.name()));
         String mwlSCP = coercion.getCoercionParam("mwl-scp", null);
-        String localMwlSCPs = coercion.getCoercionParam("local-mwl-scp", null);
+        String localMwlWorklistLabels = coercion.getCoercionParam("local-mwl-worklist-label", null);
         String localMwlStatus = coercion.getCoercionParam("local-mwl-status", null);
         return MergeMWLQueryParam.valueOf(mwlSCP,
-                StringUtils.split(localMwlSCPs, '|'),
+                StringUtils.split(localMwlWorklistLabels, '|'),
                 SPSStatus.valuesOf(StringUtils.split(localMwlStatus, '|')),
-                mergeMWLMatchingKey, attrs);
+                mergeMWLMatchingKey, attrs, coercion.getSchemeSpecificPart());
     }
 
     private Attributes queryMWL(String localAET, MergeMWLQueryParam queryParam, boolean filterbyscu,
-                                Templates tpls, boolean xslnokeyword)
+                                String tplURI, boolean xslnokeyword)
             throws Exception {
         Cache.Entry<Attributes> entry = mergeMWLCache.getEntry(queryParam);
         if (entry != null)
@@ -156,6 +156,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
         }
         Attributes result = null;
         Sequence reqAttrsSeq = null;
+        Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(tplURI));
         Collections.sort(mwlItems, Comparator.comparing(MergeMWLCoercionProcessor::startDateTime).reversed());
         for (Attributes mwlItem : mwlItems) {
             Attributes attrs = SAXTransformer.transform(mwlItem, tpls, false, !xslnokeyword);

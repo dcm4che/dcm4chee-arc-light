@@ -89,6 +89,7 @@ public class QueryAttributesEJB {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Series> series = q.from(Series.class);
+        Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
         String viewID = qrView.getViewID();
         CollectionJoin<Series, SeriesQueryAttributes> seriesQueryAttributes =
                 QueryBuilder.joinSeriesQueryAttributes(cb, series, viewID);
@@ -96,6 +97,9 @@ public class QueryAttributesEJB {
                 .multiselect(
                         series.get(Series_.pk),
                         series.get(Series_.modality),
+                        series.get(Series_.instancePurgeState),
+                        metadata.get(Metadata_.storageID),
+                        metadata.get(Metadata_.storagePath),
                         seriesQueryAttributes.get(SeriesQueryAttributes_.numberOfInstances),
                         seriesQueryAttributes.get(SeriesQueryAttributes_.sopClassesInSeries),
                         seriesQueryAttributes.get(SeriesQueryAttributes_.retrieveAETs),
@@ -106,7 +110,13 @@ public class QueryAttributesEJB {
             resultStream.forEach(tuple -> {
             Integer numberOfInstancesI = tuple.get(seriesQueryAttributes.get(SeriesQueryAttributes_.numberOfInstances));
             if (numberOfInstancesI == null) {
-                builder.add(tuple, service.calculateSeriesQueryAttributes(tuple.get(series.get(Series_.pk)), qrView));
+                builder.add(tuple,
+                        service.calculateSeriesQueryAttributes(
+                                        tuple.get(series.get(Series_.pk)),
+                                        tuple.get(series.get(Series_.instancePurgeState)),
+                                        tuple.get(metadata.get(Metadata_.storageID)),
+                                        tuple.get(metadata.get(Metadata_.storagePath)),
+                                        qrView));
             } else
                 builder.add(tuple);
             });
@@ -167,6 +177,10 @@ public class QueryAttributesEJB {
             service.calculateStudyQueryAttributes(studyPk, arcDev.getQueryRetrieveView(viewID));
         }
         return true;
+    }
+
+    public void persist(SeriesQueryAttributes queryAttrs) {
+        em.persist(queryAttrs);
     }
 
     private static class SeriesQueryAttributesBuilder {
@@ -275,7 +289,7 @@ public class QueryAttributesEJB {
     }
 
 
-    private static String[] intersection(String[] ss1, String[] ss2) {
+    static String[] intersection(String[] ss1, String[] ss2) {
         int l = 0;
         for (int i = 0; i < ss1.length; i++)
             if (contains(ss2, ss1[i]))

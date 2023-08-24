@@ -59,6 +59,9 @@
         },
         {
           "$ref": "../parameters.json#/sourceOfPreviousValues"
+        },
+        {
+          "$ref": "../parameters.json#/irwf"
         }
       ],
       "requestBody": {
@@ -68,7 +71,7 @@
         "200": {
           "$ref": "../responses.json#/storeInstancesSuccessful"
         },
-        "204": {
+        "202": {
           "$ref": "../responses.json#/storeInstancesWarnings"
         },
         "400": {
@@ -94,6 +97,12 @@
         },
         {
           "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
         }
       ],
       "requestBody": {
@@ -111,13 +120,16 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload"
+          "description": "JSON request body not well formed or Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload or Patient found using patient identifiers sent in request payload does not match with patient of study"
+        },
+        "403": {
+          "description": "Update study forbidden for already merged patients"
         },
         "404": {
           "description": "No such Application Entity or Patient or Study"
         },
         "409": {
-          "description": "Non Unique Patient or Patient is already merged exception."
+          "description": "Non Unique Patients found for patient identifiers in request payload"
         },
         "500": {
           "description": "Internal Server Error."
@@ -276,6 +288,12 @@
         },
         {
           "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
         }
       ],
       "requestBody": {
@@ -293,13 +311,16 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Patient ID or Series Instance UID in request body or Series UID in request does not match Series UID in request payload"
+          "description": "JSON request body not well formed or Missing Patient ID or Series Instance UID in request body or Series UID in request does not match Series UID in request payload or Patient found using patient identifiers sent in request payload does not match with patient of series"
+        },
+        "403": {
+          "description": "Update series forbidden for already merged patients"
         },
         "404": {
           "description": "No such Application Entity or Series"
         },
         "409": {
-          "description": "Non Unique Patient or Patient is already merged exception."
+          "description": "Non Unique Patients found for patient identifiers in request payload"
         },
         "500": {
           "description": "Internal Server Error."

@@ -51,6 +51,7 @@ import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -123,4 +124,16 @@ public interface StudyMgtContext {
     void setAccessControlID(String accessControlID);
 
     AttributeFilter getSeriesAttributeFilter();
+
+    List<Attributes> getRequestAttributes();
+
+    void setRequestAttributes(List<Attributes> requestAttrs);
+
+    String getReasonForModification();
+
+    void setReasonForModification(String reasonForModification);
+
+    String getSourceOfPreviousValues();
+
+    void setSourceOfPreviousValues(String sourceOfPreviousValues);
 }

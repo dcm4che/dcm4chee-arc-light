@@ -22,4 +22,14 @@
 }
 .cdk-overlay-container .edit_attribute_block .dropdown.study_edit{
   margin-top: 52px;
-}                                               
+}
+.upload{
+  .checkbox_form{
+    display: grid;
+    grid-template-columns: 25px auto;
+    grid-gap: 7px;
+    input{
+      margin:0;
+    }
+  }
+}

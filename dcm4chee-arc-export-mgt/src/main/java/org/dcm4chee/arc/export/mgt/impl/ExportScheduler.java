@@ -142,10 +142,10 @@ public class ExportScheduler {
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("{}: Failed to update Study Export Task caused by {} - retry", session,
-                            DicomServiceException.initialCauseOf(e));
+                    LOG.info("{}: Failed to update Study Export Task using {} caused by {} - retry", session,
+                            exporterDesc, DicomServiceException.initialCauseOf(e));
                 } else {
-                    LOG.warn("{}: Failed to update Study Export Task:\n", session, e);
+                    LOG.warn("{}: Failed to update Study Export Task using {} :\n", session, exporterDesc, e);
                     return false;
                 }
             }
@@ -170,10 +170,10 @@ public class ExportScheduler {
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("{}: Failed to update Series Export Task caused by {} - retry", session,
-                            DicomServiceException.initialCauseOf(e));
+                    LOG.info("{}: Failed to update Series Export Task using {} caused by {} - retry", session,
+                            exporterDesc, DicomServiceException.initialCauseOf(e));
                 } else {
-                    LOG.warn("{}: Failed to update Series Export Task:\n", session, e);
+                    LOG.warn("{}: Failed to update Series Export Task using {} :\n", session, exporterDesc, e);
                     return false;
                 }
             }
@@ -199,10 +199,10 @@ public class ExportScheduler {
                 return true;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("{}: Failed to update Instance Export Task caused by {} - retry", session,
-                            DicomServiceException.initialCauseOf(e));
+                    LOG.info("{}: Failed to update Instance Export Task using {} caused by {} - retry", session,
+                            exporterDesc, DicomServiceException.initialCauseOf(e));
                 } else {
-                    LOG.warn("{}: Failed to update Instance Export Task:\n", session, e);
+                    LOG.warn("{}: Failed to update Instance Export Task using {} :\n", session, exporterDesc, e);
                     return false;
                 }
             }

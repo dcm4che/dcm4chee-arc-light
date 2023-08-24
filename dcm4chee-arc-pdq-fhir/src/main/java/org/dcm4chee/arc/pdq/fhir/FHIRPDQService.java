@@ -100,15 +100,10 @@ public class FHIRPDQService extends AbstractPDQService {
 
     private Attributes query(PDQServiceContext ctx, WebApplication webApp) throws PDQServiceException {
         ctx.setFhirWebAppName(webApp.getApplicationName());
-        Map<String, String> props = webApp.getProperties();
         String authorization;
         try {
             String url = webApp.getServiceURL().toString();
-            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
-                                                            url,
-                                                            Boolean.parseBoolean(props.get("allow-any-hostname")),
-                                                            Boolean.parseBoolean(props.get("disable-trust-manager")))
-                                                        .build();
+            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build();
             ResteasyWebTarget target = client.target(url);
             target = setQueryParameters(target, ctx);
             Invocation.Builder request = target.request();

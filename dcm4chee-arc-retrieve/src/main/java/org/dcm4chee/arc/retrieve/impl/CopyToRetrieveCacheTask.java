@@ -41,14 +41,15 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
-import org.dcm4che3.data.Attributes;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
+import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.InstanceLocations;
@@ -57,6 +58,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,46 +83,147 @@ public class CopyToRetrieveCacheTask implements Runnable {
     private final LinkedBlockingQueue<WrappedInstanceLocations> scheduled = new LinkedBlockingQueue();
     private final LinkedBlockingQueue<WrappedInstanceLocations> completed = new LinkedBlockingQueue();
     private final Map<String,Set<String>> uidMap = new HashMap<>();
+    private final Map<String,Map<String,Map<String, InstanceLocations>>> matchesByTar;
 
-    public CopyToRetrieveCacheTask(RetrieveContextImpl ctx, InstanceLocations match) {
+    public CopyToRetrieveCacheTask(RetrieveContextImpl ctx, StorageDescriptor storageDescriptor) {
         this.ctx = ctx;
         this.arcdev = ctx.getRetrieveService().getArchiveDeviceExtension();
-        StorageDescriptor storageDescriptor = arcdev.getStorageDescriptor(match.getLocations().get(0).getStorageID());
         this.storageID = storageDescriptor.getRetrieveCacheStorageID();
         this.maxParallel = storageDescriptor.getRetrieveCacheMaxParallel();
         this.semaphore = new Semaphore(maxParallel);
+        this.matchesByTar = storageDescriptor.isArchiveSeriesAsTAR() ? new HashMap<>() : null;
     }
 
     public boolean schedule(InstanceLocations match) {
-        if (match != null && match.getInstancePk() == null) {
-            try {
-                restoreInstances(match.getAttributes());
-            } catch (IOException e) {
-                LOG.error("Failed to restore purged Instance Records:\n", e);
-                return false;
-            }
+        if (matchesByTar == null) {
+            scheduled.offer(new WrappedInstanceLocations(match));
+        } else {
+            Location location = match.getLocations().get(0);
+            String storagePath = location.getStoragePath();
+            int tarPathEnd = storagePath.indexOf('!');
+            if (tarPathEnd < 0) return false;
+            matchesByTar.computeIfAbsent(location.getStorageID(), storageID -> new HashMap<>())
+                    .computeIfAbsent(storagePath.substring(0, tarPathEnd), tarPath -> new HashMap<>())
+                    .put(storagePath.substring(tarPathEnd + 1), match);
         }
-        scheduled.offer(new WrappedInstanceLocations(match));
         return true;
     }
 
-    private void restoreInstances(Attributes attrs) throws IOException {
-        StoreService storeService = ctx.getRetrieveService().getStoreService();
-        for (Instance inst : storeService.restoreInstances(storeService.newStoreSession(ctx
-                        .getLocalApplicationEntity()).withObjectStorageID(storageID),
-                attrs.getString(Tag.StudyInstanceUID),
-                attrs.getString(Tag.SeriesInstanceUID),
-                ctx.getArchiveAEExtension().purgeInstanceRecordsDelay())) {
-            for (InstanceLocations match : ctx.getMatches()) {
-                if (match.getSopInstanceUID().equals(inst.getSopInstanceUID())) {
-                    match.setInstancePk(inst.getPk());
-                }
-            }
-        }
+    boolean isTarArchiver() {
+        return matchesByTar != null;
     }
 
     @Override
     public void run() {
+        if (matchesByTar != null) {
+            for (Map.Entry<String, Map<String, Map<String, InstanceLocations>>> entry : matchesByTar.entrySet()) {
+                String key = entry.getKey();
+                Map<String, Map<String, InstanceLocations>> value = entry.getValue();
+                Storage storage = ctx.getRetrieveService().getStorage(key, ctx);
+                for (Map.Entry<String, Map<String, InstanceLocations>> e : value.entrySet()) {
+                    String tarPath = e.getKey();
+                    Map<String, InstanceLocations> matchByTarEntry = e.getValue();
+                    untarFiles(storage, tarPath, matchByTarEntry);
+                }
+            }
+        } else {
+            copyFiles();
+        }
+        StoreService storeService = ctx.getRetrieveService().getStoreService();
+        for (Map.Entry<String, Set<String>> entry : uidMap.entrySet()) {
+            String studyIUID = entry.getKey();
+            storeService.addStorageID(studyIUID, storageID);
+            for (String seriesIUID : entry.getValue()) {
+                storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
+            }
+        }
+        completed.offer(new WrappedInstanceLocations(null));
+        ctx.getRetrieveService().updateLocations(ctx);
+        LOG.debug("Leave run()");
+    }
+
+    private void untarFiles(Storage tarStorage, String tarPath, Map<String, InstanceLocations> matchByTarEntry) {
+        ReadContext readContext = tarStorage.createReadContext();
+        readContext.setStoragePath(tarPath);
+        try (TarArchiveInputStream tar = new TarArchiveInputStream(
+                new BufferedInputStream(tarStorage.openInputStream(readContext)))) {
+            TarArchiveEntry tarEntry;
+            while ((tarEntry = tar.getNextTarEntry()) != null) {
+                InstanceLocations inst = matchByTarEntry.remove(tarEntry.getName());
+                if (inst != null) {
+                    if (copy(tarStorage, tar, tarEntry, inst)) {
+                        completed(inst);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            ctx.addFailuresOnCopyToRetrieveCache(matchByTarEntry.size());
+        }
+    }
+
+    private boolean copy(Storage tarStorage, TarArchiveInputStream tar, TarArchiveEntry tarEntry,
+                           InstanceLocations match) throws IOException {
+        Storage storage = ctx.getRetrieveService().getStorage(storageID, ctx);
+        WriteContext writeCtx = storage.createWriteContext(match.getAttributes());
+        writeCtx.setContentLength(tarEntry.getSize());
+        try {
+            LOG.debug("Start copying {} to {}", match, storage.getStorageDescriptor());
+            Location location = copyTo(tarStorage, tar, match, storage, writeCtx);
+            addLocation(match, location);
+            storage.commitStorage(writeCtx);
+            LOG.debug("Finished copying {} to {}:\n", match, storage.getStorageDescriptor());
+            return true;
+        } catch (Exception e) {
+            LOG.warn("Failed to copy {} to {}:\n", match, storage.getStorageDescriptor(), e);
+            try {
+                storage.revokeStorage(writeCtx);
+            } catch (Exception e1) {
+                LOG.warn("Failed to revoke storage", e1);
+            }
+            ctx.incrementFailuresOnCopyToRetrieveCache();
+            return false;
+        }
+    }
+
+    private void completed(InstanceLocations inst) {
+        String studyIUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
+        String seriesIUID = inst.getAttributes().getString(Tag.SeriesInstanceUID);
+        synchronized (uidMap) {
+            uidMap.computeIfAbsent(studyIUID, key -> new HashSet<>()).add(seriesIUID);
+        }
+        completed.offer(new WrappedInstanceLocations(inst));
+    }
+
+    private void addLocation(InstanceLocations match, Location location) {
+        StoreService storeService = ctx.getRetrieveService().getStoreService();
+        ApplicationEntity ae = ctx.getLocalApplicationEntity();
+        StoreSession storeSession = storeService.newStoreSession(ae).withObjectStorageID(storageID);
+        storeService.addLocation(storeSession, match.getInstancePk(), location);
+        match.getLocations().add(location);
+    }
+
+    private Location copyTo(Storage tarStorage, TarArchiveInputStream tar, InstanceLocations match,
+                            Storage storage, WriteContext writeCtx) throws IOException {
+        storage.copy(tar, writeCtx);
+        StorageDescriptor retrieveCache = storage.getStorageDescriptor();
+        if (ctx.getUpdateInstanceAvailability() == null
+                && retrieveCache.getInstanceAvailability().compareTo(
+                tarStorage.getStorageDescriptor().getInstanceAvailability()) < 0) {
+            ctx.setUpdateInstanceAvailability(retrieveCache.getInstanceAvailability());
+        }
+        Location tarLocation = match.getLocations().get(0);
+        return new Location.Builder()
+                .storageID(retrieveCache.getStorageID())
+                .storagePath(writeCtx.getStoragePath())
+                .transferSyntaxUID(tarLocation.getTransferSyntaxUID())
+                .objectType(Location.ObjectType.DICOM_FILE)
+                .size(tarLocation.getSize())
+                .digest(tarLocation.getDigest())
+                .uidMap(tarLocation.getUidMap())
+                .build();
+    }
+
+    private void copyFiles() {
         try {
             InstanceLocations instanceLocations;
             while ((instanceLocations = scheduled.take().instanceLocations) != null) {
@@ -129,16 +232,8 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 arcdev.getDevice().execute(() -> {
                     try {
                         if (copy(inst)) {
-                            String studyIUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
-                            String seriesIUID = inst.getAttributes().getString(Tag.SeriesInstanceUID);
-                            synchronized (uidMap) {
-                                Set<String> seriesIUIDs = uidMap.get(studyIUID);
-                                if (seriesIUIDs == null)
-                                    uidMap.put(studyIUID, seriesIUIDs = new HashSet<>());
-                                seriesIUIDs.add(seriesIUID);
-                            }
+                            completed(inst);
                         }
-                        completed.offer(new WrappedInstanceLocations(inst));
                     } finally {
                         semaphore.release();
                     }
@@ -151,46 +246,27 @@ public class CopyToRetrieveCacheTask implements Runnable {
         } catch (InterruptedException e) {
             LOG.error("Failed to schedule copy to retrieve cache:\n", e);
         }
-        StoreService storeService = ctx.getRetrieveService().getStoreService();
-        for (Map.Entry<String, Set<String>> entry : uidMap.entrySet()) {
-            String studyIUID = entry.getKey();
-            storeService.addStorageID(studyIUID, storageID);
-            for (String seriesIUID : entry.getValue()) {
-                storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
-            }
-        }
-        completed.offer(new WrappedInstanceLocations(null));
-        LOG.debug("Leave run()");
     }
 
     private boolean copy(InstanceLocations match) {
         Storage storage = ctx.getRetrieveService().getStorage(storageID, ctx);
-        WriteContext writeCtx = storage.createWriteContext();
-        writeCtx.setAttributes(match.getAttributes());
-        Location location = null;
+        WriteContext writeCtx = storage.createWriteContext(match.getAttributes());
         try {
             LOG.debug("Start copying {} to {}", match, storage.getStorageDescriptor());
-            location = copyTo(match, storage, writeCtx);
-            StoreService storeService = ctx.getRetrieveService().getStoreService();
-            ApplicationEntity ae = ctx.getLocalApplicationEntity();
-            StoreSession storeSession = storeService.newStoreSession(ae).withObjectStorageID(storageID);
-            storeService.addLocation(storeSession, match.getInstancePk(), location);
+            Location location = copyTo(match, storage, writeCtx);
+            addLocation(match, location);
             storage.commitStorage(writeCtx);
-            match.getLocations().add(location);
             LOG.debug("Finished copying {} to {}:\n", match, storage.getStorageDescriptor());
             return true;
         } catch (Exception e) {
             LOG.warn("Failed to copy {} to {}:\n", match, storage.getStorageDescriptor(), e);
-            if (location != null)
-                try {
-                    storage.revokeStorage(writeCtx);
-                } catch (Exception e1) {
-                    LOG.warn("Failed to revoke storage", e1);
-                }
+            try {
+                storage.revokeStorage(writeCtx);
+            } catch (Exception e1) {
+                LOG.warn("Failed to revoke storage", e1);
+            }
             ctx.incrementFailuresOnCopyToRetrieveCache();
             return false;
-        } finally {
-            ctx.getRetrieveService().updateLocations(ctx);
         }
     }
 
@@ -212,6 +288,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
                     .objectType(Location.ObjectType.DICOM_FILE)
                     .size(locationInputStream.location.getSize())
                     .digest(locationInputStream.location.getDigest())
+                    .uidMap(locationInputStream.location.getUidMap())
                     .build();
         }
     }

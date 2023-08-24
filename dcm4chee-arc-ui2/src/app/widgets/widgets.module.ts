@@ -41,11 +41,13 @@ import { DcmDropDownComponent } from './dcm-drop-down/dcm-drop-down.component';
 import { StudyTransferringOverviewComponent } from './dialogs/study-transferring-overview/study-transferring-overview.component';
 import { MediaViewerComponent } from './dialogs/media-viewer/media-viewer.component';
 import { CodeSelectorComponent } from './code-selector/code-selector.component';
+import { IssuerSelectorComponent } from './issuer-selector/issuer-selector.component';
 import { LanguagePickerComponent } from './language-picker/language-picker.component';
 import {ModifyUpsComponent} from "./dialogs/modify-ups/modify-ups.component";
 import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.component';
 import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.component';
 import { ModifiedWidgetComponent } from './modified-widget/modified-widget.component';
+import { PersonNamePickerComponent } from './person-name-picker/person-name-picker.component';
 
 
 @Injectable()
@@ -100,7 +102,9 @@ export const WidgetsComponents = [
     StudyTransferringOverviewComponent,
     MediaViewerComponent,
     CodeSelectorComponent,
+    IssuerSelectorComponent,
     LanguagePickerComponent,
     DeviceCloneComponent,
-    ModifiedWidgetComponent
+    ModifiedWidgetComponent,
+    PersonNamePickerComponent
 ];

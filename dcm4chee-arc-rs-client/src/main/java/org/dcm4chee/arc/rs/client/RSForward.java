@@ -48,7 +48,6 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.RSForwardRule;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -78,30 +78,22 @@ public class RSForward {
                 request);
     }
 
+    public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, HttpServletRequest request, List<Attributes> attrs) {
+        forward(rsOp,
+                arcAE,
+                toContent(attrs, arcAE),
+                null,
+                request);
+    }
+
     public void forward(
             RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in, String patientID, HttpServletRequest request) {
         arcAE.rsForwardRules()
-                .filter(rule -> match(rule, rsOp, request))
-                .forEach(
-                rule -> apply(rule, rsOp, in, patientID, request));
-    }
-
-    private boolean match(RSForwardRule rule, RSOperation rsOp, HttpServletRequest request) {
-        return rule.containsRSOperations(rsOp) && rule.matchesRequest(request);
-    }
-
-    private void apply(RSForwardRule rule, RSOperation rsOp, byte[] in, String patientID,
-        HttpServletRequest request) {
-        LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
-        rsClient.scheduleRequest(
-                rsOp,
-                request.getRequestURI(),
-                request.getQueryString(),
-                rule.getWebAppName(),
-                patientID,
-                in,
-                rule.isTlsAllowAnyHostname(),
-                rule.isTlsDisableTrustManager());
+                .filter(rule -> rule.containsRSOperations(rsOp) && rule.matchesRequest(request))
+                .forEach(rule -> {
+                    LOG.info("Apply RS Forward Rule[{}] to RSOperation {}", rule, rsOp);
+                    rsClient.scheduleRequest(rsOp, request, rule.getWebAppName(), patientID, in);
+                });
     }
 
     private static byte[] toContent(Attributes attrs, ArchiveAEExtension arcAE) {
@@ -111,6 +103,19 @@ public class RSForward {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (JsonGenerator gen = Json.createGenerator(out)) {
             arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
+        }
+        return out.toByteArray();
+    }
+
+    private static byte[] toContent(List<Attributes> requestAttrs, ArchiveAEExtension arcAE) {
+        if (requestAttrs.isEmpty())
+            return ByteUtils.EMPTY_BYTES;
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator gen = Json.createGenerator(out)) {
+            gen.writeStartArray();
+            requestAttrs.forEach(attrs -> arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs));
+            gen.writeEnd();
         }
         return out.toByteArray();
     }

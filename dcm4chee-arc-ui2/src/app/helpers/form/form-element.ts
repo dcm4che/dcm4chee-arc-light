@@ -28,6 +28,7 @@ export class FormElement<T>{
     showCharSetPicker:boolean;
     showLanguagePicker:boolean;
     options:any;
+    showPropertyPicker: string;
     constructor(options: {
         value?: T,
         key?: string,

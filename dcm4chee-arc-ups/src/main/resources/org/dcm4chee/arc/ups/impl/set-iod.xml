@@ -6,6 +6,8 @@
   <DataElement keyword="AdmittingDiagnosesCodeSequence" tag="00081084" vr="SQ" type="0" items="1" />
   <DataElement keyword="PatientName" tag="00100010" vr="PN" type="0" vm="1" />
   <DataElement keyword="PatientID" tag="00100020" vr="LO" type="0" vm="1" />
+  <DataElement keyword="IssuerOfPatientID" tag="00100021" vr="LO" type="0" vm="1" />
+  <DataElement keyword="IssuerOfPatientIDQualifiersSequence" tag="00100024" vr="SQ" type="0" vm="1" />
   <DataElement keyword="PatientBirthDate" tag="00100030" vr="DA" type="0" vm="1" />
   <DataElement keyword="PatientSex" tag="00100040" vr="CS" type="0" vm="1" />
   <DataElement keyword="OtherPatientIDSequence" tag="00101002" vr="SQ" type="0" items="n" />

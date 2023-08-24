@@ -42,6 +42,7 @@ package org.dcm4chee.arc.entity;
 
 import jakarta.persistence.*;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.LocationStatus;
 
 import java.util.Date;
 
@@ -59,6 +60,8 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = Location.FIND_BY_STORAGE_ID_AND_STATUS,
                 query = "select l from Location l where l.storageID=?1 and l.status=?2"),
+        @NamedQuery(name = Location.FIND_BY_STATUS_CREATED_BEFORE,
+                query = "select l from Location l where l.status=?1 and l.createdTime<?2"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK,
                 query = "select l from Location l join fetch l.instance inst " +
                         "where inst.series.study.pk=?1"),
@@ -98,20 +101,33 @@ import java.util.Date;
         @NamedQuery(name = Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE,
                 query = "select l from Location l join fetch l.instance i " +
                         "where i.conceptNameCode=?1 and i.updatedTime<?2"),
+        @NamedQuery(name = Location.FIND_BY_MULTI_REF,
+                query = "select l from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
                 query = "select count(l) from Location l where l.uidMap=?1"),
+        @NamedQuery(name = Location.COUNT_BY_SERIES_PK_AND_NOT_STATUS,
+                query = "select count(l) from Location l where l.instance.series.pk=?1 and l.status!=?2"),
         @NamedQuery(name = Location.SET_DIGEST,
                 query = "update Location l set l.digest = ?2 where l.pk = ?1"),
         @NamedQuery(name = Location.SET_STATUS,
                 query = "update Location l set l.status = ?2 where l.pk = ?1"),
+        @NamedQuery(name = Location.SET_STATUS_BY_MULTI_REF,
+                query = "update Location l set l.status = ?2 where l.multiReference = ?1"),
         @NamedQuery(name = Location.UPDATE_STATUS_FROM,
                 query = "update Location l set l.status = ?3 where l.pk = ?1 and l.status = ?2"),
+        @NamedQuery(name = Location.UPDATE_STATUS_BY_STORAGE_ID_FROM,
+                query = "update Location l set l.status = ?3 where l.storageID = ?1 and l.status = ?2"),
         @NamedQuery(name = Location.DELETE_BY_PK,
                 query = "delete from Location l where l.pk = ?1"),
         @NamedQuery(name = Location.EXISTS,
-                query = "select l.pk from Location l where l.pk = ?1")
+                query = "select l.pk from Location l where l.pk = ?1"),
+        @NamedQuery(name = Location.STATUS_COUNTS_BY_STORAGE_ID,
+                query = "select new org.dcm4chee.arc.entity.Location$StatusCounts(l.status, count(l)) " +
+                        "from Location l " +
+                        "where l.storageID = ?1 and l.status != org.dcm4chee.arc.conf.LocationStatus.OK " +
+                        "group by l.status")
 })
 @NamedNativeQueries({
         @NamedNativeQuery(name = Location.SIZE_OF_SERIES,
@@ -124,6 +140,7 @@ import java.util.Date;
 public class Location {
 
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
+    public static final String FIND_BY_STATUS_CREATED_BEFORE = "Location.FindByStatusCreatedBefore";
     public static final String FIND_BY_STUDY_PK = "Location.FindByStudyPk";
     public static final String FIND_BY_SERIES_PK = "Location.FindBySeriesPk";
     public static final String FIND_BY_STUDY_PK_AND_STORAGE_IDS = "Location.FindByStudyPkAndStorageIDs";
@@ -135,30 +152,31 @@ public class Location {
     public static final String FIND_BY_CONCEPT_NAME_CODE = "Location.FindByConceptNameCode";
     public static final String FIND_BY_REJECTION_CODE_BEFORE = "Location.FindByRejectionCodeBefore";
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
+    public static final String FIND_BY_MULTI_REF = "Location.FindByMultiRef";
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
     public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
+    public static final String COUNT_BY_SERIES_PK_AND_NOT_STATUS = "Location.CountBySeriesPkAndNotStatus";
     public static final String SET_DIGEST = "Location.SetDigest";
     public static final String SET_STATUS = "Location.SetStatus";
+    public static final String SET_STATUS_BY_MULTI_REF = "Location.SetStatusByMultiRef";
     public static final String UPDATE_STATUS_FROM = "Location.UpdateStatusFrom";
+    public static final String UPDATE_STATUS_BY_STORAGE_ID_FROM = "Location.UpdateStatusByStorageIDFrom";
     public static final String DELETE_BY_PK = "Location.DeleteByPk";
     public static final String SIZE_OF_SERIES = "Location.SizeOfSeries";
     public static final String EXISTS = "Location.Exists";
-
-    public enum Status {
-        OK,                         // 0
-        TO_DELETE,                  // 1
-        FAILED_TO_DELETE,           // 2
-        MISSING_OBJECT,             // 3
-        FAILED_TO_FETCH_METADATA,   // 4
-        FAILED_TO_FETCH_OBJECT,     // 5
-        DIFFERING_OBJECT_SIZE,      // 6
-        DIFFERING_OBJECT_CHECKSUM,  // 7
-        DIFFERING_S3_MD5SUM,        // 8
-        FAILED_TO_DELETE2,          // 9
-        ORPHANED                    // 10
-    }
+    public static final String STATUS_COUNTS_BY_STORAGE_ID = "Location.StatusCountsByStorageID";
 
     public enum ObjectType { DICOM_FILE, METADATA }
+
+    public static class StatusCounts {
+        public final LocationStatus status;
+        public final long count;
+
+        public StatusCounts(LocationStatus status, long count) {
+            this.status = status;
+            this.count = count;
+        }
+    }
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -193,7 +211,7 @@ public class Location {
     @Basic(optional = false)
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", updatable = true)
-    private Status status;
+    private LocationStatus status;
 
     @Basic(optional = false)
     @Enumerated(EnumType.ORDINAL)
@@ -225,8 +243,10 @@ public class Location {
         private String transferSyntaxUID;
         private long size;
         private String digest;
-        private Status status = Status.OK;
+        private LocationStatus status = LocationStatus.OK;
         private ObjectType objectType = ObjectType.DICOM_FILE;
+        public Integer multiReference;
+        private UIDMap uidMap;
 
         public Builder pk(long pk) {
             this.pk = pk;
@@ -262,18 +282,41 @@ public class Location {
             return digest(digest != null ? TagUtils.toHexString(digest) : null);
         }
 
-        public Builder status(Status status) {
+        public Builder status(LocationStatus status) {
             this.status = status;
             return this;
         }
 
         public Builder status(String status) {
-            this.status = status != null ? Status.valueOf(status) : Status.OK;
+            this.status = status != null ? LocationStatus.valueOf(status) : LocationStatus.OK;
             return this;
         }
 
         public Builder objectType(ObjectType objectType) {
             this.objectType = objectType;
+            return this;
+        }
+
+        public Builder multiReference(Integer multiReference) {
+            this.multiReference = multiReference;
+            return this;
+        }
+
+        public Builder multiReference(String multiReference) {
+            return multiReference(parseIntegerOrNull(multiReference));
+        }
+
+        private static Integer parseIntegerOrNull(String s) {
+            if (s != null)
+                try {
+                    return Integer.valueOf(s);
+                } catch (NumberFormatException e) {
+                }
+            return null;
+        }
+
+        public Builder uidMap(UIDMap uidMap) {
+            this.uidMap = uidMap;
             return this;
         }
 
@@ -293,6 +336,8 @@ public class Location {
         digest = builder.digest;
         status = builder.status;
         objectType = builder.objectType;
+        multiReference = builder.multiReference;
+        uidMap = builder.uidMap;
     }
 
     public Location(Location other) {
@@ -344,15 +389,15 @@ public class Location {
         return digest;
     }
 
-    public Status getStatus() {
+    public LocationStatus getStatus() {
         return status;
     }
 
     public boolean isStatusOK() {
-        return status == Status.OK;
+        return status == LocationStatus.OK;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(LocationStatus status) {
         this.status = status;
     }
 

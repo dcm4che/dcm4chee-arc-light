@@ -63,6 +63,7 @@ import java.util.stream.Stream;
  */
 public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
+    private String mwlWorklistLabel;
     private String upsWorklistLabel;
     private String[] upsEventSCUs = {};
     private int upsEventSCUKeepAlive;
@@ -106,6 +107,10 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCPStudyOlderThan;
     private String fallbackWadoURIWebApplication;
     private Integer fallbackWadoURIHttpStatusCode;
+    private Boolean fallbackWadoURIRedirectOnNotFound;;
+    private String externalWadoRSWebApplication;
+    private Integer externalWadoRSHttpStatusCode;
+    private Boolean externalWadoRSRedirectOnNotFound;
     private String externalRetrieveAEDestination;
     private String alternativeCMoveSCP;
     private Integer queryMaxNumberOfResults;
@@ -167,6 +172,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean retrieveTaskWarningOnNoMatch;
     private Boolean retrieveTaskWarningOnWarnings;
     private Boolean stowQuicktime2MP4;
+    private Long stowMaxFragmentLength;
     private String changeRequesterAET;
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
@@ -198,6 +204,14 @@ public class ArchiveAEExtension extends AEExtension {
         return defaultCharacterSet != null
                 ? defaultCharacterSet
                 : getArchiveDeviceExtension().getDefaultCharacterSet();
+    }
+
+    public String getMWLWorklistLabel() {
+        return mwlWorklistLabel;
+    }
+
+    public void setMWLWorklistLabel(String mwlWorklistLabel) {
+        this.mwlWorklistLabel = mwlWorklistLabel;
     }
 
     public String getUPSWorklistLabel() {
@@ -779,6 +793,63 @@ public class ArchiveAEExtension extends AEExtension {
                 ? fallbackWadoURIHttpStatusCode
                 : getArchiveDeviceExtension().getFallbackWadoURIHttpStatusCode();
     }
+
+    public Boolean getFallbackWadoURIRedirectOnNotFound() {
+        return fallbackWadoURIRedirectOnNotFound;
+    }
+
+    public void setFallbackWadoURIRedirectOnNotFound(Boolean fallbackWadoURIRedirectOnNotFound) {
+        this.fallbackWadoURIRedirectOnNotFound = fallbackWadoURIRedirectOnNotFound;
+    }
+
+    public boolean fallbackWadoURIRedirectOnNotFound() {
+        return fallbackWadoURIRedirectOnNotFound != null
+                ? fallbackWadoURIRedirectOnNotFound
+                : getArchiveDeviceExtension().isFallbackWadoURIRedirectOnNotFound();
+    }
+
+    public String getExternalWadoRSWebApplication() {
+        return externalWadoRSWebApplication;
+    }
+
+    public void setExternalWadoRSWebApplication(String externalWadoRSWebApplication) {
+        this.externalWadoRSWebApplication = externalWadoRSWebApplication;
+    }
+
+    public String externalWadoRSWebApplication() {
+        return externalWadoRSWebApplication != null
+                ? externalWadoRSWebApplication
+                : getArchiveDeviceExtension().getExternalWadoRSWebApplication();
+    }
+
+    public Integer getExternalWadoRSHttpStatusCode() {
+        return externalWadoRSHttpStatusCode;
+    }
+
+    public void setExternalWadoRSHttpStatusCode(Integer externalWadoRSHttpStatusCode) {
+        this.externalWadoRSHttpStatusCode = externalWadoRSHttpStatusCode;
+    }
+
+    public int externalWadoRSHttpStatusCode() {
+        return externalWadoRSHttpStatusCode != null
+                ? externalWadoRSHttpStatusCode
+                : getArchiveDeviceExtension().getExternalWadoRSHttpStatusCode();
+    }
+
+    public Boolean getExternalWadoRSRedirectOnNotFound() {
+        return externalWadoRSRedirectOnNotFound;
+    }
+
+    public void setExternalWadoRSRedirectOnNotFound(Boolean externalWadoRSRedirectOnNotFound) {
+        this.externalWadoRSRedirectOnNotFound = externalWadoRSRedirectOnNotFound;
+    }
+
+    public boolean externalWadoRSRedirectOnNotFound() {
+        return externalWadoRSRedirectOnNotFound != null
+                ? externalWadoRSRedirectOnNotFound
+                : getArchiveDeviceExtension().isExternalWadoRSRedirectOnNotFound();
+    }
+
     public String getExternalRetrieveAEDestination() {
         return externalRetrieveAEDestination;
     }
@@ -1925,6 +1996,22 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isStowQuicktime2MP4();
     }
 
+    public Long getStowMaxFragmentLength() {
+        return stowMaxFragmentLength;
+    }
+
+    public void setStowMaxFragmentLength(Long stowMaxFragmentLength) {
+        if (stowMaxFragmentLength != null)
+            ArchiveDeviceExtension.checkStowMaxFragmentLength(stowMaxFragmentLength);
+        this.stowMaxFragmentLength = stowMaxFragmentLength;
+    }
+
+    public long stowMaxFragmentLength() {
+        return stowMaxFragmentLength != null
+                ? stowMaxFragmentLength
+                : getArchiveDeviceExtension().getStowMaxFragmentLength();
+    }
+
     public String changeRequesterAET() {
         return changeRequesterAET != null
                 ? changeRequesterAET
@@ -1943,6 +2030,7 @@ public class ArchiveAEExtension extends AEExtension {
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         defaultCharacterSet = aeExt.defaultCharacterSet;
+        mwlWorklistLabel = aeExt.mwlWorklistLabel;
         upsWorklistLabel = aeExt.upsWorklistLabel;
         upsEventSCUs = aeExt.upsEventSCUs;
         upsEventSCUKeepAlive = aeExt.upsEventSCUKeepAlive;
@@ -1984,6 +2072,10 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
         fallbackWadoURIWebApplication = aeExt.fallbackWadoURIWebApplication;
         fallbackWadoURIHttpStatusCode = aeExt.fallbackWadoURIHttpStatusCode;
+        fallbackWadoURIRedirectOnNotFound = aeExt.fallbackWadoURIRedirectOnNotFound;
+        externalWadoRSWebApplication = aeExt.externalWadoRSWebApplication;
+        externalWadoRSHttpStatusCode = aeExt.externalWadoRSHttpStatusCode;
+        externalWadoRSRedirectOnNotFound = aeExt.externalWadoRSRedirectOnNotFound;
         externalRetrieveAEDestination = aeExt.externalRetrieveAEDestination;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         queryMaxNumberOfResults = aeExt.queryMaxNumberOfResults;
@@ -2047,6 +2139,7 @@ public class ArchiveAEExtension extends AEExtension {
         retrieveTaskWarningOnNoMatch = aeExt.retrieveTaskWarningOnNoMatch;
         retrieveTaskWarningOnWarnings = aeExt.retrieveTaskWarningOnWarnings;
         stowQuicktime2MP4 = aeExt.stowQuicktime2MP4;
+        stowMaxFragmentLength = aeExt.stowMaxFragmentLength;
         multipleStoreAssociations = aeExt.multipleStoreAssociations;
         changeRequesterAET = aeExt.changeRequesterAET;
         encodeAsJSONNumber.clear();

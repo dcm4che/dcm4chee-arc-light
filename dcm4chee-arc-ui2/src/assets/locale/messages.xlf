@@ -1894,8 +1894,8 @@
           <context context-type="linenumber">52</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="study_transferring_overview.select_reject_type" datatype="html">
-        <source>Select rejected type:</source>
+      <trans-unit id="select_rejection_note_type" datatype="html">
+        <source>Select Rejection Note type:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/widgets/dialogs/study-transferring-overview/study-transferring-overview.component.html</context>
           <context context-type="linenumber">4</context>

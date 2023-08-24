@@ -72,6 +72,7 @@ import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.hl7.HL7SenderUtils;
 import org.dcm4chee.arc.id.IDService;
@@ -157,9 +158,17 @@ public class PamRS {
         return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
+    private Collection<IDWithIssuer> trustedPatientIDs(String multiplePatientIDs, ArchiveAEExtension arcAE) {
+        String[] patientIDs = multiplePatientIDs.split("~");
+        Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
+        for (String cx : patientIDs)
+            patientIdentifiers.add(new IDWithIssuer(cx));
+        return arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(patientIdentifiers);
+    }
+
     @DELETE
     @Path("/patients/{PatientID}")
-    public Response deletePatient(@PathParam("PatientID") IDWithIssuer patientID) {
+    public Response deletePatient(@PathParam("PatientID") String multiplePatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -169,30 +178,38 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            Patient patient = patientService.findPatient(patientID);
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse("Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            Patient patient = patientService.findPatient(trustedPatientIDs);
             if (patient == null)
-                return errResponse("Patient having patient ID : " + patientID + " not found.",
+                return errResponse("Patient with patient identifiers " + trustedPatientIDs + " not found.",
                         Response.Status.NOT_FOUND);
+
             AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
             String patientDeleteForbidden = allowDeletePatient == AllowDeletePatient.NEVER
                     ? "Patient deletion as per configuration is never allowed."
                     : allowDeletePatient == AllowDeletePatient.WITHOUT_STUDIES && patient.getNumberOfStudies() > 0
-                    ? "Patient having patient ID : " + patientID + " has non empty studies."
+                    ? "Patient with patient identifiers " + trustedPatientIDs + " has non empty studies."
                     : null;
             if (patientDeleteForbidden != null)
                 return errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN);
 
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
-            ctx.setPatientID(patientID);
+            ctx.setPatientIDs(trustedPatientIDs);
             ctx.setAttributes(patient.getAttributes());
             ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
             ctx.setPatient(patient);
             deletionService.deletePatient(ctx, arcAE);
             rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
             return Response.noContent().build();
-        } catch (NonUniquePatientException | PatientMergedException e) {
+        } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -214,14 +231,23 @@ public class PamRS {
         try {
             PatientMgtContext ctx = patientMgtCtx(in);
             ctx.setArchiveAEExtension(arcAE);
-            if (!ctx.getAttributes().containsValue(Tag.PatientID)) {
+            if (ctx.getPatientIDs().isEmpty()) {
                 idService.newPatientID(ctx.getAttributes());
-                ctx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
+                ctx.setPatientIDs(IDWithIssuer.pidsOf(ctx.getAttributes()));
             }
+            ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+            if (ctx.getPatientIDs().isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in request payload " + ctx.getPatientIDs(),
+                        Response.Status.BAD_REQUEST);
+
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
             notifyHL7Receivers("ADT^A28^ADT_A05", ctx);
-            return Response.ok("{\"PatientID\":\"" + IDWithIssuer.pidOf(ctx.getAttributes()) + "\"}").build();
+            return Response.ok("{\"Patient Identifiers with Trusted Issuers\":\""
+                                        + IDWithIssuer.pidsOf(ctx.getAttributes())
+                                        + "\"}")
+                    .build();
         } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
@@ -243,11 +269,20 @@ public class PamRS {
         return ctx;
     }
 
+    private boolean isPatientMatch(
+            Collection<IDWithIssuer> targetPatientIDs, Collection<IDWithIssuer> trustedPriorPatientIDs) {
+        for (IDWithIssuer trustedPriorPatientID : trustedPriorPatientIDs)
+            if (targetPatientIDs.contains(trustedPriorPatientID))
+                return true;
+
+        return false;
+    }
+
     @PUT
     @Path("/patients/{priorPatientID}")
     @Consumes("application/dicom+json,application/json")
     public Response updatePatient(
-            @PathParam("priorPatientID") IDWithIssuer priorPatientID,
+            @PathParam("priorPatientID") String multiplePriorPatientIDs,
             @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
             InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -258,14 +293,21 @@ public class PamRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
 
+        Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
+        if (trustedPriorPatientIDs.isEmpty())
+            return errResponse("Missing patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                    Response.Status.BAD_REQUEST);
+
         PatientMgtContext ctx = patientMgtCtx(in);
         ctx.setArchiveAEExtension(arcAE);
-        IDWithIssuer targetPatientID = ctx.getPatientID();
-        if (targetPatientID == null)
-            return errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+        ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+        if (ctx.getPatientIDs().isEmpty())
+            return errResponse(
+                    "Missing patient identifier with trusted assigning authority in request payload " + ctx.getPatientIDs(),
+                    Response.Status.BAD_REQUEST);
 
         boolean mergePatients = Boolean.parseBoolean(merge);
-        boolean patientMatch = priorPatientID.equals(targetPatientID);
+        boolean patientMatch = isPatientMatch(ctx.getPatientIDs(), trustedPriorPatientIDs);
         if (patientMatch && mergePatients)
             return errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST);
 
@@ -279,7 +321,7 @@ public class PamRS {
                     msgType = "ADT^A31^ADT_A05";
                 }
             } else {
-                ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+                ctx.setPreviousPatientIDs(trustedPriorPatientIDs);
                 if (mergePatients) {
                     msgType = "ADT^A40^ADT_A39";
                     rsOp = RSOperation.MergePatient2;
@@ -311,7 +353,7 @@ public class PamRS {
     @POST
     @Path("/patients/{patientID}/merge")
     @Consumes("application/json")
-    public Response mergePatients(@PathParam("patientID") IDWithIssuer patientID, InputStream in) {
+    public Response mergePatients(@PathParam("patientID") String multiplePatientIDs, InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -320,7 +362,12 @@ public class PamRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
 
-        final Attributes attrs;
+        Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
+        if (trustedPatientIDs.isEmpty())
+            return errResponse(
+                    "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                    Response.Status.BAD_REQUEST);
+
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[8192];
             int length;
@@ -328,16 +375,37 @@ public class PamRS {
                 baos.write(buffer, 0, length);
 
             InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
-            attrs = parseOtherPatientIDs(is1);
-            for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
-                mergePatient(patientID, otherPID, arcAE);
+            List<Set<IDWithIssuer>> priorPatientIdentifiers = priorPatientIdentifiers(is1);
+            if (priorPatientIdentifiers.isEmpty())
+                return errResponse("Patients to be merged not sent in the request payload.",
+                                Response.Status.BAD_REQUEST);
 
-            rsForward.forward(RSOperation.MergePatient, arcAE, baos.toByteArray(), null, request);
+            boolean merged = false;
+            for (Set<IDWithIssuer> priorPatientIdentifier : priorPatientIdentifiers) {
+                Collection<IDWithIssuer> trustedPriorPatientIDs = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                                                                        .withTrustedIssuerOfPatientID(priorPatientIdentifier);
+                if (trustedPriorPatientIDs.isEmpty()) {
+                    LOG.warn("Missing prior patient identifier with trusted assigning authority in {}",
+                            trustedPriorPatientIDs);
+                    continue;
+                }
+
+                try {
+                    merged = mergePatient(trustedPatientIDs, trustedPriorPatientIDs, arcAE);
+                } catch (Exception e) {
+                    LOG.info("Failed to merge prior patient {} to target patient {}",
+                            priorPatientIdentifier, trustedPatientIDs);
+                }
+            }
+            if (merged) //forward RS only if at least one set of trusted prior patient identifiers in req payload was merged
+                rsForward.forward(RSOperation.MergePatient, arcAE, baos.toByteArray(), null, request);
             return Response.noContent().build();
         } catch (JsonParsingException e) {
             return errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST);
-        } catch (NonUniquePatientException | PatientMergedException | CircularPatientMergeException e) {
+        } catch (NonUniquePatientException | CircularPatientMergeException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -345,8 +413,8 @@ public class PamRS {
 
     @POST
     @Path("/patients/{priorPatientID}/merge/{patientID}")
-    public Response mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
-                             @PathParam("patientID") IDWithIssuer patientID,
+    public Response mergePatient(@PathParam("priorPatientID") String multiplePriorPatientIDs,
+                             @PathParam("patientID") String multiplePatientIDs,
                              @QueryParam("verify") String findSCP) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
@@ -357,18 +425,31 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
+            Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
+            if (trustedPriorPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+
             if (findSCP != null)
-                verifyMergePatient(priorPatientID, patientID, findSCP, cfindscu, arcAE.getApplicationEntity());
-            mergePatient(patientID,
-                    priorPatientID.exportPatientIDWithIssuer(null),
-                    arcAE);
+                verifyMergePatient(trustedPriorPatientIDs, trustedPatientIDs, findSCP, cfindscu, arcAE.getApplicationEntity());
+
+            mergePatient(trustedPatientIDs, trustedPriorPatientIDs, arcAE);
             rsForward.forward(RSOperation.MergePatient, arcAE, null, request);
             return Response.noContent().build();
         } catch (NonUniquePatientException
-                | PatientMergedException
                 | CircularPatientMergeException
                 | VerifyMergePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -376,7 +457,7 @@ public class PamRS {
 
     @POST
     @Path("/patients/{PatientID}/unmerge")
-    public Response unmergePatient(@PathParam("PatientID") IDWithIssuer patientID) {
+    public Response unmergePatient(@PathParam("PatientID") String multiplePriorPatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -386,12 +467,17 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
+            Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
+            if (trustedPriorPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                        Response.Status.BAD_REQUEST);
+
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             patMgtCtx.setArchiveAEExtension(arcAE);
-            patMgtCtx.setPatientID(patientID);
-            patMgtCtx.setAttributes(patientID.exportPatientIDWithIssuer(null));
+            patMgtCtx.setPatientIDs(trustedPriorPatientIDs);
             if (!patientService.unmergePatient(patMgtCtx))
-                return errResponse("Patient with patient ID " + patientID + " not found.",
+                return errResponse("Patient with patient identifiers " + trustedPriorPatientIDs + " not found.",
                                     Response.Status.NOT_FOUND);
 
             rsForward.forward(RSOperation.UnmergePatient, arcAE, null, request);
@@ -428,7 +514,7 @@ public class PamRS {
                         "Issuer of Patient ID or Issuer of Patient ID Qualifiers Sequence not allowed in query filters",
                         Response.Status.BAD_REQUEST);
 
-            CriteriaQuery<Patient> query = queryService.createPatientWithUnknownIssuerQuery(
+            CriteriaQuery<PatientID> query = queryService.createPatientIDWithUnknownIssuerQuery(
                     queryParam(arcAE.getApplicationEntity(), true), queryKeys);
             String toManyDuplicates = null;
             int supplementIssuerFetchSize = arcAE.getArchiveDeviceExtension().getSupplementIssuerFetchSize();
@@ -441,7 +527,7 @@ public class PamRS {
                 int carry = 0;
                 do {
                     int limit = supplementIssuerFetchSize + failedPks.size() + carry;
-                    List<Patient> matches = patientService.queryWithOffsetAndLimit(query, 0, limit);
+                    List<PatientID> matches = patientService.queryWithOffsetAndLimit(query, 0, limit);
                     remaining = matches.size() == limit;
                     matches.removeIf(p -> failedPks.contains(p.getPk()));
                     if (matches.isEmpty())
@@ -450,12 +536,12 @@ public class PamRS {
                     carry = 0;
                     if (remaining) {
                         try {
-                            ListIterator<Patient> itr = matches.listIterator(matches.size());
-                            toManyDuplicates = itr.previous().getPatientID().getID();
+                            ListIterator<PatientID> itr = matches.listIterator(matches.size());
+                            toManyDuplicates = itr.previous().getID();
                             do {
                                 itr.remove();
                                 carry++;
-                            } while (toManyDuplicates.equals(itr.previous().getPatientID().getID()));
+                            } while (toManyDuplicates.equals(itr.previous().getID()));
                             toManyDuplicates = null;
                         } catch (NoSuchElementException e) {
                             break;
@@ -463,23 +549,23 @@ public class PamRS {
                     }
                     matches.stream()
                             .collect(Collectors.groupingBy(
-                                    p -> new IDWithIssuer(p.getPatientID().getID(),issuer.format(p.getAttributes()))))
-                            .forEach((idWithIssuer, patients) -> {
-                                if (patients.size() > 1) {
-                                    ambiguous.put(idWithIssuer, Long.valueOf(patients.size()));
-                                    patients.stream().map(Patient::getPk).forEach(failedPks::add);
+                                    pid -> new IDWithIssuer(pid.getID(),issuer.format(pid.getPatient().getAttributes()))))
+                            .forEach((idWithIssuer, pids) -> {
+                                if (pids.size() > 1) {
+                                    ambiguous.put(idWithIssuer, Long.valueOf(pids.size()));
+                                    pids.stream().map(PatientID::getPk).forEach(failedPks::add);
                                 } else {
-                                    Patient patient = patients.get(0);
+                                    PatientID pid = pids.get(0);
                                     try {
                                         if (patientService.supplementIssuer(
-                                                patientMgtCtx(), patient, idWithIssuer, ambiguous)) {
+                                                patientMgtCtx(), pid, idWithIssuer, ambiguous)) {
                                             success.add(idWithIssuer);
                                         } else {
-                                            failedPks.add(patient.getPk());
+                                            failedPks.add(pid.getPk());
                                         }
                                     } catch (Exception e) {
                                         failures.put(idWithIssuer.toString(), e.getMessage());
-                                        failedPks.add(patient.getPk());
+                                        failedPks.add(pid.getPk());
                                     }
                                 }
                             });
@@ -570,23 +656,27 @@ public class PamRS {
         return queryParam;
     }
 
-    private void verifyMergePatient(IDWithIssuer priorPatientID, IDWithIssuer patientID, String findSCP,
-                                    CFindSCU cfindscu, ApplicationEntity localAE) throws Exception {
+    private void verifyMergePatient(
+            Collection<IDWithIssuer> trustedPriorPatientIDs, Collection<IDWithIssuer> trustedPatientIDs,
+            String findSCP, CFindSCU cfindscu, ApplicationEntity localAE) throws Exception {
         try {
             List<Attributes> studiesOfPriorPatient = cfindscu.findStudiesOfPatient(
-                    localAE, findSCP, Priority.NORMAL, priorPatientID);
-            if (!studiesOfPriorPatient.isEmpty()) {
+                    localAE, findSCP, Priority.NORMAL, trustedPriorPatientIDs.iterator().next());
+            if (!studiesOfPriorPatient.isEmpty())
                 throw new VerifyMergePatientException("Found " + studiesOfPriorPatient.size()
-                        + " studies of prior Patient[id=" + priorPatientID + "] at " + findSCP);
-            }
-            Patient priorPatient = patientService.findPatient(priorPatientID);
+                        + " studies of prior Patient[id=" + trustedPriorPatientIDs + "] at " + findSCP);
+
+            Patient priorPatient = patientService.findPatient(trustedPriorPatientIDs);
+            IDWithIssuer patientID = trustedPatientIDs.iterator().next();
             if (priorPatient != null) {
                 for (String studyIUID : patientService.studyInstanceUIDsOf(priorPatient)) {
                     studiesOfPriorPatient = cfindscu.findStudy(localAE, findSCP, Priority.NORMAL, studyIUID,
-                            Tag.PatientID, Tag.IssuerOfPatientID, Tag.IssuerOfPatientIDQualifiersSequence);
+                                                                Tag.PatientID,
+                                                                Tag.IssuerOfPatientID,
+                                                                Tag.IssuerOfPatientIDQualifiersSequence);
                     if (!studiesOfPriorPatient.isEmpty()) {
                         IDWithIssuer findPatientID = IDWithIssuer.pidOf(studiesOfPriorPatient.get(0));
-                        if (!findPatientID.matches(patientID)) {
+                        if (!findPatientID.matches(patientID, true, true)) {
                             throw new VerifyMergePatientException("Found Study[uid=" + studyIUID
                                     + "] of different Patient[id=" + findPatientID
                                     + "] than target Patient[id=" + patientID
@@ -610,22 +700,26 @@ public class PamRS {
         }
     }
 
-    private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr, ArchiveAEExtension arcAE) throws Exception {
+    private boolean mergePatient(
+            Collection<IDWithIssuer> trustedPatientIDs, Collection<IDWithIssuer> trustedPriorPatientIDs,
+            ArchiveAEExtension arcAE) {
         PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
         patMgtCtx.setArchiveAEExtension(arcAE);
-        patMgtCtx.setPatientID(patientID);
-        patMgtCtx.setAttributes(patientID.exportPatientIDWithIssuer(null));
-        patMgtCtx.setPreviousAttributes(priorPatAttr);
-        LOG.info("Prior patient ID {} and target patient ID {}", patMgtCtx.getPreviousPatientID(),
-                patMgtCtx.getPatientID());
+        patMgtCtx.setAttributes(exportPatientIDsWithIssuer(new Attributes(), trustedPatientIDs));
+        patMgtCtx.setPatientIDs(trustedPatientIDs);
+        patMgtCtx.setPreviousAttributes(exportPatientIDsWithIssuer(new Attributes(), trustedPriorPatientIDs));
+        patMgtCtx.setPreviousPatientIDs(trustedPriorPatientIDs);
+        LOG.info("Merge prior patient identifier {} with target patient identifier {}",
+                trustedPriorPatientIDs, trustedPatientIDs);
         patientService.mergePatient(patMgtCtx);
         notifyHL7Receivers("ADT^A40^ADT_A39", patMgtCtx);
+        return true;
     }
 
     @POST
     @Path("/patients/{priorPatientID}/changeid/{patientID}")
-    public Response changePatientID(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
-                                @PathParam("patientID") IDWithIssuer patientID) {
+    public Response changePatientID(@PathParam("priorPatientID") String multiplePriorPatientIDs,
+                                @PathParam("patientID") String multiplePatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -635,12 +729,24 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            Patient prevPatient = patientService.findPatient(priorPatientID);
+            Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
+            if (trustedPriorPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
+            if (trustedPatientIDs.isEmpty())
+                return errResponse(
+                        "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        Response.Status.BAD_REQUEST);
+
+            Patient prevPatient = patientService.findPatient(trustedPriorPatientIDs);
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setArchiveAEExtension(arcAE);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-            ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
-            ctx.setAttributes(patientID.exportPatientIDWithIssuer(prevPatient.getAttributes()));
+            ctx.setPreviousAttributes(prevPatient.getAttributes());
+            ctx.setAttributes(exportPatientIDsWithIssuer(new Attributes(prevPatient.getAttributes()), trustedPatientIDs));
             patientService.changePatientID(ctx);
             notifyHL7Receivers("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
@@ -653,6 +759,21 @@ public class PamRS {
         } catch(Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Attributes exportPatientIDsWithIssuer(Attributes attrs, Collection<IDWithIssuer> idWithIssuers) {
+        attrs.setNull(Tag.PatientID, VR.LO);
+        attrs.setNull(Tag.IssuerOfPatientID, VR.LO);
+        attrs.setNull(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+        attrs.setNull(Tag.OtherPatientIDsSequence, VR.SQ);
+        Iterator<IDWithIssuer> iter = idWithIssuers.iterator();
+        attrs = iter.next().exportPatientIDWithIssuer(attrs);
+        Sequence otherPatientIDsSequence = attrs.ensureSequence(
+                Tag.OtherPatientIDsSequence,
+                idWithIssuers.size() - 1);
+        while (iter.hasNext())
+            otherPatientIDsSequence.add(iter.next().exportPatientIDWithIssuer(null));
+        return attrs;
     }
 
     private ArchiveAEExtension getArchiveAE() {
@@ -675,39 +796,70 @@ public class PamRS {
             new QueryAttributes(uriInfo, null);
     }
 
-    private Attributes parseOtherPatientIDs(InputStream in) {
+    private List<Set<IDWithIssuer>> priorPatientIdentifiers(InputStream in) {
         JsonParser parser = Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8));
-        Attributes attrs = new Attributes(10);
         expect(parser, JsonParser.Event.START_ARRAY);
-        Sequence otherPIDseq = attrs.newSequence(Tag.OtherPatientIDsSequence, 10);
+        List<Set<IDWithIssuer>> priorPatientIdentifiers = new ArrayList<>();
         while (parser.next() == JsonParser.Event.START_OBJECT) {
-            Attributes otherPID = new Attributes(5);
+            Attributes priorPatientIdentifier = new Attributes(4);
             while (parser.next() == JsonParser.Event.KEY_NAME) {
                 switch (parser.getString()) {
                     case "PatientID":
                         expect(parser, JsonParser.Event.VALUE_STRING);
-                        otherPID.setString(Tag.PatientID, VR.LO, parser.getString());
+                        priorPatientIdentifier.setString(Tag.PatientID, VR.LO, parser.getString());
                         break;
                     case "IssuerOfPatientID":
                         expect(parser, JsonParser.Event.VALUE_STRING);
-                        otherPID.setString(Tag.IssuerOfPatientID, VR.LO, parser.getString());
+                        priorPatientIdentifier.setString(Tag.IssuerOfPatientID, VR.LO, parser.getString());
                         break;
                     case "IssuerOfPatientIDQualifiers":
                         expect(parser, JsonParser.Event.START_OBJECT);
-                        otherPID.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 2)
+                        priorPatientIdentifier.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 2)
                                 .add(parseIssuerOfPIDQualifier(parser));
+                        break;
+                    case "OtherPatientIDsSequence":
+                       parseOtherPriorPatientIDsSequence(parser,
+                               priorPatientIdentifier.newSequence(Tag.OtherPatientIDsSequence, 10));
                         break;
                     default:
                         throw new WebApplicationException(
                                 errResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
                 }
             }
-            otherPIDseq.add(otherPID);
+            priorPatientIdentifiers.add(IDWithIssuer.pidsOf(priorPatientIdentifier));
         }
-        if (otherPIDseq.isEmpty())
-            throw new WebApplicationException(
-                    errResponse("Patients to be merged not sent in the request.", Response.Status.BAD_REQUEST));
-        return attrs;
+        return priorPatientIdentifiers;
+    }
+
+    private void parseOtherPriorPatientIDsSequence(JsonParser parser, Sequence seq) {
+        expect(parser, JsonParser.Event.START_ARRAY);
+        while (parser.next() == JsonParser.Event.START_OBJECT)
+            seq.add(parsePriorOtherPatientID(parser));
+    }
+
+    private Attributes parsePriorOtherPatientID(JsonParser parser) {
+        Attributes otherPriorPatientIdentifier = new Attributes(3);
+        while (parser.next() == JsonParser.Event.KEY_NAME) {
+            switch (parser.getString()) {
+                case "PatientID":
+                    expect(parser, JsonParser.Event.VALUE_STRING);
+                    otherPriorPatientIdentifier.setString(Tag.PatientID, VR.LO, parser.getString());
+                    break;
+                case "IssuerOfPatientID":
+                    expect(parser, JsonParser.Event.VALUE_STRING);
+                    otherPriorPatientIdentifier.setString(Tag.IssuerOfPatientID, VR.LO, parser.getString());
+                    break;
+                case "IssuerOfPatientIDQualifiers":
+                    expect(parser, JsonParser.Event.START_OBJECT);
+                    otherPriorPatientIdentifier.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 2)
+                            .add(parseIssuerOfPIDQualifier(parser));
+                    break;
+                default:
+                    throw new WebApplicationException(
+                            errResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
+            }
+        }
+        return otherPriorPatientIdentifier;
     }
 
     private Attributes parseIssuerOfPIDQualifier(JsonParser parser) {
@@ -755,7 +907,7 @@ public class PamRS {
         return sw.toString();
     }
 
-    public void notifyHL7Receivers(String msgType, PatientMgtContext ctx) throws Exception {
+    public void notifyHL7Receivers(String msgType, PatientMgtContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String sendingAppFacility = arcDev.getHL7ADTSendingApplication();
         if (sendingAppFacility == null)
@@ -770,7 +922,8 @@ public class PamRS {
         for (String receivingAppFacility : arcDev.getHL7ADTReceivingApplication()) {
             try {
                 HL7Application receiver = hl7AppCache.findHL7Application(receivingAppFacility);
-                byte[] data = HL7SenderUtils.data(sender, receiver, ctx.getAttributes(), ctx.getPreviousAttributes(),
+                byte[] data = HL7SenderUtils.data(sender, sendingAppFacility, receiver,
+                                                ctx.getAttributes(), ctx.getPreviousAttributes(),
                                                 msgType, arcDev.getOutgoingPatientUpdateTemplateURI(),
                                                 null, null);
                 hl7Sender.scheduleMessage(ctx.getHttpServletRequestInfo(), data);

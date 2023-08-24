@@ -32,9 +32,12 @@
                 <ng-container *ngFor="let match of matches" >
                     <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
                         <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
-                        <td>
+                        <td class="td_buttons">
                             <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
                                 <span class="glyphicon glyphicon-list"></span>
+                            </a>
+                            <a (click)="$event.preventDefault();changeLocationStatus(match)" href=""  i18n-title="@@change_status_of_location" title="Change status of location">
+                                <span class="glyphicon glyphicon-retweet"></span>
                             </a>
                         </td>
                         <td [innerHtml]="match.properties.dcmStorageID"></td>

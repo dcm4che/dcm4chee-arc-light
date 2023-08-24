@@ -227,8 +227,7 @@ public class PurgeStorageScheduler extends Scheduler {
 
     private List<Study.PKUID> findStudiesForDeletion(ArchiveDeviceExtension arcDev, StorageDescriptor desc,
             boolean retentionPeriods) {
-        int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
-        List<Study.PKUID> studyPks = ejb.findStudiesForDeletionOnStorage(desc, retentionPeriods, deleteStudyBatchSize);
+        List<Study.PKUID> studyPks = ejb.findStudiesForDeletionOnStorage(arcDev, desc, retentionPeriods);
         String storageID = desc.getStorageID();
         String[] exportStorageID = desc.getExportStorageID();
         StoreSession storeSession = storeService.newStoreSession(device.getApplicationEntities().iterator().next());
@@ -238,7 +237,7 @@ public class PurgeStorageScheduler extends Scheduler {
             if (exportStorageID.length == 0) {
                 try {
                     storeService.restoreInstances(
-                            storeSession, studyPkUID.uid, null, purgeInstanceRecordsDelay);
+                            storeSession, studyPkUID.uid, null, purgeInstanceRecordsDelay, null);
                 } catch (Exception e) {
                     LOG.warn("Failed to restore Instance records of {} - defer deletion of Study from {}\n",
                             studyPkUID, desc, e);
@@ -274,7 +273,7 @@ public class PurgeStorageScheduler extends Scheduler {
                             storeService.restoreInstances(storeSession.withObjectStorageID(storageID),
                                     studyPkUID.uid,
                                     series.getSeriesInstanceUID(),
-                                    purgeInstanceRecordsDelay);
+                                    purgeInstanceRecordsDelay, null);
                         } catch (Exception e) {
                             LOG.warn("Failed to restore Instance records of Series[pk={}] - defer deletion of objects from Storage[id={}]\n",
                                     series.getPk(), desc, e);
@@ -343,7 +342,7 @@ public class PurgeStorageScheduler extends Scheduler {
             return false;
 
         String status = attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus);
-        return status == null || status.equals(Location.Status.OK.name());
+        return status == null || status.equals(LocationStatus.OK.name());
     }
 
     private int deleteStudiesFromDB(ArchiveDeviceExtension arcDev, StorageDescriptor desc,
@@ -356,10 +355,9 @@ public class PurgeStorageScheduler extends Scheduler {
             try {
                 int limit = arcDev.getDeleteStudyChunkSize();
                 int n;
-                do {
-                    n = ejb.deleteStudy(ctx, limit, false).size();
+                while ((n = ejb.deleteStudy(ctx, limit, false).size()) > 0) {
                     LOG.debug("Deleted {} instances of Study[pk={}]", n, pkUID.pk);
-                } while (n == limit);
+                }
                 removed++;
                 LOG.info("Successfully delete {} on {}", ctx.getStudy(), desc);
             } catch (Exception e) {
@@ -465,7 +463,7 @@ public class PurgeStorageScheduler extends Scheduler {
         do {
             if (arcDev.getPurgeStoragePollingInterval() == null) return;
             LOG.debug("Query for objects marked for deletion at {}", desc);
-            locations = ejb.findLocationsWithStatus(desc.getStorageID(), Location.Status.TO_DELETE, fetchSize);
+            locations = ejb.findLocationsWithStatus(desc.getStorageID(), LocationStatus.TO_DELETE, fetchSize);
             if (locations.isEmpty()) {
                 LOG.debug("No objects marked for deletion found at {}", desc);
                 break;
@@ -506,11 +504,16 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private void deleteLocation(Storage storage, Location location, AtomicInteger success, AtomicInteger skipped) {
+        String storagePath = location.getStoragePath();
+        if (storage.getStorageDescriptor().isArchiveSeriesAsTAR()) {
+            int endTarPath = storagePath.indexOf('!');
+            if (endTarPath > 0) storagePath = storagePath.substring(0, endTarPath);
+        }
         try {
             if (ejb.claimDeleteObject(location)) {
-                storage.deleteObject(location.getStoragePath());
+                storage.deleteObject(storagePath);
                 ejb.removeLocation(location);
-                LOG.debug("Successfully delete {} from {}", location, storage);
+                LOG.debug("Successfully delete {} from {}", storagePath, storage);
                 success.getAndIncrement();
             } else {
                 skipped.getAndIncrement();

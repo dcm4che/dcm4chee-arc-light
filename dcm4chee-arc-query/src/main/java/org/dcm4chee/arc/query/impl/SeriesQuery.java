@@ -114,6 +114,7 @@ class SeriesQuery extends AbstractQuery {
                 study.get(Study_.failedRetrieves),
                 study.get(Study_.accessControlID),
                 study.get(Study_.storageIDs),
+                study.get(Study_.externalRetrieveAET),
                 study.get(Study_.size),
                 series.get(Series_.createdTime),
                 series.get(Series_.updatedTime),
@@ -186,8 +187,13 @@ class SeriesQuery extends AbstractQuery {
             retrieveAETs = results.get(seriesQueryAttributes.get(SeriesQueryAttributes_.retrieveAETs));
             availability = results.get(seriesQueryAttributes.get(SeriesQueryAttributes_.availability));
         } else {
-            SeriesQueryAttributes seriesView = context.getQueryService()
-                    .calculateSeriesQueryAttributes(seriesPk, queryParam.getQueryRetrieveView());
+            SeriesQueryAttributes seriesView =
+                    context.getQueryService().calculateSeriesQueryAttributes(
+                            seriesPk,
+                            results.get(series.get(Series_.instancePurgeState)),
+                            results.get(metadata.get(Metadata_.storageID)),
+                            results.get(metadata.get(Metadata_.storagePath)),
+                            queryParam.getQueryRetrieveView());
             numberOfSeriesRelatedInstances = seriesView.getNumberOfInstances();
             if (numberOfSeriesRelatedInstances == 0) {
                 return null;
@@ -304,6 +310,10 @@ class SeriesQuery extends AbstractQuery {
         if (results.get(series.get(Series_.compressionFailures)) != 0)
             attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailuresOfLastCompressionOfSeries, VR.US,
                     results.get(series.get(Series_.compressionFailures)));
+        if (results.get(series.get(Series_.externalRetrieveAET)) != null
+                && !results.get(series.get(Series_.externalRetrieveAET.getName())).equals("*"))
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExternalRetrieveAETitle, VR.AE,
+                    results.get(series.get(Series_.externalRetrieveAET)));
         if (results.get(metadata.get(Metadata_.storageID)) != null) {
             setDTwTZ(attrs, PrivateTag.SeriesMetadataCreationDateTime,
                     results.get(metadata.get(Metadata_.createdTime)));

@@ -88,7 +88,7 @@ public class ArchiveDeviceConfigurationTest {
         EnumSet<DicomConfiguration.Option> register = EnumSet.of(DicomConfiguration.Option.REGISTER);
         config.persist(arrDevice, register);
         config.persist(otherDevices[0] = ArchiveDeviceFactory.createOtherDevice(0), register);
-        config.persist(ArchiveDeviceFactory.createStoreSCPDevice(), register);
+        config.persist(ArchiveDeviceFactory.createStoreSCPDevice(configType), register);
         config.persist(ArchiveDeviceFactory.createStowRSDevice(), register);
         if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE) {
             for (int i = 1; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++) {

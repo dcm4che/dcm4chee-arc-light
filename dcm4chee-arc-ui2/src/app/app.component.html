@@ -41,7 +41,7 @@
     </div>
 </div>
 <div class="overlay" *ngIf="dcm4cheeArch && dcm4cheeArch.open" (click)="mainservice.dcm4cheeArcConfig.open = false"></div>
-<div class="clock" [ngClass]="{'extend':!clockUnExtended}" *ngIf="currentServerTime || j4care.is(mainservice, 'dcm4cheeArcConfig.hasMoreThanOneBaseUrl')" (mouseenter)="clockUnExtended = true" (mouseleave)="hideExtendedClock()">
+<div class="clock" [ngClass]="{'extend':!clockUnExtended && !dcmuiHideClock}" *ngIf="currentServerTime || j4care.is(mainservice, 'dcm4cheeArcConfig.hasMoreThanOneBaseUrl')" (mouseenter)="clockUnExtended = true" (mouseleave)="hideExtendedClock()">
     <div class="base_url_switcher" *ngIf="j4care.is(mainservice, 'dcm4cheeArcConfig.hasMoreThanOneBaseUrl')">
         <i class="config glyphicon glyphicon-cog" (click)="mainservice.dcm4cheeArcConfig.open = !mainservice.dcm4cheeArcConfig.open"></i>
         <ul *ngIf="j4care.is(mainservice,'dcm4cheeArcConfig.open')" class="base_url_dropdown">
@@ -55,8 +55,11 @@
         <span>{{dcm4cheeArch['deviceNameUrlMap'][mainservice.baseUrl]}}</span>
     </div>-->
 
-    <ng-container *ngIf="currentServerTime">
+    <ng-container *ngIf="currentServerTime && !dcmuiHideClock">
         <div class="time" i18n-title="@@title.app.server_time_param" title="Server time: {{j4care.fullDateToString(currentServerTime)}}">{{currentServerTime.getHours() < 10 ? '0'+currentServerTime.getHours():currentServerTime.getHours()}}:{{currentServerTime.getMinutes() < 10 ? '0'+currentServerTime.getMinutes():currentServerTime.getMinutes()}}:{{currentServerTime.getSeconds() < 10 ? '0'+currentServerTime.getSeconds():currentServerTime.getSeconds()}}</div>
+        <div class="text">{{mainservice.archiveDeviceName || myDeviceName}}</div>
+    </ng-container>
+    <ng-container *ngIf="dcmuiHideClock">
         <div class="text">{{mainservice.archiveDeviceName || myDeviceName}}</div>
     </ng-container>
 </div>
@@ -73,7 +76,8 @@
     <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
     <li (click)="showMenu = false;" [permission]="{id:'menu-configuration',param:'visible'}"><a routerLink="device/devicelist" routerLinkActive="active" i18n="@@menu.configuration">Configuration</a></li>
 </ul>
-<img src="assets/img/logo.png" class="logo" i18n-title="@@about" title="About" (click)="productLabelling()" >
+<!--<img src="assets/img/logo.png" class="logo" i18n-title="@@about" title="About" (click)="productLabelling()" >-->
+<div class="logo" i18n-title="@@about" title="About" (click)="productLabelling()"></div>
 <router-outlet ></router-outlet>
 <div
         class="scroll_up glyphicon glyphicon-menu-up animated"
@@ -81,3 +85,4 @@
         [ngClass]="{fadeIn:showScrollButton, fadeOut:!showScrollButton}"
         (click)="scrollUp()">
 </div>
+<link rel="stylesheet" href="/resources/css/style.css">

@@ -169,6 +169,8 @@ public class Conditions {
                 for (Attributes item : seq)
                     if (match(item, tagPath, valPos, level+1, codeMatcherOrPattern, false))
                         return !ne;
+        } else if (codeMatcherOrPattern == null) {
+            return (attrs.containsValue(tagPath[level])) ? ne : !ne;
         } else if (codeMatcherOrPattern instanceof CodeMatcher) {
             if (((CodeMatcher) codeMatcherOrPattern).match(attrs.getNestedDataset(tagPath[level])))
                 return !ne;
@@ -194,16 +196,15 @@ public class Conditions {
     }
 
     private static Object toCodeMatcherOrPattern(String value) {
-        if (!value.isEmpty()) {
-            try {
-                switch (value.charAt(0)) {
-                    case '(':
-                        return new CodeMatcher(value);
-                    case '§':
-                        return ValuePredicate.valueOf(value.substring(1));
-                }
-            } catch (IllegalArgumentException ignore) {
+        if (value.isEmpty()) return null;
+        try {
+            switch (value.charAt(0)) {
+                case '(':
+                    return new CodeMatcher(value);
+                case '§':
+                    return ValuePredicate.valueOf(value.substring(1));
             }
+        } catch (IllegalArgumentException ignore) {
         }
         return Pattern.compile(value);
     }

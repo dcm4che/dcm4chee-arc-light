@@ -156,24 +156,13 @@ public class HL7PSUEJB {
     }
 
     private MWLItem updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask task) {
-        SPSStatus status = spsStatus(task);
-        List<MWLItem> mwlItems = procedureService.updateMWLStatus(arcAE, task, status);
+        List<MWLItem> mwlItems = procedureService.updateMWLStatus(arcAE, task, SPSStatus.COMPLETED);
         if (mwlItems.size() > 0)
-            LOG.info("{} MWL Items status updated to {} by HL7 PSU task {}.", mwlItems.size(), status, task);
+            LOG.info("{} MWL Items status updated to {} by HL7 PSU task {}.", mwlItems.size(), SPSStatus.COMPLETED, task);
         else
             LOG.info("Study referenced in the HL7 PSU task {} does not have any associated MWL items.", task);
 
         return !mwlItems.isEmpty() ? mwlItems.get(0) : null;
-    }
-
-    private SPSStatus spsStatus(HL7PSUTask task) {
-        MPPS.Status ppsStatus;
-        if (task.getMpps() == null || (ppsStatus = task.getPPSStatus()) == MPPS.Status.COMPLETED)
-            return SPSStatus.COMPLETED;
-
-        return ppsStatus == MPPS.Status.DISCONTINUED
-                ? SPSStatus.DISCONTINUED
-                : SPSStatus.ARRIVED;
     }
 
     private void scheduleHL7Msg(HL7PSUTask task) {
@@ -181,8 +170,9 @@ public class HL7PSUEJB {
                                          .getAEExtension(ArchiveAEExtension.class);
         String hl7PSUSendingApplication = arcAE.hl7PSUSendingApplication();
         String[] hl7PSUReceivingApplications = arcAE.hl7PSUReceivingApplications();
-        if (hl7PSUSendingApplication == null || hl7PSUReceivingApplications.length == 0) {
-            LOG.info("HL7 Procedure Status Update Sending or Receiving Applications not configured.");
+        if (!arcAE.hl7PSUMWL() && (hl7PSUSendingApplication == null && hl7PSUReceivingApplications.length == 0)) {
+            LOG.info("HL7 Procedure Status Update Task not processed as neither notification to external HL7 receivers is " +
+                    "configured nor update MWL status to COMPLETED is configured");
             return;
         }
 
@@ -194,6 +184,11 @@ public class HL7PSUEJB {
 
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
                                       .getHL7Application(hl7PSUSendingApplication, true);
+        if (sender == null) {
+            LOG.info("HL7 Procedure Status Update Sending Application not configured : {}", hl7PSUSendingApplication);
+            return;
+        }
+
         UnparsedHL7Message hl7Msg = null;
         MPPS mpps = task.getMpps();
         String uri = mpps != null ? arcAE.hl7PSUMppsTemplateURI() : arcAE.hl7PSUStudyTemplateURI();
@@ -201,7 +196,8 @@ public class HL7PSUEJB {
             try {
                 HL7Application receiver = hl7AppCache.findHL7Application(hl7PSUReceivingApplication);
                 if (hl7Msg == null)
-                    hl7Msg = new UnparsedHL7Message(HL7SenderUtils.data(sender, receiver, attrs, null,
+                    hl7Msg = new UnparsedHL7Message(HL7SenderUtils.data(sender, hl7PSUSendingApplication, receiver,
+                                                                        attrs, null,
                                                                         arcAE.hl7PSUMessageType().name(), uri,
                                                                         mpps != null ? task.getPPSStatus().name() : null,
                                                                         arcAE));
@@ -220,20 +216,23 @@ public class HL7PSUEJB {
 
     private Attributes attributesFrom(ArchiveAEExtension arcAE, HL7PSUTask task) {
         MWLItem mwl = null;
-        if ((arcAE.hl7PSUSendingApplication() != null && arcAE.hl7PSUReceivingApplications().length > 0)
-            || arcAE.hl7PSUMWL())
+        if (task.getMpps() == null &&
+                (arcAE.hl7PSUSendingApplication() != null && arcAE.hl7PSUReceivingApplications().length > 0)
+                    || arcAE.hl7PSUMWL())
             mwl = updateMWLStatus(arcAE, task);
 
         Attributes attrs;
         MPPS mpps = task.getMpps();
         if (mpps != null) {
             attrs = mpps.getAttributes();
+            Attributes.unifyCharacterSets(attrs, mpps.getPatient().getAttributes());
             attrs.addAll(mpps.getPatient().getAttributes());
             return attrs;
         }
 
         if (mwl != null) {
             attrs = mwl.getAttributes();
+            Attributes.unifyCharacterSets(attrs, mwl.getPatient().getAttributes());
             attrs.addAll(mwl.getPatient().getAttributes());
             return attrs;
         }
@@ -249,6 +248,7 @@ public class HL7PSUEJB {
 
         Study study = series.getStudy();
         attrs = new Attributes(series.getAttributes());
+        Attributes.unifyCharacterSets(attrs, study.getAttributes(), study.getPatient().getAttributes());
         attrs.addAll(study.getAttributes());
         attrs.addAll(study.getPatient().getAttributes());
         return attrs;

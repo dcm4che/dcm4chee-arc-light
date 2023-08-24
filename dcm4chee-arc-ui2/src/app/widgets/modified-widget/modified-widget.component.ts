@@ -81,7 +81,9 @@ export class ModifiedWidgetComponent implements OnInit {
 
     }
   }
-
+  onDropdownChange(e){
+    this.addAttribute(e);
+  }
   toggleSelector(){
     this.selectorOpen = !this.selectorOpen;
   }
@@ -94,7 +96,7 @@ export class ModifiedWidgetComponent implements OnInit {
   }
   changeAllModified(e){
     this.allModified = e.target.checked;
-    if(this.allModified){
+    if(this.allModified && this.modifiedAttr.size > 0){
       this.stateText = "All modified";
       this.stateTextHover = "All modified";
     }else{
@@ -104,22 +106,27 @@ export class ModifiedWidgetComponent implements OnInit {
   }
   filterChanged(){}
   setFilter(){
+    let toReturnObject = {};
     if(this.allModified){
-      this.modelChange.emit({
+      toReturnObject = {
         allmodified:true
-      })
-    }else{
-      if(this.modifiedAttr && this.modifiedAttr.size > 0){
-        this.modelChange.emit({
-          modified:Array.from(this.modifiedAttr.values())
-        });
-        if(this.modifiedAttr && this.modifiedAttr.size > 0  && this.modifiedAttr.size){
-          this.stateText = this.trim.transform(Array.from(this.modifiedAttr.values()).map(kode=>this.studyService.getLabelFromIODTag(kode)).join(", "),18);
-        }
-        //this.stateText = Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", ");
-        this.stateTextHover = Array.from(this.modifiedAttr.values()).map(kode=>this.studyService.getLabelFromIODTag(kode)).join(", ");
-      }
+      };
     }
+    if(this.modifiedAttr && this.modifiedAttr.size > 0){
+      toReturnObject["modified"] = Array.from(this.modifiedAttr.values());
+      this.modelChange.emit(toReturnObject);
+      if(this.modifiedAttr && this.modifiedAttr.size > 0  && this.modifiedAttr.size){
+        this.stateText = this.trim.transform(Array.from(this.modifiedAttr.values()).map(kode=>this.studyService.getLabelFromIODTag(kode)).join(", "),18);
+      }
+      //this.stateText = Array.from(this.modifiedAttr.values()).map(kode=>this.getLabelFromIODTag(kode)).join(", ");
+      this.stateTextHover = Array.from(this.modifiedAttr.values()).map(kode=>this.studyService.getLabelFromIODTag(kode)).join(", ");
+      this.selectorOpen = false;
+    }
+  }
+  clear(){
+    this.modifiedAttr.clear();
+    this.allModified = false;
+    this.modelChange.emit({});
     this.selectorOpen = false;
   }
   modifiedAttrChanged(e){

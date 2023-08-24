@@ -49,14 +49,19 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.UpdateLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -68,6 +73,7 @@ import java.util.stream.IntStream;
  * @since Aug 2015
  */
 class RetrieveContextImpl implements RetrieveContext {
+    private static final Logger LOG = LoggerFactory.getLogger(RetrieveContextImpl.class);
     private Association requestAssociation;
     private Association storeAssociation;
     private Association forwardAssociation;
@@ -746,24 +752,64 @@ class RetrieveContextImpl implements RetrieveContext {
     public boolean copyToRetrieveCache(InstanceLocations match) {
         if (match == null) {
             if (copyToRetrieveCacheTask != null)
-                copyToRetrieveCacheTask.schedule(null);
+                if (copyToRetrieveCacheTask.isTarArchiver())
+                        retrieveService.getDevice().execute(copyToRetrieveCacheTask);
+                    else
+                        copyToRetrieveCacheTask.schedule(null);
             return false;
         }
+        StorageDescriptor storageDescriptor = null;
         ArchiveDeviceExtension arcdev = retrieveService.getArchiveDeviceExtension();
-        if (match.getLocations().stream().anyMatch(location ->
-                arcdev.getStorageDescriptorNotNull(location.getStorageID())
-                        .getRetrieveCacheStorageID() == null))
-            return false;
-
-        return copyToRetrieveCacheTask(match).schedule(match);
-
+        for (Location location : match.getLocations()) {
+            storageDescriptor = arcdev.getStorageDescriptorNotNull(location.getStorageID());
+            if (storageDescriptor.getRetrieveCacheStorageID() == null
+                || storageDescriptor.isNoRetrieveCacheOnDestinationAETitles(destinationAETitle)
+                || storageDescriptor.isNoRetrieveCacheOnPurgedInstanceRecords()
+                    && getInstancePurgeState(match) == Series.InstancePurgeState.PURGED)
+                return false;
+        }
+        if (match.getInstancePk() == null) {
+            try {
+                restoreInstances(match.getAttributes(), storageDescriptor.getRetrieveCacheStorageID());
+            } catch (IOException e) {
+                LOG.error("Failed to restore purged Instance Records:\n", e);
+                return false;
+            }
+        }
+        return copyToRetrieveCacheTask(storageDescriptor).schedule(match);
     }
 
-    private CopyToRetrieveCacheTask copyToRetrieveCacheTask(InstanceLocations match) {
+    private Series.InstancePurgeState getInstancePurgeState(InstanceLocations match) {
+        Attributes attrs = match.getAttributes();
+        String seriesIUID = attrs.getString(Tag.SeriesInstanceUID);
+        String studyIUID = attrs.getString(Tag.StudyInstanceUID);
+        for (SeriesInfo seriesInfo : seriesInfos) {
+            if (seriesInfo.getSeriesInstanceUID().equals(seriesIUID)
+                    && seriesInfo.getStudyInstanceUID().equals(studyIUID))
+                return seriesInfo.getInstancePurgeState();
+        }
+        return null;
+    }
+
+    private void restoreInstances(Attributes attrs, String storageID) throws IOException {
+        StoreService storeService = retrieveService.getStoreService();
+        List<Instance> instances = new ArrayList<>();
+        storeService.restoreInstances(
+                    storeService.newStoreSession(getLocalApplicationEntity())
+                            .withObjectStorageID(storageID),
+                    attrs.getString(Tag.StudyInstanceUID),
+                    attrs.getString(Tag.SeriesInstanceUID),
+                    arcAE.purgeInstanceRecordsDelay(), instances);
+        instances.stream().forEach(inst -> matches.stream()
+                        .filter(match1 -> match1.getSopInstanceUID().equals(inst.getSopInstanceUID()))
+                        .findFirst().ifPresent(match1 -> match1.setInstancePk(inst.getPk())));
+    }
+
+    private CopyToRetrieveCacheTask copyToRetrieveCacheTask(StorageDescriptor storageDescriptor) {
         CopyToRetrieveCacheTask task = copyToRetrieveCacheTask;
         if (task == null) {
-            retrieveService.getDevice().execute(task = new CopyToRetrieveCacheTask(this, match));
-            copyToRetrieveCacheTask = task;
+            copyToRetrieveCacheTask = task = new CopyToRetrieveCacheTask(this, storageDescriptor);
+            if (!storageDescriptor.isArchiveSeriesAsTAR()) retrieveService.getDevice().execute(task);
         }
         return task;
     }
@@ -811,5 +857,9 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void incrementFailuresOnCopyToRetrieveCache() {
         failuresOnCopyToRetrieveCache.getAndIncrement();
+    }
+
+    void addFailuresOnCopyToRetrieveCache(int delta) {
+        failuresOnCopyToRetrieveCache.getAndAdd(delta);
     }
 }

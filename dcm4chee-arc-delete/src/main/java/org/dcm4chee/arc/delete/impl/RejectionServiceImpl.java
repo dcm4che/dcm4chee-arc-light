@@ -132,7 +132,7 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
                 changeRequesterAET != null ? changeRequesterAET : ae.getAETitle());
         String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(storeSession);
         storeSession.withObjectStorageID(rejectionNoteObjectStorageID);
-        storeService.restoreInstances(storeSession, studyIUID, seriesIUID, null);
+        storeService.restoreInstances(storeSession, studyIUID, seriesIUID, null, null);
         Attributes attrs = queryService.createRejectionNote(ae, studyIUID, seriesIUID, sopIUID, rjNote);
         if (attrs == null)
             return 0;

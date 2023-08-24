@@ -12,10 +12,20 @@ import {j4care} from "../../helpers/j4care.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {environment} from "../../../environments/environment";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {SelectDropdown} from "../../interfaces";
 
 @Component({
   selector: 'app-storage-systems',
-  templateUrl: './storage-systems.component.html'
+  templateUrl: './storage-systems.component.html',
+    styles:[`
+        .td_buttons{
+            width:55px;
+        }
+
+        .td_buttons a{
+            padding: 2px;
+        }
+    `]
 })
 export class StorageSystemsComponent implements OnInit {
     matches = [];
@@ -100,6 +110,88 @@ export class StorageSystemsComponent implements OnInit {
             }
         }
         return filters;
+    }
+    statusesOFLocations = [
+        "OK",
+        "TO_DELETE",
+        "FAILED_TO_DELETE",
+        "MISSING_OBJECT",
+        "FAILED_TO_FETCH_METADATA",
+        "FAILED_TO_FETCH_OBJECT",
+        "DIFFERING_OBJECT_SIZE",
+        "DIFFERING_OBJECT_CHECKSUM",
+        "DIFFERING_S3_MD5SUM",
+        "FAILED_TO_DELETE2",
+        "ORPHANED",
+        "VERIFY_QSTAR_ACCESS_STATE",
+        "QSTAR_ACCESS_STATE_NONE",
+        "QSTAR_ACCESS_STATE_EMPTY",
+        "QSTAR_ACCESS_STATE_UNSTABLE",
+        "QSTAR_ACCESS_STATE_OUT_OF_CACHE",
+        "QSTAR_ACCESS_STATE_OFFLINE",
+        "QSTAR_ACCESS_STATE_ERROR_STATUS"
+    ]
+    changeLocationStatus(model){
+        console.log("model",model);
+        let parameters: any = {
+            content: $localize `:@@change_status_of_the_location:Change Status of the Location`,
+            doNotSave: true,
+            form_schema:[
+                [
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@from:From`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.statusesOFLocations.map(status=>new SelectDropdown(status, status)),
+                            filterKey:"from",
+                            placeholder:$localize `:@@from:From`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@to:To`
+                        },
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:this.statusesOFLocations.map(status=>new SelectDropdown(status, status)),
+                            filterKey:"to",
+                            placeholder:$localize `:@@to:To`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@SUBMIT:SUBMIT`
+        };
+        this.confirm(parameters).subscribe(ok => {
+            if(ok){
+                this.cfpLoadingBar.start();
+                console.log("ok",ok)
+                if(j4care.hasSet(ok,"schema_model.from") && j4care.hasSet(ok,"schema_model.to") && j4care.hasSet(model,"properties.dcmStorageID")){
+                    this.service.changeLocationStatus(model.properties.dcmStorageID,ok.schema_model).subscribe(res=>{
+                        if(res && _.hasIn(res,"count")){
+                            this.mainservice.showMsg($localize `:@@count_of_corresponding_operation:Count of corresponding operation:${res.count}`);
+                        }else{
+                            this.mainservice.showMsg($localize `:@@count_of_corresponding_operation:Count of corresponding operation:0`);
+                        }
+                        this.cfpLoadingBar.complete();
+                    },err=>{
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    });
+                }else{
+                    this.cfpLoadingBar.complete();
+                }
+            }
+        });
     }
     search(offset) {
         let $this = this;

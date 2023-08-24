@@ -95,7 +95,6 @@ public class DicomDataHandler extends DataHandler {
             transcoder.transcode((transcoder1, dataset) -> {
                 try {
                     coerce.coerce(dataset, null);
-                    ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
                 } catch (IOException e) {
                     throw e;
                 } catch (Exception e) {

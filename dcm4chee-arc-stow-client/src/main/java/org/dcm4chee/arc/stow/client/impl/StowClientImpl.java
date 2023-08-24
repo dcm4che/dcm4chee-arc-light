@@ -91,11 +91,7 @@ public class StowClientImpl implements StowClient {
             WebApplication webApp = ctx.getDestinationWebApp();
             Map<String, String> props = webApp.getProperties();
             String url = webApp.getServiceURL().append("/studies").toString();
-            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(
-                    url,
-                    Boolean.parseBoolean(props.get("allow-any-hostname")),
-                    Boolean.parseBoolean(props.get("disable-trust-manager")))
-                    .build();
+            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build();
             ResteasyWebTarget target = client.target(url)
                     .setChunked(Boolean.parseBoolean(props.get("chunked")));
             String authorization = webApp.getKeycloakClientID() != null

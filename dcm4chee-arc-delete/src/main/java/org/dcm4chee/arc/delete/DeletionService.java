@@ -43,6 +43,7 @@ package org.dcm4chee.arc.delete;
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 
@@ -61,6 +62,8 @@ public interface DeletionService {
     int deleteRejectionNotesBefore(Code rjCode, Date before, int fetchSize);
 
     StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequestInfo httpServletRequestInfo);
+
+    StudyDeleteContext createStudyDeleteContext(Study study, HttpServletRequestInfo httpServletRequestInfo);
 
     void deleteStudy(
             String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, boolean retainObj)

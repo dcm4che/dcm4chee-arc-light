@@ -6,13 +6,28 @@ import {SearchPipe} from '../../../pipes/search.pipe';
 declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../../helpers/window-ref.service";
+import {SelectDropdown} from "../../../interfaces";
 
 
 @Component({
     selector: 'edit-series',
     templateUrl: './edit-series.component.html',
     styles: [`
-
+        .form_input{
+            display: grid;
+            grid-template-columns: 1fr 1.36fr;
+            margin-bottom: 15px;
+            grid-gap: 12px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .form_input label{
+            text-align: right;
+        }
+        .form_input input, .form_input dcm-drop-down{
+            width: 96%;
+            min-height: 30px;
+        }
     `]
 })
 export class EditSeriesComponent{
@@ -22,13 +37,31 @@ export class EditSeriesComponent{
 
     addSeriesAttribut = '';
     lastPressedCode;
+    sourceOfPrevVals = '';
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
-    private _series: any;
     private _serieskey: any;
     private _iod: any;
     private _mode;
+
+    reasonForModification:SelectDropdown<any>[] = [
+        new SelectDropdown("COERCE", "COERCE"),
+        new SelectDropdown("CORRECT", "CORRECT"),
+    ]
+    updatePolicy:SelectDropdown<any>[] = [
+        new SelectDropdown("SUPPLEMENT", "SUPPLEMENT"),
+        new SelectDropdown("MERGE", "MERGE"),
+        new SelectDropdown("OVERWRITE", "OVERWRITE"),
+    ]
+
+    _seriesResult = {
+        editMode: 'single',
+        series: undefined,
+        sourceOfPrevVals: '',
+        reasonForModificationResult: undefined,
+        updatePolicyResult: 'OVERWRITE'
+    }
 
     @Output() onChange = new EventEmitter();
 
@@ -36,11 +69,11 @@ export class EditSeriesComponent{
 
     DCM4CHE = DCM4CHE;
     constructor(public dialogRef: MatDialogRef<EditSeriesComponent>, public mainservice: AppService) {
-        console.log("this.series",this._series);
+        console.log("this.series",this._seriesResult.series);
     }
 
     change(){
-        this.onChange.emit(this.series);
+        this.onChange.emit(this.seriesResult.series);
     }
 
     get mode() {
@@ -76,13 +109,12 @@ export class EditSeriesComponent{
         this._dropdown = value;
     }
 
-    get series(): any {
-        return this._series;
+    get seriesResult(): any {
+        return this._seriesResult;
     }
 
-    @Input()
-    set series(value: any) {
-        this._series = value;
+    set seriesResult(value: any) {
+        this._seriesResult = value;
     }
 
     get serieskey(): any {
@@ -120,7 +152,7 @@ export class EditSeriesComponent{
         let code = (e.keyCode ? e.keyCode : e.which);
         console.log('in modality keyhandler', code);
         if (code === 13){
-            dialogRef.close(this._series);
+            dialogRef.close(this._seriesResult.series);
         }
         if (code === 27){
             if (this.opendropdown){
@@ -132,16 +164,16 @@ export class EditSeriesComponent{
     };
 
     addAttribute(attrcode){
-        if (this._series.attrs[attrcode] != undefined){
+        if (this._seriesResult.series.attrs[attrcode] != undefined){
             if (this._iod[attrcode].multi){
-                this._series.attrs[attrcode]['Value'].push('');
+                this._seriesResult.series.attrs[attrcode]['Value'].push('');
                 this.addSeriesAttribut           = '';
                 this.opendropdown                 = false;
             }else{
                 this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
             }
         }else{
-            this._series.attrs[attrcode]  = this._iod[attrcode];
+            this._seriesResult.series.attrs[attrcode]  = this._iod[attrcode];
         }
     };
 
@@ -161,16 +193,16 @@ export class EditSeriesComponent{
             }else{
                 attrcode = filtered[0].code;
             }
-            if (this._series.attrs[attrcode] != undefined){
+            if (this._seriesResult.series.attrs[attrcode] != undefined){
                 if (this._iod[attrcode].multi){
-                    this._series.attrs[attrcode]['Value'].push('');
+                    this._seriesResult.series.attrs[attrcode]['Value'].push('');
                     this.addSeriesAttribut           = '';
                     this.opendropdown                 = false;
                 }else{
                     this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
                 }
             }else{
-                this._series.attrs[attrcode]  = this._iod[attrcode];
+                this._seriesResult.series.attrs[attrcode]  = this._iod[attrcode];
                 this.opendropdown = false;
             }
             setTimeout(function(){
@@ -256,14 +288,14 @@ export class EditSeriesComponent{
     removeAttr(attrcode){
         switch (arguments.length) {
             case 2:
-                if (this._series.attrs[arguments[0]].Value.length === 1){
-                    delete  this._series.attrs[arguments[0]];
+                if (this._seriesResult.series.attrs[arguments[0]].Value.length === 1){
+                    delete  this._seriesResult.series.attrs[arguments[0]];
                 }else{
-                    this._series.attrs[arguments[0]].Value.splice(arguments[1], 1);
+                    this._seriesResult.series.attrs[arguments[0]].Value.splice(arguments[1], 1);
                 }
                 break;
             default:
-                delete  this._series.attrs[arguments[0]];
+                delete  this._seriesResult.series.attrs[arguments[0]];
                 break;
         }
     };

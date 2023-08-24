@@ -43,6 +43,7 @@ package org.dcm4chee.arc.iocm.rs;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
@@ -210,6 +211,7 @@ public class IocmRS {
                                               @PathParam("spsID") String spsID,
                                               @PathParam("codeValue") String codeValue,
                                               @PathParam("codingSchemeDesignator") String designator,
+                                              @QueryParam("strategy") @Pattern(regexp = "IOCM|MERGE") String strategy,
                                               InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
@@ -232,6 +234,7 @@ public class IocmRS {
 
             ctx.setAttributes(mwl.getAttributes());
             ctx.setPatient(mwl.getPatient());
+            ctx.setLinkStrategy(strategy);
             String changeRequesterAET = arcAE.changeRequesterAET();
             StoreSession session = storeService.newStoreSession(
                     HttpServletRequestInfo.valueOf(request),
@@ -242,6 +245,8 @@ public class IocmRS {
 
             Attributes result = IocmUtils.linkInstancesWithMWL(
                     session, retrieveService, procedureService, ctx, queryService, rjNote, instAttrs(mwl), in);
+            if (linkStudyToMWLMerge(ctx, strategy))
+                rsForward.forward(RSOperation.LinkStudyToMWLMerge, arcAE, ctx.getSourceInstanceRefs(), request);
             return result == null
                     ? errResponse("No Instances found.", Response.Status.NOT_FOUND)
                     : toResponse(result);
@@ -254,6 +259,12 @@ public class IocmRS {
         }
     }
 
+    private boolean linkStudyToMWLMerge(ProcedureContext ctx, String strategy) {
+        return strategy == null
+                ? ctx.getStudyInstanceUID().equals(ctx.getSourceInstanceRefs().getString(Tag.StudyInstanceUID))
+                : strategy.equals("MERGE");
+    }
+
     private Attributes instAttrs(MWLItem mwlItem) {
         Attributes mwlItemAttrs = mwlItem.getAttributes();
         Attributes patAttrs = mwlItem.getPatient().getAttributes();
@@ -262,6 +273,7 @@ public class IocmRS {
         attrs.addAll(patAttrs);
         attrs.setString(Tag.StudyDescription, VR.LO, mwlItemAttrs.getString(Tag.RequestedProcedureDescription));
         attrs.setString(Tag.StudyID, VR.SH, mwlItemAttrs.getString(Tag.RequestedProcedureID));
+        attrs.setString(Tag.InstitutionName, VR.LO, mwlItemAttrs.getString(Tag.InstitutionName));
         mwlItem.addItemToRequestAttributesSequence(attrs.newSequence(Tag.RequestAttributesSequence, 1));
         return attrs;
     }

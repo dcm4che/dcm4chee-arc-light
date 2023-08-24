@@ -1,6 +1,6 @@
 <div class="vex vex-theme-os upload" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
-        <h5 i18n="@@upload-file.title">Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to study</h5>
+        <h5>{{title}}</h5>
         <div class="content">
 <!--            <label>Select the ae title:</label>
             <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
@@ -12,8 +12,33 @@
                     <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
                 </mat-select>
             </ng-container>
-            <label i18n="@@chose_a_file_to_upload">Choose a File to upload:</label><br>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" i18n-placeholder="@@upload_file" placeholder="Upload file"  accept="image/jpeg, image/png, image/gif, image/tiff ,video/mpeg,video/mp4,video/quicktime,application/pdf,text/xml,model/mtl,model/obj,application/vnd.genozip,model/stl,model/x.stl-binary,application/sla" multiple>
+            <label i18n="@@upload-bulkdata.choose_bulkdata_files_to_upload">Choose Bulkdata Files to upload:</label><br>
+            <input type="file"
+                   [(ngModel)]="file"
+                   (change)="fileChange($event)"
+                   i18n-title="@@upload-bulkdata.choose_bulkdata_files_to_upload_title"
+                   title="Choose JPEG, PNG, TIFF or GIF Images; or MPEG2, MPEG4 or Quicktime Videos; or PDF or CDA Documents; or MTL, OBJ, STL files; or Genozip compressed genomic files or Bzip2 compressed genomic data VCF files or Bzip2 compressed genomic data Document files to upload"
+                   i18n-placeholder="@@upload_file"
+                   placeholder="Upload file"
+                   multiple>
+
+            <ng-container *ngIf="isDicomCheckbox">
+                <label>Type could not be be detected, select a file group</label>
+                <mat-select  [(ngModel)]="isDicomModel" (ngModelChange)="onDicomCheck($event)">
+                    <mat-option [value]="'application/dicom'" title="The file is a DICOM type">DICOM type</mat-option>
+                    <mat-option [value]="''" title="images, videos or pdf ">images, videos or pdf </mat-option>
+                </mat-select>
+            </ng-container>
+            <ng-container *ngIf="sourceOfPreviousValuesBlock">
+                <label>Source of Previous Value</label>
+                <input type="text" [(ngModel)]="sourceOfPreviousValues">
+            </ng-container>
+            <ng-container *ngIf="coerceStudyCheckbox">
+                <label class="checkbox_form">
+                    <input type="checkbox" [(ngModel)]="coerceStudyCheckboxValue">
+                    <span>Coerce Study</span>
+                </label>
+            </ng-container>
             <ng-container *ngIf="isImage">
                 <label i18n="@@captured_image_type">Captured Image Type:</label>
                 <mat-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
@@ -28,7 +53,7 @@
             <button class="edit_attribute_button" *ngIf="file" (click)="showMoreAttributes()" i18n="@@edit_attributes">Edit Attributes</button>
 
             <div class="edit_attribute_block" *ngIf="moreAttributes && file">
-                <edit-study [study]="tempAttributes" [iod]="iod" [mode]="'edit'" [dropdown]="dropdown" (onChange)="onStudyChange($event)"></edit-study>
+                <edit-study [tagStudy]="tempAttributes" [iod]="iod" [mode]="'edit'" [dropdown]="dropdown" (onChange)="onStudyChange($event)" [hideAdditionalParams]="true"></edit-study>
             </div>
             <div mat-dialog-content>
                 <ng-container *ngIf="showFileList">
@@ -45,7 +70,7 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="upload()" i18n="@@START_UPLOADING">START UPLOADING</button>
+            <button class="save" type="button" [disabled]="neededClassMissing" (click)="upload()" i18n="@@START_UPLOADING">START UPLOADING</button>
             <button class="cancle" type="button" (click)="close(dialogRef)" i18n="@@CLOSE">CLOSE</button>
         </div>
     </div>

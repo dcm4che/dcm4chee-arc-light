@@ -267,6 +267,9 @@ class StudyQuery extends AbstractQuery {
         if (!results.get(study.get(Study_.accessControlID)).equals("*"))
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessControlID, VR.LO,
                     results.get(study.get(Study_.accessControlID)));
+        if (!results.get(study.get(Study_.externalRetrieveAET.getName())).equals("*"))
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExternalRetrieveAETitle, VR.AE,
+                    results.get(study.get(Study_.externalRetrieveAET)));
         attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StorageIDsOfStudy, VR.LO,
                 StringUtils.split(results.get(study.get(Study_.storageIDs)), '\\'));
         attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));

@@ -1,4 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import * as _ from 'lodash-es';
+import {j4care} from "../helpers/j4care.service";
 
 @Pipe({
   name: 'patientIssuer'
@@ -23,8 +25,10 @@ export class PatientIssuerPipe implements PipeTransform {
           }
       }
 
-      function issuerOf(attrs) {
+      function patientIdentifiersOf(attrs) {
+          let pid = valueOf(attrs, '00100020');
           let issuerOfPID = valueOf(attrs, '00100021');
+          let typeOfPID = valueOf(attrs, '00100022');
           let issuerOfPIDQualifiersUniversalEntityID = valueOfItem(attrs, '00100024', '00400032');
           let issuerOfPIDQualifiersUniversalEntityIDType = valueOfItem(attrs, '00100024', '00400033');
           let issuerOfPIDQualifiers = issuerOfPIDQualifiersUniversalEntityID === false
@@ -34,16 +38,35 @@ export class PatientIssuerPipe implements PipeTransform {
                                         : issuerOfPIDQualifiersUniversalEntityIDType == false
                                             ? issuerOfPIDQualifiersUniversalEntityID + '&'
                                             : issuerOfPIDQualifiersUniversalEntityID + '&' + issuerOfPIDQualifiersUniversalEntityIDType;
-          return issuerOfPID === false
-                    ? issuerOfPIDQualifiers === false
-                        ? ''
-                        : '&' + issuerOfPIDQualifiers
-                    : issuerOfPIDQualifiers === false
-                        ? issuerOfPID
-                        : issuerOfPID + '&' + issuerOfPIDQualifiers;
+          let issuer = issuerOfPID === false
+                          ? issuerOfPIDQualifiers === false
+                              ? ''
+                              : '&' + issuerOfPIDQualifiers
+                          : issuerOfPIDQualifiers === false
+                              ? issuerOfPID
+                              : issuerOfPID + '&' + issuerOfPIDQualifiers;
+          return pid === false
+                    ? ''
+                    : issuer == ''
+                        ? typeOfPID === false
+                            ? pid
+                            : pid + '^^^^' + typeOfPID
+                        : typeOfPID === false
+                            ? pid + '^^^' + issuer
+                            : pid + '^^^' + issuer + '^' + typeOfPID;
       }
 
-      return issuerOf(attrs);
+      if(j4care.is(args,"dcmuiHideOtherPatientIDs", true)){
+          return patientIdentifiersOf(attrs);
+      }else{
+          const allParts = [patientIdentifiersOf(attrs)]
+          if(_.hasIn(attrs,'["00101002"].Value')){
+              _.get(attrs,'["00101002"].Value').forEach(subAttrs=>{
+                  allParts.push(patientIdentifiersOf(subAttrs));
+              })
+          }
+          return allParts.join(", ");
+      }
   }
 
 }

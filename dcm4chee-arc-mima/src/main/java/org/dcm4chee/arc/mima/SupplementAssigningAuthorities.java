@@ -191,7 +191,7 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
                 device.getIssuerOfAccessionNumber());
         supplementIssuer(attrs, Tag.AdmissionID, Tag.IssuerOfAdmissionIDSequence,
                 device.getIssuerOfAdmissionID());
-        supplementIssuer(attrs, Tag.ServiceEpisodeID, Tag.IssuerOfServiceEpisodeID,
+        supplementIssuer(attrs, Tag.ServiceEpisodeID, Tag.IssuerOfServiceEpisodeIDSequence,
                 device.getIssuerOfServiceEpisodeID());
         supplementIssuer(attrs, Tag.ContainerIdentifier, Tag.IssuerOfTheContainerIdentifierSequence,
                 device.getIssuerOfContainerIdentifier());

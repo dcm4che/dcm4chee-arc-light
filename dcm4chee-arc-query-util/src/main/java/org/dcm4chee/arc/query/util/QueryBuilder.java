@@ -260,6 +260,8 @@ public class QueryBuilder {
             return true;
 
         switch (orderByTag.tag) {
+            case Tag.WorklistLabel:
+                return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.worklistLabel)));
             case Tag.AccessionNumber:
                 return result.add(orderByTag.order(cb, mwlItem.get(MWLItem_.accessionNumber)));
             case Tag.Modality:
@@ -343,8 +345,7 @@ public class QueryBuilder {
         return true;
     }
 
-    private <Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+    private <X> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<X, PatientID> patientID, IDWithIssuer[] pids) {
         predicates.add(patientID.get(PatientID_.localNamespaceEntityID).isNull());
         predicates.add(patientID.get(PatientID_.universalEntityID).isNull());
         if (isUniversalMatching(pids))
@@ -362,19 +363,52 @@ public class QueryBuilder {
             predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
     }
 
-    public <Z> void patientIDPredicate(List<Predicate> predicates, From<Z, Patient> patient, IDWithIssuer[] pids) {
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+    private <T, Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates,
+                                                    CriteriaQuery<T> q, From<Z, Patient> patient,
+                                                    IDWithIssuer[] pids) {
+        Subquery<PatientID> sq = q.subquery(PatientID.class);
+        Root<PatientID> patientID = sq.from(PatientID.class);
+        List<Predicate> y = new ArrayList<>();
+        patIDWithoutIssuerPredicate(y, patientID, pids);
+        if (!y.isEmpty()) {
+            y.add(cb.equal(patientID.get(PatientID_.patient), patient));
+            predicates.add(cb.exists(sq.select(patientID).where(y.toArray(new Predicate[0]))));
+        }
+
+    }
+
+    public <T, Z> void patientIDPredicate(List<Predicate> predicates,
+                                           CriteriaQuery<T> q, From<Z, Patient> patient,
+                                           IDWithIssuer[] pids) {
+        Subquery<PatientID> sq = q.subquery(PatientID.class);
+        Root<PatientID> patientID = sq.from(PatientID.class);
+        List<Predicate> y = new ArrayList<>();
+        patientIDPredicate(y, pids, patientID);
+        if (!y.isEmpty()) {
+            y.add(cb.equal(patientID.get(PatientID_.patient), patient));
+            predicates.add(cb.exists(sq.select(patientID).where(y.toArray(new Predicate[0]))));
+        }
+    }
+
+    private <T, Z> void patIDIssuerPredicate(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Patient> patient, Issuer issuer) {
+        Subquery<PatientID> sq = q.subquery(PatientID.class);
+        Root<PatientID> patientID = sq.from(PatientID.class);
+        List<Predicate> y = new ArrayList<>();
+        patIDIssuerPredicate(y, issuer, patientID);
+        if (!y.isEmpty()) {
+            y.add(cb.equal(patientID.get(PatientID_.patient), patient));
+            predicates.add(cb.exists(sq.select(patientID).where(y.toArray(new Predicate[0]))));
+        }
+    }
+
+    private <X> void patientIDPredicate(List<Predicate> predicates, IDWithIssuer[] pids, From<X, PatientID> patientID) {
         List<Predicate> idPredicates = new ArrayList<>(pids.length);
         for (IDWithIssuer pid : pids)
             if (!isUniversalMatching(pid.getID())) {
                 List<Predicate> idPredicate = new ArrayList<>(3);
                 if (wildCard(idPredicate, patientID.get(PatientID_.id), pid.getID())) {
                     if (pid.getIssuer() != null)
-                        issuer(idPredicate,
-                                patientID.get(PatientID_.localNamespaceEntityID),
-                                patientID.get(PatientID_.universalEntityID),
-                                patientID.get(PatientID_.universalEntityIDType),
-                                pid.getIssuer());
+                        patIDIssuerPredicate(idPredicate, pid.getIssuer(), patientID);
                     idPredicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
                 }
             }
@@ -383,8 +417,7 @@ public class QueryBuilder {
             predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
     }
 
-    private <Z> void patIDIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, Issuer issuer) {
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientID);
+    private <X> void patIDIssuerPredicate(List<Predicate> predicates, Issuer issuer, From<X, PatientID> patientID) {
         issuer(predicates,
                 patientID.get(PatientID_.localNamespaceEntityID),
                 patientID.get(PatientID_.universalEntityID),
@@ -396,6 +429,20 @@ public class QueryBuilder {
             Root<Patient> patient, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.PATIENT);
+        return predicates;
+    }
+
+    public <T> List<Predicate> patientIDPredicates(CriteriaQuery<T> q,
+            Root<PatientID> patientID, Join<PatientID, Patient> patient, IDWithIssuer[] pids, Issuer issuer,
+            Attributes keys, QueryParam queryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (queryParam.isWithoutIssuer())
+            patIDWithoutIssuerPredicate(predicates, patientID, pids);
+        else if (!QueryBuilder.isUniversalMatching(pids))
+            patientIDPredicate(predicates, pids, patientID);
+        else if (!QueryBuilder.isUniversalMatching(issuer))
+            patIDIssuerPredicate(predicates, issuer, patientID);
+        patientLevelPredicates2(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.PATIENT);
         return predicates;
     }
 
@@ -557,6 +604,18 @@ public class QueryBuilder {
         if (patient == null)
             return;
 
+        if (queryParam.isWithoutIssuer())
+            patIDWithoutIssuerPredicate(predicates, q, patient, pids);
+        else if (!QueryBuilder.isUniversalMatching(pids))
+            patientIDPredicate(predicates, q, patient, pids);
+        else if (!QueryBuilder.isUniversalMatching(issuer))
+            patIDIssuerPredicate(predicates, q, patient, issuer);
+        patientLevelPredicates2(predicates, q, patient, pids, issuer, keys, queryParam, queryRetrieveLevel);
+    }
+
+    private <T, X, Z> void patientLevelPredicates2(List<Predicate> predicates, CriteriaQuery<T> q,
+               From<Z, Patient> patient, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
+               QueryRetrieveLevel2 queryRetrieveLevel) {
         if (queryRetrieveLevel == QueryRetrieveLevel2.PATIENT) {
             if (queryParam.isMerged())
                 predicates.add(patient.get(Patient_.mergedWith).isNotNull());
@@ -565,12 +624,6 @@ public class QueryBuilder {
             if (queryParam.isOnlyWithStudies())
                 predicates.add(cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
         }
-        if (queryParam.isWithoutIssuer())
-            patIDWithoutIssuerPredicate(predicates, patient, pids);
-        else if (!QueryBuilder.isUniversalMatching(pids))
-            patientIDPredicate(predicates, patient, pids);
-        else if (!QueryBuilder.isUniversalMatching(issuer))
-            patIDIssuerPredicate(predicates, patient, issuer);
         personName(predicates, q, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
         anyOf(predicates, patient.get(Patient_.patientSex),
@@ -682,6 +735,17 @@ public class QueryBuilder {
             seriesAttributesInStudy(predicates, q, study, keys, queryParam, queryRetrieveLevel, modalitiesInStudy);
         }
         codes(predicates, q, study, Study_.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence));
+        if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
+            String requested = queryParam.getRequested();
+            if (requested != null) {
+                Subquery<Series> sq = q.subquery(Series.class);
+                Root<Series> series = sq.from(Series.class);
+                Predicate exists = cb.exists(sq.select(series).where(cb.and(
+                        cb.isNotEmpty(series.get(Series_.requestAttributes)),
+                        cb.equal(series.get(Series_.study), study))));
+                predicates.add(Boolean.parseBoolean(requested) ? exists : exists.not());
+            }
+        }
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
         wildCard(predicates, study.get(Study_.studyCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);
@@ -834,6 +898,8 @@ public class QueryBuilder {
                 false);
         if (queryParam.getExpirationDate() != null)
             dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
+        if (queryParam.getExpirationState() != null)
+            predicates.add(series.get(Series_.expirationState).in(queryParam.getExpirationState()));
         return predicates;
     }
 
@@ -902,6 +968,7 @@ public class QueryBuilder {
 
     private <T> void mwlItemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q, Root<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
+        anyOf(predicates, mwlItem.get(MWLItem_.worklistLabel), keys.getStrings(Tag.WorklistLabel), false, true);
         anyOf(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
         anyOf(predicates, mwlItem.get(MWLItem_.requestedProcedureID),
                 keys.getStrings(Tag.RequestedProcedureID), false);
@@ -941,7 +1008,7 @@ public class QueryBuilder {
             if (!isUniversalMatching(spsAET))
                 predicates.add(cb.isMember(spsAET, mwlItem.get(MWLItem_.scheduledStationAETs)));
         }
-        if (spsStatus == null) hideSPSWithStatus(predicates, mwlItem, queryParam);
+        if (spsStatus == null || spsStatus.length == 0) hideSPSWithStatus(predicates, mwlItem, queryParam);
         String admissionID = keys.getString(Tag.AdmissionID, "*");
         if (!isUniversalMatching(admissionID)) {
             Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
@@ -963,7 +1030,6 @@ public class QueryBuilder {
         code(predicates,
                 mwlItem.get(MWLItem_.institutionalDepartmentTypeCode),
                 keys.getNestedDataset(Tag.InstitutionalDepartmentTypeCodeSequence));
-        predicates.add(mwlItem.get(MWLItem_.localAET).in(queryParam.getCalledAET(), "*"));
     }
 
     private <T> boolean anyOf(List<Predicate> predicates, Path<T> path, Function<String, T> valueOf,
@@ -1164,10 +1230,15 @@ public class QueryBuilder {
     }
 
     private boolean anyOf(List<Predicate> predicates, Expression<String> path, String[] values, boolean ignoreCase) {
+        return anyOf(predicates, path, values, ignoreCase, false);
+    }
+
+    private boolean anyOf(List<Predicate> predicates, Expression<String> path, String[] values, boolean ignoreCase,
+                          boolean matchNotAvailable) {
         if (isUniversalMatching(values))
             return false;
 
-        if (values.length == 1)
+        if (values.length == 1 && !matchNotAvailable)
             return wildCard(predicates, path, values[0], ignoreCase);
 
         List<Predicate> y = new ArrayList<>(values.length);
@@ -1175,10 +1246,10 @@ public class QueryBuilder {
             if (!wildCard(y, path, value, ignoreCase))
                 return false;
         }
+        if (matchNotAvailable) y.add(cb.equal(path, "*"));
         predicates.add(cb.or(y.toArray(new Predicate[0])));
         return true;
     }
-
     private boolean wildCard(List<Predicate> predicates, Expression<String> path, String value) {
         return wildCard(predicates, path, value, false);
     }
@@ -1282,7 +1353,6 @@ public class QueryBuilder {
                 y.add(series.get(Series_.sopClassUID).in(cuidsInStudy));
             }
         }
-        requestedOrUnscheduled(y, series, queryParam);
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             anyOf(y, series.get(Series_.institutionName),
                     keys.getStrings(Tag.InstitutionName), true);
@@ -1377,10 +1447,14 @@ public class QueryBuilder {
 
     private <T, Z> void requestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Series> series,
             Attributes item, QueryParam queryParam) {
-        if (isUniversalMatching(item))
+        if (isUniversalMatching(item)) {
+            String requested = queryParam.getRequested();
+            if (requested != null)
+                predicates.add(Boolean.parseBoolean(requested)
+                        ? cb.isNotEmpty(series.get(Series_.requestAttributes))
+                        : cb.isEmpty(series.get(Series_.requestAttributes)));
             return;
-
-        requestedOrUnscheduled(predicates, series, queryParam);
+        }
         Subquery<SeriesRequestAttributes> sq = q.subquery(SeriesRequestAttributes.class);
         From<Z, Series> sqSeries = correlate(sq, series);
         Join<Series, SeriesRequestAttributes> request = sqSeries.join(Series_.requestAttributes);
@@ -1415,17 +1489,6 @@ public class QueryBuilder {
         if (!requestPredicates.isEmpty()) {
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
         }
-    }
-
-    private <T, Z> void requestedOrUnscheduled(List<Predicate> predicates, From<Z, Series> series, QueryParam queryParam) {
-        String requested = queryParam.getRequested();
-        if (requested == null)
-            return;
-
-        if (Boolean.parseBoolean(requested))
-            predicates.add(cb.isNotEmpty(series.get(Series_.requestAttributes)));
-        else
-            predicates.add(cb.isEmpty(series.get(Series_.requestAttributes)));
     }
 
     private <T, Z> void instanceRequestAttributes(
@@ -1768,7 +1831,7 @@ public class QueryBuilder {
                 : end == null ? cb.greaterThanOrEqualTo(path, start)
                 : start.equals(end) ? cb.equal(path, start)
                 : (dt.equals(FormatDate.TM) && range.isStartDateExeedsEndDate())
-                ? cb.or(cb.between(path, start, "115959.999"), cb.between(path, "000000.000", end))
+                ? cb.or(cb.between(path, start, "235959.999"), cb.between(path, "000000.000", end))
                 : cb.between(path, start, end);
     }
 

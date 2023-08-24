@@ -74,6 +74,7 @@ import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
+import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
@@ -118,6 +119,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private StoreServiceEJB ejb;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private QueryService queryService;
@@ -213,9 +217,8 @@ class StoreServiceImpl implements StoreService {
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
-            Date beforeUpdate = new Date();
             result = updateDB(ctx);
-            postUpdateDB(ctx, result, beforeUpdate);
+            postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
@@ -292,22 +295,23 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void postUpdateDB(StoreContext ctx, UpdateDBResult result, Date after) throws IOException {
+    private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
         StoreSession storeSession = ctx.getStoreSession();
         LOG.debug("{}: Enter postUpdateDB", storeSession);
         Instance instance = result.getCreatedInstance();
         if (instance != null) {
             Patient createdPatient = result.getCreatedPatient();
             if (createdPatient != null) {
-                IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
-                if (pid != null) {
-                    synchronized (this) {
-                        try {
-                            ejb.checkDuplicatePatientCreated(ctx, pid, result, after);
-                        } catch (Exception e) {
-                            LOG.warn("{}: Failed to remove duplicate created {}:\n",
-                                    storeSession, createdPatient, e);
+                Collection<IDWithIssuer> pids = IDWithIssuer.pidsOf(ctx.getAttributes());
+                if (pids != null) {
+                    try {
+                        if (patientService.deleteDuplicateCreatedPatient(
+                                pids, createdPatient, result.getCreatedStudy())) {
+                            result.setCreatedPatient(null);
                         }
+                    } catch (Exception e) {
+                        LOG.warn("{}: Failed to remove duplicate created {}:\n",
+                                storeSession, createdPatient, e);
                     }
                 }
             }
@@ -383,9 +387,8 @@ class StoreServiceImpl implements StoreService {
                 storeMetadata(ctx);
                 coerceAttributes(ctx);
             }
-            Date beforeUpdate = new Date();
             result = updateDB(ctx);
-            postUpdateDB(ctx, result, beforeUpdate);
+            postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
@@ -410,9 +413,8 @@ class StoreServiceImpl implements StoreService {
             supplementDefaultCharacterSet(ctx);
             storeMetadata(ctx);
             coerceAttributes(ctx);
-            Date beforeUpdate = new Date();
             result = updateDB(ctx);
-            postUpdateDB(ctx, result, beforeUpdate);
+            postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
@@ -489,8 +491,6 @@ class StoreServiceImpl implements StoreService {
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         coerceAttrs = new Attributes(coerceAttrs);
         Attributes.unifyCharacterSets(attrs, coerceAttrs);
-        coerceAttrs.updateSelected(session.getStudyUpdatePolicy(), attrs, null,
-                arcDev.getAttributeFilter(Entity.Study).getSelection(false));
         attrs.update(updatePolicy, coerceAttrs, ctx.getCoercedAttributes());
     }
 
@@ -653,8 +653,13 @@ class StoreServiceImpl implements StoreService {
         if (mergeMWLMatchingKey == null || tplURI == null)
             return null;
 
-        MergeMWLQueryParam queryParam = MergeMWLQueryParam.valueOf(rule.getMergeMWLSCP(), rule.getMergeLocalMWLSCPs(),
-                        rule.getMergeLocalMWLWithStatus(), mergeMWLMatchingKey, ctx.getAttributes());
+        MergeMWLQueryParam queryParam = MergeMWLQueryParam.valueOf(
+                rule.getMergeMWLSCP(),
+                rule.getMergeLocalMWLWorklistLabels(),
+                rule.getMergeLocalMWLWithStatus(),
+                mergeMWLMatchingKey,
+                ctx.getAttributes(),
+                tplURI);
 
         Cache.Entry<Attributes> entry = mergeMWLCache.getEntry(queryParam);
         if (entry != null)
@@ -749,8 +754,7 @@ class StoreServiceImpl implements StoreService {
                 ? selectObjectStorage(session)
                 : selectMetadataStorage(session);
 
-        WriteContext writeCtx = storage.createWriteContext();
-        writeCtx.setAttributes(storeContext.getAttributes());
+        WriteContext writeCtx = storage.createWriteContext(storeContext.getAttributes());
         writeCtx.setStudyInstanceUID(storeContext.getStudyInstanceUID());
         writeCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
         storeContext.setWriteContext(objectType, writeCtx);
@@ -832,9 +836,15 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    public int restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration,
+                                List<Instance> instances)
             throws IOException {
-        return ejb.restoreInstances(session, studyUID, seriesUID, duration);
+        return ejb.restoreInstances(session, studyUID, seriesUID, duration, instances);
+    }
+
+    @Override
+    public long countSeries(String studyUID, String seriesUID) {
+        return ejb.countSeries(studyUID, seriesUID);
     }
 
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {
@@ -914,8 +924,9 @@ class StoreServiceImpl implements StoreService {
 
     private void restoreInstances(ArchiveAEExtension arcAE, String studyIUID, String seriesIUID,
                                   List<UpdateLocation> updateLocations) throws IOException {
-        List<Instance> instances = ejb.restoreInstances(newStoreSession(arcAE.getApplicationEntity()),
-                studyIUID, seriesIUID, arcAE.getPurgeInstanceRecordsDelay());
+        List<Instance> instances = new ArrayList<>();
+        ejb.restoreInstances(newStoreSession(arcAE.getApplicationEntity()),
+                studyIUID, seriesIUID, arcAE.getPurgeInstanceRecordsDelay(), instances);
         Map<String, Map<String, Location>> restoredLocations = instances.stream()
                 .flatMap(inst -> inst.getLocations().stream())
                 .collect(Collectors.groupingBy(l -> l.getStorageID(),

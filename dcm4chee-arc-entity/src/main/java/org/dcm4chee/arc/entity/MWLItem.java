@@ -73,6 +73,11 @@ import java.util.*;
                 "where mwl.studyInstanceUID = ?1 " +
                 "and mwl.scheduledProcedureStepID = ?2"),
 @NamedQuery(
+        name = MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID,
+        query = "select mwl.attributesBlob.encodedAttributes, mwl.patient.attributesBlob.encodedAttributes from MWLItem mwl " +
+                "where mwl.studyInstanceUID = ?1 " +
+                "and mwl.scheduledProcedureStepID = ?2"),
+@NamedQuery(
         name = MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER,
         query = "select mwl from MWLItem mwl " +
                 "join fetch mwl.attributesBlob " +
@@ -88,7 +93,9 @@ import java.util.*;
         name = MWLItem.FIND_BY_PK,
         query = "select mwl from MWLItem mwl " +
                 "where mwl.pk = ?1"),
-
+@NamedQuery(
+        name = MWLItem.FIND_DISTINCT_INSTITUTIONS,
+        query = "select distinct mwl.institutionName from MWLItem mwl"),
 @NamedQuery(
         name = MWLItem.IDS_BY_PATIENT_AND_STATUS,
         query = "select new org.dcm4chee.arc.entity.MWLItem$IDs(mwl.scheduledProcedureStepID, mwl.studyInstanceUID) " +
@@ -106,7 +113,7 @@ import java.util.*;
         uniqueConstraints = @UniqueConstraint(columnNames = { "study_iuid", "sps_id" }),
         indexes = {
                 @Index(columnList = "updated_time"),
-                @Index(columnList = "local_aet"),
+                @Index(columnList = "worklist_label"),
                 @Index(columnList = "sps_id"),
                 @Index(columnList = "req_proc_id"),
                 @Index(columnList = "study_iuid"),
@@ -123,12 +130,14 @@ public class MWLItem {
 
     public static final String FIND_BY_STUDY_IUID_EAGER = "MWLItem.findByStudyIUIDEager";
     public static final String FIND_BY_PATIENT = "MWLItem.findByPatient";
-    public static final String FIND_BY_STUDY_UID_AND_SPS_ID = "MWLItem.findByStudyUIDAndSPSIDr";
+    public static final String FIND_BY_STUDY_UID_AND_SPS_ID = "MWLItem.findByStudyUIDAndSPSID";
     public static final String FIND_BY_STUDY_UID_AND_SPS_ID_EAGER = "MWLItem.findByStudyUIDAndSPSIDEager";
+    public static final String ATTRS_BY_STUDY_UID_AND_SPS_ID = "MWLItem.attrsByStudyUIDAndSPSID";
     public static final String FIND_PK_BY_STATUS_AND_UPDATED_BEFORE = "MWLItem.findPkByStatusAndUpdatedBefore";
     public static final String FIND_BY_PK = "MWLItem.findByPk";
     public static final String IDS_BY_PATIENT_AND_STATUS = "MWLItem.idsByPatientAndStatus";
     public static final String FIND_BY_ACCESSION_NO_EAGER = "MWLItem.findByAccessionNoEager";
+    public static final String FIND_DISTINCT_INSTITUTIONS = "MWLItem.findDistinctInstitutions";
 
     public static class IDs {
         public final String scheduledProcedureStepID;
@@ -171,8 +180,8 @@ public class MWLItem {
     private Date updatedTime;
 
     @Basic(optional = false)
-    @Column(name = "local_aet", updatable = false)
-    private String localAET;
+    @Column(name = "worklist_label")
+    private String worklistLabel;
 
     @Basic(optional = false)
     @Column(name = "sps_id", updatable = false)
@@ -352,6 +361,7 @@ public class MWLItem {
     @Override
     public String toString() {
         return "MWLItem[pk=" + pk
+                + ", worklist=" + worklistLabel
                 + ", spsid=" + scheduledProcedureStepID
                 + ", rpid=" + requestedProcedureID
                 + ", suid=" + studyInstanceUID
@@ -375,14 +385,6 @@ public class MWLItem {
         updatedTime = new Date();
     }
 
-    public String getLocalAET() {
-        return localAET;
-    }
-
-    public void setLocalAET(String localAET) {
-        this.localAET = localAET;
-    }
-
     public AttributesBlob getAttributesBlob() {
         return attributesBlob;
     }
@@ -398,6 +400,7 @@ public class MWLItem {
             throw new IllegalArgumentException(
                     "Missing Scheduled Procedure Step Sequence (0040,0100) Item");
         }
+        worklistLabel = attrs.getString(Tag.WorklistLabel, "*");
         scheduledProcedureStepID = spsItem.getString(Tag.ScheduledProcedureStepID);
         modality = spsItem.getString(Tag.Modality, "*").toUpperCase();
         Date dt = spsItem.getDate(Tag.ScheduledProcedureStepStartDateAndTime);
