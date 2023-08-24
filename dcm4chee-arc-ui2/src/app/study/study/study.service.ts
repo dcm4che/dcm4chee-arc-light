@@ -4268,6 +4268,19 @@ export class StudyService {
         }));
     }
 
+    webAppHasPAMWebApp(studyWebService:StudyWebService, webServiceClass:WebServiceClass) {
+        try {
+            return _.hasIn(studyWebService,"selectedWebService.dcmWebServiceClass")
+                    && studyWebService.selectedWebService.dcmWebServiceClass.indexOf(webServiceClass) > -1
+                    && studyWebService.webServices.filter((webApp:DcmWebApp) => {
+                        const webAppProperties = j4care.extractPropertiesFromWebApp(webApp);
+                        return _.hasIn(webAppProperties, "PAMWebApp");
+                    })
+        } catch(e){
+            return false;
+        }
+    }
+
     webAppGroupHasClass(studyWebService:StudyWebService, webServiceClass:WebServiceClass){
         try{
             return (_.hasIn(studyWebService,"selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf(webServiceClass) > -1) ||

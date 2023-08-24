@@ -1,0 +1,30 @@
+.issuerpicker{
+    max-height: 350px;
+    overflow: auto;
+    position: absolute;
+    z-index: 98;
+    background: white;
+    -webkit-box-shadow: 3px 4px 8px 6px #cccccc;
+    -moz-box-shadow:  3px 4px 8px 6px #cccccc;
+    box-shadow:  3px 4px 8px 6px #cccccc;
+    padding:20px 30px;
+}
+.issuerpicker .msg{
+    float: left;
+    margin: 20px 0 0px 0;
+    width: 100%;
+    font-size:12px;
+}
+.issuerpicker .close{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 13px;
+}
+.issuerpicker .btn_content{
+    width: 100%;
+}
+
+.issuer-picker-element {
+    margin-left: 5px;
+}

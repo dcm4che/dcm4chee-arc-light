@@ -198,6 +198,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         placeholder: $localize `:@@more_functions:More functions`,
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
+            new SelectDropdown("create_patient_ext_arc",$localize `:@@study.create_patient_ext_arc:Create patient in external archive`),
             new SelectDropdown("supplement_issuer",$localize `:@@supplement_issuer:Supplement Issuer`),
             new SelectDropdown("update_charset",$localize `:@@update_charset:Update Character Set of patients`),
             new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
@@ -534,6 +535,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         switch (e){
             case "create_patient":
                 this.createPatient();
+                break;
+            case "create_patient_ext_arc":
+                this.createPatientInExternalArchive();
                 break;
             case "supplement_issuer":
                 this.supplementIssuer();
@@ -3037,6 +3041,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let studyConfig = args[1];
         return value.filter(option=>{
             console.log("option",option);
+            if (option.value === "create_patient_ext_arc") {
+                return studyConfig && studyConfig.tab === "patient"
+                        && this.service.webAppHasPAMWebApp(this.studyWebService, "QIDO_RS")
+                        && !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
+            }
             if(option.value === "create_patient"
                 || option.value === "supplement_issuer"
                 || option.value === "update_charset"
@@ -3232,6 +3241,24 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 observer.next([]);
             })
         });
+    }
+
+    createPatientInExternalArchive() {
+        let config:ModifyConfig = {
+            saveLabel:$localize `:@@CREATE:CREATE`,
+            titleLabel:$localize `:@@study.create_new_patient:Create new patient`
+        };
+        let newPatient: any = {
+            'attrs': {
+                '00100010': { 'vr': 'PN', 'Value': [{
+                        Alphabetic: ''
+                    }]},
+                '00100020': { 'vr': 'LO', 'Value': ['']},
+                '00100021': { 'vr': 'LO', 'Value': ['']},
+                '00100030': { 'vr': 'DA', 'Value': ['']},
+                '00100040': { 'vr': 'CS', 'Value': ['']}
+            }
+        };
     }
 
     createPatient(){

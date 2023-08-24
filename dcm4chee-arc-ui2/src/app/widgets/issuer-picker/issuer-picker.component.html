@@ -1,0 +1,29 @@
+<div class="issuerpicker" (keyup)="onModelChange($event)">
+    <div class="close issuer-picker-element" (click)="close()"><span class="glyphicon glyphicon-remove issuer-picker-element"></span></div>
+        <h6 *ngIf="mode === 'dcmIssuer'" i18n="@@add_issuer">Add Issuer</h6>
+        <div class="form-group" *ngIf="mode === 'dcmIssuer'">
+            <label class="control-label text-right col-md-5" for="hour" i18n="@@local_namespace_id">Local Namespace Entity ID:</label>
+            <div class="col-md-7">
+                <input type="string" class="col-md-12" id="hour" [(ngModel)]="localNamespaceEntityID">
+            </div>
+        </div>
+        <div class="form-group" *ngIf="mode === 'dcmIssuer'">
+            <label class="control-label text-right col-md-5" for="minute" i18n="@@universal_entity_id">Universal Entity ID:</label>
+            <div class="col-md-7">
+                <input type="string" class="col-md-12" id="minute" [(ngModel)]="universalEntityID">
+            </div>
+        </div>
+        <div class="form-group" *ngIf="mode === 'dcmIssuer'">
+            <label class="control-label text-right col-md-5" for="sec" i18n="@@universal_entity_id_type">Universal Entity ID Type:</label>
+            <div class="col-md-7">
+                <input type="string" class="col-md-12" id="sec" [(ngModel)]="universalEntityIDType">
+            </div>
+        </div>
+    <p class="msg">
+        {{message}}
+    </p>
+    <div class="btn_content">
+        <button class="btn issuer-picker-element" (click)="addIssuer()" i18n="@@Set">Set</button>
+        <button class="btn issuer-picker-element" (click)="clear()" i18n="@@Clear">Clear</button>
+    </div>
+</div>
