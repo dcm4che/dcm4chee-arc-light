@@ -1356,7 +1356,7 @@ export class StudyService {
                                     }, e);
                                 },
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET") && !(_.hasIn(e,'attrs.77771015'))
+                                    return !(_.hasIn(e,'attrs.77771015'))
                                 },
                                 title: $localize `:@@study.edit_this_patient:Edit this Patient`,
                                 permission: {
