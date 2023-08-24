@@ -40,12 +40,12 @@
 
 package org.dcm4chee.arc.qstar.scheduler;
 
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.entity.Location;
 
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.Date;
 import java.util.List;
 

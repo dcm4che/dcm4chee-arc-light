@@ -38,12 +38,11 @@
 
 package org.dcm4chee.arc.export.noop;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

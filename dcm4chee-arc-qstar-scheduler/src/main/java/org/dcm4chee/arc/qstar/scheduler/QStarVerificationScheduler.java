@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.qstar.scheduler;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.dcm4che3.qstar.*;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
@@ -47,8 +49,6 @@ import org.dcm4chee.arc.entity.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;

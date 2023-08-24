@@ -332,12 +332,12 @@ public class StoreServiceEJB {
         return result;
     }
 
-    private static boolean isDuplicateImport(StoreContext ctx, Instance prevInstance) {
+    private boolean isDuplicateImport(StoreContext ctx, Instance prevInstance) {
         return ctx.getWriteContext(Location.ObjectType.DICOM_FILE) == null
                 && contains(prevInstance.getLocations(), ctx.getReadContext());
     }
 
-    private static boolean contains(Collection<Location> locations, ReadContext readContext) {
+    private boolean contains(Collection<Location> locations, ReadContext readContext) {
         String storageID = readContext.getStorage().getStorageDescriptor().getStorageID();
         String storagePath = readContext.getStoragePath();
         for (Location location : locations) {
@@ -348,13 +348,13 @@ public class StoreServiceEJB {
         return false;
     }
 
-    private static DicomServiceException subsequentOccurrenceOfRejectedObject(RejectedInstance rejectedInstance) {
+    private DicomServiceException subsequentOccurrenceOfRejectedObject(RejectedInstance rejectedInstance) {
         return new DicomServiceException(StoreService.SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT,
                 MessageFormat.format(StoreService.SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT_MSG,
                         rejectedInstance.getSopInstanceUID(), rejectedInstance.getRejectionNoteCode()));
     }
 
-    private static boolean hasLocationWithEqualDigest(StoreContext ctx, Instance prevInstance) {
+    private boolean hasLocationWithEqualDigest(StoreContext ctx, Instance prevInstance) {
         return containsWithEqualDigest(prevInstance.getLocations(),
                 ctx.getWriteContext(Location.ObjectType.DICOM_FILE).getDigest());
     }
@@ -370,7 +370,7 @@ public class StoreServiceEJB {
                 acceptRejectionBeforeStorage.getSeconds() * 1000L;
     }
 
-    private static boolean isPatientVerificationStale(Patient patient, Duration maxStaleness) {
+    private boolean isPatientVerificationStale(Patient patient, Duration maxStaleness) {
         if (maxStaleness != null)
             switch (patient.getVerificationStatus()) {
                 case VERIFIED:
@@ -382,7 +382,7 @@ public class StoreServiceEJB {
         return false;
     }
 
-    private static boolean isBefore(Date time, Duration duration) {
+    private boolean isBefore(Date time, Duration duration) {
         return time.getTime() + duration.getSeconds() * 1000L < System.currentTimeMillis();
     }
 
@@ -635,7 +635,7 @@ public class StoreServiceEJB {
         }
     }
 
-    private static boolean isExpired(Series series, boolean matchUnset) {
+    private boolean isExpired(Series series, boolean matchUnset) {
         if (series.getStudy().getExpirationDate() == null)
             return matchUnset;
 
@@ -752,7 +752,7 @@ public class StoreServiceEJB {
         }
     }
 
-    private static boolean replaceLocationOnDifferentStorage(StoreSession session, Instance prevInstance) {
+    private boolean replaceLocationOnDifferentStorage(StoreSession session, Instance prevInstance) {
         String storageID = session.getObjectStorageID();
         return prevInstance.getLocations().stream().anyMatch(
                 l -> Location.isDicomFile(l) && !l.getStorageID().equals(storageID));
@@ -787,7 +787,7 @@ public class StoreServiceEJB {
         return true;
     }
 
-    private static boolean containsDicomFile(Collection<Location> locations) {
+    private boolean containsDicomFile(Collection<Location> locations) {
         for (Location location : locations) {
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
                 return true;
@@ -795,7 +795,7 @@ public class StoreServiceEJB {
         return false;
     }
 
-    private static boolean containsWithEqualDigest(Collection<Location> locations, byte[] digest) {
+    private boolean containsWithEqualDigest(Collection<Location> locations, byte[] digest) {
         if (digest == null)
             return false;
 
@@ -810,7 +810,7 @@ public class StoreServiceEJB {
         return false;
     }
 
-    private static boolean isSameSource(StoreContext ctx, Instance prevInstance) {
+    private boolean isSameSource(StoreContext ctx, Instance prevInstance) {
         String callingAET = ctx.getStoreSession().getCallingAET();
         return callingAET != null && callingAET.equals(prevInstance.getSeries().getSendingAET());
     }
@@ -1035,7 +1035,7 @@ public class StoreServiceEJB {
         return study;
     }
 
-    private static boolean supplementIssuer(Attributes attrs, Attributes newAttrs, Attributes modified,
+    private boolean supplementIssuer(Attributes attrs, Attributes newAttrs, Attributes modified,
                                             int idtag, int seqtag) {
         String id = attrs.getString(idtag);
         if (id != null && id.equals(newAttrs.getString(idtag))) {

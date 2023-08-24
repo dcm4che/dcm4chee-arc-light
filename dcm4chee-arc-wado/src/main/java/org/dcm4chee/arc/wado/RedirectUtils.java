@@ -40,13 +40,13 @@
 
 package org.dcm4chee.arc.wado;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 
 /**
@@ -55,7 +55,7 @@ import java.net.URI;
  */
 class RedirectUtils {
     private RedirectUtils() {}
-    public static URI redirectURI(HttpServletRequest request, String path,  Device device, IWebApplicationCache iWebAppCache,
+    public static URI redirectURI(HttpServletRequest request, String path, Device device, IWebApplicationCache iWebAppCache,
                                   String webAppName, WebApplication.ServiceClass serviceClass)
             throws ConfigurationException {
         WebApplication webApp = iWebAppCache.findWebApplication(webAppName);
