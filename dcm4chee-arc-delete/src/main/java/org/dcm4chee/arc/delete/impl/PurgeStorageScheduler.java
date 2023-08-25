@@ -44,6 +44,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.dict.archive.PrivateTag;
@@ -62,7 +63,6 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

@@ -85,11 +85,8 @@ public class ArchiveDeviceProducer {
 
     private static String[] JBOSS_PROPERITIES = {
             "jboss.home",
-            "jboss.modules",
             "jboss.server.base",
-            "jboss.server.config",
             "jboss.server.data",
-            "jboss.server.deploy",
             "jboss.server.log",
             "jboss.server.temp",
     };
@@ -212,6 +209,15 @@ public class ArchiveDeviceProducer {
         for (String key : JBOSS_PROPERITIES) {
             String url = new File(System.getProperty(key + ".dir")).toURI().toString();
             System.setProperty(key + ".url", url.substring(0, url.length()-1));
+            switch (key) {
+                case "jboss.home":
+                    System.setProperty("jboss.modules.url", url + "modules");
+                    break;
+                case "jboss.server.base":
+                    System.setProperty("jboss.server.config.url", url + "configuration");
+                    System.setProperty("jboss.server.deploy.url", url + "deployments");
+                    break;
+            }
         }
     }
 }

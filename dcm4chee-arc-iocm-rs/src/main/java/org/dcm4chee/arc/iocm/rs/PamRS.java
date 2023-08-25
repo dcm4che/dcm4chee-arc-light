@@ -42,6 +42,10 @@ package org.dcm4chee.arc.iocm.rs;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonParser;
+import jakarta.json.stream.JsonParsingException;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
@@ -88,10 +92,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParsingException;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.*;
 import java.net.ConnectException;

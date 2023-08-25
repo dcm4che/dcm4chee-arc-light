@@ -40,17 +40,16 @@
 
 package org.dcm4chee.arc.conf;
 
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
-import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.json.JsonConfigurationProducer;
 import org.junit.Test;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.charset.Charset;

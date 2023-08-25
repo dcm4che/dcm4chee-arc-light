@@ -40,6 +40,9 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
+import jakarta.json.Json;
+import jakarta.json.stream.JsonParser;
+import jakarta.json.stream.JsonParsingException;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
@@ -54,9 +57,6 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
-import javax.json.Json;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParsingException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

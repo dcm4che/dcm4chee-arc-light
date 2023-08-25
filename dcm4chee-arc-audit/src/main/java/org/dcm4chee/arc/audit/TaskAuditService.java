@@ -52,8 +52,8 @@ import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import java.io.StringWriter;
 import java.nio.file.Path;
 

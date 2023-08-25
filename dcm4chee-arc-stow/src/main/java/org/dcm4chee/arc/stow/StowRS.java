@@ -42,6 +42,8 @@ package org.dcm4chee.arc.stow;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonParsingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
@@ -88,8 +90,6 @@ import org.xml.sax.SAXException;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import javax.json.Json;
-import javax.json.stream.JsonParsingException;
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;

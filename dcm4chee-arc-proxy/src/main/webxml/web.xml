@@ -44,7 +44,7 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
                              http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
   <servlet-mapping>
-    <servlet-name>javax.ws.rs.core.Application</servlet-name>
+    <servlet-name>jakarta.ws.rs.core.Application</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
 

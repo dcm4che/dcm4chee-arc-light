@@ -43,6 +43,8 @@ package org.dcm4chee.arc.diff.rs;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
@@ -63,8 +65,6 @@ import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;

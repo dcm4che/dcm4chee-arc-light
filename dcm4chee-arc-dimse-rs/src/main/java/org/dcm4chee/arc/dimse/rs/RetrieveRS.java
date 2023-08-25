@@ -41,6 +41,8 @@ package org.dcm4chee.arc.dimse.rs;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
@@ -72,8 +74,6 @@ import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;

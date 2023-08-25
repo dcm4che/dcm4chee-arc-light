@@ -43,6 +43,8 @@ package org.dcm4chee.arc.metadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.DicomConfiguration;
@@ -63,8 +65,6 @@ import org.dcm4chee.arc.store.InstanceLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;

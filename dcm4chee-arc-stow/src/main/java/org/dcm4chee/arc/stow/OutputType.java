@@ -41,6 +41,8 @@
 
 package org.dcm4chee.arc.stow;
 
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4che3.data.Attributes;
@@ -49,8 +51,6 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.xml.transform.stream.StreamResult;
 
 /**

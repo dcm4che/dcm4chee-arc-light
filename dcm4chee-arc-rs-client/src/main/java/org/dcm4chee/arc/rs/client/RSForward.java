@@ -42,6 +42,8 @@ package org.dcm4chee.arc.rs.client;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
@@ -52,8 +54,6 @@ import org.dcm4chee.arc.conf.RSOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 

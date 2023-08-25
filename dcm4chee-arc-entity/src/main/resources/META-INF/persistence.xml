@@ -45,9 +45,10 @@
     <jta-data-source>${ds}</jta-data-source>
     <mapping-file>${mapping-file}</mapping-file>
     <properties>
-      <property name="javax.persistence.database-product-name" value="${databaseProductName}"/>
-      <property name="javax.persistence.database-major-version" value="${databaseMajorVersion}"/>
+      <property name="jakarta.persistence.database-product-name" value="${databaseProductName}"/>
+      <property name="jakarta.persistence.database-major-version" value="${databaseMajorVersion}"/>
       <property name="${persistence-property-name}" value="${persistence-property-value}"/>
+      <property name="hibernate.query.jpaql_strict_compliance" value="false"/>
     </properties>
   </persistence-unit>
 </persistence>

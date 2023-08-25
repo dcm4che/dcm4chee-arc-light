@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf.json;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.json.stream.JsonParser;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
@@ -59,7 +60,6 @@ import org.dcm4chee.arc.conf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.stream.JsonParser;
 import java.net.URI;
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;

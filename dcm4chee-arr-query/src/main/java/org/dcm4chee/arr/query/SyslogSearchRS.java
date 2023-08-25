@@ -40,6 +40,8 @@ package org.dcm4chee.arr.query;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -53,8 +55,6 @@ import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;

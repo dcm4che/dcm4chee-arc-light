@@ -43,6 +43,7 @@ package org.dcm4chee.arc.retrieve.impl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -83,7 +84,6 @@ import org.dcm4chee.arc.store.UpdateLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;

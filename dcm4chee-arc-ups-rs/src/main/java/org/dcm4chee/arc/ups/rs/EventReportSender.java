@@ -44,6 +44,8 @@ package org.dcm4chee.arc.ups.rs;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
 import jakarta.websocket.OnOpen;
@@ -59,8 +61,6 @@ import org.dcm4chee.arc.ups.UPSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;

@@ -42,6 +42,8 @@ package org.dcm4chee.arc.qido;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
@@ -80,8 +82,6 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;

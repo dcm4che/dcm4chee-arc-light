@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf.json;
 
+import jakarta.json.stream.JsonParser;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonReader;
@@ -48,8 +49,6 @@ import org.dcm4che3.conf.json.hl7.JsonHL7ConfigurationExtension;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.conf.*;
-
-import javax.json.stream.JsonParser;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

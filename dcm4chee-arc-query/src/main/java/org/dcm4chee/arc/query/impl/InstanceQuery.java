@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.query.impl;
 
+import jakarta.json.Json;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
@@ -60,7 +61,6 @@ import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 
-import javax.json.Json;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;

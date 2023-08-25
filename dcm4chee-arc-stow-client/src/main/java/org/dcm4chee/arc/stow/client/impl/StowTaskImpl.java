@@ -42,6 +42,8 @@
 package org.dcm4chee.arc.stow.client.impl;
 
 import jakarta.enterprise.event.Event;
+import jakarta.json.Json;
+import jakarta.json.JsonException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.InvocationCallback;
@@ -61,8 +63,6 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.JsonException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
