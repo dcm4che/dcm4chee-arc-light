@@ -221,6 +221,9 @@ public class IocmRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
+        if (rjNote == null)
+            return errResponse("Unknown Rejection Note Code: (" + codeValue + ", " + designator + ')',
+                    Response.Status.NOT_FOUND);
         try {
             ProcedureContext ctx = procedureService.createProcedureContext()
                     .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
@@ -319,6 +322,10 @@ public class IocmRS {
             validateWebAppServiceClass();
         try {
             RejectionNote rjNote = toRejectionNote(codeValue, designator);
+            if (rjNote == null)
+                return errResponse("Unknown Rejection Note Code: (" + codeValue + ", " + designator + ')',
+                                Response.Status.NOT_FOUND);
+
             if (queue)
                 return queueReject(rsOp, arcAE, studyUID, seriesUID, objectUID, rjNote);
 
@@ -363,6 +370,10 @@ public class IocmRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
+        if (codeValue != null && designator != null && rjNote == null)
+            return errResponse("Unknown Rejection Note Code: (" + codeValue + ", " + designator + ')',
+                    Response.Status.NOT_FOUND);
+
         try {
             String changeRequesterAET = arcAE.changeRequesterAET();
             StoreSession session = storeService.newStoreSession(
@@ -393,15 +404,8 @@ public class IocmRS {
         if (codeValue == null)
             return null;
 
-        RejectionNote rjNote = arcDev().getRejectionNote(
+        return arcDev().getRejectionNote(
                 new Code(codeValue, designator, null, ""));
-
-        if (rjNote == null)
-            throw new WebApplicationException(
-                    errResponse("Unknown Rejection Note Code: (" + codeValue + ", " + designator + ')',
-                    Response.Status.NOT_FOUND));
-
-        return rjNote;
     }
 
     private Response.Status status(Attributes result) {
