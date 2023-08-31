@@ -228,12 +228,12 @@ public class Task {
 
     public enum Status {
         SCHEDULED(false),
-        SCHEDULED_FOR_RETRY(false),
         IN_PROCESS(false),
         COMPLETED(true),
         WARNING(true),
         FAILED(true),
-        CANCELED(true);
+        CANCELED(true),
+        SCHEDULED_FOR_RETRY(false);
 
         public final boolean done;
 
