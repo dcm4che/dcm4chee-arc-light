@@ -69,6 +69,7 @@ import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2021
  */
 @Stateless
@@ -133,16 +134,6 @@ public class TaskManagerEJB {
             LOG.info("Finished processing of {}", entity);
             return;
         }
-//        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
-//        if (delay >= 0) {
-//            LOG.info("Failed processing of {} - retry", entity);
-//            entity.setScheduledTime(new Date(System.currentTimeMillis() + delay * 1000L));
-//            entity.setStatus(Task.Status.SCHEDULED_FOR_RETRY);
-//            entity.setDeviceName(device.getDeviceName());
-//            LOG.info("Reschedule {}", entity);
-//            return;
-//        }
-//        LOG.warn("Failed processing of {}", entity);
         scheduledForRetry(entity, null);
     }
 
@@ -156,18 +147,6 @@ public class TaskManagerEJB {
         entity.setErrorMessage(e.getMessage());
         entity.setProcessingEndTime(new Date());
         entity.setStatus(Task.Status.FAILED);
-//        QueueDescriptor descriptor = descriptorOf(entity.getQueueName());
-//        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
-//        if (delay >= 0) {
-//            LOG.info("Failed processing of {} - retry:\n", entity, e);
-//            entity.setScheduledTime(new Date(System.currentTimeMillis() + delay * 1000L));
-//            entity.setStatus(Task.Status.SCHEDULED_FOR_RETRY);
-//            entity.setDeviceName(device.getDeviceName());
-//            LOG.info("Reschedule {}", entity);
-//            return;
-//        }
-//        LOG.warn("Failed processing of {}:\n", entity, e);
-//        entity.setStatus(Task.Status.FAILED);
         scheduledForRetry(entity, e);
     }
 

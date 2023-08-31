@@ -134,6 +134,23 @@ export class DictionaryPickerComponent implements OnInit {
                         }
                     })
                 }
+                if(_.hasIn(this.deviceConfiguratorService.device,"dcmDevice.dcmWebApp")){
+                    const webApps = _.get(this.deviceConfiguratorService.device,"dcmDevice.dcmWebApp");
+                    webApps.forEach(el=>{
+                        if(_.hasIn(el,"dcmWebServiceClass") && el.dcmWebServiceClass.indexOf("PAM") > -1){
+                            this.dcmTags.push({
+                                text:"",
+                                key:`PAMWebApp=${el.dcmWebAppName}`,
+                                description:el.description
+                            })
+                            this.dcmTagsFiltered.push({
+                                text:"",
+                                key:`PAMWebApp=${el.dcmWebAppName}`,
+                                description:el.description
+                            })
+                        }
+                    })
+                }
                 break;
             case 'dcmSOPClass':
                 _.forEach(DCM4CHE.SOPClass.nameOf("all"),(m,i)=>{
