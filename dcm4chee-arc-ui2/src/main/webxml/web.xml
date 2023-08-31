@@ -60,8 +60,7 @@
     </auth-constraint>
   </security-constraint>
   <login-config>
-    <auth-method>KEYCLOAK</auth-method>
-    <realm-name>${realm-name:dcm4che}</realm-name>
+    <auth-method>OIDC</auth-method>
   </login-config>
   <security-role>
     <role-name>${auth-user-role:user}</role-name>

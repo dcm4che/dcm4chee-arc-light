@@ -59,6 +59,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.TokenVerifier;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.token.TokenManager;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.constants.ServiceUrlConstants;
@@ -183,8 +184,6 @@ public class AccessTokenRequestor {
     }
 
     private Keycloak toKeycloak(KeycloakClient kc) throws Exception {
-        return null;
-/*
         return KeycloakBuilder.builder()
                 .serverUrl(kc.getKeycloakServerURL())
                 .realm(kc.getKeycloakRealm())
@@ -195,7 +194,6 @@ public class AccessTokenRequestor {
                 .grantType(kc.getKeycloakGrantType().name())
                 .resteasyClient(resteasyClientBuilder(kc).build())
                 .build();
-*/
     }
 
 
