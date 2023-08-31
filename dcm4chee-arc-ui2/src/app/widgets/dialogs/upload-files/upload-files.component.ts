@@ -49,13 +49,13 @@ export class UploadFilesComponent implements OnInit {
     set mode(value) {
         this._mode = value;
         if(value === "patient"){
-            this.title = $localize `:@@upload-file.title:Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to patient`;
+            this.title = $localize `:@@upload-file.title:Upload bulkdata files to patient`;
         }
         if(value === "study"){
-            this.title = $localize `:@@upload-file.title_upload_study:Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to study`;
+            this.title = $localize `:@@upload-file.title_upload_study:Upload bulkdata files to study`;
         }
         if(value === "series"){
-            this.title = $localize `:@@upload-file.title_upload_series:Upload image, video, PDF, CDA, MTL, STL, OBJ or Genozip files to series`;
+            this.title = $localize `:@@upload-file.title_upload_series:Upload bulkdata files to series`;
         }
 
     }
