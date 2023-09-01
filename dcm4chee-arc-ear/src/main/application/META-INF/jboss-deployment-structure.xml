@@ -70,9 +70,8 @@
             <module name="org.dcm4che.xroad" export="TRUE"/>
             <!-- apache-cxf modules -->
             <module name="org.apache.cxf.impl" export="TRUE"/>
-            <!-- jclouds modules -->
-            <module name="org.apache.jclouds.core" export="TRUE"/>
-            <module name="org.apache.jclouds.blobstore" export="TRUE" services="export"/>
+            <!-- jclouds module -->
+            <module name="org.apache.jclouds" export="TRUE" services="export"/>
             <!-- keycloak modules -->
             <module name="org.keycloak.keycloak-common" export="TRUE"/>
             <module name="org.keycloak.keycloak-core" export="TRUE"/>
@@ -80,8 +79,6 @@
             <!-- apache commons modules -->
             <module name="org.apache.commons.compress" export="TRUE"/>
             <module name="org.apache.commons.csv" export="TRUE"/>
-            <!-- emc-ecs modules -->
-            <module name="com.emc.ecs" export="TRUE"/>
         </dependencies>
         <exclusions>
             <module name="org.jboss.resteasy.resteasy-json-binding-provider"/>

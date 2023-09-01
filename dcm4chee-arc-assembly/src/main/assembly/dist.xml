@@ -108,7 +108,6 @@
       <outputDirectory>jboss-modules</outputDirectory>
       <includes>
         <include>org.dcm4che:dcm4che-jboss-modules</include>
-        <include>org.dcm4che:ecs-object-client-jboss-modules</include>
         <include>org.dcm4che:jdbc-jboss-modules-${db}</include>
         <include>org.dcm4che:jclouds-jboss-modules</include>
         <include>org.dcm4che:jai_imageio-jboss-modules</include>

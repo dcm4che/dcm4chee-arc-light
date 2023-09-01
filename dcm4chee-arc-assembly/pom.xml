@@ -92,11 +92,6 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
-      <artifactId>ecs-object-client-jboss-modules</artifactId>
-      <type>zip</type>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che</groupId>
       <artifactId>jclouds-jboss-modules</artifactId>
       <type>zip</type>
     </dependency>
