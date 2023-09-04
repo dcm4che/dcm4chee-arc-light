@@ -1,2 +1,2 @@
 #!/usr/bin/awk -f
-$7 == "foreign" && $9 != "(dicomattrs_fk)" { print "create index", $6, "on", $3, $9, ";" }
+$9 == "foreign" && $11 != "(dicomattrs_fk)" { print "create index", $8, "on", $5, $11, ";" }
