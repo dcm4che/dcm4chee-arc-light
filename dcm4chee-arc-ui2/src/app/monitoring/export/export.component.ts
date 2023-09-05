@@ -52,6 +52,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     devices;
     count;
     allAction;
+    filterLoadFinished = false;
     allActionsOptions = [
         {
             value:"cancel",

@@ -28,7 +28,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
 
     private _schema;
     @Input() model;
-    private _filterTreeHeight;
+    private _filterTreeHeight = 2;
     @Input() filterID;
     @Input() hideClearButtons;
     @Input() filterIdTemplate;
@@ -37,6 +37,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     @Output() onChange  = new EventEmitter();
     @Output() onTemplateSet  = new EventEmitter();
     @Output() onFilterClear  = new EventEmitter();
+    @Output() onFilterLoadFinish  = new EventEmitter();
     @Input() ignoreOnClear; //string[], pas here all filter keys that should be ignored on clear
     @Input() defaultSubmitId:string;
     @Input() onFilterChangeHook:Function; //A function that will be triggered every time when the filter will change ( So one can manipulate the schema based on some value/dropdown/checkbox in the model
@@ -72,6 +73,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     set schema(value) {
         this._schema = value;
         this.saveDataInMemory();
+        this.triggerFilterLoadFinish();
     }
     constructor(
         private inj:Injector,
@@ -86,6 +88,12 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     ) {
         console.log("test",this._filterTreeHeight)
         this.getDataFromMemory();
+    }
+
+    triggerFilterLoadFinish(){
+        if(this._schema && this._schema.length > 0 && this.filterTreeHeight){
+            this.onFilterLoadFinish.emit();
+        }
     }
 
     getDataFromMemory(){
@@ -120,11 +128,12 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
 
     @Input("filterTreeHeight")
     set filterTreeHeight(value) {
-        this._filterTreeHeight = value;
+        this._filterTreeHeight = value || 2;
         if(this._filterTreeHeight) {
             this.cssBlockClass = `height_${this._filterTreeHeight}`;
         }
         this.saveDataInMemory();
+        this.triggerFilterLoadFinish();
     }
 
     ngOnInit() {
@@ -139,7 +148,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
             try{
                 this.filterID = `${location.hostname}-${this.inj['view'].parentNodeDef.renderParent.element.name}`;
             }catch (e){
-                this.filterID = `${location.hostname}-${location.hash.replace(/#/g,'').replace(/\//g,'-')}`;
+                this.filterID = `${location.hostname}-${location.pathname.replace(/\/dcm4chee-arc\/ui2\//g,"").replace(/\//g,'-')}`;
             }
         }
         if(!_.isBoolean(this.doNotSave)){

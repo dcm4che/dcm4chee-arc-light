@@ -26,6 +26,7 @@ import {environment} from "../../../environments/environment";
 })
 export class QueuesComponent implements OnInit, OnDestroy{
     private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
+    filterLoadFinished = false;
     matches = [];
     queues = [];
     dialogRef: MatDialogRef<any>;

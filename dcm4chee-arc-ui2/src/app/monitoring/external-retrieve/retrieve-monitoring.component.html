@@ -4,8 +4,8 @@
     <h2 i18n="@@retrieve">Retrieve</h2>
     <div class="filter_line">
       <div class="filter_block">
-        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)"></filter-generator>
-        <div class="filter">
+        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)" (onFilterLoadFinish)="filterLoadFinished = true"></filter-generator>
+        <div class="filter"  *ngIf="filterLoadFinished">
           <div class="filter_block auto_reloader">
             <table>
               <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">

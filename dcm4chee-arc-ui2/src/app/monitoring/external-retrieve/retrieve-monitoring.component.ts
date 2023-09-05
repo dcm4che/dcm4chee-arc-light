@@ -1556,6 +1556,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             console.error("Could not get devices",err);
         });
     }*/
+    filterLoadFinished: boolean = false;
     getQueueNames(){
         this.service.getQueueNames().subscribe(names=>{
             this.queueNames = names
