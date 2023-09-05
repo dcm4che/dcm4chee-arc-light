@@ -75,6 +75,7 @@ import java.util.Date;
                 @Index(columnList = "local_aet"),
                 @Index(columnList = "remote_aet"),
                 @Index(columnList = "destination_aet"),
+                @Index(columnList = "exporter_id"),
                 @Index(columnList = "check_missing"),
                 @Index(columnList = "check_different"),
                 @Index(columnList = "compare_fields"),

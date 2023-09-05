@@ -205,6 +205,7 @@ create index IDXk6dxmm1gu6u23xq03hbk80m4r on task (batch_id);
 create index IDX17gcm1xo6fkujauguyjfxfb2k on task (local_aet);
 create index IDX81xi6wnv5b10x3723fxt5bmew on task (remote_aet);
 create index IDXf7c43c242ybnvcn3o50lrcpkh on task (destination_aet);
+create index IDXe6odcfrgswxke8wtlj8bdehet on task (exporter_id);
 create index IDXpknlk8ggf8lnq38lq3gacvvpt on task (check_missing);
 create index IDX1lchdfbbwkjbg7a6coy5t8iq7 on task (check_different);
 create index IDXow0nufrtniev7nkh7d0uv5mxe on task (compare_fields);
