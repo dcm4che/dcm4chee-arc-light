@@ -89,7 +89,7 @@ public class ExportBatchRS {
     private String deviceName;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|SCHEDULED FOR RETRY|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -172,6 +172,7 @@ public class ExportBatchRS {
             private void writeTasks(ExportBatch exportBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
                 writer.writeNotNullOrDef("scheduled", exportBatch.getScheduled(), 0);
+                writer.writeNotNullOrDef("scheduled-for-retry", exportBatch.getScheduledForRetry(), 0);
                 writer.writeNotNullOrDef("in-process", exportBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", exportBatch.getWarning(), 0);
                 writer.writeNotNullOrDef("failed", exportBatch.getFailed(), 0);

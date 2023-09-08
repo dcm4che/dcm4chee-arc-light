@@ -94,7 +94,7 @@ public class RetrieveBatchRS {
     private String destinationAET;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|SCHEDULED FOR RETRY|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -179,6 +179,7 @@ public class RetrieveBatchRS {
             private void writeTasks(RetrieveBatch retrieveBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
                 writer.writeNotNullOrDef("scheduled", retrieveBatch.getScheduled(), 0);
+                writer.writeNotNullOrDef("scheduled-for-retry", retrieveBatch.getScheduledForRetry(), 0);
                 writer.writeNotNullOrDef("in-process", retrieveBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", retrieveBatch.getWarning(), 0);
                 writer.writeNotNullOrDef("failed", retrieveBatch.getFailed(), 0);

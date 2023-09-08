@@ -85,7 +85,7 @@ public class StgVerBatchRS {
     private String localAET;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|SCHEDULED FOR RETRY|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -168,6 +168,7 @@ public class StgVerBatchRS {
             private void writeTasks(StgVerBatch stgVerBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
                 writer.writeNotNullOrDef("scheduled", stgVerBatch.getScheduled(), 0);
+                writer.writeNotNullOrDef("scheduled-for-retry", stgVerBatch.getScheduledForRetry(), 0);
                 writer.writeNotNullOrDef("in-process", stgVerBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", stgVerBatch.getWarning(), 0);
                 writer.writeNotNullOrDef("failed", stgVerBatch.getFailed(), 0);

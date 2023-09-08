@@ -70,6 +70,7 @@ public class DiffBatch {
     private long warning;
     private long failed;
     private long scheduled;
+    private long scheduledForRetry;
     private long inProcess;
 
     public DiffBatch(String batchID) {
@@ -176,6 +177,14 @@ public class DiffBatch {
 
     public void setScheduled(long scheduled) {
         this.scheduled = scheduled;
+    }
+
+    public int getScheduledForRetry() {
+        return (int) scheduledForRetry;
+    }
+
+    public void setScheduledForRetry(long scheduledForRetry) {
+        this.scheduledForRetry = scheduledForRetry;
     }
 
     public int getInProcess() {

@@ -62,6 +62,7 @@ public class StgVerBatch {
     private long warning;
     private long failed;
     private long scheduled;
+    private long scheduledForRetry;
     private long inProcess;
 
     public StgVerBatch(String batchID) {
@@ -176,6 +177,14 @@ public class StgVerBatch {
 
     public void setScheduled(long scheduled) {
         this.scheduled = scheduled;
+    }
+
+    public int getScheduledForRetry() {
+        return (int) scheduledForRetry;
+    }
+
+    public void setScheduledForRetry(long scheduledForRetry) {
+        this.scheduledForRetry = scheduledForRetry;
     }
 
     public int getInProcess() {

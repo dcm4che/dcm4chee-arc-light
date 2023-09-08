@@ -111,7 +111,7 @@ public class DiffBatchRS {
     private String checkMissing;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|SCHEDULED FOR RETRY|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -217,6 +217,7 @@ public class DiffBatchRS {
             private void writeTasks(DiffBatch diffBatch, JsonWriter writer) {
                 writer.writeStartObject("tasks");
                 writer.writeNotNullOrDef("scheduled", diffBatch.getScheduled(), 0);
+                writer.writeNotNullOrDef("scheduled-for-retry", diffBatch.getScheduledForRetry(), 0);
                 writer.writeNotNullOrDef("in-process", diffBatch.getInProcess(), 0);
                 writer.writeNotNullOrDef("warning", diffBatch.getWarning(), 0);
                 writer.writeNotNullOrDef("failed", diffBatch.getFailed(), 0);

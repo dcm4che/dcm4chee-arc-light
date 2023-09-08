@@ -291,6 +291,7 @@ public class StgCmtEJB {
         final Expression<Long> warning;
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
+        final Expression<Long> scheduledForRetry;
         final Expression<Long> inprocess;
         final TaskQueryParam queryParam;
 
@@ -301,6 +302,7 @@ public class StgCmtEJB {
             this.warning = statusSubquery(Task.Status.WARNING).getSelection();
             this.canceled = statusSubquery(Task.Status.CANCELED).getSelection();
             this.scheduled = statusSubquery(Task.Status.SCHEDULED).getSelection();
+            this.scheduledForRetry = statusSubquery(Task.Status.SCHEDULED_FOR_RETRY).getSelection();
             this.inprocess = statusSubquery(Task.Status.IN_PROCESS).getSelection();
             query.multiselect(batchIDPath,
                     minProcessingStartTime, maxProcessingStartTime,
@@ -308,7 +310,7 @@ public class StgCmtEJB {
                     minScheduledTime, maxScheduledTime,
                     minCreatedTime, maxCreatedTime,
                     minUpdatedTime, maxUpdatedTime,
-                    completed, failed, warning, canceled, scheduled, inprocess);
+                    completed, failed, warning, canceled, scheduled, scheduledForRetry, inprocess);
             query.groupBy(task.get(Task_.batchID));
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(task.get(Task_.type), queryParam.getType()));
@@ -370,6 +372,7 @@ public class StgCmtEJB {
             stgVerBatch.setWarning(tuple.get(warning));
             stgVerBatch.setFailed(tuple.get(failed));
             stgVerBatch.setScheduled(tuple.get(scheduled));
+            stgVerBatch.setScheduledForRetry(tuple.get(scheduledForRetry));
             stgVerBatch.setInProcess(tuple.get(inprocess));
             return stgVerBatch;
         }

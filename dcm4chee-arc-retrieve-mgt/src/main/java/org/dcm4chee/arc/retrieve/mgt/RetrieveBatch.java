@@ -65,6 +65,7 @@ public class RetrieveBatch {
     private long warning;
     private long failed;
     private long scheduled;
+    private long scheduledForRetry;
     private long inProcess;
 
     public RetrieveBatch(String batchID) {
@@ -208,6 +209,14 @@ public class RetrieveBatch {
 
     public void setScheduled(long scheduled) {
         this.scheduled = scheduled;
+    }
+
+    public int getScheduledForRetry() {
+        return (int) scheduledForRetry;
+    }
+
+    public void setScheduledForRetry(long scheduledForRetry) {
+        this.scheduledForRetry = scheduledForRetry;
     }
 
     public int getInProcess() {

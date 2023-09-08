@@ -61,6 +61,7 @@ public class ExportBatch {
     private long warning;
     private long failed;
     private long scheduled;
+    private long scheduledForRetry;
     private long inProcess;
 
     public ExportBatch(String batchID) {
@@ -175,6 +176,14 @@ public class ExportBatch {
 
     public void setScheduled(long scheduled) {
         this.scheduled = scheduled;
+    }
+
+    public int getScheduledForRetry() {
+        return (int) scheduledForRetry;
+    }
+
+    public void setScheduledForRetry(long scheduledForRetry) {
+        this.scheduledForRetry = scheduledForRetry;
     }
 
     public int getInProcess() {

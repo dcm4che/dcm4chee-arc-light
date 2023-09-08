@@ -232,6 +232,7 @@ public class RetrieveManagerEJB {
         final Expression<Long> warning;
         final Expression<Long> canceled;
         final Expression<Long> scheduled;
+        final Expression<Long> scheduledForRetry;
         final Expression<Long> inprocess;
         final TaskQueryParam queryParam;
 
@@ -246,6 +247,7 @@ public class RetrieveManagerEJB {
             this.warning = statusSubquery(Task.Status.WARNING).getSelection();
             this.canceled = statusSubquery(Task.Status.CANCELED).getSelection();
             this.scheduled = statusSubquery(Task.Status.SCHEDULED).getSelection();
+            this.scheduledForRetry = statusSubquery(Task.Status.SCHEDULED_FOR_RETRY).getSelection();
             this.inprocess = statusSubquery(Task.Status.IN_PROCESS).getSelection();
             query.multiselect(batchIDPath,
                 minProcessingStartTime, maxProcessingStartTime,
@@ -253,7 +255,7 @@ public class RetrieveManagerEJB {
                 minScheduledTime, maxScheduledTime,
                 minCreatedTime, maxCreatedTime,
                 minUpdatedTime, maxUpdatedTime,
-                completed, failed, warning, canceled, scheduled, inprocess);
+                completed, failed, warning, canceled, scheduled, scheduledForRetry, inprocess);
             query.groupBy(task.get(Task_.batchID));
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(task.get(Task_.type), queryParam.getType()));
@@ -318,6 +320,7 @@ public class RetrieveManagerEJB {
             retrieveBatch.setWarning(tuple.get(warning));
             retrieveBatch.setFailed(tuple.get(failed));
             retrieveBatch.setScheduled(tuple.get(scheduled));
+            retrieveBatch.setScheduledForRetry(tuple.get(scheduledForRetry));
             retrieveBatch.setInProcess(tuple.get(inprocess));
             return retrieveBatch;
         }
