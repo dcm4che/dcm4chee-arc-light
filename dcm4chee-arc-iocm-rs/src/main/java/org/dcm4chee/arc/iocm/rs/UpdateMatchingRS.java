@@ -210,6 +210,7 @@ public class UpdateMatchingRS {
 
     @POST
     @Path("/series/update")
+    @Consumes("application/dicom+json,application/json")
     @Produces("application/json")
     public Response updateMatchingSeries(InputStream in) {
         return updateMatching(aet, "updateMatchingSeries", QueryRetrieveLevel2.SERIES,
@@ -218,6 +219,7 @@ public class UpdateMatchingRS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}/series/update")
+    @Consumes("application/dicom+json,application/json")
     @Produces("application/json")
     public Response updateMatchingSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID,

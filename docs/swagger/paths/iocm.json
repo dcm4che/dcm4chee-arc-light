@@ -103,7 +103,7 @@
           "description": "No matching Studies found"
         },
         "400": {
-          "description": "Validation for one of the query parameters failed"
+          "description": "JSON request body not well formed or Validation for one of the query parameters failed"
         },
         "404": {
           "description": "No such Archive AE Title or Rejection Note"
@@ -224,7 +224,7 @@
           "description": "No matching Series found"
         },
         "400": {
-          "description": "Validation for one of the query parameters failed"
+          "description": "JSON request body not well formed or Validation for one of the query parameters failed"
         },
         "404": {
           "description": "No such Archive AE Title or Rejection Note"
@@ -342,7 +342,7 @@
           "description": "No matching Series found"
         },
         "400": {
-          "description": "Validation for one of the query parameters failed"
+          "description": "JSON request body not well formed or Validation for one of the query parameters failed"
         },
         "404": {
           "description": "No such Archive AE Title or Rejection Note"
