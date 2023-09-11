@@ -4739,15 +4739,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $this.dialogRef.afterClosed().subscribe((ok) => {
                 if (ok) {
                     j4care.removeKeyFromObject(studyFiltered.attrs, ["required","enum", "multi"]);
-                    let params = '?updatePolicy=' + ok.updatePolicyResult;
-                    params += ok.sourceOfPrevVals != ''
-                                ? ok.reasonForModificationResult != undefined
-                                    ? '&sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
-                                    : '&sourceOfPreviousValues=' + ok.sourceOfPrevVals
-                                : ok.reasonForModificationResult != undefined
-                                    ? '&reasonForModification=' + ok.reasonForModificationResult
-                                    : '';
-
                     if(_.hasIn(studyFiltered,"attrs.0020000D"))
                         delete studyFiltered.attrs["0020000D"];
 
@@ -4764,7 +4755,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.updateMatchingStudies(local,
                         this.studyWebService,
                         new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
-                        params).subscribe(res => {
+                        this.appService.param({...this.createStudyFilterParams(true,true),
+                            ...{updatePolicy:ok.updatePolicyResult},
+                            ...{sourceOfPreviousValues:ok.sourceOfPrevVals},
+                            ...{reasonForModification:ok.reasonForModificationResult}}))
+                        .subscribe(res => {
                         console.log("res", res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessageUpdateMatching(msg, res);
@@ -4808,15 +4803,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $this.dialogRef.afterClosed().subscribe((ok) => {
                 if (ok) {
                     j4care.removeKeyFromObject(seriesFiltered.attrs, ["required","enum", "multi"]);
-                    let params = '?updatePolicy=' + ok.updatePolicyResult;
-                    params += ok.sourceOfPrevVals != ''
-                                ? ok.reasonForModificationResult != undefined
-                                    ? '&sourceOfPreviousValues=' + ok.sourceOfPrevVals + '&reasonForModification=' + ok.reasonForModificationResult
-                                    : '&sourceOfPreviousValues=' + ok.sourceOfPrevVals
-                                : ok.reasonForModificationResult != undefined
-                                    ? '&reasonForModification=' + ok.reasonForModificationResult
-                                    : '';
-
                     if(_.hasIn(seriesFiltered,"attrs.0020000E"))
                         delete seriesFiltered.attrs["0020000E"];
 
@@ -4833,7 +4819,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.updateMatchingSeries(local,
                         this.studyWebService.selectedWebService,
                         new HttpHeaders({ 'Content-Type': 'application/dicom+json' }),
-                        params).subscribe(res => {
+                        this.appService.param({...this.createStudyFilterParams(true,true),
+                            ...{updatePolicy:ok.updatePolicyResult},
+                            ...{sourceOfPreviousValues:ok.sourceOfPrevVals},
+                            ...{reasonForModification:ok.reasonForModificationResult}}))
+                        .subscribe(res => {
                         console.log("res", res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessageUpdateMatching(msg, res);

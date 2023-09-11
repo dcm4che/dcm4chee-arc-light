@@ -3860,7 +3860,7 @@ export class StudyService {
     }
 
     updateMatchingStudies(study, deviceWebservice: StudyWebService, header: HttpHeaders, params:any) {
-        const url = `${this.getModifyStudyUrl(deviceWebservice)}/update${params}`;
+        const url = `${this.getModifyStudyUrl(deviceWebservice)}/update` + `${params}`;
         if (url) {
             return this.$http.post(url, study, header);
         }
@@ -3868,7 +3868,7 @@ export class StudyService {
     }
 
     updateMatchingSeries(series, webApp:DcmWebApp, header: HttpHeaders, params:any) {
-        const url = `${this.getDicomURL("series", webApp)}/update${params}`;
+        const url = `${this.getDicomURL("series", webApp)}/update` + `${params}`;
         if (url) {
             return this.$http.post(url, series, header);
         }
