@@ -45,7 +45,6 @@ import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonParsingException;
-import jakarta.persistence.NoResultException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
@@ -443,9 +442,9 @@ public class StudyMgtRS {
                 expirationExporterID, null);
     }
 
-    private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate,
-                                          String expirationExporterID, String freezeExpirationDate) {
-        boolean updateSeriesExpirationDate = seriesUID != null;
+    private Response updateExpirationDate(
+            RSOperation op, String studyUID, String seriesUID, String expirationDate,
+            String expirationExporterID, String freezeExpirationDate) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -473,11 +472,10 @@ public class StudyMgtRS {
             rsForward.forward(op, arcAE, null, request);
             return Response.noContent().build();
         } catch (DateTimeParseException e) {
-            return errResponse("Expiration date cannot be parsed.", Response.Status.BAD_REQUEST);
-        } catch (NoResultException e) {
-            return errResponse(
-                    updateSeriesExpirationDate ? "Series not found. " + seriesUID : "Study not found. " + studyUID,
-                    Response.Status.NOT_FOUND);
+            return errResponse("Expiration date [" + expirationDate + "] cannot be parsed.",
+                    Response.Status.BAD_REQUEST);
+        } catch (StudyMissingException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }

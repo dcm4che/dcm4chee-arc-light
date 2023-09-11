@@ -280,43 +280,47 @@ public class StudyServiceEJB {
         }
     }
 
-    private void updateStudyExpirationDate(StudyMgtContext ctx) {
-        List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
-                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
-        Study study = !seriesOfStudy.isEmpty()
-                ? seriesOfStudy.get(0).getStudy()
-                : em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+    private void updateStudyExpirationDate(StudyMgtContext ctx) throws StudyMissingException {
+        try {
+            List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
+                    .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+            Study study = !seriesOfStudy.isEmpty()
+                    ? seriesOfStudy.get(0).getStudy()
+                    : em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
 
-        ctx.setStudy(study);
-        ctx.setPatient(study.getPatient());
-        ctx.setAttributes(study.getAttributes());
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+            ctx.setStudy(study);
+            ctx.setPatient(study.getPatient());
+            ctx.setAttributes(study.getAttributes());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
 
-        ExpirationOperation expirationOp = ExpirationOperation.compute(ctx, study);
-        if (expirationOp == ExpirationOperation.Protect) {
+            ExpirationOperation expirationOp = ExpirationOperation.compute(ctx, study);
+            if (expirationOp == ExpirationOperation.Protect) {
+                studyExpirationTo(expirationOp, ctx, study);
+                seriesOfStudy.forEach(series ->
+                        seriesExpirationTo(expirationOp, ctx, series));
+                return;
+            }
+            if (expirationOp == ExpirationOperation.Skip) {
+                LOG.info("{} updating {} Study[UID={}, ExpirationDate[={}]] with ExpirationDate[={}]",
+                        expirationOp.name(), expirationOp.expirationState,
+                        study.getStudyInstanceUID(), study.getExpirationDate(), ctx.getExpirationDate());
+                ctx.setEventActionCode(null);
+                return;
+            }
+
             studyExpirationTo(expirationOp, ctx, study);
-            seriesOfStudy.forEach(series ->
-                    seriesExpirationTo(expirationOp, ctx, series));
-            return;
+            if (expirationOp == ExpirationOperation.Update) {
+                seriesOfStudy.forEach(series -> {
+                    LocalDate seriesExpirationDate = series.getExpirationDate();
+                    if (seriesExpirationDate != null && seriesExpirationDate.isAfter(ctx.getExpirationDate()))
+                        seriesExpirationTo(expirationOp, ctx, series);
+                });
+            } else
+                seriesOfStudy.forEach(series -> seriesExpirationTo(expirationOp, ctx, series));
+        } catch (NoResultException e) {
+            throw new StudyMissingException("Study[uid=" + ctx.getStudyInstanceUID() + "] to be expired does not exist");
         }
-        if (expirationOp == ExpirationOperation.Skip) {
-            LOG.info("{} updating {} Study[UID={}, ExpirationDate[={}]] with ExpirationDate[={}]",
-                    expirationOp.name(), expirationOp.expirationState,
-                    study.getStudyInstanceUID(), study.getExpirationDate(), ctx.getExpirationDate());
-            ctx.setEventActionCode(null);
-            return;
-        }
-
-        studyExpirationTo(expirationOp, ctx, study);
-        if (expirationOp == ExpirationOperation.Update) {
-            seriesOfStudy.forEach(series -> {
-                LocalDate seriesExpirationDate = series.getExpirationDate();
-                if (seriesExpirationDate != null && seriesExpirationDate.isAfter(ctx.getExpirationDate()))
-                    seriesExpirationTo(expirationOp, ctx, series);
-            });
-        } else
-            seriesOfStudy.forEach(series -> seriesExpirationTo(expirationOp, ctx, series));
     }
 
     enum ExpirationOperation {
@@ -361,30 +365,36 @@ public class StudyServiceEJB {
         series.setExpirationState(expirationOp.expirationState);
     }
 
-    private void updateSeriesExpirationDate(StudyMgtContext ctx) {
-        Series series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
-                .setParameter(1, ctx.getStudyInstanceUID())
-                .setParameter(2, ctx.getSeriesInstanceUID()).getSingleResult();
-        Study study = series.getStudy();
-        LocalDate expirationDate = ctx.getExpirationDate();
-        if (series.getExpirationState() == ExpirationState.FROZEN) {
-            LOG.info("Skip updating frozen Series[UID={}, ExpirationDate={}] of Study[UID={}] with ExpirationDate[={}]",
-                    series.getSeriesInstanceUID(), series.getExpirationDate(),
-                    study.getStudyInstanceUID(), expirationDate);
-            return;
-        }
+    private void updateSeriesExpirationDate(StudyMgtContext ctx) throws StudyMissingException {
+        try {
+            Series series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
+                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .setParameter(2, ctx.getSeriesInstanceUID()).getSingleResult();
+            Study study = series.getStudy();
+            LocalDate expirationDate = ctx.getExpirationDate();
+            if (series.getExpirationState() == ExpirationState.FROZEN) {
+                LOG.info("Skip updating frozen Series[UID={}, ExpirationDate={}] of Study[UID={}] with ExpirationDate[={}]",
+                        series.getSeriesInstanceUID(), series.getExpirationDate(),
+                        study.getStudyInstanceUID(), expirationDate);
+                return;
+            }
 
-        LocalDate studyExpirationDate = study.getExpirationDate();
-        seriesExpirationTo(ExpirationOperation.Update, ctx, series);
-        ctx.setStudy(study);
-        ctx.setPatient(study.getPatient());
-        ctx.setAttributes(study.getAttributes());
-        if (studyExpirationDate == null || studyExpirationDate.isBefore(expirationDate))
-            studyExpirationTo(ExpirationOperation.Update, ctx, study);
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+            LocalDate studyExpirationDate = study.getExpirationDate();
+            seriesExpirationTo(ExpirationOperation.Update, ctx, series);
+            ctx.setStudy(study);
+            ctx.setPatient(study.getPatient());
+            ctx.setAttributes(study.getAttributes());
+            if (studyExpirationDate == null || studyExpirationDate.isBefore(expirationDate))
+                studyExpirationTo(ExpirationOperation.Update, ctx, study);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        } catch (NoResultException e) {
+            throw new StudyMissingException("Series [uid=" + ctx.getSeriesInstanceUID()
+                    + "] of Study[uid=" + ctx.getStudyInstanceUID()
+                    + "] to be expired does not exist");
+        }
     }
 
-    public void updateExpirationDate(StudyMgtContext ctx) {
+    public void updateExpirationDate(StudyMgtContext ctx) throws StudyMissingException {
         if (ctx.getSeriesInstanceUID() != null) {
             updateSeriesExpirationDate(ctx);
             return;

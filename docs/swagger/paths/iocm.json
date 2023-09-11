@@ -1613,9 +1613,6 @@
         },
         {
           "$ref": "../parameters.json#/ExporterID"
-        },
-        {
-          "$ref": "../parameters.json#/FreezeExpirationDate"
         }
       ],
       "responses": {

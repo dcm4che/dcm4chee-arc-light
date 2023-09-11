@@ -136,7 +136,7 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    public void updateExpirationDate(StudyMgtContext ctx) {
+    public void updateExpirationDate(StudyMgtContext ctx) throws StudyMissingException {
         try {
             ejb.updateExpirationDate(ctx);
         } catch (Exception e) {
