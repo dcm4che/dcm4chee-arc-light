@@ -922,8 +922,7 @@ public class StoreServiceEJB {
             seq.add(pidAttrs = new Attributes());
         }
         idService.newPatientID(pidAttrs);
-        List<IDWithIssuer> pids = new ArrayList<>(patMgtCtx.getPatientIDs());
-        pids.add(IDWithIssuer.pidOf(pidAttrs));
+        patMgtCtx.setPatientIDs(IDWithIssuer.pidsOf(pidAttrs));
         return true;
     }
 
