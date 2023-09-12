@@ -1071,6 +1071,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "modify_expired_date"){
                 this.setExpiredDate(model);
             }
+            if(id.action === "modify_expired_date_series"){
+                this.setExpiredDateSeries(model);
+            }
             if(id.action === "mark_as_requested_unscheduled"){
                 this.markAsRequestedOrUnscheduled(model, id.level);
             }
@@ -4912,6 +4915,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     setExpiredDate(study){
         this.setExpiredDateQuery(study,false);
     }
+
+    setExpiredDateSeries(series){
+        this.setExpiredDateQuerySeries(series);
+    }
+
     markAsRequestedOrUnscheduled(e, level:DicomLevel){
         let markModeHover;
         let markModeTitle;
@@ -5001,6 +5009,34 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
             })
         })
+    }
+
+    setExpiredDateQuerySeries(series){
+        this.confirm(this.service.getPrepareParameterForExpirationDialogSeries(series,this.exporters)).subscribe(result => {
+            if(result){
+                this.cfpLoadingBar.start();
+                if(result.schema_model.expiredDate || result.schema_model.protectStudy){
+                    this.service.setExpiredDateSeries(this.studyWebService,
+                        _.get(series,"attrs.0020000D.Value[0]"),
+                        _.get(series,"attrs.0020000E.Value[0]"),
+                        result.schema_model.expiredDate,
+                        result.schema_model.exporter)
+                        .subscribe((res)=>{
+                                _.set(series,"attrs.77771033.Value[0]",result.schema_model.expiredDate);
+                                _.set(series,"attrs.77771033.vr","DA");
+                                this.appService.showMsg( $localize `:@@expired_date_set:Expired date set successfully!`);
+                                this.cfpLoadingBar.complete();
+                            },
+                            (err)=>{
+                                this.httpErrorHandler.handleError(err);
+                                this.cfpLoadingBar.complete();
+                            }
+                        );
+                }else{
+                    this.appService.showError($localize `:@@expired_date_required:Expired date is required!`);
+                }
+            }
+        });
     }
 
     setExpiredDateQuery(study, infinit){

@@ -2345,6 +2345,28 @@ export class StudyService {
                                     id: 'action-studies-serie',
                                     param: j4care.is(options,"trash.active") ? 'restore' : 'reject'
                                 }
+                            },{
+                                icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'history'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "modify_expired_date_series"
+                                    }, e);
+                                },
+                                id: "series_modify_expired_date",
+                                title: $localize `:@@set_change_expired_date:Set/Change expired date`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-serie',
+                                    param: 'edit'
+                                }
                             },
                             {
                                 icon: {
@@ -4491,6 +4513,72 @@ export class StudyService {
         return this.getIod("mwl");
     };
 
+    getPrepareParameterForExpirationDialogSeries(series, exporters) {
+        let expiredDate: Date;
+        let title = $localize `:@@set_expired_date_for_the_series:Set expired date for the series.`;
+        let schema: any = [
+            [
+                [
+                    {
+                        tag: "label",
+                        text: $localize `:@@expired_date:Expired date`
+                    },
+                    {
+                        tag: "p-calendar",
+                        filterKey: "expiredDate",
+                        description: $localize `:@@expired_date:Expired Date`
+                    }
+                ]
+            ]
+        ];
+        let schemaModel = {};
+        if (_.hasIn(series.attrs, "77771033.Value.0") && series.attrs["77771033"].Value[0] != "") {
+            let expiredDateString = series.attrs["77771033"].Value[0];
+            expiredDate = new Date(expiredDateString.substring(0, 4) + '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
+        } else {
+            expiredDate = new Date();
+        }
+        schemaModel = {
+            expiredDate: j4care.formatDate(expiredDate, 'yyyyMMdd')
+        };
+        title += $localize `:@@series.set_exporter_if_you_want_to_export_on_expiration_date_too:<p>Set exporter if you want to export series on expiration date too.`;
+        schema = [
+            [
+                [
+                    {
+                        tag: "label",
+                        text: $localize `:@@expired_date:Expired date`
+                    },
+                    {
+                        tag: "p-calendar",
+                        filterKey: "expiredDate",
+                        description: $localize `:@@expired_date:Expired Date`
+                    }
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize `:@@exporter:Exporter`
+                    },
+                    {
+                        tag: "select",
+                        filterKey: "exporter",
+                        description: $localize `:@@exporter:Exporter`,
+                        options: exporters.map(exporter => new SelectDropdown(exporter.id, exporter.description || exporter.id))
+                    }
+                ]
+            ]
+        ];
+        return {
+            content: title,
+            form_schema: schema,
+            result: {
+                schema_model: schemaModel
+            },
+            saveButton: $localize `:@@SAVE:SAVE`
+        };
+    }
+
     getPrepareParameterForExpiriationDialog(study, exporters, infinit) {
         let expiredDate: Date;
         let title = $localize `:@@set_expired_date_for_the_study:Set expired date for the study.`;
@@ -4667,6 +4755,14 @@ export class StudyService {
             },
             saveButton: $localize `:@@SAVE:SAVE`
         };
+    }
+
+    setExpiredDateSeries(deviceWebservice: StudyWebService, studyUID, seriesUID, expiredDate, exporter) {
+        const url = this.getModifyStudyUrl(deviceWebservice);
+        let localParams = "";
+        if (exporter)
+            localParams = `?ExporterID=${exporter}`;
+        return this.$http.put(`${url}/${studyUID}/series/${seriesUID}/expire/${expiredDate}${localParams}`, {})
     }
 
     setExpiredDate(deviceWebservice: StudyWebService, studyUID, expiredDate, exporter, freezeExpirationDate, params?: any) {
