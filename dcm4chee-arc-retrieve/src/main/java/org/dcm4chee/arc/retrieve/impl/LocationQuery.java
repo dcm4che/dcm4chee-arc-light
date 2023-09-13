@@ -101,7 +101,7 @@ class LocationQuery {
         } else {
             QueryBuilder builder = new QueryBuilder(cb);
             if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
-                builder.patientIDPredicate(predicates, q, study.join(Study_.patient), ctx.getPatientIDs());
+                builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
             }
             builder.accessControl(predicates, study, ctx.getAccessControlIDs());
             builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());

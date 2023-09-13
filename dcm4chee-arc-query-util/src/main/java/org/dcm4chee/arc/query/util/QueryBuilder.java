@@ -363,45 +363,23 @@ public class QueryBuilder {
             predicates.add(cb.or(idPredicates.toArray(new Predicate[0])));
     }
 
-    private <T, Z> void patIDWithoutIssuerPredicate(List<Predicate> predicates,
-                                                    CriteriaQuery<T> q, From<Z, Patient> patient,
-                                                    IDWithIssuer[] pids) {
-        Subquery<PatientID> sq = q.subquery(PatientID.class);
-        Root<PatientID> patientID = sq.from(PatientID.class);
-        List<Predicate> y = new ArrayList<>();
-        patIDWithoutIssuerPredicate(y, patientID, pids);
-        if (!y.isEmpty()) {
-            y.add(cb.equal(patientID.get(PatientID_.patient), patient));
-            predicates.add(cb.exists(sq.select(patientID).where(y.toArray(new Predicate[0]))));
-        }
-
+    private <Z> void patientIDWithoutIssuerPredicate(List<Predicate> predicates,
+                                                        From<Z, Patient> patient,
+                                                        IDWithIssuer[] pids) {
+        patIDWithoutIssuerPredicate(predicates, patient.join(Patient_.patientIDs), pids);
     }
 
-    public <T, Z> void patientIDPredicate(List<Predicate> predicates,
-                                           CriteriaQuery<T> q, From<Z, Patient> patient,
-                                           IDWithIssuer[] pids) {
-        Subquery<PatientID> sq = q.subquery(PatientID.class);
-        Root<PatientID> patientID = sq.from(PatientID.class);
-        List<Predicate> y = new ArrayList<>();
-        patientIDPredicate(y, pids, patientID);
-        if (!y.isEmpty()) {
-            y.add(cb.equal(patientID.get(PatientID_.patient), patient));
-            predicates.add(cb.exists(sq.select(patientID).where(y.toArray(new Predicate[0]))));
-        }
+    public <Z> void patientIDPredicate(List<Predicate> predicates,
+                                          From<Z, Patient> patient,
+                                          IDWithIssuer[] pids) {
+        patIDPredicate(predicates, pids, patient.join(Patient_.patientIDs));
     }
 
-    private <T, Z> void patIDIssuerPredicate(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Patient> patient, Issuer issuer) {
-        Subquery<PatientID> sq = q.subquery(PatientID.class);
-        Root<PatientID> patientID = sq.from(PatientID.class);
-        List<Predicate> y = new ArrayList<>();
-        patIDIssuerPredicate(y, issuer, patientID);
-        if (!y.isEmpty()) {
-            y.add(cb.equal(patientID.get(PatientID_.patient), patient));
-            predicates.add(cb.exists(sq.select(patientID).where(y.toArray(new Predicate[0]))));
-        }
+    private <Z> void patientIDIssuerPredicate(List<Predicate> predicates, From<Z, Patient> patient, Issuer issuer) {
+        patIDIssuerPredicate(predicates, issuer, patient.join(Patient_.patientIDs));
     }
 
-    private <X> void patientIDPredicate(List<Predicate> predicates, IDWithIssuer[] pids, From<X, PatientID> patientID) {
+    private <X> void patIDPredicate(List<Predicate> predicates, IDWithIssuer[] pids, From<X, PatientID> patientID) {
         List<Predicate> idPredicates = new ArrayList<>(pids.length);
         for (IDWithIssuer pid : pids)
             if (!isUniversalMatching(pid.getID())) {
@@ -439,7 +417,7 @@ public class QueryBuilder {
         if (queryParam.isWithoutIssuer())
             patIDWithoutIssuerPredicate(predicates, patientID, pids);
         else if (!QueryBuilder.isUniversalMatching(pids))
-            patientIDPredicate(predicates, pids, patientID);
+            patIDPredicate(predicates, pids, patientID);
         else if (!QueryBuilder.isUniversalMatching(issuer))
             patIDIssuerPredicate(predicates, issuer, patientID);
         patientLevelPredicates2(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.PATIENT);
@@ -605,11 +583,11 @@ public class QueryBuilder {
             return;
 
         if (queryParam.isWithoutIssuer())
-            patIDWithoutIssuerPredicate(predicates, q, patient, pids);
+            patientIDWithoutIssuerPredicate(predicates, patient, pids);
         else if (!QueryBuilder.isUniversalMatching(pids))
-            patientIDPredicate(predicates, q, patient, pids);
+            patientIDPredicate(predicates, patient, pids);
         else if (!QueryBuilder.isUniversalMatching(issuer))
-            patIDIssuerPredicate(predicates, q, patient, issuer);
+            patientIDIssuerPredicate(predicates, patient, issuer);
         patientLevelPredicates2(predicates, q, patient, pids, issuer, keys, queryParam, queryRetrieveLevel);
     }
 
