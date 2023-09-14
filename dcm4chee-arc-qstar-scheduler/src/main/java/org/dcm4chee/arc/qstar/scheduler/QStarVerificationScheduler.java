@@ -180,6 +180,10 @@ public class QStarVerificationScheduler extends Scheduler {
             if (fileInfo.getStatus() == 0 && fileInfo.getInfo() != null) {
                 long stateAccess = fileInfo.getInfo().getStateAccess();
                 if (stateAccess != 3) {
+                    LOG.warn("Get QStar Access State {} for {} from {}",
+                            QStarUtils.stateAccessAsString(stateAccess),
+                            location, url);
+                } else {
                     LOG.info("Get QStar Access State {} for {} from {}",
                             QStarUtils.stateAccessAsString(stateAccess),
                             location, url);
