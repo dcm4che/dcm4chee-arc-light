@@ -61,7 +61,7 @@ import java.util.*;
 @NamedQueries({
 @NamedQuery(
     name=Instance.FIND_BY_SOP_IUID_EAGER,
-    query="select distinct i from Instance i " +
+    query="select i from Instance i " +
             "join fetch i.series se " +
             "join fetch se.study st " +
             "join fetch st.patient p " +
@@ -114,6 +114,7 @@ import java.util.*;
             "join fetch i.series se " +
             "join fetch se.study st " +
             "join fetch st.patient p " +
+            "left join fetch p.patientIDs " +
             "left join fetch p.patientName " +
             "left join fetch st.referringPhysicianName " +
             "left join fetch se.performingPhysicianName " +

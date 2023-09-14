@@ -131,7 +131,7 @@ import java.util.*;
                         "where st.studyInstanceUID = ?1"),
         @NamedQuery(
                 name = Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE,
-                query = "select distinct st from Study st " +
+                query = "select st from Study st " +
                         "join fetch st.patient p " +
                         "left join fetch p.patientIDs " +
                         "where st.size = -1 and st.updatedTime < ?1"),

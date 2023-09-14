@@ -65,21 +65,21 @@ import java.util.*;
             "where p.mergedWith = ?1"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS,
-    query="select distinct p from Patient p " +
-            "join fetch p.patientIDs " +
+    query="select p from Patient p " +
+            "left join fetch p.patientIDs " +
             "where p.verificationStatus = ?1 " +
             "order by p.pk"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME,
-    query="select distinct p from Patient p " +
-            "join fetch p.patientIDs " +
+    query="select p from Patient p " +
+            "left join fetch p.patientIDs " +
             "where p.verificationStatus = ?1 " +
             "and p.verificationTime < ?2 " +
             "order by p.verificationTime"),
 @NamedQuery(
     name=Patient.FIND_BY_VERIFICATION_STATUS_AND_TIME_AND_MAX_RETRIES,
-    query="select distinct p from Patient p " +
-            "join fetch p.patientIDs " +
+    query="select p from Patient p " +
+            "left join fetch p.patientIDs " +
             "where p.verificationStatus = ?1 " +
             "and p.verificationTime < ?2 " +
             "and p.failedVerifications <= ?3 " +
