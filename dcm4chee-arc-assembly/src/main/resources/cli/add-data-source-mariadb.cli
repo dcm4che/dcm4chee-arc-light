@@ -1,0 +1,4 @@
+/subsystem=datasources/jdbc-driver=mariadb:add(driver-module-name=org.mariadb,driver-name=mariadb)
+data-source add --name=pacsds --driver-name=mariadb --jndi-name=java:/PacsDS \
+--connection-url=jdbc:mariadb://localhost:3306/pacsdb \
+--user-name=pacs --password=<user-password>

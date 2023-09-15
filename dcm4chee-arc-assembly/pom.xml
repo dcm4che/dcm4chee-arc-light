@@ -122,6 +122,11 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
+      <artifactId>jdbc-jboss-modules-mariadb</artifactId>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
       <artifactId>jdbc-jboss-modules-oracle</artifactId>
       <type>zip</type>
     </dependency>
