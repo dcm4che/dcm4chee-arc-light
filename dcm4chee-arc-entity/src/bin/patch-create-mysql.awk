@@ -3,14 +3,14 @@ BEGIN { FS = "[ )]" }
 {
     if ($3 == "id_sequence") {
             print "create table id_sequence (name varchar(64) not null, next_value integer not null, version bigint, primary key (name));"
-    } else if ($3 == "UK_6a0y0rsssms4mtm9bpkw8vgl6") {
-            print "create index UK_6a0y0rsssms4mtm9bpkw8vgl6 on task (study_iuid(64), series_iuid(64), sop_iuid(64));"
-    } else if ($3 == "UK_r3oh859i9osv3aluoc8dcx9wk") {
-            print "create index UK_r3oh859i9osv3aluoc8dcx9wk on location (storage_id(64), status);"
-    } else if ($3 == "UK_f7c9hmq8pfypohkgkp5vkbhxp") {
-            print "create index UK_f7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id(64), status);"
-    } else if ($3 == "UK_m2jq6xe87vegohf6g10t5ptew") {
-            print "create index UK_m2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid(64), entity_uid_type(64));"
+    } else if ($3 == "IDX6a0y0rsssms4mtm9bpkw8vgl6") {
+            print "create index IDX6a0y0rsssms4mtm9bpkw8vgl6 on task (study_iuid(64), series_iuid(64), sop_iuid(64));"
+    } else if ($3 == "IDXr3oh859i9osv3aluoc8dcx9wk") {
+            print "create index IDXr3oh859i9osv3aluoc8dcx9wk on location (storage_id(64), status);"
+    } else if ($3 == "IDXf7c9hmq8pfypohkgkp5vkbhxp") {
+            print "create index IDXf7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id(64), status);"
+    } else if ($3 == "IDXm2jq6xe87vegohf6g10t5ptew") {
+            print "create index IDXm2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid(64), entity_uid_type(64));"
     } else if ($2 == "index" \
             && $6 != "(created_time" \
             && $6 != "(updated_time" \
