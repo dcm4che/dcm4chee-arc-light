@@ -28,6 +28,13 @@ Build
         cd dcm4che
         ./mvnw install
 
+* Build `master` branch of [dcm4chee-arc-lang](https://github.com/dcm4che/dcm4chee-arc-lang/) -
+  only necessary to build unreleased version, which is not (yet) available in the Maven repository:
+
+        git clone https://github.com/dcm4che/dcm4chee-arc-lang.git
+        cd dcm4chee-arc-lang
+        ./mvnw install
+
 * Build the Archive for a specific database:
 
         ./mvnw install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver}
