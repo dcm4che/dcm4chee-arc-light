@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -e
+
 ./mvnw install
 ./mvnw install -Dsecure=all
 ./mvnw install -Dsecure=ui
