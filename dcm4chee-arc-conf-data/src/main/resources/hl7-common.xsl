@@ -561,16 +561,6 @@
       <xsl:with-param name="vr" select="'DA'"/>
       <xsl:with-param name="val" select="substring(field[7],1,8)"/>
     </xsl:call-template>
-    <!-- Patient's Address' -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00101040'"/>
-      <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="val">
-        <xsl:call-template name="address">
-          <xsl:with-param name="val" select="field[11]"/>
-        </xsl:call-template>
-      </xsl:with-param>
-    </xsl:call-template>
     <!-- Patient Sex -->
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00100040'"/>
@@ -606,6 +596,21 @@
         <xsl:with-param name="val" select="$ownerRole"/>
       </xsl:call-template>
     </xsl:if>
+    <!-- Patient's Address' -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00101040'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="address">
+          <xsl:with-param name="val" select="field[11]"/>
+        </xsl:call-template>
+      </xsl:with-param>
+    </xsl:call-template>
+    <!-- Patient's Telecom Info' -->
+    <xsl:call-template name="patientTelecomInfo">
+      <xsl:with-param name="home" select="field[13]"/>
+      <xsl:with-param name="business" select="field[14]"/>
+    </xsl:call-template>
     <!-- Patient Species Description and Code Sequence -->
     <xsl:call-template name="ce2codeItemWithDesc">
       <xsl:with-param name="descTag" select="'00102201'"/>
@@ -639,6 +644,92 @@
         </xsl:if>
       </xsl:with-param>
     </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="patientTelecomInfo">
+    <xsl:param name="home"/>
+    <xsl:param name="business"/>
+    <xsl:variable name="homeTelecomInfoAsStr">
+      <xsl:call-template name="telecomInfoAsStr">
+        <xsl:with-param name="val" select="$home"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="businessTelecomInfoAsStr">
+      <xsl:call-template name="telecomInfoAsStr">
+        <xsl:with-param name="val" select="$business"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="homeTelephone">
+      <xsl:call-template name="telephoneNo">
+        <xsl:with-param name="telecomInfo" select="$home"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="businessTelephone">
+      <xsl:call-template name="telephoneNo">
+        <xsl:with-param name="telecomInfo" select="$business"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="patientTelecomInfo">
+      <xsl:choose>
+        <xsl:when test="$home and $business">
+          <xsl:value-of select="concat($homeTelecomInfoAsStr, '~', $businessTelecomInfoAsStr)"/>
+        </xsl:when>
+        <xsl:when test="$home and not($business)">
+          <xsl:value-of select="$homeTelecomInfoAsStr"/>
+        </xsl:when>
+        <xsl:when test="$business and not($home)">
+          <xsl:value-of select="$businessTelecomInfoAsStr"/>
+        </xsl:when>
+        <xsl:otherwise/>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00102155'"/>
+      <xsl:with-param name="vr" select="'LT'"/>
+      <xsl:with-param name="val" select="$patientTelecomInfo"/>
+    </xsl:call-template>
+    <xsl:variable name="patientTelephoneNos">
+      <xsl:choose>
+        <xsl:when test="$home and $business">
+          <xsl:value-of select="concat($homeTelephone, '~', $businessTelephone)"/>
+        </xsl:when>
+        <xsl:when test="$home and not($business)">
+          <xsl:value-of select="$homeTelephone"/>
+        </xsl:when>
+        <xsl:when test="$business and not($home)">
+          <xsl:value-of select="$businessTelephone"/>
+        </xsl:when>
+        <xsl:otherwise/>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00102154'"/>
+      <xsl:with-param name="vr" select="'SH'"/>
+      <xsl:with-param name="val" select="$patientTelephoneNos"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="telephoneNo">
+    <xsl:param name="telecomInfo"/>
+    <xsl:choose>
+      <xsl:when test="$telecomInfo/text()">
+        <xsl:value-of select="$telecomInfo/text()"/>
+      </xsl:when>
+      <xsl:when test="$telecomInfo/component[4] and $telecomInfo/component[5] and $telecomInfo/component[6]">
+        <xsl:value-of select="concat($telecomInfo/component[4], ' ', $telecomInfo/component[5], ' ', $telecomInfo/component[6])"/>
+      </xsl:when>
+      <xsl:when test="$telecomInfo/component[11]">
+        <xsl:value-of select="$telecomInfo/component[11]"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="telecomInfoAsStr">
+    <xsl:param name="val"/>
+    <xsl:value-of select="$val/text()"/>
+    <xsl:for-each select="$val/component">
+      <xsl:value-of select="concat('^', .)"/>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template name="nullifyIfAbsent">
