@@ -715,7 +715,7 @@
       <xsl:when test="$telecomInfo/text()">
         <xsl:value-of select="$telecomInfo/text()"/>
       </xsl:when>
-      <xsl:when test="$telecomInfo/component[4] and $telecomInfo/component[5] and $telecomInfo/component[6]">
+      <xsl:when test="$telecomInfo/component[4]/text() and $telecomInfo/component[5]/text() and $telecomInfo/component[6]/text()">
         <xsl:value-of select="concat($telecomInfo/component[4], ' ', $telecomInfo/component[5], ' ', $telecomInfo/component[6])"/>
       </xsl:when>
       <xsl:when test="$telecomInfo/component[11]">
