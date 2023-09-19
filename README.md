@@ -19,26 +19,33 @@ be migration tools to upgrade existing installations of 2.x to 5.x.
 Build
 -----
 
-* Make sure you have [Maven 3](http://maven.apache.org) installed.
+* Make sure you have Java 17 (JDK) or newer installed.
 
 * Build `master` branch of [dcm4che 3 Library](https://github.com/dcm4che/dcm4che) -
   only necessary to build unreleased version, which is not (yet) available in the Maven repository:
 
-        > $git clone https://github.com/dcm4che/dcm4che.git
-        > $cd dcm4che
-        > $mvn install
+        git clone https://github.com/dcm4che/dcm4che.git
+        cd dcm4che
+        ./mvnw install
+
+* Build `master` branch of [dcm4chee-arc-lang](https://github.com/dcm4che/dcm4chee-arc-lang/) -
+  only necessary to build unreleased version, which is not (yet) available in the Maven repository:
+
+        git clone https://github.com/dcm4che/dcm4chee-arc-lang.git
+        cd dcm4chee-arc-lang
+        ./mvnw install
 
 * Build the Archive for a specific database:
 
-        > $mvn install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver}
+        ./mvnw install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver}
 
     with secured WEB UI:
 
-        > $mvn install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver} -D secure=ui
+        ./mvnw install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver} -D secure=ui
 
     with secured WEB UI and secured RESTful services:
 
-        > $mvn install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver} -D secure=all
+        ./mvnw install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver} -D secure=all
 
 
 Installation
