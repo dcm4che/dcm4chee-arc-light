@@ -605,6 +605,11 @@ public class AuditService {
     }
 
     void spoolRetrieveWADO(RetrieveContext ctx) {
+        if (ctx.getSopInstanceUIDs().length == 0) {
+            LOG.info("SOP Instance for Retrieve object by WADO URI audit not available in retrieve context, exit spooling");
+            return;
+        }
+
         HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
         try {
             Attributes attrs = ctx.getMatches().get(0).getAttributes();
