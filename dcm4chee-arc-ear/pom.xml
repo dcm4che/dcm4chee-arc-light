@@ -545,53 +545,46 @@
     <plugins>
       <plugin>
         <artifactId>maven-ear-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>ear</goal>
-            </goals>
-            <configuration>
-              <classifier>${classifier}</classifier>
-              <version>7</version>
-              <defaultLibBundleDir>lib</defaultLibBundleDir>
-              <applicationName>dcm4chee-arc</applicationName>
-              <displayName>dcm4chee-arc</displayName>
-              <earSourceDirectory>${earSourceDirectory}</earSourceDirectory>
-              <workDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</workDirectory>
-              <outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
-              <filtering>true</filtering>
-              <modules>
-                <webModule>
-                  <groupId>org.dcm4che.dcm4chee-arc</groupId>
-                  <artifactId>dcm4chee-arc-retrieve-xdsi</artifactId>
-                  <contextRoot>dcm4chee-arc/xdsi</contextRoot>
-                </webModule>
-                <webModule>
-                  <groupId>org.dcm4che.dcm4chee-arc</groupId>
-                  <artifactId>dcm4chee-arc-war</artifactId>
-                  <contextRoot>dcm4chee-arc</contextRoot>
-                </webModule>
-                <!--
-                <webModule>
-                  <groupId>org.dcm4che.dcm4chee-arc</groupId>
-                  <artifactId>dcm4chee-arc-ui2</artifactId>
-                  <contextRoot>dcm4chee-arc/ui2</contextRoot>
-                </webModule>
-                -->
-                <webModule>
-                  <groupId>org.dcm4che.dcm4chee-arc</groupId>
-                  <artifactId>dcm4chee-arc-xsl-cda</artifactId>
-                  <contextRoot>dcm4chee-arc/xsl</contextRoot>
-                </webModule>
-                <webModule>
-                  <groupId>org.dcm4che.dcm4chee-arc</groupId>
-                  <artifactId>dcm4chee-arc-proxy</artifactId>
-                  <contextRoot>dcm4chee-proxy</contextRoot>
-                </webModule>
-              </modules>
-            </configuration>
-          </execution>
-        </executions>
+        <configuration>
+          <classifier>${classifier}</classifier>
+          <version>7</version>
+          <defaultLibBundleDir>lib</defaultLibBundleDir>
+          <applicationName>dcm4chee-arc</applicationName>
+          <displayName>dcm4chee-arc</displayName>
+          <earSourceDirectory>${earSourceDirectory}</earSourceDirectory>
+          <workDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</workDirectory>
+          <outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+          <filtering>true</filtering>
+          <modules>
+            <webModule>
+              <groupId>org.dcm4che.dcm4chee-arc</groupId>
+              <artifactId>dcm4chee-arc-retrieve-xdsi</artifactId>
+              <contextRoot>dcm4chee-arc/xdsi</contextRoot>
+            </webModule>
+            <webModule>
+              <groupId>org.dcm4che.dcm4chee-arc</groupId>
+              <artifactId>dcm4chee-arc-war</artifactId>
+              <contextRoot>dcm4chee-arc</contextRoot>
+            </webModule>
+<!--
+            <webModule>
+              <groupId>org.dcm4che.dcm4chee-arc</groupId>
+              <artifactId>dcm4chee-arc-ui2</artifactId>
+              <contextRoot>dcm4chee-arc/ui2</contextRoot>
+            </webModule>
+-->
+            <webModule>
+              <groupId>org.dcm4che.dcm4chee-arc</groupId>
+              <artifactId>dcm4chee-arc-xsl-cda</artifactId>
+              <contextRoot>dcm4chee-arc/xsl</contextRoot>
+            </webModule>
+            <webModule>
+              <groupId>org.dcm4che.dcm4chee-arc</groupId>
+              <artifactId>dcm4chee-arc-proxy</artifactId>
+              <contextRoot>dcm4chee-proxy</contextRoot>
+            </webModule>
+          </modules>
+        </configuration>
       </plugin>
     </plugins>
   </build>
