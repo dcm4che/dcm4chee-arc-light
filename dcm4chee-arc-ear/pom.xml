@@ -545,8 +545,17 @@
     <plugins>
       <plugin>
         <artifactId>maven-ear-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>ear</goal>
+            </goals>
+            <configuration>
+              <classifier>${classifier}</classifier>
+            </configuration>
+          </execution>
+        </executions>
         <configuration>
-          <classifier>${classifier}</classifier>
           <version>7</version>
           <defaultLibBundleDir>lib</defaultLibBundleDir>
           <applicationName>dcm4chee-arc</applicationName>

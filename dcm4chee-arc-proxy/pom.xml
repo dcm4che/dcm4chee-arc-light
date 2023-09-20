@@ -65,8 +65,17 @@
     <plugins>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>war</goal>
+            </goals>
+            <configuration>
+              <classifier>${classifier}</classifier>
+            </configuration>
+          </execution>
+        </executions>
         <configuration>
-          <classifier>${classifier}</classifier>
           <webXml>${webXml}</webXml>
           <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
         </configuration>
