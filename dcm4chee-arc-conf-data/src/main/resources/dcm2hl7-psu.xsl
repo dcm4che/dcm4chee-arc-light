@@ -408,55 +408,6 @@
         </xsl:if>
     </xsl:template>
 
-    <xsl:template name="item2cnn">
-        <xsl:param name="item"/>
-        <xsl:param name="defVal"/>
-        <xsl:choose>
-            <xsl:when test="$item">
-                <xsl:variable name="idSqItem" select="$item/DicomAttribute[@tag='0040A088']/Item"/>
-                <xsl:if test="$idSqItem">
-                    <xsl:value-of select="$idSqItem/DicomAttribute[@tag='00080100']/Value"/>
-                </xsl:if>
-                <xsl:variable name="name" select="$item/DicomAttribute[@tag='0040A075']/PersonName[1]/Alphabetic"/>
-                <subcomponent>
-                    <xsl:value-of select="$name/FamilyName" />
-                </subcomponent>
-                <subcomponent>
-                    <xsl:value-of select="$name/GivenName" />
-                </subcomponent>
-                <subcomponent>
-                    <xsl:value-of select="$name/MiddleName" />
-                </subcomponent>
-                <xsl:variable name="ns" select="$name/NameSuffix" />
-                <subcomponent>
-                    <xsl:choose>
-                        <xsl:when test="contains($ns, ' ')">
-                            <xsl:value-of select="substring-before($ns, ' ')" />
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:value-of select="$ns" />
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </subcomponent>
-                <subcomponent>
-                    <xsl:value-of select="$name/NamePrefix" />
-                </subcomponent>
-                <subcomponent>
-                    <xsl:value-of select="substring-after($ns, ' ')" />
-                </subcomponent>
-                <subcomponent/>
-                <subcomponent>
-                    <xsl:if test="$idSqItem">
-                        <xsl:value-of select="$idSqItem/DicomAttribute[@tag='00080102']/Value"/>
-                    </xsl:if>
-                </subcomponent>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$defVal" />
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-
     <xsl:template name="diagnosticServiceSectionID">
         <xsl:variable name="instDeptCode" select="DicomAttribute[@tag='00081041']/Item" />
         <xsl:choose>
@@ -515,35 +466,94 @@
         </xsl:choose>
     </xsl:template>
 
+    <xsl:template name="cnn">
+        <xsl:param name="personNameTag"/>
+        <xsl:param name="idCodeTag"/>
+        <xsl:variable name="idCode" select="DicomAttribute[@tag=$idCodeTag]/Item/DicomAttribute[@tag='00401101']/Item"/>
+        <xsl:variable name="name" select="DicomAttribute[@tag=$personNameTag]/PersonName[1]/Alphabetic" />
+        <xsl:choose>
+            <xsl:when test="$idCode != '' or $name != ''">
+                <xsl:if test="$idCode != ''">
+                    <xsl:value-of select="$idCode/DicomAttribute[@tag='00080100']/Value" />
+                </xsl:if>
+                <xsl:if test="$name != ''">
+                    <subcomponent>
+                        <xsl:value-of select="$name/FamilyName" />
+                    </subcomponent>
+                    <subcomponent>
+                        <xsl:value-of select="$name/GivenName" />
+                    </subcomponent>
+                    <subcomponent>
+                        <xsl:value-of select="$name/MiddleName" />
+                    </subcomponent>
+                    <xsl:variable name="ns" select="$name/NameSuffix" />
+                    <subcomponent>
+                        <xsl:choose>
+                            <xsl:when test="contains($ns, ' ')">
+                                <xsl:value-of select="substring-before($ns, ' ')" />
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="$ns" />
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </subcomponent>
+                    <subcomponent>
+                        <xsl:value-of select="$name/NamePrefix" />
+                    </subcomponent>
+                    <subcomponent>
+                        <xsl:value-of select="substring-after($ns, ' ')" />
+                    </subcomponent>
+                </xsl:if>
+                <xsl:choose>
+                    <xsl:when test="$idCode != '' and $name != ''">
+                        <subcomponent/>
+                        <subcomponent>
+                            <xsl:value-of select="$idCode/DicomAttribute[@tag='00080102']/Value"/>
+                        </subcomponent>
+                    </xsl:when>
+                    <xsl:when test="$idCode != '' and $name = ''">
+                        <subcomponent/>
+                        <subcomponent/>
+                        <subcomponent/>
+                        <subcomponent/>
+                        <subcomponent/>
+                        <subcomponent/>
+                        <subcomponent/>
+                        <subcomponent>
+                            <xsl:value-of select="$idCode/DicomAttribute[@tag='00080102']/Value"/>
+                        </subcomponent>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$includeNullValues" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
     <xsl:template name="technician">
         <xsl:variable name="hasOperator" select="boolean(DicomAttribute[@tag='00081070']/PersonName)" />
-        <xsl:variable name="operatorIDCode" select="DicomAttribute[@tag='00081072']/Item"/>
+        <xsl:variable name="hasOperatorIDCode" select="boolean(DicomAttribute[@tag='00081072']/Item)"/>
         <xsl:variable name="hasPerformingPhysician" select="boolean(DicomAttribute[@tag='00081050']/PersonName)" />
-        <xsl:variable name="performingPhysicianIDCode" select="DicomAttribute[@tag='00081052']/Item"/>
+        <xsl:variable name="hasPerformingPhysicianIDCode" select="boolean(DicomAttribute[@tag='00081052']/Item)"/>
         <xsl:choose>
-            <xsl:when test="$hasOperator">
-                <xsl:call-template name="personName">
-                    <xsl:with-param name="tag" select="'00081070'"/>
-                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+            <xsl:when test="$hasOperator or $hasOperatorIDCode">
+                <xsl:call-template name="cnn">
+                    <xsl:with-param name="idCodeTag" select="'00081072'"/>
+                    <xsl:with-param name="personNameTag" select="'00081070'"/>
                 </xsl:call-template>
             </xsl:when>
-            <xsl:when test="$operatorIDCode">
-                <xsl:call-template name="codeItem">
-                    <xsl:with-param name="item" select="$operatorIDCode"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$hasPerformingPhysician">
-                <xsl:call-template name="personName">
-                    <xsl:with-param name="tag" select="'00081050'"/>
-                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$performingPhysicianIDCode">
-                <xsl:call-template name="codeItem">
-                    <xsl:with-param name="item" select="$performingPhysicianIDCode"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise/>
+            <xsl:otherwise>
+                <xsl:choose>
+                    <xsl:when test="$hasPerformingPhysician or $hasPerformingPhysicianIDCode">
+                        <xsl:call-template name="cnn">
+                            <xsl:with-param name="idCodeTag" select="'00081052'"/>
+                            <xsl:with-param name="personNameTag" select="'00081050'"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise/>
+                </xsl:choose>
+            </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 
