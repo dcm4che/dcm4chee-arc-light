@@ -142,7 +142,6 @@ class PatientUpdateService extends DefaultHL7Service {
 
         ArchiveDeviceExtension arcdev = hl7App.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         ctx.setPatientIDs(arcdev.withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
-        ctx.setAttributes(exportPatientIDsWithIssuer(attrs, ctx.getPatientIDs()));
         if (ctx.getPatientIDs().isEmpty()) {
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
@@ -344,20 +343,5 @@ class PatientUpdateService extends DefaultHL7Service {
             ctx.setSpsStatus(SPSStatus.ARRIVED);
             procedureService.updateMWLStatus(ctx, SPSStatus.SCHEDULED);
         }
-    }
-
-    private static Attributes exportPatientIDsWithIssuer(Attributes attrs, Collection<IDWithIssuer> idWithIssuers) {
-        attrs.setNull(Tag.PatientID, VR.LO);
-        attrs.setNull(Tag.IssuerOfPatientID, VR.LO);
-        attrs.setNull(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
-        attrs.setNull(Tag.OtherPatientIDsSequence, VR.SQ);
-        Iterator<IDWithIssuer> iter = idWithIssuers.iterator();
-        attrs = iter.next().exportPatientIDWithIssuer(attrs);
-        Sequence otherPatientIDsSequence = attrs.ensureSequence(
-                Tag.OtherPatientIDsSequence,
-                idWithIssuers.size() - 1);
-        while (iter.hasNext())
-            otherPatientIDsSequence.add(iter.next().exportPatientIDWithIssuer(null));
-        return attrs;
     }
 }
