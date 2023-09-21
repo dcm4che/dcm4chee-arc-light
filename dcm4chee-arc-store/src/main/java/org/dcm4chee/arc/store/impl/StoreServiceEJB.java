@@ -860,7 +860,7 @@ public class StoreServiceEJB {
                     result.setCreatedPatient(pat);
                 } else {
                     checkConflictingPatientAttrs(session, ctx, pat);
-                    pat = updatePatient(ctx, pat, now, reasonForTheAttributeModification);
+                    pat = updatePatient(ctx, pat, patMgtCtx.getPatientIDs(), now, reasonForTheAttributeModification);
                 }
                 study = createStudy(ctx, pat, result);
                 if (ctx.getExpirationDate() != null)
@@ -870,7 +870,7 @@ public class StoreServiceEJB {
                 checkConflictingPID(patMgtCtx, ctx, study.getPatient());
                 checkStorePermission(ctx, study.getPatient());
                 study = updateStudy(ctx, study, now, reasonForTheAttributeModification);
-                updatePatient(ctx, study.getPatient(), now, reasonForTheAttributeModification);
+                updatePatient(ctx, study.getPatient(), patMgtCtx.getPatientIDs(), now, reasonForTheAttributeModification);
             }
             series = createSeries(ctx, study, result);
         } else {
@@ -878,7 +878,7 @@ public class StoreServiceEJB {
             checkStorePermission(ctx, series.getStudy().getPatient());
             series = updateSeries(ctx, series, now, reasonForTheAttributeModification);
             updateStudy(ctx, series.getStudy(), now, reasonForTheAttributeModification);
-            updatePatient(ctx, series.getStudy().getPatient(), now, reasonForTheAttributeModification);
+            updatePatient(ctx, series.getStudy().getPatient(), patMgtCtx.getPatientIDs(), now, reasonForTheAttributeModification);
         }
         coerceAttributes(series, now, reasonForTheAttributeModification, result, ctx);
         Instance instance = createInstance(session, series, conceptNameCode,
@@ -971,7 +971,7 @@ public class StoreServiceEJB {
     }
 
 
-    private Patient updatePatient(StoreContext ctx, Patient pat, Date now, String reason) {
+    private Patient updatePatient(StoreContext ctx, Patient pat, Collection<IDWithIssuer> patientIDs, Date now, String reason) {
         StoreSession session = ctx.getStoreSession();
         Attributes.UpdatePolicy updatePolicy = session.getPatientUpdatePolicy();
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
@@ -984,7 +984,7 @@ public class StoreServiceEJB {
 
         updateInfo.log(session, pat, attrs);
         pat = em.find(Patient.class, pat.getPk());
-        patientService.updatePatientIDs(pat, IDWithIssuer.pidsOf(attrs));
+        patientService.updatePatientIDs(pat, patientIDs);
         pat.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,
