@@ -153,8 +153,18 @@
         <plugins>
           <plugin>
             <artifactId>maven-war-plugin</artifactId>
+            <!-- explicit execution to prevent "The packaging plugin for this project did not assign a main file to the project but it has attachments." -->
+            <executions>
+              <execution>
+                <goals>
+                  <goal>war</goal>
+                </goals>
+                <configuration>
+                  <classifier>${secure-classifier}</classifier>
+                </configuration>
+              </execution>
+            </executions>
             <configuration>
-              <classifier>${secure-classifier}</classifier>
               <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
               <webResources>
                 <resource>
