@@ -984,7 +984,9 @@ public class StoreServiceEJB {
 
         updateInfo.log(session, pat, attrs);
         pat = em.find(Patient.class, pat.getPk());
-        patientService.updatePatientIDs(pat, IDWithIssuer.pidsOf(attrs));
+        patientService.updatePatientIDs(pat,
+                session.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(
+                        IDWithIssuer.pidsOf(attrs)));
         pat.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,
