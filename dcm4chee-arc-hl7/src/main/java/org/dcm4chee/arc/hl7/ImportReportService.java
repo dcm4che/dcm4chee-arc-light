@@ -140,12 +140,19 @@ class ImportReportService extends DefaultHL7Service {
             throw new ConfigurationException("No local AE with AE Title " + aet
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
 
+        Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
         Attributes attrs = SAXTransformer.transform(
                 msg,
                 arcHL7App,
                 arcHL7App.importReportTemplateURI(),
-                tr -> arcHL7App.importReportTemplateParams().forEach(tr::setParameter));
+                tr -> {
+                    if (hl7PrimaryAssigningAuthorityOfPatientID != null)
+                        tr.setParameter("hl7PrimaryAssigningAuthorityOfPatientID",
+                                hl7PrimaryAssigningAuthorityOfPatientID.toString());
+                    arcHL7App.importReportTemplateParams().forEach(tr::setParameter);
+                });
 
+        PatientUpdateService.adjustOtherPIDs(attrs, arcHL7App);
         if (!attrs.contains(Tag.SOPClassUID) && !attrs.contains(Tag.MIMETypeOfEncapsulatedDocument))
             throw new HL7Exception(
                     new ERRSegment(msg.msh())

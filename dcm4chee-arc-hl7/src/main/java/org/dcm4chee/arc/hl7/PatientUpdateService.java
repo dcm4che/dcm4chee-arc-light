@@ -290,7 +290,7 @@ class PatientUpdateService extends DefaultHL7Service {
         }
     }
 
-    private static void adjustOtherPIDs(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App) {
+    static void adjustOtherPIDs(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App) {
         Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
         IDWithIssuer primaryPatIdentifier = IDWithIssuer.pidOf(attrs);
         adjustOtherPatientIDs(attrs, arcHL7App);
