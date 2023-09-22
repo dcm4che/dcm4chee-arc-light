@@ -214,7 +214,8 @@ public class PatientServiceEJB {
     }
 
     private void updatePatientAttrs(Patient pat, PatientMgtContext ctx, Attributes attrs, Attributes modified) {
-        updatePatientIDs(pat, IDWithIssuer.pidsOf(attrs));
+        updatePatientIDs(pat,
+                getArchiveDeviceExtension().withTrustedIssuerOfPatientID(IDWithIssuer.pidsOf(attrs)));
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(recordAttributeModification(ctx)
