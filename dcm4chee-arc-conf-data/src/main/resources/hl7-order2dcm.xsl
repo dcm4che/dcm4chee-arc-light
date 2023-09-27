@@ -27,6 +27,10 @@
         <xsl:with-param name="visitNumber" select="PV1/field[19]"/>
         <xsl:with-param name="patientAccountNumber" select="PID/field[18]"/>
       </xsl:call-template>
+      <!-- Admitting Date Time -->
+      <xsl:call-template name="admittingDateTime">
+        <xsl:with-param name="val" select="PV1/field[44]"/>
+      </xsl:call-template>
     </NativeDicomModel>
   </xsl:template>
 

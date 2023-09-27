@@ -914,6 +914,20 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template name="admittingDateTime">
+    <xsl:param name="val"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00380020'"/>
+      <xsl:with-param name="vr" select="'DA'"/>
+      <xsl:with-param name="val" select="substring($val, 0, 9)"/>
+    </xsl:call-template>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00380021'"/>
+      <xsl:with-param name="vr" select="'TM'"/>
+      <xsl:with-param name="val" select="substring($val, 9)"/>
+    </xsl:call-template>
+  </xsl:template>
+
   <xsl:template name="admissionID">
     <xsl:param name="visitNumber"/>
     <xsl:param name="patientAccountNumber"/>
