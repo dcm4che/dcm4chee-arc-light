@@ -245,9 +245,9 @@ public class PamRS {
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
             notifyHL7Receivers("ADT^A28^ADT_A05", ctx);
-            return Response.ok("{\"Patient Identifiers with Trusted Issuers\":\""
+            return Response.ok("{\"Patient record with patient identifiers\": \""
                                         + IDWithIssuer.pidsOf(ctx.getAttributes())
-                                        + "\"}")
+                                        + " created successfully.\"}")
                     .build();
         } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
