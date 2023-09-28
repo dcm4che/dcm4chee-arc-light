@@ -436,6 +436,7 @@ class ArchiveDeviceFactory {
             Tag.CompletionFlag,
             Tag.VerificationFlag,
             Tag.ContentTemplateSequence,
+            Tag.HL7InstanceIdentifier,
             Tag.DocumentTitle,
             Tag.MIMETypeOfEncapsulatedDocument,
             Tag.ContentLabel,

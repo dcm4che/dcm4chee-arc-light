@@ -149,6 +149,12 @@ import java.util.*;
     query = "select instance from Instance instance " +
             "where instance.series.study.studyInstanceUID = ?1"),
 @NamedQuery(
+    name = Instance.FIND_BY_STUDY_IUID_AND_SOP_CUID,
+    query = "select i from Instance i " +
+            "join fetch i.series se " +
+            "join fetch i.attributesBlob " +
+            "where se.study.studyInstanceUID = ?1 and i.sopClassUID = ?2"),
+@NamedQuery(
     name = Instance.IUIDS_OF_STUDY,
     query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID, instance.numberOfFrames " +
             "from Instance instance " +
@@ -212,6 +218,7 @@ public class Instance {
     public static final String COUNT_REJECTED_INSTANCES_OF_SERIES = "Instance.countRejectedInstancesOfSeries";
     public static final String COUNT_NOT_REJECTED_INSTANCES_OF_SERIES = "Instance.countNotRejectedInstancesOfSeries";
     public static final String FIND_BY_STUDY_IUID = "Instance.findByStudyIUID";
+    public static final String FIND_BY_STUDY_IUID_AND_SOP_CUID = "Instance.findByStudyIUIDAndSOPCUID";
     public static final String IUIDS_OF_STUDY = "Instance.iuidsOfStudy";
     public static final String IUIDS_OF_SERIES = "Instance.iuidsOfSeries";
     public static final String IUIDS_OF_SERIES2 = "Instance.iuidsOfSeries2";
@@ -513,6 +520,10 @@ public class Instance {
         else
             attributesBlob.setAttributes(blobAttrs);
         updatedTime = new Date();
+    }
+
+    public AttributesBlob getAttributesBlob() {
+        return attributesBlob;
     }
 
     private Integer getInt(Attributes attrs, int tag, String defVal) {
