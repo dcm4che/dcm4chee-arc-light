@@ -201,7 +201,20 @@ public class PatientServiceEJB {
             if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
                 return;
 
-            newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
+            Sequence prevOrigAttrsSeq = attrs.getSequence(Tag.OriginalAttributesSequence);
+            if (prevOrigAttrsSeq != null) {
+                String[] prevSpecificCharacterSet = attrs.getStrings(Tag.SpecificCharacterSet);
+                boolean compatibleCS = newAttrs.getSpecificCharacterSet().contains(attrs.getSpecificCharacterSet());
+                Sequence newOrigAttrsSeq = newAttrs.ensureSequence(Tag.OriginalAttributesSequence, prevOrigAttrsSeq.size());
+                for (Attributes item : prevOrigAttrsSeq) {
+                    Attributes copy = new Attributes(item);
+                    Attributes prevModified = item.getNestedDataset(Tag.ModifiedAttributesSequence);
+                    if (!compatibleCS && !prevModified.contains(Tag.SpecificCharacterSet)) {
+                        prevModified.setString(Tag.SpecificCharacterSet, VR.CS, prevSpecificCharacterSet);
+                    }
+                    newOrigAttrsSeq.add(copy);
+                }
+            }
             attrs = newAttrs;
         } else {
             Attributes.unifyCharacterSets(attrs, newAttrs);
