@@ -205,7 +205,7 @@ public class PatientServiceEJB {
             if (prevOrigAttrsSeq != null) {
                 String[] prevSpecificCharacterSet = attrs.getStrings(Tag.SpecificCharacterSet);
                 boolean compatibleCS = newAttrs.getSpecificCharacterSet().contains(attrs.getSpecificCharacterSet());
-                Sequence newOrigAttrsSeq = newAttrs.ensureSequence(Tag.OriginalAttributesSequence, prevOrigAttrsSeq.size());
+                Sequence newOrigAttrsSeq = newAttrs.newSequence(Tag.OriginalAttributesSequence, prevOrigAttrsSeq.size());
                 for (Attributes item : prevOrigAttrsSeq) {
                     Attributes copy = new Attributes(item);
                     Attributes prevModified = item.getNestedDataset(Tag.ModifiedAttributesSequence);
