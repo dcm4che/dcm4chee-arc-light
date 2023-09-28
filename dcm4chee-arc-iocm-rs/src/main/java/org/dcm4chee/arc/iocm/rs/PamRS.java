@@ -235,10 +235,11 @@ public class PamRS {
                 idService.newPatientID(ctx.getAttributes());
                 ctx.setPatientIDs(IDWithIssuer.pidsOf(ctx.getAttributes()));
             }
-            ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+            Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
+            ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(patientIDs));
             if (ctx.getPatientIDs().isEmpty())
                 return errResponse(
-                        "Missing patient identifier with trusted assigning authority in request payload " + ctx.getPatientIDs(),
+                        "Missing patient identifier with trusted assigning authority in request payload " + patientIDs,
                         Response.Status.BAD_REQUEST);
 
             patientService.updatePatient(ctx);
