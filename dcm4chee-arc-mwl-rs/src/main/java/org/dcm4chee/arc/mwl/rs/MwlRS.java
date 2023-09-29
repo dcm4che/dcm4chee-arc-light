@@ -82,7 +82,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -216,7 +220,7 @@ public class MwlRS {
 
     @POST
     @Path("/mwlitems/{study}/{spsID}/status/{status}")
-    public void updateSPSStatus(
+    public Response updateSPSStatus(
             @PathParam("study") String studyIUID,
             @PathParam("spsID") String spsID,
             @PathParam("status")
@@ -224,6 +228,12 @@ public class MwlRS {
             String spsStatus) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
         try {
             ProcedureContext ctx = procedureService.createProcedureContext()
                     .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
@@ -232,15 +242,15 @@ public class MwlRS {
             ctx.setSpsStatus(SPSStatus.valueOf(spsStatus));
             procedureService.updateMWLStatus(ctx);
             rsForward.forward(RSOperation.UpdateMWL, arcAE, null, request);
+            return Response.noContent().build();
         } catch (Exception e) {
-            throw new WebApplicationException(
-                    errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     private Attributes toAttributes(InputStream in) {
         try {
-            return new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")))
+            return new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
                     .readDataset(null);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
