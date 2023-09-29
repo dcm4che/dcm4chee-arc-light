@@ -375,7 +375,7 @@
       "type": "string"
     }
   },
-  "host": {
+  "hostPathParam": {
     "name": "host",
     "in": "path",
     "description": "Domain name or dotted-decimal IPv4 address or a colon-delimited IPv6 address.",

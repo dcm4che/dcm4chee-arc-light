@@ -77,12 +77,18 @@
       "operationId": "host",
       "parameters": [
         {
-          "$ref": "../parameters.json#/host"
+          "$ref": "../parameters.json#/hostPathParam"
         }
       ],
       "responses": {
         "200": {
           "$ref": "../responses.json#/Host"
+        },
+        "400": {
+          "description": "no IP address for the host could be found"
+        },
+        "500": {
+          "description": "Internal Server Error"
         }
       }
     }
