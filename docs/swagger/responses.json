@@ -1263,38 +1263,38 @@
         "schema": {
           "type": "object",
           "required": [
-            "hosts",
-            "dnsTime"
+            "dnsLookupTime",
+            "hosts"
           ],
           "properties": {
+            "dnsLookupTime": {
+              "title": "DNS Lookup Time in ms",
+              "type": "integer"
+            },
             "hosts": {
               "type": "array",
               "items": {
                 "type": "object",
                 "required": [
-                  "name",
-                  "address",
-                  "rdnsTime"
+                  "rdnsLookupTime",
+                  "hostName",
+                  "hostAddress"
                 ],
                 "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "address": {
-                    "type": "string"
-                  },
-                  "rdnsTime": {
-                    "title": "rDNSTime",
-                    "description": "Reverse DNS Lookup Time in ms",
+                  "rdnsLookupTime": {
+                    "title": "Reverse DNS Lookup Time in ms",
                     "type": "integer"
+                  },
+                  "hostName": {
+                    "title": "Host Name",
+                    "type": "string"
+                  },
+                  "hostAddress": {
+                    "title": "Host Address",
+                    "type": "string"
                   }
                 }
               }
-            },
-            "dnsTime": {
-              "title": "DNSTime",
-              "description": "DNS Lookup Time in ms",
-              "type": "integer"
             }
           }
         }
