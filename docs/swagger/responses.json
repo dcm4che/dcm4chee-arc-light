@@ -1118,11 +1118,14 @@
         "schema": {
           "type": "object",
           "required": [
-            "PatientID"
+            "PatientIdentifiers"
           ],
           "properties": {
-            "PatientID": {
-              "type": "string"
+            "PatientIdentifiers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         }
