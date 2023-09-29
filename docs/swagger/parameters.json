@@ -375,6 +375,15 @@
       "type": "string"
     }
   },
+  "host": {
+    "name": "host",
+    "in": "path",
+    "description": "Domain name or dotted-decimal IPv4 address or a colon-delimited IPv6 address.",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "codeValuePathParam": {
     "name": "codeValue",
     "in": "path",

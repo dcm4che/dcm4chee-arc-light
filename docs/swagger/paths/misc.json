@@ -68,6 +68,25 @@
       }
     }
   },
+  "host": {
+    "get": {
+      "tags": [
+        "MONITOR-RS"
+      ],
+      "summary": "DNS lookup",
+      "operationId": "host",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/host"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/Host"
+        }
+      }
+    }
+  },
   "dimse": {
     "post": {
       "tags": [

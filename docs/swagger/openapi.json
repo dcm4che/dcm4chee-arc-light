@@ -844,6 +844,9 @@
     "/ctrl/status": {
       "$ref": "paths/misc.json#/status"
     },
+    "/host/{host}": {
+      "$ref": "paths/misc.json#/host"
+    },
     "/impax/reports/studies/{study}": {
       "$ref": "paths/misc.json#/impax.reports.study"
     },

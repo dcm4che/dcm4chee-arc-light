@@ -1256,6 +1256,31 @@
       }
     }
   },
+  "Host": {
+    "description": "Found Host names and IP addresses",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "address"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "KeycloakJSON": {
     "description": "Keycloak Adapter Configuration",
     "content": {
