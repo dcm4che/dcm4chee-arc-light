@@ -327,6 +327,7 @@ public class ProcedureServiceEJB {
 
         updateMWLSPS(ctx.getSpsStatus(), mwlItem);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        ctx.setPatient(mwlItem.getPatient());
     }
 
     public int updateMatchingSPS(SPSStatus spsStatus, Attributes queryKeys, QueryParam queryParam, int mwlFetchSize) {
