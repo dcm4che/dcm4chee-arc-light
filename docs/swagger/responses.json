@@ -1261,20 +1261,40 @@
     "content": {
       "application/json": {
         "schema": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": [
-              "name",
-              "address"
-            ],
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "address": {
-                "type": "string"
+          "type": "object",
+          "required": [
+            "hosts",
+            "dnsTime"
+          ],
+          "properties": {
+            "hosts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "address",
+                  "rdnsTime"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "rdnsTime": {
+                    "title": "rDNSTime",
+                    "description": "Reverse DNS Lookup Time in ms",
+                    "type": "integer"
+                  }
+                }
               }
+            },
+            "dnsTime": {
+              "title": "DNSTime",
+              "description": "DNS Lookup Time in ms",
+              "type": "integer"
             }
           }
         }
