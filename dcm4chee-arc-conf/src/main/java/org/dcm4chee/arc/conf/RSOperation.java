@@ -73,5 +73,6 @@ public enum RSOperation {
     LinkStudyToMWLMerge,
     CreateMWL,
     UpdateMWL,
+    UpdateMWLStatus,
     DeleteMWL
 }

@@ -241,7 +241,12 @@ public class MwlRS {
             ctx.setSpsID(spsID);
             ctx.setSpsStatus(SPSStatus.valueOf(spsStatus));
             procedureService.updateMWLStatus(ctx);
-            rsForward.forward(RSOperation.UpdateMWL, arcAE, null, request);
+            if (ctx.getEventActionCode() == null)
+                return errResponse("MWLItem with study instance UID : " + studyIUID + " and SPS ID : "
+                                        + spsID + " not found.",
+                                Response.Status.NOT_FOUND);
+
+            rsForward.forward(RSOperation.UpdateMWLStatus, arcAE, null, request);
             return Response.noContent().build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

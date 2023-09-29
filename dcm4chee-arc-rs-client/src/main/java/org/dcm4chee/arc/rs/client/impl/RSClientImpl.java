@@ -254,6 +254,7 @@ public class RSClientImpl implements RSClient {
             case RejectInstance:
             case CreateMWL:
             case UpdateMWL:
+            case UpdateMWLStatus:
             case ApplyRetentionPolicy:
             case MoveStudyToPatient:
                 method = "POST";

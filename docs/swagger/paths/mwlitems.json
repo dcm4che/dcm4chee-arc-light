@@ -182,8 +182,14 @@
         "204": {
           "description": "Change State of Scheduled Procedure Step successfully."
         },
+        "400": {
+          "description": "Invalid Scheduled Procedure Step Status in request URL."
+        },
+        "403": {
+          "description": "If archive is secured and Application Entity does not list role of accessing user"
+        },
         "404": {
-          "description": "There is no Archive AE with the specified Title or Scheduled Procedure Step not found."
+          "description": "There is no Archive AE with the specified AE Title or No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity or Scheduled Procedure Step not found."
         },
         "500": {
           "description": "Internal Server Error."
