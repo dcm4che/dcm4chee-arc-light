@@ -514,6 +514,7 @@
     <module>dcm4chee-arc-hl7</module>
     <module>dcm4chee-arc-hl7-psu</module>
     <module>dcm4chee-arc-hl7-rs</module>
+    <module>dcm4chee-arc-host-rs</module>
     <module>dcm4chee-arc-ian-rs</module>
     <module>dcm4chee-arc-ian-scu</module>
     <module>dcm4chee-arc-id</module>
