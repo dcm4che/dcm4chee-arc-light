@@ -51,7 +51,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-import org.dcm4che3.conf.json.JsonWriter;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ import java.net.UnknownHostException;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Sep 2023
+ * @since Oct 2023
  */
 
 @RequestScoped
@@ -84,22 +83,21 @@ public class HostRS {
             InetAddress[] inetAddresses = InetAddress.getAllByName(host);
             return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
-                JsonWriter writer = new JsonWriter(gen);
-                writer.writeStartObject();
-                writer.writeStartArray("hosts");
+                gen.writeStartObject();
+                gen.writeStartArray("hosts");
                 for (InetAddress inetAddress : inetAddresses) {
-                    writer.writeStartObject();
+                    gen.writeStartObject();
                     long startInetAddrHostName = System.currentTimeMillis();
-                    writer.writeNotNullOrDef("name", inetAddress.getHostName(), null);
+                    gen.write("name", inetAddress.getHostName());
                     long endInetAddrHostName = System.currentTimeMillis();
-                    writer.writeNotNullOrDef("address", inetAddress.getHostAddress(), null);
-                    writer.writeNotDef("rDNSTime", endInetAddrHostName - startInetAddrHostName, 0);
-                    writer.writeEnd();
+                    gen.write("address", inetAddress.getHostAddress());
+                    gen.write("rDNSTime", endInetAddrHostName - startInetAddrHostName);
+                    gen.writeEnd();
                 }
-                writer.writeEnd();
+                gen.writeEnd();
                 long endInetAddrAll= System.currentTimeMillis();
-                writer.writeNotDef("DNSTime", endInetAddrAll - startInetAddrAll, 0);
-                writer.writeEnd();
+                gen.write("DNSTime", endInetAddrAll - startInetAddrAll);
+                gen.writeEnd();
                 gen.flush();
             }).build();
         } catch (UnknownHostException e) {
