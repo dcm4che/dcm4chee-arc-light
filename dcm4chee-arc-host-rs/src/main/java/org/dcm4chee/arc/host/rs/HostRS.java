@@ -78,34 +78,39 @@ public class HostRS {
     @Path("/{host}")
     @Produces("application/json")
     public Response listHosts(@PathParam("host") String host) {
+        logRequest();
         try {
-            long startInetAddrAll= System.currentTimeMillis();
+            long startDNSLookup= System.currentTimeMillis();
             InetAddress[] inetAddresses = InetAddress.getAllByName(host);
-            long endInetAddrAll= System.currentTimeMillis();
-            return Response.ok((StreamingOutput) out -> {
-                JsonGenerator gen = Json.createGenerator(out);
+            long endDNSLookup= System.currentTimeMillis();
+            return Response.ok(entity(inetAddresses, endDNSLookup - startDNSLookup)).build();
+        } catch (UnknownHostException e) {
+            return errResponse("No IP address for the host could be found: " + host, Response.Status.NOT_FOUND);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static StreamingOutput entity(InetAddress[] inetAddresses, long lookupTime) {
+        return out -> {
+            try (JsonGenerator gen = Json.createGenerator(out)) {
                 gen.writeStartObject();
-                gen.write("dnsLookupTime", endInetAddrAll - startInetAddrAll);
+                gen.write("dnsLookupTime", lookupTime);
                 gen.writeStartArray("hosts");
                 for (InetAddress inetAddress : inetAddresses) {
-                    long startInetAddrHostName = System.currentTimeMillis();
+                    long startRDNSLookup = System.currentTimeMillis();
                     String hostName = inetAddress.getHostName();
-                    long endInetAddrHostName = System.currentTimeMillis();
+                    long endRDNSLookup = System.currentTimeMillis();
                     gen.writeStartObject();
-                    gen.write("rdnsLookupTime", endInetAddrHostName - startInetAddrHostName);
+                    gen.write("rdnsLookupTime", endRDNSLookup - startRDNSLookup);
                     gen.write("hostName", hostName);
                     gen.write("hostAddress", inetAddress.getHostAddress());
                     gen.writeEnd();
                 }
                 gen.writeEnd();
                 gen.writeEnd();
-                gen.flush();
-            }).build();
-        } catch (UnknownHostException e) {
-            return errResponse("No IP address for the host could be found: " + host, Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+            }
+        };
     }
 
     private void logRequest() {
