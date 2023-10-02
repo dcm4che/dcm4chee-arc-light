@@ -44,10 +44,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
@@ -55,6 +52,7 @@ import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -81,10 +79,7 @@ public class HostRS {
     public Response listHosts(@PathParam("host") String host) {
         logRequest();
         try {
-            long startDNSLookup= System.currentTimeMillis();
-            InetAddress[] inetAddresses = InetAddress.getAllByName(host);
-            long endDNSLookup= System.currentTimeMillis();
-            return Response.ok(entity(inetAddresses, endDNSLookup - startDNSLookup)).build();
+            return Response.ok(new InetAddresses(host)).build();
         } catch (UnknownHostException e) {
             return errResponse("No IP address for the host could be found: " + host, Response.Status.NOT_FOUND);
         } catch (Exception e) {
@@ -92,27 +87,35 @@ public class HostRS {
         }
     }
 
-    private static StreamingOutput entity(InetAddress[] inetAddresses, long lookupTime) {
-        return out -> writeTo(inetAddresses, lookupTime, out);
-    }
+    private static class InetAddresses implements StreamingOutput {
+        private final InetAddress[] inetAddresses;
+        private final long lookupTime;
 
-    private static void writeTo(InetAddress[] inetAddresses, long lookupTime, OutputStream out) {
-        try (JsonGenerator gen = Json.createGenerator(out)) {
-            gen.writeStartObject();
-            gen.write("dnsLookupTime", lookupTime);
-            gen.writeStartArray("hosts");
-            for (InetAddress inetAddress : inetAddresses) {
-                long startRDNSLookup = System.currentTimeMillis();
-                String hostName = inetAddress.getHostName();
-                long endRDNSLookup = System.currentTimeMillis();
+        private InetAddresses(String host) throws UnknownHostException {
+            long start= System.currentTimeMillis();
+            this.inetAddresses = InetAddress.getAllByName(host);
+            this.lookupTime = System.currentTimeMillis() - start;
+        }
+
+        @Override
+        public void write(OutputStream out) {
+            try (JsonGenerator gen = Json.createGenerator(out)) {
                 gen.writeStartObject();
-                gen.write("rdnsLookupTime", endRDNSLookup - startRDNSLookup);
-                gen.write("hostName", hostName);
-                gen.write("hostAddress", inetAddress.getHostAddress());
+                gen.write("dnsLookupTime", lookupTime);
+                gen.writeStartArray("hosts");
+                for (InetAddress inetAddress : inetAddresses) {
+                    long startRDNSLookup = System.currentTimeMillis();
+                    String hostName = inetAddress.getHostName();
+                    long endRDNSLookup = System.currentTimeMillis();
+                    gen.writeStartObject();
+                    gen.write("rdnsLookupTime", endRDNSLookup - startRDNSLookup);
+                    gen.write("hostName", hostName);
+                    gen.write("hostAddress", inetAddress.getHostAddress());
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
                 gen.writeEnd();
             }
-            gen.writeEnd();
-            gen.writeEnd();
         }
     }
 
