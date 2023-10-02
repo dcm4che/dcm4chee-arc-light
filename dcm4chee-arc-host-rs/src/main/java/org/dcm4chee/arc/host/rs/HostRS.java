@@ -81,22 +81,23 @@ public class HostRS {
         try {
             long startInetAddrAll= System.currentTimeMillis();
             InetAddress[] inetAddresses = InetAddress.getAllByName(host);
+            long endInetAddrAll= System.currentTimeMillis();
             return Response.ok((StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartObject();
+                gen.write("dnsLookupTime", endInetAddrAll - startInetAddrAll);
                 gen.writeStartArray("hosts");
                 for (InetAddress inetAddress : inetAddresses) {
-                    gen.writeStartObject();
                     long startInetAddrHostName = System.currentTimeMillis();
-                    gen.write("hostName", inetAddress.getHostName());
+                    String hostName = inetAddress.getHostName();
                     long endInetAddrHostName = System.currentTimeMillis();
-                    gen.write("hostAddress", inetAddress.getHostAddress());
+                    gen.writeStartObject();
                     gen.write("rdnsLookupTime", endInetAddrHostName - startInetAddrHostName);
+                    gen.write("hostName", hostName);
+                    gen.write("hostAddress", inetAddress.getHostAddress());
                     gen.writeEnd();
                 }
                 gen.writeEnd();
-                long endInetAddrAll= System.currentTimeMillis();
-                gen.write("dnsLookupTime", endInetAddrAll - startInetAddrAll);
                 gen.writeEnd();
                 gen.flush();
             }).build();
