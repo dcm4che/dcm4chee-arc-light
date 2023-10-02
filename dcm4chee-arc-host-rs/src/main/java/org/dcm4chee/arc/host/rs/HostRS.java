@@ -88,15 +88,15 @@ public class HostRS {
                 for (InetAddress inetAddress : inetAddresses) {
                     gen.writeStartObject();
                     long startInetAddrHostName = System.currentTimeMillis();
-                    gen.write("name", inetAddress.getHostName());
+                    gen.write("hostName", inetAddress.getHostName());
                     long endInetAddrHostName = System.currentTimeMillis();
-                    gen.write("address", inetAddress.getHostAddress());
-                    gen.write("rDNSTime", endInetAddrHostName - startInetAddrHostName);
+                    gen.write("hostAddress", inetAddress.getHostAddress());
+                    gen.write("rdnsLookupTime", endInetAddrHostName - startInetAddrHostName);
                     gen.writeEnd();
                 }
                 gen.writeEnd();
                 long endInetAddrAll= System.currentTimeMillis();
-                gen.write("DNSTime", endInetAddrAll - startInetAddrAll);
+                gen.write("dnsLookupTime", endInetAddrAll - startInetAddrAll);
                 gen.writeEnd();
                 gen.flush();
             }).build();
