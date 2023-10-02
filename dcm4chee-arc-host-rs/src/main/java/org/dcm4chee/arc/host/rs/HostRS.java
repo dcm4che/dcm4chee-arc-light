@@ -55,6 +55,7 @@ import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
@@ -92,25 +93,27 @@ public class HostRS {
     }
 
     private static StreamingOutput entity(InetAddress[] inetAddresses, long lookupTime) {
-        return out -> {
-            try (JsonGenerator gen = Json.createGenerator(out)) {
+        return out -> writeTo(inetAddresses, lookupTime, out);
+    }
+
+    private static void writeTo(InetAddress[] inetAddresses, long lookupTime, OutputStream out) {
+        try (JsonGenerator gen = Json.createGenerator(out)) {
+            gen.writeStartObject();
+            gen.write("dnsLookupTime", lookupTime);
+            gen.writeStartArray("hosts");
+            for (InetAddress inetAddress : inetAddresses) {
+                long startRDNSLookup = System.currentTimeMillis();
+                String hostName = inetAddress.getHostName();
+                long endRDNSLookup = System.currentTimeMillis();
                 gen.writeStartObject();
-                gen.write("dnsLookupTime", lookupTime);
-                gen.writeStartArray("hosts");
-                for (InetAddress inetAddress : inetAddresses) {
-                    long startRDNSLookup = System.currentTimeMillis();
-                    String hostName = inetAddress.getHostName();
-                    long endRDNSLookup = System.currentTimeMillis();
-                    gen.writeStartObject();
-                    gen.write("rdnsLookupTime", endRDNSLookup - startRDNSLookup);
-                    gen.write("hostName", hostName);
-                    gen.write("hostAddress", inetAddress.getHostAddress());
-                    gen.writeEnd();
-                }
-                gen.writeEnd();
+                gen.write("rdnsLookupTime", endRDNSLookup - startRDNSLookup);
+                gen.write("hostName", hostName);
+                gen.write("hostAddress", inetAddress.getHostAddress());
                 gen.writeEnd();
             }
-        };
+            gen.writeEnd();
+            gen.writeEnd();
+        }
     }
 
     private void logRequest() {
