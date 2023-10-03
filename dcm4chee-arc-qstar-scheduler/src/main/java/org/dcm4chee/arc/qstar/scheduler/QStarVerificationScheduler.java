@@ -41,18 +41,17 @@
 package org.dcm4chee.arc.qstar.scheduler;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import org.dcm4che3.qstar.*;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.qstar.QStarVerification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -64,6 +63,9 @@ public class QStarVerificationScheduler extends Scheduler {
 
     @Inject
     private QStarVerificationEJB ejb;
+
+    @Inject
+    private Event<QStarVerification> event;
 
     protected QStarVerificationScheduler() {
         super(Scheduler.Mode.scheduleWithFixedDelay);
@@ -86,8 +88,8 @@ public class QStarVerificationScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        List<Location> locations;
-        Set<Integer> verifiedTars = new HashSet<>();
+        List<Location.LocationWithUIDs> locations;
+        Map<Integer, LocationStatus> verifiedTars = new HashMap<>();
         int fetchSize = arcDev.getQStarVerificationFetchSize();
         try (QStarConnection conn = new QStarConnection(arcDev)) {
             do {
@@ -102,28 +104,26 @@ public class QStarVerificationScheduler extends Scheduler {
                 }
 
                 LOG.info("Start verifying QStar Access State of {} objects", locations.size());
-                int[] counts = new int[LocationStatus.values().length];
-                for (Location location : locations) {
-                    StorageDescriptor storageDescriptor = arcDev.getStorageDescriptorNotNull(location.getStorageID());
-                    String storagePath = location.getStoragePath();
+                QStarVerifications qStarVerifications = new QStarVerifications();
+                for (Location.LocationWithUIDs l : locations) {
+                    StorageDescriptor storageDescriptor = arcDev.getStorageDescriptorNotNull(l.location.getStorageID());
+                    String storagePath = l.location.getStoragePath();
                     int tarPathEnd;
+                    LocationStatus status;
                     if (!storageDescriptor.isArchiveSeriesAsTAR() || (tarPathEnd = storagePath.indexOf('!')) < 0) {
-                        LocationStatus status = conn.nextLocationStatus(location, storagePath);
-                        counts[status.ordinal()] +=
-                            ejb.setLocationStatus(location.getPk(), status);
+                        status = conn.nextLocationStatus(l.location, storagePath);
+                        ejb.setLocationStatus(l.location.getPk(), status);
                     } else {
-                        if (!verifiedTars.contains(location.getMultiReference())) {
-                            LocationStatus status = conn.nextLocationStatus(location, storagePath.substring(0, tarPathEnd));
-                            counts[status.ordinal()] +=
-                                    ejb.setLocationStatusByMultiRef(location.getMultiReference(), status);
-                            verifiedTars.add(location.getMultiReference());
+                        status = verifiedTars.get(l.location.getMultiReference());
+                        if (status == null) {
+                            status = conn.nextLocationStatus(l.location, storagePath.substring(0, tarPathEnd));
+                            ejb.setLocationStatusByMultiRef(l.location.getMultiReference(), status);
+                            verifiedTars.put(l.location.getMultiReference(), status);
                         }
                     }
+                    qStarVerifications.add(status, l);
                 }
-                for (LocationStatus locationStatus : LocationStatus.values()) {
-                    if (counts[locationStatus.ordinal()] > 0)
-                        LOG.info("Update status of {} objects to {}", counts[locationStatus.ordinal()],  locationStatus);
-                }
+                qStarVerifications.logAndFireEvents();
             } while (locations.size() != fetchSize && arcDev.getQStarVerificationPollingInterval() != null);
         }
     }
@@ -202,5 +202,39 @@ public class QStarVerificationScheduler extends Scheduler {
             }
         }
 
+    }
+
+    private final class QStarVerifications {
+        final EnumMap<LocationStatus, Map<String, QStarVerification>> byStatus =
+                new EnumMap<>(LocationStatus.class);
+        void add(LocationStatus status, Location.LocationWithUIDs l) {
+            Map<String, QStarVerification> withStatus = byStatus.get(status);
+            if (withStatus == null) {
+                byStatus.put(status,
+                        withStatus = new HashMap<>());
+            }
+            QStarVerification qStarVerification = withStatus.get(l.studyInstanceUID);
+            if (qStarVerification == null) {
+                withStatus.put(l.studyInstanceUID,
+                        qStarVerification = new QStarVerification(status, (l.studyInstanceUID)));
+            }
+            qStarVerification.sopRefs.add(new QStarVerification.SOPRef(l.sopClassUID, l.sopInstanceUID));
+        }
+
+        void logAndFireEvents() {
+            for (Map<String, QStarVerification> withStatus : byStatus.values()) {
+                for (QStarVerification qStarVerification : withStatus.values()) {
+                    LOG.info("Update status of {} objects of Study[uid={}] to {}",
+                            qStarVerification.sopRefs.size(),
+                            qStarVerification.studyInstanceUID,
+                            qStarVerification.status);
+                    try {
+                        event.fire(qStarVerification);
+                    } catch (Exception e) {
+                        LOG.warn("Processing of notification about {} failed:\n", qStarVerification, e);
+                    }
+                }
+            }
+        }
     }
 }

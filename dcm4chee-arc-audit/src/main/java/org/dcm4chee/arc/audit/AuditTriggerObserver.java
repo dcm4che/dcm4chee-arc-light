@@ -55,6 +55,7 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
+import org.dcm4chee.arc.qstar.QStarVerification;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
@@ -210,6 +211,10 @@ public class AuditTriggerObserver {
     public void onPatientDemographicsQuery(@Observes PDQServiceContext ctx) {
         if (deviceHasAuditLoggers())
             auditService.spoolPDQ(ctx);
+    }
+
+    public void onQStarVerification(@Observes QStarVerification qStarVerification) {
+        //TODO
     }
 
     private boolean deviceHasAuditLoggers() {

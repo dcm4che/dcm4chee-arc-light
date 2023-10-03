@@ -38,45 +38,44 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.qstar.scheduler;
+package org.dcm4chee.arc.qstar;
 
-import jakarta.ejb.Stateless;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.dcm4chee.arc.conf.LocationStatus;
-import org.dcm4chee.arc.entity.Location;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
- * @since Jul 2023
+ * @since Oct 2023
  */
-@Stateless
-public class QStarVerificationEJB {
-    @PersistenceContext(unitName="dcm4chee-arc")
-    private EntityManager em;
+public class QStarVerification {
 
-    public List<Location.LocationWithUIDs> findByLocationsWithStatusCreatedBefore(LocationStatus status, Date before, int limit) {
-        return em.createNamedQuery(Location.FIND_BY_STATUS_CREATED_BEFORE, Location.LocationWithUIDs.class)
-                .setParameter(1, status)
-                .setParameter(2, before)
-                .setMaxResults(limit)
-                .getResultList();
+    public final LocationStatus status;
+    public final String studyInstanceUID;
+    public final List<SOPRef> sopRefs = new ArrayList<>();
+
+    public QStarVerification(LocationStatus status, String studyInstanceUID) {
+        this.status = status;
+        this.studyInstanceUID = studyInstanceUID;
     }
 
-    public int setLocationStatus(Long pk, LocationStatus status) {
-        return em.createNamedQuery(Location.SET_STATUS)
-                .setParameter(1, pk)
-                .setParameter(2, status)
-                .executeUpdate();
+    public static final class SOPRef {
+        public final String sopClassUID;
+        public final String sopInstanceUID;
+
+        public SOPRef(String sopClassUID, String sopInstanceUID) {
+            this.sopClassUID = sopClassUID;
+            this.sopInstanceUID = sopInstanceUID;
+        }
     }
 
-    public int setLocationStatusByMultiRef(Integer multiRef, LocationStatus status) {
-        return em.createNamedQuery(Location.SET_STATUS_BY_MULTI_REF)
-                .setParameter(1, multiRef)
-                .setParameter(2, status)
-                .executeUpdate();
+    @Override
+    public String toString() {
+        return "QStarVerification{" +
+                "status=" + status +
+                ", studyInstanceUID='" + studyInstanceUID + '\'' +
+                ", numberOfInstances=" + sopRefs.size() +
+                '}';
     }
 }

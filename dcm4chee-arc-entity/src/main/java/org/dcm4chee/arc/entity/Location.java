@@ -61,7 +61,9 @@ import java.util.Date;
         @NamedQuery(name = Location.FIND_BY_STORAGE_ID_AND_STATUS,
                 query = "select l from Location l where l.storageID=?1 and l.status=?2"),
         @NamedQuery(name = Location.FIND_BY_STATUS_CREATED_BEFORE,
-                query = "select l from Location l where l.status=?1 and l.createdTime<?2"),
+                query = "select new org.dcm4chee.arc.entity.Location$LocationWithUIDs(" +
+                        "l, l.instance.sopClassUID, l.instance.sopInstanceUID, l.instance.series.study.studyInstanceUID) " +
+                        "from Location l where l.status=?1 and l.createdTime<?2"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK,
                 query = "select l from Location l join fetch l.instance inst " +
                         "where inst.series.study.pk=?1"),
@@ -175,6 +177,20 @@ public class Location {
         public StatusCounts(LocationStatus status, long count) {
             this.status = status;
             this.count = count;
+        }
+    }
+
+    public static class LocationWithUIDs {
+        public final Location location;
+        public final String sopClassUID;
+        public final String sopInstanceUID;
+        public final String studyInstanceUID;
+
+        public LocationWithUIDs(Location location, String sopClassUID, String sopInstanceUID, String studyInstanceUID) {
+            this.location = location;
+            this.sopClassUID = sopClassUID;
+            this.sopInstanceUID = sopInstanceUID;
+            this.studyInstanceUID = studyInstanceUID;
         }
     }
 
