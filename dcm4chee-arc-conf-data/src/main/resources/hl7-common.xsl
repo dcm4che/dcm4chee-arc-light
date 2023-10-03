@@ -921,10 +921,23 @@
       <xsl:with-param name="vr" select="'DA'"/>
       <xsl:with-param name="val" select="substring($val, 0, 9)"/>
     </xsl:call-template>
+    <xsl:variable name="tm" select="substring($val, 9)"/>
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00380021'"/>
       <xsl:with-param name="vr" select="'TM'"/>
-      <xsl:with-param name="val" select="substring($val, 9)"/>
+      <xsl:with-param name="val">
+        <xsl:choose>
+          <xsl:when test="contains($tm, '+')">
+            <xsl:value-of select="substring-before($tm, '+')"/>
+          </xsl:when>
+          <xsl:when test="contains($tm, '-')">
+            <xsl:value-of select="substring-before($tm, '-')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$tm"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
 
