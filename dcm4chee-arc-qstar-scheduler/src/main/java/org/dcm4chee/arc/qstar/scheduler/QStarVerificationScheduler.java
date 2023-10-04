@@ -121,7 +121,8 @@ public class QStarVerificationScheduler extends Scheduler {
                             verifiedTars.put(l.location.getMultiReference(), status);
                         }
                     }
-                    qStarVerifications.add(status, l);
+                    qStarVerifications.get(status, l.studyInstanceUID, l.location.getStorageID()).sopRefs.add(
+                            new QStarVerification.SOPRef(l.sopClassUID, l.sopInstanceUID));
                 }
                 qStarVerifications.logAndFireEvents();
             } while (locations.size() != fetchSize && arcDev.getQStarVerificationPollingInterval() != null);
@@ -207,18 +208,19 @@ public class QStarVerificationScheduler extends Scheduler {
     private final class QStarVerifications {
         final EnumMap<LocationStatus, Map<String, QStarVerification>> byStatus =
                 new EnumMap<>(LocationStatus.class);
-        void add(LocationStatus status, Location.LocationWithUIDs l) {
+
+        QStarVerification get(LocationStatus status, String studyInstanceUID, String storageID) {
             Map<String, QStarVerification> withStatus = byStatus.get(status);
             if (withStatus == null) {
                 byStatus.put(status,
                         withStatus = new HashMap<>());
             }
-            QStarVerification qStarVerification = withStatus.get(l.studyInstanceUID);
+            QStarVerification qStarVerification = withStatus.get(studyInstanceUID);
             if (qStarVerification == null) {
-                withStatus.put(l.studyInstanceUID,
-                        qStarVerification = new QStarVerification(status, (l.studyInstanceUID)));
+                withStatus.put(studyInstanceUID, qStarVerification =
+                        new QStarVerification(status, studyInstanceUID, storageID));
             }
-            qStarVerification.sopRefs.add(new QStarVerification.SOPRef(l.sopClassUID, l.sopInstanceUID));
+            return qStarVerification;
         }
 
         void logAndFireEvents() {
