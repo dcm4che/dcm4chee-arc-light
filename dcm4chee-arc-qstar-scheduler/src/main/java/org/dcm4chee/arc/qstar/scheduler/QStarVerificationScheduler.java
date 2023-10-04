@@ -121,7 +121,7 @@ public class QStarVerificationScheduler extends Scheduler {
                             verifiedTars.put(l.location.getMultiReference(), status);
                         }
                     }
-                    qStarVerifications.get(status, l.studyInstanceUID, l.location.getStorageID()).sopRefs.add(
+                    qStarVerifications.get(status, l.studyInstanceUID).sopRefs.add(
                             new QStarVerification.SOPRef(l.sopClassUID, l.sopInstanceUID));
                 }
                 qStarVerifications.logAndFireEvents();
@@ -209,7 +209,7 @@ public class QStarVerificationScheduler extends Scheduler {
         final EnumMap<LocationStatus, Map<String, QStarVerification>> byStatus =
                 new EnumMap<>(LocationStatus.class);
 
-        QStarVerification get(LocationStatus status, String studyInstanceUID, String storageID) {
+        QStarVerification get(LocationStatus status, String studyInstanceUID) {
             Map<String, QStarVerification> withStatus = byStatus.get(status);
             if (withStatus == null) {
                 byStatus.put(status,
@@ -218,7 +218,7 @@ public class QStarVerificationScheduler extends Scheduler {
             QStarVerification qStarVerification = withStatus.get(studyInstanceUID);
             if (qStarVerification == null) {
                 withStatus.put(studyInstanceUID, qStarVerification =
-                        new QStarVerification(status, studyInstanceUID, storageID));
+                        new QStarVerification(status, studyInstanceUID));
             }
             return qStarVerification;
         }

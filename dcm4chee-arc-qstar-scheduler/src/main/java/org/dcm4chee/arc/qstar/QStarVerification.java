@@ -53,13 +53,11 @@ public class QStarVerification {
 
     public final LocationStatus status;
     public final String studyInstanceUID;
-    public final String storageID;
     public final List<SOPRef> sopRefs = new ArrayList<>();
 
-    public QStarVerification(LocationStatus status, String studyInstanceUID, String storageID) {
+    public QStarVerification(LocationStatus status, String studyInstanceUID) {
         this.status = status;
         this.studyInstanceUID = studyInstanceUID;
-        this.storageID = storageID;
     }
 
     public static final class SOPRef {
