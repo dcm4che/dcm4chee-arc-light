@@ -26,7 +26,7 @@ import {AppRequestsService} from "./app-requests.service";
 import { Title } from '@angular/platform-browser';
 declare var DCM4CHE: any;
 declare var Keycloak: any;
-const worker = new Worker('./server-time.worker', { type: 'module', name: 'server-time'});
+const worker = new Worker(new URL('./server-time.worker', import.meta.url), { type: 'module', name: 'server-time'});
 
 @Component({
   selector: 'app-root',

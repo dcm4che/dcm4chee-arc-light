@@ -374,7 +374,13 @@
               "src/app/constants/http---www.gemedicalsystems.com-it_solutions-orthoview-2.1.js",
               "src/app/constants/http---www.gemedicalsystems.com-it_solutions-rad_pacs-.js"
             ],
-            "webWorkerTsConfig": "tsconfig.worker.json"
+            "webWorkerTsConfig": "tsconfig.worker.json",
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -422,11 +428,11 @@
               "vendorChunk": false,
               "buildOptimizer": true,
               "i18nFile": "src/assets/locale/sq.json",
-              "i18nFormat": "json",
               "i18nLocale": "sq",
               "i18nMissingTranslation": "warning"
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -493,6 +499,14 @@
             "production": {
               "devServerTarget": "dcm4chee-arc-ui2:serve:production"
             }
+          }
+        }
+      },
+      "i18n": {
+        "locales": {
+          "sq": {
+            "translation": "src/assets/locale/sq.json",
+            "baseHref": ""
           }
         }
       }
