@@ -241,7 +241,7 @@ import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.se
                 { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
                 { path: '**', component: PageNotFoundComponent }
             ],
-            { useHash: false })
+            { useHash: false, relativeLinkResolution: 'legacy' })
     ],
     entryComponents: [WidgetsComponents],
     providers: [

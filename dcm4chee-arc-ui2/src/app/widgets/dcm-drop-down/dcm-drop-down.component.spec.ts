@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { DcmDropDownComponent } from './dcm-drop-down.component';
 import {ClickOutsideDirective} from "../../helpers/click-outside.directive";
@@ -11,7 +11,7 @@ describe('DcmDropDownComponent', () => {
   let component: DcmDropDownComponent;
   let fixture: ComponentFixture<DcmDropDownComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DcmDropDownComponent, ClickOutsideDirective, SearchPipe, ArrayToStringPipe],
         imports:[FormsModule, BrowserAnimationsModule]

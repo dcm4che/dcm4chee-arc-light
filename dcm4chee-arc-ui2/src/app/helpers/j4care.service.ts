@@ -361,7 +361,7 @@ export class j4care {
         });
         return aetExtended
     }
-    static convertDateRangeToString(rangeArray:Date[]){
+    static convertDateRangeToString(rangeArray:Date[]|any){
         let datePipe = new DatePipe('en_US');
 
         if(rangeArray && rangeArray.length > 0){

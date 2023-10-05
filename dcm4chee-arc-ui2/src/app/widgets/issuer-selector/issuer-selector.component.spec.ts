@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { IssuerSelectorComponent } from './issuer-selector.component';
 
@@ -6,7 +6,7 @@ describe('IssuerSelectorComponent', () => {
   let component: IssuerSelectorComponent;
   let fixture: ComponentFixture<IssuerSelectorComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ IssuerSelectorComponent ]
     })

@@ -387,7 +387,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -407,27 +406,26 @@
               ]
             },
               "sq": {
-                "fileReplacements": [
-                  {
-                    "replace": "src/environments/environment.ts",
-                    "with": "src/environments/environment.prod.ts"
-                  }
-                ],
-                "optimization": true,
-                "outputHashing": "all",
-                "outputPath": "target/webapp",
-                "sourceMap": false,
-                "extractCss": true,
-                "namedChunks": false,
-                "aot": true,
-                "extractLicenses": true,
-                "vendorChunk": false,
-                "buildOptimizer": true,
-                "i18nFile": "src/assets/locale/sq.json",
-                "i18nFormat": "json",
-                "i18nLocale": "sq",
-                "i18nMissingTranslation": "warning"
-              }
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "outputPath": "target/webapp",
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "i18nFile": "src/assets/locale/sq.json",
+              "i18nFormat": "json",
+              "i18nLocale": "sq",
+              "i18nMissingTranslation": "warning"
+            }
           }
         },
         "serve": {

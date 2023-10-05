@@ -69,7 +69,7 @@ export class KeycloakService {
                             });
                             this.mainservice.setSecured(true);
                             this.mainservice.updateGlobal("notSecure",false);
-                            resolve();
+                            resolve(null);
                         }).error(err=>{
                             this.mainservice.setSecured(false);
                             this.mainservice.updateGlobal("notSecure",true);
@@ -92,7 +92,7 @@ export class KeycloakService {
                         KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
                             .success(() => {
                                 this.setTokenSource.next(KeycloakService.keycloakAuth.token);
-                                resolve();
+                                resolve(null);
                             })
                             .error((errorData: any) => {
                                 reject(errorData);
