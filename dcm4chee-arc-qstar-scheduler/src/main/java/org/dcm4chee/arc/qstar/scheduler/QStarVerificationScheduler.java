@@ -107,7 +107,10 @@ public class QStarVerificationScheduler extends Scheduler {
                 QStarVerifications qStarVerifications = new QStarVerifications();
                 for (Location.LocationWithUIDs l : locations) {
                     StorageDescriptor storageDescriptor = arcDev.getStorageDescriptorNotNull(l.location.getStorageID());
-                    String storagePath = l.location.getStoragePath();
+                    String mountPath = ensureTrailingSlash(
+                            storageDescriptor.getProperty("mountPath",
+                                    storageDescriptor.getStorageURI().getPath()));
+                    String storagePath = mountPath + l.location.getStoragePath();
                     int tarPathEnd;
                     LocationStatus status;
                     if (!storageDescriptor.isArchiveSeriesAsTAR() || (tarPathEnd = storagePath.indexOf('!')) < 0) {
@@ -127,6 +130,12 @@ public class QStarVerificationScheduler extends Scheduler {
                 qStarVerifications.logAndFireEvents();
             } while (locations.size() != fetchSize && arcDev.getQStarVerificationPollingInterval() != null);
         }
+    }
+
+    private static String ensureTrailingSlash(String mountPath) {
+        return mountPath.isEmpty() || mountPath.charAt(mountPath.length() - 1) != '/'
+                ? mountPath + '/'
+                : mountPath;
     }
 
     private static LocationStatus toLocationStatus(int accessState) {
