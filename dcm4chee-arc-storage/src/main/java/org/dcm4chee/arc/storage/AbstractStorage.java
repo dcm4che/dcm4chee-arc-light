@@ -106,12 +106,23 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public boolean exists(ReadContext ctx) {
-        throw new UnsupportedOperationException("exists() not supported by " + getClass().getName());
+        if (ctx.getStorage().getStorageDescriptor().isArchiveSeriesAsTAR() && ctx.getStoragePath().indexOf('!') > 0) {
+            try {
+                getTarArchiveEntry(ctx);
+            } catch (IOException e) {
+                return false;
+            }
+            return true;
+        }
+        return existsA(ctx);
     }
 
     @Override
     public long getContentLength(ReadContext ctx) throws IOException {
-        return -1L;
+        if (ctx.getStorage().getStorageDescriptor().isArchiveSeriesAsTAR() && ctx.getStoragePath().indexOf('!') > 0) {
+            return getTarArchiveEntry(ctx).getSize();
+        }
+        return getContentLengthA(ctx);
     }
 
     @Override
@@ -229,6 +240,14 @@ public abstract class AbstractStorage implements Storage {
     }
 
     protected abstract Logger log();
+
+    protected boolean existsA(ReadContext ctx) {
+        throw new UnsupportedOperationException("exists() not supported by " + getClass().getName());
+    }
+
+    protected long getContentLengthA(ReadContext ctx) throws IOException {
+        return -1L;
+    }
 
     protected abstract OutputStream openOutputStreamA(WriteContext ctx) throws IOException;
 
@@ -355,6 +374,23 @@ public abstract class AbstractStorage implements Storage {
         } finally {
             if (!entryFound)
                 tar.close();
+        }
+    }
+    private TarArchiveEntry getTarArchiveEntry(ReadContext ctx) throws IOException {
+        String storagePath = ctx.getStoragePath();
+        int tarPathEnd = storagePath.indexOf('!');
+        ctx.setStoragePath(storagePath.substring(0, tarPathEnd));
+        String entryName = storagePath.substring(tarPathEnd + 1);
+        try (TarArchiveInputStream tar = new TarArchiveInputStream(new BufferedInputStream(openInputStreamA(ctx)))) {
+            TarArchiveEntry entry;
+            while ((entry = tar.getNextTarEntry()) != null && !entry.getName().equals(entryName));
+            if (entry == null) {
+                throw new NoSuchFileException(
+                        "No entry: " + entryName +
+                        " in TAR: " + storagePath
+                        + " on " + getStorageDescriptor());
+            }
+            return entry;
         }
     }
 

@@ -218,13 +218,13 @@ public class CloudStorage extends AbstractStorage {
     }
 
     @Override
-    public boolean exists(ReadContext ctx) {
+    protected boolean existsA(ReadContext ctx) {
         BlobStore blobStore = context.getBlobStore();
         return blobStore.blobExists(container, ctx.getStoragePath());
     }
 
     @Override
-    public long getContentLength(ReadContext ctx) throws IOException {
+    protected long getContentLengthA(ReadContext ctx) throws IOException {
         BlobStore blobStore = context.getBlobStore();
         BlobMetadata blobMetadata = blobStore.blobMetadata(container, ctx.getStoragePath());
         if (blobMetadata == null)

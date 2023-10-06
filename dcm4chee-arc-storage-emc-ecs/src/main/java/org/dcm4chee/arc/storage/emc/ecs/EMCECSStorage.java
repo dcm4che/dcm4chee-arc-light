@@ -124,12 +124,12 @@ public class EMCECSStorage extends AbstractStorage {
     }
 
     @Override
-    public boolean exists(ReadContext ctx) {
+    protected boolean existsA(ReadContext ctx) {
         return exists(ctx.getStoragePath());
     }
 
     @Override
-    public long getContentLength(ReadContext ctx) throws IOException {
+    protected long getContentLengthA(ReadContext ctx) throws IOException {
         return getObjectMetadata(ctx.getStoragePath()).getContentLength();
     }
 
