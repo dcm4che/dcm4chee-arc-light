@@ -11,14 +11,15 @@ class MyServiceDependencyStub {
 describe('WebAppsListService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-          WebAppsListService,
-          { provide: J4careHttpService, useClass: MyServiceDependencyStub },
-          { provide: DevicesService, useClass: MyServiceDependencyStub },
-          { provide: AeListService, useClass: MyServiceDependencyStub },
-          { provide: AppService, useClass: MyServiceDependencyStub },
-      ]
-    });
+    providers: [
+        WebAppsListService,
+        { provide: J4careHttpService, useClass: MyServiceDependencyStub },
+        { provide: DevicesService, useClass: MyServiceDependencyStub },
+        { provide: AeListService, useClass: MyServiceDependencyStub },
+        { provide: AppService, useClass: MyServiceDependencyStub },
+    ],
+    teardown: { destroyAfterEach: false }
+});
   });
 
   it('should be created', inject([WebAppsListService], (service: WebAppsListService) => {

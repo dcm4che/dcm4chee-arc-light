@@ -8,8 +8,9 @@ describe('IssuerSelectorComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ IssuerSelectorComponent ]
-    })
+    declarations: [IssuerSelectorComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   }));
 

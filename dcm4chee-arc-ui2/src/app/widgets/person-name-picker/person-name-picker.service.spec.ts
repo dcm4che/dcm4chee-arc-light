@@ -9,10 +9,11 @@ describe('PatientNamePickerService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers:[
-        {provide:AppService, useClass:MyServiceDependencyStub}
-      ]
-    });
+    providers: [
+        { provide: AppService, useClass: MyServiceDependencyStub }
+    ],
+    teardown: { destroyAfterEach: false }
+});
     service = TestBed.inject(PersonNamePickerService);
   });
 

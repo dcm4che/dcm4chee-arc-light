@@ -8,8 +8,9 @@ describe('PatientNamePickerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PersonNamePickerComponent ]
-    })
+    declarations: [PersonNamePickerComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   });
 

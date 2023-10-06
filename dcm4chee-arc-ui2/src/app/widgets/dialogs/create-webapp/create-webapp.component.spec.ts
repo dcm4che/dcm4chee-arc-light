@@ -13,11 +13,12 @@ describe('CreateWebappComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CreateWebappComponent ],
-        providers:[
-            {provide:MatDialogRef, useClass:CreateWebappDependenc},
-        ]
-    })
+    declarations: [CreateWebappComponent],
+    providers: [
+        { provide: MatDialogRef, useClass: CreateWebappDependenc },
+    ],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   });
 

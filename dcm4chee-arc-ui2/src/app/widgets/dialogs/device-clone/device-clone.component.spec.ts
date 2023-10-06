@@ -8,8 +8,9 @@ describe('DeviceCloneComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DeviceCloneComponent ]
-    })
+    declarations: [DeviceCloneComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   });
 

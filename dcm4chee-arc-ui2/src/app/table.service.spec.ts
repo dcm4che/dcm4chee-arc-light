@@ -12,11 +12,12 @@ describe('TableService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-        providers: [
-                TableService,
-                {provide:AppService, useClass:TableServiceDependenc}
-            ]
-  });
+    providers: [
+        TableService,
+        { provide: AppService, useClass: TableServiceDependenc }
+    ],
+    teardown: { destroyAfterEach: false }
+});
     service = TestBed.inject(TableService);
   });
 

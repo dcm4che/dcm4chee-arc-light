@@ -24,18 +24,19 @@ describe("DeviceConfiguratorService",()=> {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [
-                DeviceConfiguratorService,
-                WebAppsListService,
-                { provide: J4careHttpService, useClass: MyServiceDependencyStub },
-                { provide: AppService, useClass: MyServiceDependencyStub },
-                { provide: DevicesService, useClass: MyServiceDependencyStub },
-                { provide: AeListService, useClass: MyServiceDependencyStub },
-                { provide: Hl7ApplicationsService, useClass: MyServiceDependencyStub },
-                { provide: WebAppsListService, useClass: MyServiceDependencyStub },
-                { provide: ControlService, useClass: MyServiceDependencyStub },
-            ],
-        });
+    providers: [
+        DeviceConfiguratorService,
+        WebAppsListService,
+        { provide: J4careHttpService, useClass: MyServiceDependencyStub },
+        { provide: AppService, useClass: MyServiceDependencyStub },
+        { provide: DevicesService, useClass: MyServiceDependencyStub },
+        { provide: AeListService, useClass: MyServiceDependencyStub },
+        { provide: Hl7ApplicationsService, useClass: MyServiceDependencyStub },
+        { provide: WebAppsListService, useClass: MyServiceDependencyStub },
+        { provide: ControlService, useClass: MyServiceDependencyStub },
+    ],
+    teardown: { destroyAfterEach: false }
+});
         service = TestBed.inject(DeviceConfiguratorService);
         //"$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle"
         service.device = {

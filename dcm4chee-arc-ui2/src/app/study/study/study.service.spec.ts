@@ -22,21 +22,22 @@ class StudyServiceDependenc{
 describe('StudyService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-          StudyService,
-          {provide:KeycloakService, useClass:StudyServiceDependenc},
-          {provide:AppService, useClass:StudyServiceDependenc},
-          {provide:AeListService, useClass:StudyServiceDependenc},
-          {provide:J4careHttpService, useClass:StudyServiceDependenc},
-          {provide:StorageSystemsService, useClass:StudyServiceDependenc},
-          {provide:DevicesService, useClass:StudyServiceDependenc},
-          {provide:WebAppsListService, useClass:StudyServiceDependenc},
-          {provide:RetrieveMonitoringService, useClass:StudyServiceDependenc},
-          {provide:PermissionService, useClass:StudyServiceDependenc},
-          {provide:LargeIntFormatPipe, useClass:StudyServiceDependenc},
-          {provide:j4care, useClass:StudyServiceDependenc}
-      ]
-    });
+    providers: [
+        StudyService,
+        { provide: KeycloakService, useClass: StudyServiceDependenc },
+        { provide: AppService, useClass: StudyServiceDependenc },
+        { provide: AeListService, useClass: StudyServiceDependenc },
+        { provide: J4careHttpService, useClass: StudyServiceDependenc },
+        { provide: StorageSystemsService, useClass: StudyServiceDependenc },
+        { provide: DevicesService, useClass: StudyServiceDependenc },
+        { provide: WebAppsListService, useClass: StudyServiceDependenc },
+        { provide: RetrieveMonitoringService, useClass: StudyServiceDependenc },
+        { provide: PermissionService, useClass: StudyServiceDependenc },
+        { provide: LargeIntFormatPipe, useClass: StudyServiceDependenc },
+        { provide: j4care, useClass: StudyServiceDependenc }
+    ],
+    teardown: { destroyAfterEach: false }
+});
   });
 
   it('should be created', inject([StudyService], (service: StudyService) => {
