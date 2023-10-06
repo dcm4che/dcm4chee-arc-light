@@ -55,6 +55,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.entity.Location;
@@ -408,12 +409,16 @@ public class StgCmtManagerImpl implements StgCmtManager {
         return attrs;
     }
 
-    private boolean checkLocationsOfInstance(StgCmtContext ctx, RetrieveContext retrCtx, InstanceLocations inst) {
+    private booleancheckLocationsOfInstance(StgCmtContext ctx, RetrieveContext retrCtx, InstanceLocations inst) {
         List<UpdateLocation> updateLocations = retrCtx.getUpdateLocations();
         int locationsOnStgCmtStorage = 0;
         Attributes attrs = inst.getAttributes();
         String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-        for (Location l : inst.getLocations()) {
+        List<Location> locations = inst.getLocations();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        Collections.sort(locations, Comparator.comparing(l ->
+                arcDev.getStorageDescriptorNotNull(l.getStorageID()).getInstanceAvailability()));
+        for (Location l : locations) {
             if (ctx.checkStorageID(l.getStorageID())) {
                 locationsOnStgCmtStorage++;
                 Storage storage = retrieveService.getStorage(l.getStorageID(), retrCtx);
