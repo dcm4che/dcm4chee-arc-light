@@ -409,7 +409,7 @@ public class StgCmtManagerImpl implements StgCmtManager {
         return attrs;
     }
 
-    private booleancheckLocationsOfInstance(StgCmtContext ctx, RetrieveContext retrCtx, InstanceLocations inst) {
+    private boolean checkLocationsOfInstance(StgCmtContext ctx, RetrieveContext retrCtx, InstanceLocations inst) {
         List<UpdateLocation> updateLocations = retrCtx.getUpdateLocations();
         int locationsOnStgCmtStorage = 0;
         Attributes attrs = inst.getAttributes();
