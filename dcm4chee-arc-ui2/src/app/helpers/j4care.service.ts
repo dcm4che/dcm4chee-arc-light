@@ -1579,7 +1579,7 @@ export class j4care {
                         if(_.isObject(value) && base && key && _.isObject(base[key])){
                             result[key] = changes(value, base[key])
                         }else{
-                            if(!(_.isArray(value) && value.length === 0) && !(_.isObject(value) && Object.keys(value).length === 0) && value != undefined && value != "" && value != [""]){
+                            if(!(_.isArray(value) && value.length === 0) && !(_.isObject(value) && Object.keys(value).length === 0) && value != undefined && value != "" && value[0] != ""){
                                 result[key] = value;
                             }
                         }

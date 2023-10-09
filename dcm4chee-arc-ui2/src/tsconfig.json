@@ -3,6 +3,7 @@
     "preserveWhitespaces": false
   },
   "compilerOptions": {
+    "baseUrl": "src",
     "declaration": false,
     "experimentalDecorators": true,
     "lib": ["es6", "dom"],

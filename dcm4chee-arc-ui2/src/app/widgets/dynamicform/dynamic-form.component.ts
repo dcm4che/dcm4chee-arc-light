@@ -2,7 +2,7 @@
  * Created by shefki on 9/20/16.
  */
 import {Component, OnInit, Input, EventEmitter} from '@angular/core';
-import {FormBuilder, FormGroup} from '@angular/forms';
+import {UntypedFormBuilder, UntypedFormGroup} from '@angular/forms';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
 import {Output} from '@angular/core';
@@ -26,7 +26,7 @@ export class DynamicFormComponent implements OnInit{
     @Input() dontGroup;
     @Input() readOnlyMode;
     @Output() submitFunction = new EventEmitter<any>();
-    form: FormGroup;
+    form: UntypedFormGroup;
     payLoad = '';
     partSearch = '';
     prevPartSearch = '';
@@ -38,7 +38,7 @@ export class DynamicFormComponent implements OnInit{
         private formservice: FormService,
         private mainservice:AppService,
         private route: ActivatedRoute,
-        private fb: FormBuilder
+        private fb: UntypedFormBuilder
     ){}
     // submi(){
     //     console.log("in submitfunctiondynamicform");
@@ -104,7 +104,7 @@ export class DynamicFormComponent implements OnInit{
             orderValue = parseInt(m.order);
         });
         this.formelements = orderedGroupClone;
-        let formGroup: FormGroup = this.formservice.toFormGroup(orderedGroupClone);
+        let formGroup: UntypedFormGroup = this.formservice.toFormGroup(orderedGroupClone);
         this.form = formGroup;
         console.log("hr",window.location);
         console.log('after convert form', this.form);

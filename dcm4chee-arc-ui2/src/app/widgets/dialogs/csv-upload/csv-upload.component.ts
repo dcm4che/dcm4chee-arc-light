@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators} from "@angular/forms";
 import { MatDialogRef } from "@angular/material/dialog";
 import {CsvUploadService} from "./csv-upload.service";
 import {AppService} from "../../../app.service";
@@ -13,7 +13,7 @@ import * as _ from "lodash-es";
 })
 export class CsvUploadComponent implements OnInit {
 
-    form: FormGroup;
+    form: UntypedFormGroup;
     csvFile:File;
     aes;
     params = {
@@ -24,7 +24,7 @@ export class CsvUploadComponent implements OnInit {
     model = {};
     constructor(
         public dialogRef: MatDialogRef<CsvUploadComponent>,
-        private _fb: FormBuilder,
+        private _fb: UntypedFormBuilder,
         private service:CsvUploadService,
         private appService:AppService
     ){}
@@ -96,7 +96,7 @@ export class CsvUploadComponent implements OnInit {
         });
     }
     dateChanged(key, e){
-        (<FormControl>this.form.controls[key]).setValue(e);
+        (<UntypedFormControl>this.form.controls[key]).setValue(e);
         if(e){
             this.model[key] = e;
         }else{

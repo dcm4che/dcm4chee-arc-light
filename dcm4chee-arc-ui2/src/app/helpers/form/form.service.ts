@@ -4,7 +4,7 @@
 
 import {Injectable} from '@angular/core';
 import {FormElement} from './form-element';
-import {FormControl, Validators, FormGroup, FormBuilder, AbstractControl} from '@angular/forms';
+import {UntypedFormControl, Validators, UntypedFormGroup, UntypedFormBuilder, AbstractControl} from '@angular/forms';
 import * as _ from 'lodash-es';
 import {CustomValidatorDirective} from '../custom-validator/custom-validator.directive';
 
@@ -13,9 +13,9 @@ function testValidation(c: AbstractControl){
 }
 @Injectable()
 export class FormService{
-    constructor(private _fb: FormBuilder){}
+    constructor(private _fb: UntypedFormBuilder){}
 
-    toFormGroup(formelements: FormElement<any>[]):FormGroup{
+    toFormGroup(formelements: FormElement<any>[]):UntypedFormGroup{
         return this._fb.group(this.convertFormElement(formelements));
     }
 
@@ -83,7 +83,7 @@ export class FormService{
             }
             switch (element.controlType) {
                 case 'arrayobject':
-                        let arr: FormGroup[] = [];
+                        let arr: UntypedFormGroup[] = [];
                         let locobj = {};
                         element['options'].forEach((option: any) => {
                             option['element'].forEach((e: any) => {
@@ -103,7 +103,7 @@ export class FormService{
                         group[element.key] = $this._fb.array(arr);
                     break;
                 case 'arrayelement':
-                    let singleElementValues: FormControl[] = [];
+                    let singleElementValues: UntypedFormControl[] = [];
                     console.log('element.value', element.value);
                     if (element.value){
                         if (element['type'] === 'number'){
@@ -180,7 +180,7 @@ export class FormService{
                 retobj[key] = $this._fb.control(keys[key]);
             }else{
                 if (Array.isArray(keys[key])){
-                    let tmpArr: FormControl[] = [];
+                    let tmpArr: UntypedFormControl[] = [];
                     keys[key].forEach((kayvalue: any) => {
                         tmpArr.push($this._fb.control(kayvalue));
                     });

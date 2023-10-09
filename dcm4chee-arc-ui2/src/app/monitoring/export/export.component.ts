@@ -1,4 +1,3 @@
-import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import { MatDialogConfig, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -22,6 +21,7 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {map} from "rxjs/operators";
 import {SelectDropdown} from "../../interfaces";
 import {environment} from "../../../environments/environment";
+import {Component, OnDestroy, OnInit, ViewContainerRef} from "@angular/core";
 
 
 @Component({

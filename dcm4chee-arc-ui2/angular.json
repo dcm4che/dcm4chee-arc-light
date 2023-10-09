@@ -18,6 +18,8 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "allowedCommonJsDependencies": [
+              "lodash",
+              "moment",
               "uuid/v4",
               "file-saver"
             ],
@@ -496,6 +498,6 @@
           }
         }
       }
-    }},
-  "defaultProject": "dcm4chee-arc-ui2"
+    }
+  }
 }

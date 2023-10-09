@@ -1,4 +1,3 @@
-///<reference path="../../../../../node_modules/@angular/core/core.d.ts"/>
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import {AppService} from '../../../app.service';

@@ -5,7 +5,7 @@ import {
     Component, Input, ElementRef, ComponentFactoryResolver, ChangeDetectionStrategy,
     ViewContainerRef, ChangeDetectorRef, HostListener, OnDestroy
 } from '@angular/core';
-import {FormGroup, FormControl, FormArray, FormBuilder} from '@angular/forms';
+import {UntypedFormGroup, UntypedFormControl, UntypedFormArray, UntypedFormBuilder} from '@angular/forms';
 import {DynamicFormComponent} from './dynamic-form.component';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
@@ -32,13 +32,13 @@ export class DynamicFormElementComponent implements OnDestroy{
 
     @Input() formelement: FormElement<any>;
     @Input() formelements: FormElement<any>[];
-    @Input() form: FormGroup;
+    @Input() form: UntypedFormGroup;
     @Input() partSearch: string;
     @Input() readOnlyMode: boolean;
     dialogRef: MatDialogRef<any>;
     // activetab = "tab_1";
     partRemoved: boolean;
-    search = new FormControl('');
+    search = new UntypedFormControl('');
 
     $localize = $localize;
     constructor(
@@ -56,7 +56,7 @@ export class DynamicFormElementComponent implements OnDestroy{
         private mainservice: AppService,
         private controlService:ControlService,
         private j4care:j4care,
-        private _fb: FormBuilder,
+        private _fb: UntypedFormBuilder,
         private _keycloakService: KeycloakService
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
@@ -376,13 +376,13 @@ export class DynamicFormElementComponent implements OnDestroy{
             // });
         }
     }
-    addArrayElement(element: any, formpart: FormControl[], form: any){
+    addArrayElement(element: any, formpart: UntypedFormControl[], form: any){
         if(!this.readOnlyMode) {
             formpart = formpart || [];
             element = element || [];
             element.push('');
             let globalForm = this.formcomp.getForm();
-            formpart.push(new FormControl(''));
+            formpart.push(new UntypedFormControl(''));
             let valueObject = globalForm.value;
             this.form = this.formservice.toFormGroup(this.formelements);
             this.form.patchValue(valueObject);
@@ -396,7 +396,7 @@ export class DynamicFormElementComponent implements OnDestroy{
             if (element.value.length > i) {
                 //Remove from react form
 
-                (<FormArray>this.form.controls[element.key]).removeAt(i);
+                (<UntypedFormArray>this.form.controls[element.key]).removeAt(i);
                 //reflect the changes to the dome
                 _.forEach(this.formelements, (m, j) => {
                     if (m.key === element.key) {
@@ -409,10 +409,10 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     checkboxChange(e, formelement){
         if(!this.readOnlyMode) {
-            if (e.target.checked && !_.hasIn(this.form.controls[formelement.key].value, e.target.defaultValue) && !_.hasIn((<FormArray>this.form.controls[formelement.key]).getRawValue(), e.target.defaultValue)) {
-                (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(this.tryToConvertValueToInt(e.target.defaultValue)));
+            if (e.target.checked && !_.hasIn(this.form.controls[formelement.key].value, e.target.defaultValue) && !_.hasIn((<UntypedFormArray>this.form.controls[formelement.key]).getRawValue(), e.target.defaultValue)) {
+                (<UntypedFormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new UntypedFormControl(this.tryToConvertValueToInt(e.target.defaultValue)));
             } else {
-                (<FormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value, this.tryToConvertValueToInt(e.target.defaultValue)));
+                (<UntypedFormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value, this.tryToConvertValueToInt(e.target.defaultValue)));
             }
         }
     }
@@ -470,7 +470,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                 if(formelement.type === 'array')
                     this.form.setControl(formelement.key,this._fb.array(e));
                 else
-                    (<FormControl>this.form.controls[formelement.key]).setValue(e);
+                    (<UntypedFormControl>this.form.controls[formelement.key]).setValue(e);
             }else{
                 if(e && e != ''){
                     if(formelement.controlType === "arrayelement"){
