@@ -214,7 +214,8 @@ public class AuditTriggerObserver {
     }
 
     public void onQStarVerification(@Observes QStarVerification qStarVerification) {
-        //TODO
+        if (deviceHasAuditLoggers())
+            auditService.spoolQStarVerification(qStarVerification);
     }
 
     private boolean deviceHasAuditLoggers() {

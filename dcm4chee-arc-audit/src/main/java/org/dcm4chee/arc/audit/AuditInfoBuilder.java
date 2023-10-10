@@ -159,6 +159,10 @@ class AuditInfoBuilder {
             calledHost = val;
             return this;
         }
+        Builder unknownPID(ArchiveDeviceExtension arcDev) {
+            pID = arcDev.auditUnknownPatientID();
+            return this;
+        }
         Builder pIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
             pID = arcDev.auditUnknownPatientID();
             if (attr != null) {

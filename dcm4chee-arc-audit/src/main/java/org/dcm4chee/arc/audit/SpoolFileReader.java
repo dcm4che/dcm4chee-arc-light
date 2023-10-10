@@ -91,7 +91,7 @@ class SpoolFileReader {
                 else
                     mainInfo.write(readMain);
             }
-            this.mainInfo = new String(mainInfo.toByteArray());
+            this.mainInfo = mainInfo.toString();
 
             if ((readData = in.read()) != -1) {
                 data.write(readData);

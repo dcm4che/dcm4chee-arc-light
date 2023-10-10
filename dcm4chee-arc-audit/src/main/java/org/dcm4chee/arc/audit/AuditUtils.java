@@ -88,9 +88,12 @@ class AuditUtils {
         LDAP_CHANGES,
         QUEUE_EVENT,
         IMPAX,
-        ASSOCIATION_FAILURE
+        ASSOCIATION_FAILURE,
+        QSTAR
     }
     enum EventType {
+        QSTAR_VERI(EventClass.QSTAR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, null),
         STORE_CREA(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create,

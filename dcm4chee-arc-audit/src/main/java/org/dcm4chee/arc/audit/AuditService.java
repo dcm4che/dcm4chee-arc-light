@@ -76,6 +76,7 @@ import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
+import org.dcm4chee.arc.qstar.QStarVerification;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -98,10 +99,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -180,6 +178,9 @@ public class AuditService {
                 break;
             case ASSOCIATION_FAILURE:
                 auditAssociationFailure(auditLogger, path, eventType);
+                break;
+            case QSTAR:
+                QStarVerificationAuditService.auditQStarVerification(auditLogger, path, eventType);
                 break;
         }
     }
@@ -1078,7 +1079,7 @@ public class AuditService {
             }
     }
 
-    private void writeSpoolFile(AuditUtils.EventType eventType, String suffix, AuditInfoBuilder... auditInfoBuilders) {
+    void writeSpoolFile(AuditUtils.EventType eventType, String suffix, AuditInfoBuilder... auditInfoBuilders) {
         String file = suffix != null ? eventType.name().concat(suffix) : eventType.name();
         if (auditInfoBuilders == null) {
             LOG.info("Attempt to write empty file : " + file);
@@ -1142,6 +1143,18 @@ public class AuditService {
         }
     }
 
+    static void emitAuditMessage(
+            AuditLogger auditLogger, EventIdentification eventIdentification, List<ActiveParticipant> activeParticipants,
+            ParticipantObjectIdentification... participantObjectIdentifications) {
+        AuditMessage msg = AuditMessages.createMessage(eventIdentification, activeParticipants, participantObjectIdentifications);
+        msg.getAuditSourceIdentification().add(auditLogger.createAuditSourceIdentification());
+        try {
+            auditLogger.write(auditLogger.timeStamp(), msg);
+        } catch (Exception e) {
+            LOG.info("Failed to emit audit message for [AuditLogger={}]\n", auditLogger.getCommonName(), e);
+        }
+    }
+
     private AuditMessages.UserIDTypeCode userIDTypeCode(String userID) {
         return userID.indexOf('/') != -1
                 ? AuditMessages.UserIDTypeCode.URI
@@ -1163,5 +1176,40 @@ public class AuditService {
 
         LOG.info("Remote user ID was not set during spooling.");
         return null;
+    }
+
+    static Calendar getEventTime(Path path, AuditLogger auditLogger){
+        Calendar eventTime = auditLogger.timeStamp();
+        try {
+            eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
+        } catch (Exception e) {
+            LOG.info("Failed to get Last Modified Time of [AuditSpoolFile={}] of [AuditLogger={}]\n",
+                    path, auditLogger.getCommonName(), e);
+        }
+        return eventTime;
+    }
+
+    void spoolQStarVerification(QStarVerification qStarVerification) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        try {
+            String suffix = "-" + qStarVerification.status + "-" + qStarVerification.studyInstanceUID;
+            Set<AuditInfoBuilder> auditInfo = new LinkedHashSet<>();
+            auditInfo.add(new AuditInfoBuilder.Builder()
+                    .callingUserID(device.getDeviceName())
+                    .calledUserID(arcDev.getQStarVerificationURL())
+                    .outcome(QStarVerificationAuditService.QStarAccessStateEventOutcome.fromQStarVerification(qStarVerification)
+                            .getDescription())
+                    .studyIUID(qStarVerification.studyInstanceUID)
+                    .unknownPID(arcDev)
+                    .build());
+            qStarVerification.sopRefs.forEach(sopRef ->
+                    auditInfo.add(new AuditInfoBuilder.Builder()
+                            .sopCUID(sopRef.sopClassUID)
+                            .sopIUID(sopRef.sopInstanceUID)
+                            .build()));
+            writeSpoolFile(AuditUtils.EventType.QSTAR_VERI, suffix, auditInfo.toArray(new AuditInfoBuilder[0]));
+        } catch (Exception e) {
+            LOG.info("Failed to spool {}", qStarVerification);
+        }
     }
 }
