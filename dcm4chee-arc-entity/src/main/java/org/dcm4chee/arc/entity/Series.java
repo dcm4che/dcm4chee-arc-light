@@ -111,6 +111,9 @@ import java.util.stream.Stream;
     name=Series.SET_SERIES_SIZE,
     query="update Series se set se.size = ?2 where se.pk = ?1"),
 @NamedQuery(
+    name=Series.RESET_SERIES_SIZE_AND_EXTERNAL_RETRIEVE_AET,
+    query="update Series se set se.size = -1L, se.externalRetrieveAET = null where se.pk = ?1"),
+@NamedQuery(
     name=Series.SET_COMPLETENESS,
     query="update Series ser set ser.completeness = ?3 " +
             "where ser.seriesInstanceUID = ?2 and ser.study in (" +
@@ -351,6 +354,7 @@ public class Series {
     public static final String SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE = "Series.seriesPKsOfStudyWithUnknownSize";
     public static final String SIZE_OF_STUDY="Series.sizeOfStudy";
     public static final String SET_SERIES_SIZE = "Series.SetSeriesSize";
+    public static final String RESET_SERIES_SIZE_AND_EXTERNAL_RETRIEVE_AET = "Series.ResetSeriesSizeAndExternalRetrieveAET";
     public static final String SET_COMPLETENESS = "Series.SetCompleteness";
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
@@ -889,8 +893,16 @@ public class Series {
         this.externalRetrieveAET = externalRetrieveAET;
     }
 
-    public void resetSize() {
+    public boolean resetExternalRetrieveAET() {
+        if (externalRetrieveAET == null) return false;
+        this.externalRetrieveAET = null;
+        return true;
+    }
+
+    public boolean resetSize() {
+        if (size == -1) return false;
         this.size = -1L;
+        return true;
     }
 
     public long getSize() {

@@ -299,7 +299,6 @@ public class StoreServiceEJB {
         deleteQueryAttributes(instance);
         Series series = instance.getSeries();
         Study study = series.getStudy();
-        study.resetSize();
         if (replaceLocationOnDifferentStorage) {
             String prevStorageIDs = study.getEncodedStorageIDs();
             study.setStorageIDs(queryStorageIDsOfStudy(study).toArray(StringUtils.EMPTY_STRING));
@@ -1018,8 +1017,10 @@ public class StoreServiceEJB {
         updated = attrs.updateSelected(updatePolicy,
                 ctx.getAttributes(), updateInfo.modified, filter.getSelection(false))
                 || updated;
-        if (!updated)
+        if (!updated) {
+            resetStudySizeAndExternalRetrieveAET(study);
             return study;
+        }
 
         updateInfo.log(session, study, attrs);
         study = em.find(Study.class, study.getPk());
@@ -1031,7 +1032,18 @@ public class StoreServiceEJB {
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                 .setParameter(1, study)
                 .executeUpdate();
+        study.resetSize();
+        study.resetExternalRetrieveAET();
         return study;
+    }
+
+    private void resetStudySizeAndExternalRetrieveAET(Study study) {
+        boolean resetSize = study.resetSize();
+        boolean resetExternalRetrieveAET = study.resetExternalRetrieveAET();
+        if (resetSize || resetExternalRetrieveAET) {
+            em.createNamedQuery(Study.RESET_STUDY_SIZE_AND_EXTERNAL_RETRIEVE_AET)
+                    .setParameter(1, study.getPk());
+        }
     }
 
     private boolean supplementIssuer(Attributes attrs, Attributes newAttrs, Attributes modified,
@@ -1070,8 +1082,10 @@ public class StoreServiceEJB {
         Attributes attrs = series.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
         Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false)))
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false))) {
+            resetSeriesSizeAndExternalRetrieveAET(series);
             return series;
+        }
 
         updateInfo.log(session, series, attrs);
         series = em.find(Series.class, series.getPk());
@@ -1083,7 +1097,18 @@ public class StoreServiceEJB {
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         series.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
+        series.resetSize();
+        series.resetExternalRetrieveAET();
         return series;
+    }
+
+    private void resetSeriesSizeAndExternalRetrieveAET(Series series) {
+        boolean resetSize = series.resetSize();
+        boolean resetExternalRetrieveAET = series.resetExternalRetrieveAET();
+        if (resetSize || resetExternalRetrieveAET) {
+            em.createNamedQuery(Series.RESET_SERIES_SIZE_AND_EXTERNAL_RETRIEVE_AET)
+                    .setParameter(1, series.getPk());
+        }
     }
 
     public void replaceLocation(StoreContext ctx, InstanceLocations inst) {

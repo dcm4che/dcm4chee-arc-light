@@ -86,6 +86,9 @@ import java.util.*;
                 name=Study.SET_STUDY_SIZE,
                 query="update Study st set st.size = ?2 where st.pk = ?1"),
         @NamedQuery(
+                name=Study.RESET_STUDY_SIZE_AND_EXTERNAL_RETRIEVE_AET,
+                query="update Study st set st.size = -1L, st.externalRetrieveAET = null where st.pk = ?1"),
+        @NamedQuery(
                 name=Study.SET_COMPLETENESS,
                 query="update Study st set st.completeness = ?2 " +
                         "where st.studyInstanceUID = ?1"),
@@ -174,6 +177,7 @@ public class Study {
     public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
     public static final String SET_STUDY_SIZE = "Study.setStudySize";
+    public static final String RESET_STUDY_SIZE_AND_EXTERNAL_RETRIEVE_AET = "Study.resetStudySizeAndExternalRetrieve";
     public static final String SET_COMPLETENESS = "Study.setCompleteness";
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.incrementFailedRetrieves";
     public static final String COUNT_STUDIES_OF_PATIENT = "Study.countStudiesOfPatient";
@@ -596,8 +600,16 @@ public class Study {
         this.externalRetrieveAET = externalRetrieveAET;
     }
 
-    public void resetSize() {
+    public boolean resetExternalRetrieveAET() {
+        if (externalRetrieveAET == null) return false;
+        this.externalRetrieveAET = null;
+        return true;
+    }
+
+    public boolean resetSize() {
+        if (size == -1) return false;
         this.size = -1L;
+        return true;
     }
 
     public Collection<CodeEntity> getProcedureCodes() {
