@@ -392,6 +392,11 @@ public class DeletionServiceEJB {
                 scheduleMetadataUpdate(series.getPk());
         }
         updateStorageIDs(study, storageIDs);
+        if (!study.hasStorageIDs()) {
+            em.createNamedQuery(Series.CANCEL_STORAGE_VERIFICATION_OF_STUDY)
+                    .setParameter(1, study)
+                    .executeUpdate();
+        }
         updateInstanceAvailability(study, desc.getInstanceAvailability(), remainingInstanceAvailability(desc));
         return true;
     }

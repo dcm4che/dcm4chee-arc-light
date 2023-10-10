@@ -255,6 +255,10 @@ import java.util.stream.Stream;
                 "from Series se " +
                 "where se.storageVerificationTime < current_timestamp"),
 @NamedQuery(
+        name = Series.CANCEL_STORAGE_VERIFICATION_OF_STUDY,
+        query = "update Series se set se.storageVerificationTime = null " +
+                "where se.study = ?1"),
+@NamedQuery(
         name = Series.SCHEDULED_COMPRESSION,
         query = "select new org.dcm4chee.arc.entity.Series$Compression(" +
                 "se.study.pk, se.pk, se.compressionTime, se.instancePurgeState, se.compressionTransferSyntaxUID, " +
@@ -380,6 +384,7 @@ public class Series {
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
     public static final String UPDATE_STGVER_FAILURES = "Series.updateStgVerFailures";
     public static final String SCHEDULED_STORAGE_VERIFICATION = "Series.scheduledStorageVerification";
+    public static final String CANCEL_STORAGE_VERIFICATION_OF_STUDY = "Series.cancelStorageVerificationOfStudy";
     public static final String SCHEDULED_COMPRESSION = "Series.scheduledCompression";
     public static final String INCREMENT_METADATA_UPDATE_FAILURES = "Series.setMetadataScheduledUpdateTime";
     public static final String SET_METADATA = "Series.setMetadata";

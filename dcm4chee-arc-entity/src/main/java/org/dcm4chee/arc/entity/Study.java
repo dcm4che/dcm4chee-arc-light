@@ -433,6 +433,10 @@ public class Study {
         return storageIDs;
     }
 
+    public boolean hasStorageIDs() {
+        return storageIDs == null;
+    }
+
     public String[] getStorageIDs() {
         return StringUtils.split(storageIDs, '\\');
     }
