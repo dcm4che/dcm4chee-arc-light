@@ -312,4 +312,9 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     public void setSourceMwlScp(String sourceMwlScp) {
         this.sourceMwlScp = sourceMwlScp;
     }
+
+    @Override
+    public Socket getSocket() {
+        return socket;
+    }
 }

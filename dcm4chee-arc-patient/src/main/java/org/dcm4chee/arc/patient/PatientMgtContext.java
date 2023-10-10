@@ -51,6 +51,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
+import java.net.Socket;
 import java.util.Collection;
 
 /**
@@ -132,4 +133,6 @@ public interface PatientMgtContext {
     String getSourceMwlScp();
 
     void setSourceMwlScp(String sourceMwlScp);
+
+    Socket getSocket();
 }

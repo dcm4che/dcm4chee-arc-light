@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.storage.ReadContext;
 
 import java.io.IOException;
@@ -99,6 +100,8 @@ public interface StoreService {
     StoreSession newStoreSession(ApplicationEntity ae);
 
     StoreSession newStoreSession(HL7Application hl7App, Socket socket, UnparsedHL7Message msg, ApplicationEntity ae);
+
+    StoreSession newStoreSession(ApplicationEntity ae, PatientMgtContext ctx);
 
     StoreContext newStoreContext(StoreSession session);
 

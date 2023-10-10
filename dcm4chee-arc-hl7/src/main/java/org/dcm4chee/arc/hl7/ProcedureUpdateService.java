@@ -44,6 +44,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.ERRSegment;
@@ -57,14 +58,13 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.ReverseDNS;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
 import org.dcm4chee.arc.conf.HL7OrderMissingAdmissionIDPolicy;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -113,54 +113,67 @@ public class ProcedureUpdateService extends DefaultHL7Service {
             throws HL7Exception {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
-        Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
-        if (pat != null) {
-            try {
-                updateProcedure(hl7App, s, msg, pat, archiveHL7Message);
-            } catch(HL7Exception e) {
-                throw e;
-            } catch (Exception e) {
-                throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
-            }
+        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
+        transform(ctx);
+        ctx.setPatient(PatientUpdateService.updatePatient(ctx, patientService, archiveHL7Message));
+        try {
+            updateProcedure(ctx, archiveHL7Message);
+        } catch(HL7Exception e) {
+            throw e;
+        } catch (Exception e) {
+            throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
         }
-
         return archiveHL7Message;
     }
 
-    private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat,
-                                 ArchiveHL7Message archiveHL7Message)
-            throws Exception {
-        ArchiveHL7ApplicationExtension arcHL7App =
-                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        HL7Segment msh = msg.msh();
-        LOG.info("Update procedure for message type {}", msh.getMessageType());
-        Attributes attrs = SAXTransformer.transform(
-                msg,
-                arcHL7App,
-                arcHL7App.scheduleProcedureTemplateURI(),
-                tr -> {
-                    tr.setParameter("hl7ScheduledProtocolCodeInOrder",
-                            arcHL7App.hl7ScheduledProtocolCodeInOrder().toString());
-                    if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
-                        tr.setParameter("hl7ScheduledStationAETInOrder",
-                                arcHL7App.hl7ScheduledStationAETInOrder().toString());
-                });
-
-
-        adjust(attrs, hl7App, s, msg);
-        ProcedureContext ctx = procedureService.createProcedureContext().setSocket(s).setHL7Message(msg);
-        ctx.setLocalAET(arcHL7App.getAETitle());
-        ctx.setArchiveHL7AppExtension(arcHL7App);
-        ctx.setPatient(pat);
-        ctx.setAttributes(attrs);
-        procedureService.updateProcedure(ctx);
+    private void updateProcedure(PatientMgtContext ctx, ArchiveHL7Message archiveHL7Message) throws Exception {
+        if (ctx.getPatient() == null) {
+            LOG.info("Abort MWL create / update, as no patient associated with Hl7 order was created / updated.");
+            return;
+        }
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
+        ArchiveHL7ApplicationExtension arcHL7App = ctx.getHL7Application()
+                .getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        LOG.info("Update procedure for message type {}", msg.msh().getMessageType());
+        adjust(ctx);
+        ProcedureContext procCtx = procedureService.createProcedureContext().setSocket(ctx.getSocket()).setHL7Message(msg);
+        procCtx.setLocalAET(arcHL7App.getAETitle());
+        procCtx.setArchiveHL7AppExtension(arcHL7App);
+        procCtx.setPatient(ctx.getPatient());
+        procCtx.setAttributes(ctx.getAttributes());
+        procedureService.updateProcedure(procCtx);
         archiveHL7Message.setProcRecEventActionCode(ctx.getEventActionCode());
         archiveHL7Message.setStudyAttrs(ctx.getAttributes());
     }
 
+    private static void transform(PatientMgtContext ctx) throws HL7Exception {
+        ArchiveHL7ApplicationExtension arcHL7App =
+                ctx.getHL7Application().getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
+        try {
+            Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
+            ctx.setAttributes(SAXTransformer.transform(
+                    msg,
+                    arcHL7App,
+                    arcHL7App.scheduleProcedureTemplateURI(),
+                    tr -> {
+                        tr.setParameter("hl7ScheduledProtocolCodeInOrder",
+                                arcHL7App.hl7ScheduledProtocolCodeInOrder().toString());
+                        if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
+                            tr.setParameter("hl7ScheduledStationAETInOrder",
+                                    arcHL7App.hl7ScheduledStationAETInOrder().toString());
+                        if (hl7PrimaryAssigningAuthorityOfPatientID != null)
+                            tr.setParameter("hl7PrimaryAssigningAuthorityOfPatientID",
+                                    hl7PrimaryAssigningAuthorityOfPatientID.toString());
+                    }));
+        } catch (Exception e) {
+            throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
+        }
+    }
+
     private void validateSPSStartDateTime(Attributes sps, HL7Segment msh) throws Exception {
         String spsDTField = msh.getMessageType().equals(GENERAL_ORDER_MSG)
-                                ? QUANTITY_TIMING : START_DATE_TIME;
+                ? QUANTITY_TIMING : START_DATE_TIME;
         try {
             String spsStartDateTime = sps.getString(Tag.ScheduledProcedureStepStartDate);
             if (spsStartDateTime == null) {
@@ -177,17 +190,18 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         }
     }
 
-    private void adjust(Attributes attrs, HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
+    private void adjust(PatientMgtContext ctx) throws Exception {
+        HL7Application hl7App = ctx.getHL7Application();
+        Attributes attrs = ctx.getAttributes();
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class);
-        String mwlWorklistLabel = arcHL7App.getMWLWorklistLabel();
-        if (mwlWorklistLabel != null) {
-            attrs.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabel);
-        }
+        if (arcHL7App.getMWLWorklistLabel() != null)
+            attrs.setString(Tag.WorklistLabel, VR.LO, arcHL7App.getMWLWorklistLabel());
         HL7Segment msh = msg.msh();
         boolean uidsGenerated = adjustIdentifiers(attrs, arcHL7App, msh);
 
         Collection<Device> hl7OrderScheduledStations = arcHL7App.hl7OrderScheduledStation(
-                ReverseDNS.hostNameOf(s.getLocalAddress()),
+                ReverseDNS.hostNameOf(ctx.getSocket().getLocalAddress()),
                 new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()));
 
         Iterator<Attributes> spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
@@ -272,34 +286,34 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 LOG.info("Derived StudyInstanceUID from RequestedProcedureID[={}] : {}",
                         reqProcID, studyIUID);
             } else switch (arcHL7App.hl7OrderMissingStudyIUIDPolicy()) {
-                    case REJECT:
+                case REJECT:
+                    throw new HL7Exception(
+                            new ERRSegment(msh)
+                                    .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                                    .setErrorLocation(messageType.equals(IMAGING_ORDER_MSG)
+                                            ? STUDY_UID_IMAGING_ORDER : STUDY_UID_GENERAL_ORDER)
+                                    .setUserMessage("Missing study instance uid"));
+                case ACCESSION_BASED:
+                    if (accessionNum == null)
                         throw new HL7Exception(
                                 new ERRSegment(msh)
                                         .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
                                         .setErrorLocation(messageType.equals(IMAGING_ORDER_MSG)
-                                                                ? STUDY_UID_IMAGING_ORDER : STUDY_UID_GENERAL_ORDER)
-                                        .setUserMessage("Missing study instance uid"));
-                    case ACCESSION_BASED:
-                        if (accessionNum == null)
-                            throw new HL7Exception(
-                                    new ERRSegment(msh)
-                                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                                            .setErrorLocation(messageType.equals(IMAGING_ORDER_MSG)
-                                                                ? ACCESSION_NO_IMAGING_ORDER : ACCESSION_NO_GENERAL_ORDER)
-                                            .setUserMessage("Missing accession number"));
-                        else {
-                            studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
-                            attrs.setString(Tag.RequestedProcedureID, VR.SH, accessionNum);
-                            LOG.info("Derived StudyInstanceUID from AccessionNumber[={}] : {}\n"
-                                            + " RequestedProcedureID shall be equal to AccessionNumber.",
-                                    accessionNum, studyIUID);
-                        }
-                        break;
-                    case GENERATE:
-                        studyIUID = UIDUtils.createUID();
-                        idService.newRequestedProcedureID(arcHL7App.mwlRequestedProcedureIDGenerator(), attrs);
-                        uidsGenerated = true;
-                        break;
+                                                ? ACCESSION_NO_IMAGING_ORDER : ACCESSION_NO_GENERAL_ORDER)
+                                        .setUserMessage("Missing accession number"));
+                    else {
+                        studyIUID = UIDUtils.createNameBasedUID(accessionNum.getBytes());
+                        attrs.setString(Tag.RequestedProcedureID, VR.SH, accessionNum);
+                        LOG.info("Derived StudyInstanceUID from AccessionNumber[={}] : {}\n"
+                                        + " RequestedProcedureID shall be equal to AccessionNumber.",
+                                accessionNum, studyIUID);
+                    }
+                    break;
+                case GENERATE:
+                    studyIUID = UIDUtils.createUID();
+                    idService.newRequestedProcedureID(arcHL7App.mwlRequestedProcedureIDGenerator(), attrs);
+                    uidsGenerated = true;
+                    break;
             }
             attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
         } else if (reqProcID == null) {
@@ -318,8 +332,10 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         if (!ssAETs.isEmpty())
             sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[0]));
 
-        String[] ssNames = hl7OrderScheduledStations.stream().filter(x -> x.getStationName() != null)
-                .map(Device::getStationName).toArray(String[]::new);
+        String[] ssNames = hl7OrderScheduledStations.stream()
+                            .map(Device::getStationName)
+                            .filter(Objects::nonNull)
+                            .toArray(String[]::new);
         if (ssNames.length > 0)
             sps.setString(Tag.ScheduledStationName, VR.SH, ssNames);
     }

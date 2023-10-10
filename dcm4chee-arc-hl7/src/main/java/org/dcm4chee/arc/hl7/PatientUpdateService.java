@@ -115,22 +115,26 @@ class PatientUpdateService extends DefaultHL7Service {
             throws HL7Exception {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
-        Patient patient = updatePatient(hl7App, s, msg, patientService, archiveHL7Message);
-        updateProcedure(hl7App, s, msg, patient);
+        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
+        transform(ctx);
+        Patient patient = updatePatient(ctx, patientService, archiveHL7Message);
+        ctx.setPatient(patient);
+        updateProcedure(ctx);
+
         return archiveHL7Message;
     }
 
-    static Patient updatePatient(HL7Application hl7App, Socket s, UnparsedHL7Message msg, PatientService patientService,
-                                 ArchiveHL7Message archiveHL7Message)
+    static Patient updatePatient(PatientMgtContext ctx, PatientService patientService, ArchiveHL7Message archiveHL7Message)
             throws HL7Exception {
-        ArchiveHL7ApplicationExtension arcHL7App =
-                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-
-        Attributes attrs = transform(msg, arcHL7App);
+        Attributes attrs = ctx.getAttributes();
+        HL7Application hl7App = ctx.getHL7Application();
+        ArchiveHL7ApplicationExtension arcHL7App = ctx.getHL7Application()
+                .getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        adjustOtherPIDs(attrs, arcHL7App);
         if (arcHL7App.hl7VeterinaryUsePatientName())
             useHL7VeterinaryPatientName(attrs);
 
-        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         ctx.setAttributes(attrs);
         if (ctx.getPatientIDs().isEmpty())
             throw new HL7Exception(
@@ -150,7 +154,7 @@ class PatientUpdateService extends DefaultHL7Service {
         }
         Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
         if (mrg == null)
-            return createOrUpdatePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
+            return createOrUpdatePatient(patientService, ctx, archiveHL7Message, arcHL7App);
 
         ctx.setPreviousAttributes(mrg);
         if (ctx.getPreviousPatientIDs().isEmpty())
@@ -168,23 +172,23 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setErrorLocation(PRIOR_PATIENT_IDENTIFIER)
                             .setUserMessage("Missing prior patient identifier with trusted assigning authority"));
         }
-        return changePIDOrMergePatient(patientService, ctx, archiveHL7Message, msg, arcHL7App);
+        return changePIDOrMergePatient(patientService, ctx, archiveHL7Message, arcHL7App);
     }
 
     private static Patient createOrUpdatePatient(
             PatientService patientService, PatientMgtContext ctx, ArchiveHL7Message archiveHL7Message,
-            UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
+            ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
         try {
             return patientService.updatePatient(ctx);
         } catch (NonUniquePatientException e) {
             throw new HL7Exception(
-                    new ERRSegment(msg.msh())
+                    new ERRSegment(ctx.getUnparsedHL7Message().msh())
                             .setHL7ErrorCode(ERRSegment.DUPLICATE_KEY_IDENTIFIER)
                             .setUserMessage(e.getMessage()));
         } catch (Exception e) {
-            if (reject(e, arcHL7App, msg))
+            if (reject(e, arcHL7App, ctx.getUnparsedHL7Message()))
                 throw new HL7Exception(
-                        new ERRSegment(msg.msh())
+                        new ERRSegment(ctx.getUnparsedHL7Message().msh())
                                 .setHL7ErrorCode(ERRSegment.APPLICATION_INTERNAL_ERROR)
                                 .setUserMessage(e.getMessage()));
             else
@@ -196,7 +200,8 @@ class PatientUpdateService extends DefaultHL7Service {
 
     private static Patient changePIDOrMergePatient(
             PatientService patientService, PatientMgtContext ctx, ArchiveHL7Message archiveHL7Message,
-            UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
+            ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         try {
             return msg.msh().getMessageType().equals(CHANGE_PATIENT_IDENTIFIER)
                     ? patientService.changePatientID(ctx)
@@ -263,18 +268,21 @@ class PatientUpdateService extends DefaultHL7Service {
         patientName = index != -1
                 ? patientName.substring(0, index)
                 : !patientName.contains("^") && responsiblePerson != null
-                    ? (responsiblePerson.contains("^")
-                        ? responsiblePerson.substring(0, responsiblePerson.indexOf('^'))
-                        : responsiblePerson)
-                      + '^' + patientName
-                    : patientName;
+                ? (responsiblePerson.contains("^")
+                ? responsiblePerson.substring(0, responsiblePerson.indexOf('^'))
+                : responsiblePerson)
+                + '^' + patientName
+                : patientName;
         attrs.setString(Tag.PatientName, VR.PN, patientName);
     }
 
-    private static Attributes transform(UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
+    private static void transform(PatientMgtContext ctx) throws HL7Exception {
+        ArchiveHL7ApplicationExtension arcHL7App =
+                ctx.getHL7Application().getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         try {
             Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
-            Attributes attrs = SAXTransformer.transform(
+            ctx.setAttributes(SAXTransformer.transform(
                     msg,
                     arcHL7App,
                     arcHL7App.patientUpdateTemplateURI(),
@@ -282,9 +290,7 @@ class PatientUpdateService extends DefaultHL7Service {
                         if (hl7PrimaryAssigningAuthorityOfPatientID != null)
                             tr.setParameter("hl7PrimaryAssigningAuthorityOfPatientID",
                                     hl7PrimaryAssigningAuthorityOfPatientID.toString());
-                    });
-            adjustOtherPIDs(attrs, arcHL7App);
-            return attrs;
+                    }));
         } catch (Exception e) {
             throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
         }
@@ -297,7 +303,7 @@ class PatientUpdateService extends DefaultHL7Service {
         Attributes mergedPatientAttrs = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
         if (mergedPatientAttrs != null)
             adjustOtherPatientIDs(mergedPatientAttrs, arcHL7App);
-        
+
         if (hl7PrimaryAssigningAuthorityOfPatientID == null
                 || primaryPatIdentifier == null
                 || hl7PrimaryAssigningAuthorityOfPatientID.equals(primaryPatIdentifier.getIssuer()))
@@ -331,16 +337,19 @@ class PatientUpdateService extends DefaultHL7Service {
         }
     }
 
-    private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat) {
+    private void updateProcedure(PatientMgtContext ctx) {
         ArchiveHL7ApplicationExtension arcHL7App =
-                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+                ctx.getHL7Application().getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         String messageType = arcHL7App.hl7PatientArrivalMessageType();
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         if (messageType != null && messageType.equals(msg.msh().getMessageType())) {
-            ProcedureContext ctx = procedureService.createProcedureContext().setSocket(s).setHL7Message(msg);
-            ctx.setArchiveHL7AppExtension(arcHL7App);
-            ctx.setPatient(pat);
-            ctx.setSpsStatus(SPSStatus.ARRIVED);
-            procedureService.updateMWLStatus(ctx, SPSStatus.SCHEDULED);
+            ProcedureContext procCtx = procedureService.createProcedureContext()
+                    .setSocket(ctx.getSocket())
+                    .setHL7Message(msg);
+            procCtx.setArchiveHL7AppExtension(arcHL7App);
+            procCtx.setPatient(ctx.getPatient());
+            procCtx.setSpsStatus(SPSStatus.ARRIVED);
+            procedureService.updateMWLStatus(procCtx, SPSStatus.SCHEDULED);
         }
     }
 }

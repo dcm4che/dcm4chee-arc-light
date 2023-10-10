@@ -57,6 +57,7 @@ import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -106,24 +107,28 @@ class ImportReportService extends DefaultHL7Service {
             throws HL7Exception {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
-        if (PatientUpdateService.updatePatient(hl7App, s, msg, patientService, archiveHL7Message) != null) {
-            try {
-                importReport(hl7App, s, msg);
-            } catch(HL7Exception e) {
-                throw e;
-            } catch (Exception e) {
-                throw new HL7Exception(
-                        new ERRSegment(msg.msh())
-                                .setHL7ErrorCode(ERRSegment.APPLICATION_RECORD_LOCKED)
-                                .setUserMessage(e.getMessage()));
-            }
+
+        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
+        try {
+            transform(ctx);
+            ctx.setPatient(PatientUpdateService.updatePatient(ctx, patientService, archiveHL7Message));
+            importReport(ctx);
+        } catch(HL7Exception e) {
+            throw e;
+        } catch (Exception e) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.APPLICATION_RECORD_LOCKED)
+                            .setUserMessage(e.getMessage()));
         }
+
         return archiveHL7Message;
     }
 
-    private void importReport(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
-        ArchiveHL7ApplicationExtension arcHL7App =
-                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+    private void transform(PatientMgtContext ctx) throws Exception {
+        HL7Application hl7App = ctx.getHL7Application();
+        ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         HL7ORUAction[] hl7ORUActions = arcHL7App.hl7ORUAction();
         if (hl7ORUActions.length == 0) {
             LOG.info("No actions configured on receive of HL7 ORU message.");
@@ -141,18 +146,33 @@ class ImportReportService extends DefaultHL7Service {
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
 
         Issuer hl7PrimaryAssigningAuthorityOfPatientID = arcHL7App.hl7PrimaryAssigningAuthorityOfPatientID();
-        Attributes attrs = SAXTransformer.transform(
-                msg,
-                arcHL7App,
-                arcHL7App.importReportTemplateURI(),
-                tr -> {
-                    if (hl7PrimaryAssigningAuthorityOfPatientID != null)
-                        tr.setParameter("hl7PrimaryAssigningAuthorityOfPatientID",
-                                hl7PrimaryAssigningAuthorityOfPatientID.toString());
-                    arcHL7App.importReportTemplateParams().forEach(tr::setParameter);
-                });
+        try {
+            ctx.setAttributes(SAXTransformer.transform(
+                    msg,
+                    arcHL7App,
+                    arcHL7App.importReportTemplateURI(),
+                    tr -> {
+                        if (hl7PrimaryAssigningAuthorityOfPatientID != null)
+                            tr.setParameter("hl7PrimaryAssigningAuthorityOfPatientID",
+                                    hl7PrimaryAssigningAuthorityOfPatientID.toString());
+                        arcHL7App.importReportTemplateParams().forEach(tr::setParameter);
+                    }));
+        }  catch (Exception e) {
+            throw new HL7Exception(new ERRSegment(msg.msh()).setUserMessage(e.getMessage()), e);
+        }
+    }
 
-        PatientUpdateService.adjustOtherPIDs(attrs, arcHL7App);
+    private void importReport(PatientMgtContext ctx) throws Exception {
+        if (ctx.getPatient() == null) {
+            LOG.info("Abort creation of report, as no patient associated with report was created / updated.");
+            return;
+        }
+
+        Attributes attrs = ctx.getAttributes();
+        UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
+        HL7Application hl7App = ctx.getHL7Application();
+        ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(arcHL7App.getAETitle(), true);
         if (!attrs.contains(Tag.SOPClassUID) && !attrs.contains(Tag.MIMETypeOfEncapsulatedDocument))
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
@@ -160,12 +180,12 @@ class ImportReportService extends DefaultHL7Service {
                             .setErrorLocation(MIME_TYPE_ENCODING)
                             .setUserMessage("Invalid encoding of encapsulated document in components 2 and/or 3 and/or 4 of field 5"));
 
-        if (attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument) && !isEncapsulatedDoc(attrs))
+        if (attrs.containsValue(Tag.MIMETypeOfEncapsulatedDocument) && isNotEncapsulatedDoc(attrs))
             throw new HL7Exception(
-                new ERRSegment(msg.msh())
-                        .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
-                        .setErrorLocation(ENCAPSULATED_DOC_DATA)
-                        .setUserMessage("Encapsulated document data missing"));
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.REQUIRED_FIELD_MISSING)
+                            .setErrorLocation(ENCAPSULATED_DOC_DATA)
+                            .setUserMessage("Encapsulated document data missing"));
 
         if (!attrs.containsValue(Tag.AdmissionID))
             adjustAdmissionID(arcHL7App, attrs, msg);
@@ -177,7 +197,7 @@ class ImportReportService extends DefaultHL7Service {
                 String cFindSCP = arcHL7App.hl7ImportReportMissingStudyIUIDCFindSCP();
                 if (cFindSCP != null) {
                     suids = cfindscu.findStudiesByAccessionNumber(
-                            ae, cFindSCP, 0, accNo, Tag.StudyInstanceUID).stream()
+                                    ae, cFindSCP, 0, accNo, Tag.StudyInstanceUID).stream()
                             .map(match -> match.getString(Tag.StudyInstanceUID))
                             .collect(Collectors.toList());
                 }
@@ -190,7 +210,7 @@ class ImportReportService extends DefaultHL7Service {
                     attrs.setString(Tag.StudyInstanceUID, VR.UI, suids.get(0));
                     break;
                 default:
-                    mstore(arcHL7App, s, ae, msg, attrs, suids);
+                    mstore(ctx, ae, suids);
                     return;
             }
         }
@@ -199,12 +219,10 @@ class ImportReportService extends DefaultHL7Service {
         if (!attrs.containsValue(Tag.SeriesInstanceUID))
             attrs.setString(Tag.SeriesInstanceUID, VR.UI,
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
-        switch (arcHL7App.hl7ImportReportAdjustIUID()) {
-            case APPEND_HASH_OF_STUDY_INSTANCE_UID:
-                appendToSeriesAndSOPInstanceUID(attrs, "." + (attrs.getString(Tag.StudyInstanceUID).hashCode() & 0xFFFFFFFFL));
-        }
+        if (arcHL7App.hl7ImportReportAdjustIUID() == HL7ImportReportAdjustIUID.APPEND_HASH_OF_STUDY_INSTANCE_UID)
+            appendToSeriesAndSOPInstanceUID(attrs, "." + (attrs.getString(Tag.StudyInstanceUID).hashCode() & 0xFFFFFFFFL));
         ensureStudyInstanceUIDInPredecessors(attrs);
-        processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
+        processHL7ORUAction(ae, ctx);
     }
 
     private static void appendToSeriesAndSOPInstanceUID(Attributes attrs, String suffix) {
@@ -245,17 +263,17 @@ class ImportReportService extends DefaultHL7Service {
         }
     }
 
-    private boolean isEncapsulatedDoc(Attributes attrs) {
+    private boolean isNotEncapsulatedDoc(Attributes attrs) {
         if (attrs.getString(Tag.MIMETypeOfEncapsulatedDocument).equals("text/xml")) {
             String cdaTxt = attrs.getString(Tag.TextValue);
             if (cdaTxt == null)
-                return false;
+                return true;
 
             attrs.setBytes(Tag.EncapsulatedDocument, VR.OB, cdaTxt.getBytes());
             attrs.remove(Tag.TextValue);
         }
 
-        return attrs.containsValue(Tag.EncapsulatedDocument);
+        return !attrs.containsValue(Tag.EncapsulatedDocument);
     }
 
     private void adjustStudyIUID(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh)
@@ -294,12 +312,11 @@ class ImportReportService extends DefaultHL7Service {
         attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
     }
 
-    private void store(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
-                       Attributes attrs) throws Exception {
-        try (StoreSession session = storeService.newStoreSession(arcHL7App.getHL7Application(), s, msg, ae)) {
-            StoreContext ctx = storeService.newStoreContext(session);
-            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-            storeService.store(ctx, attrs);
+    private void store(ApplicationEntity ae, PatientMgtContext ctx) throws Exception {
+        try (StoreSession session = storeService.newStoreSession(ae, ctx)) {
+            StoreContext storeCtx = storeService.newStoreContext(session);
+            storeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            storeService.store(storeCtx, ctx.getAttributes());
         }
     }
 
@@ -313,18 +330,18 @@ class ImportReportService extends DefaultHL7Service {
                 predecessor.setString(Tag.StudyInstanceUID, VR.UI, attrs.getStrings(Tag.StudyInstanceUID));
     }
 
-    private void processHL7ORUAction(
-            ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
-            Attributes attrs) throws Exception {
-        for (HL7ORUAction action : arcHL7App.hl7ORUAction())
+    private void processHL7ORUAction(ApplicationEntity ae, PatientMgtContext ctx) throws Exception {
+        HL7Application hl7App = ctx.getHL7Application();
+        for (HL7ORUAction action : hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)
+                                          .hl7ORUAction())
             if (action == HL7ORUAction.IMPORT_REPORT)
-                store(arcHL7App, s, ae, msg, attrs);
+                store(ae, ctx);
             else
-                procedureService.updateMWLStatus(attrs.getString(Tag.StudyInstanceUID), SPSStatus.COMPLETED);
+                procedureService.updateMWLStatus(ctx.getAttributes().getString(Tag.StudyInstanceUID), SPSStatus.COMPLETED);
     }
 
-    private void mstore(ArchiveHL7ApplicationExtension arcHL7App, Socket s, ApplicationEntity ae, UnparsedHL7Message msg,
-                        Attributes attrs, List<String> suids) throws Exception {
+    private void mstore(PatientMgtContext ctx, ApplicationEntity ae, List<String> suids) throws Exception {
+        Attributes attrs = ctx.getAttributes();
         int n = suids.size();
         Sequence seq = attrs.newSequence(Tag.IdenticalDocumentsSequence, n);
         for (String suid : suids)
@@ -337,7 +354,7 @@ class ImportReportService extends DefaultHL7Service {
             attrs.setString(Tag.SeriesInstanceUID, VR.UI, refSeries.getString(Tag.SeriesInstanceUID));
             attrs.setString(Tag.SOPInstanceUID, VR.UI, refSOP.getString(Tag.ReferencedSOPInstanceUID));
             ensureStudyInstanceUIDInPredecessors(attrs);
-            processHL7ORUAction(arcHL7App, s, ae, msg, attrs);
+            processHL7ORUAction(ae, ctx);
             seq.add(i, refStudy);
         }
     }

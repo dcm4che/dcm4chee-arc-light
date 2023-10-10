@@ -76,6 +76,7 @@ import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -181,6 +182,16 @@ class StoreServiceImpl implements StoreService {
         session.setSocket(socket);
         session.setMsg(msg);
         session.setHL7Application(hl7App);
+        return session;
+    }
+
+    @Override
+    public StoreSession newStoreSession(ApplicationEntity ae, PatientMgtContext ctx) {
+        StoreSessionImpl session = new StoreSessionImpl(this);
+        session.setApplicationEntity(ae);
+        session.setSocket(ctx.getSocket());
+        session.setMsg(ctx.getUnparsedHL7Message());
+        session.setHL7Application(ctx.getHL7Application());
         return session;
     }
 
