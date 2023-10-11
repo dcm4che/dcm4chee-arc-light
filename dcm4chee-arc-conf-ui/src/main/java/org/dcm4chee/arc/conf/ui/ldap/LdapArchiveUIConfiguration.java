@@ -1426,11 +1426,20 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             else{
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
-                config.modifyAttributes(dn, storeUILanguageConfig(diffs, dn, prevUILanguageConfig, uiLanguageConfig,
+                config.modifyAttributes(dn, storeDiffs(diffs, dn, ldapObj, prevUILanguageConfig, uiLanguageConfig,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
+    }
+
+    private List<ModificationItem> storeDiffs(ConfigurationChanges diffs,String dn, ConfigurationChanges.ModifiedObject ldapObj, UILanguageConfig prev,
+                                              UILanguageConfig uiLanguageConfig, ArrayList<ModificationItem> mods)throws NamingException{
+        LdapUtils.storeDiff(ldapObj, mods, "dcmLanguages",
+                prev.getLanguages(),
+                uiLanguageConfig.getLanguages());
+        mergeUILanguageProfiles(diffs, prev, uiLanguageConfig, dn);
+        return mods;
     }
 
     private void deleteUIElasticsearchURL(ConfigurationChanges diffs, String prevUIElasticsearchConfigName, String uiElasticsearcConfigDN)
