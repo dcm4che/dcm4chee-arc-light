@@ -130,6 +130,11 @@ export class QueuesService{
                 text:$localize `:@@SCHEDULED:SCHEDULED`
             },
             {
+                value:"SCHEDULED FOR RETRY",
+                text:$localize `:@@SCHEDULED_FOR_RETRY:SCHEDULED FOR RETRY`,
+                key:"scheduled"
+            },
+            {
                 value:"IN PROCESS",
                 text:$localize `:@@in_process:IN PROCESS`
             },
