@@ -605,8 +605,8 @@ public class Study {
     }
 
     public boolean resetExternalRetrieveAET() {
-        if (externalRetrieveAET == null) return false;
-        this.externalRetrieveAET = null;
+        if ("*".equals(externalRetrieveAET)) return false;
+        this.externalRetrieveAET = "*";
         return true;
     }
 
@@ -684,7 +684,5 @@ public class Study {
         else
             attributesBlob.setAttributes(blobAttrs);
         modifiedTime = new Date();
-        if (externalRetrieveAET == null)
-            externalRetrieveAET = "*";
     }
 }

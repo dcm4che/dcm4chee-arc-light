@@ -1281,6 +1281,7 @@ public class StoreServiceEJB {
                 .orElse(arcAE.getStoreAccessControlID()));
         study.setCompleteness(Completeness.COMPLETE);
         study.setExpirationState(ExpirationState.UPDATEABLE);
+        study.setExternalRetrieveAET("*");
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
         if (result.getRejectionNote() == null && result.getRejectedInstance() == null) {
