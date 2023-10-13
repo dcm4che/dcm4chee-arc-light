@@ -43,9 +43,11 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Sequence;
+import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -282,6 +284,12 @@ public class Conditions {
                     sum += (chars[i] - '0') * weights[i];
                 }
                 return sum % 11;
+            }
+        },
+        CURRENT_DATE {
+            @Override
+            public boolean test(String s) {
+                return s != null && s.equals(DateUtils.formatDA(null, new Date()));
             }
         };
 
