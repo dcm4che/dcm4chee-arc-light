@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {AppService} from '../../../app.service';
 import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;

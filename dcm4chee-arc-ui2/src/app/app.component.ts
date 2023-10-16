@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
-import { MatDialog, MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import {MessagingComponent} from './widgets/messaging/messaging.component';
 import {AppService} from './app.service';
 import {ViewChild} from '@angular/core';

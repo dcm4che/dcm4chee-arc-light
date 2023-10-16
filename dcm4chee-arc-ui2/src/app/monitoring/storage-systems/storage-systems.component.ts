@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
-import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import {AppService} from '../../app.service';
 import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';

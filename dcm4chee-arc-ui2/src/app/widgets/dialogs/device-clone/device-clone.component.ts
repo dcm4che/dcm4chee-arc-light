@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatLegacyDialogRef as MatDialogRef} from "@angular/material/legacy-dialog";
 import * as _ from 'lodash-es';
 import {j4care} from "../../../helpers/j4care.service";
 import {AppService} from "../../../app.service";

@@ -2,7 +2,7 @@ import {Component, OnInit, ViewContainerRef, OnDestroy} from '@angular/core';
 import {QueuesService} from './queues.service';
 import {AppService} from '../../app.service';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";

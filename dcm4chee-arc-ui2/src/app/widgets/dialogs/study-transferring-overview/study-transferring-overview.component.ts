@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from "@angular/material/dialog";
+import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {SelectionActionElement} from "../../../study/study/selection-action-element.models";
 import {SelectDropdown} from "../../../interfaces";
 

@@ -48,7 +48,7 @@ import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 import {EditPatientComponent} from "../../widgets/dialogs/edit-patient/edit-patient.component";
-import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
+import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {HttpHeaders} from "@angular/common/http";
 import {EditMwlComponent} from "../../widgets/dialogs/edit-mwl/edit-mwl.component";

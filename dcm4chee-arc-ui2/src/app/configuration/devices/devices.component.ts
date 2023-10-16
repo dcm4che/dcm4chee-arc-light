@@ -2,7 +2,7 @@ import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
-import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {DevicesService} from './devices.service';
 import {HostListener} from '@angular/core';
 import {CreateExporterComponent} from '../../widgets/dialogs/create-exporter/create-exporter.component';

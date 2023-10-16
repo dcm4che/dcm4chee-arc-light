@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CreateWebappComponent } from './create-webapp.component';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatLegacyDialogRef as MatDialogRef} from "@angular/material/legacy-dialog";
 
 
 class CreateWebappDependenc{

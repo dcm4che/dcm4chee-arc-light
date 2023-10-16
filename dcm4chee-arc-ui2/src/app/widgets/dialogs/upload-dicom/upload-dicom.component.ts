@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 // import {FileUploader} from 'ng2-file-upload';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {UploadDicomService} from './upload-dicom.service';
 import * as _ from 'lodash-es';
 import {AppService} from "../../../app.service";

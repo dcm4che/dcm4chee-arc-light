@@ -9,7 +9,7 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {forkJoin} from "rxjs";
 import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
 import {CreateWebappComponent} from "../../widgets/dialogs/create-webapp/create-webapp.component";
-import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material/dialog";
+import {MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef} from "@angular/material/legacy-dialog";
 
 @Component({
   selector: 'app-web-apps-list',

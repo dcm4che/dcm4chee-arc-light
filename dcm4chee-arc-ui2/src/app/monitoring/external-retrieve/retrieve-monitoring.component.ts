@@ -3,7 +3,7 @@ import {AppService} from "../../app.service";
 import * as _ from 'lodash-es';
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
+import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
 import {j4care} from "../../helpers/j4care.service";

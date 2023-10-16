@@ -2,7 +2,7 @@
  * Created by shefki on 9/20/16.
  */
 import {
-    Component, Input, ElementRef, ComponentFactoryResolver, ChangeDetectionStrategy,
+    Component, Input, ElementRef, ChangeDetectionStrategy,
     ViewContainerRef, ChangeDetectorRef, HostListener, OnDestroy
 } from '@angular/core';
 import {UntypedFormGroup, UntypedFormControl, UntypedFormArray, UntypedFormBuilder} from '@angular/forms';
@@ -12,7 +12,7 @@ import {FormElement} from '../../helpers/form/form-element';
 import * as _ from 'lodash-es';
 import {Router} from '@angular/router';
 import {DeviceConfiguratorService} from '../../configuration/device-configurator/device-configurator.service';
-import { MatDialogRef, MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import {UploadVendorComponent} from '../dialogs/upload-vendor/upload-vendor.component';
 import {ConfirmComponent} from '../dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
@@ -44,7 +44,6 @@ export class DynamicFormElementComponent implements OnDestroy{
     constructor(
         private formservice: FormService,
         private formcomp: DynamicFormComponent,
-        dcl: ComponentFactoryResolver,
         elementRef: ElementRef,
         private router: Router,
         private deviceConfiguratorService: DeviceConfiguratorService,
@@ -59,7 +58,6 @@ export class DynamicFormElementComponent implements OnDestroy{
         private _fb: UntypedFormBuilder,
         private _keycloakService: KeycloakService
     ){
-        // dcl.resolveComponentFactory(DynamicFormComponent);
         this.partRemoved = false;
     }
     get isValid(){

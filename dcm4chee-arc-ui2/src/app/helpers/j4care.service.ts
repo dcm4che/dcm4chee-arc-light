@@ -4,7 +4,7 @@ declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
-import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
+import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {

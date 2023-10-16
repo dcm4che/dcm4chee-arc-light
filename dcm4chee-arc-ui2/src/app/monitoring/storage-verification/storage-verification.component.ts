@@ -9,7 +9,7 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material/dialog";
+import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
