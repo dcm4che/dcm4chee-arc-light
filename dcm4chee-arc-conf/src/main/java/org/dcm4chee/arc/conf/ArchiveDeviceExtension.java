@@ -2010,6 +2010,16 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 : Collections.emptyList();
     }
 
+    public List<String> getStorageIDsOfStorageClusterForDeletion(StorageDescriptor desc) {
+        return desc.getStorageClusterID() != null
+                ? getStorageDescriptorsOfCluster(desc.getStorageClusterID())
+                    .filter(desc1 -> desc1.getStorageDuration() != StorageDuration.PERMANENT)
+                    .map(StorageDescriptor::getStorageID)
+                    .filter(storageID -> !Arrays.asList(desc.getExportStorageID()).contains(storageID))
+                    .collect(Collectors.toList())
+                : Collections.singletonList(desc.getStorageID());
+    }
+
     public List<String> getStudyStorageIDs(String storageID, Boolean storageClustered, Boolean storageExported) {
         StorageDescriptor desc = getStorageDescriptor(storageID);
         return desc != null

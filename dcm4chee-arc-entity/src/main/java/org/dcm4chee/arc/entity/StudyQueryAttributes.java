@@ -60,9 +60,9 @@ import org.dcm4chee.arc.conf.Availability;
         name = StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK,
         query = "select a.viewID from StudyQueryAttributes a where a.study.pk = ?1"),
 @NamedQuery(
-        name = StudyQueryAttributes.UPDATE_AVAILABILITY_OF_STUDY,
+        name = StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_PK,
         query = "update StudyQueryAttributes studyQueryAttrs set studyQueryAttrs.availability = ?2 " +
-                "where studyQueryAttrs.study = ?1"),
+                "where studyQueryAttrs.study.pk = ?1"),
 @NamedQuery(
         name = StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
         query = "update StudyQueryAttributes studyQueryAttrs set studyQueryAttrs.availability = ?2 " +
@@ -77,7 +77,7 @@ public class StudyQueryAttributes {
     public static final String FIND_BY_VIEW_ID_AND_STUDY_PK = "StudyQueryAttributes.findByViewIDAndStudyPk";
     public static final String DELETE_FOR_STUDY = "StudyQueryAttributes.deleteForStudy";
     public static final String VIEW_IDS_FOR_STUDY_PK = "StudyQueryAttributes.viewIDsForStudyPk";
-    public static final String UPDATE_AVAILABILITY_OF_STUDY = "StudyQueryAttributes.updateAvailabilityOfStudy";
+    public static final String UPDATE_AVAILABILITY_BY_STUDY_PK = "StudyQueryAttributes.updateAvailabilityByStudyPk";
     public static final String UPDATE_AVAILABILITY_BY_STUDY_IUID = "StudyQueryAttributes.updateAvailabilityByStudyIUID";
 
     @Id

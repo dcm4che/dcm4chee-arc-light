@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.time.format.DateTimeFormatter.BASIC_ISO_DATE;
@@ -219,7 +218,7 @@ public class DeletionServiceEJB {
     }
 
     public int instancesNotStoredOnExportStorage(Long studyPk, StorageDescriptor desc) {
-        List<String> storageIDsOfCluster = getStorageIDsOfCluster(desc);
+        List<String> storageIDsOfCluster = arcDev().getStorageIDsOfStorageClusterForDeletion(desc);
         LOG.debug("Query for Instances of Study[pk={}] on Storages{} not stored on Storages[{}]",
                 studyPk, storageIDsOfCluster, StringUtils.concat(desc.getExportStorageID(), '\\'));
         Set<Long> onStorage = new HashSet<>(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
@@ -342,12 +341,36 @@ public class DeletionServiceEJB {
                 .anyMatch(storageID -> storageID.equals(desc.getStorageID()));
     }
 
-    public boolean deleteObjectsOfStudy(Long studyPk, StorageDescriptor desc) {
-        return deleteObjectsOfStudy(em.find(Study.class, studyPk), desc);
+    public boolean deleteObjectsOfStudy(Study.PKUID studyPkUID, StorageDescriptor desc, List<String> storageIDs) {
+        LOG.debug("Query for objects of {} at Storage{}", studyPkUID, storageIDs);
+        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS, Location.class)
+                .setParameter(1, studyPkUID.pk)
+                .setParameter(2, storageIDs)
+                .getResultList();
+        if (locations.isEmpty()) {
+            LOG.warn("{} does not contain objects at Storage{}", studyPkUID, storageIDs);
+            return false;
+        }
+        LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), studyPkUID, storageIDs);
+        Collection<Instance> insts = removeOrMarkLocationAs(locations, Integer.MAX_VALUE, false);
+        LOG.debug("Finish marking {}/{} objects/instances of {} for deletion at Storage{}",
+                locations.size(), insts.size(), studyPkUID, storageIDs);
+        Set<Long> seriesPks = new HashSet<>();
+        for (Instance inst : insts) {
+            Series series = inst.getSeries();
+            if (seriesPks.add(series.getPk())
+                    && series.getMetadataScheduledUpdateTime() == null
+                    && series.getMetadata() != null)
+                scheduleMetadataUpdate(series.getPk());
+        }
+        updateInstanceAvailability(studyPkUID.pk, desc.getInstanceAvailability(), remainingInstanceAvailability(desc));
+        return true;
     }
 
-    public boolean deleteObjectsOfStudy(String suid, StorageDescriptor desc) {
-        return deleteObjectsOfStudy(findByStudyIUID(suid), desc);
+    public Long pkByStudyIUID(String suid) {
+        return em.createNamedQuery(Study.PK_BY_STUDY_UID, Long.class)
+                .setParameter(1, suid)
+                .getSingleResult();
     }
 
     private Study findByStudyIUID(String suid) {
@@ -361,44 +384,6 @@ public class DeletionServiceEJB {
                 .setParameter(1, studyUID)
                 .setParameter(2, seriesUID)
                 .getSingleResult();
-    }
-
-    private boolean deleteObjectsOfStudy(Study study, StorageDescriptor desc) {
-        List<String> storageIDs = getStorageIDsOfCluster(desc);
-        if (!Stream.of(study.getStorageIDs()).anyMatch(storageIDs::contains)) {
-            LOG.info("{} does not contain objects at Storage{}", study, storageIDs);
-            return false;
-        }
-        LOG.debug("Query for objects of {} at Storage{}", study, storageIDs);
-        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS, Location.class)
-                .setParameter(1, study.getPk())
-                .setParameter(2, storageIDs)
-                .getResultList();
-        if (locations.isEmpty()) {
-            LOG.warn("{} does not contain objects at Storage{}", study, storageIDs);
-            updateStorageIDs(study, storageIDs);
-            return false;
-        }
-        LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), study, storageIDs);
-        Collection<Instance> insts = removeOrMarkLocationAs(locations, Integer.MAX_VALUE, false);
-        LOG.debug("Finish marking {}/{} objects/instances of {} for deletion at Storage{}",
-                locations.size(), insts.size(), study, storageIDs);
-        Set<Long> seriesPks = new HashSet<>();
-        for (Instance inst : insts) {
-            Series series = inst.getSeries();
-            if (seriesPks.add(series.getPk())
-                    && series.getMetadataScheduledUpdateTime() == null
-                    && series.getMetadata() != null)
-                scheduleMetadataUpdate(series.getPk());
-        }
-        updateStorageIDs(study, storageIDs);
-        if (!study.hasStorageIDs()) {
-            em.createNamedQuery(Series.CANCEL_STORAGE_VERIFICATION_OF_STUDY)
-                    .setParameter(1, study)
-                    .executeUpdate();
-        }
-        updateInstanceAvailability(study, desc.getInstanceAvailability(), remainingInstanceAvailability(desc));
-        return true;
     }
 
     private Availability remainingInstanceAvailability(StorageDescriptor desc) {
@@ -415,31 +400,56 @@ public class DeletionServiceEJB {
                 : availability2;
     }
 
-    private void updateInstanceAvailability(Study study, Availability from, Availability to) {
+    private void updateInstanceAvailability(Long studyPk, Availability from, Availability to) {
         if (to == null || from.compareTo(to) >= 0)
             return;
 
         LOG.info("Update Instance Availability from {} to {}", from, to);
-        em.createNamedQuery(Instance.UPDATE_AVAILABILITY_OF_STUDY)
-                .setParameter(1, study)
+        em.createNamedQuery(Instance.UPDATE_AVAILABILITY_BY_STUDY_PK)
+                .setParameter(1, studyPk)
                 .setParameter(2, to)
                 .executeUpdate();
-        em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY_OF_STUDY)
-                .setParameter(1, study)
+        em.createNamedQuery(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_PK)
+                .setParameter(1, studyPk)
                 .setParameter(2, to)
                 .executeUpdate();
         em.createNamedQuery(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_PK)
-                .setParameter(1, study)
+                .setParameter(1, studyPk)
                 .setParameter(2, to)
                 .executeUpdate();
     }
 
-    private void updateStorageIDs(Study study, List<String> storageIDs) {
-        String studyEncodedStorageIDs = study.getEncodedStorageIDs();
-        for (String storageID : storageIDs) {
-            study.removeStorageID(storageID);
-        }
-        LOG.info("Update Storage IDs of {} from {} to {}", study, studyEncodedStorageIDs, study.getEncodedStorageIDs());
+     public String[] claimDeleteStudy(Study.PKUID studyPkUID, StorageDescriptor desc, List<String> storageIDs) {
+         LOG.debug("claiming deletion of {} at {}", studyPkUID, desc);
+         String[] prevStorageIDs = StringUtils.split(getStorageIDs(studyPkUID.pk), '\\');
+         if (!StringUtils.contains(prevStorageIDs, desc.getStorageID())) {
+             LOG.info("{} does not contain objects at {}", studyPkUID, desc);
+             return null;
+         }
+         StringBuilder sb = new StringBuilder();
+         for (String prevStorageID : prevStorageIDs) {
+             if (!storageIDs.contains(prevStorageID)) {
+                 if (sb.length() > 0) sb.append('\\');
+                 sb.append(prevStorageID);
+             }
+         }
+         String remainingStorageIDs = sb.length() == 0 ? null : sb.toString();
+         setStorageIDs(studyPkUID.pk, remainingStorageIDs);
+         LOG.info("Update Storage IDs of {} from {} to {}", studyPkUID, prevStorageIDs, remainingStorageIDs);
+         return prevStorageIDs;
+    }
+
+    private String getStorageIDs(Long studyPk) {
+        return em.createNamedQuery(Study.STORAGE_IDS_BY_STUDY_PK, String.class)
+                .setParameter(1, studyPk)
+                .getSingleResult();
+    }
+
+    public void setStorageIDs(Long studyPk, String storageIDs) {
+        em.createNamedQuery(Study.SET_STORAGE_IDS)
+                .setParameter(1, studyPk)
+                .setParameter(2, storageIDs)
+                .executeUpdate();
     }
 
     @FunctionalInterface
@@ -714,17 +724,6 @@ public class DeletionServiceEJB {
         em.createNamedQuery(Study.UPDATE_ACCESS_TIME)
                 .setParameter(1, studyPk)
                 .executeUpdate();
-    }
-
-    private List<String> getStorageIDsOfCluster(StorageDescriptor desc) {
-        return desc.getStorageClusterID() != null
-            ? arcDev()
-                .getStorageDescriptorsOfCluster(desc.getStorageClusterID())
-                .filter(other -> other.getStorageDuration() != StorageDuration.PERMANENT)
-                .map(StorageDescriptor::getStorageID)
-                .filter(storageID -> !Arrays.asList(desc.getExportStorageID()).contains(storageID))
-                .collect(Collectors.toList())
-            : Collections.singletonList(desc.getStorageID());
     }
 
     private List<String> getStudyStorageIDs(StorageDescriptor desc) {

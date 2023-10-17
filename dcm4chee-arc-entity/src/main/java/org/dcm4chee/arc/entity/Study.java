@@ -117,9 +117,13 @@ import java.util.*;
                 query = "select st.studyInstanceUID from Study st " +
                         "where st.patient = ?1"),
         @NamedQuery(
-                name=Study.FIND_PK_BY_STUDY_UID,
+                name=Study.PK_BY_STUDY_UID,
                 query = "select st.pk from Study st " +
                         "where st.studyInstanceUID = ?1"),
+        @NamedQuery(
+                name = Study.STORAGE_IDS_BY_STUDY_PK,
+                query = "select st.storageIDs from Study st " +
+                        "where st.pk = ?1"),
         @NamedQuery(
                 name = Study.STORAGE_IDS_BY_STUDY_UID,
                 query = "select st.pk, st.storageIDs from Study st " +
@@ -185,7 +189,8 @@ public class Study {
     public static final String CLAIM_EXPIRED_STUDY = "Study.claimExpiredStudy";
     public static final String STUDY_IUIDS_BY_ACCESSION_NUMBER = "Study.studyIUIDsByAccessionNumber";
     public static final String STUDY_IUIDS_BY_PATIENT = "Study.studyIUIDsByPatient";
-    public static final String FIND_PK_BY_STUDY_UID = "Study.findPkByStudyUID";
+    public static final String PK_BY_STUDY_UID = "Study.pkByStudyUID";
+    public static final String STORAGE_IDS_BY_STUDY_PK = "Study.storageIDsByStudyPk";
     public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
     public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
     public static final String UPDATE_ACCESS_CONTROL_ID = "Study.updateAccessControlID";
@@ -433,10 +438,6 @@ public class Study {
         return storageIDs;
     }
 
-    public boolean hasStorageIDs() {
-        return storageIDs == null;
-    }
-
     public String[] getStorageIDs() {
         return StringUtils.split(storageIDs, '\\');
     }
@@ -466,23 +467,6 @@ public class Study {
         }
 
         return StringUtils.concat(set.toArray(StringUtils.EMPTY_STRING), '\\');
-    }
-
-    public boolean removeStorageID(String storageID) {
-        if (storageIDs == null)
-            return false;
-
-        if (storageID.equals(storageIDs)) {
-            storageIDs = null;
-            return true;
-        }
-
-        TreeSet<String> set = new TreeSet<>(Arrays.asList(getStorageIDs()));
-        if (!set.remove(storageID))
-            return false;
-
-        this.storageIDs = StringUtils.concat(set.toArray(StringUtils.EMPTY_STRING), '\\');
-        return true;
     }
 
     public void clearStorageIDs() {

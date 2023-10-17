@@ -176,10 +176,10 @@ import java.util.*;
             "and instance.series.seriesInstanceUID = ?2 " +
             "and instance.sopInstanceUID = ?3"),
 @NamedQuery(
-    name = Instance.UPDATE_AVAILABILITY_OF_STUDY,
+    name = Instance.UPDATE_AVAILABILITY_BY_STUDY_PK,
     query = "update Instance i set i.availability = ?2 " +
             "where i.series in (" +
-            "select ser from Series ser where ser.study = ?1)"),
+            "select ser from Series ser where ser.study.pk = ?1)"),
 @NamedQuery(
         name = Instance.UPDATE_AVAILABILITY_BY_STUDY_IUID,
         query = "update Instance i set i.availability = ?2 " +
@@ -227,7 +227,7 @@ public class Instance {
     public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Instance.findLastModifiedSeriesLevel";
     public static final String FIND_LAST_MODIFIED_INSTANCE_LEVEL = "Instance.findLastModifiedInstanceLevel";
     public static final String MAX_UPDATED_TIME_OF_SERIES = "Instance.maxUpdateTimeOfSeries";
-    public static final String UPDATE_AVAILABILITY_OF_STUDY = "Instance.updateAvailabilityOfStudy";
+    public static final String UPDATE_AVAILABILITY_BY_STUDY_PK = "Instance.updateAvailabilityByStudyPk";
     public static final String UPDATE_AVAILABILITY_BY_STUDY_IUID = "Instance.updateAvailabilityByStudyIUID";
     public static final String UPDATE_AVAILABILITY_BY_SERIES_IUID = "Instance.updateAvailabilityBySeriesIUID";
     public static final String UPDATE_AVAILABILITY_BY_SOP_IUID = "Instance.updateAvailabilityBySopIUID";

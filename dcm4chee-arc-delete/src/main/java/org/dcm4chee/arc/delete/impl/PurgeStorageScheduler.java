@@ -50,6 +50,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -70,6 +71,8 @@ import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -150,15 +153,10 @@ public class PurgeStorageScheduler extends Scheduler {
             return;
         }
 
-        try {
-            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-            StorageDescriptor storageDesc = arcDev.getStorageDescriptorNotNull(storageID);
-            if (ejb.deleteObjectsOfStudy(suid, storageDesc)) {
-                LOG.info("Successfully marked objects of Study[uid={}] at {} for deletion", suid, storageDesc);
-            }
-        } catch (Exception e) {
-            LOG.warn("Failed to mark objects of Study[uid={}] at Storage[id={}] for deletion", suid, storageID, e);
-        }
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        StorageDescriptor storageDesc = arcDev.getStorageDescriptorNotNull(storageID);
+        List<String> storageIDs = arcDev.getStorageIDsOfStorageClusterForDeletion(storageDesc);
+        deleteObjectsOfStudy(storageDesc, new Study.PKUID(ejb.pkByStudyIUID(suid), suid), storageIDs);
     }
 
     private void process(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
@@ -377,23 +375,42 @@ public class PurgeStorageScheduler extends Scheduler {
 
     private int deleteObjectsOfStudies(ArchiveDeviceExtension arcDev, StorageDescriptor desc,
                                        List<Study.PKUID> studyPkUIDs) {
+        List<String> storageIDs = arcDev.getStorageIDsOfStorageClusterForDeletion(desc);
         int removed = 0;
         for (Study.PKUID studyPkUID : studyPkUIDs) {
             if (arcDev.getPurgeStoragePollingInterval() == null)
                 break;
-            try {
-                if (ejb.deleteObjectsOfStudy(studyPkUID.pk, desc)) {
-                    removed++;
-                    LOG.info("Successfully marked objects of {} at {} for deletion", studyPkUID, desc);
-                }
-            } catch (Exception e) {
-                if (ejb.hasObjectsOnStorage(studyPkUID.pk, desc))
-                    LOG.warn("Failed to mark objects of {} at {} for deletion", studyPkUID, desc, e);
-                else
-                    LOG.info("{} does not contain objects at {}", studyPkUID, desc);
-            }
+            if (deleteObjectsOfStudy(desc, studyPkUID, storageIDs))
+                removed++;
         }
         return removed;
+    }
+
+    private boolean deleteObjectsOfStudy(StorageDescriptor desc, Study.PKUID studyPkUID, List<String> storageIDs) {
+        String[] prevStorageIDs = null;
+        try {
+            prevStorageIDs = ejb.claimDeleteStudy(studyPkUID, desc, storageIDs);
+            if (prevStorageIDs == null) {
+                return false;
+            }
+            if (ejb.deleteObjectsOfStudy(studyPkUID, desc, storageIDs)) {
+                LOG.info("Successfully marked objects of {} at {} for deletion", studyPkUID, desc);
+                return true;
+            }
+        } catch (Exception e) {
+            if (prevStorageIDs == null) {
+                LOG.warn("Failed to claim {} at {} for deletion", studyPkUID, desc, e);
+            } else if (ejb.hasObjectsOnStorage(studyPkUID.pk, desc)) {
+                LOG.warn("Failed to mark objects of {} at {} for deletion", studyPkUID, desc, e);
+                ejb.setStorageIDs(studyPkUID.pk, StringUtils.concat(prevStorageIDs, '\\'));
+            } else {
+                LOG.info("{} does not contain objects at {}", studyPkUID, desc);
+                ejb.setStorageIDs(studyPkUID.pk, Stream.of(prevStorageIDs)
+                        .filter(s -> !s.equals(desc.getStorageID()))
+                        .collect(Collectors.joining("\\")));
+            }
+        }
+        return false;
     }
 
     private void deleteSeriesMetadata(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {

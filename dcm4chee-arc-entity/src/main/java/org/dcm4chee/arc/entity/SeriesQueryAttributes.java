@@ -68,7 +68,7 @@ import java.util.Set;
     name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_PK,
     query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
             "where serQueryAttrs.series in (" +
-                "select ser from Series ser where ser.study = ?1)"),
+                "select ser from Series ser where ser.study.pk = ?1)"),
 @NamedQuery(
         name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
         query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
