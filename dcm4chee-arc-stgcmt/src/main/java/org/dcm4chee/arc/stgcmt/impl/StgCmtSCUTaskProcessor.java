@@ -44,6 +44,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
@@ -62,6 +65,7 @@ public class StgCmtSCUTaskProcessor implements TaskProcessor {
 
     public Outcome process(Task task) throws Exception {
         Attributes actionInfo = task.getPayload(Attributes.class);
+        actionInfo.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
         return stgCmtSCU.sendNAction(
                 task.getLocalAET(),
                 task.getRemoteAET(),

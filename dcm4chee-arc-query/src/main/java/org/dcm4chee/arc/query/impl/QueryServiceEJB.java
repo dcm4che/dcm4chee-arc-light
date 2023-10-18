@@ -463,7 +463,6 @@ public class QueryServiceEJB {
 
     private Attributes getStgCmtRqstAttr(Sequence refSeriesSeq, List<Tuple> tuples, Path<String> cuidPath, Path<String> iuidPath) {
         Attributes refStgcmt = new Attributes(2);
-        refStgcmt.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
         Sequence refSOPSeq = refStgcmt.newSequence(Tag.ReferencedSOPSequence, 10);
         Stream.concat(
                     refSeriesSeq.stream()

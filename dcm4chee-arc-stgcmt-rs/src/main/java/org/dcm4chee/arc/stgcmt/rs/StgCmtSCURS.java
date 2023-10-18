@@ -54,8 +54,10 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -149,6 +151,7 @@ public class StgCmtSCURS {
             if (actionInfo == null || actionInfo.getSequence(Tag.ReferencedSOPSequence).isEmpty())
                 return errResponse("No matching instances", Response.Status.NOT_FOUND);
 
+            actionInfo.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
             DimseRSP dimseRSP = stgCmtSCU.sendNActionRQ(
                                         aet,
                                         externalAET,
