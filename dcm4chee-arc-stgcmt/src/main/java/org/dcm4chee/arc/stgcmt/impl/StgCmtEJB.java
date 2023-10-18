@@ -187,6 +187,7 @@ public class StgCmtEJB {
         List<Predicate> predicates = queryBuilder.stgCmtResultPredicates(stgCmtResult, queryParam);
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
+        q.orderBy(cb.desc(stgCmtResult.get(StgCmtResult_.updatedTime)));
         TypedQuery<StgCmtResult> query = em.createQuery(q);
         if (offset > 0)
             query.setFirstResult(offset);
