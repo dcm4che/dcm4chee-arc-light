@@ -207,7 +207,6 @@ public class PatientServiceImpl implements PatientService {
             throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException {
         if (device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isHL7TrackChangedPatientID()) {
             checkForMatchingPatientIDs(ctx);
-            createPatient(ctx);
             return mergePatient(ctx);
         }
         try {
