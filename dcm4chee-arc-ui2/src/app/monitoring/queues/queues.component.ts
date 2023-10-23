@@ -56,13 +56,36 @@ export class QueuesComponent implements OnInit, OnDestroy{
     Object = Object;
     tableHovered = false;
     statuses = [
-        "SCHEDULED",
-        "SCHEDULED FOR RETRY",
-        "IN PROCESS",
-        "COMPLETED",
-        "WARNING",
-        "FAILED",
-        "CANCELED"
+        {
+            value:"SCHEDULED",
+            text:$localize `:@@SCHEDULED:SCHEDULED`,
+            key:"scheduled"
+        },{
+            value:"SCHEDULED FOR RETRY",
+            text:$localize `:@@S_FOR_RETRY:S. FOR RETRY`,
+            key:"scheduled"
+        },{
+            value:"IN PROCESS",
+            text:$localize `:@@in_process:IN PROCESS`,
+            key:"in-process"
+        },{
+            value:"COMPLETED",
+            text:$localize `:@@COMPLETED:COMPLETED`,
+            key:"completed"
+        },{
+            value:"WARNING",
+            text:$localize `:@@WARNING:WARNING`,
+            key:"warning"
+        },{
+            value:"FAILED",
+            text:$localize `:@@FAILED:FAILED`,
+            key:"failed"
+        },
+        {
+            value:"CANCELED",
+            text:$localize `:@@CANCELED:CANCELED`,
+            key:"canceled"
+        }
     ];
     timer = {
         started:false,
@@ -241,9 +264,10 @@ export class QueuesComponent implements OnInit, OnDestroy{
     init(){
         this.initQuery();
         this.statuses.forEach(status =>{
-            this.statusValues[status] = {
+            this.statusValues[status.value] = {
                 count: 0,
-                loader: false
+                loader: false,
+                ...status
             };
         });
         this.setTableSchema();
@@ -412,6 +436,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 }catch (e){
                     this.counText = $localize `:@@COUNT:COUNT`;
                 }
+                this.setFilters();
                 this.cfpLoadingBar.complete();
             },(err)=>{
                 this.cfpLoadingBar.complete();

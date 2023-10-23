@@ -9,7 +9,7 @@
                     <div class="filter_block auto_reloader" >
                         <table>
                             <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
-                                <td>{{status}}:</td>
+                                <td>{{statusValues[status]?.text}}:</td>
                                 <td *ngIf="!statusValues[status]?.loader">{{statusValues[status]?.count}}</td>
                                 <td *ngIf="statusValues[status]?.loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
                             </tr>
@@ -25,8 +25,8 @@
                                     <span *ngIf="!timer.started" class="glyphicon glyphicon-refresh"></span>
                                     <mat-progress-spinner *ngIf="timer.started" mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
                                 </div>
-                                <span *ngIf="!timer.started">{{timer.startText}}</span>
-                                <span *ngIf="timer.started">{{timer.stopText}}</span>
+                                <span *ngIf="!timer.started" class="spinnter_text">{{timer.startText}}</span>
+                                <span *ngIf="timer.started" class="spinnter_text">{{timer.stopText}}</span>
                             </button>
                         </div>
                     </div>
