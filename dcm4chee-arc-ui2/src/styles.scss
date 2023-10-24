@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-@import "~material-design-icons/iconfont/material-icons.css";
+//@import "~material-design-icons/iconfont/material-icons.css";
 //@import "~bootstrap/dist/css/bootstrap.min.css";
 @import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 
@@ -943,8 +943,10 @@ mat-grid-list{
 .mat-checkbox-checked.mat-accent .mat-checkbox-background{
   background:$blue;
 }
-.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
-  color: $blue;
+.mat-select:focus:not(.mat-select-disabled) {
+  .mat-select-trigger, .mat-mdc-select-trigger{
+    color: $blue;
+  }
 }
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar{
   background-color: $blue !important;
@@ -955,10 +957,12 @@ mat-grid-list{
 .mat-select:focus:not(.mat-select-disabled) .mat-select-underline,
 .mat-option.mat-selected, .mat-option.mat-selected:focus,.mat-option.mat-selected:active,
 .mat-select-arrow,
-.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
-  color: $blue;
+.mat-select:focus:not(.mat-select-disabled) {
+  .mat-select-trigger, .mat-mdc-select-trigger{
+    color: $blue;
+  }
 }
-.mat-select-trigger{
+.mat-select-trigger, .mat-mdc-select-trigger{
   border-bottom:1px solid #ccc;
   min-height: 25px;
 }
@@ -1121,7 +1125,7 @@ mat-grid-list{
     }
   }
 }
-.mat-select-trigger{
+.mat-select-trigger, .mat-mdc-select-trigger{
   height: 30px;
   border-bottom: 1px solid #ccc;
 }
@@ -1625,6 +1629,7 @@ p-calendar select{
 mat-dialog-container{
   border-top: 20px solid $lightBlue;
   border-radius: 5px;
+  background:white;
   &.mat-dialog-container{
     max-width:100% !important;
   }
@@ -1991,7 +1996,7 @@ mat-form-field{
         vertical-align: middle;
       }
     }
-    .mat-select-trigger{
+    .mat-select-trigger, .mat-mdc-select-trigger{
       padding-left: 7px;
       font-style: italic;
     }
@@ -2304,7 +2309,7 @@ mat-form-field{
       position: static !important;
     }
     mat-select{
-      .mat-select-trigger{
+      .mat-select-trigger, .mat-mdc-select-trigger{
         border: 1px solid #ccc;
         .mat-select-value{
           line-height: 30px;
@@ -3421,7 +3426,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
       height:40px;
     }
   }
-  .mat-select-trigger{
+  .mat-select-trigger, .mat-mdc-select-trigger{
     height:28px;
   }
   .tab-content{
@@ -3600,7 +3605,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
             height: 30px;
             border: none;
           }
-          .mat-select-trigger{
+          .mat-select-trigger, .mat-mdc-select-trigger{
             bottom: -2px;
             padding-left: 7px;
           }
@@ -4339,7 +4344,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       }
     }
   }
-  .mat-select-trigger{
+  .mat-select-trigger, .mat-mdc-select-trigger{
     color: rgb(22, 29, 35);
   }
   .maximize{
@@ -4405,7 +4410,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
 }
 
 .study_action_buttons, .mpps_action_buttons, .uwl_action_buttons, .mwl_action_buttons, .diff_action_buttons{
-  &.mat-menu-panel{
+  &.mat-menu-panel, &.mat-mdc-menu-panel{
     min-width: 30px !important;
     max-width: 96px !important;
     overflow: visible;
@@ -4413,7 +4418,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
-    .mat-menu-content{
+    .mat-menu-content, .mat-mdc-menu-content{
       padding: 0 !important;
       .dicom_table_buttons{
         width: 30px;
@@ -4437,3 +4442,6 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     }
   }
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

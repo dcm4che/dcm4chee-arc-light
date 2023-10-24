@@ -1,5 +1,3 @@
-import './polyfills.ts';
-
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode } from '@angular/core';
 import { environment } from './environments/environment';
@@ -8,6 +6,7 @@ import { loadTranslations } from '@angular/localize';
 // import { getTranslations, ParsedTranslationBundle } from '@locl/core';
 import {LocalLanguageObject} from "./app/interfaces";
 
+import { AppModule } from './app/app.module';
 
 const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
 
@@ -27,9 +26,13 @@ if (environment.production) {
             }).catch(err=>console.error("first",err));
         }
     );
-} else {*/
+} else {
     import('./app/app.module').then(module => {
         platformBrowserDynamic().bootstrapModule(module.AppModule);
     }).catch(err=>console.error(err));
-// }
+ }
+*/
 
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+    .catch(err => console.error(err));

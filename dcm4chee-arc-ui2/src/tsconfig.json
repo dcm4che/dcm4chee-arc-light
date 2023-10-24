@@ -3,6 +3,7 @@
     "preserveWhitespaces": false
   },
   "compilerOptions": {
+    "allowImportingTsExtensions": "iKnowWhatImDoing",
     "baseUrl": "src",
     "declaration": false,
     "experimentalDecorators": true,

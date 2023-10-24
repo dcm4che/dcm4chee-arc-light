@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { WidgetsComponent } from './widgets.component';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
-import { MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import { MessagingComponent } from './messaging/messaging.component';
 import {EditPatientComponent} from './dialogs/edit-patient/edit-patient.component';
 import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
@@ -48,6 +47,7 @@ import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.com
 import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.component';
 import { ModifiedWidgetComponent } from './modified-widget/modified-widget.component';
 import { PersonNamePickerComponent } from './person-name-picker/person-name-picker.component';
+import {MatDialogConfig, MatDialogModule} from "@angular/material/dialog";
 
 
 @Injectable()
@@ -55,11 +55,12 @@ import { PersonNamePickerComponent } from './person-name-picker/person-name-pick
     imports: [
         CommonModule,
         BrowserModule,
-        FormsModule
+        FormsModule,
+        MatDialogModule
     ],
     declarations: [WidgetsComponent],
     exports: [WidgetsComponent],
-    providers: [MatDialogConfig]
+    providers: [MatDialogConfig, MatDialogModule]
 })
 export class WidgetsModule { }
 export const WidgetsComponents = [

@@ -3,18 +3,10 @@ import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { RouterModule }   from '@angular/router';
 import {AppComponent} from './app.component';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { MatNativeDateModule, MAT_DATE_FORMATS, DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {MAT_LEGACY_FORM_FIELD_DEFAULT_OPTIONS as MAT_FORM_FIELD_DEFAULT_OPTIONS, MatLegacyFormFieldModule as MatFormFieldModule} from '@angular/material/legacy-form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
-import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar';
-import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner';
-import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
-import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './configuration/control/control.component';
 import { QueuesComponent } from './monitoring/queues/queues.component';
@@ -117,6 +109,14 @@ import {MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogModule as MatDi
 import { CustomAttributeListComponent } from './helpers/custom-attribute-list/custom-attribute-list.component';
 import { CustomDatePipe } from './pipes/custom-date.pipe';
 import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.service";
+import {MatSelectModule} from "@angular/material/select";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatButtonModule} from "@angular/material/button";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {MatInputModule} from "@angular/material/input";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {MatRadioModule} from "@angular/material/radio";
+import {MatMenuModule} from "@angular/material/menu";
 
 
 // registerLocaleData(localeDe, 'de-DE');
@@ -215,8 +215,7 @@ import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.se
             {
                 path: 'monitoring',
                 redirectTo: '/monitoring/queues',
-                pathMatch: 'full',
-                canActivate: [AuthGuard]
+                pathMatch: 'full'
             },
             { path: 'study/:tab', component: StudyComponent, canActivate: [AuthGuard] },
             { path: 'permission-denied', component: PermissionDeniedComponent },
