@@ -86,6 +86,9 @@ import java.util.*;
                 name=Study.SET_STUDY_SIZE,
                 query="update Study st set st.size = ?2 where st.pk = ?1"),
         @NamedQuery(
+                name=Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID,
+                query="update Study st set st.externalRetrieveAET = ?2 where st.studyInstanceUID = ?1"),
+        @NamedQuery(
                 name=Study.RESET_STUDY_SIZE_AND_EXTERNAL_RETRIEVE_AET,
                 query="update Study st set st.size = -1L, st.externalRetrieveAET = null where st.pk = ?1"),
         @NamedQuery(
@@ -181,6 +184,7 @@ public class Study {
     public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
     public static final String SET_STUDY_SIZE = "Study.setStudySize";
+    public static final String SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID = "Study.setExternalRetrieveAETByStudyIUID";
     public static final String RESET_STUDY_SIZE_AND_EXTERNAL_RETRIEVE_AET = "Study.resetStudySizeAndExternalRetrieve";
     public static final String SET_COMPLETENESS = "Study.setCompleteness";
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.incrementFailedRetrieves";

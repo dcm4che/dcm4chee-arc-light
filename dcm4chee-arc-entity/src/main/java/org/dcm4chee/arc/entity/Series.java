@@ -104,12 +104,26 @@ import java.util.stream.Stream;
     name = Series.SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE,
     query = "select se.pk from Series se " +
             "where se.study.pk = ?1 and se.size = -1"),
+@NamedQuery(
+    name = Series.SERIES_PKS_OF_STUDY_BY_STUDY_IUID,
+    query = "select se.pk from Series se " +
+            "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(name = Series.SIZE_OF_STUDY,
     query = "select sum(se.size) from Series se " +
             "where se.study.pk = ?1"),
 @NamedQuery(
     name=Series.SET_SERIES_SIZE,
     query="update Series se set se.size = ?2 where se.pk = ?1"),
+@NamedQuery(
+    name=Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK,
+    query="update Series se set se.externalRetrieveAET = ?2 where se.pk = ?1"),
+@NamedQuery(
+    name=Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID,
+    query="update Series se set se.externalRetrieveAET = ?2 where se.seriesInstanceUID = ?1"),
+@NamedQuery(
+    name=Series.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID,
+    query = "select distinct se.externalRetrieveAET from Series se " +
+            "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
     name=Series.RESET_SERIES_SIZE_AND_EXTERNAL_RETRIEVE_AET,
     query="update Series se set se.size = -1L, se.externalRetrieveAET = null where se.pk = ?1"),
@@ -352,8 +366,12 @@ public class Series {
     public static final String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
     public static final String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
     public static final String SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE = "Series.seriesPKsOfStudyWithUnknownSize";
+    public static final String SERIES_PKS_OF_STUDY_BY_STUDY_IUID = "Series.seriesPKsOfStudyByStudyPk";
     public static final String SIZE_OF_STUDY="Series.sizeOfStudy";
     public static final String SET_SERIES_SIZE = "Series.SetSeriesSize";
+    public static final String SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK = "Series.SetExternalRetrieveAETBySeriesPK";
+    public static final String SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID = "Series.SetExternalRetrieveAETBySeriesUID";
+    public static final String DISTINCT_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID = "Series.distinctExternalRetrieveAETByStudyUID";
     public static final String RESET_SERIES_SIZE_AND_EXTERNAL_RETRIEVE_AET = "Series.ResetSeriesSizeAndExternalRetrieveAET";
     public static final String SET_COMPLETENESS = "Series.SetCompleteness";
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";

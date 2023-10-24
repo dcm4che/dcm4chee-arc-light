@@ -193,7 +193,19 @@ import java.util.*;
 @NamedQuery(
         name = Instance.UPDATE_AVAILABILITY_BY_SOP_IUID,
         query = "update Instance i set i.availability = ?2 " +
-                "where i.sopInstanceUID = ?1")
+                "where i.sopInstanceUID = ?1"),
+@NamedQuery(
+        name = Instance.UPDATE_EXTERNAL_RETRIEVE_AET_BY_SOP_IUIDS,
+        query = "update Instance i set i.externalRetrieveAET = ?2 " +
+                "where i.sopInstanceUID in ?1"),
+@NamedQuery(
+        name = Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK,
+        query = "select distinct i.externalRetrieveAET from Instance i " +
+                "where i.series.pk = ?1"),
+@NamedQuery(
+        name = Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID,
+        query = "select distinct i.externalRetrieveAET from Instance i " +
+                "where i.series.seriesInstanceUID = ?1")
 })
 @Entity
 @Table(name = "instance",
@@ -231,6 +243,9 @@ public class Instance {
     public static final String UPDATE_AVAILABILITY_BY_STUDY_IUID = "Instance.updateAvailabilityByStudyIUID";
     public static final String UPDATE_AVAILABILITY_BY_SERIES_IUID = "Instance.updateAvailabilityBySeriesIUID";
     public static final String UPDATE_AVAILABILITY_BY_SOP_IUID = "Instance.updateAvailabilityBySopIUID";
+    public static final String UPDATE_EXTERNAL_RETRIEVE_AET_BY_SOP_IUIDS = "Instance.updateExternalRetrieveAETBySopIUIDs";
+    public static final String DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK = "Instance.distinctExternalRetrieveAETsBySeriesPk";
+    public static final String DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID = "Instance.distinctExternalRetrieveAETsBySeriesIUID";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

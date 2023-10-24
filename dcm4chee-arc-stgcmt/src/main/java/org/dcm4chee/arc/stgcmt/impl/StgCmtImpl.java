@@ -100,7 +100,10 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     private QueryService queryService;
 
     @Inject
-    private StgCmtManager ejb;
+    private StgCmtManager stgCmtManager;
+
+    @Inject
+    private StgCmtEJB ejb;
 
     public StgCmtImpl() {
         super(UID.StorageCommitmentPushModel);
@@ -212,7 +215,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     private void onNEventReportRQ(Association as, PresentationContext pc, Attributes rq, Attributes eventInfo)
             throws DicomServiceException {
         try {
-            ejb.addExternalRetrieveAETs(eventInfo, device);
+            stgCmtManager.addExternalRetrieveAETs(eventInfo, device);
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
@@ -292,17 +295,17 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             result.setTaskPK(taskPK);
             result.setBatchID(batchID);
             result.setDeviceName(device.getDeviceName());
-            ejb.persistStgCmtResult(result);
+            stgCmtManager.persistStgCmtResult(result);
             DimseRSP dimseRSP = as.naction(
                     UID.StorageCommitmentPushModel,
                     UID.StorageCommitmentPushModelInstance,
                     1, actionInfo, null);
             dimseRSP.next();
             if (dimseRSP.getCommand().getInt(Tag.Status, -1) != Status.Success)
-                ejb.deleteStgCmt(actionInfo.getString(Tag.TransactionUID));
+                stgCmtManager.deleteStgCmt(actionInfo.getString(Tag.TransactionUID));
             return dimseRSP;
         } catch (Exception e) {
-            ejb.deleteStgCmt(actionInfo.getString(Tag.TransactionUID));
+            stgCmtManager.deleteStgCmt(actionInfo.getString(Tag.TransactionUID));
             throw e;
         }
         finally {

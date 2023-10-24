@@ -61,6 +61,9 @@ import org.dcm4chee.arc.query.util.StgCmtResultQueryParam;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgVerBatch;
+import org.hibernate.Session;
+import org.hibernate.engine.jdbc.spi.JdbcServices;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,8 +92,65 @@ public class StgCmtEJB {
         StgCmtResult result = getStgCmtResult(transactionUID);
         if (result == null)
             return;
-        updateExternalRetrieveAETs(eventInfo, result.getStudyInstanceUID(),
-                device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptor(result.getExporterID()));
+
+        ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor ed = arcdev.getExporterDescriptor(result.getExporterID());
+        String configRetrieveAET = ed != null && ed.getRetrieveAETitles().length > 0 ? ed.getRetrieveAETitles()[0] : null;
+        String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed != null ? ed.getStgCmtSCPAETitle() : null);
+        Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
+        Map<String,List<String>> iuidsByRetrieveAET = new HashMap<>();
+        for (Attributes sopRef : sopSeq) {
+            iuidsByRetrieveAET.computeIfAbsent(configRetrieveAET != null
+                            ? configRetrieveAET
+                            : sopRef.getString(Tag.RetrieveAETitle, defRetrieveAET),
+                    x -> new ArrayList<>())
+                    .add(sopRef.getString(Tag.ReferencedSOPInstanceUID));
+
+        }
+        int limit = getInExpressionCountLimit() - 10;
+        for (Map.Entry<String, List<String>> entry : iuidsByRetrieveAET.entrySet()) {
+            List<String> iuids = entry.getValue();
+            int toIndex = 0;
+            int size = iuids.size();
+            do {
+                int fromIndex = toIndex;
+                toIndex += limit < 0 ? size : Math.min(limit, size - toIndex);
+                em.createNamedQuery(Instance.UPDATE_EXTERNAL_RETRIEVE_AET_BY_SOP_IUIDS)
+                        .setParameter(1, iuids.subList(fromIndex, toIndex))
+                        .setParameter(2, entry.getKey())
+                        .executeUpdate();
+            } while (toIndex < size);
+        }
+        String studyInstanceUID = result.getStudyInstanceUID();
+        String seriesInstanceUID = result.getSeriesInstanceUID();
+        if (seriesInstanceUID != null) {
+            List<String> aets = em.createNamedQuery(Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID, String.class)
+                    .setParameter(1, seriesInstanceUID)
+                    .getResultList();
+            em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID)
+                    .setParameter(1, seriesInstanceUID)
+                    .setParameter(2, aets.size() == 1 ? aets.get(0) : null)
+                    .executeUpdate();
+        } else {
+            for (Long seriesPk : em.createNamedQuery(Series.SERIES_PKS_OF_STUDY_BY_STUDY_IUID, Long.class)
+                    .setParameter(1, studyInstanceUID)
+                    .getResultList()) {
+                List<String> aets = em.createNamedQuery(Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK, String.class)
+                        .setParameter(1, seriesPk)
+                        .getResultList();
+                em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK)
+                        .setParameter(1, seriesPk)
+                        .setParameter(2, aets.size() == 1 ? aets.get(0) : null)
+                        .executeUpdate();
+            }
+        }
+        List<String> aets = em.createNamedQuery(Series.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID, String.class)
+                .setParameter(1, studyInstanceUID)
+                .getResultList();
+        em.createNamedQuery(Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID)
+                .setParameter(1, studyInstanceUID)
+                .setParameter(2, aets.size() == 1 ? aets.get(0) : null)
+                .executeUpdate();
         result.setStgCmtResult(eventInfo);
     }
 
@@ -106,10 +166,14 @@ public class StgCmtEJB {
         return result;
     }
 
-    private void updateExternalRetrieveAETs(Attributes eventInfo, String suid, ExporterDescriptor ed) {
-        if (ed == null)
-            return;
+    private int getInExpressionCountLimit() {
+        return ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
+                .getServiceRegistry().getService(JdbcServices.class)
+                .getDialect().getInExpressionCountLimit();
+    }
 
+/*
+    private void updateExternalRetrieveAETs(Attributes eventInfo, String suid, ExporterDescriptor ed) {
         String configRetrieveAET = ed.getRetrieveAETitles().length > 0 ? ed.getRetrieveAETitles()[0] : null;
         String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed.getStgCmtSCPAETitle());
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
@@ -143,6 +207,7 @@ public class StgCmtEJB {
         if (studyExternalAETs.size() == 1 && !studyExternalAETs.contains(null))
             instances.get(0).getSeries().getStudy().setExternalRetrieveAET(studyExternalAETs.iterator().next());
     }
+*/
 
     private boolean isRejected(Instance inst) {
         try {
