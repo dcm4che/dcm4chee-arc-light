@@ -93,11 +93,16 @@ public class StgCmtEJB {
         if (result == null)
             return;
 
+        Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
+        if (sopSeq == null || sopSeq == null) {
+            LOG.info("Storage Commitment for none of the SOP Instances had been successful");
+            return;
+        }
+
         ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor ed = arcdev.getExporterDescriptor(result.getExporterID());
         String configRetrieveAET = ed != null && ed.getRetrieveAETitles().length > 0 ? ed.getRetrieveAETitles()[0] : null;
         String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed != null ? ed.getStgCmtSCPAETitle() : null);
-        Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
         Map<String,List<String>> iuidsByRetrieveAET = new HashMap<>();
         for (Attributes sopRef : sopSeq) {
             iuidsByRetrieveAET.computeIfAbsent(configRetrieveAET != null
@@ -112,14 +117,17 @@ public class StgCmtEJB {
             List<String> iuids = entry.getValue();
             int toIndex = 0;
             int size = iuids.size();
+            long updated = 0;
             do {
                 int fromIndex = toIndex;
                 toIndex += limit < 0 ? size : Math.min(limit, size - toIndex);
-                em.createNamedQuery(Instance.UPDATE_EXTERNAL_RETRIEVE_AET_BY_SOP_IUIDS)
+                updated += em.createNamedQuery(Instance.UPDATE_EXTERNAL_RETRIEVE_AET_BY_SOP_IUIDS, Long.class)
                         .setParameter(1, iuids.subList(fromIndex, toIndex))
                         .setParameter(2, entry.getKey())
                         .executeUpdate();
             } while (toIndex < size);
+            if (updated > 0)
+                LOG.info("Update External Retrieve AET of {} instances to {}", updated, entry.getKey());
         }
         String studyInstanceUID = result.getStudyInstanceUID();
         String seriesInstanceUID = result.getSeriesInstanceUID();
@@ -127,10 +135,12 @@ public class StgCmtEJB {
             List<String> aets = em.createNamedQuery(Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID, String.class)
                     .setParameter(1, seriesInstanceUID)
                     .getResultList();
-            em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID)
+            String aet = aets.size() == 1 ? aets.get(0) : null;
+            if (em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID, Long.class)
                     .setParameter(1, seriesInstanceUID)
-                    .setParameter(2, aets.size() == 1 ? aets.get(0) : null)
-                    .executeUpdate();
+                    .setParameter(2, aet)
+                    .executeUpdate() > 0)
+                LOG.info("Update External Retrieve AET of Series[uid={}] to {}", seriesInstanceUID, aet);
         } else {
             for (Long seriesPk : em.createNamedQuery(Series.SERIES_PKS_OF_STUDY_BY_STUDY_IUID, Long.class)
                     .setParameter(1, studyInstanceUID)
@@ -138,21 +148,25 @@ public class StgCmtEJB {
                 List<String> aets = em.createNamedQuery(Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK, String.class)
                         .setParameter(1, seriesPk)
                         .getResultList();
-                em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK)
+                String aet = aets.size() == 1 ? aets.get(0) : null;
+                if (em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK, Long.class)
                         .setParameter(1, seriesPk)
-                        .setParameter(2, aets.size() == 1 ? aets.get(0) : null)
-                        .executeUpdate();
+                        .setParameter(2, aet)
+                        .executeUpdate() > 0L)
+                    LOG.info("Update External Retrieve AET of Series[pk={}] to {}", seriesPk, aet);
             }
         }
         List<String> aets = em.createNamedQuery(Series.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID, String.class)
                 .setParameter(1, studyInstanceUID)
                 .getResultList();
-        em.createNamedQuery(Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID)
+        String aet = aets.size() == 1
+                ? Objects.requireNonNullElse(aets.get(0), "*")
+                : "*";
+        if (em.createNamedQuery(Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID, Long.class)
                 .setParameter(1, studyInstanceUID)
-                .setParameter(2, aets.size() == 1
-                        ? Objects.requireNonNullElse(aets.get(0), "*")
-                        : "*")
-                .executeUpdate();
+                .setParameter(2, aet)
+                .executeUpdate() > 0L)
+            LOG.info("Update External Retrieve AET of Study[uid={}] to {}", studyInstanceUID, aet);
         result.setStgCmtResult(eventInfo);
     }
 
