@@ -149,7 +149,9 @@ public class StgCmtEJB {
                 .getResultList();
         em.createNamedQuery(Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID)
                 .setParameter(1, studyInstanceUID)
-                .setParameter(2, aets.size() == 1 ? aets.get(0) : null)
+                .setParameter(2, aets.size() == 1
+                        ? Objects.requireNonNullElse(aets.get(0), "*")
+                        : "*")
                 .executeUpdate();
         result.setStgCmtResult(eventInfo);
     }
