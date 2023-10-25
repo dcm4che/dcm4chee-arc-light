@@ -94,7 +94,7 @@ public class StgCmtEJB {
             return;
 
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
-        if (sopSeq == null || sopSeq == null) {
+        if (sopSeq == null || sopSeq.isEmpty()) {
             LOG.info("Storage Commitment for none of the SOP Instances had been successful");
             return;
         }
