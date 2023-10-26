@@ -78,7 +78,7 @@ export class ControlComponent implements OnInit{
     fetchStatus(object){
         this.service.fetchStatus(object.dcmuiDeviceURL).subscribe(res=>{
             object.status = res.status;
-            this.appService.showMsg( $localize `:@@control.status_refetched:Status of ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: was successfully refetched!`);
+            this.appService.showMsg( $localize `:@@control.status_refetched:Status of ${object.dcmuiDeviceURLName}:dcmuiDeviceURLName: was successfully refetched!`);
         },err=>{
             console.error("Status not fetchable",err);
             this.httpErrorHandler.handleError(err);
@@ -88,7 +88,8 @@ export class ControlComponent implements OnInit{
         this.cfpLoadingBar.start();
         this.service.startArchive(object.dcmuiDeviceURL).subscribe((res) => {
             this.fetchStatuses();
-            this.appService.showMsg($localize `:@@control.archive_started:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: started successfully`);
+            this.appService.showMsg($localize `:@@control.archive_started:Archive ${object.dcmuiDeviceURLName}:dcmuiDeviceURLName:
+ started successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();
@@ -99,7 +100,8 @@ export class ControlComponent implements OnInit{
         this.cfpLoadingBar.start();
         this.service.stopArchive(object.dcmuiDeviceURL).subscribe((res) => {
             this.fetchStatuses();
-            this.appService.showMsg($localize`:@@control.archive_stopped:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: stopped successfully`);
+            this.appService.showMsg($localize`:@@control.archive_stopped:Archive ${object.dcmuiDeviceURLName}:dcmuiDeviceURLName:
+ stopped successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();
@@ -109,7 +111,8 @@ export class ControlComponent implements OnInit{
     reload(object) {
         this.cfpLoadingBar.start();
         this.service.reloadArchive(object.dcmuiDeviceURL).subscribe((res) => {
-            this.appService.showMsg($localize `:@@control.archive_reloaded:Archive ${object.dcmuiDeviceURLName}:@@dcmuiDeviceURLName: reloaded successfully`);
+            this.appService.showMsg($localize `:@@control.archive_reloaded:Archive ${object.dcmuiDeviceURLName}:dcmuiDeviceURLName:
+ reloaded successfully`);
             this.cfpLoadingBar.complete();
         },(err)=>{
             this.cfpLoadingBar.complete();

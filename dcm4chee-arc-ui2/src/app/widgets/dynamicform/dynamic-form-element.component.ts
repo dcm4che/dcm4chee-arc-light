@@ -283,7 +283,8 @@ export class DynamicFormElementComponent implements OnDestroy{
                             $this.mainservice.showMsg($localize `:@@element_removed_from_object:Element removed from object successfully!`);
                             $this.mainservice.setMessage({
                                 'title': $localize `:@@dynamic-form-element.click_to_save:Click to save`,
-                                'text': $localize `:@@click_save_if_you_want_to_remove_permanently:Click save if you want to remove "${selected.title}:@@selectedTitle:" permanently!`,
+                                'text': $localize `:@@click_save_if_you_want_to_remove_permanently:Click save if you want to remove "${selected.title}:selectedTitle:
+" permanently!`,
                                 'status': 'warning'
                             });
                             formelement.addUrl = newAddUrl;

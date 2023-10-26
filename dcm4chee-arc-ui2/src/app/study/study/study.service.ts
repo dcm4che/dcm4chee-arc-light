@@ -511,7 +511,9 @@ export class StudyService {
                 entityOp = $localize `:@@entity_op_compare_archives:compare studies between two archives`;
                 break;
         }
-        return $localize `:@@configure_webapp_with_webservice:Configure at least one web application with ${webServiceClass}:@@webServiceClass: web service class to ${entityOp}:@@entityOp:`;
+        return $localize `:@@configure_webapp_with_webservice:Configure at least one web application with ${webServiceClass}:webServiceClass:
+ web service class to ${entityOp}:entityOp:
+`;
     }
 
     getSubmitText(tab: DicomMode) {
@@ -589,7 +591,7 @@ export class StudyService {
                 return this.$http.get(this.getDicomURL(mode,studyWebService.selectedWebService, dicomResponseType) + j4care.objToUrlParams(filterModel, true))
             }
         }else{
-            return throwError({error:$localize `:@@webapp_with_service_class_not_found:Web Application Service with the web service class ${'DCM4CHEE_ARC_AET_DIFF'}:@@webServiceClass: not found!`})
+            return throwError({error:$localize `:@@webapp_with_service_class_not_found:Web Application Service with the web service class ${'DCM4CHEE_ARC_AET_DIFF'}:webServiceClass: not found!`})
         }
     }
     getDiff(filterModel, studyWebService: StudyWebService, responseType?: DicomResponseType): Observable<any> {
@@ -4317,7 +4319,8 @@ export class StudyService {
                 })[0];*/
             } catch (e) {
                 j4care.log(`Error on getting the ${alternativeWebServiceClass} WebApp getModifyPatientUrl`, e);
-                return throwError($localize `:@@error_on_getting_param_webapp:Error on getting the ${alternativeWebServiceClass}:@@webappcass: WebApp getModifyPatientUrl`);
+                return throwError($localize `:@@error_on_getting_param_webapp:Error on getting the ${alternativeWebServiceClass}:webappcass:
+ WebApp getModifyPatientUrl`);
             }
         }
     }
@@ -4885,14 +4888,14 @@ export class StudyService {
                 [
                     {
                         tag: "label",
-                        text: $localize`:@@batch_ID:Batch ID`
+                        text: $localize`:@@batch_id:Batch ID`
                     },
                     {
                         tag: "input",
                         type: "text",
                         filterKey: "batchID",
-                        description: $localize`:@@batch_ID:Batch ID`,
-                        placeholder: $localize`:@@batch_ID:Batch ID`
+                        description: $localize`:@@batch_id:Batch ID`,
+                        placeholder: $localize`:@@batch_id:Batch ID`
                     }
                 ],[
                     {
@@ -4916,13 +4919,13 @@ export class StudyService {
                 [
                     {
                         tag: "label",
-                        text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                        text: $localize`:@@all_modalities_in_study:All of Modalities in Study`
                     },
                     {
                         tag:"checkbox",
                         type:"text",
                         filterKey:"allOfModalitiesInStudy",
-                        description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                        description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
                     },
                 ],
                 [
@@ -4978,14 +4981,14 @@ export class StudyService {
                 [
                     {
                         tag: "label",
-                        text: $localize`:@@batch_ID:Batch ID`
+                        text: $localize`:@@batch_id:Batch ID`
                     },
                     {
                         tag: "input",
                         type: "text",
                         filterKey: "batchID",
-                        description: $localize`:@@batch_ID:Batch ID`,
-                        placeholder: $localize`:@@batch_ID:Batch ID`
+                        description: $localize`:@@batch_id:Batch ID`,
+                        placeholder: $localize`:@@batch_id:Batch ID`
                     }
                 ],
                 [
@@ -5003,13 +5006,13 @@ export class StudyService {
                 [
                     {
                         tag: "label",
-                        text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                        text: $localize`:@@all_modalities_in_study:All of Modalities in Study`
                     },
                     {
                         tag:"checkbox",
                         type:"text",
                         filterKey:"allOfModalitiesInStudy",
-                        description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                        description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
                     },
                 ]
             ]

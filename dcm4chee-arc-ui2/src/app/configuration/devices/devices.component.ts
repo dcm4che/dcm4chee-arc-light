@@ -173,7 +173,8 @@ export class DevicesComponent implements OnInit{
         if (device && device.dicomDeviceName) {
             let $this = this;
             this.confirm({
-                content: $localize `:@@devices.are_you_sure_you_want_to_delete_the_device_:Are you sure you want to delete the device ${device.dicomDeviceName}:@@dicomDeviceName:?`
+                content: $localize `:@@devices.are_you_sure_you_want_to_delete_the_device_:Are you sure you want to delete the device ${device.dicomDeviceName}:dicomDeviceName:
+?`
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
@@ -277,7 +278,8 @@ export class DevicesComponent implements OnInit{
                 }
                 this.deviceConfigurator.addChangesToDevice(re.exporter,`${Globalvar.EXPORTER_CONFIG_PATH}[${i}]`,re.device);
                 $this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${re.device.dicomDeviceName}`,re.device, headers).subscribe(res => {
-                    $this.mainservice.showMsg($localize `:@@devices.exporter_description_appended:The new exporter description appended successfully to the device: ${re.device.dicomDeviceName}:@@dicomDeviceName:`);
+                    $this.mainservice.showMsg($localize `:@@devices.exporter_description_appended:The new exporter description appended successfully to the device: ${re.device.dicomDeviceName}:dicomDeviceName:
+`);
                     $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}, headers).subscribe((res) => {
                         $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                     });

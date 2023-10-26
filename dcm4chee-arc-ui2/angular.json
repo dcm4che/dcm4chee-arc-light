@@ -17,6 +17,16 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "localize": [
+              "de",
+              "es",
+              "hi",
+              "it",
+              "ja",
+              "mr",
+              "ru",
+              "zh"
+            ],
             "allowedCommonJsDependencies": [
               "lodash",
               "moment",
@@ -493,10 +503,31 @@
         }
       },
       "i18n": {
+        "sourceLocale": "en-US",
         "locales": {
-          "sq": {
-            "translation": "src/assets/locale/sq.json",
-            "baseHref": ""
+          "de": {
+            "translation": "src/assets/locale/de.json"
+          },
+          "es": {
+            "translation": "src/assets/locale/es.json"
+          },
+          "hi": {
+            "translation": "src/assets/locale/hi.json"
+          },
+          "it": {
+            "translation": "src/assets/locale/it.json"
+          },
+          "ja": {
+            "translation": "src/assets/locale/ja.json"
+          },
+          "mr": {
+            "translation": "src/assets/locale/mr.json"
+          },
+          "ru": {
+            "translation": "src/assets/locale/ru.json"
+          },
+          "zh": {
+            "translation": "src/assets/locale/zh.json"
           }
         }
       }

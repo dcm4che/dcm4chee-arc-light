@@ -146,7 +146,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
 
     }
     initSchema(){
-        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema( this.devices, this.localAET,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`),3);
+        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema( this.devices, this.localAET,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:count:`),3);
         this.filterObject["orderby"] = '-updatedTime';
         this.triggerFilterSchema = j4care.prepareFlatFilterObject([
                 ...Globalvar.STUDY_FILTER_SCHEMA(this.localAET, [], []).filter((filter, i)=>{
@@ -313,7 +313,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
                             this.cfpLoadingBar.complete();
                             if(_.hasIn(res,"count")){
-                                this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count}:@@count: tasks canceled successfully!`);
+                                this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count}:count: tasks canceled successfully!`);
                             }else{
                                 this.mainservice.showMsg($localize `:@@tasks_canceled:Tasks canceled successfully!`);
                             }
@@ -336,7 +336,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                                 this.service.rescheduleAll(filter).subscribe((res) => {
                                     this.cfpLoadingBar.complete();
                                     if(_.hasIn(res,"count")){
-                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:@@count: tasks rescheduled successfully!`);
+                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:count: tasks rescheduled successfully!`);
                                     }else{
                                         this.mainservice.showMsg($localize `:@@tasks_rescheduled:Tasks rescheduled successfully!`);
                                     }
@@ -353,7 +353,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
                             this.cfpLoadingBar.complete();
                             if(_.hasIn(res,"deleted")){
-                                this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`);
+                                this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
                             }else{
                                 this.mainservice.showMsg($localize `:@@tasks_deleted:Tasks deleted successfully!`);
                             }
@@ -520,7 +520,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
     deleteAllTasks(filter){
         this.service.deleteAll(filter).subscribe((res)=>{
-            this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`)
+            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`)
             this.cfpLoadingBar.complete();
             let filters = Object.assign({},this.filterObject);
             this.getTasks(filters);

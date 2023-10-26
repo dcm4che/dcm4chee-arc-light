@@ -243,7 +243,6 @@ import {MatMenuModule} from "@angular/material/menu";
     providers: [
         WidgetsComponents,
         WidgetsModule,
-        MatDialogConfig,
         MatDatepickerModule,
         AppService,
         ControlService,

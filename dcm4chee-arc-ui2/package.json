@@ -11,6 +11,7 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
+    "extract_local": "ng extract-i18n --output-path src/assets/locale --format=json",
     "prod_old": "ng build --aot --configuration production",
     "prod": "ng build --configuration production --aot && yarn run addversion",
     "dev": "ng build",

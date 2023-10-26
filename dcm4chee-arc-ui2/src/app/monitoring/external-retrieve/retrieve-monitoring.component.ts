@@ -255,7 +255,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         return objs[0].offset + this.filterObject.limit*1;
     };
     initSchema(){
-        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`, this.queueNames);
+        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:count:`, this.queueNames);
         if(this.urlParam){
             // this.filterObject = this.urlParam;
             _.extend(this.filterObject, this.urlParam);
@@ -452,7 +452,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     }).subscribe((ok)=>{
                         if(ok){
                             this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                                this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count} ' tasks canceled successfully!`);
+                                this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count}:count: tasks canceled successfully!`);
                                 this.cfpLoadingBar.complete();
                             }, (err) => {
                                 this.cfpLoadingBar.complete();
@@ -477,7 +477,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                                 this.service.rescheduleAll(filter).subscribe((res)=>{
                                     this.cfpLoadingBar.complete();
                                     if(_.hasIn(res,"count")){
-                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:@@count: tasks rescheduled successfully!`);
+                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:count: tasks rescheduled successfully!`);
                                     }else{
                                         this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`);
                                     }
@@ -498,7 +498,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                         }).subscribe((ok)=>{
                             if(ok){
                                 this.service.deleteAll(this.filterObject).subscribe((res)=>{
-                                    this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`)
+                                    this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`)
                                     this.cfpLoadingBar.complete();
                                 }, (err) => {
                                     this.cfpLoadingBar.complete();
@@ -526,7 +526,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     this.service.deleteAll(filter).subscribe((res)=>{
                         this.cfpLoadingBar.complete();
                         if(_.hasIn(res,"count")){
-                            this.mainservice.showMsg($localize `:@@task_deleted:${res.count}:@@count: tasks deleted successfully!`);
+                            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
                         }else{
                             this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`);
                         }

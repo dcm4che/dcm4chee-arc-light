@@ -46,9 +46,9 @@ export class AeListService {
                 status:"info",
                 text: $localize `:@@echo_accomplished:Echo successfully accomplished!<br>- Connection time: ${
                     response.connectionTime
-                    }:@@connection_time: ms<br/>- Echo time: ${
+                    }:connection_time: ms<br/>- Echo time: ${
                     response.echoTime
-                    }:@@echo_time: ms<br/>- Release time: ${
+                    }:echo_time: ms<br/>- Release time: ${
                     response.releaseTime
                     } ms`
             }

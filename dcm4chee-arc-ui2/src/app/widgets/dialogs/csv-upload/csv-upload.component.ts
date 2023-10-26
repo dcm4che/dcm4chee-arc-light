@@ -63,7 +63,7 @@ export class CsvUploadComponent implements OnInit {
                 try{
                     if(end.response){
                         let countObject = JSON.parse(end.response);
-                        msg = $localize `:@@tasks_created:${countObject.count}:@@count: tasks created successfully!`
+                        msg = $localize `:@@tasks_created:${countObject.count}:count: tasks created successfully!`
                     }
                 }catch (e){
                     console.log($localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`,e)

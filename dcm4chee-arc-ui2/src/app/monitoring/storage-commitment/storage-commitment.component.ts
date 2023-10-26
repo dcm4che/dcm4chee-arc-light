@@ -195,7 +195,7 @@ export class StorageCommitmentComponent implements OnInit {
 
                         .subscribe((res) => {
                             console.log('resflush', res);
-                            $this.mainservice.showMsg($localize `:@@queues_deleted:${res.deleted}:@@deleted: queues deleted successfully!`);
+                            $this.mainservice.showMsg($localize `:@@queues_deleted:${res.deleted}:deleted: queues deleted successfully!`);
                             $this.search(0);
                             $this.cfpLoadingBar.complete();
                         }, (err) => {

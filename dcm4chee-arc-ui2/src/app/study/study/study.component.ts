@@ -1628,7 +1628,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             try{
                                 const errorCount = res.filter((result:any)=>result && result.isError).length;
                                 if(errorCount > 0){
-                                    this.appService.showMsg($localize `:@@mwl.process_executed_successfully_detailed:Process executed successfully:<br>\nErrors: ${errorCount}:@@error:<br>\nSuccessful: ${res.length - errorCount}:@@successful:`);
+                                    this.appService.showMsg($localize `:@@mwl.process_executed_successfully_detailed:Process executed successfully:<br>\nErrors: ${errorCount}:error:
+<br>\nSuccessful: ${res.length - errorCount}:@@successful:`);
                                 }else{
                                     this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
                                 }
@@ -1880,7 +1881,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     downloadZip(object, level, mode) {
         this.confirm({
-            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText(level)}:@@levelText:`,
+            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText(level)}:levelText:`,
             doNotSave:true,
             form_schema:[
                 [
@@ -1948,7 +1949,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let url:string = "";
         let fileName = "dcm4che.dcm";
         this.confirm({
-            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText("instance")}:@@levelText:`,
+            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText("instance")}:levelText:`,
             doNotSave:true,
             form_schema:[
                 [
@@ -4053,7 +4054,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         const matching = mode === "update_access_control_id_to_matching";
         const innerText = matching ? $localize `:@@inner_text.of_matching_studies:of matching studies`: $localize `:@@inner_text.of_the_study: of the study`;
         this.confirm({
-            content: $localize `:@@study.update_study_access_control_id_param:Update Study Access Control ID ${innerText}:@@innerText:`,
+            content: $localize `:@@study.update_study_access_control_id_param:Update Study Access Control ID ${innerText}:innerText:
+`,
             doNotSave:true,
             form_schema:[
                 [
@@ -4211,14 +4213,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag: "label",
-                            text: $localize`:@@batch_ID:Batch ID`
+                            text: $localize`:@@batch_id:Batch ID`
                         },
                         {
                             tag: "input",
                             type: "text",
                             filterKey: "batchID",
-                            description: $localize`:@@batch_ID:Batch ID`,
-                            placeholder: $localize`:@@batch_ID:Batch ID`
+                            description: $localize`:@@batch_id:Batch ID`,
+                            placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ],
                     [
@@ -4289,13 +4291,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     ],[
                         {
                             tag: "label",
-                            text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                            text: $localize`:@@all_modalities_in_study:All of Modalities in Study`
                         },
                             {
                                 tag:"checkbox",
                                 type:"text",
                                 filterKey:"allOfModalitiesInStudy",
-                                description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                                description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
                             },
                         ],
                     [
@@ -4327,14 +4329,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag: "label",
-                            text: $localize`:@@batch_ID:Batch ID`
+                            text: $localize`:@@batch_id:Batch ID`
                         },
                         {
                             tag: "input",
                             type: "text",
                             filterKey: "batchID",
-                            description: $localize`:@@batch_ID:Batch ID`,
-                            placeholder: $localize`:@@batch_ID:Batch ID`
+                            description: $localize`:@@batch_id:Batch ID`,
+                            placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ]
                 ]
@@ -4466,14 +4468,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag: "label",
-                            text: $localize`:@@batch_ID:Batch ID`
+                            text: $localize`:@@batch_id:Batch ID`
                         },
                         {
                             tag: "input",
                             type: "text",
                             filterKey: "batchID",
-                            description: $localize`:@@batch_ID:Batch ID`,
-                            placeholder: $localize`:@@batch_ID:Batch ID`
+                            description: $localize`:@@batch_id:Batch ID`,
+                            placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ],
                     [
@@ -4559,26 +4561,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         ],[
                         {
                             tag: "label",
-                            text: $localize`:@@all_of_modalities_in_study:All of Modalities in Study`
+                            text: $localize`:@@all_modalities_in_study:All of Modalities in Study`
                         },
                         {
                             tag:"checkbox",
                             type:"text",
                             filterKey:"allOfModalitiesInStudy",
-                            description:$localize `:@@all_of_modalities_in_study:All of Modalities in Study`
+                            description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
                         },
                     ],
                     [
                         {
                             tag: "label",
-                            text: $localize`:@@batch_ID:Batch ID`
+                            text: $localize`:@@batch_id:Batch ID`
                         },
                         {
                             tag: "input",
                             type: "text",
                             filterKey: "batchID",
-                            description: $localize`:@@batch_ID:Batch ID`,
-                            placeholder: $localize`:@@batch_ID:Batch ID`
+                            description: $localize`:@@batch_id:Batch ID`,
+                            placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ],
                     [
@@ -5099,7 +5101,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.cfpLoadingBar.complete();
                             // this.fireRightQuery();
                             if (_.hasIn(res, 'deleted')){
-                                this.appService.showMsg($localize `:@@instance_delete:${res.deleted}:@@deleted: instances deleted successfully!`);
+                                this.appService.showMsg($localize `:@@instance_delete:${res.deleted}:deleted: instances deleted successfully!`);
                             }else{
                                 this.appService.showMsg($localize `:@@process_executed:Process executed successfully`);
                             }
@@ -5210,14 +5212,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         {
                             tag: "label",
-                            text: $localize`:@@batch_ID:Batch ID`
+                            text: $localize`:@@batch_id:Batch ID`
                         },
                         {
                             tag: "input",
                             type: "text",
                             filterKey: "batchID",
-                            description: $localize`:@@batch_ID:Batch ID`,
-                            placeholder: $localize`:@@batch_ID:Batch ID`
+                            description: $localize`:@@batch_id:Batch ID`,
+                            placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ],
                     [
@@ -5444,14 +5446,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         [
                             {
                                 tag: "label",
-                                text: $localize`:@@batch_ID:Batch ID`
+                                text: $localize`:@@batch_id:Batch ID`
                             },
                             {
                                 tag: "input",
                                 type: "text",
                                 filterKey: "batchID",
-                                description: $localize`:@@batch_ID:Batch ID`,
-                                placeholder: $localize`:@@batch_ID:Batch ID`
+                                description: $localize`:@@batch_id:Batch ID`,
+                                placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
@@ -5561,14 +5563,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         [
                             {
                                 tag: "label",
-                                text: $localize`:@@batch_ID:Batch ID`
+                                text: $localize`:@@batch_id:Batch ID`
                             },
                             {
                                 tag: "input",
                                 type: "text",
                                 filterKey: "batchID",
-                                description: $localize`:@@batch_ID:Batch ID`,
-                                placeholder: $localize`:@@batch_ID:Batch ID`
+                                description: $localize`:@@batch_id:Batch ID`,
+                                placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
@@ -5678,14 +5680,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         [
                             {
                                 tag: "label",
-                                text: $localize`:@@batch_ID:Batch ID`
+                                text: $localize`:@@batch_id:Batch ID`
                             },
                             {
                                 tag: "input",
                                 type: "text",
                                 filterKey: "batchID",
-                                description: $localize`:@@batch_ID:Batch ID`,
-                                placeholder: $localize`:@@batch_ID:Batch ID`
+                                description: $localize`:@@batch_id:Batch ID`,
+                                placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
@@ -6158,7 +6160,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         (err) => {
                             console.log("err",err);
                             $this.appService.setMessage({
-                                'title': $localize `:@@error_status:Error ${err.status}:@@status:`,
+                                'title': $localize `:@@error_status:Error ${err.status}:status:
+`,
                                 'text': $this.service.getMsgFromResponse(err),
                                 'status': 'error'
                             });
@@ -6246,14 +6249,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         [
                             {
                                 tag: "label",
-                                text: $localize`:@@batch_ID:Batch ID`
+                                text: $localize`:@@batch_id:Batch ID`
                             },
                             {
                                 tag: "input",
                                 type: "text",
                                 filterKey: "batchID",
-                                description: $localize`:@@batch_ID:Batch ID`,
-                                placeholder: $localize`:@@batch_ID:Batch ID`
+                                description: $localize`:@@batch_id:Batch ID`,
+                                placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
@@ -6373,14 +6376,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         [
                             {
                                 tag: "label",
-                                text: $localize`:@@batch_ID:Batch ID`
+                                text: $localize`:@@batch_id:Batch ID`
                             },
                             {
                                 tag: "input",
                                 type: "text",
                                 filterKey: "batchID",
-                                description: $localize`:@@batch_ID:Batch ID`,
-                                placeholder: $localize`:@@batch_ID:Batch ID`
+                                description: $localize`:@@batch_id:Batch ID`,
+                                placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [

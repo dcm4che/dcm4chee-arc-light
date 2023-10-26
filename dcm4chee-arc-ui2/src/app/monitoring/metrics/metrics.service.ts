@@ -83,8 +83,8 @@ export class MetricsService {
             }),
             new TableSchemaElement({
                 type:"value",
-                title:$localize `:@@min_unit:Min${unitString}`,
-                header:$localize `:@@min_unit:Min${unitString}`,
+                title:$localize `:@@min_unit:Min${unitString}:unit:`,
+                header:$localize `:@@min_unit:Min${unitString}:unit:`,
                 widthWeight:1,
                 pathToValue:"min"
             }),

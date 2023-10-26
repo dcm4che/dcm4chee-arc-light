@@ -432,7 +432,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 this.filterObject.localAET,
                 this.filterObject.remoteAET, '').subscribe((count)=>{
                 try{
-                    this.counText = $localize `:@@count_param:COUNT ${count.count}:@@count:`;
+                    this.counText = $localize `:@@count_param:COUNT ${count.count}:count:`;
                 }catch (e){
                     this.counText = $localize `:@@COUNT:COUNT`;
                 }

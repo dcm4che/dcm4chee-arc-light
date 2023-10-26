@@ -91,7 +91,8 @@ export class DeviceCloneComponent implements OnInit {
                             console.log("In original device:",_.get(this.clonedDevice, `${key.path}[${i}][${key.name}]`));
                             console.log("In clone device:",part[key.name]);
                             console.groupEnd();
-                            this.validationDetailMessage = this.validationDetailMessage || $localize `:@@value_in_path_was_not_changed: <br/>(${_.get(this.clonedDevice, `${key.path}[${i}][${key.name}]`)}:@@value: in ${key.path}:@@path:, was not changed)`;
+                            this.validationDetailMessage = this.validationDetailMessage || $localize `:@@value_in_path_was_not_changed: <br/>(${_.get(this.clonedDevice, `${key.path}[${i}][${key.name}]`)}:@@value: in ${key.path}:path:
+, was not changed)`;
                             valid = valid && false;
                         }else{
                             valid = valid && true;

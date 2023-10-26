@@ -54,9 +54,9 @@ export class TableService {
             }),
             createdDate: new TableSchemaElement({
                 type:"value",
-                title:$localize `:@@created_date:Created date`,
+                title:$localize `:@@created_date:Created Date`,
                 pathToValue:"createdDate",
-                description:$localize `:@@created_date:Created date`,
+                description:$localize `:@@created_date:Created Date`,
                 widthWeight:1,
                 calculatedWidth:"20%",
                 pipe: new DynamicPipe(CustomDatePipe, [this.dateTimeFormat])

@@ -159,7 +159,7 @@ export class DiffMonitorComponent implements OnInit {
         });*/
     }
     initSchema(){
-        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:@@count:`,this.devices),3);
+        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:count:`,this.devices),3);
         if (this.urlParam)
             this.filterObject["orderby"] = '-updatedTime';
     }
@@ -190,7 +190,7 @@ export class DiffMonitorComponent implements OnInit {
                 switch (this.allAction){
                     case "cancel":
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.count} tasks deleted successfully!`);
+                            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -213,7 +213,7 @@ export class DiffMonitorComponent implements OnInit {
                                     delete filter["limit"];
                                     delete filter["offset"];
                                     this.service.rescheduleAll(filter).subscribe((res)=>{
-                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:@@count: tasks rescheduled successfully!`);
+                                        this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:count: tasks rescheduled successfully!`);
                                         this.cfpLoadingBar.complete();
                                     }, (err) => {
                                         this.cfpLoadingBar.complete();
@@ -296,7 +296,7 @@ export class DiffMonitorComponent implements OnInit {
     }
     deleteAllTasks(filter){
         this.service.deleteAll(filter).subscribe((res)=>{
-            this.mainservice.showMsg($localize `:@@task_deleted:${res.deleted} tasks deleted successfully!`);
+            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
             this.cfpLoadingBar.complete();
             let filters = Object.assign({},this.filterObject);
             this.getDiffTasks(filters);
