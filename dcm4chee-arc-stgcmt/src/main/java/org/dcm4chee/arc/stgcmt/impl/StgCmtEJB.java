@@ -117,11 +117,11 @@ public class StgCmtEJB {
             List<String> iuids = entry.getValue();
             int toIndex = 0;
             int size = iuids.size();
-            long updated = 0;
+            int updated = 0;
             do {
                 int fromIndex = toIndex;
                 toIndex += limit < 0 ? size : Math.min(limit, size - toIndex);
-                updated += em.createNamedQuery(Instance.UPDATE_EXTERNAL_RETRIEVE_AET_BY_SOP_IUIDS, Long.class)
+                updated += em.createNamedQuery(Instance.UPDATE_EXTERNAL_RETRIEVE_AET_BY_SOP_IUIDS)
                         .setParameter(1, iuids.subList(fromIndex, toIndex))
                         .setParameter(2, entry.getKey())
                         .executeUpdate();
@@ -136,7 +136,7 @@ public class StgCmtEJB {
                     .setParameter(1, seriesInstanceUID)
                     .getResultList();
             String aet = aets.size() == 1 ? aets.get(0) : null;
-            if (em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID, Long.class)
+            if (em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID)
                     .setParameter(1, seriesInstanceUID)
                     .setParameter(2, aet)
                     .executeUpdate() > 0)
@@ -149,7 +149,7 @@ public class StgCmtEJB {
                         .setParameter(1, seriesPk)
                         .getResultList();
                 String aet = aets.size() == 1 ? aets.get(0) : null;
-                if (em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK, Long.class)
+                if (em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK)
                         .setParameter(1, seriesPk)
                         .setParameter(2, aet)
                         .executeUpdate() > 0L)
@@ -162,7 +162,7 @@ public class StgCmtEJB {
         String aet = aets.size() == 1
                 ? Objects.requireNonNullElse(aets.get(0), "*")
                 : "*";
-        if (em.createNamedQuery(Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID, Long.class)
+        if (em.createNamedQuery(Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID)
                 .setParameter(1, studyInstanceUID)
                 .setParameter(2, aet)
                 .executeUpdate() > 0L)
