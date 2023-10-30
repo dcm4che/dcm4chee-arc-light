@@ -1611,7 +1611,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     case "matching":
                         this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,ok.schema_model.spsState, this.createStudyFilterParams(true,true, true)).subscribe(res=>{
                             this.cfpLoadingBar.complete();
-                            this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
+                            this.appService.showMsgUpdateMatchingMWLs(res, $localize `:@@mwl.status_changed_successfully:MWL Items' SPS Status changed successfully`);
                             this.search("current",{id:"submit"});
                         },err=>{
                             this.cfpLoadingBar.complete();

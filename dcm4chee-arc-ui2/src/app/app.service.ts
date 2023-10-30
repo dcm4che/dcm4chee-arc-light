@@ -179,6 +179,14 @@ export class AppService implements OnInit, OnDestroy{
         })
     }
 
+    showMsgUpdateMatchingMWLs(res, msg:string){
+        this.setMessageSource.next({
+            "title":$localize `:@@info:Info`,
+            "text":_.get(res, "count") + ' ' + msg,
+            "status":"info"
+        })
+    }
+
     showMsgCopyMoveLink(res, action:string) {
         let msg;
         const errorCount = res.filter(result=>result.isError).length;
