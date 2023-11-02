@@ -111,7 +111,7 @@ public class QStarVerificationScheduler extends Scheduler {
                             storageDescriptor.getProperty("mountPath",
                                     storageDescriptor.getStorageURI().getPath()));
                     String storagePath = mountPath + l.location.getStoragePath();
-                    int tarPathEnd;
+                    int tarPathEnd = -1;
                     LocationStatus status;
                     if (!storageDescriptor.isArchiveSeriesAsTAR() || (tarPathEnd = storagePath.indexOf('!')) < 0) {
                         status = conn.nextLocationStatus(l.location, storagePath);
@@ -124,8 +124,8 @@ public class QStarVerificationScheduler extends Scheduler {
                             verifiedTars.put(l.location.getMultiReference(), status);
                         }
                     }
-                    qStarVerifications.get(status, l.studyInstanceUID).sopRefs.add(
-                            new QStarVerification.SOPRef(l.sopClassUID, l.sopInstanceUID));
+                    qStarVerifications.get(status, l.studyInstanceUID, l.seriesInstanceUID, storagePath, tarPathEnd).sopRefs
+                            .add(new QStarVerification.SOPRef(l.sopClassUID, l.sopInstanceUID));
                 }
                 qStarVerifications.logAndFireEvents();
             } while (locations.size() != fetchSize && arcDev.getQStarVerificationPollingInterval() != null);
@@ -215,34 +215,45 @@ public class QStarVerificationScheduler extends Scheduler {
     }
 
     private final class QStarVerifications {
-        final EnumMap<LocationStatus, Map<String, QStarVerification>> byStatus =
+        final EnumMap<LocationStatus, Map<String, Map<String, QStarVerification>>> byStatus =
                 new EnumMap<>(LocationStatus.class);
 
-        QStarVerification get(LocationStatus status, String studyInstanceUID) {
-            Map<String, QStarVerification> withStatus = byStatus.get(status);
+        QStarVerification get(LocationStatus status, String studyInstanceUID, String seriesInstanceUID,
+                              String storagePath, int tarPathEnd) {
+            Map<String, Map<String, QStarVerification>> withStatus = byStatus.get(status);
             if (withStatus == null) {
                 byStatus.put(status,
                         withStatus = new HashMap<>());
             }
-            QStarVerification qStarVerification = withStatus.get(studyInstanceUID);
+            Map<String, QStarVerification> bySeriesUID = withStatus.get(studyInstanceUID);
+            if (bySeriesUID == null) {
+                withStatus.put(studyInstanceUID,
+                        bySeriesUID = new HashMap<>());
+            }
+            QStarVerification qStarVerification = bySeriesUID.get(seriesInstanceUID);
             if (qStarVerification == null) {
-                withStatus.put(studyInstanceUID, qStarVerification =
-                        new QStarVerification(status, studyInstanceUID));
+                bySeriesUID.put(studyInstanceUID, qStarVerification =
+                        new QStarVerification(status, studyInstanceUID, seriesInstanceUID,
+                                tarPathEnd < 0 ? storagePath : storagePath.substring(0, tarPathEnd)));
             }
             return qStarVerification;
         }
 
         void logAndFireEvents() {
-            for (Map<String, QStarVerification> withStatus : byStatus.values()) {
-                for (QStarVerification qStarVerification : withStatus.values()) {
-                    LOG.info("Update status of {} objects of Study[uid={}] to {}",
-                            qStarVerification.sopRefs.size(),
-                            qStarVerification.studyInstanceUID,
-                            qStarVerification.status);
-                    try {
-                        event.fire(qStarVerification);
-                    } catch (Exception e) {
-                        LOG.warn("Processing of notification about {} failed:\n", qStarVerification, e);
+            for (Map<String, Map<String, QStarVerification>> withStatus : byStatus.values()) {
+                for (Map<String, QStarVerification> bySeriesUID : withStatus.values()) {
+                    for (QStarVerification qStarVerification : bySeriesUID.values()) {
+                        LOG.info("Update status of {} objects of Series[uid={}] of Study[uid={}] stored in {} to {}",
+                                qStarVerification.sopRefs.size(),
+                                qStarVerification.seriesInstanceUID,
+                                qStarVerification.studyInstanceUID,
+                                qStarVerification.filePath,
+                                qStarVerification.status);
+                        try {
+                            event.fire(qStarVerification);
+                        } catch (Exception e) {
+                            LOG.warn("Processing of notification about {} failed:\n", qStarVerification, e);
+                        }
                     }
                 }
             }
