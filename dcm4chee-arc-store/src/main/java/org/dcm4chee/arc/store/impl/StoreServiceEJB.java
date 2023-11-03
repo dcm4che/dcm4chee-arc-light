@@ -929,9 +929,6 @@ public class StoreServiceEJB {
             throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         AcceptConflictingPatientID acceptConflictingPatientID = session.getAcceptConflictingPatientID();
-        if (acceptConflictingPatientID == AcceptConflictingPatientID.YES)
-            return;
-
         Collection<IDWithIssuer> pids = patMgtCtx.getPatientIDs();
         Collection<IDWithIssuer> pidsOfStudy = IDWithIssuer.pidsOf(patientOfStudy.getAttributes());
         if (pids.isEmpty()) {
@@ -941,9 +938,11 @@ public class StoreServiceEJB {
             if (pidsOfStudy.stream().anyMatch(pidOfStudy -> pids.stream().anyMatch(pid -> pidOfStudy.matches(pid, true, true))))
                 return;
 
-            if (acceptConflictingPatientID == AcceptConflictingPatientID.MERGED) {
+            if (acceptConflictingPatientID != AcceptConflictingPatientID.NO) {
                 Patient p = patientService.findPatient(patMgtCtx);
-                if (p != null && p.getPk() == patientOfStudy.getPk())
+                if (p == null
+                        ? acceptConflictingPatientID != AcceptConflictingPatientID.MERGED
+                        : p.getPk() == patientOfStudy.getPk())
                     return;
             }
         }
