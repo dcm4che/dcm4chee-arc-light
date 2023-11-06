@@ -52,13 +52,15 @@ import java.util.List;
 public class QStarVerification {
 
     public final LocationStatus status;
+    public final Long seriesPk;
     public final String studyInstanceUID;
     public final String seriesInstanceUID;
     public final String filePath;
     public final List<SOPRef> sopRefs = new ArrayList<>();
 
-    public QStarVerification(LocationStatus status, String studyInstanceUID, String seriesInstanceUID, String filePath) {
+    public QStarVerification(LocationStatus status, Long seriesPk, String studyInstanceUID, String seriesInstanceUID, String filePath) {
         this.status = status;
+        this.seriesPk = seriesPk;
         this.studyInstanceUID = studyInstanceUID;
         this.seriesInstanceUID = seriesInstanceUID;
         this.filePath = filePath;

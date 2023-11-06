@@ -62,7 +62,7 @@ import java.util.Date;
                 query = "select l from Location l where l.storageID=?1 and l.status=?2"),
         @NamedQuery(name = Location.FIND_BY_STATUS_CREATED_BEFORE,
                 query = "select new org.dcm4chee.arc.entity.Location$LocationWithUIDs(" +
-                        "l, l.instance.sopClassUID, l.instance.sopInstanceUID, l.instance.series.seriesInstanceUID, l.instance.series.study.studyInstanceUID) " +
+                        "l, l.instance.sopClassUID, l.instance.sopInstanceUID, l.instance.series.pk, l.instance.series.seriesInstanceUID, l.instance.series.study.studyInstanceUID) " +
                         "from Location l where l.status=?1 and l.createdTime<?2"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK,
                 query = "select l from Location l join fetch l.instance inst " +
@@ -184,13 +184,16 @@ public class Location {
         public final Location location;
         public final String sopClassUID;
         public final String sopInstanceUID;
+        public final Long seriesPk;
         public final String seriesInstanceUID;
         public final String studyInstanceUID;
 
-        public LocationWithUIDs(Location location, String sopClassUID, String sopInstanceUID, String seriesInstanceUID, String studyInstanceUID) {
+        public LocationWithUIDs(Location location, String sopClassUID, String sopInstanceUID,
+                                Long seriesPk, String seriesInstanceUID, String studyInstanceUID) {
             this.location = location;
             this.sopClassUID = sopClassUID;
             this.sopInstanceUID = sopInstanceUID;
+            this.seriesPk = seriesPk;
             this.seriesInstanceUID = seriesInstanceUID;
             this.studyInstanceUID = studyInstanceUID;
         }

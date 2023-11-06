@@ -124,7 +124,7 @@ public class QStarVerificationScheduler extends Scheduler {
                             verifiedTars.put(l.location.getMultiReference(), status);
                         }
                     }
-                    qStarVerifications.get(status, l.studyInstanceUID, l.seriesInstanceUID, storagePath, tarPathEnd).sopRefs
+                    qStarVerifications.get(status, l, storagePath, tarPathEnd).sopRefs
                             .add(new QStarVerification.SOPRef(l.sopClassUID, l.sopInstanceUID));
                 }
                 qStarVerifications.logAndFireEvents();
@@ -215,45 +215,39 @@ public class QStarVerificationScheduler extends Scheduler {
     }
 
     private final class QStarVerifications {
-        final EnumMap<LocationStatus, Map<String, Map<String, QStarVerification>>> byStatus =
+        final EnumMap<LocationStatus, Map<Long, QStarVerification>> byStatus =
                 new EnumMap<>(LocationStatus.class);
 
-        QStarVerification get(LocationStatus status, String studyInstanceUID, String seriesInstanceUID,
+        QStarVerification get(LocationStatus status, Location.LocationWithUIDs l,
                               String storagePath, int tarPathEnd) {
-            Map<String, Map<String, QStarVerification>> withStatus = byStatus.get(status);
+            Map<Long, QStarVerification> withStatus = byStatus.get(status);
             if (withStatus == null) {
                 byStatus.put(status,
                         withStatus = new HashMap<>());
             }
-            Map<String, QStarVerification> bySeriesUID = withStatus.get(studyInstanceUID);
-            if (bySeriesUID == null) {
-                withStatus.put(studyInstanceUID,
-                        bySeriesUID = new HashMap<>());
-            }
-            QStarVerification qStarVerification = bySeriesUID.get(seriesInstanceUID);
+            QStarVerification qStarVerification = withStatus.get(l.seriesPk);
             if (qStarVerification == null) {
-                bySeriesUID.put(seriesInstanceUID, qStarVerification =
-                        new QStarVerification(status, studyInstanceUID, seriesInstanceUID,
+                withStatus.put(l.seriesPk, qStarVerification =
+                        new QStarVerification(status, l.seriesPk, l.studyInstanceUID, l.seriesInstanceUID,
                                 tarPathEnd < 0 ? storagePath : storagePath.substring(0, tarPathEnd)));
             }
             return qStarVerification;
         }
 
         void logAndFireEvents() {
-            for (Map<String, Map<String, QStarVerification>> withStatus : byStatus.values()) {
-                for (Map<String, QStarVerification> bySeriesUID : withStatus.values()) {
-                    for (QStarVerification qStarVerification : bySeriesUID.values()) {
-                        LOG.info("Update status of {} objects of Series[uid={}] of Study[uid={}] stored in {} to {}",
-                                qStarVerification.sopRefs.size(),
-                                qStarVerification.seriesInstanceUID,
-                                qStarVerification.studyInstanceUID,
-                                qStarVerification.filePath,
-                                qStarVerification.status);
-                        try {
-                            event.fire(qStarVerification);
-                        } catch (Exception e) {
-                            LOG.warn("Processing of notification about {} failed:\n", qStarVerification, e);
-                        }
+            for (Map<Long, QStarVerification> withStatus : byStatus.values()) {
+                for (QStarVerification qStarVerification : withStatus.values()) {
+                    LOG.info("Update status of {} objects of Series[pk={}, uid={}] of Study[uid={}] stored in {} to {}",
+                            qStarVerification.sopRefs.size(),
+                            qStarVerification.seriesPk,
+                            qStarVerification.seriesInstanceUID,
+                            qStarVerification.studyInstanceUID,
+                            qStarVerification.filePath,
+                            qStarVerification.status);
+                    try {
+                        event.fire(qStarVerification);
+                    } catch (Exception e) {
+                        LOG.warn("Processing of notification about {} failed:\n", qStarVerification, e);
                     }
                 }
             }
