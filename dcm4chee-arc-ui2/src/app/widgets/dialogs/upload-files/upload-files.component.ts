@@ -729,7 +729,8 @@ export class UploadFilesComponent implements OnInit {
         }
 
         let xmlHttpRequest = new XMLHttpRequest();
-        let url = this.studyService.getDicomURL("study",this.selectedWebApp);
+        console.log("mode",this._mode);
+        let url = this.getUrl();
         console.log("url",url);
         //TODO check if the url is corerct for dicom  // POST /dcm4chee-arc/aets/{aet}/rs/study
 
@@ -1032,4 +1033,14 @@ export class UploadFilesComponent implements OnInit {
             ? fileExt : fileType;
     }*/
     //private
+    private getUrl() {
+        try{
+            if(j4care.hasSet(this._dicomObject, "attrs") && this.selectedWebApp){
+                return `${this.studyService.getDicomURL("study",this.selectedWebApp)}/${this.studyService.getStudyInstanceUID(this._dicomObject.attrs)}`
+            }
+            return;
+        }catch (e) {
+            return;
+        }
+    }
 }
