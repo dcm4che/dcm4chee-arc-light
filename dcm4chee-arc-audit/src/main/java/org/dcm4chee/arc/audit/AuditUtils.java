@@ -93,7 +93,7 @@ class AuditUtils {
     }
     enum EventType {
         QSTAR_VERI(EventClass.QSTAR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.DestinationMedia, null),
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, null),
         STORE_CREA(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create,

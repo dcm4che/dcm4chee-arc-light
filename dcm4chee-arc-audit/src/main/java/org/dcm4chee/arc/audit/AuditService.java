@@ -180,7 +180,7 @@ public class AuditService {
                 auditAssociationFailure(auditLogger, path, eventType);
                 break;
             case QSTAR:
-                QStarVerificationAuditService.auditQStarVerification(auditLogger, path, eventType);
+                QStarVerificationAuditService.auditQStarVerification(auditLogger, path, eventType, getArchiveDevice());
                 break;
         }
     }
@@ -1194,24 +1194,72 @@ public class AuditService {
     void spoolQStarVerification(QStarVerification qStarVerification) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         try {
-            String suffix = "-" + qStarVerification.status + "-" + qStarVerification.studyInstanceUID;
-            Set<AuditInfoBuilder> auditInfo = new LinkedHashSet<>();
-            auditInfo.add(new AuditInfoBuilder.Builder()
-                    .callingUserID(device.getDeviceName())
-                    .calledUserID(arcDev.getQStarVerificationURL())
-                    .outcome(QStarVerificationAuditService.QStarAccessStateEventOutcome.fromQStarVerification(qStarVerification)
-                            .getDescription())
-                    .studyIUID(qStarVerification.studyInstanceUID)
-                    .unknownPID(arcDev)
-                    .build());
+            String fileName = AuditUtils.EventType.QSTAR_VERI.name()
+                                + "-" + qStarVerification.status
+                                + "-" + qStarVerification.studyInstanceUID
+                                + "-" + qStarVerification.seriesInstanceUID;
+            Set<AuditInfo> auditInfos = new LinkedHashSet<>();
+            AuditInfo qStar = new AuditInfo(new AuditInfoBuilder.Builder()
+                                            .callingUserID(device.getDeviceName())
+                                            .calledUserID(qStarVerification.filePath)
+                                            .outcome(QStarVerificationAuditService.QStarAccessStateEventOutcome.fromQStarVerification(qStarVerification)
+                                                    .getDescription())
+                                            .studyIUID(qStarVerification.studyInstanceUID)
+                                            .unknownPID(arcDev)
+                                            .build());
+            auditInfos.add(qStar);
             qStarVerification.sopRefs.forEach(sopRef ->
-                    auditInfo.add(new AuditInfoBuilder.Builder()
-                            .sopCUID(sopRef.sopClassUID)
-                            .sopIUID(sopRef.sopInstanceUID)
-                            .build()));
-            writeSpoolFile(AuditUtils.EventType.QSTAR_VERI, suffix, auditInfo.toArray(new AuditInfoBuilder[0]));
+                auditInfos.add(new AuditInfo(new AuditInfoBuilder.Builder()
+                                                .sopCUID(sopRef.sopClassUID)
+                                                .sopIUID(sopRef.sopInstanceUID)
+                                                .build())));
+            writeSpoolFile(fileName, auditInfos.toArray(new AuditInfo[0]));
         } catch (Exception e) {
             LOG.info("Failed to spool {}", qStarVerification);
         }
     }
+
+    void writeSpoolFile(String fileName, AuditInfo... auditInfos) {
+        if (auditInfos == null) {
+            LOG.info("Attempt to write empty file : " + fileName);
+            return;
+        }
+
+        FileTime eventTime = null;
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (!auditLogger.isInstalled())
+                continue;
+
+            try {
+                Path dir = toDirPath(auditLogger);
+                Files.createDirectories(dir);
+                Path filePath = dir.resolve(fileName);
+                boolean append = Files.exists(filePath);
+                try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(
+                        filePath, StandardCharsets.UTF_8, append
+                                                            ? StandardOpenOption.APPEND
+                                                            : StandardOpenOption.CREATE_NEW))) {
+                    if (!append)
+                        writer.writeLine(auditInfos[0]);
+
+                    for (int i = 1; i < auditInfos.length; i++)
+                        writer.writeLine(auditInfos[i]);
+                }
+
+                if (eventTime == null)
+                    eventTime = Files.getLastModifiedTime(filePath);
+                else
+                    Files.setLastModifiedTime(filePath, eventTime);
+
+                if (!getArchiveDevice().isAuditAggregate())
+                    auditAndProcessFile(auditLogger, filePath);
+            } catch (Exception e) {
+                LOG.info("Failed to write [AuditSpoolFile={}] at [AuditLogger={}]\n",
+                        fileName, auditLogger.getCommonName(), e);
+            }
+        }
+    }
+
+
 }

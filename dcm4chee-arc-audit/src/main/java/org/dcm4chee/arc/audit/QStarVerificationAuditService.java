@@ -44,6 +44,7 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.audit.AuditMessages.EventOutcomeIndicator;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.audit.AuditUtils.EventType;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.qstar.QStarVerification;
 
 import java.nio.file.Path;
@@ -55,7 +56,7 @@ import java.util.List;
  * @since Oct 2023
  */
 class QStarVerificationAuditService extends AuditService {
-
+    
     enum QStarAccessStateEventOutcome {
         OK(""),
         NONE("QStar Access State: Not present"),
@@ -112,14 +113,15 @@ class QStarVerificationAuditService extends AuditService {
         }
     }
 
-    static void auditQStarVerification(AuditLogger auditLogger, Path path, EventType eventType) {
+    static void auditQStarVerification(
+            AuditLogger auditLogger, Path path, EventType eventType, ArchiveDeviceExtension arcDev) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
         eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
         activeParticipants.add(getDeviceActiveParticipant(auditInfo, eventType));
-        activeParticipants.add(getQStarActiveParticipant(auditInfo, eventType));
+        activeParticipants.add(getQStarActiveParticipant(auditInfo, eventType, arcDev));
         ParticipantObjectIdentification study = getStudyParticipantObjectIdentification(auditInfo);
         boolean showSOPIUIDs = auditLogger.isIncludeInstanceUID() || !eventIdentification.getEventOutcomeIndicator().equals("0");
         study.setParticipantObjectDescription(getStudyParticipantObjDesc(reader, showSOPIUIDs));
@@ -147,12 +149,16 @@ class QStarVerificationAuditService extends AuditService {
         return deviceActiveParticipant;
     }
 
-    private static ActiveParticipant getQStarActiveParticipant(AuditInfo auditInfo, EventType eventType) {
+    private static ActiveParticipant getQStarActiveParticipant(
+            AuditInfo auditInfo, EventType eventType, ArchiveDeviceExtension arcDev) {
         ActiveParticipant qStarActiveParticipant = new ActiveParticipant();
-        qStarActiveParticipant.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
+        qStarActiveParticipant.setUserID("file:" + auditInfo.getField(AuditInfo.CALLED_USERID));
         qStarActiveParticipant.setUserIsRequestor(false);
         qStarActiveParticipant.setUserIDTypeCode(AuditMessages.UserIDTypeCode.URI);
         qStarActiveParticipant.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        qStarActiveParticipant.setNetworkAccessPointID(arcDev.getQStarVerificationURL());
+        qStarActiveParticipant.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.URI);
+        qStarActiveParticipant.setMediaType(AuditMessages.MediaType.QStar);
         qStarActiveParticipant.getRoleIDCode().add(eventType.destination);
         return qStarActiveParticipant;
     }
