@@ -232,7 +232,7 @@ public class QStarVerificationScheduler extends Scheduler {
             }
             QStarVerification qStarVerification = bySeriesUID.get(seriesInstanceUID);
             if (qStarVerification == null) {
-                bySeriesUID.put(studyInstanceUID, qStarVerification =
+                bySeriesUID.put(seriesInstanceUID, qStarVerification =
                         new QStarVerification(status, studyInstanceUID, seriesInstanceUID,
                                 tarPathEnd < 0 ? storagePath : storagePath.substring(0, tarPathEnd)));
             }
