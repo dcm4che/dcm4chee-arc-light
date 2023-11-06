@@ -1087,33 +1087,35 @@ public class AuditService {
         }
         FileTime eventTime = null;
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        for (AuditLogger auditLogger : ext.getAuditLoggers())
-            if (auditLogger.isInstalled()) {
-                try {
-                    Path dir = toDirPath(auditLogger);
-                    Files.createDirectories(dir);
-                    Path filePath = eventType.eventClass == AuditUtils.EventClass.STORE_WADOR
-                            || (suffix != null && eventType.eventClass == AuditUtils.EventClass.USER_DELETED)
-                            ? filePath(file, dir, auditInfoBuilders)
-                            : filePath(eventType, dir, auditInfoBuilders);
-                    if (eventTime == null)
-                        eventTime = Files.getLastModifiedTime(filePath);
-                    else
-                        Files.setLastModifiedTime(filePath, eventTime);
-                    if (!getArchiveDevice().isAuditAggregate())
-                        auditAndProcessFile(auditLogger, filePath);
-                } catch (Exception e) {
-                    LOG.info("Failed to write [AuditSpoolFile={}] at [AuditLogger={}]\n",
-                            file, auditLogger.getCommonName(), e);
-                }
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (!auditLogger.isInstalled())
+                continue;
+
+            try {
+                Path dir = toDirPath(auditLogger);
+                Files.createDirectories(dir);
+                Path filePath = eventType.eventClass == AuditUtils.EventClass.STORE_WADOR
+                        || (suffix != null && eventType.eventClass == AuditUtils.EventClass.USER_DELETED)
+                        ? filePath(file, dir, auditInfoBuilders)
+                        : filePath(eventType, dir, auditInfoBuilders);
+                if (eventTime == null)
+                    eventTime = Files.getLastModifiedTime(filePath);
+                else
+                    Files.setLastModifiedTime(filePath, eventTime);
+                if (!getArchiveDevice().isAuditAggregate())
+                    auditAndProcessFile(auditLogger, filePath);
+            } catch (Exception e) {
+                LOG.info("Failed to write [AuditSpoolFile={}] at [AuditLogger={}]\n",
+                        file, auditLogger.getCommonName(), e);
             }
+        }
     }
 
     private Path filePath(AuditUtils.EventType eventType, Path dir, AuditInfoBuilder... auditInfoBuilders)
             throws IOException {
         Path file = Files.createTempFile(dir, eventType.name(), null);
-        try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                StandardOpenOption.APPEND))) {
+        try (SpoolFileWriter writer = new SpoolFileWriter(
+                Files.newBufferedWriter(file, StandardCharsets.UTF_8, StandardOpenOption.APPEND))) {
             for (AuditInfoBuilder auditInfoBuilder : auditInfoBuilders)
                 writer.writeLine(new AuditInfo(auditInfoBuilder));
         }
