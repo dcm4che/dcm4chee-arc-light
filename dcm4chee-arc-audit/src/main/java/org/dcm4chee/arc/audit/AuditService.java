@@ -1197,7 +1197,7 @@ public class AuditService {
             String fileName = AuditUtils.EventType.QSTAR_VERI.name()
                                 + "-" + qStarVerification.status
                                 + "-" + qStarVerification.studyInstanceUID
-                                + "-" + qStarVerification.seriesInstanceUID;
+                                + "-" + qStarVerification.seriesPk;
             Set<AuditInfo> auditInfos = new LinkedHashSet<>();
             AuditInfo qStar = new AuditInfo(new AuditInfoBuilder.Builder()
                                             .callingUserID(device.getDeviceName())
