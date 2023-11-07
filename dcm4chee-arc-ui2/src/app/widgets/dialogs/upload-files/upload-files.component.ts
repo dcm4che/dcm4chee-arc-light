@@ -1036,7 +1036,12 @@ export class UploadFilesComponent implements OnInit {
     private getUrl() {
         try{
             if(j4care.hasSet(this._dicomObject, "attrs") && this.selectedWebApp){
-                return `${this.studyService.getDicomURL("study",this.selectedWebApp)}/${this.studyService.getStudyInstanceUID(this._dicomObject.attrs)}`
+                const studyInstanceUID = this.studyService.getStudyInstanceUID(this._dicomObject.attrs);
+                if(studyInstanceUID){
+                    return `${this.studyService.getDicomURL("study",this.selectedWebApp)}/${this.studyService.getStudyInstanceUID(this._dicomObject.attrs)}`
+                }else{
+                    return this.studyService.getDicomURL("study",this.selectedWebApp);
+                }
             }
             return;
         }catch (e) {
