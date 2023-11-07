@@ -57,6 +57,9 @@ export class UploadFilesComponent implements OnInit {
         if(value === "series"){
             this.title = $localize `:@@upload-file.title_upload_series:Upload bulkdata files to series`;
         }
+        if(value === "mwl"){
+            this.title = $localize `:@@upload-file.title_upload_mwl:Upload bulkdata files to MWL`;
+        }
 
     }
     title = $localize `:@@upload-file.title:Upload objects to the Patient`;
