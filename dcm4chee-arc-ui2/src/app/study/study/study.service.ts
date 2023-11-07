@@ -4472,6 +4472,9 @@ export class StudyService {
                 ]
             }
         }
+        if(context === "mwl"){
+            iodFileNames.push("mwl")
+        }
         return forkJoin(iodFileNames.filter((m,i)=> i >= level).map(m=>this.getIod(m))).pipe(map(res=>{
             let merged = {};
             res.forEach(o=>{
