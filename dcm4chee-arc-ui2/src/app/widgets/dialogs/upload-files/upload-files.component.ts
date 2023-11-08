@@ -114,6 +114,54 @@ export class UploadFilesComponent implements OnInit {
     isDicomCheckbox = false;
     isDicomModel;
     neededClassMissing = false;
+
+    mwlMap = [
+        ["00100010","00100010"],
+        ["00100020","00100020"],
+        ["00100021","00100021"],
+        ["00100024","00100024"],
+        ["00101002","00101002"],
+        ["00100030","00100030"],
+        ["00100040","00100040"],
+        ["00101040","00101040"],
+        ["00101020","00101020"],
+        ["00101030","00101030"],
+        ["00102203","00102203"],
+        ["00080050","00080050"],
+        ["00080051","00080051"],
+        ["00380010","00380010"],
+        ["00380014","00380014"],
+        ["0020000D","0020000D"],
+        ["00080090","00080090"],
+        ["00080096","00080096"],
+        ["00080080","00080080"],
+
+        ["00321033","00321033"],
+        ["00321034","00321034"],
+        ["00200010","00401001"],
+        ["00081030","00321060"],
+        ["00081032","00321064"],
+        ["00401012","0040100A"],
+        ["00081050","00400100.Value[0][00400006]"],
+
+        ["00400275.Value[0].00080050","00080050"],
+        ["00400275.Value[0].00080051","00080051"],
+        ["00400275.Value[0].0020000D","0020000D"],
+        ["00400275.Value[0].00321032","00321032"],
+        ["00400275.Value[0].00321031","00321031"],
+        ["00400275.Value[0].00081110","00081110"],
+        ["00400275.Value[0].00321033","00321033"],
+        ["00400275.Value[0].00321034","00321034"],
+        ["00400275.Value[0].00401001","00401001"],
+        ["00400275.Value[0].00321060","00321060"],
+        ["00400275.Value[0].00321064","00321064"],
+        ["00400275.Value[0].00401002","00401002"],
+        ["00400275.Value[0].0040100A","0040100A"],
+
+        ["00400275.Value[0].00400007", "00400100.Value[0].00400007"],
+        ["00400275.Value[0].00400008", "00400100.Value[0].00400008"],
+        ["00400275.Value[0].00400009", "00400100.Value[0].00400009"]
+    ];
     constructor(
         public dialogRef: MatDialogRef<UploadFilesComponent>,
         public mainservice:AppService,
@@ -583,31 +631,33 @@ export class UploadFilesComponent implements OnInit {
 
         // this.studyService.getIod(this.iodFileNameFromMode[this.mode]).subscribe((iod) => {
         //     this._dicomObject.attrs = new ComparewithiodPipe().transform(this._dicomObject.attrs, this.tempIods);
-            if(this._mode == "mwl"){
-                this.tempIods['00400100'] = this.tempIods['00400100'] || {Value:[]};
-                this.tempIods['00400006'] = this.tempIods['00400006'] || {Value:[]};
-                this.tempIods['00401002'] = this.tempIods['00401002'] || {Value:[]};
-                this.tempIods['00400275'] = this.tempIods['00400275'] || {Value:[]};
-                this.tempIods['00401001'] = this.tempIods['00401001'] || {Value:[]};
-                this.tempIods['00401012'] = this.tempIods['00401012'] || {Value:[]};
-                this.tempIods['00321031'] = this.tempIods['00321031'] || {Value:[]};
-                this.tempIods['00321060'] = this.tempIods['00321060'] || {Value:[]};
-                this.tempIods['00321064'] = this.tempIods['00321064'] || {Value:[]};
-
+/*            if(this._mode == "mwl"){
+                this.tempIods['00100010'] = this.tempIods['00100010'] || {Value:[]};
+                this.tempIods['00100020'] = this.tempIods['00100020'] || {Value:[]};
+                this.tempIods['00100021'] = this.tempIods['00100021'] || {Value:[]};
+                this.tempIods['00100024'] = this.tempIods['00100024'] || {Value:[]};
+                this.tempIods['00101002'] = this.tempIods['00101002'] || {Value:[]};
+                this.tempIods['00100030'] = this.tempIods['00100030'] || {Value:[]};
+                this.tempIods['00100040'] = this.tempIods['00100040'] || {Value:[]};
+                this.tempIods['00101040'] = this.tempIods['00101040'] || {Value:[]};
+                this.tempIods['00101020'] = this.tempIods['00101020'] || {Value:[]};
+                this.tempIods['00101030'] = this.tempIods['00101030'] || {Value:[]};
+                this.tempIods['00102203'] = this.tempIods['00102203'] || {Value:[]};
                 this.tempIods['00080050'] = this.tempIods['00080050'] || {Value:[]};
                 this.tempIods['00080051'] = this.tempIods['00080051'] || {Value:[]};
+                this.tempIods['00380010'] = this.tempIods['00380010'] || {Value:[]};
+                this.tempIods['00380014'] = this.tempIods['00380014'] || {Value:[]};
                 this.tempIods['0020000D'] = this.tempIods['0020000D'] || {Value:[]};
-                this.tempIods['00321032'] = this.tempIods['00321032'] || {Value:[]};
-                this.tempIods['00321031'] = this.tempIods['00321031'] || {Value:[]};
-                this.tempIods['00081110'] = this.tempIods['00081110'] || {Value:[]};
+                this.tempIods['00080090'] = this.tempIods['00080090'] || {Value:[]};
+                this.tempIods['00080096'] = this.tempIods['00080096'] || {Value:[]};
+                this.tempIods['00080080'] = this.tempIods['00080080'] || {Value:[]};
                 this.tempIods['00321033'] = this.tempIods['00321033'] || {Value:[]};
                 this.tempIods['00321034'] = this.tempIods['00321034'] || {Value:[]};
-                this.tempIods['00321064'] = this.tempIods['00321064'] || {Value:[]};
-                this.tempIods['00401002'] = this.tempIods['00401002'] || {Value:[]};
-                this.tempIods['0040100A'] = this.tempIods['0040100A'] || {Value:[]};
-            }
+            }*/
+            this.addMwlMapAttributesOnIOD(this.tempIods);
             this.tempAttributes.attrs = new ComparewithiodPipe().transform(this.tempAttributes.attrs, this.tempIods);
             this.studyService.initEmptyValue(this.tempAttributes.attrs);
+            this.tempAttributes.attrs = this.mapMwlAttributes(this.tempAttributes.attrs);
             this.iod = this.studyService.replaceKeyInJson(this.tempIods, 'items', 'Value');
             // console.log("iod",iod);
             console.log("dicomOjbect",this.dicomObject);
@@ -681,7 +731,7 @@ export class UploadFilesComponent implements OnInit {
         let boundary = Math.random().toString().substr(2);
         switch (fileTypeOrExt) {
             case "image/jpeg":
-                $this.modality = $this.selectedSopClass.modality;
+                $this.modality = $this.selectedSopClass.modality; // set modality from the sequen 0040,0100->Modality
                 descriptionPart = "Image";
                 break;
             case "image/png":
@@ -698,7 +748,7 @@ export class UploadFilesComponent implements OnInit {
                 break;
             case "video/mpeg":
                 descriptionPart = "Video";
-                $this.modality = "XC";
+                $this.modality = "XC"; // set modality from the sequen 0040,0100->Modality
                 break;
             case "video/mp4":
                 descriptionPart = "Video";
@@ -1073,5 +1123,36 @@ export class UploadFilesComponent implements OnInit {
         }catch (e) {
             return;
         }
+    }
+
+    private addMwlMapAttributesOnIOD(iod){
+        this.mwlMap.forEach(([target,source])=>{
+            if(!_.hasIn(iod,source)){
+                if(source.indexOf("Value") > -1){
+                    _.set(iod,source,{});
+                }else{
+                    _.set(iod,source + ".Value[0]",{});
+                }
+            }
+        });
+    }
+
+    private mapMwlAttributes(attrs) {
+        let mappedAttr = {};
+        if(this._mode == "mwl"){
+            this.mwlMap.forEach(([target,source])=>{
+               if(_.hasIn(attrs,source)){
+                    _.set(mappedAttr,target,_.get(attrs,source));
+                   if(target.indexOf("00400275") > -1){
+                        mappedAttr["00400275"]["vr"] = "SQ"
+                   }
+
+               }
+            });
+            return mappedAttr;
+        }else{
+            return attrs;
+        }
+
     }
 }
