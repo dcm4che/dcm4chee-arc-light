@@ -583,6 +583,29 @@ export class UploadFilesComponent implements OnInit {
 
         // this.studyService.getIod(this.iodFileNameFromMode[this.mode]).subscribe((iod) => {
         //     this._dicomObject.attrs = new ComparewithiodPipe().transform(this._dicomObject.attrs, this.tempIods);
+            if(this._mode == "mwl"){
+                this.tempIods['00400100'] = this.tempIods['00400100'] || {Value:[]};
+                this.tempIods['00400006'] = this.tempIods['00400006'] || {Value:[]};
+                this.tempIods['00401002'] = this.tempIods['00401002'] || {Value:[]};
+                this.tempIods['00400275'] = this.tempIods['00400275'] || {Value:[]};
+                this.tempIods['00401001'] = this.tempIods['00401001'] || {Value:[]};
+                this.tempIods['00401012'] = this.tempIods['00401012'] || {Value:[]};
+                this.tempIods['00321031'] = this.tempIods['00321031'] || {Value:[]};
+                this.tempIods['00321060'] = this.tempIods['00321060'] || {Value:[]};
+                this.tempIods['00321064'] = this.tempIods['00321064'] || {Value:[]};
+
+                this.tempIods['00080050'] = this.tempIods['00080050'] || {Value:[]};
+                this.tempIods['00080051'] = this.tempIods['00080051'] || {Value:[]};
+                this.tempIods['0020000D'] = this.tempIods['0020000D'] || {Value:[]};
+                this.tempIods['00321032'] = this.tempIods['00321032'] || {Value:[]};
+                this.tempIods['00321031'] = this.tempIods['00321031'] || {Value:[]};
+                this.tempIods['00081110'] = this.tempIods['00081110'] || {Value:[]};
+                this.tempIods['00321033'] = this.tempIods['00321033'] || {Value:[]};
+                this.tempIods['00321034'] = this.tempIods['00321034'] || {Value:[]};
+                this.tempIods['00321064'] = this.tempIods['00321064'] || {Value:[]};
+                this.tempIods['00401002'] = this.tempIods['00401002'] || {Value:[]};
+                this.tempIods['0040100A'] = this.tempIods['0040100A'] || {Value:[]};
+            }
             this.tempAttributes.attrs = new ComparewithiodPipe().transform(this.tempAttributes.attrs, this.tempIods);
             this.studyService.initEmptyValue(this.tempAttributes.attrs);
             this.iod = this.studyService.replaceKeyInJson(this.tempIods, 'items', 'Value');
