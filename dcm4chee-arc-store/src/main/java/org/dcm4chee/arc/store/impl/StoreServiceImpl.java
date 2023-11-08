@@ -89,6 +89,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -209,7 +210,7 @@ class StoreServiceImpl implements StoreService {
     public void store(StoreContext ctx, InputStream data, Consumer<Attributes> coerce) throws IOException {
         UpdateDBResult result = null;
         try {
-            CountingInputStream countingInputStream = new CountingInputStream(data);
+            CountingInputStream countingInputStream = new CountingInputStream(new BufferedInputStream(data));
             long startTime = System.nanoTime();
             writeToStorage(ctx, countingInputStream);
             coerce.accept(ctx.getAttributes());
