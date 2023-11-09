@@ -1159,7 +1159,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     uploadFile(object,mode){
         // this.service.getUploadFileWebApp(this.studyWebService).subscribe((webApp:DcmWebApp)=>{
 
-
+            let tempObject = _.cloneDeep(object);
             if(mode === "mwl"){
                 //perpare mwl object for study upload
                 let newObject = {
@@ -1173,18 +1173,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     "00321060",
                     "00400009",
                     "00400007",
-                    "00400008",
-                    "00080050",
-                    "00080051",
-                    "0020000D",
-                    "00321032",
-                    "00321031",
-                    "00081110",
-                    "00321033",
-                    "00321034",
-                    "00321064",
-                    "00401002",
-                    "0040100A"
+                    "00400008"
                 ];
                 let mapCodes = {
                     "00401001":{
@@ -1214,7 +1203,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     "00321060",
                     "00321064"
                 ];
-                _.forEach(object.attrs,(m,i)=>{
+                _.forEach(tempObject.attrs,(m,i)=>{
                     if(_.indexOf(inSequenceCodes,i) > -1){
                         newObject["00400275"].Value[0][i] = m;
                         this.service.mapCode(m,i,newObject,mapCodes);
@@ -1226,7 +1215,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                     }
                 });
-                object.attrs = newObject;
+                tempObject.attrs = newObject;
             }
             this.config.viewContainerRef = this.viewContainerRef;
             this.dialogRef = this.dialog.open(UploadFilesComponent, {
@@ -1237,7 +1226,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
             this.dialogRef.componentInstance.preselectedWebApp = this.studyWebService.selectedWebService;
             // this.dialogRef.componentInstance.studyWebService = this.studyWebService;
-            this.dialogRef.componentInstance.dicomObject = _.cloneDeep(object);
+            this.dialogRef.componentInstance.dicomObject = _.cloneDeep(tempObject);
             this.dialogRef.componentInstance.mode = mode;
             this.dialogRef.afterClosed().subscribe((result) => {
                 console.log('result', result);

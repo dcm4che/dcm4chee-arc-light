@@ -654,10 +654,10 @@ export class UploadFilesComponent implements OnInit {
                 this.tempIods['00321033'] = this.tempIods['00321033'] || {Value:[]};
                 this.tempIods['00321034'] = this.tempIods['00321034'] || {Value:[]};
             }*/
-            this.addMwlMapAttributesOnIOD(this.tempIods);
+            //this.addMwlMapAttributesOnIOD(this.tempIods);
             this.tempAttributes.attrs = new ComparewithiodPipe().transform(this.tempAttributes.attrs, this.tempIods);
             this.studyService.initEmptyValue(this.tempAttributes.attrs);
-            this.tempAttributes.attrs = this.mapMwlAttributes(this.tempAttributes.attrs);
+            //this.tempAttributes.attrs = this.mapMwlAttributes(this.tempAttributes.attrs);
             this.iod = this.studyService.replaceKeyInJson(this.tempIods, 'items', 'Value');
             // console.log("iod",iod);
             console.log("dicomOjbect",this.dicomObject);
@@ -869,6 +869,13 @@ export class UploadFilesComponent implements OnInit {
                     delete studyObject["00400100"];
                 }
             }
+            if(this._mode == "mwl"){
+                const queryParameters = {
+                    AccessionNumber:_.get(this._dicomObject,"attrs[00080050].Value[0]")
+                }
+                url = url + j4care.objToUrlParams(queryParameters,true);
+
+            }
             xmlHttpRequest.open('POST', url, true);
             if(!_.hasIn(studyObject, "0008103E.Value[0]") || _.get(studyObject, "0008103E.Value[0]") === ""){
                 studyObject["0008103E"] = {
@@ -996,7 +1003,7 @@ export class UploadFilesComponent implements OnInit {
             };
             xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
         }else{
-            this.mainservice.showError("A STOW-RS server is missing!")
+            this.mainservice.showError($localize `:@@stow_rs_server_missing:A STOW-RS server is missing!`);
         }
         /*                        },err=>{
                                     console.log("errwebApp",err);
@@ -1085,6 +1092,9 @@ export class UploadFilesComponent implements OnInit {
                             this.selectedWebApp = webApp;
                     }
                 });
+                if(!this.selectedWebApp && this.webApps && this.webApps.length > 0){
+                    this.selectedWebApp = this.webApps[0];
+                }
             }else{
                 this.mainservice.showError($localize `:@@upload-files.no_web_application_with_the_web_service_class_stow_rs_found_in_this_device:No Web Application with the Web Service Class "STOW_RS" found in this device`);
                 this.dialogRef.close(null);
