@@ -711,7 +711,7 @@ public class StoreServiceEJB {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void removeOrphaned(UIDMap uidMap) {
         if (countLocationsByUIDMap(uidMap) == 0)
-            em.remove(uidMap);
+            em.remove(em.merge(uidMap));
     }
 
     private void deleteInstance(Instance instance, StoreContext ctx) {
