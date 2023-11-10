@@ -73,7 +73,6 @@ import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.patient.PatientServiceUtils;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -978,7 +977,7 @@ public class StoreServiceEJB {
         Attributes attrs = pat.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
         Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
-        if (!PatientServiceUtils.updatePatientAttrs(attrs, updatePolicy, ctx.getAttributes(), updateInfo.modified, filter))
+        if (!patientService.updatePatientAttrs(attrs, updatePolicy, ctx.getAttributes(), updateInfo.modified, filter))
             return pat;
 
         updateInfo.log(session, pat, attrs);

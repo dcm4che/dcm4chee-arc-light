@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.AttributesFormat;
+import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.entity.Study;
@@ -91,6 +92,9 @@ public interface PatientService {
             throws NonUniquePatientException, PatientMergedException;
 
     void updatePatientIDs(Patient pat, Collection<IDWithIssuer> patientIDs);
+
+    boolean updatePatientAttrs(Attributes attrs, Attributes.UpdatePolicy updatePolicy,
+                               Attributes newAttrs, Attributes modified, AttributeFilter filter);
 
     boolean deleteDuplicateCreatedPatient(Collection<IDWithIssuer> pids, Patient patient, Study createdStudy);
 

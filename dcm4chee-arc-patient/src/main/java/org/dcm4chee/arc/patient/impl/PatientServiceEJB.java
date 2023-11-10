@@ -218,7 +218,7 @@ public class PatientServiceEJB {
             attrs = newAttrs;
         } else {
             Attributes.unifyCharacterSets(attrs, newAttrs);
-            if (!PatientServiceUtils.updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter))
+            if (!updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter))
                 return;
         }
 
@@ -643,5 +643,89 @@ public class PatientServiceEJB {
         }
         em.remove(createdPatientFound.get());
         return true;
+    }
+
+    public boolean updatePatientAttrs(Attributes attrs, Attributes.UpdatePolicy updatePolicy,
+                                             Attributes newAttrs, Attributes modified, AttributeFilter filter) {
+        int[] selection = without(filter.getSelection(false),
+                Tag.PatientID,
+                Tag.IssuerOfPatientID,
+                Tag.TypeOfPatientID,
+                Tag.IssuerOfPatientIDQualifiersSequence,
+                Tag.OtherPatientIDsSequence);
+        int pidUpdated = 0;
+        Sequence otherPIDs = attrs.getSequence(Tag.OtherPatientIDsSequence);
+        Set<IDWithIssuer> updatedPids = IDWithIssuer.pidsOf(newAttrs);
+        if (mergeIssuer(attrs, updatedPids)) pidUpdated++;
+        if (otherPIDs != null)
+            for (Attributes item : otherPIDs) {
+                if (mergeIssuer(item, updatedPids)) pidUpdated++;
+            }
+        Set<IDWithIssuer> pids = IDWithIssuer.pidsOf(attrs);
+        if (addOtherPID(attrs, newAttrs, pids)) pidUpdated++;
+        Sequence newOtherPIDs = newAttrs.getSequence(Tag.OtherPatientIDsSequence);
+        if (newOtherPIDs != null)
+            for (Attributes item : newOtherPIDs) {
+                if (addOtherPID(attrs, item, pids)) pidUpdated++;
+            }
+        return attrs.updateSelected(updatePolicy, newAttrs, modified, selection) || pidUpdated > 0;
+    }
+
+    private boolean addOtherPID(Attributes attrs, Attributes newAttrs, Set<IDWithIssuer> pids) {
+        IDWithIssuer newPID = IDWithIssuer.pidOf(newAttrs);
+        if (newPID == null) return false;
+        for (IDWithIssuer pid : pids) {
+            if (pid.matches(newPID, true, true))
+                return false;
+            if (!findPatientIDs(pid).isEmpty())
+                return false;
+        }
+        attrs.ensureSequence(Tag.OtherPatientIDsSequence, 1).add(
+                new Attributes(newAttrs,
+                        Tag.PatientID,
+                        Tag.IssuerOfPatientID,
+                        Tag.TypeOfPatientID,
+                        Tag.IssuerOfPatientIDQualifiersSequence ));
+        return true;
+    }
+
+    private static int[] without(int[] src, int... tags) {
+        int[] index = new int[tags.length];
+        int d = 0;
+        for (int i = 0; i < index.length; i++) {
+            if ((index[i] = Arrays.binarySearch(src, tags[i])) >= 0) d++;
+        }
+        if (d == 0) return src;
+        int[] dest = new int[src.length-d];
+        int srcPos = 0;
+        int destPos = 0;
+        for (int i : index) {
+            if (i < 0) continue;
+            int length = i - srcPos;
+            System.arraycopy(src, srcPos, dest, destPos, length);
+            srcPos = i+1;
+            destPos += length;
+        }
+        System.arraycopy(src, srcPos, dest, destPos, dest.length - destPos);
+        return dest;
+    }
+
+    private static boolean mergeIssuer(Attributes attrs, Set<IDWithIssuer> updatedPids) {
+        IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
+        if (pid != null) {
+            for (IDWithIssuer updatedPid : updatedPids) {
+                if (pid.matches(updatedPid, true, true)) {
+                    if (updatedPid.getIssuer() == null) return false;
+                    Issuer issuer = pid.getIssuer();
+                    if (issuer == null)
+                        issuer = updatedPid.getIssuer();
+                    else if (!issuer.merge(updatedPid.getIssuer()))
+                        return false;
+                    issuer.toIssuerOfPatientID(attrs);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

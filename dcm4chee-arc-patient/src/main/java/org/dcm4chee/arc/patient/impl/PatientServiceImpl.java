@@ -45,6 +45,7 @@ import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.persistence.criteria.CriteriaQuery;
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
@@ -52,6 +53,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.entity.Study;
@@ -155,7 +157,13 @@ public class PatientServiceImpl implements PatientService {
         ejb.updatePatientIDs(pat, patientIDs);
     }
 
-    private boolean deleteDuplicateCreatedPatient(PatientMgtContext ctx, Patient patient) {
+    @Override
+    public boolean updatePatientAttrs(Attributes attrs, Attributes.UpdatePolicy updatePolicy,
+                                      Attributes newAttrs, Attributes modified, AttributeFilter filter) {
+        return ejb.updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter);
+    }
+
+        private boolean deleteDuplicateCreatedPatient(PatientMgtContext ctx, Patient patient) {
         if (ctx.getEventActionCode() == AuditMessages.EventActionCode.Create) {
             if (deleteDuplicateCreatedPatient(ctx.getPatientIDs(), patient, null)) {
                 ctx.setEventActionCode(AuditMessages.EventActionCode.Read);
