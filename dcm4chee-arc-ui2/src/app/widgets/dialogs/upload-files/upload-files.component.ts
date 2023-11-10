@@ -209,7 +209,11 @@ export class UploadFilesComponent implements OnInit {
             this.neededClassMissing = true;
             this.mainservice.showError($localize `:@@selected_webapp_doesent_have_the_webapp_class:The selected WebApp doesn't have the webapp class ${'DCM4CHEE_ARC_AET'}:@@webAppServiceClass:`);
         }else{
-            if(file0 && (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif" || file0.type === "image/tiff")){
+            if(file0 && (file0.type === "image/jpeg"
+                            || file0.type === "image/jp2"
+                            || file0.type === "image/png"
+                            || file0.type === "image/gif"
+                            || file0.type === "image/tiff")){
                 this.isImage = true;
             }
             if(fileTypeOrExt === "application/dicom"){
@@ -329,7 +333,11 @@ export class UploadFilesComponent implements OnInit {
                         "BulkDataURI": "file/" + file0.name
                     }
                 }
-                if (file0.type === "image/jpeg" || file0.type === "image/png" || file0.type === "image/gif"|| file0.type === "image/tiff") {
+                if (file0.type === "image/jpeg"
+                    || file0.type === "image/jp2"
+                    || file0.type === "image/png"
+                    || file0.type === "image/gif"
+                    || file0.type === "image/tiff") {
                     this._dicomObject.attrs["00080008"] = {
                         "vr": "CS",
                         "Value": [
@@ -341,7 +349,7 @@ export class UploadFilesComponent implements OnInit {
                         this._dicomObject.attrs["00080064"] = {
                             "vr": "CS",
                             "Value": [
-                                "WSD"
+                                "SI"
                             ]
                         };
                         this._dicomObject.attrs["00200020"] = {
@@ -731,32 +739,21 @@ export class UploadFilesComponent implements OnInit {
         let boundary = Math.random().toString().substr(2);
         switch (fileTypeOrExt) {
             case "image/jpeg":
-                $this.modality = $this.selectedSopClass.modality; // set modality from the sequen 0040,0100->Modality
-                descriptionPart = "Image";
-                break;
+            case "image/jp2":
             case "image/png":
-                $this.modality = $this.selectedSopClass.modality;
-                descriptionPart = "Image";
-                break;
             case "image/tiff":
-                $this.modality = $this.selectedSopClass.modality;
+                $this.modality = $this.selectedSopClass.modality; // set modality from the sequen 0040,0100->Modality
                 descriptionPart = "Image";
                 break;
             case "image/gif":
                 $this.modality = $this.selectedSopClass.modality;
-                descriptionPart = "Gif";
+                descriptionPart = "GIF";
                 break;
             case "video/mpeg":
-                descriptionPart = "Video";
-                $this.modality = "XC"; // set modality from the sequen 0040,0100->Modality
-                break;
             case "video/mp4":
-                descriptionPart = "Video";
-                $this.modality = "XC";
-                break;
             case "video/quicktime":
                 descriptionPart = "Video";
-                $this.modality = "XC";
+                $this.modality = "XC"; // set modality from the sequen 0040,0100->Modality
                 break;
             case "application/pdf":
                 descriptionPart = "PDF";
