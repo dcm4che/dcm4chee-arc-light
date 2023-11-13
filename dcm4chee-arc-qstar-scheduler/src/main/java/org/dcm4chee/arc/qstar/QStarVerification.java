@@ -81,6 +81,7 @@ public class QStarVerification {
         return "QStarVerification{" +
                 "status=" + status +
                 ", studyInstanceUID='" + studyInstanceUID + '\'' +
+                ", seriesInstanceUID='" + seriesInstanceUID + '\'' +
                 ", numberOfInstances=" + sopRefs.size() +
                 '}';
     }
