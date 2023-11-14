@@ -1,0 +1,40 @@
+{
+  "title": "HL7 ऑर्डर की SPS स्थिति",
+  "description": "प्राप्त हुए HL7 ORM^O01, OMI^O23, OMG^O19 संदेशों पे निर्माण किये या अपडेट हुए DICOM MWL आइटम की SPS स्थिति ।",
+  "type": "object",
+  "required": [
+    "dcmSPSStatus",
+    "hl7OrderControlStatus"
+  ],
+  "properties": {
+    "dcmSPSStatus": {
+      "title": "अनुसूचित प्रक्रिया स्टेप स्थिति कोड",
+      "description": "अनुसूचित प्रक्रिया स्टेप स्थिति कोड ।",
+      "type": "string",
+      "enum": [
+        "SCHEDULED",
+        "CANCELED",
+        "DISCONTINUED",
+        "COMPLETED"
+      ]
+    },
+    "hl7OrderControlStatus": {
+      "title": "HL7 ऑर्डर निरीक्षण स्थिति",
+      "description": "HL7 ऑर्डर निरीक्षण स्थिति कोड संयोजन । ये संयोजन ORC-1_ORC-5 में मौजूद मूल्यों को संदर्भित करते हैं।",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "NW_SC",
+          "NW_IP",
+          "CA_CA",
+          "DC_CA",
+          "XO_SC",
+          "XO_CM",
+          "SC_CM",
+          "SC_A"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "title": "归档压缩规则",
+  "description": "归档压缩规则",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomTransferSyntax",
+    "dcmRulePriority"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名称",
+      "description": "归档压缩规则的任意/有意义的名称",
+      "type": "string"
+    },
+    "dicomTransferSyntax": {
+      "title": "DICOM传输语法UID",
+      "description": "接收图像压缩的传输语法",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmRulePriority": {
+      "title": "规则优先级",
+      "description": "如果多个压缩规则的条件与接收到的图像匹配,则应用最高优先级的规则。如果存在多个具有相同优先级的匹配规则,则没有定义要应用的规则。",
+      "type": "integer",
+      "default" : 0,
+      "minimum": 0
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "(SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}格式的条件。通过用‘|’符号分隔,可以为特定属性指定多个值。 例如:SendingApplicationEntityTitle=FORWARD 或 Modality=MR|CT 或 ProcedureCodeSequence.CodeValue=MRProcedure 或 00180015=KNEE 或 00321034.00080100=RequestingServiceCode 或 ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmImageWriteParam": {
+      "title": "图像写入参数",
+      "description": "图像写入参数（name=value）在压缩之前由图像写入器设置",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmCompressionDelay": {
+      "title": "压缩延迟",
+      "description": "ISO-8601周期PnDTnHnMn.nS格式的压缩延迟。如果不存在,则在接收时压缩。",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

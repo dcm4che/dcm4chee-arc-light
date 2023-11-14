@@ -1,0 +1,66 @@
+{
+  "title": "UI Diff Criteria",
+  "description": "UI Diff标准",
+  "type": "object",
+  "required": [
+    "dcmuiDiffCriteriaTitle",
+    "dcmuiDiffIncludeMissing"
+  ],
+  "properties": {
+    "dcmuiDiffCriteriaTitle": {
+      "title": "UI档案比较标题",
+      "description": "UI Diff标题",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "UI归档比较标准描述",
+      "description": "此UI归档比较标准的无约束文本描述",
+      "type": "string"
+    },
+    "dcmuiDiffCriteriaNumber": {
+      "title": "UI档案比较编号",
+      "description": "用于对属性集进行排序的属性集编号。",
+      "type": "integer",
+      "minimum": 1
+    },
+    "dcmuiDiffIncludeMissing": {
+      "title": "包括UI缺少",
+      "description": "指示是否包括缺少的检查。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAttributeSetID": {
+      "title": "属性集ID",
+      "description": "指定比较属性的属性集ID",
+      "type": "string",
+      "format": "dcmAttributeSetID"
+    },
+    "dcmuiDiffGroupButton": {
+      "title": "比较UI档案组按钮",
+      "description": "比较UI档案组按钮",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "synchronize",
+          "export",
+          "reject"
+        ]
+      }
+    },
+    "dcmuiDiffAction": {
+      "title": "比较UI存档操作",
+      "description": "比较UI存档操作",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "patient-update",
+          "study-reject-export",
+          "study-reject",
+          "study-export"
+        ]
+      }
+    }
+  }
+}

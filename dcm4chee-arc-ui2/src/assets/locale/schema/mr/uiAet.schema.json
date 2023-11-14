@@ -1,0 +1,49 @@
+{
+  "title": "Aet ची यादी",
+  "description": "Aet ची यादी",
+  "type": "object",
+  "required": [
+    "dcmuiAetListName",
+    "dcmuiAets",
+    "dcmAcceptedUserRole",
+    "dcmuiMode"
+  ],
+  "properties": {
+    "dcmuiAetListName": {
+      "title": "यादीचे नाव",
+      "description": "या कॉन्फिगरेशनसाठी नाव परिभाषित करा",
+      "type": "string"
+    },
+    "dcmuiAetListDescription": {
+      "title": "वर्णन",
+      "description": "Aet यादीचे वर्णन",
+      "type": "string"
+    },
+    "dcmuiMode": {
+      "title": "AEt यादी मोड",
+      "description": "परिभाषित करा हे कोणत्या मोडमध्ये 'अंतर्गत' (संग्रहणाचे स्वतःचे AET, काही ठिकाणी 'होम AET' किंवा 'स्थानिक AET' असे म्हटले जाते) किंवा 'बाह्य' (किंवा काही ठिकाणी ज्याला 'रिमोट' देखील म्हटले जाते) AET ड्रॉप-डाउन यादी, दोन्ही मोड्समध्ये उपलब्ध असण्यासाठी कोणताही मोड निवडू नका.",
+      "type": "string",
+      "enum": [
+        "internal",
+        "external"
+      ]
+    },
+    "dcmuiAets": {
+      "title": "AETs",
+      "description": "UI क्रिया घटक.",
+      "format": "dcmAETitle",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "स्वीकारलेली वापरकर्ता भूमिका",
+      "description": "या कॉन्फिगरेशनसाठी उपलब्ध असलेल्या भूमिका निश्चित करा, सर्व भूमिकांसाठी उपलब्ध होण्यासाठी 'user' वापरा.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

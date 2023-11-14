@@ -1,0 +1,288 @@
+{
+  "title": "Archive HL7 Application",
+  "description": "DICOM Archive HL7 Application related information",
+  "type": "object",
+  "required": [
+    "dicomAETitle"
+  ],
+  "properties": {
+    "dicomAETitle": {
+      "title": "AE Title",
+      "description": "Archive AE Title associated with this HL7 Application.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmRecordAttributeModification": {
+      "title": "Record Attribute Modification",
+      "description": "Indicates if modifications of attributes of stored objects by this HL7 Application are recorded in Items of the Original Attributes Sequence. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "dcmMWLWorklistLabel": {
+      "title": "MWL Worklist Label",
+      "description": "Value of Worklist Label (0074,1202) of created MWL items on receive of HL7 Order messages. If absent, created MWL items are not bound to a particular MWL Worklist and are provided by all Archive AEs with MWL SCP Transfer Capability.",
+      "type": "string",
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmMWLAccessionNumberGenerator": {
+      "title": "MWL Accession Number Generator",
+      "description": "Identifies ID Generator to supplement missing Accession Numbers of Scheduled Procedures Steps created on receive of HL7 Order messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmMWLRequestedProcedureIDGenerator": {
+      "title": "MWL Requested Procedure ID Generator",
+      "description": "Identifies ID Generator to supplement missing Requested Procedure IDs of Scheduled Procedures Steps created on receive of HL7 Order messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmMWLScheduledProcedureStepIDGenerator": {
+      "title": "MWL Scheduled Procedure Step ID Generator",
+      "description": "Identifies ID Generator to supplement missing Scheduled Procedure Step IDs of Scheduled Procedures Steps created on receive of HL7 Order messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmAuditHL7MsgLimit": {
+      "title": "Audit HL7 Message Limit",
+      "description": "Limit length of HL7 messages included in emitted Audit Records. Overwrites value specified on Device level.",
+      "type": "integer"
+    },
+    "hl7ORUAction": {
+      "title": "HL7 ORU Action",
+      "description": "Specifies action on receive of HL7 ORU^R01 message: IMPORT_REPORT (= transcode received HL7 ORU^R01 to DICOM SR), MWL_COMPLETED (= set Status of matching MWL items to COMPLETED). Overwrites value specified on Device level.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "IMPORT_REPORT",
+          "MWL_COMPLETED"
+        ]
+      }
+    },
+    "hl7PatientUpdateTemplateURI": {
+      "title": "HL7 Patient Update Template URI",
+      "description": "Specifies URI for the style sheet used by HL7v2 Patient Update Service. Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "hl7ImportReportTemplateURI": {
+      "title": "HL7 Import Report Template URI",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR. Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "hl7ImportReportTemplateParam": {
+      "title": "HL7 Import Report Template Parameter",
+      "description": "XSLT parameters passed to style sheet specified by HL7 Import Report Template URI. Format: {name}={value}. E.g.: 'langCodeValue=et', 'langCodingSchemeDesignator=RFC5646', 'langCodeMeaning=Estonian'. Overwrites value specified on Device level.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7ScheduleProcedureTemplateURI": {
+      "title": "HL7 Schedule Procedure Template URI",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items. Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "hl7ScheduledProtocolCodeInOrder": {
+      "title": "HL7 Schedule Protocol Code in Order",
+      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "OBR_4_1",
+        "OBR_4_4"
+      ]
+    },
+    "hl7ScheduledStationAETInOrder": {
+      "title": "HL7 Schedule Station AET in Order",
+      "description": "Specifies location of Scheduled Station AE Title in received HL7 Order message. Should not be configured for HL7 v2.5.1 OMI^O23 with IPC segment. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "ORC_18"
+      ]
+    },
+    "hl7LogFilePattern": {
+      "title": "HL7 Log File Pattern",
+      "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging. Overwrites value specified on Device level. eg. ${jboss.server.data.dir}/hl7/${date,yyyy/MM/dd}/${SerialNo}-${MSH-9}.hl7",
+      "type": "string"
+    },
+    "hl7ErrorLogFilePattern": {
+      "title": "HL7 Error Log File Pattern",
+      "description": "Path to HL7 messages which will be captured exactly as received, when processing of HL7 messages fails. If absent, there is no logging. Overwrites value specified on Device level. eg. ${jboss.server.data.dir}/hl7-error/${date,yyyy/MM/dd}/${SerialNo}-${MSH-9}.hl7",
+      "type": "string"
+    },
+    "hl7NoPatientCreateMessageType": {
+      "title": "HL7 No Patient Create Message Type",
+      "description": "Message Type(s) (MessageType^TriggerEvent) of HL7 messages which are only processed, if there is already a Patient record in the database, which Patient ID matches the Patient ID in the PID or MRG segment of the message. Thus no new Patient record will be created by messages of the specified types. Overwrites value specified on Device level.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7PatientArrivalMessageType": {
+      "title": "HL7 Patient Arrival Message Type",
+      "description": "Message Type of HL7 messages which triggers the change the status of Scheduled Procedure Steps associated with the Patient from SCHEDULED to ARRIVED. Overwrite value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "ADT^A10"
+      ]
+    },
+    "hl7UseNullValue": {
+      "title": "Use HL7 Null Value",
+      "description": "Specifies if HL7 v2 null values (specified in segment field as |\"\"|) are used in sent HL7 messages for not present or empty entity attributes. Required to unset entity attributes at the remote HL7 Application. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "hl7VeterinaryUsePatientName": {
+      "title": "HL7 Veterinary use Patient Name",
+      "description": "Indicates to force veterinary use of Patient Names on mapping HL7 PID fields to DICOM attributes: only use the first two components of PID.5 as DICOM Patient Name; if PID.5 only contains one component, use that value as given name, and the first component of PID.9 as family name of the DICOM Patient Name. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "hl7PrimaryAssigningAuthorityOfPatientID": {
+      "title": "HL7 Primary Assigning Authority of Patient ID",
+      "description": "Assigning Authority of Patient ID in received HL7 message used to search primary qualified patient identifier in the list of identifiers in PID-3 / MRG.1. This qualified patient identifier shall be used on the root dataset. If absent, by default the first patient identifier pair in PID-3 / MRG.1 shall be used as primary patient identifier on root dataset. If none of the qualified patient identifiers in the list match with the configured issuer, archive server log shall contain a log INFO message and by default the first qualified patient identifier in PID-3 / MRG.1 shall be used. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}]. Overwrites values specified on Device level.",
+      "type": "string"
+    },
+    "hl7OtherPatientIDs": {
+      "title": "HL7 Other Patient IDs",
+      "description": "Specifies inclusion policy for patient identifiers in PID-3 / MRG-1 of HL7 message in Other Patient IDs Sequence (0010,1002). Overwrites value specified on Device level.",
+      "type": "string",
+      "default": "OTHER",
+      "enum": [
+        "ALL",
+        "NONE",
+        "OTHER"
+      ]
+    },
+    "hl7OrderMissingStudyIUIDPolicy": {
+      "title": "HL7 Order Missing Study Instance UID Policy",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Order messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
+    "hl7OrderMissingAdmissionIDPolicy": {
+      "title": "HL7 Order Missing Admission ID Policy",
+      "description": "Specifies policy on incoming HL7 Order messages without a value for PID-18 Patient Account Number nor field PV1-19 Visit Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "ACCEPT",
+        "REJECT",
+        "ACCESSION_AS_ADMISSION"
+      ]
+    },
+    "hl7ImportReportMissingStudyIUIDPolicy": {
+      "title": "HL7 Import Report Missing Study Instance UID Policy",
+      "description": "Specifies policy for missing Study Instance UID in incoming HL7 Import Report (ORU) messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
+    "hl7ImportReportMissingAdmissionIDPolicy": {
+      "title": "HL7 Import Report Missing Admission ID Policy",
+      "description": "Specifies policy on incoming HL7 ImportReport (ORU) messages without a value for PID-18 Patient Account Number nor field PV1-19 Visit Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "ACCEPT",
+        "REJECT",
+        "ACCESSION_AS_ADMISSION"
+      ]
+    },
+    "hl7ImportReportMissingStudyIUIDCFindSCP": {
+      "title": "HL7 Import Report Missing Study Instance UID C-FIND SCP",
+      "description": "AE Title of external C-FIND SCP to query for missing Study Instance UID in incoming HL7 Import Report (ORU) messages by given Accession Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "hl7ImportReportAdjustIUID": {
+      "title": "HL7 Import Report Adjust Instance UID",
+      "description": "Specifies adjustment of Series and SOP Instances UIDs returned by XSLT on incoming HL7 Import Report (ORU) messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "NONE",
+        "APPEND_HASH_OF_STUDY_INSTANCE_UID"
+      ]
+    },
+    "hl7ReferredMergedPatientPolicy": {
+      "title": "HL7 Referred Merged Patient Policy",
+      "description": "Specifies policy on incoming HL7 messages referring an already merged Patient. REJECT: reject any such HL7 message, IGNORE: ignore any such HL7 message, IGNORE_DUPLICATE_MERGE: Ignore only duplicate HL7 Merge messages, Reject any other such Message. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "IGNORE",
+        "IGNORE_DUPLICATE_MERGE"
+      ]
+    },
+    "hl7DicomCharacterSet": {
+      "title": "HL7 Dicom Character Set",
+      "description": "Indicates to use specified Value of Specific Character Set (0008,0005) in Data Sets transcoded from received HL7 messages. Use Value corresponding to Character Set of the HL7 message specified by MSH-18 if absent.",
+      "type": "string",
+      "format": "dcmCharset"
+    },
+    "hl7ForwardRule": {
+      "title": "HL7 Forward Rule",
+      "description": "HL7 Forward Rule. Supplements values specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7ForwardRule.schema.json"
+      }
+    },
+    "hl7ExportRule": {
+      "title": "HL7 Export Rule",
+      "description": "Export Rules applied to HL7 messages received by this HL7 Application. Supplements HL7 Export Rules specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7ExportRule.schema.json"
+      }
+    },
+    "hl7UPSOnHL7": {
+      "title": "UPS on HL7 Rules",
+      "description": "UPS on HL7 Rules applied to HL7 messages received by any HL7 Application. Supplements UPS on HL7 Rules specified on Device level.",
+      "type": "array",
+      "titleKey": "{hl7UPSOnHL7ID}",
+      "items": {
+        "$ref": "upsOnHL7.schema.json"
+      }
+    },
+    "hl7PrefetchRule": {
+      "title": "HL7 Prefetch Rule",
+      "description": "Prefetch Rules applied to HL7 messages received by this HL7 Application. Supplements HL7 Prefetch Rules specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7PrefetchRule.schema.json"
+      }
+    },
+    "hl7StudyRetentionPolicy": {
+      "title": "HL7 Study Retention Policy",
+      "description": "HL7 Study Retention Policies triggered by HL7 messages received by this HL7 Application. Supplements values specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7StudyRetentionPolicy.schema.json"
+      }
+    },
+    "hl7OrderScheduledStation": {
+      "title": "Scheduled Station for HL7 Order",
+      "description": "Scheduled Station selected on MWL HL7 Order Feed. Supplements values specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7OrderScheduledStation.schema.json"
+      }
+    },
+    "hl7OrderSPSStatus": {
+      "title": "SPS Status for HL7 Order",
+      "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages. Overwrites values specified on Device level.",
+      "type": "array",
+      "titleKey":"{dcmSPSStatus}",
+      "items" : {
+        "$ref": "hl7OrderSPSStatus.schema.json"
+      }
+    }
+  }
+}

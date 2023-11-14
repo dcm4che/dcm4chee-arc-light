@@ -1,0 +1,166 @@
+{
+  "title": "Regola di elaborazione UPS",
+  "description": "Elabora elementi di lavoro corrispondenti in una lista di lavoro unificata",
+  "type": "object",
+  "required": [
+    "dcmUPSProcessingRuleID",
+    "dcmUPSInputReadinessState",
+    "dcmURI",
+    "dicomAETitle",
+    "dcmUPSPerformedWorkitemCode",
+    "dcmUPSPerformedStationNameCode",
+    "dcmRetryDelay",
+    "dcmRetryDelayMultiplier",
+    "dcmMaxRetries",
+    "dcmMaxThreads"
+  ],
+  "properties": {
+    "dcmUPSProcessingRuleID": {
+      "title": "ID regola di elaborazione UPS",
+      "description": "ID della regola di elaborazione UPS",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "Titolo dell'entità dell'applicazione (AE)",
+      "description": "Titolo dell'entità dell'applicazione (AE)",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmURI": {
+      "title": "URI del processore UPS",
+      "description": "Identifica il processore UPS per l'elaborazione degli elementi di lavoro corrispondenti",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "Processing Property",
+      "description": "Proprietà dipendente dal processore UPS nel formato <name>=<value> ",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmSchedule": {
+      "title": "Calendario Lavorazioni",
+      "description": "Ritarda l'elaborazione a periodi di tempo specificati. Se non viene specificata alcuna pianificazione di elaborazione, elaborare gli elementi di lavoro alla data di inizio del passaggio della procedura pianificata (0040,4005). Formato: 'hour=[0-23] dayOfWeek=[0-6]' (0=Domenica)",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmSchedule"
+    },
+    "dcmMaxThreads": {
+      "title": "Numero massimo di thread",
+      "description": "Numero massimo di thread utilizzati per l'elaborazione degli elementi di lavoro corrispondenti.",
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "Stato di disponibilità di ingresso",
+      "description": "Elabora elementi di lavoro con stato di disponibilità input corrispondente (0040,4041).",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSPriority": {
+      "title": "Priorità",
+      "description": "Elaborare elementi di lavoro con priorità del passaggio della procedura pianificata corrispondente (0074,1200). Se assente, elabora gli elementi di lavoro con qualsiasi priorità, ma ordina l'elaborazione in base alla loro priorità.",
+      "type": "string",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSLabel": {
+      "title": "Etichetta del passo della procedura",
+      "description": "Elaborare elementi di lavoro con etichetta del passaggio della procedura corrispondente (0074,1204). Se assente, elaborare gli elementi di lavoro con qualsiasi etichetta del passaggio della procedura.",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "Etichetta lista di lavoro",
+      "description": "Elabora elementi di lavoro con l'etichetta della lista di lavoro corrispondente (0074,1202). Se assente, elaborare gli elementi di lavoro con qualsiasi etichetta della lista di lavoro.",
+      "type": "string"
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "Codice dell'elemento di lavoro pianificato",
+      "description": "Elaborare gli elementi di lavoro con il codice corrispondente nella sequenza di codici degli elementi di lavoro pianificati (0040,4018) in formato (CV, CSD, \"CM\"). Se assente, elaborare gli elementi di lavoro con qualsiasi codice elemento di lavoro pianificato.",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "Codice nome stazione pianificata",
+      "description": "Elaborare gli elementi di lavoro con il codice corrispondente nella sequenza di codici degli elementi di lavoro pianificati (0040,4025) in formato (CV, CSD, \"CM\"). Se assente, elaborare gli elementi di lavoro con qualsiasi codice nome stazione pianificata.",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "Codice classe stazione pianificata",
+      "description": "Elaborare gli elementi di lavoro con il codice corrispondente nella sequenza di codici degli elementi di lavoro pianificati (0040,4026) in formato (CV, CSD, \"CM\"). Se assente, elaborare gli elementi di lavoro con qualsiasi codice nome stazione pianificata.",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "Codice di posizione geografica della stazione pianificata",
+      "description": "Elaborare gli elementi di lavoro con il codice corrispondente nella sequenza della classe di posizione geografica della stazione programmata (0040,4027) in formato (CV, CSD, \"CM\"). Se assente, elaborare gli elementi di lavoro con qualsiasi codice di posizione geografica della stazione programmata.",
+      "type": "string"
+    },
+    "dcmUPSPerformedWorkitemCode": {
+      "title": "Codice dell'elemento di lavoro pianificato",
+      "description": "Elemento della sequenza codice elemento lavoro programmato (0040,4019) nell'UPS creato in formato (CV, CSD, \"CM\").",
+      "type": "string",
+      "default": "(NO_WORKITEM_CODE, 99DCM4CHEE, \"Workitem Code\")"
+    },
+    "dcmUPSPerformedStationNameCode": {
+      "title": "Codice nome stazione eseguito",
+      "description": "Elemento della sequenza di codice nome stazione eseguita (0040,4028) nell'UPS elaborato in formato (CV, CSD, \"CM\").",
+      "type": "string",
+      "default": "(NO_STATION_NAME, 99DCM4CHEE, \"No Station Name specified\")"
+    },
+    "dcmUPSIgnoreDiscontinuationReasonCode": {
+      "title": "Ignora codice motivo interruzione",
+      "description": "Specifica il codice motivo dell'interruzione nel formato (CV, CSD, \"CM\") da ignorare e modificare lo stato dell'UPS in COMPLETED, anziché in CANCELED.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSRescheduleDiscontinuationReasonCode": {
+      "title": "Riprogramma codice motivo di interruzione",
+      "description": "Specifica il codice motivo interruzione nel formato (CV, CSD, \"CM\") per riprogrammare l'UPS annullato. Se assente, UPS annullato con qualsiasi codice motivo interruzione verrà riprogrammato in base al numero massimo di riprogrammazioni specificato.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSTemplateID": {
+      "title": "Create UPS on Cancel",
+      "description": "Specifies ID of UPS Template for creating an UPS if the processing failed and retry is not scheduled any more. If absent, no UPS will be created on failures.",
+      "type": "string"
+    },
+    "dcmMaxRetries": {
+      "title": "Numero massimo di riprogrammazioni",
+      "description": "Il numero massimo di un elemento di lavoro la cui elaborazione non è riuscita viene riprogrammata.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "Ritardo di Riprogrammazione",
+      "description": "Ritardo per riprogrammare un elemento di lavoro la cui elaborazione non è riuscita nel formato di durata ISO-8601 PnDTnHnMn.nS.",
+      "type": "string",
+      "default": "PT1M",
+      "format": "dcmDuration"
+    },
+    "dcmMaxRetryDelay": {
+      "title": "Ritardo massimo di riprogrammazione",
+      "description": "Ritardo per riprogrammare un elemento di lavoro la cui elaborazione non è riuscita nel formato di durata ISO-8601 PnDTnHnMn.nS. Infinito se assente.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmRetryDelayMultiplier": {
+      "title": "Moltiplicatore di ritardo di Riprogrammazione",
+      "description": "Moltiplicatore in % che avrà effetto sul Ritardo di riprogrammazione con il massimo ritardo di riprogrammazione da prendere in considerazione.",
+      "type": "integer",
+      "minimum": 100,
+      "default": 100
+    }
+  }
+}

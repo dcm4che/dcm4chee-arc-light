@@ -1,0 +1,82 @@
+{
+  "title": "Regola di esportazione",
+  "description": "Regola di esportazione",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmEntity",
+    "dcmExporterID",
+    "dcmExportPreviousEntity",
+    "dcmExportReoccurredInstances"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Nome",
+      "description": "Nome arbitrario/significativo della regola di esportazione",
+      "type": "string"
+    },
+    "dcmEntity": {
+      "title": "Entità di esportazione",
+      "description": "Entità di esportazione",
+      "type": "string",
+      "enum": [
+        "Study",
+        "Series",
+        "Instance"
+      ]
+    },
+    "dcmExporterID": {
+      "title": "ID esportatore",
+      "description": "ID esportatore",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmExporterID"
+    },
+    "dicomDeviceName": {
+      "title": "Nome dispositivo esportatore",
+      "description": "Specifica il dispositivo su cui devono essere pianificate le attività di esportazione. Se non specificato, le attività di esportazione sono pianificate sul dispositivo che ha ricevuto gli oggetti. Attenzione: il dispositivo specificato deve (anche) avere esportatori con gli ID specificati configurati!",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmExportPreviousEntity": {
+      "title": "Esporta entità precedente",
+      "description": "Specifica se deve essere esportata anche l'entità precedente di un'istanza sostituita.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmProperty": {
+      "title": "Condizioni degli attributi",
+      "description": "Condizioni attributo nel formato (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}. More than one value can be specified for a given attribute by separating them with a | symbol. Esempio: SendingApplicationEntityTitle=FORWARD o Modality=MR|CT o ProcedureCodeSequence.CodeValue=MRProcedure o 00180015=KNEE o 00321034.00080100=RequestingServiceCode o ImageType[3]=LOCALIZER.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSchedule": {
+      "title": "Condizioni dei tempi",
+      "description": "Applica questa regola solo entro intervalli di tempo specificati.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmDuration": {
+      "title": "Ritardo di esportazione",
+      "description": "Ritarda l'esportazione di entità per accumulare più eventi di attivazione in un'unica attività di esportazione.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmExportReoccurredInstances": {
+      "title": "Esporta istanze ricorrenti",
+      "description": "Indica se l'entità deve essere esportata al successivo verificarsi delle istanze",
+      "type": "string",
+      "default": "REPLACE",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "REPLACE"
+      ]
+    }
+  }
+}

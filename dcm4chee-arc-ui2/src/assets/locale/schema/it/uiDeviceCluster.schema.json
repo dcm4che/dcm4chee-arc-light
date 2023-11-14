@@ -1,0 +1,41 @@
+{
+  "title": "Configurazione cluster UI",
+  "description": "Configurazione dell'URL del dispositivo da utilizzare accanto all'URL dell'interfaccia utente principale",
+  "type": "object",
+  "required": [
+    "dcmuiDeviceClusterName",
+    "dcmuiDeviceClusterDevices",
+    "dcmuiDeviceClusterInstalled"
+  ],
+  "properties": {
+    "dcmuiDeviceClusterName": {
+      "title": "Nome",
+      "description": "Nome Cluster",
+      "type": "string"
+    },
+    "dcmuiDeviceClusterDescription": {
+      "title": "Descrizione",
+      "description": "Descrizione del cluster",
+      "type": "string"
+    },
+    "dcmuiDeviceClusterDevices": {
+      "title": "Web Application for Devices",
+      "description": "Select configured WebApps to used to access the corresponding devices",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "webApp"
+    },
+    "dcmuiClusterWebApp": {
+      "title": "Web Application",
+      "description": "Web Application with the class QIDO-RS",
+      "type":  "string",
+      "format": "webApp"
+    },
+    "dcmuiDeviceClusterInstalled": {
+      "title": "Installato",
+      "description": "Utilizza questo URL nell'interfaccia utente",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

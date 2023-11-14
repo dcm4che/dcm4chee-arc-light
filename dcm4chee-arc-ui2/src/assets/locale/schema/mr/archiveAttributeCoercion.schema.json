@@ -1,0 +1,236 @@
+{
+  "title": "संग्रहण विशेषता बळजबरी",
+  "description": "प्राप्त झालेल्या / पाठवलेल्या DIMSE चा संग्रहण विशेषता बळजबरी.",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmDIMSE",
+    "dicomTransferRole",
+    "dcmRulePriority",
+    "dcmRetrieveAsReceived",
+    "dcmNoKeywords",
+    "dcmMWLImportFilterBySCU",
+    "dcmAttributeUpdatePolicy",
+    "dcmTrimISO2022CharacterSet"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाव",
+      "description": "संग्रहण विशेषता बळजबरीचे अनियंत्रित / अर्थपूर्ण नाव.",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "नियम प्राधान्य",
+      "description": "नियम प्राधान्य. Higher priority rule applied.",
+      "type": "integer",
+      "default" : 0,
+      "minimum": 0
+    },
+    "dcmDIMSE": {
+      "title": "DIMSE",
+      "description": "DICOM संदेश घटक ज्यावर हे विशेषता लागू केले जाईल.",
+      "type": "string",
+      "enum": [
+        "N_CREATE_RQ",
+        "C_STORE_RQ",
+        "C_FIND_RQ",
+        "C_FIND_RSP"
+      ]
+    },
+    "dicomTransferRole": {
+      "title": "DICOM ट्रान्सफर रोल",
+      "description": "समान स्थितीत DICOM AE चे DICOM हस्तांतरण भूमिका.",
+      "type": "string",
+      "enum": [
+        "SCU",
+        "SCP"
+      ]
+    },
+    "dcmSOPClass": {
+      "title": "SOP वर्ग UID",
+      "description": "SOP क्लासचे UID ज्यासाठी हे संग्रहण विशेषता बळजबरी लागू केली जाईल. अनुपस्थित असल्यास कोणत्याही SOP वर्गावर लागू होईल.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSOPClass"
+    },
+    "dcmProperty": {
+      "title": "अटी",
+      "description": "या प्रारूपात अटी (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}. कुठल्याही दिलेल्या विशेषतासाठी एकापेक्षा अधिक मूल्य निर्दिष्ट करण्यासाठी त्यांना | प्रतीकेचा वापर करून वेगळे केले जाऊ शकते. उदाहरण : SendingApplicationEntityTitle=FORWARD किंवा Modality=MR|CT किंवा ProcedureCodeSequence.CodeValue=MRProcedure किंवा 00180015=KNEE किंवा 00321034.00080100=RequestingServiceCode किंवा ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmRetrieveAsReceived": {
+      "title": "प्राप्त झालेल्या स्वरूपात पुनर्प्राप्त करा",
+      "description": "प्राप्त झालेल्या ऑब्जेक्ट्स परत करून, पुनर्प्राप्त झालेल्या संमिश्र ऑब्जेक्टमध्ये डेटाबेस मधील माहिती विलीनीकरण अक्षम करते. केवळ प्रभावी जेव्हा DIMSE ला C_STORE_RQ विनंती संच केले आहे आणि DICOM हस्तांतरण भूमिका SCP आहे.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDeIdentification": {
+      "title": "ओळख हटवा",
+      "description": "DICOM PS 3.15 मध्ये निर्दिष्ट केलेल्या मूलभूत अनुप्रयोग स्तरावरील गोपनीयता प्रोफाइलनुसार ऑब्जेक्ट्सची ओळख हटवा. कोणताही पर्याय निवडताना ध्वन्यर्थाने मूळ अनुप्रयोग स्तर गोपनीयता प्रोफाइल नेहमी समाविष्ट होईल.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BasicApplicationConfidentialityProfile",
+          "RetainLongitudinalTemporalInformationFullDatesOption",
+          "RetainDeviceIdentityOption",
+          "RetainInstitutionIdentityOption",
+          "RetainUIDsOption",
+          "RetainPatientIDHashOption"
+        ]
+      }
+    },
+    "dcmURI": {
+      "title": "XSL स्टाइलशीट URI",
+      "description": "विशेषता बळजबरीचे XSL स्टाइलशीट URI निर्दिष्ट करते.",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "विशेषता कीवर्ड नाही",
+      "description": "विशेषता कीवर्ड (ज्यांना XSLT मध्ये पाठवले जाते) DICOM XML मधून हटवण्याचे सूचित करते.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmMergeMWLMatchingKey": {
+      "title": "MWL जुळणारे की विलीन करा",
+      "description": "विनंती विशेषतांचे बळजबरी करण्यासाठी प्राप्त झालेल्या दृष्टांताचे निर्दिष्ट केलेले विशेषता ज्याला डेटाबेसमध्ये MWL आयटम शोधण्यासाठी वापर केले जातील. अनुपस्थित असल्यास, प्राप्त झालेल्या दृष्टांताचे विनंती विशेषतांचे बळजबरी केली जाणार नाही. PatientID - Patient ID and Accession Number considered for querying MWLs. If Accession Number not available in object attributes, only Patient ID considered for querying MWLs. PatientIDOnly - Only Patient ID considered for querying MWLs. PatientIDAccessionNumber - Patient ID and Accession Number considered for querying MWLs. If Accession Number not available in object attributes, fall back to Study Instance UID. AccessionNumber - Only Accession Number considered for querying MWLs. StudyInstanceUID - Only Study Instance UID considered for querying MWLs. ScheduledProcedureStepID - Scheduled Procedure Step ID and Study Instance UID considered for querying MWLs.",
+      "type": "string",
+      "enum": [
+        "PatientID",
+        "PatientIDOnly",
+        "PatientIDAccessionNumber",
+        "AccessionNumber",
+        "StudyInstanceUID",
+        "ScheduledProcedureStepID"
+      ]
+    },
+    "dcmMergeMWLTemplateURI": {
+      "title": "MWL साचा URI विलीन करा",
+      "description": "DICOM MWL आयटम्सशी जुळणाऱ्या प्राप्त झालेल्या दृष्टांताचे विनंती विशेषतांचे बळजबरी करण्यासाठी वापर केलेला स्टाइलशीट URI निर्दिष्ट करते. फक्त प्रभावी, जर 'MWL जुळणारे की विलीन करा' सुद्धा निर्दिष्ट केले आहे.",
+      "type": "string"
+    },
+    "dcmMergeMWLSCP": {
+      "title": "MWL विलीन करण्यासाठी SCP",
+      "description": "प्राप्त झालेल्या दृष्टांतांमध्ये विनंती विशेषतांना बदलण्यासाठी वापरलेले MWL आयटम शोधण्यासाठी MWL SCP चे AE चे शीर्षक. जर ते स्वतःच्या संग्रहणाच्या MWL SCP ला संदर्भित केले असतील, तर संग्रहण DB ला थेट MWL आयटमसाठी क्वेरी केली जाईल. जर ते बाह्य MWL SCP ला संदर्भित केले असतील, तर DICOM MWL सेवेचा C-FIND RQ सेवेसाठी त्याचा वापर केले जातील. अनुपस्थित असल्यास, प्राप्त झालेल्या दृष्टांताचे विनंती विशेषतांचे बळजबरी केली जाणार नाही. अनुपस्थित असल्यास, संग्रहण DB ला कोणत्याही संग्रहण MWL AE द्वारे प्रदान केलेल्या जुळणाऱ्या MWL आयटमसाठी विचारले जाईल.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmMergeLocalMWLWorklistLabel": {
+      "title": "Merge Local MWL Worklist Label",
+      "description": "Only consider MWL items with one of the specified values of its Worklist Label (0074,1202) in the Archive DB to coerce request attributes of received objects. If absent, the Archive DB is queried for matching MWL items with any Worklist Label (0074,1202).",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmMergeLocalMWLWithStatus" : {
+      "title": "Merge Local MWL With Status",
+      "description": "Only consider MWL items with one of the specified Scheduled Procedure Step Status codes. If absent, MWL items with any Scheduled Procedure Step Status are considered.",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "ARRIVED",
+          "READY",
+          "STARTED",
+          "DEPARTED",
+          "CANCELED",
+          "DISCONTINUED",
+          "COMPLETED"
+        ]
+      }
+    },
+    "dcmMWLImportFilterBySCU": {
+      "title": "Merge MWL Filter by SCU",
+      "description": "Indicates to apply specified filter on matches returned by external MWL SCP.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmLeadingCFindSCP": {
+      "title": "अग्रगण्य C-FIND SCP",
+      "description": "बाह्य C-FIND SCP AE पासून मिळविलेले रुग्ण आणि अभ्यास विशेषतांचे वापर करून विशेषता बळजबरी करा. C-FIND SCP साठी कोणतेही विशिष्ट विशेषता सेट न केल्यास, रुग्ण आणि अभ्यास विशेषता फिल्टरवर कॉन्फीगर केलेले सर्व विशेषता प्राप्त केले जातील.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmAttributeUpdatePolicy": {
+      "title": "विशेषता अद्यतन धोरण",
+      "description": "अग्रगण्य C-FIND SCP मधून प्राप्त केलेल्या विशेषतांसह विशेषता कसे अद्ययावत केले जातील ते निर्दिष्ट करते. Refer <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Attribute-Update-Policy\" target=\"_blank\">Attribute Update Policies meanings</a>",
+      "type": "string",
+      "default": "MERGE",
+      "enum": [
+        "PRESERVE",
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE"
+      ]
+    },
+    "dcmTrimISO2022CharacterSet": {
+      "title": "ट्रिम ISO 2022 कॅरेक्टर सेट",
+      "description": "कोड विस्तारसह असलेले एकल-बाइट कॅरेक्टर सेट्सच्या एकल कोड्सना कोड-विस्तारांशिवाय असलेले एकल-बाइट कॅरेक्टर सेट्स च्या एकल कोड्सने बदला. केवळ प्रभावी जर 'DIMSE = C_STORE_RQ' आणि 'DICOM स्थानांतरण भूमिका = SCU' असेल.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUseCallingAETitleAs": {
+      "title": "बोलावणारा AE चे शीर्षक म्हणून वापरा",
+      "description": "विशेषता अनुपस्थित किंवा रिक्त असल्यास बोलावणारा AET च्या मूल्याचा वापर होईल. ScheduledStationAETitle (= अनुसूचित प्रक्रिया स्टेप क्रम (००४०,०१००) च्या आयटममध्ये अनुसूचित स्टेशन AE चे नाव (००४०,०००१)), SendingApplicationEntityTitleOfSeries (= मालिका पाठवणाऱ्या अनुप्रयोग घटकाचे नाव (७७७७,xx३७)).",
+      "type": "string",
+      "enum": [
+        "ScheduledStationAETitle",
+        "SendingApplicationEntityTitleOfSeries"
+      ]
+    },
+    "dcmNullifyTag": {
+      "title": "विशेषता टॅग अमान्य करा",
+      "description": "हेक्स स्ट्रिंग म्हणून विशेषताचे DICOM टॅग जे अमान्य होईल.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
+    "dcmMergeAttribute": {
+      "title": "विशेषता विलीन करा",
+      "description": "DICOM विशेषतांना या प्रारूपात {attributeID}={value} विलीन करा. {value} च्या आतील {attributeID} ला मूळ डेटासेटमध्ये असलेल्या विशेषतांच्या मूल्याने बदलले जातील. उदाहरण : InstitutionName=RegionalHospital किंवा 00081040=XRay.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmNullifyIssuerOfPatientID": {
+      "title": "रुग्णाच्या ID चा जारीकर्ता अमान्य करा",
+      "description": "प्राप्त झालेल्या दृष्टांतांमध्ये रुग्णाच्या ID चा जारीकर्ता (००१०,००२१) आणि रुग्णाच्या ID चा जारीकर्ता क्वालीफायर क्रम (००१०,००२४) सशर्तपणे अमान्य करा.",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "MATCHING",
+        "NOT_MATCHING"
+      ]
+    },
+    "dcmIssuerOfPatientID": {
+      "title": "रुग्णाच्या ID चा जारीकर्ता",
+      "description": "रुग्णाच्या ID चा जारीकर्ता (००१०,००२१), आणि इचछेनुसार रुग्णाच्या ID चा जारीकर्ता क्वालीफ़ायर क्रम (००१०,००२४) च्या आयटमचे युनिव्हर्सल एंटिटी ID (००४०,००३२) आणि युनिव्हर्सल एंटिटी ID प्रकार (००४०,००३३) च्या मूल्यांनासुद्धा प्राप्त झालेल्या दृष्टांतांमधल्या विशेषतांबरोबर जुळवले जातील, केवळ लागू होईल जर 'रुग्णाच्या ID चा जारीकर्ता अमान्य करा' ला MATCHING किंवा NOT_MATCHING कॉन्फीगर केलेले आहे. प्रारूप: <रुग्णाच्या ID चा जारीकर्ता> [& <युनिव्हर्सल एंटिटी ID> & <युनिव्हर्सल एंटिटी ID प्रकार>].",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmIssuerOfPatientIDFormat": {
+      "title": "रुग्णाच्या ID चा जारीकर्ताचे प्रारूप",
+      "description": "इतर विशेषतांमधून साधित केलेले रुग्णाच्या ID चा जारीकर्ता (००१०,००२१) चे प्रारूप. उदाहरण : \"\"{00100010,hash}-{00100030}\"\": \"\"-\"\" ने विभक्त केलेल्या रुग्णाचे नाव आणि जन्मतारखेचे हॅश मूल्य वापरा. प्राप्त झालेल्या दृष्टांतांमध्ये विद्यमान रुग्णाच्या ID चा जारीकर्ताचे मूल्यांचा बळजबरी करण्यासाठी 'रुग्णाच्या ID चा जारीकर्ता अमान्य करा' च्या मूल्यांनासुद्धा संच करणे आवश्यक आहे.",
+      "type": "string"
+    },
+    "dcmSupplementFromDeviceReference": {
+      "title": "डिव्हाइसमधून पूरक करा",
+      "description": "डिव्हाइसचे नाव ज्यातून असाइनिंग ऑथॉरिटीज आणि इतर माहिती प्राप्त झालेल्या संमिश्र दृष्टांते आणि MPPS पूरक करण्यासाठी घेतली जाते.",
+      "type": "string",
+      "format": "dicomDeviceName"
+    }
+  }
+}

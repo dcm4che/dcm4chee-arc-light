@@ -1,0 +1,51 @@
+{
+  "title": "UI过滤器模板",
+  "description": "定义的过滤器模板",
+  "type": "object",
+  "required": [
+    "dcmuiFilterTemplateGroupName",
+    "dcmuiFilterTemplateID",
+    "dcmuiFilterTemplateFilters"
+  ],
+  "properties": {
+    "dcmuiFilterTemplateGroupName": {
+      "title": "名称",
+      "description": "模板名称",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateID": {
+      "title": "ID",
+      "description": "可以应用此模板的过滤器的ID",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateDescription": {
+      "title": "描述",
+      "description": "过滤器模板描述",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateUsername": {
+      "title": "用户名",
+      "description": "可以使用此模板的用户名",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateRole": {
+      "title": "角色",
+      "description": "可以使用此模板的用户名角色",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateFilters": {
+      "title": "过滤器",
+      "description": "该模板的默认过滤器，过滤器键值对<key=value>（例如:LocalAET=DCM4CHEE）。对于日期过滤器,可以使用预定义的关键字（例如:today, yesterday, this_week, this_month, last_week, last_month, this_quarter, last_quarter, this_year, last_year）生成过滤器的动态值。",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiFilterTemplateDefault": {
+      "title": "默认值",
+      "description": "使用此模板作为默认值",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

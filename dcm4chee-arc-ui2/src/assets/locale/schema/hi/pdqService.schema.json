@@ -1,0 +1,54 @@
+{
+  "title": "PDQ सेवा",
+  "description": "Patient Demographics Query सेवा वर्णनकर्ता ।",
+  "type": "object",
+  "required": [
+    "dcmPDQServiceID",
+    "dcmURI",
+    "dcmEntity"
+  ],
+  "properties": {
+    "dcmPDQServiceID": {
+      "title": "PDQ सेवा ID",
+      "description": "Patient Demographics Query सेवा ID ।",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmPatientVerificationPDQServiceID"
+      ]
+    },
+    "dcmURI": {
+      "title": "PDQ सेवा URI",
+      "description": "Patient Demographics Query सेवा URI, उदाहरण के तौर पे 'pdq-dicom:FINDSCP' या 'pdq-hl7:SendingApplication/SendingFacility:ReceivingApplication/ReceivingFacility' या pdq-fhir:HL7-FHIR-R4-WebApplication।",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "PDQ सेवा का वर्णन",
+      "description": "Patient Demographics Query सेवा का स्वैछिक विषय वर्णन ।",
+      "type": "string"
+    },
+    "dcmTag": {
+      "title": "मरीज़ रेकॉर्ड के गुण",
+      "description": "प्राप्त किए गए मरीज़ के रेकॉर्ड के गुण, अगर निर्दिष्ट न किया हो तो मरीज़ के रेकॉर्ड के सारे मौजूद गुणों को प्राप्त किया जाएगा । Only applicable for 'pdq-dicom' PDQ Service",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    },
+    "dcmEntity": {
+      "title": "तत्त्व प्राप्ति",
+      "description": "C-FIND SCP से मरीज़ के रेकॉर्ड या मरीज़ के स्टडीज की प्राप्ति का संकेत करता है । सिर्फ DICOM PDQ सेवाओं के लिए प्रभावशाली ('PDQ सेवा URI': pdq-dicom:{AETitle}) ।",
+      "type": "string",
+      "enum": [ "Patient", "Study" ],
+      "default": "Patient"
+    },
+    "dcmProperty": {
+      "title": "PDQ सेवा गुण",
+      "description": "गुण इस प्रारूप में <नाम>=<मूल्य>, उदाहरण के तौर पे 'LocalAET=DCM4CHEE' या 'XSLStylesheetURI=${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl'  or 'XSLStylesheetURI=${jboss.server.temp.url}/dcm4chee-arc/fhir-pat2dcm.xsl' for URI with schema pdq-fhir. Additional properties for URI with schema pdq-fhir may be set eg. 'search._format=xml', 'search.identifier.system={issuer}'. For complete list of properties, refer https://github.com/dcm4che/dcm4chee-arc-light/issues/3307।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

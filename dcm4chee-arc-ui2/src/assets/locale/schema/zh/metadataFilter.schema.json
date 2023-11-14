@@ -1,0 +1,25 @@
+{
+  "title": "元数据过滤器",
+  "description": "WADO-RS元数据请求的命名属性过滤器。",
+  "type": "object",
+  "required": [
+    "dcmMetadataFilterName",
+    "dcmTag"
+  ],
+  "properties": {
+    "dcmMetadataFilterName": {
+      "title": "元数据过滤器名称",
+      "description": "由WADO-RS元数据请求的自定义'includefields'查询参数引用的元数据过滤器名称。 ",
+      "type": "string"
+    },
+    "dcmTag": {
+      "title": "属性标签",
+      "description": "DICOM标签作为十六进制字符串",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    }
+  }
+}

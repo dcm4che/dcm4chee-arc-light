@@ -1,0 +1,166 @@
+{
+  "title": "UPS Processing Rule",
+  "description": "Process matching Workitems in unified Worklist",
+  "type": "object",
+  "required": [
+    "dcmUPSProcessingRuleID",
+    "dcmUPSInputReadinessState",
+    "dcmURI",
+    "dicomAETitle",
+    "dcmUPSPerformedWorkitemCode",
+    "dcmUPSPerformedStationNameCode",
+    "dcmRetryDelay",
+    "dcmRetryDelayMultiplier",
+    "dcmMaxRetries",
+    "dcmMaxThreads"
+  ],
+  "properties": {
+    "dcmUPSProcessingRuleID": {
+      "title": "UPS Processing Rule ID",
+      "description": "ID of UPS Processing Rule",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "Application Entity (AE) title",
+      "description": "Application Entity (AE) title",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmURI": {
+      "title": "UPS Processor URI",
+      "description": "Identifies UPS Processor for processing matching Workitems",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "Processing Property",
+      "description": "UPS Processor dependent property in format <name>=<value>",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmSchedule": {
+      "title": "Processing Schedule",
+      "description": "Delay processing to specified time periods. If no Processing Schedule is specified, process Workitems at their Scheduled Procedure Step Start Date Time (0040,4005). Format: 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmSchedule"
+    },
+    "dcmMaxThreads": {
+      "title": "Maximum Number of Threads",
+      "description": "Maximal number of threads used for processing of matching Workitems.",
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "Input Readiness State",
+      "description": "Process Workitems with matching Input Readiness State (0040,4041).",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSPriority": {
+      "title": "Priority",
+      "description": "Process Workitems with matching Scheduled Procedure Step Priority (0074,1200). If absent, process Workitems of any priority, but order the processing according their priority.",
+      "type": "string",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSLabel": {
+      "title": "Procedure Step Label",
+      "description": "Process Workitems with matching Procedure Step Label (0074,1204). If absent, process Workitems with any Procedure Step Label.",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "Worklist Label",
+      "description": "Process Workitems with matching Worklist Label (0074,1202). If absent, process Workitems with any Worklist Label.",
+      "type": "string"
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "Scheduled Workitem Code",
+      "description": "Process Workitems with matching Code in Scheduled Workitem Code Sequence (0040,4018) in format (CV, CSD, \"CM\"). If absent, process Workitems with any Scheduled Workitem Code.",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "Scheduled Station Name Code",
+      "description": "Process Workitems with matching Code in Scheduled Station Name Code Sequence (0040,4025) in format (CV, CSD, \"CM\"). If absent, process Workitems with any Scheduled Station Name Code.",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "Scheduled Station Class Code",
+      "description": "Process Workitems with matching Code in Scheduled Station Name Class Sequence (0040,4026) in format (CV, CSD, \"CM\"). If absent, process Workitems with any Scheduled Station Class Code.",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "Scheduled Station Geographic Location Code",
+      "description": "Process Workitems with matching Code in Scheduled Station Geographic Location Class Sequence (0040,4027) in format (CV, CSD, \"CM\"). If absent, process Workitems with any Scheduled Station Geographic Location Code.",
+      "type": "string"
+    },
+    "dcmUPSPerformedWorkitemCode": {
+      "title": "Performed Workitem Code",
+      "description": "Item of Performed Workitem Code Sequence (0040,4019) in processed UPS in format (CV, CSD, \"CM\").",
+      "type": "string",
+      "default": "(NO_WORKITEM_CODE, 99DCM4CHEE, \"Workitem Code\")"
+    },
+    "dcmUPSPerformedStationNameCode": {
+      "title": "Performed Station Name Code",
+      "description": "Item of Performed Station Name Code Sequence (0040,4028) in processed UPS in format (CV, CSD, \"CM\").",
+      "type": "string",
+      "default": "(NO_STATION_NAME, 99DCM4CHEE, \"No Station Name specified\")"
+    },
+    "dcmUPSIgnoreDiscontinuationReasonCode": {
+      "title": "Ignore Discontinuation Reason Code",
+      "description": "Specifies Discontinuation Reason Code in format (CV, CSD, \"CM\") to ignore and change UPS State to COMPLETED - instead of CANCELED.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSRescheduleDiscontinuationReasonCode": {
+      "title": "Reschedule Discontinuation Reason Code",
+      "description": "Specifies Discontinuation Reason Code in format (CV, CSD, \"CM\") to reschedule the canceled UPS. If absent, UPS canceled with any Discontinuation Reason Code will be rescheduled according specified Maximum Number of Rescheduling.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSTemplateID": {
+      "title": "Create UPS on Cancel",
+      "description": "Specifies UPS Template Workitem Instance UID for creating an UPS if the processing failed and retry is not scheduled any more. If absent, no UPS will be created on failures.",
+      "type": "string"
+    },
+    "dcmMaxRetries": {
+      "title": "Maximum Number of Rescheduling",
+      "description": "Maximal number a Workitem which processing failed is rescheduled.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "Reschedule Delay",
+      "description": "Delay to reschedule a Workitem which processing failed in ISO-8601 duration format PnDTnHnMn.nS.",
+      "type": "string",
+      "default": "PT1M",
+      "format": "dcmDuration"
+    },
+    "dcmMaxRetryDelay": {
+      "title": "Maximum Reschedule Delay",
+      "description": "Maximal Delay to reschedule a Workitem which processing failed in ISO-8601 duration format PnDTnHnMn.nS. Infinite if absent.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmRetryDelayMultiplier": {
+      "title": "Reschedule Delay Multiplier",
+      "description": "Multiplier in % that will take effect on top of Reschedule Delay with Maximum Reschedule Delay to be taken into account.",
+      "type": "integer",
+      "minimum": 100,
+      "default": 100
+    }
+  }
+}

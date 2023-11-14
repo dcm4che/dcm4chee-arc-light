@@ -1,0 +1,29 @@
+{
+  "title": "ID जनरेटर",
+  "description": "ID जनरेटर.",
+  "type": "object",
+  "required": [
+    "dcmIDGeneratorName",
+    "dcmIDGeneratorFormat",
+    "dcmIDGeneratorInitialValue"
+  ],
+  "properties": {
+    "dcmIDGeneratorName": {
+      "title": "ID जनरेटरचे नाव",
+      "description": "ID जनरेटरचे नाव.",
+      "type": "string"
+    },
+    "dcmIDGeneratorFormat": {
+      "title": "ID जनरेटर स्वरूप",
+      "description": "या ID जनरेटरद्वारे स्वरूपित स्ट्रिंग. %०<width>d अनुक्रमित संख्येद्वारे दिलेल्या रुंदीनुसार अग्रगण्य शून्यांसह बदलली जाईल.",
+      "type": "string"
+    },
+    "dcmIDGeneratorInitialValue": {
+      "title": "ID जनरेटर आरंभिक मूल्य",
+      "description": "या ID जनरेटरद्वारे वापरलेल्या अनुक्रमेचे प्रारंभिक मूल्य.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 1
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "title": "批量数据描述符",
+  "description": "批量数据描述符",
+  "type": "object",
+  "required": [
+    "dcmBulkDataDescriptorID",
+    "dcmBulkDataExcludeDefaults"
+  ],
+  "properties": {
+    "dcmBulkDataDescriptorID": {
+      "title": "批量数据描述符ID",
+      "description": "批量数据描述符ID",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmBulkDataDescriptorID"
+      ]
+    },
+    "dcmBulkDataExcludeDefaults": {
+      "title": "排除默认值",
+      "description": "指示“没有批量数据服务类的复合实例检索”的属性否应被隐式地视为批量数据(=false)或否(=true)。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAttributeSelector": {
+      "title": "属性选择器",
+      "description": "通过XPath指定作为批量数据处理的单个属性（例如, 'DicomAttribute[@tag=\"54000100\"]/Item/DicomAttribute[@tag=\"54001010\"]'）",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAttributeSelector"
+    },
+    "dcmBulkDataVRLengthThreshold": {
+      "title": "VR LengthThreshold",
+      "description": "指定将值长度超过指定阈值的特定值表示(VR)的所有属性视为批量日期。格式:<VR>=<length-threshold>。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmBulkDataVRLengthThreshold"
+    }
+  }
+}

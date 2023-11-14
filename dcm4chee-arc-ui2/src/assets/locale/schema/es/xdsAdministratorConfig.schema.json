@@ -1,0 +1,248 @@
+{
+  "title": "XDS Administrator Configuration Name",
+  "description": "XDS Administrator Configuration Name",
+  "type": "object",
+  "required": [
+    "xdsAdConfigName",
+    "xdsAdDisplayName",
+    "xdsAdIti18URL",
+    "xdsAdIti51URL",
+    "xdsAdIti57URL",
+    "xdsAdIti62URL",
+    "xdsAdNamespaceID",
+    "xdsAdRootOID",
+    "xdsAdSamlEnabled",
+    "xdsAdSourceOID",
+    "xdsAdUniversalID",
+    "xdsAdUniversalIDType"
+  ],
+  "properties": {
+    "xdsAdConfigName": {
+      "title": "XDS Administrator Configuration Name",
+      "description": "XDS Administrator Configuration Name",
+      "type": "string"
+    },
+    "xdsAdDisplayName": {
+      "title": "Display name of Affinity Domain",
+      "description": "Display name of Affinity Domain",
+      "type": "string"
+    },
+    "xdsAdIti18URL": {
+      "title": "ITI-18 URL",
+      "description": "ITI-18 URL - f.e xds-iti18://server/registry/query?secure=true",
+      "type": "string"
+    },
+    "xdsAdIti51URL": {
+      "title": "ITI-51 URL",
+      "description": "ITI-51 URL - f.e xds-iti51://server/registry/query?secure=true",
+      "type": "string"
+    },
+    "xdsAdIti57URL": {
+      "title": "ITI-57 URL",
+      "description": "ITI-57 URL - f.e xds-iti57://server/registry/register?secure=true",
+      "type": "string"
+    },
+    "xdsAdIti62URL": {
+      "title": "ITI-62 URL",
+      "description": "ITI-62 URL - f.e. rmd-iti62://server/registry/remove?secure=true",
+      "type": "string"
+    },
+    "xdsAdNamespaceID": {
+      "title": "Namespace ID",
+      "description": "Namespace ID - f.e. HOSP",
+      "type": "string"
+    },
+    "xdsAdRootOID": {
+      "title": "Root OID",
+      "description": "Root OID - f.e. 1.2.3.4",
+      "type": "string"
+    },
+    "xdsAdSamlAudienceURIs": {
+      "title": "SAML Audience URIs",
+      "description": "SAML Audience URIs - f.e. uris",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+     },
+     "xdsAdSamlAttributes": {
+      "title": "SAML Attributes",
+      "description": "SAML Attributes - f.e. urn:oasis:names:tc:xacml:1.0:subject:subject-id=J4care-VNA",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+     },     
+     "xdsAdSamlAuthenticationMethod": {
+      "title": "SAML Authentication Method",
+      "description": "SAML Authentication Method - f.e. X509",
+      "type": "string"
+     },
+    "xdsAdSamlCertificate": {
+      "title": "SAML Certificate",
+      "description": "SAML Certificate - Path to Certificate File",
+      "type": "string"
+    },
+    "xdsAdSamlEnabled": {
+      "title": "SAML Enabled",
+      "description": "SAML Enabled",
+      "type": "boolean",
+      "default": false
+    },
+     "xdsAdSamlIssuer": {
+      "title": "SAML Issuer",
+      "description": "SAML Issuer - f.e Issuer",
+      "type": "string"
+    },
+     "xdsAdSamlNameID": {
+      "title": "SAML Name ID",
+      "description": "SAML Name ID - f.e. nameID",
+      "type": "string"
+    },
+     "xdsAdSamlNameQualifier": {
+      "title": "SAML Name Qualifier",
+      "description": "SAML Name Qualifier - f.e. nameQualifier",
+      "type": "string"
+    },
+    "xdsAdSamlPrivateKey": {
+      "title": "SAML Private Key",
+      "description": "SAML Private Key - Path to Private Key",
+      "type": "string"
+    },
+     "xdsAdSamlPurposeOfUseCode": {
+      "title": "SAML Purpose of Use Code",
+      "description": "SAML Purpose of Use Code - f.e 1^Clinical care provision to an individual subject of care^1.0.14265.1^ISO 14265 Classification of Purposes for processing personal health information",
+      "type": "string"
+    },
+     "xdsAdSamlRoleCode": {
+      "title": "SAML Role Code",
+      "description": "SAML Role Code - f.e. 01.000^Arts^2.16.840.1.113883.2.4.15.111^roleCodeNLZorgverlenertype",
+      "type": "string"
+    },
+     "xdsAdSourceOID": {
+      "title": "Source OID",
+      "description": "Source OID - f.e. 1.2.3.4",
+      "type": "string"
+    },
+      "xdsAdSslKeystore": {
+      "title": "SSL Keystore",
+      "description": "SSL Keystore - Path to SSL Keystore - leave empty if no SSL Context should be setuped",
+      "type": "string"
+    },
+     "xdsAdSslKeystorePassword": {
+      "title": "SSL Keystore Password",
+      "description": "SSL Keystore Password",
+      "type": "string"
+    },
+    "xdsAdSslTruststore": {
+      "title": "SSL Truststore",
+      "description": "SSL Truststore - Path to Truststore",
+      "type": "string"
+    },
+    "xdsAdSslTruststorePassword": {
+      "title": "SSL Truststore Password",
+      "description": "SSL Truststore Password",
+      "type": "string"
+    },
+     "xdsAdUniversalID": {
+      "title": "Universal ID",
+      "description": "Universal ID - f.e 2.16.840.1.113883.2.4.6.3",
+      "type": "string"
+    },
+     "xdsAdUniversalIDType": {
+      "title": "Universal ID Type",
+      "description": "Universal ID Type - f.e ISO",
+      "type": "string"
+    },
+      "xdsAdFpAet": {
+      "title": "Fix Patients - AET",
+      "description": "Fix Patients - AET",
+      "type": "string"
+    },
+    "xdsAdFpAssigningAuthority": {
+      "title": "Fix Patients - Assigning Authority",
+      "description": "Fix Patients - Assigning Authority",
+      "type": "string"
+    },
+      "xdsAdFpDcm4cheeURL": {
+      "title": "Fix Patients - DCM4CHEE URL",
+      "description": "Fix Patients - DCM4CHEE URL",
+      "type": "string"
+    },
+      "xdsAdFpDomainsReturnedAssigningAuthority": {
+      "title": "Fix Patients - Domains Returned Assigning Authority",
+      "description": "Fix Patients - Domains Returned Assigning Authority",
+      "type": "string"
+    },
+      "xdsAdFpDomainsReturnedUniversalID": {
+      "title": "Fix Patients - Domains Returned Universal ID",
+      "description": "Fix Patients - Domains Returned Universal ID",
+      "type": "string"
+    },
+     "xdsAdFpFixPatientsExporterID": {
+      "title": "Fix Patients - Fix Patients ExporterID",
+      "description": "Fix Patients - Fix Patients ExporterID",
+      "type": "string"
+    },
+     "xdsAdFpKeycloakURL": {
+      "title": "Fix Patients - Keycloak URL",
+      "description": "Fix Patients - Keycloak URL",
+      "type": "string"
+    },
+     "xdsAdFpPixURL": {
+      "title": "Fix Patients - PIX URL",
+      "description":"PIX URL to query in the form pix-iti9://hostname:port",
+      "type": "string"
+    },
+    "xdsAdFpReceivingApplication": {
+      "title": "Fix Patients - Receiving Application",
+      "description": "Fix Patients - Receiving Application",
+      "type": "string"
+    },
+     "xdsAdFpReceivingFacility": {
+      "title": "Fix Patients - Receiving Facility",
+      "description": "Fix Patients - Receiving Facility",
+      "type": "string"
+    },
+     "xdsAdFpSecret": {
+      "title": "Fix Patients - Secret",
+      "description": "Fix Patients - Secret",
+      "type": "string"
+    },
+    "xdsAdFpSendingApplication": {
+      "title": "Fix Patients - Sending Application",
+      "description": "Fix Patients - Sending Application",
+      "type": "string"
+    },
+    "xdsAdFpSendingFacility": {
+      "title": "Fix Patients - Sending Facility",
+      "description": "Fix Patients - Sending Facility",
+      "type": "string"
+    },
+     "xdsAdFpUniversalID": {
+      "title": "Fix Patients - Universal ID",
+      "description": "Fix Patients - Universal ID",
+      "type": "string"
+    },
+    "xdsAdRepository":{
+      "title": "XDS Repositories",
+      "description": "XDS Repositories for this Affinity Domain",
+      "titleKey":"{xdsAdRepositoryName}",
+      "type": "array",
+      "items" : {
+        "$ref": "xdsRepository.schema.json"
+      }
+    }
+    ,
+    "xdsAdTemplate":{
+      "title": "XDS Templates",
+      "description": "XDS Templates for Metadata",
+      "titleKey":"{xdsAdTemplateName}",
+      "type": "array",
+      "items" : {
+        "$ref": "xdsTemplate.schema.json"
+      }
+    }
+  }
+}
+  

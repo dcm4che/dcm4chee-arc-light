@@ -1,0 +1,51 @@
+{
+  "title": "UI检查表配置",
+  "description": "检查表配置的专业配置",
+  "type": "object",
+  "required": [
+    "dcmuiTableConfigName"
+  ],
+  "properties": {
+    "dcmuiTableConfigName": {
+      "title": "Configuration Name",
+      "description": "UI  Table Configuration Name",
+      "type": "string"
+    },
+    "dcmuiTableConfigUsername": {
+      "title": "Username",
+      "description": "Username to which this set should be available",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiTableConfigRoles": {
+      "title": "Role",
+      "description": "Username role that can use this Set ( If you set the username, the role will be ignored )",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiTableID": {
+      "title": "Table ID",
+      "description": "The ID of the Table in the UI for which the config should be effective",
+      "type": "string"
+    },
+    "dcmuiTableConfigIsDefault": {
+      "title": "Is Default",
+      "description": "Set this Column-Set to the default one. (Make sure that only one of the Set - siblings child is set to default).",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmuiTableColumnConfigObjects": {
+      "title": "Table Columns",
+      "description": "Define Table Columns",
+      "titleKey":"{dcmuiColumnName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiTableColumns.schema.json"
+      }
+    }
+  }
+}

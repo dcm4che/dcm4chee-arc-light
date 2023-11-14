@@ -1,0 +1,41 @@
+{
+  "title": "UI इलास्टिकसर्च URL विन्यास",
+  "description": "इलास्टिकसर्च URL ।",
+  "type": "object",
+  "required": [
+    "dcmuiElasticsearchURLName",
+    "dcmuiElasticsearchURL",
+    "dcmuiElasticsearchIsDefault",
+    "dcmuiElasticsearchInstalled"
+  ],
+  "properties": {
+    "dcmuiElasticsearchURLName": {
+      "title": "इलास्टिकसर्च URL का नाम",
+      "description": "UI इलास्टिकसर्च URL का नाम ।",
+      "type": "string"
+    },
+    "dcmuiElasticsearchWebApp": {
+      "title": "इलास्टिकसर्च वेब अनुप्रयोग",
+      "description": "इलास्टिकसर्च URL निकालकर इलास्टिकसर्च उपयोग करने के लिए इस्तमाल किया गया वेब अनुप्रयोग ।",
+      "type": "string",
+      "format": "webApp"
+    },
+    "dcmuiAuditEnterpriseSiteID": {
+      "title": "ऑडिट एंटरप्राइज साइट ID",
+      "description": "इलास्टिकसर्च प्रश्नों पे इस्तमाल किए जानेवाले ऑडिट एंटरप्राइज साइट ID को सेट करें ।",
+      "type": "string"
+    },
+    "dcmuiElasticsearchIsDefault": {
+      "title": "डिफ़ॉल्ट है",
+      "description": "इस URL विन्यास को डिफ़ॉल्ट के रूप में सेट करें । (सुनिश्चित करें की सिर्फ किसी एक URL विन्यास को डिफ़ॉल्ट के रूप में सेट करें) ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmuiElasticsearchInstalled": {
+      "title": "स्थापित",
+      "description": "इस URL को UI में इस्तमाल करें ।",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

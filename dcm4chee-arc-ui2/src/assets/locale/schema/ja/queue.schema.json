@@ -1,0 +1,109 @@
+{
+  "title": "キュー",
+  "description": "管理された タスク キュー",
+  "type": "object",
+  "required": [
+    "dcmQueueName",
+    "dcmMaxTasksParallel",
+    "dcmRetryDelay",
+    "dcmRetryOnWarning",
+    "dcmRetryDelayMultiplier",
+    "dcmMaxRetries",
+    "dicomInstalled"
+  ],
+  "properties": {
+    "dcmQueueName": {
+      "title": "キュー名",
+      "description": "タスク キュー名",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiQueueName[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCompareSideObjects[*].dcmuiCompareSideQueueName"
+      ]
+    },
+    "dicomInstalled": {
+      "title": "installed",
+      "description": "「false」の 場合、 この キュー 内の タスクの 処理は 一時停止 されます。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmMaxTasksParallel": {
+      "title": "最大 並列 タスク",
+      "description": "並行して 処理される タスクの 最大数。",
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "dicomDescription": {
+      "title": "DICOM 説明",
+      "description": "DICOM エンティティの テキストに よる 説明",
+      "type": "string"
+    },
+    "dcmMaxRetries": {
+      "title": "最大 再試行 回数",
+      "description": "特定の キューで 予定された タスクを 処理 する 最大 再試行 回数。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "再試行 遅延",
+      "description": "ISO-8601 期間 形式 PnDTnHnMn.nSで 特定の キューに 予定された タスクの 処理を 再試行 する ための 遅延。",
+      "type": "string",
+      "default": "PT1M",
+      "format": "dcmDuration"
+    },
+    "dcmMaxRetryDelay": {
+      "title": "最大 再試行 遅延",
+      "description": "ISO-8601 期間 形式 PnDTnHnMn.nSで 特定の キューに 予定された タスクの 処理を 再試行 する ための 最大 遅延。 存在しない 場合は 無限です。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmRetryDelayMultiplier": {
+      "title": "再試行 遅延 乗数",
+      "description": "「最大 再試行 遅延」が 考慮される 「再試行 遅延」の 上に 有効に なる 乗数 (%)",
+      "type": "integer",
+      "minimum": 100,
+      "default": 100
+    },
+    "dcmRetryOnWarning": {
+      "title": "警告時に 再試行",
+      "description": "失敗時だけでなく、 特定の キューの 警告 結果 ステータスでも タスクを 再試行できるように します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmPurgeQueueMessageCompletedDelay": {
+      "title": "完了した キュー メッセージを パージ するための 遅延",
+      "description": "ISO-8601 期間 形式 PnDTnHnMn.nSで 遅延した後、 完了した キュー メッセージが パージされます。 存在しない 場合、 その 特定の キューの 削除は ありません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageFailedDelay": {
+      "title": "失敗した キュー メッセージを パージ するための 遅延",
+      "description": "ISO-8601 期間 形式 PnDTnHnMn.nSで 遅延した後、 失敗した キュー メッセージが パージされます。 存在しない 場合、 その 特定の キューの 削除は ありません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageWarningDelay": {
+      "title": "警告 キュー メッセージを パージ するための 遅延",
+      "description": "ISO-8601 期間 形式 PnDTnHnMn.nSで 遅延した後、 警告 キュー メッセージが パージされます。 存在しない 場合、 その 特定の キューの 削除は ありません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageCanceledDelay": {
+      "title": "キャンセルされた キュー メッセージを パージ するための 遅延",
+      "description": "ISO-8601 期間 形式 PnDTnHnMn.nSで 遅延した後、 キャンセルされた キュー メッセージが パージされます。 存在しない 場合、 その 特定の キューの 削除は ありません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmSchedule": {
+      "title": "予定を 制限 する",
+      "description": "指定した 時間 範囲に 予定を 制限します。 指定された 時間 範囲内で 処理される タスクの 最大数を 制御するには、 「最大 キュー サイズ」を 使用します。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    }
+  }
+}

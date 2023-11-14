@@ -1,0 +1,33 @@
+{
+  "title": "UI デバイス URL",
+  "description": "主なの UI URL かたわらで 使用 する デバイス URLの 構成",
+  "type": "object",
+  "required": [
+    "dcmuiDeviceURLName",
+    "dcmuiDeviceURL",
+    "dcmuiDeviceURLInstalled"
+  ],
+  "properties": {
+    "dcmuiDeviceURLName": {
+      "title": "デバイス URL 名前",
+      "description": "デバイス 構成された URLの 名前。",
+      "type": "string"
+    },
+    "dcmuiDeviceURL": {
+      "title": "デバイス URL",
+      "description": "デバイスの アクセス URL。例えば : http(s)://<myDevice-host>:<myDevice-port>",
+      "type": "string"
+    },
+    "dcmuiDeviceURLDescription": {
+      "title": "説明",
+      "description": "デバイス URL 説明",
+      "type": "string"
+    },
+    "dcmuiDeviceURLInstalled": {
+      "title": "インストール済み",
+      "description": "UIで この URLを 使用 する。",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

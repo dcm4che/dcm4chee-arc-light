@@ -1,0 +1,168 @@
+{
+  "title": "デバイス 拡張",
+  "description": "デバイス 属性の「dcm4che」 独自 属性",
+  "type": "object",
+  "required": [
+    "dcmRoleSelectionNegotiationLenient",
+    "dcmLimitOpenAssociations"
+  ],
+  "properties": {
+    "dcmRoleSelectionNegotiationLenient": {
+      "title": "役割 選択 ネゴシエーション 寛容",
+      "description": "DIMSE-RQの 送信時に 必要な SCP / SCU 役割 選択 ネゴシエーションの チェックを 無効に する ことを 示します。 特定の ネットワーク AEの 構成された 値によって 上書きされる 場合が あります。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmLimitOpenAssociations": {
+      "title": "関連付け 制限",
+      "description": "開いて いる DICOM 接続の 最大数; 制限を 超えた 場合、 関連付け 要求 を 拒否します; 0 = 無制限。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmLimitAssociationsInitiatedBy": {
+      "title": "AEの 関連付け 制限",
+      "description": "<ae-title>=<number> 形式で 特定の アプリケーション エンティティ (AE)に よって 開始された 開いて いる DICOM 接続の 最大数; 制限を 超えた 場合、 その AEからの関連付け 要求を 拒否します。",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmLimitAssociationsInitiatedBy"
+    },
+    "dcmTrustStoreURL": {
+      "title": "トラストストア URL",
+      "description": "この ノードへの 接続が 許可されて いる DICOM ノードの 証明書を 含む トラストストア URL; 「dicomAuthorizedNodeCertificateReference」を 上書きします。",
+      "type": "string"
+    },
+    "dcmTrustStoreType": {
+      "title": "トラストストア タイプ",
+      "description": "トラストストア URLで 指定された トラストストアの キーストア タイプ。 列挙値 : JKS, PKCS12.",
+      "type":"string"
+    },
+    "dcmTrustStorePin": {
+      "title": "トラストストア ピン",
+      "description": "トラストストア URLで 指定された トラストストアの キーストア パスワード",
+      "type": "string"
+    },
+    "dcmTrustStorePinProperty": {
+      "title": "トラストストア ピン 属性",
+      "description": "トラストストア URLで 指定された トラストストアの キーストア パスワードの システム 属性",
+      "type": "string"
+    },
+    "dcmKeyStoreURL": {
+      "title": "キーストア URL",
+      "description": "TLS 接続で この DICOM ノードを 識別するために 使用される 秘密鍵と 証明書を 含む キーストア URL",
+      "type": "string"
+    },
+    "dcmKeyStoreType": {
+      "title": "キーストア タイプ",
+      "description": "キーストア URLで 指定された キーストアの タイプ。 列挙値 : JKS, PKCS12.",
+      "type": "string"
+    },
+    "dcmKeyStorePin": {
+      "title": "キーストア ピン",
+      "description": "キーストア URLで 指定された キーストアの キーストア パスワード",
+      "type": "string"
+    },
+    "dcmKeyStorePinProperty": {
+      "title": "キーストア ピン 属性",
+      "description": "キーストア URLで 指定された キーストアの キーストア パスワードの システム 属性",
+      "type": "string"
+    },
+    "dcmKeyStoreKeyPin": {
+      "title": "キーストアの キー ピン",
+      "description": "キーストア URLで 指定された キーストアの キー パスワード",
+      "type": "string"
+    },
+    "dcmKeyStoreKeyPinProperty": {
+      "title": "キーストアの キーピンの 属性",
+      "description": "キーストア URLで 指定された キーストアの キー パスワードの システム 属性",
+      "type": "string"
+    },
+    "dcmTimeZoneOfDevice": {
+      "title": "デバイスの タイムゾーン",
+      "description": "デバイスの タイムゾーン ID; Java タイムゾーン IDに 一致 する",
+      "type": "string"
+    },
+    "dcmWebApp": {
+      "title": "ウェブ アプリケーション",
+      "description": "デバイスに よって 提供される ウェブ アプリケーション",
+      "type": "array",
+      "titleKey":"{dcmWebAppName}",
+      "order":26,
+      "items": {
+        "$ref": "webApplication.schema.json"
+      }
+    },
+    "dcmKeycloakClient": {
+      "title": "キークローク クライアント",
+      "description": "デバイスに よって 提供される キークローク クライアント",
+      "type": "array",
+      "titleKey":"{dcmKeycloakClientID}",
+      "order":27,
+      "items": {
+        "$ref": "keycloakClient.schema.json"
+      }
+    },
+    "hl7Application": {
+      "title": "HL7 アプリケーション",
+      "description": "デバイスに よって 提供される HL7 アプリケーション",
+      "type": "array",
+      "titleKey":"{hl7ApplicationName}",
+      "order":28,
+      "items": {
+        "$ref": "hl7Application.schema.json"
+      }
+    },
+    "dcmImageWriter": {
+      "title": "画像 ライター",
+      "description": "DICOM 画像の 圧縮に 使用される 書き込み パラメーターを 持つ Java 画像 IO 画像 ライターを 指定します",
+      "type": "array",
+      "titleKey":"{dicomTransferSyntax}",
+      "order":29,
+      "items": {
+        "$ref": "imageWriter.schema.json"
+      }
+    },
+    "dcmImageReader": {
+      "title": "画像 リーダー",
+      "description": "圧縮された DICOM 画像の 解凍に 使用される Java 画像 IO 画像 リーダーを 指定します",
+      "type": "array",
+      "titleKey":"{dicomTransferSyntax}",
+      "order":30,
+      "items": {
+        "$ref": "imageReader.schema.json"
+      }
+    },
+    "dcmAuditLogger": {
+      "title": "監査 ロガー",
+      "description": "監査 ロガー 関連 情報",
+      "titleKey":"{cn}",
+      "type": "array",
+      "order":31,
+      "items" : {
+        "$ref": "auditLogger.schema.json"
+      }
+    },
+    "dcmAuditRecordRepository": {
+      "title": "監査 記録 リポジトリ",
+      "description": "監査 記録 リポジトリ 関連 情報",
+      "$ref": "auditRecordRepository.schema.json",
+      "order":32
+    },
+    "dcmArchiveDevice": {
+      "title": "アーカイブ デバイス",
+      "description": "DICOM アーカイブ デバイス 関連 情報",
+      "order":33,
+      "$ref": "archiveDevice.schema.json"
+    },
+    "dcmuiConfig": {
+      "title": "UI 構成",
+      "description": "UI 構成",
+      "titleKey":"{dcmuiConfigName}",
+      "type": "array",
+      "order":34,
+      "items" : {
+        "$ref": "uiConfig.schema.json"
+      }
+    }
+  }
+}

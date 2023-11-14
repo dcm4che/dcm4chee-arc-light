@@ -1,0 +1,49 @@
+{
+  "title": "AET की सूची",
+  "description": "AET की सूची ।",
+  "type": "object",
+  "required": [
+    "dcmuiAetListName",
+    "dcmuiAets",
+    "dcmAcceptedUserRole",
+    "dcmuiMode"
+  ],
+  "properties": {
+    "dcmuiAetListName": {
+      "title": "सूची का नाम",
+      "description": "इस कॉन्फिग के लिए एक नाम परिभाषित करें ।",
+      "type": "string"
+    },
+    "dcmuiAetListDescription": {
+      "title": "वर्णन",
+      "description": "AET की सूची का वर्णन ।",
+      "type": "string"
+    },
+    "dcmuiMode": {
+      "title": "AET की सूची का प्रकार",
+      "description": "परिभाषित करें कि यह विन्यास किस प्रकार में उपलब्ध होना चाहिए : 'internal' (आर्काइव के अपने AET, कुछ जगहों में इसे 'Home AET' या 'Local AET' भी कहा गया है), या 'external' ( या कुछ जगहों में इसे 'Remote AET' भी कहा गया है) AET की सूची, दोनों प्रकारों में उपलब्ध होने के लिए, किसी भी विकल्प को न चुने ।",
+      "type": "string",
+      "enum": [
+        "internal",
+        "external"
+      ]
+    },
+    "dcmuiAets": {
+      "title": "AET",
+      "description": "AET ।",
+      "format": "dcmAETitle",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "स्वीकृत उपभोक्ता की भूमिकाएँ",
+      "description": "उन भूमिकाओं को परिभाषित करें जिनके लिए यह कॉन्फिग उपलब्ध होना चाहिए, सारे भूमिकाओं पे उपलब्ध होने के लिए 'user' का इस्तमाल करें ।",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,302 @@
+{
+  "title": "साठवण",
+  "description": "साठवण वर्णनकर्ता.",
+  "type": "object",
+  "required": [
+    "dcmStorageID",
+    "dcmURI",
+    "dcmArchiveSeriesAsTAR",
+    "dcmStoragePathFormat",
+    "dcmOnStoragePathAlreadyExists",
+    "dcmRetryCreateDirectories",
+    "dcmAltCreateDirectories",
+    "dcmFileOpenOption",
+    "dcmLocationStatus",
+    "dcmCountLocationsByStatus",
+    "dcmMaxRetries",
+    "dcmInstanceAvailability",
+    "dcmRetrieveCacheMaxParallel",
+    "dcmReadOnly",
+    "dcmStorageThresholdExceedsPermanently",
+    "dcmNoDeletionConstraint",
+    "dcmNoRetrieveCacheOnPurgedInstanceRecords",
+    "dcmDeleterThreads",
+    "dcmStorageDuration"
+  ],
+  "properties": {
+    "dcmStorageID": {
+      "title": "साठवण ID",
+      "description": "साठवण ID.",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmSeriesMetadataStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorageVerificationStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorage[*].dcmExportStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorage[*].dcmRetrieveCacheStorageID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmObjectStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMetadataStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStorageVerificationStorageID[*]"
+      ]
+    },
+    "dcmURI": {
+      "title": "साठवण URI",
+      "description": "RFC2071 : एकसमान संसाधन अभिज्ञापक.",
+      "type": "string"
+    },
+    "dcmArchiveSeriesAsTAR": {
+      "title": "Archive Series as TAR",
+      "description": "Indicates that binary DICOM objects of one Series are packed in one TAR archive on this Storage System; false if absent.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStoragePathFormat": {
+      "title": "Storage Path Format",
+      "description": "Format of file path of DICOM binary objects or metadata in JSON format or of ZIP archives containing metadata in JSON format for each DICOM object of one Series, written to this Storage System. '{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}', if absent.",
+      "type": "string",
+      "default": "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}"
+    },
+    "dcmOnStoragePathAlreadyExists": {
+      "title": "Already Exists on Storage Path",
+      "description": "Specifies behavior if an object already exists on the storage path on the storage system, assembled according to the configured 'Storage Path Format'. Default behaviour 'RANDOM_PATH'. (hover on options to see their descriptions)",
+      "type": "string",
+      "enum": [
+        "FAILURE|Signals failure writing the new object",
+        "NOOP|Proceed without writing the new object",
+        "RANDOM_PATH|Replace last path element be random 8 hex digit number and try again"
+      ],
+      "default": "RANDOM_PATH"
+    },
+    "dcmRetryCreateDirectories": {
+      "title": "Retry Create Directories",
+      "description": "Specifies number of retries to create parent directories of the storage file path - may workaround issues concerning NFS; 0 if absent.",
+      "type": "integer",
+      "default": 0
+    },
+    "dcmAltCreateDirectories": {
+      "title": "Alt Create Directories",
+      "description": "Indicate to not rely on 'createDirectories' function in 'java.nio.file.Files' Java class, to create all nonexistent parent directories first, but instead explicitly create parent directories if NoSuchFileException is thrown. May workaround issues concerning NFS.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmCheckMountFilePath": {
+      "title": "Check Mount File Path",
+      "description": "Indicates to check if a mounted file system did not get detached from its mount point, by specifying the path of a shadow file in the directory used as mount point. If the shadow file becomes inaccessible, write to storage operation fails. Checked for each DICOM object storage (write operation). Typically applicable to NFS / external file systems.",
+      "type": "string"
+    },
+    "dcmFileOpenOption": {
+      "title": "File Open Option(s)",
+      "description": "Options specifying how the file is opened for writing. Default behaviour 'CREATE_NEW'. (hover on options to see their descriptions) ",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "CREATE_NEW|Create a new file, failing if the file already exists",
+          "DSYNC|Requires that every update to the file's content be written synchronously to the underlying storage device",
+          "SYNC|Requires that every update to the file's content or metadata be written synchronously to the underlying storage device"
+        ]
+      },
+      "default": "CREATE_NEW"
+    },
+    "dcmLocationStatus": {
+      "title": "Location Status",
+      "description": "Initial Location Status of DICOM files written to this Storage System. Default behaviour 'OK'. (hover on options to see their descriptions)",
+      "type": "string",
+      "enum": [
+        "OK|Indicates access state of stored objects is stable",
+        "VERIFY_QSTAR_ACCESS_STATE|Indicates to verify access state of stored objects from QStar Tape File System"
+      ],
+      "default": "OK"
+    },
+    "dcmCountLocationsByStatus": {
+      "title": "Count Locations by Status",
+      "description": "Indicate to include counts of locations with status != 0 (=OK) for this Storage System by RESTful service to list Storage Systems; false if absent.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDigestAlgorithm": {
+      "title": "डायजेस्ट अल्गोरिदम",
+      "description": "चेकसमच्या निर्मितीसाठी अल्गोरिदम.",
+      "type": "string",
+      "enum" : [
+        "MD5|Message-digest algorithm",
+        "SHA-1|Secure Hash Algorithm 1"
+      ]
+    },
+    "dcmMaxRetries": {
+      "title": "पुन्हा प्रयत्न करण्याची कमाल संख्या",
+      "description": "साठवण सिस्टमवर दृष्टांतांची साठवण पुन्हा प्रयत्न करण्याची कमाल संख्या.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "पुन्हा प्रयत्न करण्याचे विलंब",
+      "description": "साठवण सिस्टमवर दृष्टांतांची साठवण पुन्हा प्रयत्न करण्याचे ISO-8601 कालावधी प्रारूपात PnDTnHnMn.nS विलंब. अनुपस्थित असल्यास त्वरित पुन्हा प्रयत्न करा.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmInstanceAvailability": {
+      "title": "दृष्टांताची उपलब्धता",
+      "description": "दृष्टांताची उपलब्धता.",
+      "type": "string",
+      "default": "ONLINE",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmStorageDuration": {
+      "title": "साठवण कालावधी",
+      "description": "सूचित करते की साठवणाचे वापर : कायम (=PERMANENT), कॅश (=CACHE) किंवा तात्पुरते (=TEMPORARY) म्हणून होईल. कॉन्फ़िगर केलेल्या 'डिलीटर उंबरठा' च्या मूल्यानुसार कॅश आणि तात्पुरते साठवण सिस्टम्सपासून दृष्टांते हटवले जातील किंवा - जर कोणतेही 'डिलीटर उंबरठा' आणि कोणतेही धारणा कालावधी कॉन्फिगर न केल्यास - साठवणवरील सर्व दृष्टांते हटवले जातील. तात्पुरते साठवणाच्या बाबतीत, ज्या अभ्यासांचे दृष्टांते हटवले आहेत, त्यांचे रेकॉर्ड्स को डेटाबेसमधून देखील हटविले जातात.",
+      "type": "string",
+      "default": "PERMANENT",
+      "enum": [
+        "PERMANENT|Permanent storage",
+        "CACHE|Cache storage",
+        "TEMPORARY|Temporary storage"
+      ]
+    },
+    "dcmReadOnly": {
+      "title": "केवळ वाचनीय",
+      "description": "साठवण सिस्टम केवळ वाचनीय असल्यास दर्शविते.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageClusterID": {
+      "title": "साठवण क्लस्टर ID",
+      "description": "साठवण क्लस्टरशी संबंधित CACHE साठवणाची ओळख करते. एका अभ्यासाचे दृष्टांतांना एका साठवण क्लस्टरच्या साठवण सिस्टमवर वितरित केले जाऊ शकतात. उंबरठा ओलांडण्याद्वारे दृष्टांते हटवण्याची क्रिया याचा वापर करते.",
+      "type": "string"
+    },
+    "dcmStorageThreshold": {
+      "title": "साठवण उंबरठा",
+      "description": "साठवण सिस्टमवरील किमान वापरण्यायोग्य जागा. वापरण्यायोग्य जागा त्या मूल्यापेक्षा खाली गेल्यास, 'साठवण उंबरठा ओलांडले' को वर्त्तमान समय सेट करते हुए साठवण सिस्टमला पूर्ण चिन्हांकित केले जाईल आणि - जर 'साठवण उंबरठा कायमस्वरूपी ओलांडले' चे मूल्य 'हो' आहे - नेटवर्क AE च्या कॉन्फीगर्ड साठवण सिस्टम्सच्या यादीतून या साठवण सिस्टमला काढले जाईल, ज्याला हा नेटवर्क AE विनंती करतो. प्रारूप : nnn(MB|GB|MiB|GiB).",
+      "type": "string"
+    },
+    "dcmStorageThresholdExceeded": {
+      "title": "साठवण उंबरठा ओलांडले",
+      "description": "तारीख आणि वेळ या प्रारूपात YYYYMMDDHHMMSS.FFFFFF जेव्हा साठवण उंबरठा ओलांडेल.",
+      "type": "string"
+    },
+    "dcmStorageThresholdExceedsPermanently": {
+      "title": "साठवण उंबरठा कायमस्वरूपी ओलांडले",
+      "description": "सूचित करते की साठवण उंबरठा ओलांडण्यावर, नेटवर्क AE च्या कॉन्फीगर्ड साठवण सिस्टम्सच्या यादीतून साठवण सिस्टमला काढले जाईल, ज्याला हा नेटवर्क AE विनंती करतो.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmNoDeletionConstraint": {
+      "title": "कोणतीही हटवण्याच्या क्रियेसाठी मर्यादा नाही",
+      "description": "कॅश / तात्पुरते साठवण सिस्टममधून अभ्यास हटवा, जर कोणतेही 'डिलीटर उंबरठा' आणि कोणतीही इतर हटविण्याची मर्यादा कॉन्फीगर्ड नसेल.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDeleterThreshold": {
+      "title": "डिलीटर उंबरठा",
+      "description": "हटविण्याची क्रिया ट्रिगर करण्यासाठी साठवण सिस्टमवरील किमान वापरण्यायोग्य जागा. जर निर्दिष्ट केले असेल तर, वापरण्यायोग्य जागा त्या मूल्यापेक्षा कमी असल्यास, कॉन्फीगर्ड कॅश ('साठवण कालावधी' = CACHE) किंवा तात्पुरते ('साठवण कालावधी' = TEMPORARY) साठवण सिस्टममधून अभ्यास हटविले जातील. प्रारूप [nn'['<schedule>']']nnn(MB|GB|MiB|GiB).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmDeleteStudiesOlderThan": {
+      "title": "या कालावधीपेक्षा जुने अभ्यास हटवा",
+      "description": "कॉन्फीगर्ड कॅश ('साठवण कालावधी'=CACHE) किंवा तात्पुरते ('साठवण कालावधी'=TEMPORARY) साठवण सिस्टममधून अभ्यास हटवा, जर त्यांची अभ्यास तारीख ISO-8601 कालावधी प्रारूपात निर्दिष्ट मूल्यापेक्षा जास्त पूर्वीची असेल तर. प्रारूप [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesReceivedBefore": {
+      "title": "या कालावधीपूर्वी प्राप्त केलेला अभ्यास हटवा",
+      "description": "कॉन्फीगर्ड कॅश ('साठवण कालावधी'=CACHE) किंवा तात्पुरते ('साठवण कालावधी'=TEMPORARY) साठवण सिस्टममधून अभ्यास हटवा, जर ते ISO-8601 कालावधी प्रारूपात निर्दिष्ट मूल्यापेक्षा जास्त पूर्वी प्राप्त झाले असतील. प्रारूप [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesNotUsedSince": {
+      "title": "या कालावधीपासून न वापरलेले अभ्यास हटवा",
+      "description": "कॉन्फीगर्ड कॅश ('साठवण कालावधी'=CACHE) किंवा तात्पुरते ('साठवण कालावधी'=TEMPORARY) साठवण सिस्टममधून अभ्यास हटवा, जर त्यांचा वापर ISO-8601 कालावधी प्रारूपात निर्दिष्ट मूल्यापेक्षा जास्त पूर्वी झाले असेल. प्रारूप [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleterThreads": {
+      "title": "डिलीटर थ्रेड्स",
+      "description": "साठवण सिस्टममधून दृष्टांते हटवण्यासाठी वापरलेल्या थ्रेड्सची संख्या.",
+      "type": "integer",
+      "default" : 1,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmExternalRetrieveAET": {
+      "title": "बाह्य पुनर्प्राप्त AET",
+      "description": "कॉन्फीगर्ड 'डिलीटर उंबरठा' आणि / किंवा 'हटविण्याची क्रिया धारणा कालावधी मर्यादा' याव्यतिरिक्त, अभ्यासांची हटवण्याची क्रिया साठवण सिस्टमवर मर्यादित करते, ज्या अभ्यासांची दृष्टांते बाह्य पुनर्प्राप्त C-MOVE SCP वरून पुनर्प्राप्त केले जाऊ शकतात.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmExternalRetrieveInstanceAvailability": {
+      "title": "बाह्य पुनर्प्राप्त दृष्टांताची उपलब्धता",
+      "description": "अभ्यासांना हटवताना बाह्य पुनर्प्राप्त आर्काइव्हवर उपलब्ध असलेले दृष्टांतांच्या उपलब्धताला अद्यतनित करते.",
+      "type": "string",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmExportStorageID": {
+      "title": "निर्यात साठवण ID",
+      "description": "कॉन्फीगर्ड 'डिलीटर उंबरठा' आणि / किंवा 'हटविण्याची क्रिया धारणा कालावधी मर्यादा' याव्यतिरिक्त, अभ्यासांची हटवण्याची क्रिया साठवण सिस्टमवर मर्यादित करते, ज्या अभ्यासांची दृष्टांते इतर निर्दिष्ट साठवण सिस्टम्सवर उपलब्ध आहेत.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmStorageID"
+    },
+    "dcmRetrieveCacheStorageID": {
+      "title": "पुनर्प्राप्त कॅश साठवण ID",
+      "description": "अजून एक साठवण निर्दिष्ट करते ज्याच्यावर दृष्टांतांच्या पुनर्प्राप्तीवर त्यांना समांतरपणे कॉपी केले जातील, जेणेकरून साठवण सिस्टम्स चा उपयोग करण्यात कार्यक्षमता वाढवते जे जास्त बॅण्डविड्थ प्रदान करते ज्याने समांतरपणे एकाधिक कनेक्शनचा वापर होऊ शकते.",
+      "type": "string",
+      "format": "dcmStorageID"
+    },
+    "dcmNoRetrieveCacheOnDestinationAETitle": {
+      "title": "No Retrieve Cache on Destination AE Title",
+      "description": "Specifies AE Titles of C-STORE SCPs to which objects are retrieved without copying them to a configured Retrieve Cache Storage.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmNoRetrieveCacheOnPurgedInstanceRecords": {
+      "title": "No Retrieve Cache on Purged Instance Records",
+      "description": "Indicates to NOT copy retrieved objects to a configured Retrieve Cache Storage, wherein corresponding Instance Records were already purged from the DB.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRetrieveCacheMaxParallel": {
+      "title": "पुनर्प्राप्त कॅश कमाल समांतर",
+      "description": "दृष्टांतांच्या पुनर्प्राप्तीवर कॅश साठवणावर समांतरपणे कॉपी करण्याची कमाल संख्या. केवळ प्रभावी जर 'पुनर्प्राप्त कॅश साठवण ID' सुद्धा कॉन्फीगर्ड आहे.",
+      "type": "integer",
+      "default" : 10,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmProperty": {
+      "title": "साठवण विशेषता",
+      "description": "विशेषता या प्रारूपात {नाव}={मूल्य}. Refer various <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Storage-Properties\" target=\"_blank\">Storage Properties</a> that can be configured based on the storage type.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

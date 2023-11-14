@@ -1,0 +1,33 @@
+{
+  "title": "Metrics Descriptor",
+  "description": "Metrics Descriptor",
+  "type": "object",
+  "required": [
+    "dcmMetricsName",
+    "dcmMetricsRetentionPeriod"
+  ],
+  "properties": {
+    "dcmMetricsName": {
+      "title": "Metrics Name",
+      "description": "Metrics Name",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "Metrics Description",
+      "description": "Unconstrained text description of the metrics",
+      "type": "string"
+    },
+    "dcmMetricsRetentionPeriod": {
+      "title": "Metrics Retention Period",
+      "description": "Metrics Retention Period in minutes",
+      "type": "integer",
+      "default" : 60,
+      "minimum": 1
+    },
+    "dcmUnit": {
+      "title": "Metrics Unit",
+      "description": "Unit of metrics data",
+      "type": "string"
+    }
+  }
+}

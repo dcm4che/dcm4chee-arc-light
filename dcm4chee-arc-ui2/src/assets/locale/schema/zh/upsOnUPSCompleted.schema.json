@@ -1,0 +1,202 @@
+{
+  "title": "UPS由上一个已完成UPS创建",
+  "description": "在工作列表中由上一个UPS完成创建工作项。",
+  "type": "object",
+  "required": [
+    "dcmUPSOnUPSCompletedID",
+    "dcmUPSLabel",
+    "dcmUPSPriority",
+    "dcmUPSInputReadinessState",
+    "dcmUPSIncludeStudyInstanceUID",
+    "dcmUPSIncludeInputInformation",
+    "dcmUPSIncludePatient",
+    "dcmUPSIncludeReferencedRequest",
+    "dcmNoKeywords"
+  ],
+  "properties": {
+    "dcmUPSOnUPSCompletedID": {
+      "title": "由上一个UPS完成创建的UPS ID",
+      "description": "由上一个UPS完成创建的UPS规则ID",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "格式为{attributeID[number]})[!]={regEx}的条件 或者{sequenceAttributeID}[!]=(CV, CSD, ‘CM’). 例如: PerformedWorkitemCodeSequence=(110005,DCM,'Interpretation'). 使用|分隔符可以为给定的属性指定多个值。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmRequiresOtherUPSCompleted": {
+      "title": "需要其他已完成的UPS",
+      "description": "为引用相同请求的其他UPS指定查询参数(=Study Instance UID)，该参数必须已经为创建该UPS完成。",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmUPSLabel": {
+      "title": "过程步骤标签",
+      "description": "创建的UPS中的过程步骤标签的值（0074,1204）。{attributeID}将替换为先前UPS数据集中该属性的值。示例：{StudyDescription}。",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "工作列表标签",
+      "description": "创建的UPS中工作列表标签的值（0074,1202）。{attributeID}将替换为先前UPS数据集中该属性的值。示例：{StudyDescription}。",
+      "type": "string"
+    },
+    "dcmUPSPriority": {
+      "title": "Priority",
+      "description": "Value of Scheduled Procedure Step Priority (0074,1200) in created UPS. Enumerated Values: HIGH, MEDIUM, LOW. If absent, MEDIUM will be applied.",
+      "type": "string",
+      "default": "MEDIUM",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "输入准备状态",
+      "description": "创建的UPS中输入准备状态的值（0040,4041）",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSStartDateTimeDelay": {
+      "title": "预定的过程步骤开始日期和时间延迟",
+      "description": "在创建的UPS中,预定的过程步骤开始日期和时间从PnDTnHnMn.nS格式的接收时间延迟（0040,4005）。如果不存在,则没有延迟。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSCompletionDateTimeDelay": {
+      "title": "预期的完成日期和时间延迟",
+      "description": "创建的UPS中以PnDTnHnMn.nS格式预期的完成日期和时间与接收时间的延迟（0040,4011）。如果不存在,则不设置预期的完成日期和时间。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSInstanceUIDBasedOnName": {
+      "title": "基于名称的UPS实例UID",
+      "description": "在创建的UPS中，基于SOP实例UID（0008,0018）生成名字的值。如果不存在，将会使用一个随机生成的SOP实例UID（0008,0018）。",
+      "type": "string"
+    },
+    "dcmUPSIncludeInputInformation": {
+      "title": "包括输入信息",
+      "description": "指示在新创建的UPS的“输入信息序列(0040,4021)”中是否包含先前UPS的“统一过程步骤执行过程序列(0074,1216)”中的“输入信息序列(0040,4021)”或“/”和“输出信息序列(0040,4033)”。",
+      "type": "string",
+      "default": "COPY_OUTPUT",
+      "enum": [
+        "NO",
+        "COPY_INPUT",
+        "COPY_OUTPUT"
+      ]
+    },
+    "dcmUPSIncludePatient": {
+      "title": "UPS包含患者",
+      "description": "指示患者属性是否从以前的UPS中复制。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmDestinationAE": {
+      "title": "目标AE",
+      "description": "将要存储实例的DICOM应用程序实体的标题。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmEntity": {
+      "title": "累积范围",
+      "description": "累积范围",
+      "type": "string",
+      "enum": [
+        "Study",
+        "Series",
+        "MPPS"
+      ]
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "预定工作项目代码",
+      "description": "创建的UPS中预定工作项目代码序列（CV,CSD,'CM'）格式的项目（0040,4018）。",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "调度的站名代码",
+      "description": "创建的UPS中调度的站名代码序列（CV,CSD,'CM'）格式的项目（0040,4025）。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "调度的站类代码",
+      "description": "创建的UPS中调度的站类代码序列（CV,CSD,'CM'）格式的项目（0040,4026）。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "调度站地理位置代码",
+      "description": "创建的UPS中调度站地理位置代码序列（CV,CSD,'CM'）格式的项目（0040,4027）。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerCode": {
+      "title": "预定人类执行者代码",
+      "description": "在创建的UPS中预定人类执行者序列的（0040,4034）项中的人类执行者代码的值,格式为（CV,CSD,'CM'）（0040,4009）。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerName": {
+      "title": "计划的人类执行者名称",
+      "description": "创建的UPS中计划的人类执行者序列的（0040,4034）项中的人类执行者名称的值（0040,4037）。{attributeID}将替换为先前UPS数据集中该属性的值。示例：{PerformingPhysicianName}。",
+      "type": "string"
+    },
+    "dcmUPSScheduledHumanPerformerOrganization": {
+      "title": "计划人类执行者组织",
+      "description": "在创建的UPS中计划人类执行者序列的（0040,4034）项中人类执行者组织的值（0040,4036）。{attributeID}将替换为先前UPS数据集中该属性的值。例如：{ResponsibleOrganization}。",
+      "type": "string"
+    },
+    "dcmAdmissionID": {
+      "title": "许可编号",
+      "description": "创建的UPS中的许可编号（0038,0010）的值。{attributeID}将替换为先前UPS数据集中该属性的值。例如：{AdmissionID}。",
+      "type": "string"
+    },
+    "dicomIssuerOfAdmissionID": {
+      "title": "许可号发布者",
+      "description": "创建的UPS中许可号发布者序列中项目的本地命名空间实体ID（0040,0031）,通用实体ID和（0040,0032）通用实体ID类型（0040,0033）的值。格式：<Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
+      "type": "string"
+    },
+    "dcmUPSIncludeStudyInstanceUID": {
+      "title": "包含验证实例UID",
+      "description": "指示是否在创建的UPS中包含（0020,000D）以前UPS对象的验证实例UID。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUPSIncludeReferencedRequest": {
+      "title": "包括引用请求",
+      "description": "指示在创建的UPS中,引用请求序列（0040,A370）项是否包括先前UPS的校验实例UID（0020,000D）,响应编号（0008,0050）,请求过程ID（0040,1001）和请求服务（0032,1033）。否则,它包含一个空的引用请求序列（0040,A370）。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmURI": {
+      "title": "XSL样式表URI",
+      "description": "指定XSL样式表的URI,该URI将对收到的HL7消息进行转码,以便在创建的UPS中包含其他属性。",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "无属性关键字",
+      "description": "指示传递给XSLT的DICOM XML是否省略属性关键字。",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

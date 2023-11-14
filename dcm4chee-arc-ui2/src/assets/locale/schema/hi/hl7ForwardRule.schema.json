@@ -1,0 +1,33 @@
+{
+  "title": "HL7 फॉरवर्ड नियम",
+  "description": "HL7 फॉरवर्ड नियम ।",
+  "type": "object",
+  "required": [
+    "cn",
+    "hl7FwdApplicationName"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाम",
+      "description": "HL7 फॉरवर्ड नियम का मनमाना/सार्थक नाम ।",
+      "type": "string"
+    },
+    "hl7FwdApplicationName": {
+      "title": "HL7 फॉरवर्ड अनुप्रयोग का नाम",
+      "description": "HL7 फॉरवर्ड गंतव्य अनुप्रयोग और सुविधा का नाम (अनुप्रयोग|सुविधा) ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "hl7ApplicationName"
+    },
+    "dcmProperty": {
+      "title": "नियम",
+      "description": "नियम इस प्रारूप में {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx} । उदाहरण के तौर पे: MSH-4=FORWARD या MSH-9=ADT\\^A28\\^ADT_A05 या PID-3[.3]=PIDIssuer या PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

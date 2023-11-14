@@ -1,0 +1,33 @@
+{
+  "title": "UI डिव्हाइस URL",
+  "description": "मुख्य UI URL च्या बरोबर वापरले जाणारे डिव्हाइस URL चे कॉन्फिगरेशन.",
+  "type": "object",
+  "required": [
+    "dcmuiDeviceURLName",
+    "dcmuiDeviceURL",
+    "dcmuiDeviceURLInstalled"
+  ],
+  "properties": {
+    "dcmuiDeviceURLName": {
+      "title": "डिव्हाइस URL चे नाव",
+      "description": "कॉन्फ़िगर केलेले डिव्हाइस URL चे नाव.",
+      "type": "string"
+    },
+    "dcmuiDeviceURL": {
+      "title": "डिव्हाइस URL",
+      "description": "डिव्हाइसची प्रवेश URL, उदाहरण : http(s)://<myDevice-host>:<myDevice-port> ।",
+      "type": "string"
+    },
+    "dcmuiDeviceURLDescription": {
+      "title": "वर्णन",
+      "description": "डिव्हाइस URL चे वर्णन.",
+      "type": "string"
+    },
+    "dcmuiDeviceURLInstalled": {
+      "title": "स्थापित",
+      "description": "या URL ला UI मध्ये वापरा.",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "title": "UPS समाप्ति पे फिरसे UPS रेकॉर्ड का निर्माण का नियम",
+  "description": "पिछले UPS रेकॉर्ड के समाप्ति पे एकीकृत कार्यसूची में वर्क आइटम को निर्माण या अपडेट करें ।",
+  "type": "object",
+  "required": [
+    "dcmUPSOnUPSCompletedID",
+    "dcmUPSLabel",
+    "dcmUPSPriority",
+    "dcmUPSInputReadinessState",
+    "dcmUPSIncludeStudyInstanceUID",
+    "dcmUPSIncludeInputInformation",
+    "dcmUPSIncludePatient",
+    "dcmUPSIncludeReferencedRequest",
+    "dcmNoKeywords"
+  ],
+  "properties": {
+    "dcmUPSOnUPSCompletedID": {
+      "title": "UPS समाप्ति पे फिरसे UPS रेकॉर्ड निर्माण के नियम का ID",
+      "description": "UPS समाप्ति पे फिरसे UPS रेकॉर्ड निर्माण के नियम का ID",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "Condition",
+      "description": "Conditions in format {attributeID[number]})[!]={regEx} or {sequenceAttributeID}[!]=(CV, CSD, \"CM\"). E.g.: PerformedWorkitemCodeSequence=(110005,DCM,\"Interpretation\"). More than one value can be specified for a given attribute by separating them with a | symbol.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmRequiresOtherUPSCompleted": {
+      "title": "Requires other UPS completed",
+      "description": "Specifies Query Parameters for other UPS referring the same request (= Study Instance UID), which must be already be completed for creating this UPS. Format: {attributeID}={value}[&...]",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmUPSLabel": {
+      "title": "प्रक्रिया स्टेप लेबल",
+      "description": "निर्माण किए गए UPS में प्रक्रिया स्टेप लेबल (००७४,१२०४) का मूल्य । पिछले UPS रेकॉर्ड के डेटासेट में {attributeID} गुण के मूल्य के साथ बदला जाएगा । उदाहरण के तौर पे : {StudyDescription} ।",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "कार्यसूची लेबल",
+      "description": "निर्माण किए गए UPS में कार्यसूची लेबल (००७४,१२०२) का मूल्य । प्राप्त हुए डेटासेट में {attributeID} गुण के मूल्य के साथ बदला जाएगा । उदाहरण के तौर पे : {StudyDescription} ।",
+      "type": "string"
+    },
+    "dcmUPSPriority": {
+      "title": "प्राथमिकता",
+      "description": "निर्माण किए गए UPS में अनुसूचित प्रक्रिया स्टेप प्राथमिकता (००७४,१२००) का मूल्य । प्रगणित मूल्य: HIGH, MEDIUM, LOW । यदि निर्दिष्ट नहीं किया गया है, तो MEDIUM लागू होगा ।",
+      "type": "string",
+      "default": "MEDIUM",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "इनपुट तत्परता स्थिति",
+      "description": "निर्माण किए गए UPS में इनपुट तत्परता स्थिति (००४०,४०४१) का मूल्य ।",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSStartDateTimeDelay": {
+      "title": "अनुसूचित प्रक्रिया स्टेप प्रारंभ तारीख समय विलम्ब",
+      "description": "प्राप्त समय से निर्माण किए गए UPS में अनुसूचित प्रक्रिया स्टेप प्रारंभ तारीख समय (००४०,४००५) का विलम्ब, इस प्रारूप में PnDTnHnMn.nS । यदि निर्दिष्ट नहीं किया गया है, तो कोई विलम्ब लागू नहीं होगा ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSCompletionDateTimeDelay": {
+      "title": "अपेक्षित समाप्ति तारीख समय विलम्ब",
+      "description": "प्राप्त समय से निर्माण किए गए UPS में अपेक्षित समाप्ति तारीख समय (००४०,४०११) का विलम्ब, इस प्रारूप में PnDTnHnMn.nS । यदि निर्दिष्ट नहीं किया गया है, तो कोई अपेक्षित समाप्ति तारीख समय लागू नहीं होगा ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSInstanceUIDBasedOnName": {
+      "title": "UPS Instance UID based on name",
+      "description": "Value to generate name based SOP Instance UID (0008,0018) in created UPS. If absent, a random generated SOP Instance UID (0008,0018) will be used.",
+      "type": "string"
+    },
+    "dcmUPSIncludeInputInformation": {
+      "title": "Include Input Information",
+      "description": "Indicates if the Input Information Sequence (0040,4021) or/and the Output Information Sequence (0040,4033) in the Unified Procedure Step Performed Procedure Sequence (0074,1216) of the previous UPS is included in Input Information Sequence (0040,4021) of the in created UPS.",
+      "type": "string",
+      "default": "COPY_OUTPUT",
+      "enum": [
+        "NO",
+        "COPY_INPUT",
+        "COPY_OUTPUT"
+      ]
+    },
+    "dcmUPSIncludePatient": {
+      "title": "UPS Include Patient",
+      "description": "Indicates if patient attributes are copied from the previous UPS.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmDestinationAE": {
+      "title": "गंतव्य AE",
+      "description": "DICOM अनुप्रयोग तत्त्व का नाम जिसपे दृष्टांत सहेजे जाएंगे ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmEntity": {
+      "title": "संचय की गुंजाइश",
+      "description": "संचय की गुंजाइश ।",
+      "type": "string",
+      "enum": [
+        "Study",
+        "Series",
+        "MPPS"
+      ]
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "अनुसूचित वर्क आइटम कोड",
+      "description": "निर्माण किए गए UPS में अनुसूचित वर्क आइटम कोड क्रम (००४०,४०१८) का आइटम, इस प्रारूप में (CV, CSD, \"CM\") ।",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "अनुसूचित स्टेशन नाम कोड",
+      "description": "निर्माण किए गए UPS में अनुसूचित स्टेशन नाम कोड क्रम (००४०,४०२५) का आइटम, इस प्रारूप में (CV, CSD, \"CM\") ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "अनुसूचित स्टेशन वर्ग कोड",
+      "description": "निर्माण किए गए UPS में अनुसूचित स्टेशन वर्ग कोड क्रम (००४०,४०२६) का आइटम, इस प्रारूप में (CV, CSD, \"CM\") ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "अनुसूचित स्टेशन भौगोलिक स्थान कोड",
+      "description": "निर्माण किए गए UPS में अनुसूचित स्टेशन भौगोलिक स्थान कोड क्रम (००४०,४०२७) का आइटम, इस प्रारूप में (CV, CSD, \"CM\") ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerCode": {
+      "title": "अनुसूचित मनुष्य कर्ता कोड",
+      "description": "निर्माण किए गए UPS में अनुसूचित मनुष्य कर्ता कोड क्रम (००४०,४०३४) में मनुष्य कर्ता कोड क्रम (००४०,४००९) का आइटम, इस प्रारूप में (CV, CSD, \"CM\") ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerName": {
+      "title": "अनुसूचित मनुष्य कर्ता का नाम",
+      "description": "निर्माण किए गए UPS में अनुसूचित मनुष्य कर्ता कोड क्रम (००४०,४०३४) के आइटम में मनुष्य कर्ता का नाम (००४०,४०३७) । पिछले UPS रेकॉर्ड के डेटासेट में {attributeID} गुण के मूल्य के साथ बदला जाएगा । उदाहरण के तौर पे : {PerformingPhysicianName} ।",
+      "type": "string"
+    },
+    "dcmUPSScheduledHumanPerformerOrganization": {
+      "title": "अनुसूचित मनुष्य कर्ता संस्था",
+      "description": "निर्माण किए गए UPS में अनुसूचित मनुष्य कर्ता कोड क्रम (००४०,४०३४) के आइटम में मनुष्य संस्था का नाम (००४०,४०३६) । पिछले UPS रेकॉर्ड के डेटासेट में {attributeID} गुण के मूल्य के साथ बदला जाएगा । उदाहरण के तौर पे : {ResponsibleOrganization} ।",
+      "type": "string"
+    },
+    "dcmAdmissionID": {
+      "title": "प्रवेश ID",
+      "description": "निर्माण किए गए UPS में प्रवेश ID (००३८,००१०) का मूल्य । पिछले UPS रेकॉर्ड के डेटासेट में {attributeID} गुण के मूल्य के साथ बदला जाएगा । उदाहरण के तौर पे : {AdmissionID} ।",
+      "type": "string"
+    },
+    "dicomIssuerOfAdmissionID": {
+      "title": "प्रवेश ID क्रम का जारीकर्ता",
+      "description": "निर्माण किए गए UPS में प्रवेश ID का जारीकर्ता क्रम (००३८,००१४) के आइटम के स्थानीय नेमस्पेस एंटिटी ID (००४०,००३१), यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के मूल्य, इस प्रारूप में : <मरीज़़ की ID का जारीकर्ता> [& <यूनिवर्सल एंटिटी ID> & <यूनिवर्सल एंटिटी ID प्रकार>] ।",
+      "type": "string"
+    },
+    "dcmUPSIncludeStudyInstanceUID": {
+      "title": "स्टडी दृष्टांत UID को समावेश करें",
+      "description": "निर्माण किए गए UPS में पिछले UPS रेकॉर्ड के स्टडी दृष्टांत UID (००२०,०००डी) को समावेश करने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUPSIncludeReferencedRequest": {
+      "title": "संदर्भित अनुरोध को समावेश करें",
+      "description": "निर्माण किए गए UPS के संदर्भित अनुरोध क्रम (००४०,ए३७०) के आइटम में पिछले UPS रेकॉर्ड के स्टडी दृष्टांत UID (००२०,०००डी) और निर्दिष्ट परिग्रहण संख्या (०००८,००५०), अनुरोध की गई प्रक्रिया की ID (००४०,१००१) और अनुरोध करनेवाला सेवा (००३२,१०३३) को समावेश करने का संकेत करता है । यदि निर्दिष्ट नहीं किया गया है, तो खाली संदर्भित अनुरोध क्रम (००४०,ए३७०) को समावेश किया जाएगा ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmURI": {
+      "title": "XSL स्टाइलशीट URI",
+      "description": "निर्माण किए गए UPS में अधिक गुणों को समावेश करने का XSL स्टाइलशीट URI निर्दिष्ट करता है ।",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "बिना गुण संकेतशब्द",
+      "description": "गुण संकेतशब्दों को (जिसे XSLT में भेजा जाता है) DICOM XML से हटाने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

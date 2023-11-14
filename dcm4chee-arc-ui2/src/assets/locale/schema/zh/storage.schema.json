@@ -1,0 +1,302 @@
+{
+  "title": "存储",
+  "description": "存储描述符",
+  "type": "object",
+  "required": [
+    "dcmStorageID",
+    "dcmURI",
+    "dcmArchiveSeriesAsTAR",
+    "dcmStoragePathFormat",
+    "dcmOnStoragePathAlreadyExists",
+    "dcmRetryCreateDirectories",
+    "dcmAltCreateDirectories",
+    "dcmFileOpenOption",
+    "dcmLocationStatus",
+    "dcmCountLocationsByStatus",
+    "dcmMaxRetries",
+    "dcmInstanceAvailability",
+    "dcmRetrieveCacheMaxParallel",
+    "dcmReadOnly",
+    "dcmStorageThresholdExceedsPermanently",
+    "dcmNoDeletionConstraint",
+    "dcmNoRetrieveCacheOnPurgedInstanceRecords",
+    "dcmDeleterThreads",
+    "dcmStorageDuration"
+  ],
+  "properties": {
+    "dcmStorageID": {
+      "title": "存储ID",
+      "description": "存储ID",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmSeriesMetadataStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorageVerificationStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorage[*].dcmExportStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorage[*].dcmRetrieveCacheStorageID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmObjectStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMetadataStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStorageVerificationStorageID[*]"
+      ]
+    },
+    "dcmURI": {
+      "title": "存储URI",
+      "description": "RFC2079：统一资源标识符",
+      "type": "string"
+    },
+    "dcmArchiveSeriesAsTAR": {
+      "title": "Archive Series as TAR",
+      "description": "Indicates that binary DICOM objects of one Series are packed in one TAR archive on this Storage System; false if absent.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStoragePathFormat": {
+      "title": "Storage Path Format",
+      "description": "Format of file path of DICOM binary objects or metadata in JSON format or of ZIP archives containing metadata in JSON format for each DICOM object of one Series, written to this Storage System. '{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}', if absent.",
+      "type": "string",
+      "default": "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}"
+    },
+    "dcmOnStoragePathAlreadyExists": {
+      "title": "Already Exists on Storage Path",
+      "description": "Specifies behavior if an object already exists on the storage path on the storage system, assembled according to the configured 'Storage Path Format'. Default behaviour 'RANDOM_PATH'. (hover on options to see their descriptions)",
+      "type": "string",
+      "enum": [
+        "FAILURE|Signals failure writing the new object",
+        "NOOP|Proceed without writing the new object",
+        "RANDOM_PATH|Replace last path element be random 8 hex digit number and try again"
+      ],
+      "default": "RANDOM_PATH"
+    },
+    "dcmRetryCreateDirectories": {
+      "title": "Retry Create Directories",
+      "description": "Specifies number of retries to create parent directories of the storage file path - may workaround issues concerning NFS; 0 if absent.",
+      "type": "integer",
+      "default": 0
+    },
+    "dcmAltCreateDirectories": {
+      "title": "Alt Create Directories",
+      "description": "Indicate to not rely on 'createDirectories' function in 'java.nio.file.Files' Java class, to create all nonexistent parent directories first, but instead explicitly create parent directories if NoSuchFileException is thrown. May workaround issues concerning NFS.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmCheckMountFilePath": {
+      "title": "Check Mount File Path",
+      "description": "Indicates to check if a mounted file system did not get detached from its mount point, by specifying the path of a shadow file in the directory used as mount point. If the shadow file becomes inaccessible, write to storage operation fails. Checked for each DICOM object storage (write operation). Typically applicable to NFS / external file systems.",
+      "type": "string"
+    },
+    "dcmFileOpenOption": {
+      "title": "File Open Option(s)",
+      "description": "Options specifying how the file is opened for writing. Default behaviour 'CREATE_NEW'. (hover on options to see their descriptions) ",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "CREATE_NEW|Create a new file, failing if the file already exists",
+          "DSYNC|Requires that every update to the file's content be written synchronously to the underlying storage device",
+          "SYNC|Requires that every update to the file's content or metadata be written synchronously to the underlying storage device"
+        ]
+      },
+      "default": "CREATE_NEW"
+    },
+    "dcmLocationStatus": {
+      "title": "Location Status",
+      "description": "Initial Location Status of DICOM files written to this Storage System. Default behaviour 'OK'. (hover on options to see their descriptions)",
+      "type": "string",
+      "enum": [
+        "OK|Indicates access state of stored objects is stable",
+        "VERIFY_QSTAR_ACCESS_STATE|Indicates to verify access state of stored objects from QStar Tape File System"
+      ],
+      "default": "OK"
+    },
+    "dcmCountLocationsByStatus": {
+      "title": "Count Locations by Status",
+      "description": "Indicate to include counts of locations with status != 0 (=OK) for this Storage System by RESTful service to list Storage Systems; false if absent.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDigestAlgorithm": {
+      "title": "摘要算法",
+      "description": "用于生成校验和的算法。",
+      "type": "string",
+      "enum" : [
+        "MD5|Message-digest algorithm",
+        "SHA-1|Secure Hash Algorithm 1"
+      ]
+    },
+    "dcmMaxRetries": {
+      "title": "最大重试次数",
+      "description": "将对象保存到存储系统的最大重试次数。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "重试延迟",
+      "description": "ISO-8601周期格式PnDTnHnMn.nS重试以将对象存储在存储系统中的延迟。如果不存在,请立即重试。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmInstanceAvailability": {
+      "title": "实例可用性",
+      "description": "实例可用性。",
+      "type": "string",
+      "default": "ONLINE",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmStorageDuration": {
+      "title": "存储持续时间",
+      "description": "指示存储是否被用作永久（=PERMANENT）,高速缓存（=CACHE）或者临时（=TEMPORARY）存储。对象将根据配置的删除门槛值从缓存和临时存储中删除。或者,如果未指定删除门槛值且未配置保留期,则删除存储中的所有对象。对于临时存储,还会从数据库中删除哪些对象已被清除的检查。",
+      "type": "string",
+      "default": "PERMANENT",
+      "enum": [
+        "PERMANENT|Permanent storage",
+        "CACHE|Cache storage",
+        "TEMPORARY|Temporary storage"
+      ]
+    },
+    "dcmReadOnly": {
+      "title": "只读",
+      "description": "指示存储系统是否为只读。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageClusterID": {
+      "title": "存储群集ID",
+      "description": "标识属于存储群集的CACHE存储。一个检查对象可以分布在一个存储集群的存储系统中。用于门槛值触发的删除。",
+      "type": "string"
+    },
+    "dcmStorageThreshold": {
+      "title": "存储阈值",
+      "description": "存储系统上的最小可用空间。如果可用空间小于该值,则将存储阈值设置为当前时间,并将存储系统标记为已满。此外,如果将永远超过存储门槛设置为“真”,则该存储系统将从请求该存储系统的网络AE的已配置存储系统列表中删除。格式nnn（MB|GB|MiB|GiB）",
+      "type": "string"
+    },
+    "dcmStorageThresholdExceeded": {
+      "title": "超过存储门槛值",
+      "description": "超过存储门槛值时,日期和时间以YYYYMMDDHHMMSS.FFFFFF格式显示。",
+      "type": "string"
+    },
+    "dcmStorageThresholdExceedsPermanently": {
+      "title": "永久超过存储门槛",
+      "description": "指示当超过存储门槛时,将从请求存储系统的网络AE的已配置存储系统列表中删除存储系统。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmNoDeletionConstraint": {
+      "title": "无删除约束",
+      "description": "如果没有配置删除门槛值和其他删除约束,则从无删除约束的高速缓存/临时存储系统中删除检查。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDeleterThreshold": {
+      "title": "删除阈值",
+      "description": "触发删除的存储系统的最小可用空间。如果存储系统为存储配置了高速缓存(Storage Duration =CACHE)或者临时缓存(Storage Duration=TEMPORARY)值，那么当可用空间小于该配置的值，检查将会从存储系统里删除。格式 [nn'['<schedule>']']nnn(MB|GB|MiB|GiB)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmDeleteStudiesOlderThan": {
+      "title": "删除旧的检查",
+      "description": "从配置为缓存(dcmStorageDuration= cache)或临时(dcmStorageDuration= temporary)存储的存储系统中删除Studies，如果它们的Study Date比ISO-8601 period格式的指定值长。格式[nn\"[\"<schedule>\"]\"](PnYnMnD|PnW)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesReceivedBefore": {
+      "title": "删除以前接收的检查",
+      "description": "如果是在ISO-8601期间格式中指定的值之前接收到检查,则从配置的缓存（dcmStorageDuration=CACHE）或临时（dcmStorageDuration=TEMPORARY）存储系统中删除检查。格式[nn\"[\"<schedule>\"]\"](PnYnMnD|PnW)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesNotUsedSince": {
+      "title": "删除未使用的检查从",
+      "description": "从配置了缓存（dcmStorageDuration=CACHE）或临时（dcmStorageDuration=TEMPORARY）存储的存储系统中删除最后一次访问时间长于在ISO-8601格式的指定值的检查,格式[nn\"[\"<schedule>\"]\"](PnYnMnD|PnW)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleterThreads": {
+      "title": "删除线程",
+      "description": "用于从存储系统中删除对象的线程数。",
+      "type": "integer",
+      "default" : 1,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmExternalRetrieveAET": {
+      "title": "外部读取AETs",
+      "description": "除了配置的删除门槛和删除保留时间限制外,还将从存储系统中删除检查限制为对象可以使用外部C-MOVE SCP AE读取的检查。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmExternalRetrieveInstanceAvailability": {
+      "title": "外部读取归档实例可用性",
+      "description": "对于外部读取归档可用的实例,在删除检查时更新实例可用性。",
+      "type": "string",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmExportStorageID": {
+      "title": "写入存储ID",
+      "description": "除了配置的删除门槛和删除保留时间限制外,还将从存储系统中删除验证限制为允许对象从指定的其他存储中访问的验证。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmStorageID"
+    },
+    "dcmRetrieveCacheStorageID": {
+      "title": "读高速缓存存储ID",
+      "description": "指定一个单独的存储,在读取时并行复制对象,以提高对存储系统的访问性能,该存储系统使用多个并行连接来提供更多的带宽。",
+      "type": "string",
+      "format": "dcmStorageID"
+    },
+    "dcmNoRetrieveCacheOnDestinationAETitle": {
+      "title": "No Retrieve Cache on Destination AE Title",
+      "description": "Specifies AE Titles of C-STORE SCPs to which objects are retrieved without copying them to a configured Retrieve Cache Storage.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmNoRetrieveCacheOnPurgedInstanceRecords": {
+      "title": "No Retrieve Cache on Purged Instance Records",
+      "description": "Indicates to NOT copy retrieved objects to a configured Retrieve Cache Storage, wherein corresponding Instance Records were already purged from the DB.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRetrieveCacheMaxParallel": {
+      "title": "读高速缓存最大并行数",
+      "description": "读时高速缓存存储中并行副本的最大数量。仅当设置了\"读缓存存储ID\"时才有效。 ",
+      "type": "integer",
+      "default" : 10,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmProperty": {
+      "title": "存储属性",
+      "description": "{name}={value}格式的属性。 Refer various <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Storage-Properties\" target=\"_blank\">Storage Properties</a> that can be configured based on the storage type.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

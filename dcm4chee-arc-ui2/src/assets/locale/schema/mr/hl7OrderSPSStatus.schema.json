@@ -1,0 +1,40 @@
+{
+  "title": "HL7 ऑर्डरसाठी अनुसूची प्रक्रिया स्टेप स्थिती कोड",
+  "description": "HL7 ऑर्डर संदेशांच्या (ORM^O01, OMI^O23, OMG^O19) प्राप्त होण्यावर संग्रहणात तयार / अद्यतनित केलेले DICOM MWL आयटम्सची अनुसूची प्रक्रिया स्टेप स्थिती कोड सूचित करते.",
+  "type": "object",
+  "required": [
+    "dcmSPSStatus",
+    "hl7OrderControlStatus"
+  ],
+  "properties": {
+    "dcmSPSStatus": {
+      "title": "अनुसूची प्रक्रिया स्टेप स्थिती कोड",
+      "description": "अनुसूची प्रक्रिया स्टेप स्थिती कोड.",
+      "type": "string",
+      "enum": [
+        "SCHEDULED",
+        "CANCELED",
+        "DISCONTINUED",
+        "COMPLETED"
+      ]
+    },
+    "hl7OrderControlStatus": {
+      "title": "HL7 ऑर्डर नियंत्रण स्थिती",
+      "description": "HL7 ऑर्डर नियंत्रण स्थिती कोड संयोजन. हे संयोजन ORC-1_ORC-5 मध्ये उपस्थित असलेल्या मूल्यांचा संदर्भ देतात.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "NW_SC",
+          "NW_IP",
+          "CA_CA",
+          "DC_CA",
+          "XO_SC",
+          "XO_CM",
+          "SC_CM",
+          "SC_A"
+        ]
+      }
+    }
+  }
+}

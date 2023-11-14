@@ -1,0 +1,54 @@
+{
+  "title": "Servizio PDQ",
+  "description": "Descrittore del servizio Patient Demographics Query",
+  "type": "object",
+  "required": [
+    "dcmPDQServiceID",
+    "dcmURI",
+    "dcmEntity"
+  ],
+  "properties": {
+    "dcmPDQServiceID": {
+      "title": "ID servizio PDQ",
+      "description": "ID servizio Patient Demographics Query",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmPatientVerificationPDQServiceID"
+      ]
+    },
+    "dcmURI": {
+      "title": "URI del servizio PDQ",
+      "description": "URI del servizio Patient Demographics Query, ad esempio \"pdq-dicom: FINDSCP\" or 'pdq-hl7:SendingApplication/SendingFacility:ReceivingApplication/ReceivingFacility' or pdq-fhir:HL7-FHIR-R4-WebApplication.",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "Descrizione del servizio PDQ",
+      "description": "Descrizione testuale non vincolata del servizio Patient Demographics Query",
+      "type": "string"
+    },
+    "dcmTag": {
+      "title": "Attributi del paziente",
+      "description": "Attributi paziente interrogati: se non specificato, verranno interrogati tutti gli attributi del paziente disponibili. Only applicable for 'pdq-dicom' PDQ Service",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    },
+    "dcmEntity": {
+      "title": "Entità Query",
+      "description": "Indica se viene richiesto al C-FIND SCP per un particolare paziente o per gli studi di un particolare paziente. Efficace solo per i servizi DICOM PDQ (URI: pdq-dicom: {AETitle}).",
+      "type": "string",
+      "enum": [ "Patient", "Study" ],
+      "default": "Patient"
+    },
+    "dcmProperty": {
+      "title": "Proprietà del servizio PDQ",
+      "description": "Proprietà in formato <name>=<value>, ad es. \"LocalAET = DCM4CHEE\" or 'XSLStylesheetURI=${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl' or 'XSLStylesheetURI=${jboss.server.temp.url}/dcm4chee-arc/fhir-pat2dcm.xsl' for URI with schema pdq-fhir. Additional properties for URI with schema pdq-fhir may be set eg. 'search._format=xml', 'search.identifier.system={issuer}'. For complete list of properties, refer https://github.com/dcm4che/dcm4chee-arc-light/issues/3307",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

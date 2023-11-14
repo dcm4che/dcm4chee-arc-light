@@ -1,0 +1,69 @@
+{
+  "title": "PIX Configuration",
+  "description": "PIX Configuration",
+  "type": "object",
+  "required": [
+    "dicomRouterRouteConfigurationPixConfiguration",
+    "dicomRouterRouteConfigurationPixConfigurationDisplayName",
+    "dicomRouterRouteConfigurationPixConfigurationDomainsReturned",
+    "dicomRouterRouteConfigurationPixConfigurationIssuer2AssigningAuthority",
+    "dicomRouterRouteConfigurationPixConfigurationITI9EndpointURI",
+    "dicomRouterRouteConfigurationPixConfigurationReceivingApplication",
+    "dicomRouterRouteConfigurationPixConfigurationReceivingFacility",
+    "dicomRouterRouteConfigurationPixConfigurationSendingApplication",
+    "dicomRouterRouteConfigurationPixConfigurationSendingFacility"
+  ],
+  "properties": {
+    "dicomRouterRouteConfigurationPixConfiguration": {
+      "title": "PIX Configuration Name (internal)",
+      "description": "PIX Configuration Name (internal)",
+      "type": "string"
+    },
+    "dicomRouterRouteConfigurationPixConfigurationDisplayName": {
+      "title": "PIX Configuration Name (UI)",
+      "description": "PIX Configuration Name (UI)",
+      "type": "string"
+    },
+    "dicomRouterRouteConfigurationPixConfigurationDomainsReturned": {
+      "title": "Domains Return",
+      "description": "List of Domains to return in the PIX Query in the form NamespaceID&UniversalID&UniversalIDType (e.g FOREIGN&5.6.7.8&ISO)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomRouterRouteConfigurationPixConfigurationITI9EndpointURI": {
+      "title": "ITI-9 Endpoint URI",
+      "description": "ITI-9 URI - f.e pix-iti9://localhost:3600?audit=false",
+      "type": "string"
+    },
+    "dicomRouterRouteConfigurationPixConfigurationReceivingApplication": {
+      "title": "Receiving Application",
+      "description": "Receiving Application",
+      "type": "string"
+    },
+    "dicomRouterRouteConfigurationPixConfigurationReceivingFacility": {
+      "title": "Receiving Facility",
+      "description": "Receiving Facility",
+      "type": "string"
+    },
+    "dicomRouterRouteConfigurationPixConfigurationSendingApplication": {
+      "title": "Sending Application",
+      "description": "Sending Application",
+      "type": "string"
+    },
+    "dicomRouterRouteConfigurationPixConfigurationSendingFacility": {
+      "title": "Sending Facility",
+      "description": "Sending Facility",
+      "type": "string"
+    },
+    "dicomRouterRouteConfigurationPixConfigurationIssuer2AssigningAuthority": {
+      "title": "Issuer - Assigning Authority Mapping",
+      "description": "Issuer - Assigning Authority Mapping in the form AET=NamespaceID&UniversalID&UniversalIDType (e.g FOREIGN=FOREIGN&5.6.7.8&ISO)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

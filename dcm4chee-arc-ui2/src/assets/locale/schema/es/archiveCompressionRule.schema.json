@@ -1,0 +1,52 @@
+{
+  "title": "Archive Compression rule",
+  "description": "Archive Compression rule",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomTransferSyntax",
+    "dcmRulePriority"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Archive Compression Rule",
+      "type": "string"
+    },
+    "dicomTransferSyntax": {
+      "title": "DICOM Transfer Syntax UID",
+      "description": "Transfer Syntax to which received images shall be compressed",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmRulePriority": {
+      "title": "Rule Priority",
+      "description": "If the condition of several Compression rules matches for a received image, the rule with the highest priority will get applied. If there are several matching rules with equal priority it is undefined which rule get applied.",
+      "type": "integer",
+      "default" : 0,
+      "minimum": 0
+    },
+    "dcmProperty": {
+      "title": "Conditions",
+      "description": "Conditions in format {key}[!]={value}. Refer <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Conditions\" target=\"_blank\">applicability, format and some examples.</a>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmImageWriteParam": {
+      "title": "Image Write Param",
+      "description": "Image Write Parameter(s) (name=value) set at on Image Writer before compression",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmCompressionDelay": {
+      "title": "Compression Delay",
+      "description": "Compression delay in ISO-8601 duration format PnDTnHnMn.nS. Compress on receive if absent.",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

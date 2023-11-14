@@ -1,0 +1,49 @@
+{
+  "title": "MWL निष्क्रिय वेळ नियम",
+  "description": "MWL निष्क्रिय वेळ नियम.",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomAETitle",
+    "dcmMWLStatusOnIdle",
+    "dcmDuration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाव",
+      "description": "MWL निष्क्रिय कालबाह्यतेचे अनियंत्रित / अर्थपूर्ण नाव.",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "MWL SCP AE चे शीर्षक",
+      "description": "MWL SCP चे संग्रहण AE चे शीर्षक ज्यावर MWL निष्क्रिय कालबाह्य लागू केले जाईल.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmAETitle": {
+      "title": "अनुसूचित स्टेशन AE चे शीर्षक",
+      "description": "अनुसूची प्रक्रियेच्या स्टेप्सचे अनुसूचित स्टेशन AE चे शीर्षक ज्यासाठी MWL निष्क्रिय कालबाह्य लागू केले जाईल. काहीही निर्दिष्ट केलेले नसल्यास, MWL निष्क्रिय कालबाह्यता MWL SCP ने प्रदान केलेल्या सर्व अनुसूचित प्रक्रियेच्या स्टेप्सवर लागू केली जाईल.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmMWLStatusOnIdle": {
+      "title": "निष्क्रिय होण्यावर MWL ची स्थिती",
+      "description": "निष्क्रिय अनुसूची प्रक्रियेच्या स्टेप्सची स्थिती दर्शविलेल्या मूल्याने बदला.",
+      "type": "string",
+      "enum":[
+        "CANCELED",
+        "DISCONTINUED",
+        "COMPLETED"
+      ]
+    },
+    "dcmDuration": {
+      "title": "निष्क्रिय कालबाह्य",
+      "description": "कालबाह्य ज्यानंतर अनुसूची प्रक्रिया स्टेप्सची जुळणारी स्थिती निर्दिष्ट अंतिम स्थितीत बदलली जाईल.",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

@@ -1,0 +1,292 @@
+{
+  "title": "设备",
+  "description": "DICOM设备相关信息",
+  "type": "object",
+  "required": ["dicomDeviceName", "dicomInstalled"],
+  "groups": {
+    "Manufacturer Information": [
+      "dicomManufacturer",
+      "dicomManufacturerModelName",
+      "dicomSoftwareVersion",
+      "dicomDeviceSerialNumber"
+    ],
+    "Organisation": [
+      "dicomStationName",
+      "dicomInstitutionName",
+      "dicomInstitutionCode",
+      "dicomInstitutionAddress",
+      "dicomInstitutionDepartmentName"
+    ],
+    "Issuers": [
+      "dicomIssuerOfPatientID",
+      "dicomIssuerOfAccessionNumber",
+      "dicomOrderPlacerIdentifier",
+      "dicomOrderFillerIdentifier",
+      "dicomIssuerOfAdmissionID",
+      "dicomIssuerOfServiceEpisodeID",
+      "dicomIssuerOfContainerIdentifier",
+      "dicomIssuerOfSpecimenIdentifier"
+    ],
+    "Certificates": [
+      "dicomAuthorizedNodeCertificateReference",
+      "dicomThisNodeCertificateReference"
+    ]
+  },
+  "properties": {
+    "dicomDeviceName": {
+      "title": "设备名称",
+      "description": "此设备的唯一名称",
+      "type": "string",
+      "order":1
+    },
+    "dicomDescription": {
+      "title": "设备描述",
+      "description": "不受设备约束的文本描述",
+      "type": "string",
+      "order":2
+    },
+    "dicomVendorData":{
+      "title": "Vendor Device Data",
+      "description": "Device specific vendor configuration information",
+      "type": "boolean",
+      "order":2
+    },
+    "dicomDeviceUID": {
+      "title": "设备UID",
+      "description": "设备的唯一标识符",
+      "type": "string",
+      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$",
+      "order":3
+    },
+    "dicomManufacturer": {
+      "title": "制造商",
+      "description": "必须与此设备创建的SOP实例的制造商（0008,0070）属性的值相同",
+      "type": "string",
+      "order":4
+    },
+    "dicomManufacturerModelName": {
+      "title": "制造商型号名称",
+      "description": "必须与此设备创建的SOP实例的制造商型号名称（0008,1090）属性的值相同",
+      "type": "string",
+      "order":5
+    },
+    "dicomSoftwareVersion": {
+      "title": "软件版本",
+      "description": "必须与此设备创建的SOP实例的软件版本（0018,1020）属性的值相同",
+      "type": "array",
+      "order":6,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomStationName": {
+      "title": "Station Name",
+      "description": "必须与此设备创建的SOP实例的Station Name（0018,1010）属性的值相同",
+      "type": "string",
+      "order":7
+    },
+    "dicomDeviceSerialNumber": {
+      "title": "设备序列号",
+      "description": "必须与此设备创建的SOP实例的设备序列号（0018,1000）属性的值相同",
+      "type": "string",
+      "order":8
+    },
+    "dicomPrimaryDeviceType": {
+      "title": "主设备类型",
+      "description": "表示设备类型,最适合检索模态",
+      "type": "array",
+      "order":9,
+      "items" : {
+        "type": "string",
+        "enum":[
+          "ARCHIVE",
+          "COMP",
+          "CAD",
+          "DSS",
+          "FILMD",
+          "M3D",
+          "MCD",
+          "PRINT",
+          "CAPTURE",
+          "LOG",
+          "RT",
+          "WSD",
+          "AR",
+          "BMD",
+          "BDUS",
+          "EPS",
+          "CR",
+          "CT",
+          "DX",
+          "ECG",
+          "ES",
+          "XC",
+          "GM",
+          "HD",
+          "IO",
+          "IVOCT",
+          "IVUS",
+          "KER",
+          "LEN",
+          "MR",
+          "MG",
+          "NM",
+          "OAM",
+          "OCT",
+          "OPM",
+          "OP",
+          "OPR",
+          "OPT",
+          "OPTBSV",
+          "OPTENF",
+          "OPV",
+          "OSS",
+          "PX",
+          "PT",
+          "RF",
+          "RG",
+          "SM",
+          "SRF",
+          "US",
+          "VA",
+          "XA"
+        ]
+      }
+    },
+    "dicomInstitutionName": {
+      "title": "机构名称",
+      "description": "必须与此设备创建的SOP实例的机构名称（0008,0080）属性的值相同",
+      "type": "array",
+      "order":10,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstitutionCode": {
+      "title": "机构代码",
+      "description": "Should be the same as the value of Institution Code(s) in format （CV,CSD,\"CM\"）形式的机构代码 in SOP Instances created by this device",
+      "type": "array",
+      "order":11,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstitutionAddress": {
+      "title": "代理地址",
+      "description": "必须与此设备创建的SOP实例的代理地址（0008,0081）属性的值相同",
+      "type": "array",
+      "order":12,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstitutionDepartmentName": {
+      "title": "组织部门名称",
+      "description": "必须与此设备创建的SOP实例的组织部门名称（0008,1040）属性的值相同",
+      "type": "array",
+      "order":13,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomIssuerOfPatientID": {
+      "title": "患者ID发布者",
+      "description": "患者ID(0010,0021)发布者的默认值， 以及该设备创建或查询的SOP实例中的患者ID发布者序列（0010,0024）项中的通用实体ID（0040,0032）和通用实体ID类型（0040,0033）的默认值。格式为{Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}]",
+      "type": "string",
+      "order":14
+    },
+    "dicomIssuerOfAccessionNumber": {
+      "title": "AccessionNumber发布者",
+      "description": "本地名称空间实体ID（0040,0031）,通用实体ID（0040,0032）以及通用实体ID类型（0040,0033）在由此设备创建或查询的SOP实例中的AccessionNumber发布者序列（0008,0051）项中的默认值。格式:{LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}]",
+      "type": "string",
+      "order":15
+    },
+    "dicomOrderPlacerIdentifier": {
+      "title": "订购播放器标识符",
+      "description": "订购播放器标识符序列（0040,0026）项目中本地命名空间实体ID（0040,0031）、通用实体ID（0040,0032）和通用实体ID类型（0040,0033）的缺省值。 格式:{LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}]",
+      "type": "string",
+      "order":16
+    },
+    "dicomOrderFillerIdentifier": {
+      "title": "订单填充标识符",
+      "description": "在此设备创建或查询的SOP实例中,订单填充标识符序列（0040,0027）项中本地命名空间实体ID（0040,0031）、通用实体ID（0040,0032）和通用实体ID类型（0040,0033）的默认值。 格式:{LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}]",
+      "type": "string",
+      "order":17
+    },
+    "dicomIssuerOfAdmissionID": {
+      "title": "许可ID的发布者",
+      "description": "本地命名空间实体ID（0040,0031）、通用实体ID（0040,0032）和通用实体ID类型（0040,0033）在此设备创建或查询的SOP实例中的许可编号的发布者序列（0038,0014）项中的默认值。 格式:{LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}]",
+      "type": "string",
+      "order":18
+    },
+    "dicomIssuerOfServiceEpisodeID": {
+      "title": "服务剧集ID发布者",
+      "description": "本地名称空间实体ID（0040,0031）、通用实体ID（0040,0032）和通用实体ID类型（0040,0033）在此设备创建或查询的SOP实例中的服务剧集ID发布者序列（0038,0064）项中的默认值。 格式:{LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}]",
+      "type": "string",
+      "order":19
+    },
+    "dicomIssuerOfContainerIdentifier": {
+      "title": "容器标识符发布者",
+      "description": "在此设备创建或查询的SOP实例中,容器标识符发布者序列（0040,0513）项中本地命名空间实体ID（0040,0031）、通用实体ID（0040,0032）和通用实体ID类型（0040,0033）的默认值。 格式:{LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}]",
+      "type": "string",
+      "order":20
+    },
+    "dicomIssuerOfSpecimenIdentifier": {
+      "title": "样本标识符发布者",
+      "description": "在此设备创建或查询的SOP实例中,样本标识符发布者序列（0040,0562）项中的本地命名空间实体ID（0040,0031）、通用实体ID（0040,0032）和通用实体ID类型（0040,0033）的默认值。 格式: {LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}]",
+      "type": "string",
+      "order":21
+    },
+    "dicomAuthorizedNodeCertificateReference": {
+      "title": "已批准节点的证书参考",
+      "description": "已批准连接到此设备的节点的证书DN",
+      "type": "array",
+      "order":22,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomThisNodeCertificateReference": {
+      "title": "此节点证书参考",
+      "description": "此节点的公共证书的DN",
+      "type": "array",
+      "order":23,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstalled": {
+      "title": "已安装",
+      "description": "布尔值,指示该设备当前是否安装在网络上。",
+      "type": "boolean",
+      "order":24,
+      "default": true
+    },
+    "dicomNetworkConnection": {
+      "title": "网络连接",
+      "description": "设备网络连接",
+      "type": "array",
+      "order":25,
+      "titleKey":"{dicomHostname}:{dicomPort} {cn}",
+      "items": {
+        "$ref": "networkConnection.schema.json"
+      }
+    },
+    "dicomNetworkAE": {
+      "title": "网络AEs",
+      "description": "设备提供的应用实体",
+      "type": "array",
+      "titleKey":"{dicomAETitle}",
+      "order":26,
+      "items": {
+        "$ref": "networkAE.schema.json"
+      }
+    },
+    "dcmDevice": {
+      "title": "设备扩展",
+      "description": "dcm4che设备属性的专有属性",
+      "$ref": "dcmDevice.schema.json",
+      "order":27
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "title": "Configurazione dell'URL dell'interfaccia utente di Elasticsearch ",
+  "description": "URL dell'interfaccia utente di Elasticsearch",
+  "type": "object",
+  "required": [
+    "dcmuiLanguageProfileName",
+    "dcmuiDefaultLanguage"
+  ],
+  "properties": {
+    "dcmuiLanguageProfileName": {
+      "title": "Nome",
+      "description": "Nome del profilo della lingua",
+      "type": "string"
+    },
+    "dcmDefaultLanguage": {
+      "title": "Lingua predefinita",
+      "description": "Seleziona la lingua predefinita per l'interfaccia utente",
+      "type": "string",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmDefaultLanguage"
+    },
+    "dcmuiLanguageProfileRole": {
+      "title": "Ruolo",
+      "description": "Ruolo del nome utente a cui deve essere applicato questo profilo di lingua",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiLanguageProfileUsername": {
+      "title": "Nome utente",
+      "description": "Nome utente per il profilo della lingua",
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "title": "ऑडिट लॉगर",
+  "description": "ऑडिट लॉगर से संबंधित जानकारी ।",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomNetworkConnectionReference",
+    "dcmAuditRecordRepositoryDeviceName",
+    "dcmAuditFacility",
+    "dcmAuditSuccessSeverity",
+    "dcmAuditMinorFailureSeverity",
+    "dcmAuditSeriousFailureSeverity",
+    "dcmAuditMajorFailureSeverity",
+    "dcmAuditMessageID",
+    "dcmAuditMessageEncoding",
+    "dcmAuditMessageSchemaURI",
+    "dcmAuditMessageBOM",
+    "dcmAuditTimestampInUTC",
+    "dcmAuditMessageFormatXML",
+    "dcmAuditIncludeInstanceUID"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाम",
+      "description": "ऑडिट लॉगर का मनमाना सार्थक नाम ।",
+      "type": "string"
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "नेटवर्क संपर्क रेफेरेंस",
+      "description": "इस ऑडिट लॉगर द्वारा इस्तमाल किए गए नेटवर्क संपर्क ऑब्जेक्ट के जेसन पॉइंटर्स ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditRecordRepositoryDeviceName": {
+      "title": "ऑडिट रेकॉर्ड रिपोसिटोरी डिवाइस का नाम",
+      "description": "ऑडिट संदेशों को भेजे गए ऑडिट रेकॉर्ड रिपोसिटोरी डिवाइस ।",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmAuditSourceID": {
+      "title": "स्रोत ID",
+      "description": "RFC 3881 ऑडिट स्रोत ID; अगर अनुपस्थित हो तो डिवाइस का नाम ।",
+      "type": "string"
+    },
+    "dcmAuditEnterpriseSiteID": {
+      "title": "एंटरप्राइज साइट ID",
+      "description": "RFC 3881 ऑडिट एंटरप्राइज साइट ID; 'dicomInstitutionName' के मूल्य को DICOM डिवाइस के संस्था के नाम के साथ बदला जाएगा ।",
+      "type": "string"
+    },
+    "dcmAuditSourceTypeCode": {
+      "title": "स्रोत प्रकार कोड",
+      "description": "RFC 3881 ऑडिट स्रोत प्रकार कोड; 'dicomPrimaryDeviceType' के मूल्य को DICOM डिवाइस के प्राथमिक प्रकार के साथ बदला जाएगा ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditFacility": {
+      "title": "सिसलॉग सुविधा",
+      "description": "ऑडिट सन्देश का RFC 5424 सिसलॉग सुविधा स्ट्रिंग मूल्य ।",
+      "type": "string",
+      "default": "authpriv",
+      "enum": [
+        "kern",
+        "user",
+        "mail",
+        "daemon",
+        "auth",
+        "syslog",
+        "lpr",
+        "news",
+        "uucp",
+        "cron",
+        "authpriv",
+        "ftp",
+        "ntp",
+        "audit",
+        "console",
+        "cron2",
+        "local0",
+        "local1",
+        "local2",
+        "local3",
+        "local4",
+        "local5",
+        "local6",
+        "local7"
+      ]
+    },
+    "dcmAuditSuccessSeverity": {
+      "title": "सिसलॉग सख्ती - सफलता",
+      "description": "घटना परिणाम सूचक 0 (सफलता) के ऑडिट संदेश का RFC 5424 सिसलॉग सख्ती स्ट्रिंग मूल्य ।",
+      "type": "string",
+      "default": "notice",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditMinorFailureSeverity": {
+      "title": "सिसलॉग सख्ती - असफलता",
+      "description": "घटना परिणाम सूचक ४ (मामूली असफलता) के ऑडिट संदेश का RFC 5424 सिसलॉग सख्ती स्ट्रिंग मूल्य ।",
+      "type": "string",
+      "default": "warning",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditSeriousFailureSeverity": {
+      "title": "सिसलॉग सख्ती - असफलता",
+      "description": "घटना परिणाम सूचक ८ (गंभीर असफलता) के ऑडिट संदेश का RFC 5424 सिसलॉग सख्ती स्ट्रिंग मूल्य ।",
+      "type": "string",
+      "default": "err",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditMajorFailureSeverity": {
+      "title": "सिसलॉग सख्ती - मुख्य असफलता",
+      "description": "घटना परिणाम सूचक १२ (मुख्य असफलता) के ऑडिट संदेश का RFC 5424 सिसलॉग सख्ती स्ट्रिंग मूल्य ।",
+      "type": "string",
+      "default": "crit",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditApplicationName": {
+      "title": "सिसलॉग अनुप्रयोग का नाम",
+      "description": "ऑडिट संदेश का RFC 5424 सिसलॉग अनुप्रयोग का नाम; अनुपलभ्य हो तो ऑडिट स्रोत ID ।",
+      "type": "string"
+    },
+    "dcmAuditMessageID": {
+      "title": "सिसलॉग संदेश ID",
+      "description": "ऑडिट संदेश का RFC 5424 सिसलॉग संदेश ID ।",
+      "type": "string",
+      "default": "IHE+RFC-3881"
+    },
+    "dcmAuditMessageEncoding": {
+      "title": "संदेश एन्कोडिंग",
+      "description": "ऑडिट संदेश के RFC 5424 सिसलॉग संदेश का कॅरक्टर एन्कोडिंग ।",
+      "type": "string",
+      "default": "UTF-8"
+    },
+    "dcmAuditMessageBOM": {
+      "title": "संदेश BOM",
+      "description": "ऑडिट संदेश के RFC 5424 सिसलॉग संदेश का उपसर्ग यूनिकोड BOM द्वारा सक्षम या असक्षम करें; अनुपलभ्य हो तो BOM को शामिल करें ।",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmAuditTimestampInUTC": {
+      "title": "UTC में समय",
+      "description": "RFC 5424 सिसलॉग समय और ऑडिट संदेश के घटना तारीख तथा समय को कोऑर्डिनेटेड यूनिवर्सल समय में निर्दिष्ट करने को निर्दिष्ट करता है । डिफ़ॉल्ट संकेत करता है की यह मूल्य स्थानीय समय कटिबंध में होगा ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditMessageFormatXML": {
+      "title": "संदेश प्रारूप XML",
+      "description": "ऑडिट संदेश XML को लाइन फीड और इंडेंटेशन के साथ प्रारूप किया है या नहीं यह निर्दिष्ट करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditMessageSchemaURI": {
+      "title": "संदेश स्कीमा URI",
+      "description": "ऑडिट संदेश में संदर्भित किए गए DICOM ऑडिट संदेश स्कीमा का URI ।",
+      "type": "string",
+      "default": "http://www.dcm4che.org/DICOM/audit-message.rnc"
+    },
+    "dcmAuditIncludeInstanceUID": {
+      "title": "दृष्टांतों के UID यों को शामिल करें",
+      "description": "ऑडिट लॉग संदेशों में दृष्टांतों के UID यों को इच्छानुसार शामिल करने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditLoggerSpoolDirectoryURI": {
+      "title": "स्पूल निर्देशिका URI",
+      "description": "ऑडिट रेकॉर्ड रिपोसिटोरी पे न भेज पाए ऑडिट संदेशों को सहेजने के स्पूल निर्देशिका का URI; अनुपलभ्य हो तो सिस्टम अस्थायी निर्देशिका का इस्तमाल करें ।",
+      "type": "string"
+    },
+    "dcmAuditLoggerRetryInterval": {
+      "title": "पुनःपरीक्षण अंतराल",
+      "description": "ऑडिट रेकॉर्ड रिपोसिटोरी पे फिरसे ऑडिट संदेशों को भेजने का सेकंडों में पुनःपरीक्षण अंतराल; अनुपलभ्य हो तो ऑडिट संदेशों को फिरसे भेजने का पुनःपरीक्षण ना करें ।",
+      "type": "integer",
+      "minimum": 1
+    },
+    "dicomInstalled": {
+      "title": "स्थापित",
+      "description": "'हाँ' अगर यह ऑडिट लॉगर इस नेटवर्क पे स्थापित है । अनुपलभ्य हो तो, ऑडिट लॉगर के स्थापित स्थिति की जानकारी डिवाइस से ली जाएगी ।",
+      "type": "boolean"
+    },
+    "dcmAuditSuppressCriteria": {
+      "title": "ऑडिट अधीन मानदण्ड",
+      "description": "ऑडिट अधीन मानदण्ड ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items": {
+        "$ref": "auditSuppressCriteria.schema.json"
+      }
+    }
+  }
+}

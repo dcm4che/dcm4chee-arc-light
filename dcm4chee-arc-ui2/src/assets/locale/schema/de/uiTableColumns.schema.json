@@ -1,0 +1,51 @@
+{
+  "title": "UI Study Table Columns Configuration",
+  "description": "Study Table Columns",
+  "type": "object",
+  "required": [
+    "dcmuiColumnName",
+    "dcmuiValuePath",
+    "dcmuiValueType"
+  ],
+  "properties": {
+    "dcmuiColumnName": {
+      "title": "Column Name",
+      "description": "The Name of the Column in the Study Table",
+      "type": "string"
+    },
+    "dcmuiColumnId": {
+      "title": "Column ID",
+      "description": "Every possible column that is used in the UI, has and ID, by using the ID you can change some of the properties of that Column, like Name, Description, Order or width",
+      "type": "string"
+    },
+    "dcmuiColumnTitle": {
+      "title": "Column Description",
+      "description": "Description of the Column, shown on hover",
+      "type": "string"
+    },
+    "dcmuiValuePath": {
+      "title": "Value path",
+      "description": "Value (json-Object) Path of the column (for Example: '00100010.Value[0].Alphabetic' for Patient's Name or '00100020.Value[0]' for Patient ID",
+      "type": "string"
+    },
+    "dcmuiValueType": {
+      "title": "Type of the value",
+      "description": "Type of the column how to get the value, default should be 'value'",
+      "type": "string",
+      "enum": [
+        "value",
+        "pipe"
+      ]
+    },
+    "dcmuiColumnWidth": {
+      "title": "Column width in weight",
+      "description": "Width of the column in weight ( x > 0.1 - x < infinite ) default 1",
+      "type":  "string"
+    },
+    "dcmuiColumnOrder": {
+      "title": "Order of the Column",
+      "description": "Order of the Column",
+      "type":  "number"
+    }
+  }
+}

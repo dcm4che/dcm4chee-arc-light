@@ -1,0 +1,302 @@
+{
+  "title": "Storage",
+  "description": "Storage Descriptor",
+  "type": "object",
+  "required": [
+    "dcmStorageID",
+    "dcmURI",
+    "dcmArchiveSeriesAsTAR",
+    "dcmStoragePathFormat",
+    "dcmOnStoragePathAlreadyExists",
+    "dcmRetryCreateDirectories",
+    "dcmAltCreateDirectories",
+    "dcmFileOpenOption",
+    "dcmLocationStatus",
+    "dcmCountLocationsByStatus",
+    "dcmMaxRetries",
+    "dcmInstanceAvailability",
+    "dcmRetrieveCacheMaxParallel",
+    "dcmReadOnly",
+    "dcmStorageThresholdExceedsPermanently",
+    "dcmNoDeletionConstraint",
+    "dcmNoRetrieveCacheOnPurgedInstanceRecords",
+    "dcmDeleterThreads",
+    "dcmStorageDuration"
+  ],
+  "properties": {
+    "dcmStorageID": {
+      "title": "Storage ID",
+      "description": "Storage ID",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmSeriesMetadataStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorageVerificationStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorage[*].dcmExportStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorage[*].dcmRetrieveCacheStorageID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmObjectStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMetadataStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStorageVerificationStorageID[*]"
+      ]
+    },
+    "dcmURI": {
+      "title": "Storage URI",
+      "description": "RFC2079: Uniform Resource Identifier",
+      "type": "string"
+    },
+    "dcmArchiveSeriesAsTAR": {
+      "title": "Archive Series as TAR",
+      "description": "Indicates that binary DICOM objects of one Series are packed in one TAR archive on this Storage System; false if absent.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStoragePathFormat": {
+      "title": "Storage Path Format",
+      "description": "Format of file path of DICOM binary objects or metadata in JSON format or of ZIP archives containing metadata in JSON format for each DICOM object of one Series, written to this Storage System. '{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}', if absent.",
+      "type": "string",
+      "default": "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}"
+    },
+    "dcmOnStoragePathAlreadyExists": {
+      "title": "Already Exists on Storage Path",
+      "description": "Specifies behavior if an object already exists on the storage path on the storage system, assembled according to the configured 'Storage Path Format'. Default behaviour 'RANDOM_PATH'. (hover on options to see their descriptions)",
+      "type": "string",
+      "enum": [
+        "FAILURE|Signals failure writing the new object",
+        "NOOP|Proceed without writing the new object",
+        "RANDOM_PATH|Replace last path element be random 8 hex digit number and try again"
+      ],
+      "default": "RANDOM_PATH"
+    },
+    "dcmRetryCreateDirectories": {
+      "title": "Retry Create Directories",
+      "description": "Specifies number of retries to create parent directories of the storage file path - may workaround issues concerning NFS; 0 if absent.",
+      "type": "integer",
+      "default": 0
+    },
+    "dcmAltCreateDirectories": {
+      "title": "Alt Create Directories",
+      "description": "Indicate to not rely on 'createDirectories' function in 'java.nio.file.Files' Java class, to create all nonexistent parent directories first, but instead explicitly create parent directories if NoSuchFileException is thrown. May workaround issues concerning NFS.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmCheckMountFilePath": {
+      "title": "Check Mount File Path",
+      "description": "Indicates to check if a mounted file system did not get detached from its mount point, by specifying the path of a shadow file in the directory used as mount point. If the shadow file becomes inaccessible, write to storage operation fails. Checked for each DICOM object storage (write operation). Typically applicable to NFS / external file systems.",
+      "type": "string"
+    },
+    "dcmFileOpenOption": {
+      "title": "File Open Option(s)",
+      "description": "Options specifying how the file is opened for writing. Default behaviour 'CREATE_NEW'. (hover on options to see their descriptions)",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "CREATE_NEW|Create a new file, failing if the file already exists",
+          "DSYNC|Requires that every update to the file's content be written synchronously to the underlying storage device",
+          "SYNC|Requires that every update to the file's content or metadata be written synchronously to the underlying storage device"
+        ]
+      },
+      "default": "CREATE_NEW"
+    },
+    "dcmLocationStatus": {
+      "title": "Location Status",
+      "description": "Initial Location Status of DICOM files written to this Storage System. Default behaviour 'OK'. (hover on options to see their descriptions)",
+      "type": "string",
+      "enum": [
+        "OK|Indicates access state of stored objects is stable",
+        "VERIFY_QSTAR_ACCESS_STATE|Indicates to verify access state of stored objects from QStar Tape File System"
+      ],
+      "default": "OK"
+    },
+    "dcmCountLocationsByStatus": {
+      "title": "Count Locations by Status",
+      "description": "Indicate to include counts of locations with status != 0 (=OK) for this Storage System by RESTful service to list Storage Systems; false if absent.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDigestAlgorithm": {
+      "title": "Digest Algorithm",
+      "description": "Algorithm for generation of check sums.",
+      "type": "string",
+      "enum" : [
+        "MD5|Message-digest algorithm",
+        "SHA-1|Secure Hash Algorithm 1"
+      ]
+    },
+    "dcmMaxRetries": {
+      "title": "Maximum Number of Retries",
+      "description": "Maximum number of retries to store an object on the storage system.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "Retry Delay",
+      "description": "Delay to retry to store an object on the storage system in ISO-8601 duration format PnDTnHnMn.nS. Retry immediately if absent.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmInstanceAvailability": {
+      "title": "Instance Availability",
+      "description": "Instance Availability.",
+      "type": "string",
+      "default": "ONLINE",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmStorageDuration": {
+      "title": "Storage Duration",
+      "description": "Indicates the type of storage duration. Objects get purged from cache and temporary storage according configured deleter thresholds or - if no deleter threshold is specified and no Retention Periods are configured - all objects on the Storage will get purged. In the case of temporary storage, the studies which objects were purged are also deleted from the database.",
+      "type": "string",
+      "default": "PERMANENT",
+      "enum": [
+        "PERMANENT|Permanent storage",
+        "CACHE|Cache storage",
+        "TEMPORARY|Temporary storage"
+      ]
+    },
+    "dcmReadOnly": {
+      "title": "Read Only",
+      "description": "Indicates if a Storage System is read only.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageClusterID": {
+      "title": "Storage Cluster ID",
+      "description": "Identifies a CACHE Storage to belong to a Storage Cluster. Objects of one Study may be distributed over Storage Systems of one Storage Cluster. Used by threshold triggered deletion.",
+      "type": "string"
+    },
+    "dcmStorageThreshold": {
+      "title": "Storage Threshold",
+      "description": "Minimal Usable Space on Storage System. If the usable space falls below that value the Storage System will be marked as full by setting Storage Threshold Exceeds to the current time and - if Storage Threshold Exceeds Permanently is true - the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)",
+      "type": "string"
+    },
+    "dcmStorageThresholdExceeded": {
+      "title": "Storage Threshold Exceeded",
+      "description": "Date and time in format YYYYMMDDHHMMSS.FFFFFF when the Storage Threshold exceeded.",
+      "type": "string"
+    },
+    "dcmStorageThresholdExceedsPermanently": {
+      "title": "Storage Threshold Exceeds Permanently",
+      "description": "Indicates to removed the Storage System from the list of configured Storage Systems of the Network AE requesting that Storage System when the Storage Threshold exceeds.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmNoDeletionConstraint": {
+      "title": "No Deletion Constraint",
+      "description": "Delete Studies from cache/temporary Storage System, if no Deleter Threshold and no other deletion constraint is configured.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDeleterThreshold": {
+      "title": "Deleter Threshold",
+      "description": "Minimal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System configured for cache (Storage Duration = CACHE) or temporary (Storage Duration = TEMPORARY) storage, if the usable space fall below that value. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmDeleteStudiesOlderThan": {
+      "title": "Delete Studies Older Than",
+      "description": "Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if their Study Date is longer ago than the specified value in ISO-8601 period format. Format [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesReceivedBefore": {
+      "title": "Delete Studies Received Before",
+      "description": "Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if they were received longer ago than the specified value in ISO-8601 period format. Format [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesNotUsedSince": {
+      "title": "Delete Studies Not Used Since",
+      "description": "Delete Studies from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if they were last accessed longer ago than the specified value in ISO-8601 period format. Format [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleterThreads": {
+      "title": "Deleter Threads",
+      "description": "Number of Threads used for deletion of objects from the Storage System.",
+      "type": "integer",
+      "default" : 1,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmExternalRetrieveAET": {
+      "title": "External Retrieve AETs",
+      "description": "Constrains deletion of Studies, additionally to configured deleter thresholds and/or deletion retention period constraints, from the Storage System to Studies which objects are retrievable using one of the AEs from an external C-MOVE SCP.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmExternalRetrieveInstanceAvailability": {
+      "title": "External Retrieve Instance Availability",
+      "description": "Updates instance availability on deletion of studies for instances available on external retrieve archive.",
+      "type": "string",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmExportStorageID": {
+      "title": "Export Storage ID",
+      "description": "Constrains deletion of Studies, additionally to configured deleter thresholds and/or deletion retention period constraints, from the Storage System to Studies whose objects are also accessible from the specified other storages.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmStorageID"
+    },
+    "dcmRetrieveCacheStorageID": {
+      "title": "Retrieve Cache Storage ID",
+      "description": "Specifies another Storage to which objects are copied in parallel on retrieve to increase the performance on accessing storage systems which provides more bandwidth using multiple connections in parallel.",
+      "type": "string",
+      "format": "dcmStorageID"
+    },
+    "dcmNoRetrieveCacheOnDestinationAETitle": {
+      "title": "No Retrieve Cache on Destination AE Title",
+      "description": "Specifies AE Titles of C-STORE SCPs to which objects are retrieved without copying them to a configured Retrieve Cache Storage.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmNoRetrieveCacheOnPurgedInstanceRecords": {
+      "title": "No Retrieve Cache on Purged Instance Records",
+      "description": "Indicates to NOT copy retrieved objects to a configured Retrieve Cache Storage, wherein corresponding Instance Records were already purged from the DB.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRetrieveCacheMaxParallel": {
+      "title": "Retrieve Cache Max Parallel",
+      "description": "Maximal number of parallel copies to cache storage on retrieve. Only effective if a Retrieve Cache Storage ID is configured.",
+      "type": "integer",
+      "default" : 10,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmProperty": {
+      "title": "Storage Property",
+      "description": "Specify storage properties in format {name}={value}. Refer various <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Storage-Properties\" target=\"_blank\">Storage Properties</a> that can be configured based on the storage type.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

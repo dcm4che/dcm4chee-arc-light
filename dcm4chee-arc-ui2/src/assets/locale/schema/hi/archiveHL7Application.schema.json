@@ -1,0 +1,288 @@
+{
+  "title": "आर्काइव HL7 अनुप्रयोग",
+  "description": "डाइकोम (DICOM) आर्काइव HL7 अनुप्रयोग से सम्बंधित जानकारी ।",
+  "type": "object",
+  "required": [
+    "dicomAETitle"
+  ],
+  "properties": {
+    "dicomAETitle": {
+      "title": "AE का नाम",
+      "description": "इस HL7 अनुप्रयोग से सम्बंधित आर्काइव AE का नाम ।",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmRecordAttributeModification": {
+      "title": "गुण के परिवर्तन को रेकॉर्ड करें",
+      "description": "सहेजे गए ऑब्जेक्ट्स के गुणों के परिवर्तन को मूल गुणों के क्रम के आइटम्स में रेकॉर्ड करने का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmMWLWorklistLabel": {
+      "title": "MWL Worklist Label",
+      "description": "Value of Worklist Label (0074,1202) of created MWL items on receive of HL7 Order messages. If absent, created MWL items are not bound to a particular MWL Worklist and are provided by all Archive AEs with MWL SCP Transfer Capability.",
+      "type": "string",
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmMWLAccessionNumberGenerator": {
+      "title": "MWL परिग्रहण संख्या जेनरेटर",
+      "description": "HL7 ऑर्डर संदेश प्राप्त होने पे निर्माण किए गए अनुसूचित प्रक्रियाओं स्टेप्स के अनुपस्थित परिग्रहण संख्याओं को पूरक करने के लिए ID जेनरेटर की पहचान करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmMWLRequestedProcedureIDGenerator": {
+      "title": "MWL अनुरोधित प्रक्रिया ID जेनरेटर",
+      "description": "HL7 ऑर्डर संदेश प्राप्त होने पे निर्माण किए गए अनुसूचित अनुरोधित प्रक्रिया IDs के अनुपस्थित परिग्रहण संख्याओं को पूरक करने के लिए ID जेनरेटर की पहचान करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmMWLScheduledProcedureStepIDGenerator": {
+      "title": "MWL अनुसूचित प्रक्रिया स्टेप ID जेनरेटर",
+      "description": "HL7 ऑर्डर संदेश प्राप्त होने पे निर्माण किए गए अनुसूचित प्रक्रियाओं स्टेप्स के अनुपस्थित अनुसूचित प्रक्रिया स्टेप ID को पूरक करने के लिए ID जेनरेटर की पहचान करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmAuditHL7MsgLimit": {
+      "title": "Audit HL7 Message Limit",
+      "description": "Limit length of HL7 messages included in emitted Audit Records. Overwrites value specified on Device level.",
+      "type": "integer"
+    },
+    "hl7ORUAction": {
+      "title": "HL7 ORU क्रिया",
+      "description": "HL7 ORU^R01 संदेश के प्राप्त होने पे की गई क्रिया को निर्दिष्ट करता है : IMPORT_REPORT (= प्राप्त हुए HL7 ORU^R01 को DICOM SR (DICOM SR) में ट्रांसकोड करें), MWL_COMPLETED (= मिलान MWL आइटम्स के स्थिति को 'पूर्ण' के रूप में सेट करें) । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "IMPORT_REPORT",
+          "MWL_COMPLETED"
+        ]
+      }
+    },
+    "hl7PatientUpdateTemplateURI": {
+      "title": "HL7 मरीज़ के रेकॉर्ड की अपडेट सेवा फर्मा URI",
+      "description": "HL7 संस्करण २ मरीज़ के रेकॉर्ड की अपडेट सेवा से इस्तमाल की गई स्टाइलशीट URI को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "hl7ImportReportTemplateURI": {
+      "title": "HL7 आयातित रिपोर्ट फर्मा URI",
+      "description": "प्राप्त हुए HL7 ORU^R01 को DICOM SR (DICOM SR) में ट्रांसकोड करनेवाले स्टाइलशीट URI को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "hl7ImportReportTemplateParam": {
+      "title": "HL7 आयातित रिपोर्ट फर्मा मापदण्ड",
+      "description": "HL7 आयातित रिपोर्ट फर्मा URI से निर्दिष्ट स्टाइलशीट को भेजे गए XSLT मापदण्ड. प्रारूप: {नाम}={मूल्य} । उदाहरण के तौर पे : 'langCodeValue=et', 'langCodingSchemeDesignator=RFC5646', 'langCodeMeaning=Estonian' । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7ScheduleProcedureTemplateURI": {
+      "title": "HL7 अनुसूचित प्रक्रिया फर्मा URI",
+      "description": "प्राप्त हुए HL7 ORM^O01, OMI^O23, OMG^O19 को DICOM MWL आइटम्स में ट्रांसकोड करनेवाले स्टाइलशीट URI को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "hl7ScheduledProtocolCodeInOrder": {
+      "title": "HL7 ऑर्डर में अनुसूचित प्रक्रिया कोड",
+      "description": "प्राप्त हुए HL7 ऑर्डर संदेश में पाए गए अनुसूचित प्रक्रिया कोड के पथ को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "OBR_4_1",
+        "OBR_4_4"
+      ]
+    },
+    "hl7ScheduledStationAETInOrder": {
+      "title": "HL7 ऑर्डर में अनुसूचित स्टेशन AET",
+      "description": "प्राप्त हुए HL7 ऑर्डर संदेश में पाए गए अनुसूचित स्टेशन AE के नाम के पथ को निर्दिष्ट करता है । HL7 संस्करण २.५.१ (जिसमे IPC सेगमेंट होता है) के लिए कॉन्फ़िगर ना करें । यदि कॉन्फ़िगर न किया हो या कॉन्फ़िगर की गई फील्ड का मूल्य अनुपस्थित हो तो, अनुसूचित स्टेशन AE के नाम को कॉन्फ़िगर किए गए नियमों के अनुसार चुना जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "ORC_18"
+      ]
+    },
+    "hl7LogFilePattern": {
+      "title": "HL7 लॉग फाइल पैटर्न",
+      "description": "HL7 संदेशों का पथ जो उसी तरह सहेजे जाएंगे जिस तरह प्राप्त हुए थे । यदि कॉन्फ़िगर न हो तो, लॉगिंग नहीं की जाएगी । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।उदहारण के तौर पे : ${jboss.server.data.dir}/hl7/${date,yyyy/MM/dd}/${SerialNo}-${MSH-9}.hl7 ।",
+      "type": "string"
+    },
+    "hl7ErrorLogFilePattern": {
+      "title": "HL7 त्रुटि लॉग फाइल पैटर्न",
+      "description": "HL7 संदेशों का पथ जो उसी तरह सहेजे जाएंगे जिस तरह प्राप्त हुए थे, यदि HL7 संदेशों की प्रक्रिया असफल हुई हो । यदि कॉन्फ़िगर न हो तो, लॉगिंग नहीं की जाएगी । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे । उदाहरण के तौर पे : ${jboss.server.data.dir}/hl7-error/${date,yyyy/MM/dd}/${SerialNo}-${MSH-9}.hl7 ।",
+      "type": "string"
+    },
+    "hl7NoPatientCreateMessageType": {
+      "title": "HL7 संदेश प्रकार - मरीज़ के रेकॉर्ड को निर्माण न करें",
+      "description": "HL7 संदेशों का संदेश प्रकार (संदेश प्रकार^ट्रिगर घटना) जिनपे सिर्फ तभी प्रक्रिया होगी यदि डेटाबेस में पहले से मरीज़ का रेकॉर्ड है, जिन मरीज़ों के ID उन मरीज़ों के ID जो HL7 संदेश के PID या एम्आरजी (MRG) सेगमेंट से मेल खाते है ।इस तरह निर्दिष्ट HL7 संदेशों के प्रकारों के लिए कोई नया मरीज का रेकॉर्ड नहीं निर्माण किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7PatientArrivalMessageType": {
+      "title": "HL7 मरीज़ आगमन संदेश प्रकार",
+      "description": "मरीज़ के रेकॉर्ड से संबंधित अनुसूचित प्रक्रिया स्टेप्स के स्थिति को अनुसूचित (SCHEDULED) से आगमन (ARRIVED) में बदलाव सक्रीय करनेवाले HL7 संदेश का प्रकार । यदि कॉन्फ़िगर नहीं किया है, तो अनुसूचित प्रक्रिया स्टेप्स की स्थिति HL7 ADT संदेशों से प्रभावित नहीं होगी । किसी आर्काइव HL7 अनुप्रयोग पे कॉन्फ़िगर किए गए मूल्य से अधिलेखित किया जा सकता है ।",
+      "type": "string",
+      "enum": [
+        "ADT^A10"
+      ]
+    },
+    "hl7UseNullValue": {
+      "title": "HL7 अनुपस्थित मूल्य का इस्तमाल",
+      "description": "HL7 संस्करण २ अनुपस्थित मूल्यों को (सेगमेंट फील्ड में |\"\"| इस तरह निर्दिष्ट होंगे) भेजे गए HL7 संदेशों में अनुपस्थित या खाली तत्त्व गुणों के लिए इस्तमाल किया जाएगा यह निर्दिष्ट करता है । दूरवर्ती HL7 अनुप्रयोग पे तत्त्व गुणों को अस्त न करने के लिए जरूरी है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "hl7VeterinaryUsePatientName": {
+      "title": "HL7 पशुचिकित्सा - मरीज़ के नाम का इस्तमाल",
+      "description": "HL7 PID फ़ील्ड्स से DICOM गुणों के मैपिंग में मरीज़ों के नामों के पशुचिकित्सक उपयोग को मजबूर करने का संकेत करता है: DICOM मरीज़ के नाम के लिए PID.5 के सिर्फ पहले २ कम्पोनेंट का उपयोग करें; यदि PID.5 में सिर्फ १ कम्पोनेंट हो तो उसे दिए गए नाम में इस्तमाल करें, और PID.9 के पहले कम्पोनेंट को उपनाम में इस्तमाल करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "hl7PrimaryAssigningAuthorityOfPatientID": {
+      "title": "HL7 Primary Assigning Authority of Patient ID",
+      "description": "Assigning Authority of Patient ID in received HL7 message used to search primary qualified patient identifier in the list of identifiers in PID-3 / MRG.1. This qualified patient identifier shall be used on the root dataset. If absent, by default the first patient identifier pair in PID-3 / MRG.1 shall be used as primary patient identifier on root dataset. If none of the qualified patient identifiers in the list match with the configured issuer, archive server log shall contain a log INFO message and by default the first qualified patient identifier in PID-3 / MRG.1 shall be used. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}]. Overwrites values specified on Device level.",
+      "type": "string"
+    },
+    "hl7OtherPatientIDs": {
+      "title": "HL7 Other Patient IDs",
+      "description": "Specifies inclusion policy for patient identifiers in PID-3 / MRG-1 of HL7 message in Other Patient IDs Sequence (0010,1002). Overwrites value specified on Device level.",
+      "type": "string",
+      "default": "OTHER",
+      "enum": [
+        "ALL",
+        "NONE",
+        "OTHER"
+      ]
+    },
+    "hl7OrderMissingStudyIUIDPolicy": {
+      "title": "HL7 ऑर्डर - अनुपस्थित स्टडी दृष्टांत UID नीति",
+      "description": "आने वाले HL7 ऑर्डर संदेशों में अनुपस्थित स्टडी दृष्टांत UID के नीति को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
+    "hl7OrderMissingAdmissionIDPolicy": {
+      "title": "HL7 Order Missing Admission ID Policy",
+      "description": "Specifies policy on incoming HL7 Order messages without a value for PID-18 Patient Account Number nor field PV1-19 Visit Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "ACCEPT",
+        "REJECT",
+        "ACCESSION_AS_ADMISSION"
+      ]
+    },
+    "hl7ImportReportMissingStudyIUIDPolicy": {
+      "title": "HL7 आयातित रिपोर्ट अनुपस्थित स्टडी दृष्टांत UID नीति",
+      "description": "आने वाले HL7 आयातित रिपोर्ट (ORU) संदेशों में अनुपस्थित स्टडी दृष्टांत UID के नीति को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
+    "hl7ImportReportMissingAdmissionIDPolicy": {
+      "title": "HL7 Import Report Missing Admission ID Policy",
+      "description": "Specifies policy on incoming HL7 ImportReport (ORU) messages without a value for PID-18 Patient Account Number nor field PV1-19 Visit Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "ACCEPT",
+        "REJECT",
+        "ACCESSION_AS_ADMISSION"
+      ]
+    },
+    "hl7ImportReportMissingStudyIUIDCFindSCP": {
+      "title": "HL7 Import Report Missing Study Instance UID C-FIND SCP",
+      "description": "AE Title of external C-FIND SCP to query for missing Study Instance UID in incoming HL7 Import Report (ORU) messages by given Accession Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "hl7ImportReportAdjustIUID": {
+      "title": "HL7 Import Report Adjust Instance UID",
+      "description": "Specifies adjustment of Series and SOP Instances UIDs returned by XSLT on incoming HL7 Import Report (ORU) messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "NONE",
+        "APPEND_HASH_OF_STUDY_INSTANCE_UID"
+      ]
+    },
+    "hl7ReferredMergedPatientPolicy": {
+      "title": "HL7 संदर्भित विलीन संविलीन मरीज़ नीति",
+      "description": "आने वाले HL7 संदेशों पर नीति को निर्दिष्ट करता है जो पहले से मौजूद विलीन संविलीन मरीज़ को संदर्भित करता है । REJECT: ऐसे HL7 संदेश अस्वीकार करें, IGNORE: ऐसे HL7 संदेश नज़रअंदाज़ करें, IGNORE_DUPLICATE_MERGE: सिर्फ फिरसे प्राप्त हुए HL7 विलीन संविलीन संदेश नज़रअंदाज़ करें, अन्य ऐसे संदेश अस्वीकार करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "IGNORE",
+        "IGNORE_DUPLICATE_MERGE"
+      ]
+    },
+    "hl7DicomCharacterSet": {
+      "title": "HL7 DICOM कॅरक्टर सेट",
+      "description": "स्पेसिफिक कॅरक्टर सेट (०००८,०००५) के मूल्य को प्राप्त हुए HL7 संदेशों से जो डटसेट्स ट्रांसकोड हुए है, उनमें इस्तमाल करने को निर्दिष्ट करता है । यदि कॉन्फ़िगर ना किया हो तो, HL7 संदेश में MSH-18 में पाए गए कॅरक्टर सेट के मूल्य का उपयोग करें ।",
+      "type": "string",
+      "format": "dcmCharset"
+    },
+    "hl7ForwardRule": {
+      "title": "HL7 फॉरवर्ड नियम",
+      "description": "HL7 फॉरवर्ड नियम । आर्काइव डिवाइस स्तर पे निर्दिष्ट फॉरवर्ड नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7ForwardRule.schema.json"
+      }
+    },
+    "hl7ExportRule": {
+      "title": "HL7 निर्यात नियम",
+      "description": "निर्यात नियम जो किसी भी HL7 अनुप्रयोग से प्राप्त हुए HL7 संदेशों पे लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट निर्यात नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7ExportRule.schema.json"
+      }
+    },
+    "hl7UPSOnHL7": {
+      "title": "HL7 पे UPS नियम",
+      "description": "HL7 पे UPS नियम जो किसी भी HL7 अनुप्रयोग से प्राप्त हुए HL7 संदेशों पे लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट HL7 पे UPS नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey": "{hl7UPSOnHL7ID}",
+      "items": {
+        "$ref": "upsOnHL7.schema.json"
+      }
+    },
+    "hl7PrefetchRule": {
+      "title": "HL7 प्रीफ़ेच नियम",
+      "description": "प्रीफ़ेच नियम जो किसी भी HL7 अनुप्रयोग से प्राप्त हुए HL7 संदेशों पे लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट प्रीफ़ेच नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7PrefetchRule.schema.json"
+      }
+    },
+    "hl7StudyRetentionPolicy": {
+      "title": "HL7 स्टडी धारण नीति",
+      "description": "HL7 स्टडी धारण नीतियाँ जो किसी भी HL7 अनुप्रयोग से प्राप्त हुए HL7 संदेशों पे लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट स्टडी धारण नीतियाँ पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7StudyRetentionPolicy.schema.json"
+      }
+    },
+    "hl7OrderScheduledStation": {
+      "title": "HL7 ऑर्डर के लिए अनुसूचित स्टेशन",
+      "description": "चुने गए MWL HL7 ऑर्डर फीड पे अनुसूचित स्टेशन । आर्काइव डिवाइस स्तर पे निर्दिष्ट HL7 ऑर्डर के लिए अनुसूचित स्टेशन पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7OrderScheduledStation.schema.json"
+      }
+    },
+    "hl7OrderSPSStatus": {
+      "title": "HL7 ऑर्डर के लिए एसपीएस स्थिति",
+      "description": "प्राप्त हुए HL7 ORM^O01, OMI^O23, OMG^O19 संदेशों पे निर्माण की गए या अपडेट हुए DICOM MWL आइटम्स के एसपीएस स्थिति को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "titleKey":"{dcmSPSStatus}",
+      "items" : {
+        "$ref": "hl7OrderSPSStatus.schema.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "title": "नाप का वर्णनकर्ता",
+  "description": "नाप का वर्णनकर्ता ।",
+  "type": "object",
+  "required": [
+    "dcmMetricsName",
+    "dcmMetricsRetentionPeriod"
+  ],
+  "properties": {
+    "dcmMetricsName": {
+      "title": "नाप का नाम",
+      "description": "नाप का नाम ।",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "नाप का वर्णन",
+      "description": "नाप का स्वैछिक विषय वर्णन ।",
+      "type": "string"
+    },
+    "dcmMetricsRetentionPeriod": {
+      "title": "नाप धारण कालावधि",
+      "description": "मिनटों में नाप धारण कालावधि ।",
+      "type": "integer",
+      "default" : 60,
+      "minimum": 1
+    },
+    "dcmUnit": {
+      "title": "नाप की इकाई",
+      "description": "नाप डेटा की इकाई ।",
+      "type": "string"
+    }
+  }
+}

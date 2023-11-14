@@ -1,0 +1,38 @@
+{
+  "title": "HL7 ऑर्डर के लिए अनुसूचित स्टेशन",
+  "description": "MWL HL7 ऑर्डर फीड पे चुना गया अनुसूचित स्टेशन ।",
+  "type": "object",
+  "required": [
+    "cn",
+    "hl7OrderScheduledStationDeviceName",
+    "dcmRulePriority"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाम",
+      "description": "अनुसूचित स्टेशन ऑर्डर मानचित्रण का मनमाना/सार्थक नाम ।",
+      "type": "string"
+    },
+    "hl7OrderScheduledStationDeviceName": {
+      "title": "अनुसूचित स्टेशन डिवाइस का नाम",
+      "description": "HL7 ऑर्डर संदेशों के लिए इस्तमाल किया गया अनुसूचित स्टेशन डिवाइस का नाम ।",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmRulePriority": {
+      "title": "मानचित्रण प्राथमिकता",
+      "description": "मानचित्रण प्राथमिकता ।",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "नियम",
+      "description": "नियम इस प्रारूप में {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx} । उदाहरण के तौर पे: MSH-4=FORWARD या MSH-9=ADT\\^A28\\^ADT_A05 या PID-3[.3]=PIDIssuer या PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

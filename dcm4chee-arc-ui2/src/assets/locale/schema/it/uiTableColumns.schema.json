@@ -1,0 +1,51 @@
+{
+  "title": "Configurazione delle colonne della tabella di studio dell'interfaccia utente",
+  "description": "Colonne della tabella dello studio",
+  "type": "object",
+  "required": [
+    "dcmuiColumnName",
+    "dcmuiValuePath",
+    "dcmuiValueType"
+  ],
+  "properties": {
+    "dcmuiColumnName": {
+      "title": "Nome colonna",
+      "description": "Il nome della colonna nella tabella di studio",
+      "type": "string"
+    },
+    "dcmuiColumnId": {
+      "title": "Column ID",
+      "description": "Every possible column that is used in the UI, has and ID, by using the ID you can change some of the properties of that Column, like Name, Description, Order or width",
+      "type": "string"
+    },
+    "dcmuiColumnTitle": {
+      "title": "Descrizione colonna",
+      "description": "Descrizione della colonna, mostrata al passaggio del mouse",
+      "type": "string"
+    },
+    "dcmuiValuePath": {
+      "title": "Percorso",
+      "description": "Valore (json-Object) Percorso della colonna, ad esempio: '00100010.Value[0].Alfabetico \"per il nome del paziente o\" 00100020.Value[0]' for Patient ID",
+      "type": "string"
+    },
+    "dcmuiValueType": {
+      "title": "Tipo di valore",
+      "description": "Tipo di colonna come ottenere il valore, il valore predefinito dovrebbe essere \"valore\"",
+      "type": "string",
+      "enum": [
+        "value",
+        "pipe"
+      ]
+    },
+    "dcmuiColumnWidth": {
+      "title": "Larghezza della colonna in peso",
+      "description": "Larghezza della colonna in peso (x> 0,1 - x <infinito) default 1",
+      "type":  "string"
+    },
+    "dcmuiColumnOrder": {
+      "title": "Ordine della Colonna",
+      "description": "Ordine della Colonna",
+      "type":  "number"
+    }
+  }
+}

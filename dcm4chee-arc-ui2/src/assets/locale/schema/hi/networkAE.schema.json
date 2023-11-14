@@ -1,0 +1,140 @@
+{
+  "title": "नेटवर्क AE",
+  "description": "अनुप्रयोग तत्व जो इस नेटवर्क पे सेवाएँ प्रधान करता है ।",
+  "type": "object",
+  "required": [
+    "dicomAETitle",
+    "dicomNetworkConnectionReference",
+    "dicomAssociationInitiator",
+    "dicomAssociationAcceptor"
+  ],
+  "properties": {
+    "dicomAETitle": {
+      "title": "AE का नाम",
+      "description": "इस नेटवर्क AE का अनन्य नाम ।",
+      "type": "string",
+      "order":1,
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmSpanningCFindSCPRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackCMoveSCPDestination",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmReturnRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackCMoveSCPCallingAET",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExternalRetrieveAEDestination",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExporter[*].dicomAETitle",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExporter[*].dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmWebApp[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmSpanningCFindSCPRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmFallbackCMoveSCPDestination",
+        "$.dcmDevice.dcmArchiveDevice.dcmRejectExpiredStudiesAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmReturnRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmExternalRetrieveAEDestination",
+        "$.dcmDevice.dcmArchiveDevice.dcmXDSiImagingDocumentSourceAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorageVerificationAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmCompressionAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmRejectionNoteStorageAET",
+        "$.dcmDevice.dcmArchiveDevice.dcmFallbackCMoveSCPCallingAET",
+        "$.dcmDevice.dcmArchiveDevice.hl7StudyRetentionPolicy[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7StudyRetentionPolicy[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.hl7PrefetchRule[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmExporter[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmExporter[*].dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmMWLIdleTimeout[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmUPSProcessingRule[*].dicomAETitle",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDiffConfig[*].dcmuiDiffCallingAET",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCountAET"
+      ]
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "नेटवर्क संपर् संदर्भ",
+      "description": "इस नेटवर्क AE द्वारा इस्तमाल किए गए नेटवर्क संपर्क ऑब्जेक्ट के जेसन पॉइंटर्स ।",
+      "type": "array",
+      "order":2,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomAssociationInitiator": {
+      "title": "संपर्क आरंभ करनेवाला",
+      "description": "'हाँ' अगर यह नेटवर्क AE संपर्क आरंभ कर सकता है ।",
+      "type": "boolean",
+      "default": true,
+      "order":3
+    },
+    "dicomAssociationAcceptor": {
+      "title": "संपर्क मंजूर करनेवाला",
+      "description": "'हाँ' अगर यह नेटवर्क AE संपर्क मंजूर कर सकता है ।",
+      "type": "boolean",
+      "default": true,
+      "order":4
+    },
+    "dicomDescription": {
+      "title": "AE का वर्णन",
+      "description": "अनुप्रयोग तत्व का स्वैछिक विषय वर्णन ।",
+      "type": "string",
+      "order":5
+    },
+    "dicomApplicationCluster": {
+      "title": "अनुप्रयोग क्लस्टर",
+      "description": "संबंधित अनुप्रयोगों के सबसेट के लिए स्थानीय रूप से परिभाषित नाम ।",
+      "type": "array",
+      "order":6,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomPreferredCalledAETitle": {
+      "title": "अधिमान्य बुलाए गए AE का नाम",
+      "description": "संपर्क आरंभ करने के लिए अधिमान्य AE के नाम ।",
+      "type": "array",
+      "order":7,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomPreferredCallingAETitle": {
+      "title": "अधिमान्य आह्वान AE का नाम",
+      "description": "संपर्क स्वीकार करने के लिए अधिमान्य AE के नाम ।",
+      "type": "array",
+      "order":8,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomSupportedCharacterSet": {
+      "title": "समर्थित कॅरक्टर सेट",
+      "description": "दृष्टांतों के प्राप्ति पे नेटवर्क AE द्वारा समर्थित कॅरक्टर सेट्स ।",
+      "type": "array",
+      "order":9,
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmCharset"
+    },
+    "dicomInstalled": {
+      "title": "स्थापित",
+      "description": "'हाँ' अगर यह नेटवर्क AE इस नेटवर्क पे स्थापित है । अनुपलभ्य हो तो, नेटवर्क AE के स्थापित स्थिति की जानकारी डिवाइस से ली जाएगी ।",
+      "order":10,
+      "type": "boolean"
+    },
+    "dicomTransferCapability": {
+      "title": "हस्तांतरण क्षमताएँ",
+      "description": "अनुप्रयोग तत्व द्वारा उपलब्ध कराये गए हस्तांतरण क्षमताएँ ।",
+      "type": "array",
+      "order":11,
+      "titleKey":"{cn}",
+      "items": {
+        "$ref": "transferCapability.schema.json"
+      }
+    },
+    "dcmNetworkAE": {
+      "title": "नेटवर्क AE एक्सटेंशन",
+      "description": "DCM4CHE मालिकाना नेटवर्क AE के गुण ।",
+      "$ref": "dcmNetworkAE.schema.json",
+      "order":12
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "title": "UI क्लस्टर कॉन्फिगरेशन",
+  "description": "UI क्लस्टर कॉन्फिगरेशन.",
+  "type": "object",
+  "required": [
+    "dcmuiDeviceClusterName",
+    "dcmuiDeviceClusterDevices",
+    "dcmuiDeviceClusterInstalled"
+  ],
+  "properties": {
+    "dcmuiDeviceClusterName": {
+      "title": "नाव",
+      "description": "क्लस्टरचे नाव.",
+      "type": "string"
+    },
+    "dcmuiDeviceClusterDescription": {
+      "title": "वर्णन",
+      "description": "क्लस्टरचे वर्णन.",
+      "type": "string"
+    },
+    "dcmuiDeviceClusterDevices": {
+      "title": "डिव्हाइसेससाठी वेब अनुप्रयोग",
+      "description": "संबंधित डिव्हाइसेस वापरण्यासाठी कॉन्फिगर केलेले वेब अनुप्रयोग निवडा.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "webApp"
+    },
+    "dcmuiClusterWebApp": {
+      "title": "वेब अनुप्रयोग",
+      "description": "QIDO-RS सेवेचे वेब अनुप्रयोग",
+      "type":  "string",
+      "format": "webApp"
+    },
+    "dcmuiDeviceClusterInstalled": {
+      "title": "स्थापित",
+      "description": "'हो' असल्यास हा क्लस्टर स्थापित आहे.",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "title": "Regola di inoltro HL7",
+  "description": "Regola di inoltro HL7",
+  "type": "object",
+  "required": [
+    "cn",
+    "hl7FwdApplicationName"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Nome",
+      "description": "Nome arbitrario/significativo della regola forward HL7",
+      "type": "string"
+    },
+    "hl7FwdApplicationName": {
+      "title": "Nome applicazione di inoltro HL7",
+      "description": "Applicazione di destinazione di inoltro HL7 e nome della struttura (Applicazione|Struttura)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "hl7ApplicationName"
+    },
+    "dcmProperty": {
+      "title": "Condizioni",
+      "description": "Condizioni nel formato {SEG}-{Seq #}[.{Comp#}[.{SubComp#}]][!]={regEx}. Esempi: MSH-4=FORWARD o MSH-9=ADT\\^A28\\^ADT_A05 o PID-3[.3]=PIDIssuer o PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

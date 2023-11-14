@@ -1,0 +1,70 @@
+{
+  "title": "UI ダッシュボード 構成",
+  "description": "UI ダッシュボード 構成",
+  "type": "object",
+  "required": [
+    "dcmuiDashboardConfigName",
+    "dcmuiCountWebApp"
+  ],
+  "properties": {
+    "dcmuiDashboardConfigName": {
+      "title": "UI ダッシュボード 構成名",
+      "description": "UI ダッシュボード 構成名",
+      "type": "string"
+    },
+    "dcmuiShowStarBlock":{
+      "title": "Show Star Block",
+      "description": "Show Star Block - tasks without defined deviceName",
+      "type": "boolean",
+      "default" : true
+    },
+    "dcmuiQueueName": {
+      "title": "キュー",
+      "description": "UI ダッシュボード 構成ために キュー ブロックで 使用される キュー名。",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format" : "dcmQueueName"
+    },
+    "dcmuiExportName": {
+      "title": "書き出す ことの IDs",
+      "description": "UI ダッシュボード 構成ために キューと 比較 ブロックで 使用される 書き出すの IDs。",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format" : "dcmExporterID"
+    },
+    "dicomuiDeviceName": {
+      "title": "デバイス名",
+      "description": "読み出す ことと 書き出す ことの ブロックの 生成に 使用される UI ダッシュボード 構成の デバイス名",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dicomDeviceName"
+    },
+    "dicomuiIgnoreParams": {
+      "title": "監査 イベント パラメーターを 無視する",
+      "description": "監査 イベントで 無視する 必要が ある エラスティクサーチ パラメーターを 設定します。例えば : Source.UserID=TESTVALUE",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmuiCountWebApp": {
+      "title": "カウント ウェブ アプリケーション",
+      "description": "選択された ウェブ アプリケーションは、ダッシュボードに 検査の カウントを 取得する ために 使用されます。",
+      "type": "string",
+      "format": "webApp"
+    },
+    "dcmuiCompareSideObjects": {
+      "title": "側面を 比較 する",
+      "description": "側面を 比較 する",
+      "titleKey":"{dcmuiCompareSideName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiCompareSide.schema.json"
+      }
+    },
+    "dicomuiDockerContainer": {
+      "title": "アーカイブ ドカー コンテナー",
+      "description": "ハードウェア ページで 使用される アーカイブ ドカー コンテナーの 名前",
+      "type": "array",
+      "items" : { "type": "string" }
+    }
+  }
+}

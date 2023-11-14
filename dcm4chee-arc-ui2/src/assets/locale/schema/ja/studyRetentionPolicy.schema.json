@@ -1,0 +1,72 @@
+{
+  "title": "検査 保持 ポリシー",
+  "description": "検査 保持 ポリシー",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmRetentionPeriod",
+    "dcmRulePriority",
+    "dcmExpireSeriesIndividually",
+    "dcmStartRetentionPeriodOnStudyDate",
+    "dcmFreezeExpirationDate",
+    "dcmRevokeExpiration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名前",
+      "description": "検査 保持 ポリシーの 任意 / 意味の ある 名前",
+      "type": "string"
+    },
+    "dcmRetentionPeriod": {
+      "title": "検査 保持 期間",
+      "description": "ISO-8601 期間 PnYnMnD または PnW 形式で 検査 保持 期間",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmRulePriority": {
+      "title": "規則の 優先度",
+      "description": "規則の 優先度。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "(SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx} 形式で 条件。 「|」 シンボルで 区切る ことに より、 特定の 属性に 複数の 値を 指定できます。 例 : SendingApplicationEntityTitle=FORWARD または Modality=MR|CT または ProcedureCodeSequence.CodeValue=MRProcedure または 00180015=KNEE または 00321034.00080100=RequestingServiceCode または ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmExpireSeriesIndividually": {
+      "title": "シリーズを 個別に 期限切れに する",
+      "description": "シリーズを 個別に 期限切れに するか どうかを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStartRetentionPeriodOnStudyDate": {
+      "title": "検査日に 保存 期間を 開始します",
+      "description": "検査の オブジェクトを 受信したときではなく、 検査日に 保存 期間を 開始するか どうかを 示します",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmExporterID": {
+      "title": "期限切れの 検査を 書き出す",
+      "description": "指定された エクスポーターを 使用した 期限切れの 検査 / シリーズを 書き出す",
+      "type": "string",
+      "format": "dcmExporterID"
+    },
+    "dcmFreezeExpirationDate": {
+      "title": "失効日を 凍結 する",
+      "description": "つぎの イベントに 従うことに よる 失効日の 変更を 無効に する ことを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRevokeExpiration": {
+      "title": "失効日を 取り消す",
+      "description": "以前に 設定された 失効日を 取り消す ことを 示します。",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

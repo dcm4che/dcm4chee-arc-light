@@ -1,0 +1,40 @@
+{
+  "title": "HL7 オーダーの SPS ステータス",
+  "description": "受信した HL7 ORM^O01, OMI^O23, OMG^O19 メッセージで 作成 / 更新された DICOM MWL アイテムの SPS ステータスを 指定します",
+  "type": "object",
+  "required": [
+    "dcmSPSStatus",
+    "hl7OrderControlStatus"
+  ],
+  "properties": {
+    "dcmSPSStatus": {
+      "title": "予定された 手順 ステップ ステータス コード",
+      "description": "予定された 手順 ステップ ステータス コード",
+      "type": "string",
+      "enum": [
+        "SCHEDULED",
+        "CANCELED",
+        "DISCONTINUED",
+        "COMPLETED"
+      ]
+    },
+    "hl7OrderControlStatus": {
+      "title": "HL7 オーダー 管理 ステータス",
+      "description": "HL7 オーダー 管理 ステータス コードの 組み合わせ。 これらの 組み合わせは、 ORC-1_ORC-5に 存在 する 値を 参照します。",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "NW_SC",
+          "NW_IP",
+          "CA_CA",
+          "DC_CA",
+          "XO_SC",
+          "XO_CM",
+          "SC_CM",
+          "SC_A"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "title": "निर्यात नियम",
+  "description": "निर्यात नियम ।",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmEntity",
+    "dcmExporterID",
+    "dcmExportPreviousEntity",
+    "dcmExportReoccurredInstances"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाम",
+      "description": "निर्यात नियम का मनमाना/सार्थक नाम ।",
+      "type": "string"
+    },
+    "dcmEntity": {
+      "title": "तत्व निर्यात करें",
+      "description": "तत्व का निर्यात ।",
+      "type": "string",
+      "enum": [
+        "Study",
+        "Series",
+        "Instance"
+      ]
+    },
+    "dcmExporterID": {
+      "title": "निर्यातक ID",
+      "description": "निर्यातक ID ।",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmExporterID"
+    },
+    "dicomDeviceName": {
+      "title": "निर्यातक डिवाइस का नाम",
+      "description": "जिस डिवाइस पे निर्यात कार्यों को अनुसूचित किया जाएगा, यह निर्दिष्ट करता है । यदि निर्दिष्ट नहीं किया है, तो जिस डिवाइस पे दृष्टांत प्राप्त हुए है, उसपे ही निर्यात कार्यों को अनुसूचित किया जाएगा । ध्यान दे की : निर्दिष्ट ID के निर्यातक निर्दिष्ट डिवाइसेस पे भी कॉन्फ़िगर्ड होने चाहिए!",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmExportPreviousEntity": {
+      "title": "पिछले तत्व को निर्यात करें",
+      "description": "बदले हुए दृष्टांत के पिछले तत्व का भी निर्यात निर्दिष्ट करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmProperty": {
+      "title": "गुण नियम",
+      "description": "गुण नियम इस प्रारूप में (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx} । किसी दिए गए विशेषता के लिए एक से अधिक मूल्य निर्दिष्ट करने के लिए उन्हें | प्रतीक के सहारे अलग किया जा सकता है । उदाहरण के तौर पे : SendingApplicationEntityTitle=FORWARD या Modality=MR|CT या ProcedureCodeSequence.CodeValue=MRProcedure या 00180015=KNEE या 00321034.00080100=RequestingServiceCode या ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSchedule": {
+      "title": "समय नियम",
+      "description": "इस नियम को सिर्फ निर्दिष्ट समय रंजों में लागू करें ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmDuration": {
+      "title": "निर्यात विलम्ब",
+      "description": "एक निर्यात कार्य में विविध सक्रीय घटनाओं को इकठ्ठा करने के लिए तत्वों के निर्यात में विलम्ब ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmExportReoccurredInstances": {
+      "title": "फिरसे पाए गए दृष्टांतों को निर्यात करें",
+      "description": "संकेत करता है की तत्व फिरसे पाए गए दृष्टांतों को निर्यात होगा ।",
+      "type": "string",
+      "default": "REPLACE",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "REPLACE"
+      ]
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "title": "Elenco a discesa delle app Web",
+  "description": "Elenco a discesa delle app Web",
+  "type": "object",
+  "required": [
+    "dcmuiWebAppListName",
+    "dcmuiWebApps",
+    "dcmuiMode"
+  ],
+  "properties": {
+    "dcmuiWebAppListName": {
+      "title": "Nome della lista",
+      "description": "Definisci un nome per questa configurazione",
+      "type": "string"
+    },
+    "dcmuiWebAppListDescription": {
+      "title": "Descrizione",
+      "description": "Descrizione dell'elenco di applicazioni Web",
+      "type": "string"
+    },
+    "dcmuiMode": {
+      "title": "Modalità elenco",
+      "description": "Hai due possibilità su come mostrare l'elenco definito: 1.) In cima al resto dell'elenco 'separati' da una riga, 2.) Mostra solo quelli definiti hir ('esclusivi').",
+      "type": "string",
+      "default":"separated",
+      "enum": [
+        "separated",
+        "exclusive"
+      ]
+    },
+    "dcmuiWebApps": {
+      "title": "WebApps",
+      "description": "Applicazione Web",
+      "format": "webApp",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "Ruolo utente accettato",
+      "description": "Definisci i ruoli per i quali questa configurazione dovrebbe essere disponibile, usa 'user' per essere disponibile per tutti i ruoli (dovresti definire un nome utente (attributo seguente) o un ruolo utente (questo attributo))",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserName": {
+      "title": "Nome utente accettato",
+      "description": "Definisci il nome utente per il quale questa configurazione dovrebbe essere disponibile (dovresti definire un nome utente (questo attributo) o un ruolo utente (attributo precedente))",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

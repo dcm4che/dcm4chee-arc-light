@@ -1,0 +1,131 @@
+{
+  "title": "HL7预取规则",
+  "description": "HL7预取规则",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmQueueName",
+    "dicomAETitle",
+    "dcmPrefetchCFindSCP",
+    "dcmPrefetchCMoveSCP",
+    "dcmPrefetchCStoreSCP",
+    "dcmDuration",
+    "dcmHistorySize"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名称",
+      "description": "预取规则的任意/有意义的名称",
+      "type": "string"
+    },
+    "dcmQueueName": {
+      "title": "队列名称",
+      "description": "JMS队列的名称,用于调度由该预取规则触发的读取任务。",
+      "type": "string",
+      "format":"dcmQueueName"
+    },
+    "dicomAETitle": {
+      "title": "归档AE标题",
+      "description": "用于读取从预取C-Move SCP中选择的检查的归档应用实体的AE标题。",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmPrefetchCFindSCP": {
+      "title": "预取C-FINd SCP",
+      "description": "查询与指定实体选择器匹配的C-FIND SCP的AE标题。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmPrefetchCMoveSCP": {
+      "title": "预取C-Move SCP",
+      "description": "从其中读取选定检查的C-MOVE SCP的AE标题。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmPrefetchCStoreSCP": {
+      "title": "预取C-Store SCP",
+      "description": "存储所选读取检查的C-Store SCP的AE标题。 ",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmAETitle"
+    },
+    "dcmDestinationCFindSCP": {
+      "title": "目标C-Find SCP",
+      "description": "禁止检索来自于如下预期C-Move SCP的选中的检查： 改预期C-Move SCP在指定的目标C-FIND SCP上有效，并且该C-FIND SCP从预期C-FIND SCP返回的检查具有相同或更多的\"检查实例数\"。如果未指定,则读取所有检查。 ",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dicomDeviceName": {
+      "title": "预取设备名称",
+      "description": "指定要执行读取任务的设备。 否则,将在接收HL7消息的设备上安排导出任务。 ",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx}格式的条件。示例:MSH-4=FORWARD或MSH-9=ORM\\^O01或PID-3[.3]=PIDIssuer或PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmEntitySelector": {
+      "title": "实体选择器",
+      "description": "指定用于选择预取检查的匹配密钥。 格式:{key}={value}[&{key}={value)]..., with {key} = 'priors' | 'StudyAge' | {attributeID},'$'{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]]格式的{value} 被来自触发了预期的被接收的HL7消息的指定HL7字段的值取代。如果未指定实体选择器,则将预取患者的所有检查。例如:'priors=2&StudyAge=-5Y&ModalitiesInStudy=$OBR-24' =>选择最多2个不超过5年的既往研究，包含至少一个OBR-24模式系列。",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmEntitySelector"
+    },
+    "dcmNullifyIssuerOfPatientID": {
+      "title": "忽略患者ID分配权限",
+      "description": "有条件地忽略患者ID分配权限（PID-3.4）。这可以在接收到的HL7消息中找到,该消息触发了预取以选择患者检查 ",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "MATCHING",
+        "NOT_MATCHING"
+      ]
+    },
+    "dcmIssuerOfPatientID": {
+      "title": "患者ID分配权限",
+      "description": "如果患者ID分配的权限被设置为MATCHING或NOT_MATCHING，则将其与接收到的HL7消息的值进行匹配。格式:<Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>]。",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmPrefetchForIssuerOfPatientID": {
+      "title": "预取患者ID分配权限",
+      "description": "在接收到的HL7消息中分配患者ID权限，用于在PID-3标识符列表中搜索合格的患者标识符。 必须查询与该合格患者标识符的指定实体选择器匹配的检查。如果不存在,默认情况下使用PID-3中的第一个合格患者标识符。 格式: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>]。",
+      "type": "string"
+    },
+    "dcmDuration": {
+      "title": "抑制重复读取的间隔",
+      "description": "抑制在指定间隔之前已经读取的检查的读取,以避免重复读取。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmHistorySize": {
+      "title": "Suppress Duplicate History Size",
+      "description": "Maximum number of HL7 messages with distinct PID-3 triggering this rule to remember on the history list.",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmPrefetchDateTimeField": {
+      "title": "预取日期时间字段",
+      "description": "将所选检查的检索延迟到以{SEG}-{Seq#}[。{Comp#}]格式引用的HL7 TS字段的时间。 示例:TQ1-7或SCH-11.4。 如果不存在,则立即计划获取选定的检查。 ",
+      "type": "string"
+    },
+    "dcmPrefetchInAdvance": {
+      "title": "预取",
+      "description": "按照给定的时间跨度(ISO-8601 duration format PnDTnHnMn.nS)，提前从配置的dcmPrefetchDateTimeField中检索选定的研究。如果dcmPrefetchDateTimeField为空,则无效。 ",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmSchedule": {
+      "title": "预取调度",
+      "description": "在“预取日期时间”字段的基础上，延迟预取到指定的时间段。如果不指定“预取计划”，则根据配置的“预取日期时间”字段，为所选研究对象排队预取任务。格式:'hour=[0-23] dayOfWeek=[0-6]'（0=Sunday）",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmSchedule"
+    }
+  }
+}

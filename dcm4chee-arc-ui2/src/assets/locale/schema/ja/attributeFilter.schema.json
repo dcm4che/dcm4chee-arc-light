@@ -1,0 +1,58 @@
+{
+  "title": "属性 フィルタ",
+  "description": "データベースに 保存された 属性",
+  "type": "object",
+  "required": [
+    "dcmEntity",
+    "dcmTag"
+  ],
+  "properties": {
+    "dcmEntity": {
+      "title": "属性 エンティティ",
+      "description": "属性 フィルタ または 書き出し 規則の エンティティ (「患者」, 「検査」, 「シリーズ」, 「インスタンス」, 「MPPS」, 「MWL」)。",
+      "type": "string",
+      "enum": [
+        "Patient",
+        "Study",
+        "Series",
+        "Instance",
+        "MPPS",
+        "MWL"
+      ]
+    },
+    "dcmTag": {
+      "title": "属性 タグ",
+      "description": "16進 文字列としての DICOM タグ",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
+    "dcmCustomAttribute1": {
+      "title": "カスタム 属性 1",
+      "description": "データベースに カスタム 属性 1 として そうにゅうされる DICOM オブジェクトからの 属性を 構成します。 Only applicable for Patient / Study / Series / Instance entities. 例 : DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] または プライベート 属性の 場合 DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmCustomAttribute2": {
+      "title": "カスタム 属性 2",
+      "description": "データベースに カスタム 属性 2 として そうにゅうされる DICOM オブジェクトからの 属性を 構成します。 Only applicable for Patient / Study / Series / Instance entities. 例 : DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] または プライベート 属性の 場合 DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmCustomAttribute3": {
+      "title": "カスタム 属性 3",
+      "description": "データベースに カスタム 属性 3 として そうにゅうされる DICOM オブジェクトからの 属性を 構成します。 Only applicable for Patient / Study / Series / Instance entities. 例 : DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] または プライベート 属性の 場合 DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmAttributeUpdatePolicy": {
+      "title": "属性 更新 ポリシー",
+      "description": "エンティティの 後続インスタンスの 受信時に、 シリーズ、 検査と 患者の レベルで 抽出された 属性の 更新 ポリシーを 指定します。 PRESERVE (= 元の データセットに 存在しない 新しい データセットの 属性を  ヌルに する), SUPPLEMENT (= 元の データセットに 存在しない 属性は 補足される), REPLACE (= 元の データセットは 完全に 置き換えられます), MERGE (= 属性値は 新しい データセットから 書き込まれる), OVERWRITE (= 新しい データセットで  属性値は ヌルの 場合、 属性値は 元の データセットで  ヌルに 設定 します)。 存在しない 場合、 PRESERVEが 適用されます。",
+      "type": "string",
+      "enum": [
+        "PRESERVE",
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE",
+        "REPLACE"
+      ]
+    }
+  }
+}

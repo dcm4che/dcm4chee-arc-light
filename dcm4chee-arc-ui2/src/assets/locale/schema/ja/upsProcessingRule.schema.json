@@ -1,0 +1,166 @@
+{
+  "title": "UPS 処理 規則",
+  "description": "統合 ワークリストの 一致する 作業項目を 処理 する",
+  "type": "object",
+  "required": [
+    "dcmUPSProcessingRuleID",
+    "dcmUPSInputReadinessState",
+    "dcmURI",
+    "dicomAETitle",
+    "dcmUPSPerformedWorkitemCode",
+    "dcmUPSPerformedStationNameCode",
+    "dcmRetryDelay",
+    "dcmRetryDelayMultiplier",
+    "dcmMaxRetries",
+    "dcmMaxThreads"
+  ],
+  "properties": {
+    "dcmUPSProcessingRuleID": {
+      "title": "UPS 処理 規則 ID",
+      "description": "UPS 処理 規則の ID",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "アプリケーション エンティティ（AE）タイトル",
+      "description": "アプリケーション エンティティ（AE）タイトル",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmURI": {
+      "title": "UPS プロセッサー URI",
+      "description": "一致する 作業項目を 処理するための UPS プロセッサーを 識別します。",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "処理 属性",
+      "description": "UPS プロセッサー 依存 属性。 形式 : <名前>=<値>",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmSchedule": {
+      "title": "処理 予定",
+      "description": "指定した 期間に 処理を 遅延 する。 処理 予定が 指定されて いない 場合、 予定された 手順 ステップの 開始日時 (0040,4005)で 作業項目を 処理します。 形式: 'hour=[0-23] dayOfWeek=[0-6]' (0=日曜日 )",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmSchedule"
+    },
+    "dcmMaxThreads": {
+      "title": "スレッドの最大数",
+      "description": "一致する 作業項目の 処理に 使用される スレッドの 最大数。",
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "入力 覚悟 状態",
+      "description": "一致する 入力 準備 状態（0040,4041)の 作業項目を 処理します。",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSPriority": {
+      "title": "優先度",
+      "description": "一致する 予定 手順 ステップ 優先度 (0074,1200)の 作業項目を 処理します。 存在しない 場合は、任意の 優先度 順位の 作業項目を 処理しますが、優先度 順位に 従って 処理を 順序 付けます。",
+      "type": "string",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSLabel": {
+      "title": "手順 ステップ ラベル",
+      "description": "一致する 手順 ステップ ラベル (0074,1204)の 作業項目を 処理します。 存在しない 場合は、任意の 手順 ステップ ラベルの 作業項目を 処理します。",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "ワークリスト ラベル",
+      "description": "一致する ワークリスト ラベルの 作業項目を 処理します (0074,1202)。 存在しない 場合は、 任意の ワークリスト ラベルの 作業項目を 処理します。",
+      "type": "string"
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "予定された 作業項目 コード",
+      "description": "予定された 作業項目 コード シーケンス (0040,4018)の (CV, CSD, \"CM\") 形式で  一致する コード アイテムの 作業項目を 処理します。存在しない 場合は、 任意の 予定された 作業項目 コードの 作業項目を 処理します。",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "予定された ステーション名 コード",
+      "description": "予定された ステーション名 コード シーケンス (0040,4025)の (CV, CSD, \"CM\") 形式で 一致する コード アイテムの 作業項目を 処理します。存在しない 場合は、 任意の 予定された ステーション名 コードの 作業項目を 処理します。",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "予定された ステーション クラス コード",
+      "description": "予定された ステーション クラス コード シーケンス (0040,4026)の (CV, CSD, \"CM\") 形式で 一致する コード アイテムの 作業項目を 処理します。 存在しない 場合は、 任意の 予定された ステーション クラス コードの 作業項目を 処理します。",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "予定された ステーション 地理的 位置 コード",
+      "description": "予定された ステーション 地理的 位置 クラス シーケンス (0040,4027)の (CV, CSD, \"CM\") 形式で 一致する コード アイテムの 作業項目を 処理します。 存在しない 場合は、 任意の 予定された ステーション 地理的 位置 コードの 作業項目を 処理します。",
+      "type": "string"
+    },
+    "dcmUPSPerformedWorkitemCode": {
+      "title": "実行済み 作業項目 コード",
+      "description": "処理済み UPS内の 実行済み 作業項目 コード シーケンス (0040,4019)の (CV, CSD, \"CM\") 形式で アイテム。",
+      "type": "string",
+      "default": "(NO_WORKITEM_CODE, 99DCM4CHEE, \"Workitem Code\")"
+    },
+    "dcmUPSPerformedStationNameCode": {
+      "title": "実行された ステーション名 コード",
+      "description": "処理された UPS内の 実行された ステーション名 コード シーケンスの (0040,4028)の (CV, CSD, \"CM\") 形式で アイテム。",
+      "type": "string",
+      "default": "(NO_STATION_NAME, 99DCM4CHEE, \"No Station Name specified\")"
+    },
+    "dcmUPSIgnoreDiscontinuationReasonCode": {
+      "title": "中止 理由 コードを 無視します",
+      "description": "(CV, CSD, \"CM\") 形式で 中止 理由 コードを 無視して, UPS 状態を COMPLETED に 変更します - CANCELEDに 変更 に かわって します。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSRescheduleDiscontinuationReasonCode": {
+      "title": "中止 理由 コードを 再予定します",
+      "description": "キャンセルされた UPSを 再予定するために、 中止 理由 コードを (CV, CSD, \"CM\") 形式で 指定します。存在しない 場合は、 任意の 中止 理由 コードで キャンセルされた UPS 指定された '再予定の 最大数'に 従って 再予定します。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSTemplateID": {
+      "title": "キャンセル時に UPSを 作成 する",
+      "description": "処理が 失敗し、 再試行が 予定されなくなった 場合に UPSを 作成するための UPS テンプレート 作業項目の インスタンス UIDを 指定します。 存在しない 場合、 失敗時に UPSは 作成されません。",
+      "type": "string"
+    },
+    "dcmMaxRetries": {
+      "title": "再予定の 最大数",
+      "description": "処理に 失敗した 作業項目の 再予定の 最大数。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "再予定 遅延",
+      "description": "ISO-8601 期間 形式 PnDTnHnMn.nSで 処理が 失敗した 作業項目を 再予定 する 遅延。",
+      "type": "string",
+      "default": "PT1M",
+      "format": "dcmDuration"
+    },
+    "dcmMaxRetryDelay": {
+      "title": "最大 再予定 遅延",
+      "description": "ISO-8601 期間 形式 PnDTnHnMn.nSで 処理が 失敗した 作業項目を 再予定 する 最大 遅延。 存在しない 場合は 無限。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmRetryDelayMultiplier": {
+      "title": "再予定 遅延 乗数",
+      "description": "'最大 再予定 遅延'を 考慮に 入れて '再予定 遅延'の 上に 有効に なる 乗数 (%)",
+      "type": "integer",
+      "minimum": 100,
+      "default": 100
+    }
+  }
+}

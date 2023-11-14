@@ -1,0 +1,41 @@
+{
+  "title": "UI クラスター 構成",
+  "description": "UI クラスター 構成",
+  "type": "object",
+  "required": [
+    "dcmuiDeviceClusterName",
+    "dcmuiDeviceClusterDevices",
+    "dcmuiDeviceClusterInstalled"
+  ],
+  "properties": {
+    "dcmuiDeviceClusterName": {
+      "title": "名前",
+      "description": "クラスター名",
+      "type": "string"
+    },
+    "dcmuiDeviceClusterDescription": {
+      "title": "説明",
+      "description": "クラスターの 説明",
+      "type": "string"
+    },
+    "dcmuiDeviceClusterDevices": {
+      "title": "デバイス用の ウェブ アプリケーション",
+      "description": "対応 する デバイスへの アクセスに 使用 する 構成済み ウェブ アプリケーションを 選択します",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "webApp"
+    },
+    "dcmuiClusterWebApp": {
+      "title": "ウェブ アプリケーション",
+      "description": "QIDO-RS クラスの ウェブ アプリケーション",
+      "type":  "string",
+      "format": "webApp"
+    },
+    "dcmuiDeviceClusterInstalled": {
+      "title": "インストール済み",
+      "description": "UIで この URLを 使用 する。",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

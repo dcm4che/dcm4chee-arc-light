@@ -1,0 +1,45 @@
+{
+  "title": "图像写入器",
+  "description": "指定用于压缩DICOM图像的Java Image IO Image Writer和Write Parameter",
+  "type": "object",
+  "required": [
+    "dicomTransferSyntax",
+    "dcmIIOFormatName"
+  ],
+  "properties": {
+    "dicomTransferSyntax": {
+      "title": "传输语法",
+      "description": "DICOM图像压缩传输语法",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmIIOFormatName": {
+      "title": "图像IO书写器格式名称",
+      "description": "图像IO书写器格式名称",
+      "type": "string"
+    },
+    "dcmJavaClassName": {
+      "title": "Java类名称",
+      "description": "图像IO writer的完全限定Java类。如果不存在,则使用找到的具有指定格式名称的任何图像写入器。",
+      "type": "string"
+    },
+    "dcmPatchJPEGLS": {
+      "title": "Patch JPEG-LS",
+      "description": "压缩后修补JPEG-LS",
+      "type": "string",
+      "enum": [
+          "JAI2ISO",
+          "ISO2JAI",
+          "ISO2JAI_IF_APP_OR_COM"
+      ]
+    },
+    "dcmImageWriteParam": {
+      "title": "图像写入参数",
+      "description": "图像写入参数（name=value）在压缩之前由图像写入器设置",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

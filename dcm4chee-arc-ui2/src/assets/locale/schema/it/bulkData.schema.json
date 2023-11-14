@@ -1,0 +1,43 @@
+{
+  "title": "Descrittore dati in blocco",
+  "description": "Descrittore dati in blocco",
+  "type": "object",
+  "required": [
+    "dcmBulkDataDescriptorID",
+    "dcmBulkDataExcludeDefaults"
+  ],
+  "properties": {
+    "dcmBulkDataDescriptorID": {
+      "title": "ID descrittore dati in blocco",
+      "description": "ID descrittore dati in blocco",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmBulkDataDescriptorID"
+      ]
+    },
+    "dcmBulkDataExcludeDefaults": {
+      "title": "Escludi impostazioni predefinite",
+      "description": "Indica se gli attributi specificati dalla \"Classe Composite Instance Retrieve Without Bulk Data Service\" devono essere implicitamente trattati come Massa di dati (= false) o meno (= true).",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAttributeSelector": {
+      "title": "Selettore attributi",
+      "description": "Specifica i singoli attributi trattati come dati in blocco da XPath (per esempio 'DicomAttribute[@tag=\"54000100\"]/Item/DicomAttribute[@tag=\"54001010\"]').",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAttributeSelector"
+    },
+    "dcmBulkDataVRLengthThreshold": {
+      "title": "Soglia di lunghezza del VR",
+      "description": "Specifica di trattare tutti gli attributi con una particolare rappresentazione del valore (VR) la cui lunghezza del valore supera la soglia specificata come massa di dati. Formato: <VR>=<length-threshold>.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmBulkDataVRLengthThreshold"
+    }
+  }
+}

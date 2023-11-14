@@ -1,0 +1,236 @@
+{
+  "title": "आर्काइव गुण नियंत्रण",
+  "description": "प्राप्त किये या भेजे हुए DIMSE का आर्काइव गुण नियंत्रण ।",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmDIMSE",
+    "dicomTransferRole",
+    "dcmRulePriority",
+    "dcmRetrieveAsReceived",
+    "dcmNoKeywords",
+    "dcmMWLImportFilterBySCU",
+    "dcmAttributeUpdatePolicy",
+    "dcmTrimISO2022CharacterSet"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाम",
+      "description": "आर्काइव गुण नियंत्रण का मनमाना/सार्थक नाम ।",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "नियम प्राथमिकता",
+      "description": "नियम प्राथमिकता ।  Higher priority rule applied.",
+      "type": "integer",
+      "default" : 0,
+      "minimum": 0
+    },
+    "dcmDIMSE": {
+      "title": "DIMSE",
+      "description": "DICOM संदेश तत्त्व जिसपे ये गुण नियंत्रण लागू होगा ।",
+      "type": "string",
+      "enum": [
+        "N_CREATE_RQ",
+        "C_STORE_RQ",
+        "C_FIND_RQ",
+        "C_FIND_RSP"
+      ]
+    },
+    "dicomTransferRole": {
+      "title": "DICOM स्थानांतरण भूमिका",
+      "description": "समान पदस्थ DICOM AE का DICOM स्थानांतरण भूमिका ।",
+      "type": "string",
+      "enum": [
+        "SCU",
+        "SCP"
+      ]
+    },
+    "dcmSOPClass": {
+      "title": "SOP वर्ग UID",
+      "description": "SOP वर्ग की UID जिसपे ये गुण नियंत्रण लागू किया जाएगा. अगर कॉन्फ़िगर ना किया हो तो, किसी SOP वर्ग पे लागू करें ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSOPClass"
+    },
+    "dcmProperty": {
+      "title": "नियम",
+      "description": "नियम इस प्रारूप में (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx} । किसी दिए गए विशेषता के लिए एक से अधिक मूल्य निर्दिष्ट करने के लिए उन्हें | प्रतीक के सहारे अलग किया जा सकता है । उदाहरण के तौर पे : SendingApplicationEntityTitle=FORWARD या Modality=MR|CT या ProcedureCodeSequence.CodeValue=MRProcedure या 00180015=KNEE या 00321034.00080100=RequestingServiceCode या ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmRetrieveAsReceived": {
+      "title": "प्राप्त हुए रूप में पुनःप्राप्त करें",
+      "description": "पुनःप्राप्त हुए मिश्र ऑब्जेक्ट में डेटाबेस के जानकारी के विलीन को असमर्थ करता है, प्राप्त हुए रूप में ऑब्जेक्ट्स को वापस करता है । सिर्फ प्रभावशाली अगर DIMSE को C_STORE_RQ अनुरोध सेट किया है और DICOM स्थानांतरण भूमिका SCP है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDeIdentification": {
+      "title": "पहचान हटाना",
+      "description": "DICOM PS 3.15 में निर्दिष्ट मूल अनुप्रयोग स्तर गोपनीयता रुपरेखा के अनुसार ऑब्जेक्ट्स की पहचान हटाए । किसी भी विकल्प को चुनने से मूल अनुप्रयोग स्तर गोपनीयता रुपरेखा हमेशा समावेश करेगा ।",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BasicApplicationConfidentialityProfile",
+          "RetainLongitudinalTemporalInformationFullDatesOption",
+          "RetainDeviceIdentityOption",
+          "RetainInstitutionIdentityOption",
+          "RetainUIDsOption",
+          "RetainPatientIDHashOption"
+        ]
+      }
+    },
+    "dcmURI": {
+      "title": "XSL स्टाइलशीट URI",
+      "description": "गुण नियंत्रण का XSL स्टाइलशीट URI निर्दिष्ट करता है ।",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "बिना गुण संकेतशब्द",
+      "description": "गुण संकेतशब्दों को (जिसे XSLT में भेजा जाता है) DICOM XML से हटाने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmMergeMWLMatchingKey": {
+      "title": "MWL मिलान कुंजी को विलीन करें",
+      "description": "अनुरोधित गुणों का नियंत्रण करने के लिए इस्तमाल किए गए MWL आइटम जो प्राप्त हुए ऑब्जेक्ट के गुण से ढूंढा गया है उसे निर्दिष्ट करता है । अगर कॉन्फ़िगर ना किया हो तो, प्राप्त हुए ऑब्जेक्ट के अनुरोधित गुणों का नियंत्रण नहीं होगा । PatientID - Patient ID and Accession Number considered for querying MWLs. If Accession Number not available in object attributes, only Patient ID considered for querying MWLs. PatientIDOnly - Only Patient ID considered for querying MWLs. PatientIDAccessionNumber - Patient ID and Accession Number considered for querying MWLs. If Accession Number not available in object attributes, fall back to Study Instance UID. AccessionNumber - Only Accession Number considered for querying MWLs. StudyInstanceUID - Only Study Instance UID considered for querying MWLs. ScheduledProcedureStepID - Scheduled Procedure Step ID and Study Instance UID considered for querying MWLs.",
+      "type": "string",
+      "enum": [
+        "PatientID",
+        "PatientIDOnly",
+        "PatientIDAccessionNumber",
+        "AccessionNumber",
+        "StudyInstanceUID",
+        "ScheduledProcedureStepID"
+      ]
+    },
+    "dcmMergeMWLTemplateURI": {
+      "title": "MWL फर्मा URI को विलीन करें",
+      "description": "मिलान MWL आइटम्स से प्राप्त हुए ऑब्जेक्ट के अनुरोधित गुणों का नियंत्रण करने के लिए इस्तमाल किए गए स्टाइलशीट URI को निर्दिष्ट करता है । सिर्फ प्रभावशाली अगर 'MWL मिलान कुंजी को विलीन करें' भी मौजूद है ।",
+      "type": "string"
+    },
+    "dcmMergeMWLSCP": {
+      "title": "MWL विलीन करने के लिए SCP",
+      "description": "प्राप्त हुए दृष्टांतों में अनुरोध विशेषताओं को बदलने के लिए इस्तमाल किए गए MWL आइटम ढूंढने के लिए MWL SCP के AE का शीर्षक । यदि यह स्वयं के आर्काइव डिवाइस के MWL SCP को संदर्भित करता है, तो मेल खाने वाले MWL आइटम के लिए आर्काइव DB से सीधे क्वेरी की जाएगी । यदि यह एक बाहरी MWL SCP को संदर्भित करता है, तो उसे DICOM MWL सेवा के C-FIND RQ को लागू करके पूछताछ की जाती है । अगर कॉन्फ़िगर ना किया हो तो, प्राप्त हुए ऑब्जेक्ट के अनुरोधित गुणों का नियंत्रण नहीं होगा । यदि अनुपस्थित है, तो किसी भी आर्काइव MWL AE द्वारा प्रदान किए गए मिलान MWL आइटम के लिए आर्काइव DB से क्वेरी की जाएंगी ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmMergeLocalMWLWorklistLabel": {
+      "title": "Merge Local MWL Worklist Label",
+      "description": "Only consider MWL items with one of the specified values of its Worklist Label (0074,1202) in the Archive DB to coerce request attributes of received objects. If absent, the Archive DB is queried for matching MWL items with any Worklist Label (0074,1202).",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmMergeLocalMWLWithStatus" : {
+      "title": "Merge Local MWL With Status",
+      "description": "Only consider MWL items with one of the specified Scheduled Procedure Step Status codes. If absent, MWL items with any Scheduled Procedure Step Status are considered.",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "ARRIVED",
+          "READY",
+          "STARTED",
+          "DEPARTED",
+          "CANCELED",
+          "DISCONTINUED",
+          "COMPLETED"
+        ]
+      }
+    },
+    "dcmMWLImportFilterBySCU": {
+      "title": "Merge MWL Filter by SCU",
+      "description": "Indicates to apply specified filter on matches returned by external MWL SCP.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmLeadingCFindSCP": {
+      "title": "प्रमुख C-FIND SCP",
+      "description": "बाहरी C-FIND SCP के AET का नाम जिससे से प्राप्त किये गए मरीज़ों और स्टडीज के रेकॉर्ड्स के गुणों को इस्तमाल कर गुण नियंत्रण करें । C-FIND SCP के लिए अगर कोई विशेष गुण सेट न निर्दिष्ट किया हो तो, मरीज़ और स्टडी गुण फ़िल्टर पे कॉन्फ़िगर किए गए सारे गुणों को प्राप्त किया जाएगा ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmAttributeUpdatePolicy": {
+      "title": "गुण अपडेट नीति",
+      "description": "प्रमुख C-FIND SCP प्राप्त किए गए गुणों के साथ किस तरह गुणों को अपडेट किया जाएगा यह निर्दिष्ट करता है । Refer <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Attribute-Update-Policy\" target=\"_blank\">Attribute Update Policies meanings</a>",
+      "type": "string",
+      "default": "MERGE",
+      "enum": [
+        "PRESERVE",
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE"
+      ]
+    },
+    "dcmTrimISO2022CharacterSet": {
+      "title": "ट्रिम ISO 2022 कॅरक्टर सेट",
+      "description": "कोड एक्सटेंशन के साथ सिंगल-बाइट कॅरक्टर सेट के कोड को बिना कोड एक्सटेंशन के सिंगल-बाइट कॅरक्टर सेट के कोड के साथ बदले । सिर्फ प्रभावशाली अगर DIMSE = C_STORE_RQ और DICOM स्थानांतरण भूमिका = SCU ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUseCallingAETitleAs": {
+      "title": "आह्वान AE के नाम को इस रूप में इस्तमाल करें",
+      "description": "अगर गुण अनुपलभ्य या खाली हो तो आह्वान AET के मूल्य को लागू करें ।ScheduledStationAETitle (= अनुसूचित प्रक्रिया स्टेप क्रम (००४०,०१००) के आइटम में अनुसूचित स्टेशन AE का नाम (००४०,०००१)), SendingApplicationEntityTitleOfSeries (= सीरीज भेजनेवाले अनुप्रयोग तत्त्व का नाम (७७७७,xx३७)) ।",
+      "type": "string",
+      "enum": [
+        "ScheduledStationAETitle",
+        "SendingApplicationEntityTitleOfSeries"
+      ]
+    },
+    "dcmNullifyTag": {
+      "title": "गुण टैग को अमान्य करें",
+      "description": "हेक्स स्ट्रिंग के रूप में गुण का DICOM टैग जिसे अमान्य करना है ।",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
+    "dcmMergeAttribute": {
+      "title": "गुणों को विलीन करें",
+      "description": "DICOM गुणों को इस प्रारूप में {attributeID}={value} विलीन करें । {value} के अंदर {attributeID} को मूल डेटासेट में पाए गए गुण के मूल्य के साथ बदला जाएगा । उदाहरण के तौर पे : InstitutionName=RegionalHospital या 00081040=XRay ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmNullifyIssuerOfPatientID": {
+      "title": "मरीज़़ की ID का जारीकर्ता को अमान्य करें",
+      "description": "प्राप्त हुए ऑब्जेक्ट्स में मरीज़़ की ID का जारीकर्ता (००१०,००२१) और मरीज़़ की ID का जारीकर्ता क्वालीफायर क्रम (००१०,००२४) को सशर्त रूप से अमान्य करें ।",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "MATCHING",
+        "NOT_MATCHING"
+      ]
+    },
+    "dcmIssuerOfPatientID": {
+      "title": "मरीज़़ की ID का जारीकर्ता",
+      "description": "मरीज़़ की ID का जारीकर्ता (००१०,००२१), और इच्छानुसार मरीज़़ की ID का जारीकर्ता क्वालीफ़ायर क्रम (००१०,००२४) के आइटम के यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के मूल्य को भी प्राप्त हुए ऑब्जेक्ट्स के गुणों के साथ मिलान किया जाएगा, सिर्फ लागू अगर 'मरीज़़ की ID का जारीकर्ता को अमान्य करें' को MATCHING या NOT_MATCHING कॉन्फ़िगर किया है । प्रारूप: <मरीज़़ की ID का जारीकर्ता> [& <यूनिवर्सल एंटिटी ID> & <यूनिवर्सल एंटिटी ID प्रकार>] ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmIssuerOfPatientIDFormat": {
+      "title": "मरीज़़ की ID का जारीकर्ता का प्रारूप",
+      "description": "अन्य गुणों से व्युत्पन्न किए गए मरीज़़ की ID का जारीकर्ता (००१०,००२१) का प्रारूप । उदाहरण के तौर पे \"{00100010,hash}-{00100030}\": \"-\" से अलग किए गए मरीज़ का नाम और मरीज़़ की जन्मतिथि का हैश मूल्य को इस्तमाल करें. प्राप्त हुए ऑब्जेक्ट्स में मौजूद मरीज़़ की ID के जारीकर्ता के मूल्यों का नियंत्रण करने के लिए 'मरीज़़ की ID का जारीकर्ता को अमान्य करें' के मूल्य को भी चुने ।",
+      "type": "string"
+    },
+    "dcmSupplementFromDeviceReference": {
+      "title": "डिवाइस से परिशिष्ट करें",
+      "description": "डिवाइस का नाम जिसमे से समनुदेशन प्राधिकारीयां और अन्य जानकारी प्राप्त हुए मिश्र दृष्टांतों और एम्पीपीएस को परिशिष्ट करने के लिए ली जाएगी ।",
+      "type": "string",
+      "format": "dicomDeviceName"
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "title": "属性集",
+  "description": "QIDO-RS和WADO-RS元数据查询参数‘includefields’使用的命名属性集,或DIFF-RS请求查询参数‘comparefield’使用的命名属性集",
+  "type": "object",
+  "required": [
+    "dcmAttributeSetType",
+    "dcmAttributeSetID",
+    "dcmTag",
+    "dicomInstalled"
+  ],
+  "properties": {
+    "dicomDescription": {
+      "title": "属性集描述",
+      "description": "此属性集的无约束文本描述",
+      "type": "string"
+    },
+    "dcmAttributeSetType": {
+      "title": "属性集类型",
+      "description": "指定此属性集是由QIDO-RS和WADO-RS元数据查询参数\"includefields\"使用,还是由DIFF-RS请求查询参数\"comparefield\"使用。",
+      "type": "string",
+      "enum": [
+        "QIDO_RS",
+        "WADO_RS",
+        "DIFF_RS",
+        "LEADING_CFIND_SCP"
+      ]
+    },
+    "dcmAttributeSetID": {
+      "title": "属性集ID",
+      "description": "QIDO-RS和WADO-RS元数据查询参数‘includefields’引用此属性集,或DIFF-RS请求查询参数‘comparefield’使用的ID。",
+      "type": "string"
+    },
+    "dcmAttributeSetTitle": {
+      "title": "属性集标题",
+      "description": "此属性集的标题。",
+      "type": "string"
+    },
+    "dcmAttributeSetNumber": {
+      "title": "属性集编号",
+      "description": "用于订购属性集的编号。",
+      "type": "integer"
+    },
+    "dicomInstalled": {
+      "title": "已安装",
+      "description": "布尔值，指示当前是否在存档设备上安装此属性集",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmTag": {
+      "title": "属性标签",
+      "description": "十六进制字符串格式的DICOM标签",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    },
+    "dcmProperty": {
+      "title": "属性",
+      "description": "<name>=<value>格式的属性。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

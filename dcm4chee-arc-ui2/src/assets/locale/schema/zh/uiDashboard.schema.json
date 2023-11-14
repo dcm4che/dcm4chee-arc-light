@@ -1,0 +1,70 @@
+{
+  "title": "UI仪表板配置",
+  "description": "UI仪表板配置",
+  "type": "object",
+  "required": [
+    "dcmuiDashboardConfigName",
+    "dcmuiCountWebApp"
+  ],
+  "properties": {
+    "dcmuiDashboardConfigName": {
+      "title": "UI仪表板配置名称",
+      "description": "UI仪表板配置名称",
+      "type": "string"
+    },
+    "dcmuiShowStarBlock":{
+      "title": "Show Star Block",
+      "description": "Show Star Block - tasks without defined deviceName",
+      "type": "boolean",
+      "default" : true
+    },
+    "dcmuiQueueName": {
+      "title": "队列",
+      "description": "队列块用于UI仪表板配置的队列名称。 ",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format" : "dcmQueueName"
+    },
+    "dcmuiExportName": {
+      "title": "Exporter IDs",
+      "description": "用于UI仪表板配置的队列和比较块。 ",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format" : "dcmExporterID"
+    },
+    "dicomuiDeviceName": {
+      "title": "设备名称",
+      "description": "用于生成检索和导出块的UI仪表板配置的设备名称  ",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dicomDeviceName"
+    },
+    "dicomuiIgnoreParams": {
+      "title": "审计事件忽略参数",
+      "description": "审计事件中应该忽略的Elasticsearch参数。例如:Source.UserID=TESTVALUE",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmuiCountWebApp": {
+      "title": "计数Web应用程序",
+      "description": "选定的Web应用程序, 它将用于获得在仪表板中的研究的计数",
+      "type": "string",
+      "format": "webApp"
+    },
+    "dcmuiCompareSideObjects": {
+      "title": "Compare Sides",
+      "description": "Compare Sides",
+      "titleKey":"{dcmuiCompareSideName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiCompareSide.schema.json"
+      }
+    },
+    "dicomuiDockerContainer": {
+      "title": "存档的汽车容器",
+      "description": "硬件页中使用的归档docker容器的名称  ",
+      "type": "array",
+      "items" : { "type": "string" }
+    }
+  }
+}

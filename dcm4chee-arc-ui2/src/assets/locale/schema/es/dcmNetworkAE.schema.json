@@ -1,0 +1,65 @@
+{
+  "title": "Network AE Extension",
+  "description": "dcm4che proprietary Attributes of Network AE",
+  "type": "object",
+  "properties": {
+    "dcmRoleSelectionNegotiationLenient": {
+      "title": "Role Selection Negotiation Lenient",
+      "description": "Indicates to disable check for required SCP/SCU role selection negotiation on sending of DIMSE-RQs. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "dcmAcceptedCallingAETitle": {
+      "title": "Accepted Calling AE Title",
+      "description": "Prohibit accepting associations from unlisted AE. If not present, any AE will be accepted",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmOtherAETitle": {
+      "title": "Other AE Title",
+      "description": "Additional AE Title of Network AE - will also accept Association RQs with such Called AE Title",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmNoAsyncModeCalledAETitle": {
+      "title": "No Async Mode Called AE Title",
+      "description": "Blacklist AE Title of peer Network AE as not capable to handle Asynchronous Operations Window Negotiation correctly. Suppress including corresponding User-data sub-Item in A-ASSOCIATE RQs to that Network AEs.",
+      "type": "array",
+      "format": "dcmAETitle",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmMasqueradeCallingAETitle": {
+      "title": "Masquerade Calling AE Title",
+      "description": "AE Title used for initiating network associations, masquerading the actual AE Title for this Network AE - optional prefix [<Called AE Title>] limits the masquerading to association to a particular AE Title",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmPreferredTransferSyntax": {
+      "title": "Preferred Transfer Syntax",
+      "description": "Preferred Transfer Syntax for selection of Transfer Syntax within a Presentation Context, ordered by priority. If absent, the first acceptable Transfer Syntax in the offered Presentation Context will be selected. May be overwritten by configured values for particular Transfer Capabilities of this AE.",
+      "type": "array",
+      "format": "dcmTransferSyntax",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7ApplicationName": {
+      "title": "HL7 Application name",
+      "description": "HL7 Application and Facility name (Application|Facility) associated with this AE",
+      "type": "string",
+      "format": "hl7ApplicationName"
+    },
+    "dcmArchiveNetworkAE": {
+      "title": "Archive Network AE",
+      "description": "DICOM Archive Network AE related information",
+      "$ref": "archiveNetworkAE.schema.json"
+    }
+  }
+}

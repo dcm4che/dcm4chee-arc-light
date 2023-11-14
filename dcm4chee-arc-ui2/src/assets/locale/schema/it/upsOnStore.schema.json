@@ -1,0 +1,235 @@
+{
+  "title": "UPS sull'archivio",
+  "description": "Crea/Aggiorna elemento di lavoro in una lista di lavoro unificata alla ricezione di un oggetto composito",
+  "type": "object",
+  "required": [
+    "dcmUPSOnStoreID",
+    "dcmUPSLabel",
+    "dcmUPSPriority",
+    "dcmUPSInputReadinessState",
+    "dcmUPSIncludeStudyInstanceUID",
+    "dcmUPSIncludeInputInformation",
+    "dcmUPSIncludePatient",
+    "dcmUPSIncludeReferencedRequest",
+    "dcmNoKeywords"
+  ],
+  "properties": {
+    "dcmUPSOnStoreID": {
+      "title": "UPS su Store ID",
+      "description": "ID dell'UPS sulla regola dell'archivio",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "Condizioni",
+      "description": "Condizioni nel formato (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}. More than one value can be specified for a given attribute by separating them with a | symbol. Esempio: SendingApplicationEntityTitle=FORWARD o Modality=MR|CT o ProcedureCodeSequence.CodeValue=MRProcedure o 00180015=KNEE o 00321034.00080100=RequestingServiceCode o ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmSchedule": {
+      "title": "Condizioni dei tempi",
+      "description": "Applica questa regola solo entro intervalli di tempo specificati.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmUPSLabel": {
+      "title": "Etichetta del passo della procedura",
+      "description": "Valore dell'etichetta del passo della procedura (0074,1204) nell'UPS creato. {attributeID} verrà sostituito dal valore di tale attributo nel set di dati UPS precedente. Esempio: {StudyDescription}",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "Etichetta lista di lavoro",
+      "description": "Valore dell'etichetta della lista di lavoro (0074,1202) nell'UPS creato. {attributeID} verrà sostituito dal valore di tale attributo nel set di dati UPS precedente. Esempio: {StudyDescription}",
+      "type": "string"
+    },
+    "dcmUPSPriority": {
+      "title": "Priorità",
+      "description": "Valore della priorità del passo della procedura pianificata (0074,1200) nell'UPS creato. Valori enumerati: HIGH, MEDIUM, LOW. Se assente, verrà applicato MEDIO.",
+      "type": "string",
+      "default": "MEDIUM",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "Stato di disponibilità di ingresso",
+      "description": "Valore dello stato di disponibilità dell'ingresso (0040,4041) nell'UPS creato",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSStartDateTimeDelay": {
+      "title": "Ritardo nell'Ora di inizio dello Scheduled Procedure Step",
+      "description": "Ritardo del Scheduled Procedure Step Start DateTime (0040,4005) nell'UPS creato dall'ora di ricezione nel formato PnDTnHnMn.nS. Nessun ritardo se assente.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSCompletionDateTimeDelay": {
+      "title": "Ritardo previsto per data e ora di completamento",
+      "description": "Ritardo della data di completamento prevista (0040,4011) nell'UPS creato dall'ora di ricezione nel formato PnDTnHnMn.nS. Se assente, non verrà impostata alcuna data e ora di completamento prevista.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSInstanceUIDBasedOnName": {
+      "title": "Instance UID UPS basato sul nome",
+      "description": "Valore utilizzato per generare l'UID dell'istanza SOP basato sul nome (0008,0018) nell'UPS creato. In genere, il valore includerà {StudyInstanceUID}, {SeriesInstanceUID} o {SOPInstanceUID} per creare un UPS diverso per ogni studio, serie o oggetto ricevuto. Se assente, verrà utilizzato un SOP Instance UID generato casualmente (0008,0018).",
+      "type": "string"
+    },
+    "dcmUPSIncludeInputInformation": {
+      "title": "Includi informazioni di input",
+      "description": "Indica se gli oggetti ricevuti devono essere referenziati nella sequenza di informazioni di ingresso (0040,4021) nell'UPS creato. SINGLE (= non aggiorna UPS esistente), APPEND (= aggiorna UPS esistente nello stato SCHEDULED), SINGLE_OR_CREATE (= se UPS esiste già, crea un nuovo UPS con UID derivato), APPEND_OR_CREATE (= se UPS esistente non è più nello stato SCHEDULED, creare nuovo UPS con UID derivato).",
+      "type": "string",
+      "default": "APPEND_OR_CREATE",
+      "enum": [
+        "NO",
+        "SINGLE",
+        "APPEND",
+        "SINGLE_OR_CREATE",
+        "APPEND_OR_CREATE"
+      ]
+    },
+    "dcmUPSIncludePatient": {
+      "title": "UPS Include Patient",
+      "description": "Indicates if patient (associated with created UPS) is created using patient attributes in received object; true if absent.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmDestinationAE": {
+      "title": "AE di Destinazione ",
+      "description": "Titolo di un'entità dell'applicazione DICOM in cui verranno archiviate le istanze.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmEntity": {
+      "title": "Ambito di accumulazione",
+      "description": "Ambito di accumulazione",
+      "type": "string",
+      "enum": [
+        "Study",
+        "Series",
+        "MPPS"
+      ]
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "Codice dell'elemento di lavoro pianificato",
+      "description": "Elemento della sequenza codice elemento lavoro programmato (0040,4018) nell'UPS creato in formato (CV, CSD, \"CM\").",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "Codice nome stazione pianificata",
+      "description": "Elemento della sequenza codice nome stazione pianificata (0040,4025) nell'UPS creato in formato (CV, CSD, \"CM\").",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "Codice classe stazione pianificata",
+      "description": "Elemento della sequenza codice classe stazione pianificata (0040,4026) nell'UPS creato in formato (CV, CSD, \"CM\").",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "Codice di posizione geografica della stazione pianificata",
+      "description": "Elemento della sequenza del codice di posizione geografica della stazione pianificata (0040,4027) nell'UPS creato in formato (CV, CSD, \"CM\").",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerCode": {
+      "title": "Codice pianificato di esecuzione umana ",
+      "description": "Elemento della sequenza del codice degli esecutori umani (0040,4009) nell'elemento della sequenza degli esecutori umani pianificati (0040,4034) nell'UPS creato in formato (CV, CSD, \"CM\").",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerName": {
+      "title": "Nome dell'attore umano pianificato",
+      "description": "Valore del nome del performer umano (0040,4037) nell'elemento della sequenza pianificata di interpreti umani (0040,4034) nell'UPS creato. {attributeID} verrà sostituito dal valore di tale attributo nel set di dati UPS precedente. Esempio: {PerformingPhysicianName}",
+      "type": "string"
+    },
+    "dcmUPSScheduledHumanPerformerOrganization": {
+      "title": "Organizzazione pianificata di interpreti umani",
+      "description": "Valore dell'organizzazione dell'esecutore umano (0040,4036) nell'elemento della sequenza degli interpreti umani pianificata (0040,4034) nell'UPS creato. {attributeID} verrà sostituito dal valore di tale attributo nel set di dati UPS precedente. Esempio: {ResponsibleOrganization}",
+      "type": "string"
+    },
+    "dcmAdmissionID": {
+      "title": "Numero di ammissione",
+      "description": "Valore dell'ID di ammissione (0038,0010) nell'UPS creato. {attributeID} verrà sostituito dal valore di tale attributo nel set di dati UPS precedente. Esempio: {AdmissionID}",
+      "type": "string"
+    },
+    "dicomIssuerOfAdmissionID": {
+      "title": "Emittente dell'ID di ammissione",
+      "description": "Valore dell'ID entità spazio dei nomi locale (0040,0031), ID entità universale (0040,0032) e tipo ID entità universale (0040,0033) dell'articolo della sequenza ID emittente di ammissione (0038,0014) nell'UPS creato. Formato: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
+      "type": "string"
+    },
+    "dcmUPSIncludeStudyInstanceUID": {
+      "title": "Includi l'UID dell'istanza di studio",
+      "description": "Indica se l'UID dell'istanza di studio (0020,000D) dell'oggetto ricevuto deve essere incluso nell'UPS creato",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUPSIncludeReferencedRequest": {
+      "title": "Includi richiesta referenziata",
+      "description": "Indica se l'UID dell'istanza di studio (0020,000D) dell'oggetto UPS precedente e il numero di accesso specificato (0008,0050), l'ID procedura richiesta (0040,1001) e il servizio richiedente (0032,1033) devono essere inclusi nella voce di la Sequenza di richiesta referenziata (0040, A370) nell'UPS creato. In caso contrario, viene inclusa una sequenza di richiesta referenziata vuota (0040, A370).",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAccessionNumber": {
+      "title": "Numero di Accesso",
+      "description": "Valore del numero di accesso (0008,0050) nell'elemento della sequenza di richiesta referenziata (0040, A370) nell'UPS creato. {attributeID} verrà sostituito dal valore di tale attributo nel set di dati UPS precedente. Esempio: {AccessionNumber}",
+      "type": "string"
+    },
+    "dicomIssuerOfAccessionNumber": {
+      "title": "Emittente del numero di accesso",
+      "description": "Valore dell'ID entità spazio dei nomi locale (0040,0031), ID entità universale (0040,0032) e tipo ID entità universale (0040,0033) nell'elemento della sequenza del numero di Accesso dell'emittente (0008,0051) nell'elemento della sequenza della richiesta di riferimento ( 0040, A370) nell'UPS creato. Formato: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
+      "type": "string"
+    },
+    "dcmRequestedProcedureID": {
+      "title": "ID procedura richiesta",
+      "description": "Valore dell'ID procedura richiesta (0040,1001) nell'elemento della sequenza di richiesta referenziata (0040, A370) nell'UPS creato. {attributeID} verrà sostituito dal valore di quell'attributo nel set di dati ricevuto. Esempio: {StudyID}",
+      "type": "string"
+    },
+    "dcmRequestedProcedureDescription": {
+      "title": "Descrizione della procedura richiesta",
+      "description": "Valore della descrizione della procedura richiesta (0032,1060) nell'elemento della sequenza di richiesta referenziata (0040, A370) nell'UPS creato. {attributeID} verrà sostituito dal valore di quell'attributo nel set di dati ricevuto. Esempio: {StudyDescription}",
+      "type": "string"
+    },
+    "dcmRequestingPhysician": {
+      "title": "Medico richiedente",
+      "description": "Valore del medico richiedente (0032,1032) nell'elemento della sequenza di richiesta referenziata (0040, A370) nell'UPS creato. {attributeID} verrà sostituito dal valore di tale attributo nel set di dati UPS precedente. Esempio: {PerformingPhysicianName}",
+      "type": "string"
+    },
+    "dcmRequestingService": {
+      "title": "Servizio richiedente",
+      "description": "Valore del servizio richiedente (0032,1033) nell'elemento della sequenza di richiesta referenziata (0040, A370) nell'UPS creato. {attributeID} verrà sostituito dal valore di tale attributo nel set di dati UPS precedente. Esempio: {StudyDescription}",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "URI del foglio di stile XSL",
+      "description": "Specifica l'URI del foglio di stile XSL per includere attributi aggiuntivi nell'UPS creato.",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "Nessuna parola chiave attributo",
+      "description": "Indica se le parole chiave degli attributi devono essere omesse nel DICOM XML passato a XSLT.",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

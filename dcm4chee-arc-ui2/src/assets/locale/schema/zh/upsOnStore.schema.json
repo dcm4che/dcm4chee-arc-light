@@ -1,0 +1,235 @@
+{
+  "title": "通过存储创建的UPS",
+  "description": "在接收复合对象时,集成工作列表中创建或更新工作项。",
+  "type": "object",
+  "required": [
+    "dcmUPSOnStoreID",
+    "dcmUPSLabel",
+    "dcmUPSPriority",
+    "dcmUPSInputReadinessState",
+    "dcmUPSIncludeStudyInstanceUID",
+    "dcmUPSIncludeInputInformation",
+    "dcmUPSIncludePatient",
+    "dcmUPSIncludeReferencedRequest",
+    "dcmNoKeywords"
+  ],
+  "properties": {
+    "dcmUPSOnStoreID": {
+      "title": "由存储创建的UPS ID",
+      "description": "存储规则中的UPS ID",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "格式(SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}的条件. 通过用“|”符号分隔,可以为特定属性指定多个值。例如: SendingApplicationEntityTitle=FORWARD 或 Modality=MR|CT 或 ProcedureCodeSequence.CodeValue=MRProcedure 或 00180015=KNEE 或 00321034.00080100=RequestingServiceCode 或 ImageType[3]=LOCALIZER。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmSchedule": {
+      "title": "时间条件",
+      "description": "仅在指定的时间范围内应用此规则。 ",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmUPSLabel": {
+      "title": "过程步骤标签",
+      "description": "创建的UPS中的过程步骤标签的值（0074,1204）。{attributeID}将被接收数据集中该属性的值替换。 示例:{StudyDescription}。",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "工作列表标签",
+      "description": "创建的UPS中工作列表标签的值（0074,1202）。{attributeID}将被接收数据集中该属性的值替换。 示例:{StudyDescription}。 ",
+      "type": "string"
+    },
+    "dcmUPSPriority": {
+      "title": "优先级",
+      "description": "创建的UPS中计划的过程步骤的优先级值（0074,1200）。枚举值:HIGH,MEDIUM,LOW。如果不存在,则应用MEDIUM。",
+      "type": "string",
+      "default": "MEDIUM",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "准备输入状态",
+      "description": "准备输入状态值（0040,4041）",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSStartDateTimeDelay": {
+      "title": "计划的过程步骤开始时间的延迟",
+      "description": "在创建的UPS中,以PnDTnHnMn.nS格式,从接收到计划的过程步骤开始日期和时间的时间开始的延迟（0040,4005）。如果不存在,则无延迟。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSCompletionDateTimeDelay": {
+      "title": "预期完成时间延迟",
+      "description": "从PnDTnHnMn.nS格式创建的UPS中的预期完成时间接收时间起的延迟（0040,4011）。 如果不存在,则不会设置完成预期日期和时间。 ",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSInstanceUIDBasedOnName": {
+      "title": "基于名称的UPS实例UID",
+      "description": "用于在创建的UPS中（0008,0018）生成基于名称的SOP实例UID的值。 该值通常包含{StudyInstanceUID},{SeriesInstanceUID}或{SOPInstanceUID},以便为接收的每个检验,系列或实例创建不同的UPS。 如果不存在,则使用（0008,0018）随机生成的SOP实例UID。 ",
+      "type": "string"
+    },
+    "dcmUPSIncludeInputInformation": {
+      "title": "包含输入信息",
+      "description": "指示创建的UPS是否需要引用输入信息序列（0040,4021）中接收的对象。 SINGLE（=不更新现有UPS）,APPEND（=更新状态为SCHEDULED的现有UPS）,SINGLE_OR_CREATE（=如果UPS已经存在,则使用派生UID创建新UPS）,APPEND_OR_CREATE（=如果现有UPS不再处于SCHEDULED状态,则使用派生UID创建新UPS）。",
+      "type": "string",
+      "default": "APPEND_OR_CREATE",
+      "enum": [
+        "NO",
+        "SINGLE",
+        "APPEND",
+        "SINGLE_OR_CREATE",
+        "APPEND_OR_CREATE"
+      ]
+    },
+    "dcmUPSIncludePatient": {
+      "title": "UPS Include Patient",
+      "description": "Indicates if patient (associated with created UPS) is created using patient attributes in received object; true if absent.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmDestinationAE": {
+      "title": "目标AE",
+      "description": "将要存储实例的DICOM应用程序实体的标题。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmEntity": {
+      "title": "累积范围",
+      "description": "累积范围",
+      "type": "string",
+      "enum": [
+        "Study",
+        "Series",
+        "MPPS"
+      ]
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "调度的工作项目代码",
+      "description": "创建的UPS中调度的工作项目代码序列的（CV,CSD,\"CM\"）形式的项目（0040,4018）。 ",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "调度的站名代码",
+      "description": "创建的UPS中调度的站名代码序列的（CV,CSD,\"CM\"）形式的项目（0040,4025）。 ",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "调度的站类代码",
+      "description": "创建的UPS中调度的站类代码序列的（CV,CSD,\"CM\"）形式的项目（0040,4026）。 ",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "调度的站点地理位置代码",
+      "description": "创建的UPS中调度的站点地理位置代码序列的（CV,CSD,\"CM\"）形式的项目（0040,4027）。 ",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerCode": {
+      "title": "预定的人类执行者代码",
+      "description": "在创建的UPS中预定的人类执行者序列的（0040,4034）项中的人类执行者代码的（CV,CSD,\"CM\"）形式的值（0040,4009）。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerName": {
+      "title": "预定的人类执行者名称",
+      "description": "创建的UPS中预定的人类执行者序列的（0040,4034）项中的人类执行者名称的值（0040,4037）。 {attributeID}将被接收数据集中该属性的值替换。 示例:{PerformingPhysicianName}。 ",
+      "type": "string"
+    },
+    "dcmUPSScheduledHumanPerformerOrganization": {
+      "title": "预定的人类执行者组织",
+      "description": "创建的UPS中预定的人类执行者序列的（0040,4034）项中的人类执行者组织的值（0040,4036）。 {attributeID}将被接收数据集中该属性的值替换。 例如:{ResponsibleOrganization}。 ",
+      "type": "string"
+    },
+    "dcmAdmissionID": {
+      "title": "许可号",
+      "description": "创建的UPS中许可号（0038,0010）的值。 {attributeID}将被接收数据集中该属性的值替换。 例如:{AdmissionID}。 ",
+      "type": "string"
+    },
+    "dicomIssuerOfAdmissionID": {
+      "title": "许可号的发布者",
+      "description": "本地命名空间实体ID（0040,0031）\",\"通用实体ID（0040,0032）\"和\"通用实体ID类型（0040,0033）\"在创建的UPS中的\"许可号的发布者序列（0038,0014）\"项中的值。 格式：<Local Namespace Entity ID>[‘&’<Universal Entity ID>‘&’<Universal Entity ID Type>]",
+      "type": "string"
+    },
+    "dcmUPSIncludeStudyInstanceUID": {
+      "title": "包含验证实例UID",
+      "description": "指示是否在创建的UPS中包含（0020,000D）接收到的对象的验证实例UID。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUPSIncludeReferencedRequest": {
+      "title": "包含引用的请求",
+      "description": "指示在创建的UPS中,引用请求序列（0040,A370）项是否包含接收对象的校验实例UID（0020,000D）,响应号（0008,0050）,请求过程ID（0040,1001）和请求服务（0032,1033）。否则,它包含一个空的引用请求序列（0040,A370）。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAccessionNumber": {
+      "title": "AccessionNumber",
+      "description": "创建的UPS中引用请求序列（0040,A370）项中AccessionNumber（0008,0050）的值。{attributeID}将替换为传入数据集中该属性的值。示例：{AccessionNumber}。",
+      "type": "string"
+    },
+    "dicomIssuerOfAccessionNumber": {
+      "title": "注册号发布人",
+      "description": "创建的UPS中引用请求序列（0040,A370）的项中本地命名空间实体ID(0040,0031),通用实体的ID(0040,0032)以及通用实体ID类型(0040,0033)的值。格式为: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
+      "type": "string"
+    },
+    "dcmRequestedProcedureID": {
+      "title": "请求过程ID",
+      "description": "创建的UPS中引用请求序列（0040,A370）的项中请求过程ID（0040,1001）的值。{attributeID}将替换为传入数据集中该属性的值。例如：{StudyID}。",
+      "type": "string"
+    },
+    "dcmRequestedProcedureDescription": {
+      "title": "请求的过程描述",
+      "description": "创建的UPS中引用请求序列（0040,A370）的项中请求过程描述（0032,1060）的值。{attributeID}将替换为传入数据集中该属性的值。示例：{StudyDescription}。",
+      "type": "string"
+    },
+    "dcmRequestingPhysician": {
+      "title": "请求医生",
+      "description": "在创建的UPS中,请求医生（0032,1032）的值在参考请求序列（0040,A370）的项中。{attributeID}将替换为传入数据集中该属性的值。示例：{PerformingPhysicianName}。",
+      "type": "string"
+    },
+    "dcmRequestingService": {
+      "title": "请求的服务",
+      "description": "创建的UPS中引用的请求序列的（0040,A370）项的请求服务的（0032,1033）值。 {attributeID}将被接收数据集中该属性的值替换。 示例:{StudyDescription}。 ",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "XSL样式表URI",
+      "description": "指定XSL样式表的URI,该URI将对接收到的HL7消息进行代码转换,以便在创建的UPS中包括附加属性。 ",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "无属性关键字",
+      "description": "指示传递到XSLT的DICOM XML是否省略属性关键字。 ",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

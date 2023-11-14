@@ -1,0 +1,49 @@
+{
+  "title": "Aet drop-down list",
+  "description": "Aet drop-down list",
+  "type": "object",
+  "required": [
+    "dcmuiAetListName",
+    "dcmuiAets",
+    "dcmAcceptedUserRole",
+    "dcmuiMode"
+  ],
+  "properties": {
+    "dcmuiAetListName": {
+      "title": "List Name",
+      "description": "Define a name for this config",
+      "type": "string"
+    },
+    "dcmuiAetListDescription": {
+      "title": "Description",
+      "description": "Aet List description",
+      "type": "string"
+    },
+    "dcmuiMode": {
+      "title": "AEt list mode",
+      "description": "Define in which mode should be this config available in 'internal' ( archive own AETs, in some places called also 'Home AET' or 'Local AET' ) or 'external' ( or in some places also called 'Remote AET' ) aet drop-down list, to be available for both don't select any of them",
+      "type": "string",
+      "enum": [
+        "internal",
+        "external"
+      ]
+    },
+    "dcmuiAets": {
+      "title": "AETs",
+      "description": "UI Action Parameter",
+      "format": "dcmAETitle",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "Accepted User Role",
+      "description": "Define the roles for which this config should be available, use 'user' to be available for all roles",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "title": "拒否 ノート",
+  "description": "保存された 拒否 ノートの 動作を 指定します",
+  "type": "object",
+  "required": [
+    "dcmRejectionNoteLabel",
+    "dcmRejectionNoteCode",
+    "dcmAcceptPreviousRejectedInstance"
+  ],
+  "properties": {
+    "dcmRejectionNoteLabel": {
+      "title": "拒否 ノート ラベル",
+      "description": "拒否 ノート ラベル",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmQueryRetrieveView[*].dcmShowInstancesRejectedByCode[*]"
+      ]
+    },
+    "dcmRejectionNoteType": {
+      "title": "拒否 ノートの タイプ",
+      "description": "拒否 ノートの タイプ。",
+      "type": "string",
+      "enum": [
+        "REJECTED_FOR_QUALITY_REASONS",
+        "REJECTED_FOR_PATIENT_SAFETY_REASONS",
+        "INCORRECT_MODALITY_WORKLIST_ENTRY",
+        "DATA_RETENTION_POLICY_EXPIRED",
+        "REVOKE_REJECTION"
+      ]
+    },
+    "dcmRejectionNoteCode": {
+      "title": "拒否 ノート コード",
+      "description": "拒否 ノートの ドキュメント タイトルを 形式 (CV, CSD, 'CM') で 指定します",
+      "type": "string"
+    },
+    "dcmAcceptPreviousRejectedInstance": {
+      "title": "以前の 拒否された インスタンスを 受け入れる",
+      "description": "特定の 拒否 ノートに よって 拒否された インスタンスの 後続の 発生時に 動作を 指定します。",
+      "type": "string",
+      "default": "REJECT",
+      "enum": [
+        "REJECT",
+        "RESTORE",
+        "IGNORE"
+      ]
+    },
+    "dcmOverwritePreviousRejection": {
+      "title": "以前の 拒否を 上書き",
+      "description": "その 拒否 ノートに よって 上書きされる 可能性が ある 形式 (CV, CSD, 'CM') で 以前の 拒否 ノートの ドキュメント タイトルを 指定します",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAcceptRejectionBeforeStorage": {
+      "title": "保存の 前に 拒否を 受け入れ",
+      "description": "拒否 ノートの 受信後の ISO-8601 期間 形式 PnDTnHnMn.nSの 時間 間隔、 この 拒否 ノートに よって 参照される 受信 オブジェクトは 拒否された ものとして 扱われます。 後で 受信された 参照 オブジェクトは、 すでに 拒否された インスタンスの 後続の 発生として 扱われます。 存在しない 場合、 まだ 受信されて いない オブジェクトを 参照する 拒否 ノートは 受け入れられません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteRejectedInstanceDelay": {
+      "title": "削除 拒否された インスタンス 遅延",
+      "description": "ISO-8601 期間 形式PnDTnHnMn.nS で  遅延、 その 後、 特定の 拒否 ノートに よって 拒否された インスタンスを 削除する。 存在しない 場合は 無限。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteRejectionNoteDelay": {
+      "title": "削除 拒否 ノート 遅延",
+      "description": "特定の 拒否 ノートを 削除する ISO-8601 期間 形式で PnDTnHnMn.nS 遅延。 存在しない 場合は 無限。",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

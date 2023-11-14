@@ -1,0 +1,131 @@
+{
+  "title": "HL7 プリフェッチ 規則",
+  "description": "HL7 プリフェッチ 規則",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmQueueName",
+    "dicomAETitle",
+    "dcmPrefetchCFindSCP",
+    "dcmPrefetchCMoveSCP",
+    "dcmPrefetchCStoreSCP",
+    "dcmDuration",
+    "dcmHistorySize"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名前",
+      "description": "HL7 プリフェッチ 規則の 任意 / 意味の ある 名前",
+      "type": "string"
+    },
+    "dcmQueueName": {
+      "title": "キュー名",
+      "description": "この プリフェッチ 規則に よって トリガーされる 読み出し タスクの 予定に 使用される タスク キューの 名前",
+      "type": "string",
+      "format":"dcmQueueName"
+    },
+    "dicomAETitle": {
+      "title": "アーカイブ AE タイトル",
+      "description": "「プリフェッチ C-Move SCP」から 選択した 検査を 読み出す ために 使用される アーカイブ アプリケーション エンティティの AE タイトル。",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmPrefetchCFindSCP": {
+      "title": "プリフェッチ C-Find SCP",
+      "description": "指定された エンティティ セレクタに 一致 する 検査を クエリされた C-FIND SCPの AE タイトル。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmPrefetchCMoveSCP": {
+      "title": "プリフェッチ C-Move SCP",
+      "description": "選択した 検査が 読み出しされる C-MOVE SCPの AE タイトル。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmPrefetchCStoreSCP": {
+      "title": "プリフェッチ C-Store SCP",
+      "description": "選択した 読み出された 検査が 保存された C-Store SCPの AE タイトル。",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmAETitle"
+    },
+    "dcmDestinationCFindSCP": {
+      "title": "宛先 C-Find SCP",
+      "description": "プリフェッチ C-MOVE SCP から 選択した 検査の 読み出しを 禁ずる 若しも、そのような 検査が ー プリフェッチ C-FIND SCP から 返された 検査の 「検査に よって インスタンスの 数」が 同じ または 以上 ある ー 指定された 宛先 C-FIND SCP で すでに 利用可能が あります。 指定しない 場合、 ぜんぶの 検査を 読み出しされます。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dicomDeviceName": {
+      "title": "プリフェッチ デバイス名",
+      "description": "読み出し タスクを 予定 する デバイスを 指定します。 指定しない 場合、 HL7 メッセージを 受信した デバイスで 書き出し タスクが 予定されます。",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx} 形式で 条件。 例: MSH-4=FORWARD または MSH-9=ORM\\^O01 または PID-3[.3]=PIDIssuer または PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmEntitySelector": {
+      "title": "エンティティ セレクタ",
+      "description": "プリフェッチ する 検査の 選択に 使用される 一致 する キーを 指定します。 形式: {key}={value}[&{key}={value)]..., ここは {key} = 'priors' | 'StudyAge' | {attributeID}。 '$'{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]] 形式で {value}は プリフェッチを トリガーした 受信 HL7 メッセージからの 指定された HL7 フィールドの 値に 置き換えられます。 エンティティ セレクタが 指定されて いない 場合、 患者の すべての 検査が プリフェッチされます。 例: 'priors=2&StudyAge=-5Y&ModalitiesInStudy=$OBR-24' => OBR-24からの モダリティを 持つ 少なくとも 1つの シリーズを 含む、 5年以内の 最大 2つの 先行 検査を 選択します。",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmEntitySelector"
+    },
+    "dcmNullifyIssuerOfPatientID": {
+      "title": "患者 IDの 割り当て 権限を 無視する",
+      "description": "条件付きで 患者 IDの 割り当て 権限 (PID-3.4) を 無視します。 これは、患者の 検査を 選択 する ための プリフェッチを トリガーした 受信 HL7 メッセージに あります。",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "MATCHING",
+        "NOT_MATCHING"
+      ]
+    },
+    "dcmIssuerOfPatientID": {
+      "title": "患者 IDの 割り当て 権限",
+      "description": "「患者 IDの 割り当て 権限」が MATCHING または NOT_MATCHINGに 設定されて いる 場合、 受信した HL7 メッセージの その 値と 照合されます。 形式: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>].",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmPrefetchForIssuerOfPatientID": {
+      "title": "患者 IDの 割り当て 権限の ために プリフェッチ",
+      "description": "PID-3の 識別子の リストで 適格な 患者 識別子を 検索 する ために 使用される 受信 HL7 メッセージでの 患者 IDの 権限の 割り当て。 この 適格な 患者 識別子の 指定された エンティティ セレクターに 一致 する 検査は クエリされなければならない。 存在しない 場合、 デフォルトでは、  PID-3の 最初の 適格な 患者 識別子が 使用されます。 形式: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>]。",
+      "type": "string"
+    },
+    "dcmDuration": {
+      "title": "重複の 読み出しを 抑制する 間隔",
+      "description": "重複した 読み出しを 回避 する ために、 指定された 間隔 よりも 前に すでに 読み出しされた 検査の 読み出しを 抑制します。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmHistorySize": {
+      "title": "重複を プリフェッチ しない ための 履歴 サイズ",
+      "description": "この 規則を トリガーして 履歴 リストに 記憶 する、 個別の PID-3 を 持つ HL7 メッセージの 最大数。",
+      "type": "integer",
+      "default" : 100,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmPrefetchDateTimeField": {
+      "title": "プリフェッチ 日時 フィールド",
+      "description": "選択した 検査の 取得を、 {SEG}-{Seq#}[.{Comp#}] の 形式で 参照された HL7 TS フィールドからの 時間まで 遅らせます。 例: TQ1-7 または SCH-11.4。 存在しない 場合、 選択した 検査の 取得を すぐに 予定 する。",
+      "type": "string"
+    },
+    "dcmPrefetchInAdvance": {
+      "title": "事前に プリフェッチ",
+      "description": "選択した 検査の 取得を、 ISO-8601 期間 形式 PnDTnHnMn.nSで 指定された 期間で 構成された 「プリフェッチ 日時 フィールド」 からの 時間に 事前に 予定 します。 「プリフェッチ 日時 フィールド」がない 場合、 効果的では ありません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmSchedule": {
+      "title": "プリフェッチ 予定",
+      "description": "構成された 「プリフェッチ 日時 フィールド」 に 加えて 指定した 期間への プリフェッチを 遅延 する。 プリフェッチ 予定が 指定されて いない 場合は、 選択した 患者の 検査の プリフェッチ タスクを 構成された 「プリフェッチ 日時 フィールド」 に よる キューに 入れます。 形式: 'hour=[0-23] dayOfWeek=[0-6]' (0=日曜日)",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmSchedule"
+    }
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "title": "网络连接扩展",
+  "description": "dcm4che专有网络连接属性",
+  "type": "object",
+  "required": [
+    "dcmProtocol",
+    "dcmTLSNeedClientAuth",
+    "dcmTLSProtocol",
+    "dcmTCPBacklog",
+    "dcmTCPCloseDelay",
+    "dcmTCPNoDelay",
+    "dcmSendPDULength",
+    "dcmReceivePDULength",
+    "dcmMaxOpsPerformed",
+    "dcmMaxOpsInvoked",
+    "dcmPackPDV",
+    "dcmRetrieveTimeoutTotal",
+    "dcmAATimeout"
+  ],
+  "properties": {
+    "dcmProtocol": {
+      "title": "协议",
+      "description": "网络连接协议。",
+      "type": "string",
+      "default": "DICOM",
+      "enum": [
+          "DICOM",
+          "HL7",
+          "HL7_MLLP2",
+          "SYSLOG_TLS",
+          "SYSLOG_UDP",
+          "HTTP"
+      ]
+    },
+    "dcmHTTPProxy": {
+      "title": "HTTP代理",
+      "description": "HTTP代理:[user:password@]host:port",
+      "type": "string"
+    },
+    "dcmTLSNeedClientAuth": {
+      "title": "TLS需要客户端验证",
+      "description": "指示是否需要TLS客户端验证。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmTLSProtocol": {
+      "title": "TLS协议",
+      "description": "支持的TLS协议。",
+      "default": ["TLSv1.2"],
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "TLSv1.3",
+          "TLSv1.2",
+          "TLSv1.1",
+          "TLSv1",
+          "SSLv3"
+        ]
+      }
+    },
+    "dcmTLSEndpointIdentificationAlgorithm": {
+      "title": "TLS Endpoint Identification Algorithm",
+      "description": "Indicates the endpoint identification or verification procedures during TLS handshaking.",
+      "type": "string",
+      "enum": [ "HTTPS", "LDAPS"]
+    },
+    "dcmTCPBacklog": {
+      "title": "TCP积压",
+      "description": "传入TCP连接的最大队列长度。",
+      "type": "integer",
+      "default": 50,
+      "minimum": 1
+    },
+    "dcmTCPConnectTimeout": {
+      "title": "TCP连接超时",
+      "description": "TCP连接超时（以毫秒为单位）；如果不存在,则没有超时。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmTCPCloseDelay": {
+      "title": "TCP关闭延迟",
+      "description": "发送A-ASSOCIATE-RJ,A-RELEASE-RP或A-ABORT PDU后的TCP套接字关闭延迟（毫秒）。",
+      "type": "integer",
+      "default": 50,
+      "minimum": 0
+    },
+    "dcmTCPSendBufferSize": {
+      "title": "TCP发送缓冲区大小",
+      "description": "TCP发送缓冲区大小；如果不存在,则使用系统默认值。",
+      "type": "integer",
+      "minimum": 1024
+    },
+    "dcmTCPReceiveBufferSize": {
+      "title": "TCP接收缓冲区大小",
+      "description": "TCP接收缓冲区大小；如果不存在,则使用系统默认值。",
+      "type": "integer",
+      "minimum": 1024
+    },
+    "dcmTCPNoDelay": {
+      "title": "无TCP延迟",
+      "description": "启用/禁用TCP_NODELAY（禁用/启用Nagle算法）。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmBindAddress": {
+      "title": "绑定地址",
+      "description": "监听套接字的绑定地址。如果不存在,则使用连接的主机名。",
+      "type": "string"
+    },
+    "dcmClientBindAddress": {
+      "title": "客户端绑定地址",
+      "description": "传出连接的绑定地址，如果不存在,则使用连接的主机名。",
+      "type": "string"
+    },
+    "dcmBlacklistedHostname": {
+      "title": "黑名单主机名",
+      "description": "黑名单DNS主机名",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSendPDULength": {
+      "title": "发送PDU长度",
+      "description": "发送PDU的最大长度。",
+      "type": "integer",
+      "default": 16378,
+      "minimum": 1024
+    },
+    "dcmReceivePDULength": {
+      "title": "接收PDU长度",
+      "description": "接收PDU的最大长度。",
+      "type": "integer",
+      "default": 16378,
+      "minimum": 1024
+    },
+    "dcmMaxOpsPerformed": {
+      "title": "执行的最大操作数",
+      "description": "异步执行的最大操作数。0=无限。",
+      "type": "integer",
+      "default": 1,
+      "minimum": 0
+    },
+    "dcmMaxOpsInvoked": {
+      "title": "调用的最大操作数",
+      "description": "异步调用的最大操作数。0=无限。",
+      "type": "integer",
+      "default": 1,
+      "minimum": 0
+    },
+    "dcmPackPDV": {
+      "title": "Pack PDV",
+      "description": "启用/禁用打包命令和数据PDV到单个P-DATA-TF PDU。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmAARQTimeout": {
+      "title": "AA-RQ超时",
+      "description": "TCP连接后接收A-ASSOCIATE-RQ PDU的超时（毫秒）；如果不存在,则没有超时",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmAAACTimeout": {
+      "title": "AA-AC超时",
+      "description": "在发送A-ASSOCIATE-RQ PDU之后接收A-ASSOCIATE-AC PDU的超时（毫秒）； 如果不存在,则没有超时。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmARRPTimeout": {
+      "title": "AR-RP超时",
+      "description": "在发送A-RELEASE-RQ PDU之后接收A-RELEASE-RP PDU的超时（毫秒）；如果不存在,则没有超时。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmSendTimeout": {
+      "title": "发送超时",
+      "description": "发送除C-STORE RQs之外的DIMSE RQs的超时（毫秒）；如果不存在,则没有超时。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmStoreTimeout": {
+      "title": "存储超时",
+      "description": "发送C-STORE RQ的超时（毫秒）；如果不存在,则没有超时。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmResponseTimeout": {
+      "title": "响应超时",
+      "description": "<br>- 接收非C-MOVE或C-GET RSPs的未解析DIMSE RSP <br>- responses of outgoing HL7 message <br>- HTTP(S) responses <br>的超时（毫秒）； 如果不存在,则没有超时。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveTimeout": {
+      "title": "读取超时",
+      "description": "接收未解析的C-GET或C-MOVE RSP的超时（毫秒）；如果不存在,则没有超时。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveTimeoutTotal": {
+      "title": "读取总超时",
+      "description": "当接收到挂起的RSP时,指示是重新启动（=false）还是不重新启动（=true）具有未解析的C-GET和C-MOVE RSP指定超时的计时器。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmIdleTimeout": {
+      "title": "空闲超时",
+      "description": "指示空闲关联在指定的超时（以毫秒为单位）之后停止。如果不存在,则没有超时。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmAATimeout": {
+      "title": "A-ABORT Timeout",
+      "description": "Timeout in ms for waiting for finishing sending any DIMSE before sending an A-ABORT PDU, triggered by the application or by expiration of a configured other timeout of this Connection. If the timeout expires, the TCP connection will be closed without sending the A-ABORT.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 1000
+    }
+  }
+}

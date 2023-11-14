@@ -1,0 +1,220 @@
+{
+  "title": "नेटवर्क संपर्क एक्सटेंशन",
+  "description": "DCM4CHE मालिकाना नेटवर्क संपर्क के गुण ।",
+  "type": "object",
+  "required": [
+    "dcmProtocol",
+    "dcmTLSNeedClientAuth",
+    "dcmTLSProtocol",
+    "dcmTCPBacklog",
+    "dcmTCPCloseDelay",
+    "dcmTCPNoDelay",
+    "dcmSendPDULength",
+    "dcmReceivePDULength",
+    "dcmMaxOpsPerformed",
+    "dcmMaxOpsInvoked",
+    "dcmPackPDV",
+    "dcmRetrieveTimeoutTotal",
+    "dcmAATimeout"
+  ],
+  "properties": {
+    "dcmProtocol": {
+      "title": "प्रोटोकॉल",
+      "description": "नेटवर्क संपर्क का प्रोटोकॉल ।",
+      "type": "string",
+      "default": "DICOM",
+      "enum": [
+          "DICOM",
+          "HL7",
+          "HL7_MLLP2",
+          "SYSLOG_TLS",
+          "SYSLOG_UDP",
+          "HTTP"
+      ]
+    },
+    "dcmHTTPProxy": {
+      "title": "HTTP प्रॉक्सी",
+      "description": "HTTP प्रॉक्सी : [user:password@]host:port ।",
+      "type": "string"
+    },
+    "dcmTLSNeedClientAuth": {
+      "title": "TLS क्लाइंट प्रमाणीकरण ज़रूरी",
+      "description": "संकेत करता है की, TLS क्लाइंट प्रमाणीकरण ज़रूरी है ।",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmTLSProtocol": {
+      "title": "TLS प्रोटोकॉल",
+      "description": "समर्थित TLS प्रोटोकॉल ।",
+      "default": ["TLSv1.2"],
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "TLSv1.3",
+          "TLSv1.2",
+          "TLSv1.1",
+          "TLSv1",
+          "SSLv3"
+        ]
+      }
+    },
+    "dcmTLSEndpointIdentificationAlgorithm": {
+      "title": "TLS Endpoint Identification Algorithm",
+      "description": "Indicates the endpoint identification or verification procedures during TLS handshaking.",
+      "type": "string",
+      "enum": [ "HTTPS", "LDAPS"]
+    },
+    "dcmTCPBacklog": {
+      "title": "TCP बैकलॉग",
+      "description": "आनेवाले  TCP संपर्कों के लिए अधिकतम कतार की लम्बाई ।",
+      "type": "integer",
+      "default": 50,
+      "minimum": 1
+    },
+    "dcmTCPConnectTimeout": {
+      "title": "TCP संपर्क समय",
+      "description": "मिलीसेकण्डों में  TCP संपर्क समय; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmTCPCloseDelay": {
+      "title": "TCP बंद करने का विलम्ब",
+      "description": "A-ASSOCIATE-RJ, A-RELEASE-RP या A-ABORT PDU को भेजने के बाद  TCP सॉकेट को बंद करने के लिए मिलीसेकण्डों में विलम्ब ।",
+      "type": "integer",
+      "default": 50,
+      "minimum": 0
+    },
+    "dcmTCPSendBufferSize": {
+      "title": "TCP भेजे गए बफर का माप",
+      "description": " TCP भेजे गए बफर का माप; यदि निर्दिष्ट नहीं किया है, तो सिस्टम डिफॉल्ट्स का उपयोग करें ।",
+      "type": "integer",
+      "minimum": 1024
+    },
+    "dcmTCPReceiveBufferSize": {
+      "title": "TCP बफर प्राप्ति का माप",
+      "description": " TCP बफर प्राप्ति का माप; यदि निर्दिष्ट नहीं किया है, तो सिस्टम डिफॉल्ट्स का उपयोग करें ।",
+      "type": "integer",
+      "minimum": 1024
+    },
+    "dcmTCPNoDelay": {
+      "title": "TCP विलम्ब नहीं",
+      "description": " TCP विलम्ब नहीं को सक्षम या असक्षम करें (Nagle अल्गोरिथम को सक्षम या असक्षम करें ) ।",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmBindAddress": {
+      "title": "बांधने का पता",
+      "description": "सुननेवाले सॉकेट को बांधने का पता; यदि निर्दिष्ट नहीं किया है, तो संपर्क के मेज़बान का नाम का उपयोग करें ।",
+      "type": "string"
+    },
+    "dcmClientBindAddress": {
+      "title": "क्लाइंट को बांधने का पता",
+      "description": "बहार जानेवाले संपर्कों को बांधने का पता; यदि निर्दिष्ट नहीं किया है, तो संपर्क के मेज़बान का नाम का उपयोग करें ।",
+      "type": "string"
+    },
+    "dcmBlacklistedHostname": {
+      "title": "कालीसूची में डाले हुए मेज़बान के नाम",
+      "description": "कालीसूची में डाले हुए DNS मेज़बान के नाम ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSendPDULength": {
+      "title": "भेजे हुए PDUs की लम्बाई",
+      "description": "भेजे हुए PDUs की अधिकतम लम्बाई ।",
+      "type": "integer",
+      "default": 16378,
+      "minimum": 1024
+    },
+    "dcmReceivePDULength": {
+      "title": "PDU प्राप्ति की लम्बाई",
+      "description": "PDUs प्राप्ति की अधिकतम लम्बाई ।",
+      "type": "integer",
+      "default": 16378,
+      "minimum": 1024
+    },
+    "dcmMaxOpsPerformed": {
+      "title": "अधिकतम कार्य संपादित",
+      "description": "कार्यों को अतुल्यकालिक रूप से संपादित करने की अधिकतम संख्या; ० = अनन्त ।",
+      "type": "integer",
+      "default": 1,
+      "minimum": 0
+    },
+    "dcmMaxOpsInvoked": {
+      "title": "अधिकतम कार्य लागू",
+      "description": "कार्यों को अतुल्यकालिक रूप से लागू करने की अधिकतम संख्या; ० = अनन्त ।",
+      "type": "integer",
+      "default": 1,
+      "minimum": 0
+    },
+    "dcmPackPDV": {
+      "title": "PDV पैक करें",
+      "description": "P-DATA-TF PDU में कमांड और डेटा PDVs को पैक करने में सक्षम या असक्षम करें ।",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmAARQTimeout": {
+      "title": "AA-RQ समय",
+      "description": " TCP संपर्क के बाद A-ASSOCIATE-RQ PDU को प्राप्त करने के लिए मिलीसेकण्डों में समय; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmAAACTimeout": {
+      "title": "AA-AC समय",
+      "description": "A-ASSOCIATE-RQ PDU के भेजने के बाद A-ASSOCIATE-AC PDU को प्राप्त करने के लिए मिलीसेकण्डों में समय; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmARRPTimeout": {
+      "title": "AR-RP समय",
+      "description": "A-RELEASE-RQ PDU के भेजने के बाद A-RELEASE-RP PDU को प्राप्त करने के लिए मिलीसेकण्डों में समय; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmSendTimeout": {
+      "title": "भेजने का समय",
+      "description": "C-STORE अनुरोधों के अलावा अन्य डिमसे अनुरोधों को भेजने के लिए मिलीसेकण्डों में समय; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmStoreTimeout": {
+      "title": "संचय समय",
+      "description": "C-STORE अनुरोधों को भेजने के लिए मिलीसेकण्डों में समय; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmResponseTimeout": {
+      "title": "प्रतिक्रिया समय",
+      "description": "<br>- C-GET या C-MOVE प्रतिक्रियाओं के अलावा अन्य डिमसे प्रतिक्रियाओं <br>- प्रेषित HL7 संदेश प्रतिक्रियाओं <br>- HTTP(S) प्रतिक्रियाओं <br>को प्राप्त करने के लिए मिलीसेकण्डों में समय; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveTimeout": {
+      "title": "पुनःप्राप्ति समय",
+      "description": "शेष C-GET या C-MOVE प्रतिक्रियाओं को प्राप्त करने के लिए मिलीसेकण्डों में समय; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveTimeoutTotal": {
+      "title": "संपूर्ण पुनःप्राप्ति समय",
+      "description": "शेष C-GET और C-MOVE प्रतिक्रियाओं को अनिर्णीत प्रतिक्रियाओं के प्राप्ति पे निर्दिष्ट समय के समयपाल को पुनःप्रारंभ किया जाएगा (= नहीं false) या नहीं (= हाँ true) ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmIdleTimeout": {
+      "title": "निष्क्रिय समय",
+      "description": "निर्दिष्ट समय (मिलीसेकण्डों में) के बाद निष्क्रिय संपर्कों को बंद करने संकेत करता है; निर्दिष्ट नहीं किया है, तो कोई समय लागू नहीं होगा ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmAATimeout": {
+      "title": "A-ABORT Timeout",
+      "description": "Timeout in ms for waiting for finishing sending any DIMSE before sending an A-ABORT PDU, triggered by the application or by expiration of a configured other timeout of this Connection. If the timeout expires, the TCP connection will be closed without sending the A-ABORT.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 1000
+    }
+  }
+}

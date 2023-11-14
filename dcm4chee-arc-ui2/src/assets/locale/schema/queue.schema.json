@@ -1,0 +1,109 @@
+{
+  "title": "Queue",
+  "description": "Managed Task Queue",
+  "type": "object",
+  "required": [
+    "dcmQueueName",
+    "dcmMaxTasksParallel",
+    "dcmRetryDelay",
+    "dcmRetryOnWarning",
+    "dcmRetryDelayMultiplier",
+    "dcmMaxRetries",
+    "dicomInstalled"
+  ],
+  "properties": {
+    "dcmQueueName": {
+      "title": "Queue Name",
+      "description": "Task Queue Name",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiQueueName[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCompareSideObjects[*].dcmuiCompareSideQueueName"
+      ]
+    },
+    "dicomInstalled": {
+      "title": "installed",
+      "description": "If false, processing of tasks in this queue is paused.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmMaxTasksParallel": {
+      "title": "Maximum parallel Tasks",
+      "description": "Maximal number of tasks processed in parallel.",
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "dicomDescription": {
+      "title": "DICOM Description",
+      "description": "Textual description of the DICOM entity",
+      "type": "string"
+    },
+    "dcmMaxRetries": {
+      "title": "Maximum Number of Retries",
+      "description": "Maximal number of retries to process tasks scheduled in a specific queue.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "Retry Delay",
+      "description": "Delay to retry to process tasks scheduled in a specific queue in ISO-8601 duration format PnDTnHnMn.nS.",
+      "type": "string",
+      "default": "PT1M",
+      "format": "dcmDuration"
+    },
+    "dcmMaxRetryDelay": {
+      "title": "Maximum Retry Delay",
+      "description": "Maximal Delay to retry to process tasks scheduled in a specific queue in ISO-8601 duration format PnDTnHnMn.nS. Infinite if absent.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmRetryDelayMultiplier": {
+      "title": "Retry Delay Multiplier",
+      "description": "Multiplier in % that will take effect on top of dcmRetryDelay with dcmMaxRetryDelay to be taken into account.",
+      "type": "integer",
+      "minimum": 100,
+      "default": 100
+    },
+    "dcmRetryOnWarning": {
+      "title": "Retry on Warning",
+      "description": "Enables retries to process tasks not only on failure but also on a warning outcome status in a specific queue.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmPurgeQueueMessageCompletedDelay": {
+      "title": "Delay for purging completed tasks",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which completed tasks are purged. If absent, there is no deletion for that particular queue",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageFailedDelay": {
+      "title": "Delay for purging failed tasks",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which failed tasks are purged. If absent, there is no deletion for that particular queue",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageWarningDelay": {
+      "title": "Delay for purging warning tasks",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which warning tasks are purged. If absent, there is no deletion for that particular queue",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageCanceledDelay": {
+      "title": "Delay for purging canceled tasks",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which canceled tasks are purged. If absent, there is no deletion for that particular queue",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmSchedule": {
+      "title": "Restrict Scheduling",
+      "description": "Restrict Scheduling to specified time ranges. Use Maximum Queue Size to control maximal number of Tasks processed between specified time ranges.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    }
+  }
+}

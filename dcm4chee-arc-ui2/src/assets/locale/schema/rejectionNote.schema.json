@@ -1,0 +1,74 @@
+{
+  "title": "Rejection Note",
+  "description": "Specifies behavior on Rejection Note Stored",
+  "type": "object",
+  "required": [
+    "dcmRejectionNoteLabel",
+    "dcmRejectionNoteCode",
+    "dcmAcceptPreviousRejectedInstance"
+  ],
+  "properties": {
+    "dcmRejectionNoteLabel": {
+      "title": "Rejection Note Label",
+      "description": "Rejection Note Label",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmQueryRetrieveView[*].dcmShowInstancesRejectedByCode[*]"
+      ]
+    },
+    "dcmRejectionNoteType": {
+      "title": "Rejection Note Type",
+      "description": "Type of Rejection Note.",
+      "type": "string",
+      "enum": [
+        "REJECTED_FOR_QUALITY_REASONS",
+        "REJECTED_FOR_PATIENT_SAFETY_REASONS",
+        "INCORRECT_MODALITY_WORKLIST_ENTRY",
+        "DATA_RETENTION_POLICY_EXPIRED",
+        "REVOKE_REJECTION"
+      ]
+    },
+    "dcmRejectionNoteCode": {
+      "title": "Rejection Note Code",
+      "description": "Specifies Document Title of Rejection Note in format (CV, CSD, 'CM')",
+      "type": "string"
+    },
+    "dcmAcceptPreviousRejectedInstance": {
+      "title": "Accept Previous Rejected Instance",
+      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note.",
+      "type": "string",
+      "default": "REJECT",
+      "enum": [
+        "REJECT",
+        "RESTORE",
+        "IGNORE"
+      ]
+    },
+    "dcmOverwritePreviousRejection": {
+      "title": "Overwrite Previous Rejection",
+      "description": "Specifies Document Title of previous Rejection Note in format (CV, CSD, 'CM') which may be overwritten by that Rejection Note",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAcceptRejectionBeforeStorage": {
+      "title": "Accept Rejection before Storage",
+      "description": "Time interval in ISO-8601 duration format PnDTnHnMn.nS after receive of a Rejection Note, in which received object referenced by this Rejection Note are treated as rejected. Referenced objects received afterwards are treated as subsequent occurrence of an already rejected instance. If not present, Rejection Notes which refers not yet received objects will not be accepted.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteRejectedInstanceDelay": {
+      "title": "Delete Rejected Instance Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which instances rejected by a particular Rejection Note are deleted. Infinite if absent.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteRejectionNoteDelay": {
+      "title": "Delete Rejection Note Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which particular Rejection Notes are deleted. Infinite if absent.",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

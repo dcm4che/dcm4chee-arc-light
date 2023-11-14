@@ -1,0 +1,57 @@
+{
+  "title": "Web应用程序下拉列表",
+  "description": "Web应用程序下拉列表",
+  "type": "object",
+  "required": [
+    "dcmuiWebAppListName",
+    "dcmuiWebApps",
+    "dcmuiMode"
+  ],
+  "properties": {
+    "dcmuiWebAppListName": {
+      "title": "列表名称",
+      "description": "定义此配置的名称",
+      "type": "string"
+    },
+    "dcmuiWebAppListDescription": {
+      "title": "描述",
+      "description": "Web应用程序列表描述",
+      "type": "string"
+    },
+    "dcmuiMode": {
+      "title": "列表模式",
+      "description": "有两种可能的方式来显示已定义的列表:1)在剩余列表的顶部,由行分隔。 2)仅显示已定义的（专用）。",
+      "type": "string",
+      "default":"separated",
+      "enum": [
+        "separated",
+        "exclusive"
+      ]
+    },
+    "dcmuiWebApps": {
+      "title": "WebApps",
+      "description": "Web应用程序",
+      "format": "webApp",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "已授权的用户角色",
+      "description": "定义这个配置应该可用的角色，使用'user'使所有角色可用。（必须定义一个用户名（以下属性）或用户角色（此属性））",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserName": {
+      "title": "授权的用户名",
+      "description": "定义可以使用此配置的用户名。（必须定义一个用户名（此属性）或用户角色（以前的属性））",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

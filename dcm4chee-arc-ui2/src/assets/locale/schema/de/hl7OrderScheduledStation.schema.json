@@ -1,0 +1,38 @@
+{
+  "title": "Scheduled Station for HL7 Order",
+  "description": "Scheduled Station selected on MWL HL7 Order Feed",
+  "type": "object",
+  "required": [
+    "cn",
+    "hl7OrderScheduledStationDeviceName",
+    "dcmRulePriority"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name for the Scheduled Station Order Mapping",
+      "type": "string"
+    },
+    "hl7OrderScheduledStationDeviceName": {
+      "title": "Scheduled Station Device Name",
+      "description": "Device name of Scheduled Station used for HL7 Order Messages.",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmRulePriority": {
+      "title": "Mapping Priority",
+      "description": "Mapping Priority.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "Conditions",
+      "description": "Conditions in format {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx}. Examples: MSH-4=FORWARD or MSH-9=ADT\\^A28\\^ADT_A05 or PID-3[.3]=PIDIssuer or PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

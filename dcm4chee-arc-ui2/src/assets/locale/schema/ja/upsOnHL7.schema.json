@@ -1,0 +1,204 @@
+{
+  "title": "HL7に よって 作成された UPS",
+  "description": "HL7v2 メッセージの 受信時に 統合 ワークリストで 作業項目を 作成 または 更新 する",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmUPSLabel",
+    "dcmUPSPriority",
+    "dcmUPSInputReadinessState",
+    "dcmUPSIncludeStudyInstanceUID",
+    "dcmUPSIncludeReferencedRequest",
+    "dcmURI"
+  ],
+  "properties": {
+    "hl7UPSOnHL7ID": {
+      "title": "HL7に よって 作成された UPSの ID",
+      "description": "HL7に よって 作成された UPS 規則の ID",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]][!]=<regEx> 形式で 条件。 例えば : MSH-4=FORWARD または MSH-9=ORM\\^O01 または PID-3[.3]=PIDIssuer または PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmSchedule": {
+      "title": "時間 条件",
+      "description": "指定された 時間 範囲内で のみ この 規則を 適用 する。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    },
+    "dcmUPSLabel": {
+      "title": "手順 ステップ ラベル",
+      "description": "作成された UPSの 中で 手順 ステップ ラベルの 値 (0074,1204)。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "ワークリスト ラベル",
+      "description": "作成された UPSの 中で ワークリスト ラベルの 値 (0074,1202)。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 存在しない 場合、または HL7 メッセージで 値が 見つからなかった 場合は、受信側の HL7 アプリケーションの HL7 アプリケーション名が 使用されます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmUPSPriority": {
+      "title": "優先度",
+      "description": "作成された UPSの 中で 予定 手順 ステップの 優先度の 値 (0074,1200)。 列挙値: HIGH, MEDIUM, LOW。存在しない 場合、MEDIUMが 適用されます。",
+      "type": "string",
+      "default": "MEDIUM",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "入力 覚悟 状態",
+      "description": "作成された UPSの 中で 入力 覚悟 状態の 値 (0040,4041)",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSStartDateTimeDelay": {
+      "title": "予定された 手順 ステップ 開始 日時の 遅延",
+      "description": "作成された UPSの 中で  PnDTnHnMn.nS 形式で 予定 手順 ステップ 開始 日時の 受信 時刻からの 遅延 (0040,4005)。 HL7 メッセージに スケジュールされた 手順 ステップの 開始 日時が 見つからない 場合に のみ 有効です。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSCompletionDateTimeDelay": {
+      "title": "予期される 完了 日時の 遅延",
+      "description": "作成された UPSの 中で  PnDTnHnMn.nS 形式で 予期される 完了 日時の 受信 時刻からの 遅延 (0040,4011)。存在しない 場合、完了 予期 日時は 設定されません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSInstanceUIDBasedOnName": {
+      "title": "名前に 基づく UPS インスタンス UID",
+      "description": "作成された UPSの 中で 名前に 基づく SOP インスタンス UIDを（0008,0018）生成する ために 使用される 値。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 存在しない 場合、ランダムに 生成された SOP インスタンス UIDが（0008,0018）使用されます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmDestinationAE": {
+      "title": "宛先 AE",
+      "description": "インスタンスが 格納される DICOM アプリケーション エンティティの タイトル。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "予定された 作業項目 コード",
+      "description": "作成された UPSの 中で 予定された 作業項目 コード シーケンスの (CV, CSD, \"CM\") 形式で アイテム (0040,4018)。",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "予定された ステーション名 コード",
+      "description": "作成された UPSの 中で 予定された ステーション名 コード シーケンスの (CV, CSD, \"CM\") 形式で アイテム (0040,4025)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "予定された ステーション クラス コード",
+      "description": "作成された UPSの 中で 予定された ステーション クラス コード シーケンスの (CV, CSD, \"CM\") 形式で アイテム (0040,4026)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "予定された ステーション 地理的 ロケーション コード",
+      "description": "作成された UPSの 中で 予定された ステーション 地理的 ロケーション コード シーケンスの (CV, CSD, \"CM\") 形式で アイテム (0040,4027)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerCode": {
+      "title": "予定された 人間の 実行者 コード",
+      "description": "作成された UPSの 中で 予定された 人間の 実行者の シーケンスの（0040,4034）アイテムに おける 人間の 実行者 コードの (CV, CSD, \"CM\") 形式で 値（0040,4009）。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerName": {
+      "title": "予定された 人間の 実行者名",
+      "description": "作成された UPSの 中で 予定された 人間の 実行者の シーケンスの（0040,4034）アイテムに おける 人間の 実行者名の 値（0040,4037）。{<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmUPSScheduledHumanPerformerOrganization": {
+      "title": "予定された 人間の 実行者の 組織",
+      "description": "作成された UPSの 中で 予定された 人間の 実行者の シーケンスの（0040,4034）アイテムに おける 人間の 実行者の 組織の 値（0040,4036）。{<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmUPSIncludeStudyInstanceUID": {
+      "title": "検査 インスタンス UIDを 含める",
+      "description": "作成された UPSの 中で 受信した オブジェクトの 検査 インスタンス UIDを（0020,000D) 含めるか どうかを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUPSIncludeReferencedRequest": {
+      "title": "参照された 要求を 含める",
+      "description": "作成された UPSの 中で, 参照 要求 シーケンス (0040,A370) アイテムの 中で, 受信した オブジェクトの 検査 インスタンス UID (0020,000D) と アクセッション 番号 (0008,0050) と 要求 手順 ID (0040,1001) と 要求された サービス (0032,1033) が 含まれるか どうかを 示します。 それ 以外の 場合は、空の 参照 要求 シーケンス（0040、A370）が 含まれます。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStudyInstanceUID": {
+      "title": "検査 インスタンス UID",
+      "description": "作成された UPSの 中で, 参照  要求 シーケンス（0040、A370）の アイテムの中で, 検査 インスタンス UID（0020,000D）の 値。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmAdmissionID": {
+      "title": "アドミッション 番号",
+      "description": "作成された UPSの 中で アドミッション 番号 (0038,0010) の 値。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dicomIssuerOfAdmissionID": {
+      "title": "アドミッション 番号の 発行者",
+      "description": "作成された UPSの 中で 「アドミッション 番号の 発行者 シーケンス (0038,0014)」アイテムの  中で「ローカル 名前空間 エンティティ ID (0040,0031)」、「ユニバーサル エンティティ ID (0040,0032)」と 「ユニバーサル エンティティ ID タイプ (0040,0033)」の 値。 形式: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
+      "type": "string"
+    },
+    "dcmAccessionNumber": {
+      "title": "アクセッション 番号",
+      "description": "作成された UPSの 中で, 参照 要求 シーケンス (0040,A370) アイテムの 中で  アクセッション 番号 (0008,0050) の 値。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dicomIssuerOfAccessionNumber": {
+      "title": "アクセッション 番号の 発行者",
+      "description": "作成された UPSの 中で, 参照 要求 シーケンス (0040,A370) の 中で アクセッション 番号 発行者 シーケンス (0008,0051) アイテムの 中で, ローカル 名前空間 エンティティ ID（0040,0031）、ユニバーサル エンティティ ID（0040,0032）と ユニバーサル エンティティ ID タイプ（0040,0033) の 値。 形式: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
+      "type": "string"
+    },
+    "dcmRequestedProcedureID": {
+      "title": "要求 手順 ID",
+      "description": "作成された UPSの 中で, 参照  要求 シーケンス（0040、A370）の アイテムの中で, 要求 手順 ID（0040,1001）の 値。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmRequestedProcedureDescription": {
+      "title": "要求された 手順の 説明",
+      "description": "作成された UPSの 中で, 参照  要求 シーケンス（0040、A370）の アイテムの中で, 要求 手順の 説明（0032,1060）の 値。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmRequestingPhysician": {
+      "title": "要求 医師",
+      "description": "作成された UPSの 中で, 参照  要求 シーケンス（0040、A370）の アイテムの中で, 要求 医師の（0032,1032）の 値。 {<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmRequestingService": {
+      "title": "要求された サービス",
+      "description": "作成された UPSの 中で 参照された 要求 シーケンスの（0040、A370）アイテムの 要求 サービスの（0032,1033）値。{<SEG>-<Seq#>[.<Comp#>[.<SubComp#>]]}は、受信した HL7 メッセージの その フィールドの 値に 置き換えられます。 例 : MSH-9 または ORC-1[.1] または ORC-10[.2[.1]] 。",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "XSL スタイルシート URI",
+      "description": "作成した UPSに 属性を 含めるために 受信した HL7 メッセージを トランスコード する XSL スタイルシートの URIを 指定します。",
+      "type": "string",
+      "default": "${jboss.server.temp.url}/dcm4chee-arc/hl7-order2ups.xsl"
+    }
+  }
+}

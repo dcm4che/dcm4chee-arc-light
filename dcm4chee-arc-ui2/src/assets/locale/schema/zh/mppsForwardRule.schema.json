@@ -1,0 +1,40 @@
+{
+  "title": "MPPS Forward Rule",
+  "description": "MPPS 转发规则",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmFwdMppsDestination"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "MPPS 转发规则的任意的/有意义的名字",
+      "type": "string"
+    },
+    "dcmFwdMppsDestination": {
+      "title": "MPPS Forward Destination",
+      "description": "转发MPPS N-CREATE RQ and N-SET目标",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
+    },
+    "dcmProperty": {
+      "title": "Attribute Conditions",
+      "description": "格式为(SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}的属性条件. 使用'|'分隔符来为给定的属性指定多个值。例如: SendingApplicationEntityTitle=FORWARD 或 Modality=MR|CT 或 ProcedureCodeSequence.CodeValue=MRProcedure 或 00180015=KNEE 或 00321034.00080100=RequestingServiceCode 或 ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSchedule": {
+      "title": "Time Conditions",
+      "description": "只能在指定的时间段内应用该规则。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    }
+  }
+}

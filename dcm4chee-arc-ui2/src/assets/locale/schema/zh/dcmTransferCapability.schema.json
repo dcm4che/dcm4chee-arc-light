@@ -1,0 +1,78 @@
+{
+  "title": "传输扩展",
+  "description": "dcm4che专有的传输能力属性",
+  "type": "object",
+  "required": [
+    "dcmRelationalQueries",
+    "dcmCombinedDateTimeMatching",
+    "dcmFuzzySemanticMatching",
+    "dcmTimezoneQueryAdjustment"
+  ],
+  "properties": {
+    "dcmPreferredTransferSyntax": {
+      "title": "PreferredTransferSyntax",
+      "description": "用于在按优先级订购的呈现上下文中选择传输语法的优选的传输语法。覆盖在AE层指定的值。 ",
+      "type": "array",
+      "format": "dcmTransferSyntax",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmRelationalQueries": {
+      "title": "关系查询",
+      "description": "启用/禁用关系查询。 ",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmCombinedDateTimeMatching": {
+      "title": "组合日期和时间匹配",
+      "description": "启用/禁用日期和时间的组合匹配。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmFuzzySemanticMatching": {
+      "title": "模糊语义匹配",
+      "description": "启用/禁用个人姓名的模糊语义匹配。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmTimezoneQueryAdjustment": {
+      "title": "时区查询调整",
+      "description": "启用/禁用时区查询调整",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageConformance": {
+      "title": "存储兼容性",
+      "description": "指示存储SCP的兼容性级别",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dcmDigitalSignatureSupport": {
+      "title": "数字签名支持",
+      "description": "指示存储SCP的数字签名支持级别",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dcmDataElementCoercion": {
+      "title": "强制数据元素",
+      "description": "指示强制存储SCP的数据元素",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2
+      ]
+    }
+  }
+}

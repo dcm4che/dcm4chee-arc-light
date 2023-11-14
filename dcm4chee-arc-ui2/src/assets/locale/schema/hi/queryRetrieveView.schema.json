@@ -1,0 +1,43 @@
+{
+  "title": "प्राप्ति व्यू",
+  "description": "अस्वीकृति नोट सहेजने पे बर्ताव निर्दिष्ट करता है ।",
+  "type": "object",
+  "required": [
+    "dcmQueryRetrieveViewID",
+    "dcmHideNotRejectedInstances"
+  ],
+  "properties": {
+    "dcmQueryRetrieveViewID": {
+      "title": "प्राप्ति व्यू ID",
+      "description": "प्राप्ति व्यूव का पहचानकर्ता ।",
+      "type": "string",
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmQueryRetrieveViewID"
+      ]
+    },
+    "dcmShowInstancesRejectedByCode": {
+      "title": "कोड से मिटाए गए दृष्टांतों को दिखाए",
+      "description": "निर्दिष्ट अस्वीकृति कोड से मिटाए हुए दृष्टांतों को प्राप्ति सेवाओं द्वारा दिखाने का संकेत करता है इस प्रारूप में (CV, CSD, 'CM') ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmRejectionNoteCode"
+    },
+    "dcmHideRejectionNoteWithCode": {
+      "title": "कोड से मिटाए गए दृष्टांतों को छिपाए",
+      "description": "निर्दिष्ट अस्वीकृति कोड से सहेजे गए अस्वीकृति नोटों को प्राप्ति सेवाओं द्वारा छिपाने का संकेत करता है इस प्रारूप में (CV, CSD, 'CM') ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmRejectionNoteCode"
+    },
+    "dcmHideNotRejectedInstances": {
+      "title": "न मिटाए गए दृष्टांतों को छिपाए",
+      "description": "किसी कारण के बिना न मिटाए हुए दृष्टांतों को प्राप्ति सेवाओं द्वारा छिपाने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

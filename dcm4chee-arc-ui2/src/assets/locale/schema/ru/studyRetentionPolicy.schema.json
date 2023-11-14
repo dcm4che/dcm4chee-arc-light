@@ -1,0 +1,72 @@
+{
+  "title": "Study Retention Policy",
+  "description": "Study Retention Policy",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmRetentionPeriod",
+    "dcmRulePriority",
+    "dcmExpireSeriesIndividually",
+    "dcmStartRetentionPeriodOnStudyDate",
+    "dcmFreezeExpirationDate",
+    "dcmRevokeExpiration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Study Retention Policy",
+      "type": "string"
+    },
+    "dcmRetentionPeriod": {
+      "title": "Study Retention Period",
+      "description": "Study Retention Period in ISO-8601 period format PnYnMnD or PnW",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmRulePriority": {
+      "title": "Rule Priority",
+      "description": "Rule Priority.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "Conditions",
+      "description": "Conditions in format (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}. More than one value can be specified for a given attribute by separating them with a | symbol. Examples: SendingApplicationEntityTitle=FORWARD or Modality=MR|CT or ProcedureCodeSequence.CodeValue=MRProcedure or 00180015=KNEE or 00321034.00080100=RequestingServiceCode or ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmExpireSeriesIndividually": {
+      "title": "Expire Series Individually",
+      "description": "Indicates if series should be expired individually or not.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStartRetentionPeriodOnStudyDate": {
+      "title": "Start Retention Period on Study Date",
+      "description": "Indicates if retention period should be started on Study Date instead on receive of an object of the Study",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmExporterID": {
+      "title": "Export expired Study",
+      "description": "Export expired Study/Series using the specified Exporter",
+      "type": "string",
+      "format": "dcmExporterID"
+    },
+    "dcmFreezeExpirationDate": {
+      "title": "Freeze Expiration Date",
+      "description": "Indicate to disable changes of the Expiration Date by following events.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRevokeExpiration": {
+      "title": "Revoke Expiration Date",
+      "description": "Indicate to revoke a previous set Expiration Date.",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "title": "XDS Template",
+  "description": "XDS Template",
+  "type": "object",
+  "required": [
+    "xdsAdTemplateName",
+    "xdsAdTemplateDisplayName",
+    "xdsAdTemplateClassCode",
+    "xdsAdTemplateConfidentialityCode",
+    "xdsAdTemplateContentTypeCode",
+    "xdsAdTemplateDescription",
+    "xdsAdTemplateHealthCareFacilityTypeCode",
+    "xdsAdTemplateLanguageCode",
+    "xdsAdTemplatePracticeSettingCode",
+    "xdsAdTemplateTypeCode",
+    "xdsAdTemplateFormatCode"
+  ],
+  "properties": {
+    "xdsAdTemplateName": {
+      "title": "Template Name",
+      "description": "Template Name",
+      "type": "string"
+    },
+    "xdsAdTemplateDisplayName": {
+      "title": "Template Display Name",
+      "description": "Template Display Name",
+      "type": "string"
+    },
+    "xdsAdTemplateClassCode": {
+      "title": "Class Code",
+      "description": "Class Code in JSON format { \"code\" :\"code\", \"displayName\": \"Display Name\", \"schemeName\": \"Schema\"} - f.e. { \"code\" :\"57016-8\", \"displayName\": \"Privacy Policy Acknowledgement\",\"schemeName\": \"2.16.840.1.113883.6.1\"}",
+      "type": "string"
+    },
+    "xdsAdTemplateConfidentialityCode": {
+      "title": "Confidentiality Code",
+      "description": "Confidentiality Code in JSON format { \"code\" :\"code\", \"displayName\": \"Display Name\", \"schemeName\": \"Schema\"} - f.e. { \"code\" :\"N\", \"displayName\": \"Normal\",\"schemeName\": \"2.16.840.1.113883.5.25\"}",
+      "type": "string"
+    },
+    "xdsAdTemplateContentTypeCode": {
+      "title": "Content Type Code",
+      "description": "Content Type Code in JSON format { \"code\" :\"code\", \"displayName\": \"Display Name\", \"schemeName\": \"Schema\"} - f.e. { \"code\" :\"34746-8\", \"displayName\": \"Nursing Evaluation and Management Note\",\"schemeName\": \"2.16.840.1.113883.6.1\"}",
+      "type": "string"
+    },
+    "xdsAdTemplateDescription": {
+      "title": "Description",
+      "description": "Description",
+      "type": "string"
+    },
+      "xdsAdTemplateFormatCode": {
+      "title": "Format Code",
+      "description": "Format Code in JSON format { \"code\" :\"code\", \"displayName\": \"Display Name\", \"schemeName\": \"Schema\"} - f.e. { \"code\" :\"urn:ihe:pcc:xphr:2007\", \"displayName\": \"Exchange of Personal Health Records\",\"schemeName\": \"1.3.6.1.4.1.19376.1.2.3\"}",
+      "type": "string"
+    },
+    "xdsAdTemplateHealthCareFacilityTypeCode": {
+      "title": "Health Care Facility Type Code",
+      "description": "Health Care Facility Type Code in JSON format { \"code\" :\"code\", \"displayName\": \"Display Name\", \"schemeName\": \"Schema\"} - f.e. { \"code\" :\"HOS\", \"displayName\": \"Hospital\",\"schemeName\": \"2.16.840.1.113883.5.10588\"}",
+      "type": "string"
+    },
+       "xdsAdTemplateLanguageCode": {
+      "title": "Language Code",
+      "description": "Language Code (f.e. en-US)",
+      "type": "string"
+    },
+    "xdsAdTemplatePracticeSettingCode": {
+      "title": "Practice Setting Code",
+      "description": "Practice Setting Code in JSON format { \"code\" :\"code\", \"displayName\": \"Display Name\", \"schemeName\": \"Schema\"} - f.e. { \"code\" :\"45899008\", \"displayName\": \"Free-standing laboratory facility\",\"schemeName\": \"2.16.840.1.113883.6.96\"}",
+      "type": "string"
+    },
+    "xdsAdTemplateTypeCode": {
+      "title": "Type Code",
+      "description": "Type Code in JSON format { \"code\" :\"code\", \"displayName\": \"Display Name\", \"schemeName\": \"Schema\"} - f.e. { \"code\" :\"9611000146101\", \"displayName\": \"Video and audio (record artifact)\",\"schemeName\": \"2.16.840.1.113883.6.96\"}",
+      "type": "string"
+    }
+  }
+}

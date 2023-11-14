@@ -1,0 +1,43 @@
+{
+  "title": "バルク データ 記述子",
+  "description": "バルク データ 記述子",
+  "type": "object",
+  "required": [
+    "dcmBulkDataDescriptorID",
+    "dcmBulkDataExcludeDefaults"
+  ],
+  "properties": {
+    "dcmBulkDataDescriptorID": {
+      "title": "バルク データ 記述子 ID",
+      "description": "バルク データ 記述子 ID",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmBulkDataDescriptorID"
+      ]
+    },
+    "dcmBulkDataExcludeDefaults": {
+      "title": "デフォルトを 除外",
+      "description": "「バルク データ サービス クラスなしの コンポジット インスタンス 読み出し」で 指定された 属性を 暗黙的に バルク データとして 処理 する バルク データ (=false) か、 そうでない (=true)かを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAttributeSelector": {
+      "title": "属性 セレクター",
+      "description": "XPathに よって バルク データとして 扱われる 個々の 属性を 指定します (例 'DicomAttribute[@tag=\"54000100\"]/Item/DicomAttribute[@tag=\"54001010\"]' )。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAttributeSelector"
+    },
+    "dcmBulkDataVRLengthThreshold": {
+      "title": "VR 長さ 敷居値",
+      "description": "特定の 値 表現（VR）を 持つ すべての 属性を、 値の 長さが 指定された 敷居値を 超える すべての 属性を バルク データとして 扱う ことを 指定します。 形式: <VR>=<length-threshold>.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmBulkDataVRLengthThreshold"
+    }
+  }
+}

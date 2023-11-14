@@ -1,0 +1,57 @@
+{
+  "title": "ウェブ アプリケーション ドロップダウン リスト",
+  "description": "ウェブ アプリケーション ドロップダウン リスト",
+  "type": "object",
+  "required": [
+    "dcmuiWebAppListName",
+    "dcmuiWebApps",
+    "dcmuiMode"
+  ],
+  "properties": {
+    "dcmuiWebAppListName": {
+      "title": "リストの 名前",
+      "description": "この 構成の 名前を 定義",
+      "type": "string"
+    },
+    "dcmuiWebAppListDescription": {
+      "title": "説明",
+      "description": "ウェブ アプリケーション リストの 説明",
+      "type": "string"
+    },
+    "dcmuiMode": {
+      "title": "リスト モード",
+      "description": "定義された リストを 表示 する 方法が 二つ あります: 1.) 残りの リストの 上に、行で 区切られて います。 2.) 定義されて いる もののみを 表示 します。('専用').",
+      "type": "string",
+      "default":"separated",
+      "enum": [
+        "separated",
+        "exclusive"
+      ]
+    },
+    "dcmuiWebApps": {
+      "title": "ウェブ アプリケーション",
+      "description": "ウェブ アプリケーション",
+      "format": "webApp",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "承認された ユーザーの 役割",
+      "description": "この 構成を 使用 できる 役割を 定義し、すべての 役割で 使用できるように 'ユーザー' を 使用 します。('ユーザー名' (次の属性) または 'ユーザーの 役割' (この属性) を 定義 する 必要が あります。)",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserName": {
+      "title": "承認された ユーザー名",
+      "description": "この 構成を 使用 できる ユーザー名を 定義します。 ('ユーザー名' (この属性) または 'ユーザーの 役割' (以前の属性) を 定義 する 必要が あります。)",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

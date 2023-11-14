@@ -1,0 +1,67 @@
+{
+  "title": "गुण सेट",
+  "description": "QIDO-RS और WADO-RS मेटाडेटा के अनुरोध के 'includefields' प्राप्ति मापदण्ड और DIFF-RS अनुरोध के 'comparefield' प्राप्ति मापदण्ड का नांमाकित गुण सेट ।",
+  "type": "object",
+  "required": [
+    "dcmAttributeSetType",
+    "dcmAttributeSetID",
+    "dcmTag",
+    "dicomInstalled"
+  ],
+  "properties": {
+    "dicomDescription": {
+      "title": "गुण सेट का वर्णन",
+      "description": "गुण सेट का का स्वैछिक विषय वर्णन ।",
+      "type": "string"
+    },
+    "dcmAttributeSetType": {
+      "title": "गुण प्रकार",
+      "description": "QIDO-RS और WADO-RS मेटाडेटा के अनुरोध के 'includefields' प्राप्ति मापदण्ड और DIFF-RS अनुरोध के 'comparefield' प्राप्ति मापदण्ड के द्वारा यह गुण सेट इस्तमाल होगा यह निर्दिष्ट करता है ।",
+      "type": "string",
+      "enum": [
+        "QIDO_RS",
+        "WADO_RS",
+        "DIFF_RS",
+        "LEADING_CFIND_SCP"
+      ]
+    },
+    "dcmAttributeSetID": {
+      "title": "गुण सेट ID",
+      "description": "QIDO-RS और WADO-RS मेटाडेटा के अनुरोध के 'includefields' प्राप्ति मापदण्ड और DIFF-RS अनुरोध के 'comparefield' प्राप्ति मापदण्ड के द्वारा इस्तमाल की गई इस गुण सेट का पहचानकर्ता ।",
+      "type": "string"
+    },
+    "dcmAttributeSetTitle": {
+      "title": "गुण सेट का नाम",
+      "description": "इस गुण सेट का नाम ।",
+      "type": "string"
+    },
+    "dcmAttributeSetNumber": {
+      "title": "गुण सेट संख्या",
+      "description": "गुण सेट्स को ऑर्डर करने की संख्या ।",
+      "type": "integer"
+    },
+    "dicomInstalled": {
+      "title": "स्थापित",
+      "description": "यह गुण सेट इस समय आर्काइव डिवाइस पे स्थापित है या नहीं संकेत करनेवाला बूलियन ।",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmTag": {
+      "title": "गुण टैग",
+      "description": "हेक्स स्ट्रिंग के रूप में DICOM टैग ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    },
+    "dcmProperty": {
+      "title": "गुण",
+      "description": "गुण इस प्रारूप में <नाम>=<मूल्य> ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

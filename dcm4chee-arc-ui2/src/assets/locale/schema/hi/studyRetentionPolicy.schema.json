@@ -1,0 +1,72 @@
+{
+  "title": "स्टडी धारण नीति",
+  "description": "स्टडी धारण नीति ।",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmRetentionPeriod",
+    "dcmRulePriority",
+    "dcmExpireSeriesIndividually",
+    "dcmStartRetentionPeriodOnStudyDate",
+    "dcmFreezeExpirationDate",
+    "dcmRevokeExpiration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाम",
+      "description": "स्टडी धारण नीति का मनमाना/सार्थक नाम ।",
+      "type": "string"
+    },
+    "dcmRetentionPeriod": {
+      "title": "स्टडी धारण कालावधि",
+      "description": "ISO-8601 कालावधि प्रारूप PnYnMnD या PnW में स्टडी धारण कालावधि ।",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmRulePriority": {
+      "title": "नियम प्राथमिकता",
+      "description": "नियम प्राथमिकता ।",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "नियम",
+      "description": "नियम इस प्रारूप में (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx} । किसी दिए गए विशेषता के लिए एक से अधिक मूल्य निर्दिष्ट करने के लिए उन्हें | प्रतीक के सहारे अलग किया जा सकता है । उदाहरण के तौर पे : SendingApplicationEntityTitle=FORWARD या Modality=MR|CT या ProcedureCodeSequence.CodeValue=MRProcedure या 00180015=KNEE या 00321034.00080100=RequestingServiceCode या ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmExpireSeriesIndividually": {
+      "title": "प्रत्येक सीरीज समाप्त करें",
+      "description": "प्रत्येक सीरीज समाप्त करें या नहीं यह संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStartRetentionPeriodOnStudyDate": {
+      "title": "धारण कालावधि को स्टडी के तारीख से आरंभ करें",
+      "description": "धारण कालावधि को स्टडी के दृष्टांतों के आर्काइव में पाए जाने के तारीख के बजाय स्टडी के तारीख से आरंभ करने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmExporterID": {
+      "title": "समाप्ति तारीख से बीते हुए स्टडीज निर्यात करें",
+      "description": "निर्दिष्ट किए हुए निर्यातक द्वारा समाप्ति तारीख से बीते हुए स्टडीज / सीरीज निर्यात करें ।",
+      "type": "string",
+      "format": "dcmExporterID"
+    },
+    "dcmFreezeExpirationDate": {
+      "title": "समाप्ति तारीख को स्थिर रखे",
+      "description": "निम्नलिखित घटनाओं द्वारा समाप्ति तारीख में बदलाव असक्षम करने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRevokeExpiration": {
+      "title": "समाप्ति तारीख को अभिशून्य करें",
+      "description": "पहले सेट किए हुए समाप्ति तारीख को अभिशून्य करने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "title": "Client Keycloak",
+  "description": "Client Keycloak",
+  "type": "object",
+  "required": [
+    "dcmKeycloakClientID",
+    "dcmURI",
+    "dcmKeycloakRealm",
+    "dcmKeycloakGrantType",
+    "dcmTLSAllowAnyHostname",
+    "dcmTLSDisableTrustManager"
+  ],
+  "properties": {
+    "dcmKeycloakClientID": {
+      "title": "ID client Keycloak",
+      "description": "ID client utilizzato nelle richieste di token.",
+      "type": "string",
+      "use": [
+        "$.dcmWebApp[*].dcmKeycloakClientID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmUserIdentityNegotiationKeycloakClientID",
+        "$.dcmDevice.dcmArchiveDevice.dcmUserIdentityNegotiationKeycloakClientID"
+      ]
+    },
+    "dcmURI": {
+      "title": "Url del server",
+      "description": "L'URL di base del server Keycloak.",
+      "type": "string"
+    },
+    "dcmKeycloakRealm": {
+      "title": "Keycloak Realm",
+      "description": "Nome del realm nelle richieste di token.",
+      "type": "string"
+    },
+    "dcmKeycloakGrantType": {
+      "title": "Tipo di concessione di Keycloak",
+      "description": "Tipo di concessione Keycloak utilizzato nelle richieste di token.",
+      "type": "string",
+      "enum": [
+        "client_credentials",
+        "password"
+      ],
+      "default": "client_credentials"
+    },
+    "dcmKeycloakClientSecret": {
+      "title": "Segreto del client Keycloak ",
+      "description": "Segreto del client Keycloak. Obbligatorio se tipo di concessione = client_credentials.",
+      "type": "string"
+    },
+    "dcmTLSAllowAnyHostname": {
+      "title": "TLS Consente qualsiasi nome host",
+      "description": "Se l'altro server richiede HTTPS e questa opzione di configurazione è impostata su true, il certificato dell'altro server viene convalidato tramite il truststore, ma la convalida del nome host non viene eseguita.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmTLSDisableTrustManager": {
+      "title": "TLS Disabilita Trust Manager",
+      "description": "Se l'altro server richiede HTTPS e questa opzione di configurazione è impostata su true, non è necessario specificare un truststore",
+      "type": "boolean",
+      "default": false
+    },
+    "uid":  {
+      "title": "User ID",
+      "description": "User ID. Required if grant type = password.",
+      "type": "string"
+    },
+    "userPassword":  {
+      "title": "User Password",
+      "description": "User Password. Required if grant type = password.",
+      "type": "string"
+    }
+  }
+}

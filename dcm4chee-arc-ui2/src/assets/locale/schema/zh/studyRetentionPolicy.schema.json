@@ -1,0 +1,72 @@
+{
+  "title": "检查保留策略",
+  "description": "检查保留策略",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmRetentionPeriod",
+    "dcmRulePriority",
+    "dcmExpireSeriesIndividually",
+    "dcmStartRetentionPeriodOnStudyDate",
+    "dcmFreezeExpirationDate",
+    "dcmRevokeExpiration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名称",
+      "description": "检查保留策略的任意/有意义名称",
+      "type": "string"
+    },
+    "dcmRetentionPeriod": {
+      "title": "检验保留期",
+      "description": "ISO-8601周期PnYnMnD或PnW格式的检验保留期",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmRulePriority": {
+      "title": "规则优先级",
+      "description": "规则优先级",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "(SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}格式的条件。 通过用“|”符号分隔,可以为特定属性指定多个值。例如:SendingApplicationEntityTitle=FORWARD 或 Modality=MR|CT 或 ProcedureCodeSequence.CodeValue=MRProcedure 或 00180015=KNEE 或 00321034.00080100=RequestingServiceCode 或 ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmExpireSeriesIndividually": {
+      "title": "使系列单独过期",
+      "description": "指示是否使系列单独过期。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStartRetentionPeriodOnStudyDate": {
+      "title": "在检验日期启动保留期",
+      "description": "指示是否在检验日期启动保留期,而不是在接收到检验对象时启动保留期",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmExporterID": {
+      "title": "导出过期检查",
+      "description": "使用指定的暴露符导出过期检查/系列",
+      "type": "string",
+      "format": "dcmExporterID"
+    },
+    "dcmFreezeExpirationDate": {
+      "title": "冻结过期日期",
+      "description": "指示通过以下事件使过期日期更改无效",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRevokeExpiration": {
+      "title": "取消过期日期",
+      "description": "指示取消先前设置的过期日期。",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

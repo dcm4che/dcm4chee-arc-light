@@ -1,0 +1,33 @@
+{
+  "title": "URL della interfaccia utente del dispositivo",
+  "description": "Configurazione dell'URL del dispositivo da utilizzare accanto all'URL dell'interfaccia utente principale",
+  "type": "object",
+  "required": [
+    "dcmuiDeviceURLName",
+    "dcmuiDeviceURL",
+    "dcmuiDeviceURLInstalled"
+  ],
+  "properties": {
+    "dcmuiDeviceURLName": {
+      "title": "Nome URL dispositivo",
+      "description": "Nome URL per il dispositivo configurato",
+      "type": "string"
+    },
+    "dcmuiDeviceURL": {
+      "title": "URL del dispositivo",
+      "description": "URL di accesso del dispositivo. E.g. http(s)://<myDevice-host>:<myDevice-port> ",
+      "type": "string"
+    },
+    "dcmuiDeviceURLDescription": {
+      "title": "Descrizione",
+      "description": "Descrizione dell'URL del dispositivo",
+      "type": "string"
+    },
+    "dcmuiDeviceURLInstalled": {
+      "title": "Installato",
+      "description": "Utilizza questo URL nell'interfaccia utente",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

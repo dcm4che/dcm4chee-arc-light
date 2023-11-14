@@ -1,0 +1,78 @@
+{
+  "title": "हस्तांतरण क्षमता विस्तार",
+  "description": "DCM4CHE मालकीचे हस्तांतरण क्षमतांचे विशेषता.",
+  "type": "object",
+  "required": [
+    "dcmRelationalQueries",
+    "dcmCombinedDateTimeMatching",
+    "dcmFuzzySemanticMatching",
+    "dcmTimezoneQueryAdjustment"
+  ],
+  "properties": {
+    "dcmPreferredTransferSyntax": {
+      "title": "प्राधान्यीकृत हस्तांतरण वाक्यरचना",
+      "description": "प्रेझेंटेशन कॉन्टॅक्टमध्ये हस्तांतरण वाक्यरचना निवडण्यासाठी प्राधान्यीकृत हस्तांतरण वाक्यरचना, प्राधान्यानुसार क्रमानुरूप केले जाईल. AE स्तरावर निर्दिष्ट केलेले मूल्य अधिलिखित होतील.",
+      "type": "array",
+      "format": "dcmTransferSyntax",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmRelationalQueries": {
+      "title": "संबंधित चौकश्या",
+      "description": "संबंधित चौकश्या सक्षम / अक्षम करा.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmCombinedDateTimeMatching": {
+      "title": "एकत्रित तारीख वेळ जुळणी",
+      "description": "एकत्रित तारीख वेळ जुळणी सक्षम / अक्षम करा.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmFuzzySemanticMatching": {
+      "title": "अस्पष्ट अर्थपूर्ण जुळणी",
+      "description": "व्यक्तींच्या नावांचे अस्पष्ट अर्थपूर्ण जुळणी सक्षम / अक्षम करा.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmTimezoneQueryAdjustment": {
+      "title": "टाइमझोन प्राप्त करण्याचे समायोजन",
+      "description": "टाइमझोन प्राप्त करण्याचे समायोजन सक्षम / अक्षम करा.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageConformance": {
+      "title": "साठवण कन्फॉर्मन्स",
+      "description": "साठवण SCP ची पातळी दर्शवते.",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dcmDigitalSignatureSupport": {
+      "title": "डिजिटल स्वाक्षरी समर्थन",
+      "description": "साठवण SCP च्या डिजिटल स्वाक्षरी समर्थनाची पातळी दर्शवितो.",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dcmDataElementCoercion": {
+      "title": "डेटा घटक सक्ती",
+      "description": "साठवण SCP च्या डेटा घटकांची सक्ती दर्शवते.",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2
+      ]
+    }
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "title": "監査 ロガー",
+  "description": "監査 ロガー 関連 情報",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomNetworkConnectionReference",
+    "dcmAuditRecordRepositoryDeviceName",
+    "dcmAuditFacility",
+    "dcmAuditSuccessSeverity",
+    "dcmAuditMinorFailureSeverity",
+    "dcmAuditSeriousFailureSeverity",
+    "dcmAuditMajorFailureSeverity",
+    "dcmAuditMessageID",
+    "dcmAuditMessageEncoding",
+    "dcmAuditMessageSchemaURI",
+    "dcmAuditMessageBOM",
+    "dcmAuditTimestampInUTC",
+    "dcmAuditMessageFormatXML",
+    "dcmAuditIncludeInstanceUID"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名前",
+      "description": "監査 ロガー オブジェクトの 任意 / 意味の ある 名前",
+      "type": "string"
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "ネットワーク 接続 リファレンス",
+      "description": "この 監査 ロガーに よって 使用される ネットワーク 接続 オブジェクトへの JSON ポインター",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditRecordRepositoryDeviceName": {
+      "title": "監査 レコード リポジトリの デバイス名",
+      "description": "監査 メッセージの 送信先の 監査 レコード リポジトリの デバイス名",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmAuditSourceID": {
+      "title": "ソース ID",
+      "description": "RFC 3881 監査 ソース ID; 存在しない 場合は デバイス名",
+      "type": "string"
+    },
+    "dcmAuditEnterpriseSiteID": {
+      "title": "エンタープライズ サイト ID",
+      "description": "RFC 3881 監査 エンタープライズ サイト ID; 「dicomInstitutionName」の 値は DICOM デバイスの 機関名に 置き換えられます",
+      "type": "string"
+    },
+    "dcmAuditSourceTypeCode": {
+      "title": "ソース タイプ コード",
+      "description": "RFC 3881 監査 ソース タイプ コード; 「dicomPrimaryDeviceType」の 値は DICOM デバイスの プライマリ タイプに 置き換えられます",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditFacility": {
+      "title": "シスログ 施設",
+      "description": "監査 メッセージの RFC 5424 シスログ 施設の 文字列値。",
+      "type": "string",
+      "default": "authpriv",
+      "enum": [
+        "kern",
+        "user",
+        "mail",
+        "daemon",
+        "auth",
+        "syslog",
+        "lpr",
+        "news",
+        "uucp",
+        "cron",
+        "authpriv",
+        "ftp",
+        "ntp",
+        "audit",
+        "console",
+        "cron2",
+        "local0",
+        "local1",
+        "local2",
+        "local3",
+        "local4",
+        "local5",
+        "local6",
+        "local7"
+      ]
+    },
+    "dcmAuditSuccessSeverity": {
+      "title": "シスログ 厳しさ - 成功",
+      "description": "RFC 5424 イベント 結果 指標 0（成功）の 監査 メッセージの シスログ 厳しさ 文字列値。",
+      "type": "string",
+      "default": "notice",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditMinorFailureSeverity": {
+      "title": "シスログ 厳しさ - 軽微な 失敗",
+      "description": "RFC 5424 イベント 結果 指標 4 (軽微な 失敗) の 監査 メッセージの シスログ 厳しさ 文字列値。",
+      "type": "string",
+      "default": "warning",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditSeriousFailureSeverity": {
+      "title": "シスログ 厳しさ - 重大な 失敗",
+      "description": "RFC 5424 イベント 結果 指標 8 (重大な 失敗) の 監査 メッセージの シスログ 厳しさ 文字列値。",
+      "type": "string",
+      "default": "err",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditMajorFailureSeverity": {
+      "title": "シスログ 厳しさ - 主要な 失敗",
+      "description": "RFC 5424 イベント 結果 指標 12 (主要な 失敗) の 監査 メッセージの シスログ 厳しさ 文字列値。",
+      "type": "string",
+      "default": "crit",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditApplicationName": {
+      "title": "シスログ アプリケーション名",
+      "description": "監査 メッセージの RFC 5424 シスログ アプリケーション名。 存在しない 場合は 監査 ソース ID。",
+      "type": "string"
+    },
+    "dcmAuditMessageID": {
+      "title": "シスログ メッセージ ID",
+      "description": "監査 メッセージの RFC 5424 シスログ メッセージ ID。",
+      "type": "string",
+      "default": "IHE+RFC-3881"
+    },
+    "dcmAuditMessageEncoding": {
+      "title": "メッセージ エンコーディング",
+      "description": "監査 メッセージの RFC 5424 シスログ メッセージ 部分の 文字 エンコーディング。",
+      "type": "string",
+      "default": "UTF-8"
+    },
+    "dcmAuditMessageBOM": {
+      "title": "メッセージ BOM",
+      "description": "監査 メッセージの RFC 5424 Syslog MSG 部分の Unicode BOM 接頭辞を 有効 / 無効に します。存在しない 場合は BOMを 含める",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmAuditTimestampInUTC": {
+      "title": "UTCで タイムスタンプ",
+      "description": "RFC5424 シスログ タイムスタンプと 監査 メッセージの イベント 日付 / 時刻が 協定世界時で 指定されて いるか どうかを 指定します。 デフォルトは、現地 時間帯に なる ことを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditMessageFormatXML": {
+      "title": "メッセージ 形式 XML",
+      "description": "XML 監査 メッセージが 改行と インデントで 形式されるか どうかを 指定します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditMessageSchemaURI": {
+      "title": "メッセージ スキーマ URI",
+      "description": "監査 メッセージで 参照される DICOM 監査 メッセージ スキーマの URI",
+      "type": "string",
+      "default": "http://www.dcm4che.org/DICOM/audit-message.rnc"
+    },
+    "dcmAuditIncludeInstanceUID": {
+      "title": "インスタンス UIDを 含める",
+      "description": "監査 ログ メッセージに 随意な インスタンス UIDを 含めるか どうかを 示します",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditLoggerSpoolDirectoryURI": {
+      "title": "スプール ディレクトリ URI",
+      "description": "レコード リポジトリに 配信できなかった メッセージを 格納 する ために 使用される スプール ディレクトリの URI。 存在しない 場合は、 システムの 一時 ディレクトリを 使用します。",
+      "type": "string"
+    },
+    "dcmAuditLoggerRetryInterval": {
+      "title": "再試行 間隔",
+      "description": "レコード リポジトリに 配信できなかった メッセージを 再送信 する ための 秒単位の 再試行 間隔。 存在しない 場合、 メッセージの 再送信を 再試行しない",
+      "type": "integer",
+      "minimum": 1
+    },
+    "dicomInstalled": {
+      "title": "インストール済み",
+      "description": "監査 ロガーが ネットワークに インストールされて いる 場合は 「真」です。 存在しない 場合、 監査 ロガーの インストール ステータスに 関する 情報は デバイスから 継承されます",
+      "type": "boolean"
+    },
+    "dcmAuditSuppressCriteria": {
+      "title": "監査 抑制 基準",
+      "description": "監査 抑制 基準",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items": {
+        "$ref": "auditSuppressCriteria.schema.json"
+      }
+    }
+  }
+}

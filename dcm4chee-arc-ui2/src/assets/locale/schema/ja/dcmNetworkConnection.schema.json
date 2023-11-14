@@ -1,0 +1,220 @@
+{
+  "title": "ネットワーク 接続 拡張",
+  "description": "ネットワーク 接続の 「dcm4che」 独自 属性",
+  "type": "object",
+  "required": [
+    "dcmProtocol",
+    "dcmTLSNeedClientAuth",
+    "dcmTLSProtocol",
+    "dcmTCPBacklog",
+    "dcmTCPCloseDelay",
+    "dcmTCPNoDelay",
+    "dcmSendPDULength",
+    "dcmReceivePDULength",
+    "dcmMaxOpsPerformed",
+    "dcmMaxOpsInvoked",
+    "dcmPackPDV",
+    "dcmRetrieveTimeoutTotal",
+    "dcmAATimeout"
+  ],
+  "properties": {
+    "dcmProtocol": {
+      "title": "プロトコル",
+      "description": "ネットワーク 接続の プロトコル。",
+      "type": "string",
+      "default": "DICOM",
+      "enum": [
+          "DICOM",
+          "HL7",
+          "HL7_MLLP2",
+          "SYSLOG_TLS",
+          "SYSLOG_UDP",
+          "HTTP"
+      ]
+    },
+    "dcmHTTPProxy": {
+      "title": "HTTP プロキシ",
+      "description": "HTTP プロキシ: [user:password@]host:port",
+      "type": "string"
+    },
+    "dcmTLSNeedClientAuth": {
+      "title": "TLSには クライアント 認証が 必要",
+      "description": "TLS クライアント 認証が 必要か どうかを 示します。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmTLSProtocol": {
+      "title": "TLS プロトコル",
+      "description": "支持されて いる TLS プロトコル。",
+      "default": ["TLSv1.2"],
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "TLSv1.3",
+          "TLSv1.2",
+          "TLSv1.1",
+          "TLSv1",
+          "SSLv3"
+        ]
+      }
+    },
+    "dcmTLSEndpointIdentificationAlgorithm": {
+      "title": "TLS Endpoint Identification Algorithm",
+      "description": "Indicates the endpoint identification or verification procedures during TLS handshaking.",
+      "type": "string",
+      "enum": [ "HTTPS", "LDAPS"]
+    },
+    "dcmTCPBacklog": {
+      "title": "TCP バックログ",
+      "description": "着信 TCP 接続の 最大 キュー長。",
+      "type": "integer",
+      "default": 50,
+      "minimum": 1
+    },
+    "dcmTCPConnectTimeout": {
+      "title": "TCP 接続 タイムアウト",
+      "description": "ミリ秒 単位の TCP 接続 タイムアウト in ms; 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmTCPCloseDelay": {
+      "title": "TCP クローズ 遅延",
+      "description": "A-ASSOCIATE-RJ, A-RELEASE-RP または A-ABORT PDUの 送信後の TCP ソケット クローズ 遅延 (ミリ秒)。",
+      "type": "integer",
+      "default": 50,
+      "minimum": 0
+    },
+    "dcmTCPSendBufferSize": {
+      "title": "TCP 送信 バッファー サイズ",
+      "description": "TCP 送信 バッファー サイズ; 存在しない 場合は システム デフォルトを 使用 する。",
+      "type": "integer",
+      "minimum": 1024
+    },
+    "dcmTCPReceiveBufferSize": {
+      "title": "TCP 受信 バッファー サイズ",
+      "description": "TCP 受信 バッファー サイズ; 存在しない 場合は システム デフォルトを 使用 する。",
+      "type": "integer",
+      "minimum": 1024
+    },
+    "dcmTCPNoDelay": {
+      "title": "TCP 遅延なし",
+      "description": "TCP_NODELAYを 有効 / 無効に します (Nagle アルゴリズムを 無効 / 有効に します)。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmBindAddress": {
+      "title": "バインド アドレス",
+      "description": "リスニング ソケットの バインド アドレス。 存在しない 場合は 接続の ホスト名を 使用 する。",
+      "type": "string"
+    },
+    "dcmClientBindAddress": {
+      "title": "クライアント バインド アドレス",
+      "description": "発信 接続の バインド アドレス。 存在しない 場合は 接続の ホスト名を 使用 する。",
+      "type": "string"
+    },
+    "dcmBlacklistedHostname": {
+      "title": "ブラックリストの ホスト名",
+      "description": "ブラックリストの DNS ホスト名",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSendPDULength": {
+      "title": "送信 PDU長",
+      "description": "送信された PDUの 最大長。",
+      "type": "integer",
+      "default": 16378,
+      "minimum": 1024
+    },
+    "dcmReceivePDULength": {
+      "title": "受信 PDU長",
+      "description": "受信した PDUの 最大長。",
+      "type": "integer",
+      "default": 16378,
+      "minimum": 1024
+    },
+    "dcmMaxOpsPerformed": {
+      "title": "実行された 最大 操作数",
+      "description": "非同期で 実行 する 操作の 最大数。 0 = 無限。",
+      "type": "integer",
+      "default": 1,
+      "minimum": 0
+    },
+    "dcmMaxOpsInvoked": {
+      "title": "呼び出された 最大 操作数",
+      "description": "非同期で 呼び出された 操作の 最大数。 0 = 無限。",
+      "type": "integer",
+      "default": 1,
+      "minimum": 0
+    },
+    "dcmPackPDV": {
+      "title": "PDVを パック",
+      "description": "コマンドと データの PDVの パッキングを 1つの P-DATA-TF PDUに 有効 / 無効に します。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmAARQTimeout": {
+      "title": "AA-RQ タイムアウト",
+      "description": "TCP 接続後の A-ASSOCIATE-RQ PDUの 受信の タイムアウト (ミリ秒); 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmAAACTimeout": {
+      "title": "AA-AC タイムアウト",
+      "description": "A-ASSOCIATE-RQ PDUの 送信後の A-ASSOCIATE-AC PDUの 受信の タイムアウト (ミリ秒); 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmARRPTimeout": {
+      "title": "AR-RP タイムアウト",
+      "description": "A-RELEASE-RQ PDUの 送信後の A-RELEASE-RP PDUの 受信の タイムアウト (ミリ秒); 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmSendTimeout": {
+      "title": "送信 タイムアウト",
+      "description": "C-STORE RQs 以外の DIMSE RQsを 送信 する ための タイムアウト (ミリ秒); 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmStoreTimeout": {
+      "title": "ストア タイムアウト",
+      "description": "C-STORE RQを 送信 する ための タイムアウト (ミリ秒); 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmResponseTimeout": {
+      "title": "応答 タイムアウト",
+      "description": "C-MOVE または C-GET RSPs 以外の 未解決の DIMSE RSPの <br>- 送信 HL7 メッセージ 応答の <br>- HTTP(S) 応答の <br>受信の タイムアウト (ミリ秒); 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveTimeout": {
+      "title": "読み出し タイムアウト",
+      "description": "未解決の C-GET または C-MOVE RSPの 受信の タイムアウト (ミリ秒); 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveTimeoutTotal": {
+      "title": "読み出し 合計 タイムアウト",
+      "description": "保留中の RSPの 受信時に 未解決の C-GET と C-MOVE RSPの 指定された タイムアウトを 持つ タイマーを、再起動 するか (=false) 、再起動しないか (=true)を 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmIdleTimeout": {
+      "title": "アイドル タイムアウト",
+      "description": "ミリ秒 単位で 指定された タイムアウト後に アイドル アソシエーションが 中止される ことを 示します。 存在しない 場合、 タイムアウトが ありません。",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmAATimeout": {
+      "title": "A-ABORT Timeout",
+      "description": "Timeout in ms for waiting for finishing sending any DIMSE before sending an A-ABORT PDU, triggered by the application or by expiration of a configured other timeout of this Connection. If the timeout expires, the TCP connection will be closed without sending the A-ABORT.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 1000
+    }
+  }
+}

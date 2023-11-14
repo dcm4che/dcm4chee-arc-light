@@ -1,0 +1,58 @@
+{
+  "title": "Filtro attributi",
+  "description": "Attributi memorizzati nel database",
+  "type": "object",
+  "required": [
+    "dcmEntity",
+    "dcmTag"
+  ],
+  "properties": {
+    "dcmEntity": {
+      "title": "Entità attributo",
+      "description": "Entità del filtro degli attributi o della regola di esportazione (\"Paziente\", \"Studio\", \"Serie\", \"Istanza\", \"MPPS\", \"MWL\").",
+      "type": "string",
+      "enum": [
+        "Patient",
+        "Study",
+        "Series",
+        "Instance",
+        "MPPS",
+        "MWL"
+      ]
+    },
+    "dcmTag": {
+      "title": "Attributo Tag ",
+      "description": "Tag DICOM come stringa esadecimale",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
+    "dcmCustomAttribute1": {
+      "title": "Attributo personalizzato 1",
+      "description": "Configurare qualsiasi attributo dall'oggetto DICOM che deve essere inserito nel database come Attributo personalizzato 1. Only applicable for Patient / Study / Series / Instance entities. Ad es. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] o per un attributo privato DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmCustomAttribute2": {
+      "title": "Attributo personalizzato 2",
+      "description": "Configurare qualsiasi attributo dall'oggetto DICOM che deve essere inserito nel database come Attributo personalizzato 2. Only applicable for Patient / Study / Series / Instance entities. Ad es. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] o per un attributo privato DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmCustomAttribute3": {
+      "title": "Attributo personalizzato 3",
+      "description": "Configurare qualsiasi attributo dall'oggetto DICOM che deve essere inserito nel database come Attributo personalizzato 3. Only applicable for Patient / Study / Series / Instance entities. Ad es. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] o per un attributo privato DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmAttributeUpdatePolicy": {
+      "title": "Criteri di aggiornamento degli attributi",
+      "description": "Specifica la politica di aggiornamento per gli attributi estratti nel DB a livello di serie, studio e paziente alla ricezione di un'ulteriore istanza dell'entità. PRESERVE (= annulla gli attributi nel nuovo dataset che non sono presenti nel dataset originale), SUPPLEMENT (= gli attributi non presenti nel dataset originale verranno integrati), REPLACE (= il dataset originale è completamente sostituito), MERGE (= i valori degli attributi saranno scritto dal nuovo set di dati), OVERWRITE (= i valori degli attributi se nulli nel nuovo set di dati, saranno annullati nel set di dati originale). Se assente, verrà applicato PRESERVE",
+      "type": "string",
+      "enum": [
+        "PRESERVE",
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE",
+        "REPLACE"
+      ]
+    }
+  }
+}

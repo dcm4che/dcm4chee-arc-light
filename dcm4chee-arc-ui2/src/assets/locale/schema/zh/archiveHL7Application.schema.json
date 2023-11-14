@@ -1,0 +1,288 @@
+{
+  "title": "档案HL7应用程序",
+  "description": "DICOM档案HL7应用程序相关信息。",
+  "type": "object",
+  "required": [
+    "dicomAETitle"
+  ],
+  "properties": {
+    "dicomAETitle": {
+      "title": "AE标题",
+      "description": "与此HL7应用程序相关联的存档AE标题。",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmRecordAttributeModification": {
+      "title": "记录属性更改",
+      "description": "是否将此HL7应用程序存储的对象的属性更改记录到原始属性序列项中。 覆盖在设备级别指定的值。",
+      "type": "boolean"
+    },
+    "dcmMWLWorklistLabel": {
+      "title": "MWL Worklist Label",
+      "description": "Value of Worklist Label (0074,1202) of created MWL items on receive of HL7 Order messages. If absent, created MWL items are not bound to a particular MWL Worklist and are provided by all Archive AEs with MWL SCP Transfer Capability.",
+      "type": "string",
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmMWLAccessionNumberGenerator": {
+      "title": "MWL Accession Number Generator",
+      "description": "Identifies ID Generator to supplement missing Accession Numbers of Scheduled Procedures Steps created on receive of HL7 Order messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmMWLRequestedProcedureIDGenerator": {
+      "title": "MWL Requested Procedure ID Generator",
+      "description": "Identifies ID Generator to supplement missing Requested Procedure IDs of Scheduled Procedures Steps created on receive of HL7 Order messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmMWLScheduledProcedureStepIDGenerator": {
+      "title": "MWL Scheduled Procedure Step ID Generator",
+      "description": "Identifies ID Generator to supplement missing Scheduled Procedure Step IDs of Scheduled Procedures Steps created on receive of HL7 Order messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmAuditHL7MsgLimit": {
+      "title": "Audit HL7 Message Limit",
+      "description": "Limit length of HL7 messages included in emitted Audit Records. Overwrites value specified on Device level.",
+      "type": "integer"
+    },
+    "hl7ORUAction": {
+      "title": "HL7 ORU动作",
+      "description": "HL7 ORU^R01指定接收消息时的动作:IMPORT_REPORT（=将接收到的HL7 ORU^R01转码为DICOM SR）,MWL_COMPLETED（=将匹配的MWL项的状态设置为COMPLETED）。 覆盖在设备级别指定的值。 ",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "IMPORT_REPORT",
+          "MWL_COMPLETED"
+        ]
+      }
+    },
+    "hl7PatientUpdateTemplateURI": {
+      "title": "HL7患者更新模板URI",
+      "description": "指定HL7v2患者更新服务使用的样式表URI。 覆盖在设备级别指定的值。",
+      "type": "string"
+    },
+    "hl7ImportReportTemplateURI": {
+      "title": "HL7导入报告模板URI",
+      "description": "指定样式表的URI,将收到的HL7 ORU^R01代码转换为DICOM SR。 覆盖在设备级别指定的值。 ",
+      "type": "string"
+    },
+    "hl7ImportReportTemplateParam": {
+      "title": "HL7导入报告模板参数",
+      "description": "XSLT传递到HL7导入报告模板URI中指定的样式表的XSLT参数。格式:{name}={value}。例如:‘langCodeValue=et’,‘langCodingSchemeDesignator=RFC5646’,‘langCodeMeaning=Estonian’。 覆盖在设备级别指定的值。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7ScheduleProcedureTemplateURI": {
+      "title": "HL7调度过程模板URI",
+      "description": "指定样式表的URI,用于将接收到的HL7 ORM^O01,OMI^O23和OMG^O19转码为DICOM MWL项。 覆盖在设备级别指定的值。 ",
+      "type": "string"
+    },
+    "hl7ScheduledProtocolCodeInOrder": {
+      "title": "HL7订单的预定协议代码",
+      "description": "指定收到的HL7订单消息的预定协议代码的位置。 覆盖在设备级别指定的值。 ",
+      "type": "string",
+      "enum": [
+        "OBR_4_1",
+        "OBR_4_4"
+      ]
+    },
+    "hl7ScheduledStationAETInOrder": {
+      "title": "HL7订单中的预定站点AET",
+      "description": "指定接收到的HL7订单消息中的预定站点AE标题的位置。 请勿配置具有IPC段的HL7 v2.5.1 OMI^O23。 覆盖在设备级别指定的值。 ",
+      "type": "string",
+      "enum": [
+        "ORC_18"
+      ]
+    },
+    "hl7LogFilePattern": {
+      "title": "HL7日志文件模式",
+      "description": "接收时捕获的HL7消息的路径。 如果不存在,则不记录。 覆盖在设备级别指定的值。 示例:${jboss.server.data.dir}/hl7/${date,yyyy/MM/dd}/${SerialNo}-${MSH-9}。hl7",
+      "type": "string"
+    },
+    "hl7ErrorLogFilePattern": {
+      "title": "HL7错误日志文件模式",
+      "description": "HL7消息处理失败时接收的HL7消息的捕获路径。 如果不存在,则不记录。 覆盖在设备级别指定的值。 示例:${jboss.server.data.dir}/hl7-error/${date,yyyy/MM/dd}/${SerialNo}-${MSH-9}。hl7",
+      "type": "string"
+    },
+    "hl7NoPatientCreateMessageType": {
+      "title": "HL7 No Patient Create Message Type",
+      "description": "Message Type(s) (MessageType^TriggerEvent) of HL7 messages which are only processed, if there is already a Patient record in the database, which Patient ID matches the Patient ID in the PID or MRG segment of the message. Thus no new Patient record will be created by messages of the specified types. Overwrites value specified on Device level.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7PatientArrivalMessageType": {
+      "title": "HL7患者到达消息类型",
+      "description": "触发将与患者相关联的预定程序步骤的状态从SCHEDULED更改为ARRIVED的HL7消息的消息类型。 覆盖在设备级别指定的值。 ",
+      "type": "string",
+      "enum": [
+        "ADT^A10"
+      ]
+    },
+    "hl7UseNullValue": {
+      "title": "使用HL7空值",
+      "description": "指定发送的HL7消息是否将HL7 v2空值（在段字段中指定为\"）用于不存在或空的实体属性。 在远程HL7应用程序中取消设置实体属性时需要。 覆盖在设备级别指定的值。 ",
+      "type": "boolean"
+    },
+    "hl7VeterinaryUsePatientName": {
+      "title": "HL7兽医患者名称",
+      "description": "指示在将HL7 PID字段映射到DICOM属性时强制使用兽医患者名称。 仅使用PID.5的前两个组件作为DICOM患者名称。 如果PID.5只有一个组件,则将其值用作名称,而将PID.9的第一个组件用作DICOM患者姓名的姓氏。 覆盖在设备级别指定的值。 ",
+      "type": "boolean"
+    },
+    "hl7PrimaryAssigningAuthorityOfPatientID": {
+      "title": "HL7 Primary Assigning Authority of Patient ID",
+      "description": "Assigning Authority of Patient ID in received HL7 message used to search primary qualified patient identifier in the list of identifiers in PID-3 / MRG.1. This qualified patient identifier shall be used on the root dataset. If absent, by default the first patient identifier pair in PID-3 / MRG.1 shall be used as primary patient identifier on root dataset. If none of the qualified patient identifiers in the list match with the configured issuer, archive server log shall contain a log INFO message and by default the first qualified patient identifier in PID-3 / MRG.1 shall be used. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}]. Overwrites values specified on Device level.",
+      "type": "string"
+    },
+    "hl7OtherPatientIDs": {
+      "title": "HL7 Other Patient IDs",
+      "description": "Specifies inclusion policy for patient identifiers in PID-3 / MRG-1 of HL7 message in Other Patient IDs Sequence (0010,1002). Overwrites value specified on Device level.",
+      "type": "string",
+      "default": "OTHER",
+      "enum": [
+        "ALL",
+        "NONE",
+        "OTHER"
+      ]
+    },
+    "hl7OrderMissingStudyIUIDPolicy": {
+      "title": "HL7订单缺少研究实例UID策略",
+      "description": "如果收到的HL7订单消息没有研究实例UID,则指定策略。 覆盖在设备级别指定的值。 ",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
+    "hl7OrderMissingAdmissionIDPolicy": {
+      "title": "HL7 Order Missing Admission ID Policy",
+      "description": "Specifies policy on incoming HL7 Order messages without a value for PID-18 Patient Account Number nor field PV1-19 Visit Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "ACCEPT",
+        "REJECT",
+        "ACCESSION_AS_ADMISSION"
+      ]
+    },
+    "hl7ImportReportMissingStudyIUIDPolicy": {
+      "title": "HL7导入报告缺少研究实例UID策略",
+      "description": "如果收到的HL7导入报告(ORU)消息没有研究实例UID,则指定策略。 覆盖在设备级别指定的值。 ",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "GENERATE",
+        "ACCESSION_BASED"
+      ]
+    },
+    "hl7ImportReportMissingAdmissionIDPolicy": {
+      "title": "HL7 Import Report Missing Admission ID Policy",
+      "description": "Specifies policy on incoming HL7 ImportReport (ORU) messages without a value for PID-18 Patient Account Number nor field PV1-19 Visit Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "ACCEPT",
+        "REJECT",
+        "ACCESSION_AS_ADMISSION"
+      ]
+    },
+    "hl7ImportReportMissingStudyIUIDCFindSCP": {
+      "title": "HL7 Import Report Missing Study Instance UID C-FIND SCP",
+      "description": "AE Title of external C-FIND SCP to query for missing Study Instance UID in incoming HL7 Import Report (ORU) messages by given Accession Number. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "hl7ImportReportAdjustIUID": {
+      "title": "HL7 Import Report Adjust Instance UID",
+      "description": "Specifies adjustment of Series and SOP Instances UIDs returned by XSLT on incoming HL7 Import Report (ORU) messages. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "NONE",
+        "APPEND_HASH_OF_STUDY_INSTANCE_UID"
+      ]
+    },
+    "hl7ReferredMergedPatientPolicy": {
+      "title": "HL7引用的合并患者策略",
+      "description": "指定引用已合并患者的传入HL7消息的策略。 REJECT:拒绝此类HL7消息,IGNORE:忽略此类HL7消息,IGNORE_DUPLICATE_MERGE:仅忽略重复的HL7合并消息,并拒绝其它此类消息。 覆盖在设备级别指定的值。 ",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "IGNORE",
+        "IGNORE_DUPLICATE_MERGE"
+      ]
+    },
+    "hl7DicomCharacterSet": {
+      "title": "HL7 Dicom字符集",
+      "description": "指示从接收的HL7消息转码的数据集使用特定字符集的指定值（0008,0005）。 如果不存在,则使用与MSH-18中指定的HL7消息字符集相对应的值。 ",
+      "type": "string",
+      "format": "dcmCharset"
+    },
+    "hl7ForwardRule": {
+      "title": "HL7传输规则",
+      "description": "HL7传输规则。 补充在设备级别指定的HL7上的UPS规则。 ",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7ForwardRule.schema.json"
+      }
+    },
+    "hl7ExportRule": {
+      "title": "HL7导出规则",
+      "description": "应用于此HL7应用程序接收的HL7消息的导出规则。 补充在设备级别指定的HL7上的UPS规则。",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7ExportRule.schema.json"
+      }
+    },
+    "hl7UPSOnHL7": {
+      "title": "UPS on HL7 Rules",
+      "description": "UPS on HL7 Rules applied to HL7 messages received by any HL7 Application. Supplements UPS on HL7 Rules specified on Device level.",
+      "type": "array",
+      "titleKey": "{hl7UPSOnHL7ID}",
+      "items": {
+        "$ref": "upsOnHL7.schema.json"
+      }
+    },
+    "hl7PrefetchRule": {
+      "title": "HL7 Prefetch Rule",
+      "description": "Prefetch Rules applied to HL7 messages received by this HL7 Application. Supplements HL7 Prefetch Rules specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7PrefetchRule.schema.json"
+      }
+    },
+    "hl7StudyRetentionPolicy": {
+      "title": "HL7检查保留策略",
+      "description": "由此HL7应用程序接收的HL7消息触发的HL7检查保留策略。 补充在设备级别指定的HL7上的UPS规则。",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7StudyRetentionPolicy.schema.json"
+      }
+    },
+    "hl7OrderScheduledStation": {
+      "title": "HL7订单的预定站",
+      "description": "在此HL7应用程序接收到的MWL HL7订单源中选择的预定站。 补充在设备级别指定的HL7上的UPS规则。",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "hl7OrderScheduledStation.schema.json"
+      }
+    },
+    "hl7OrderSPSStatus": {
+      "title": "HL7订单的SPS状态",
+      "description": "指定在收到的HL7 ORM^O01,OMI^O23,OMG^O19消息中创建/更新的DICOM MWL项目的SPS状态。覆盖在设备级别指定的值。",
+      "type": "array",
+      "titleKey":"{dcmSPSStatus}",
+      "items" : {
+        "$ref": "hl7OrderSPSStatus.schema.json"
+      }
+    }
+  }
+}

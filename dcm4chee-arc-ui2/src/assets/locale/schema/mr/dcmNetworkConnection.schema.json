@@ -1,0 +1,220 @@
+{
+  "title": "नेटवर्क संपर्क विस्तार",
+  "description": "DCM4CHE मालकीचे नेटवर्क संपर्क विशेषता.",
+  "type": "object",
+  "required": [
+    "dcmProtocol",
+    "dcmTLSNeedClientAuth",
+    "dcmTLSProtocol",
+    "dcmTCPBacklog",
+    "dcmTCPCloseDelay",
+    "dcmTCPNoDelay",
+    "dcmSendPDULength",
+    "dcmReceivePDULength",
+    "dcmMaxOpsPerformed",
+    "dcmMaxOpsInvoked",
+    "dcmPackPDV",
+    "dcmRetrieveTimeoutTotal",
+    "dcmAATimeout"
+  ],
+  "properties": {
+    "dcmProtocol": {
+      "title": "प्रोटोकॉल",
+      "description": "नेटवर्क संपर्काचा प्रोटोकॉल.",
+      "type": "string",
+      "default": "DICOM",
+      "enum": [
+          "DICOM",
+          "HL7",
+          "HL7_MLLP2",
+          "SYSLOG_TLS",
+          "SYSLOG_UDP",
+          "HTTP"
+      ]
+    },
+    "dcmHTTPProxy": {
+      "title": "HTTP प्रॉक्सी",
+      "description": "HTTP प्रॉक्सी : [user:password@]host:port.",
+      "type": "string"
+    },
+    "dcmTLSNeedClientAuth": {
+      "title": "TLS क्लायंट प्रमाणीकरण आवश्यक",
+      "description": "दर्शविते की, TLS क्लायंट प्रमाणीकरण आवश्यक आहे.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmTLSProtocol": {
+      "title": "TLS प्रोटोकॉल",
+      "description": "समर्थित TLS प्रोटोकॉल.",
+      "default": ["TLSv1.2"],
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "TLSv1.3",
+          "TLSv1.2",
+          "TLSv1.1",
+          "TLSv1",
+          "SSLv3"
+        ]
+      }
+    },
+    "dcmTLSEndpointIdentificationAlgorithm": {
+      "title": "TLS Endpoint Identification Algorithm",
+      "description": "Indicates the endpoint identification or verification procedures during TLS handshaking.",
+      "type": "string",
+      "enum": [ "HTTPS", "LDAPS"]
+    },
+    "dcmTCPBacklog": {
+      "title": "TCP बॅकलॉग",
+      "description": "येणाऱ्या TCP संपर्कांसाठी रांगेची कमाल लांबी.",
+      "type": "integer",
+      "default": 50,
+      "minimum": 1
+    },
+    "dcmTCPConnectTimeout": {
+      "title": "TCP संपर्क कालबाह्य",
+      "description": "मिलिसेकंदांमध्ये TCP संपर्क कालबाह्य; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmTCPCloseDelay": {
+      "title": "TCP बंद करायचे विलंब",
+      "description": "A-ASSOCIATE-RJ, A-RELEASE-RP किंवा A-ABORT PDU ला पाठवल्यावर TCP सॉकेटला बंद करण्यासाठी मिलिसेकंदांमध्ये विलंब.",
+      "type": "integer",
+      "default": 50,
+      "minimum": 0
+    },
+    "dcmTCPSendBufferSize": {
+      "title": "TCP पाठवलेला बफर आकार",
+      "description": "TCP पाठवलेला बफर आकार; अनुपस्थित असल्यास सिस्टम डीफॉल्ट वापरा.",
+      "type": "integer",
+      "minimum": 1024
+    },
+    "dcmTCPReceiveBufferSize": {
+      "title": "TCP प्राप्ति बफर आकार",
+      "description": "TCP प्राप्ति बफर आकार; अनुपस्थित असल्यास सिस्टम डीफॉल्ट वापरा.",
+      "type": "integer",
+      "minimum": 1024
+    },
+    "dcmTCPNoDelay": {
+      "title": "TCP विलंब नाही",
+      "description": "TCP विलंब नाही को सक्षम / असक्षम करा (Nagle अल्गोरिथमला सक्षम / असक्षम करा).",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmBindAddress": {
+      "title": "बाइंड पत्ता",
+      "description": "सुननेवाले सॉकेट बाइंड करण्याचा पत्ता; अनुपस्थित असल्यास संपर्काचे होस्टनाव वापरा.",
+      "type": "string"
+    },
+    "dcmClientBindAddress": {
+      "title": "क्लायंट बाइंड पत्ता",
+      "description": "बाहेर जाणाऱ्या संपर्कांना बाइंड करण्याचा पत्ता; अनुपस्थित असल्यास संपर्काचे होस्टनाव वापरा.",
+      "type": "string"
+    },
+    "dcmBlacklistedHostname": {
+      "title": "काळीसूचीबद्ध होस्टनाव",
+      "description": "काळ्यासूचीतील DNS होस्टनावे.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSendPDULength": {
+      "title": "पाठवलेल्या PDUs ची लांबी",
+      "description": "पाठवलेल्या PDUs ची कमाल लांबी.",
+      "type": "integer",
+      "default": 16378,
+      "minimum": 1024
+    },
+    "dcmReceivePDULength": {
+      "title": "प्राप्त PDU ची लांबी",
+      "description": "प्राप्त PDUs ची कमाल लांबी.",
+      "type": "integer",
+      "default": 16378,
+      "minimum": 1024
+    },
+    "dcmMaxOpsPerformed": {
+      "title": "कमाल कार्य सादर",
+      "description": "असमकालिक स्वरूपात कार्य सादर करण्यासाठी कमाल संख्या; ० = अमर्यादित.",
+      "type": "integer",
+      "default": 1,
+      "minimum": 0
+    },
+    "dcmMaxOpsInvoked": {
+      "title": "कमाल कार्य आवाहन",
+      "description": "असमकालिक स्वरूपात कार्य आवाहन करण्यासाठी कमाल संख्या; ० = अमर्यादित.",
+      "type": "integer",
+      "default": 1,
+      "minimum": 0
+    },
+    "dcmPackPDV": {
+      "title": "PDV पॅक करा",
+      "description": "एक P-DATA-TF PDU मध्ये कमांड आणि डेटा PDVs ना पॅक करण्यासाठी सक्षम / असक्षम करा.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmAARQTimeout": {
+      "title": "AA-RQ कालबाह्य",
+      "description": "TCP संपर्कांनंतर A-ASSOCIATE-RQ PDU ना प्राप्त करण्यासाठी मिलिसेकंदांमध्ये वेळ; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmAAACTimeout": {
+      "title": "AA-AC कालबाह्य",
+      "description": "A-ASSOCIATE-RQ PDU पाठविल्यानंतर A-ASSOCIATE-AC PDU ना प्राप्त करण्यासाठी मिलिसेकंदांमध्ये वेळ; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmARRPTimeout": {
+      "title": "AR-RP कालबाह्य",
+      "description": "A-RELEASE-RQ PDU पाठविल्यानंतर A-RELEASE-RP PDU ना प्राप्त करण्यासाठी मिलिसेकंदांमध्ये वेळ; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmSendTimeout": {
+      "title": "पाठविण्याचे कालबाह्य",
+      "description": "C-STORE विनंत्यापेक्षा इतर DIMSE विनंत्या पाठविण्यासाठी मिलिसेकंदांमध्ये वेळ; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmStoreTimeout": {
+      "title": "स्टोअर कालबाह्य",
+      "description": "C-STORE विनंत्या पाठविण्यासाठी मिलिसेकंदांमध्ये वेळ; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmResponseTimeout": {
+      "title": "प्रतिसाद कालबाह्य",
+      "description": "<br>- C-GET किंवा C-MOVE प्रतिसादपेक्षा इतर DIMSE प्रतिसाद <br>- आउटगोइंग HL7 संदेश प्रतिसाद <br>- HTTP(S) प्रतिसाद <br>प्राप्त करण्यासाठी मिलिसेकंदांमध्ये वेळ; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveTimeout": {
+      "title": "पुनर्प्राप्त कालबाह्य",
+      "description": "थकबाकी C-GET किंवा C-MOVE प्रतिसाद प्राप्त करण्यासाठी मिलिसेकंदांमध्ये वेळ; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveTimeoutTotal": {
+      "title": "एकूण पुनर्प्राप्त कालबाह्य",
+      "description": "थकबाकी C-GET आणि C-MOVE प्रतिसादांना अनिर्णीत प्रतिसादांच्या प्राप्त होण्यावर निर्दिष्ट कालबाह्यच्या टाइमरला पुन्हा सुरु केले जाईल (= नाही) किंवा नाही (= हो).",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmIdleTimeout": {
+      "title": "निष्क्रिय कालबाह्य",
+      "description": "निर्दिष्ट वेळेनंतर (मिलिसेकंदांमध्ये) निष्क्रिय संपर्कांना बंद करण्यासाठी दर्शविते; अनुपस्थित असल्यास कालबाह्य होणार नाही.",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmAATimeout": {
+      "title": "A-ABORT Timeout",
+      "description": "Timeout in ms for waiting for finishing sending any DIMSE before sending an A-ABORT PDU, triggered by the application or by expiration of a configured other timeout of this Connection. If the timeout expires, the TCP connection will be closed without sending the A-ABORT.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 1000
+    }
+  }
+}

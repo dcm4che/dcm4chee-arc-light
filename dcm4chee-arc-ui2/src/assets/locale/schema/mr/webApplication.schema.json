@@ -1,0 +1,107 @@
+{
+  "title": "वेब अनुप्रयोग",
+  "description": "वेब अनुप्रयोगाची माहिती.",
+  "type": "object",
+  "required": [
+    "dcmWebAppName",
+    "dcmWebServicePath",
+    "dcmWebServiceClass"
+  ],
+  "properties": {
+    "dcmWebAppName": {
+      "title": "वेब अनुप्रयोगाचे नाव",
+      "description": "वेब अनुप्रयोगाचे नाव.",
+      "type": "string",
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackWadoURIWebAppName",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExternalWadoRSWebAppName",
+        "$.dcmDevice.dcmArchiveDevice.dcmFallbackWadoURIWebAppName",
+        "$.dcmDevice.dcmArchiveDevice.dcmExternalWadoRSWebAppName"
+      ]
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "वेब अनुप्रयोग नेटवर्क संपर्क",
+      "description": "नेटवर्क संपर्क ज्यावर वेब अनुप्रयोगाची सेवा उपलब्ध आहे.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomDescription": {
+      "title": "वेब अनुप्रयोगाचे वर्णन",
+      "description": "वेब अनुप्रयोगाचे अनियंत्रित मजकूर वर्णन.",
+      "type": "string"
+    },
+    "dcmWebServicePath": {
+      "title": "वेब सेवा पथ",
+      "description": "वेब अनुप्रयोगाच्या सेवांचा HTTP पथ.",
+      "type": "string"
+    },
+    "dcmWebServiceClass": {
+      "title": "वेब सेवा वर्ग",
+      "description": "वेब अनुप्रयोगाद्वारे प्रदान केलेली वेब सेवा वर्ग.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "QIDO_RS",
+          "STOW_RS",
+          "WADO_RS",
+          "WADO_URI",
+          "UPS_RS",
+          "MWL_RS",
+          "MPPS_RS",
+          "QIDO_COUNT",
+          "DCM4CHEE_ARC",
+          "DCM4CHEE_ARC_AET",
+          "DCM4CHEE_ARC_AET_DIFF",
+          "PAM",
+          "REJECT",
+          "MOVE",
+          "MOVE_MATCHING",
+          "UPS_MATCHING",
+          "ELASTICSEARCH",
+          "XDS_RS",
+          "AGFA_BLOB",
+          "J4C_ROUTER",
+          "FHIR",
+          "WORKFLOW_MANAGER"
+        ]
+      }
+    },
+    "dcmKeycloakClientID": {
+      "title": "कीक्लोक क्लायंट ID",
+      "description": "वेब अनुप्रयोगासाठी कीक्लोक क्लायंट ID",
+      "type": "string",
+      "format": "dcmKeycloakClient"
+    },
+    "dicomAETitle": {
+      "title": "AE चे शीर्षक",
+      "description": "या वेब अनुप्रयोगाशी संबंधित नेटवर्क AE चे शीर्षक.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dicomApplicationCluster": {
+      "title": "अनुप्रयोग क्लस्टर",
+      "description": "संबंधित अनुप्रयोगांच्या उपसेटसाठी स्थानिकरित्या परिभाषित नावे.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmProperty": {
+      "title": "गुणधर्म",
+      "description": "गुणधर्म या प्रारूपात {नाव}={मूल्य}. Refer <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Web-Application-Properties\" target=\"_blank\">Web Application Properties</a> configuration examples based on use cases.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dicomInstalled": {
+      "title": "स्थापित",
+      "description": "'सत्य' असल्यास वेब अनुप्रयोग नेटवर्कवर स्थापित आहे. उपलब्ध नसल्यास, वेब अनुप्रयोगाच्या स्थापित स्थितीबद्दलची माहिती डिव्हाइसमधून प्राप्त केली जाईल.",
+      "type": "boolean"
+    }
+  }
+}

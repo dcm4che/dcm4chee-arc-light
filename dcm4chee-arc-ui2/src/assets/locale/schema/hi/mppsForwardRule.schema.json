@@ -1,0 +1,40 @@
+{
+  "title": "MPPS फॉरवर्ड नियम",
+  "description": "MPPS फॉरवर्ड नियम",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmFwdMppsDestination"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाम",
+      "description": "MPPS फॉरवर्ड नियम का मनमाना/सार्थक नाम ।",
+      "type": "string"
+    },
+    "dcmFwdMppsDestination": {
+      "title": "MPPS भेजने का गंतव्य",
+      "description": "MPPS N-CREATE RQ और N-SET RQ भेजने का गंतव्य",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
+    },
+    "dcmProperty": {
+      "title": "नियम",
+      "description": "नियम इस प्रारूप में (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx} । किसी दिए गए विशेषता के लिए एक से अधिक मूल्य निर्दिष्ट करने के लिए उन्हें | प्रतीक के सहारे अलग किया जा सकता है । उदाहरण: SendingApplicationEntityTitle=FORWARD या Modality=MR|CT या ProcedureCodeSequence.CodeValue=MRProcedure या 00180015=KNEE या 00321034.00080100=RequestingServiceCode या ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSchedule": {
+      "title": "MPPS फॉरवर्ड अनुसूची",
+      "description": "MPPS फॉरवर्ड को अनुसूचित समय में करें ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    }
+  }
+}

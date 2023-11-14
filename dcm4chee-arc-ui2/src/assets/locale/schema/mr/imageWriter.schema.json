@@ -1,0 +1,45 @@
+{
+  "title": "प्रतिमा लेखक",
+  "description": "DICOM दृष्टांते संकुचित करण्यात वापरलेले JAVA प्रतिमा IO प्रतिमा लेखक व लेखन मापदंड निर्दिष्ट करते.",
+  "type": "object",
+  "required": [
+    "dicomTransferSyntax",
+    "dcmIIOFormatName"
+  ],
+  "properties": {
+    "dicomTransferSyntax": {
+      "title": "हस्तांतरण वाक्यरचना",
+      "description": "हस्तांतरण वाक्यरचना ज्यात DICOM प्रतिमा संकुचित करायची आहे.",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmIIOFormatName": {
+      "title": "प्रतिमा IO लेखक प्रारूपाचे नाव",
+      "description": "प्रतिमा IO लेखक प्रारूपाचे नाव.",
+      "type": "string"
+    },
+    "dcmJavaClassName": {
+      "title": "JAVA वर्गचे नाव",
+      "description": "प्रतिमा IO लेखकाचे पूर्णपणे पात्र JAVA वर्ग. अनुपस्थित असल्यास, निर्दिष्ट प्रारूपाच्या नावासाठी आढळलेला कोणताही प्रतिमा लेखक वापरा.",
+      "type": "string"
+    },
+    "dcmPatchJPEGLS": {
+      "title": "पॅच JPEG-LS",
+      "description": "संकुचित केल्यानंतर JPEG-LS पॅच करा.",
+      "type": "string",
+      "enum": [
+          "JAI2ISO",
+          "ISO2JAI",
+          "ISO2JAI_IF_APP_OR_COM"
+      ]
+    },
+    "dcmImageWriteParam": {
+      "title": "प्रतिमा लेखन मापदंड",
+      "description": "संकुचित करायच्या आधी संच केलेले प्रतिमा लेखन मापदंड (नाव=मूल्य).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

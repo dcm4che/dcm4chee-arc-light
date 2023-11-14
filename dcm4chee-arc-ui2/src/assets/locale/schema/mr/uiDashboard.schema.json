@@ -1,0 +1,70 @@
+{
+  "title": "UI डॅशबोर्ड कॉन्फिगरेशन",
+  "description": "UI डॅशबोर्ड कॉन्फिगरेशन",
+  "type": "object",
+  "required": [
+    "dcmuiDashboardConfigName",
+    "dcmuiCountWebApp"
+  ],
+  "properties": {
+    "dcmuiDashboardConfigName": {
+      "title": "UI डॅशबोर्ड कॉन्फिगरेशनचे नाव",
+      "description": "UI डॅशबोर्ड कॉन्फिगरेशनचे नाव.",
+      "type": "string"
+    },
+    "dcmuiShowStarBlock":{
+      "title": "Show Star Block",
+      "description": "Show Star Block - tasks without defined deviceName",
+      "type": "boolean",
+      "default" : true
+    },
+    "dcmuiQueueName": {
+      "title": "रांगेचे नाव",
+      "description": "रांगेच्या ब्लॉकमध्ये वापरलेल्या UI डॅशबोर्ड कॉन्फिगरेशनमध्ये रांगेचे नाव.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format" : "dcmQueueName"
+    },
+    "dcmuiExportName": {
+      "title": "निर्यातक ID",
+      "description": "रांगेच्या आणि बाजूंची तुलना करणाऱ्या ब्लॉक्समध्ये वापरलेल्या UI डॅशबोर्ड कॉन्फिगरेशनमध्ये निर्यातकचे ID.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format" : "dcmExporterID"
+    },
+    "dicomuiDeviceName": {
+      "title": "डिवाइसेस चे नाव",
+      "description": "पुनर्प्राप्त आणि निर्यात ब्लॉक्स व्युत्पन्न करण्यासाठी वापरली जाणारी UI डॅशबोर्ड कॉन्फिगरेशनमध्ये डिव्हाइसचे नाव.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dicomDeviceName"
+    },
+    "dicomuiIgnoreParams": {
+      "title": "ऑडिट इव्हेंट मापदंडांकडे दुर्लक्ष करा",
+      "description": "ऑडिट इव्हेंटमध्ये दुर्लक्ष केले जाऊ शकतात अशा इलास्टिकसर्च मापदंड संच करा, उदाहरण : Source.UserID=TESTVALUE.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmuiCountWebApp": {
+      "title": "गणना वेब अनुप्रयोग",
+      "description": "डॅशबोर्डमध्ये अभ्यासाची गणना मिळविण्यासाठी निवडलेले वेब अनुप्रयोग वापरले जाईल.",
+      "type": "string",
+      "format": "webApp"
+    },
+    "dcmuiCompareSideObjects": {
+      "title": "बाजूंची तुलना करा",
+      "description": "बाजूंची तुलना करा.",
+      "titleKey":"{dcmuiCompareSideName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiCompareSide.schema.json"
+      }
+    },
+    "dicomuiDockerContainer": {
+      "title": "संग्रहण डॉकर कंटेनर",
+      "description": "हार्डवेयर पेजमध्ये वापरल्या जाणाऱ्या संग्रहण डॉकर कंटेनर्सचे नाव.",
+      "type": "array",
+      "items" : { "type": "string" }
+    }
+  }
+}

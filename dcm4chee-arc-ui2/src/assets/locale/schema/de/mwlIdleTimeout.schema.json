@@ -1,0 +1,49 @@
+{
+  "title": "MWL Idle Timeout",
+  "description": "MWL Idle Timeout",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomAETitle",
+    "dcmMWLStatusOnIdle",
+    "dcmDuration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the MWL Idle Timeout.",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "MWL SCP AE Title",
+      "description": "Archive AE Title of MWL SCP on which the MWL Idle Timeout shall be applied.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmAETitle": {
+      "title": "Scheduled Station AE Title",
+      "description": "Scheduled Station AE Title(s) of Scheduled Procedure Steps for which the MWL Idle Timeout shall be applied. If none is specified, the MWL Idle Timeout is applied to all Scheduled Procedure Steps provided by the MWL SCP.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmMWLStatusOnIdle": {
+      "title": "MWL Status on Idle",
+      "description": "Change Status of idle Scheduled Procedure Steps to specified value.",
+      "type": "string",
+      "enum":[
+        "CANCELED",
+        "DISCONTINUED",
+        "COMPLETED"
+      ]
+    },
+    "dcmDuration": {
+      "title": "Idle Timeout",
+      "description": "Timeout after which the Status of matching Scheduled Procedure Steps is changed to the specified final status.",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

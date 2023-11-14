@@ -1,0 +1,34 @@
+{
+  "title": "UI भाषा कॉन्फिग",
+  "description": "UI भाषा कॉन्फिग ।",
+  "type": "object",
+  "required": [
+    "dcmLanguages",
+    "dcmuiLanguageConfigName"
+  ],
+  "properties": {
+    "dcmuiLanguageConfigName": {
+      "title": "भाषा कॉन्फिग का नाम",
+      "description": "भाषा कॉन्फिग का नाम ।",
+      "type": "string"
+    },
+    "dcmLanguages":{
+      "title": "Available languages",
+      "description": "Set languages that should be available in the UI (The JSON-files to those language must exist in the code, if they don't exist open an Issue in github",
+      "type": "array",
+      "items":{
+        "type": "string"
+      },
+      "format": "dcmLanguageChooser"
+    },
+    "dcmuiLanguageProfileObjects": {
+      "title": "भाषा प्रोफ़ाइल",
+      "description": "उपभोक्ता के नाम, भूमिका या सभी के लिए भाषा प्रोफ़ाइल ।",
+      "titleKey":"{dcmuiLanguageProfileName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiLanguageProfile.schema.json"
+      }
+    }
+  }
+}

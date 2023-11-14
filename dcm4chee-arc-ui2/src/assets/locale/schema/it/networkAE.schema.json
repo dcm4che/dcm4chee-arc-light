@@ -1,0 +1,140 @@
+{
+  "title": "AE di Rete",
+  "description": "Entità dell'applicazione che fornisce servizi su una rete",
+  "type": "object",
+  "required": [
+    "dicomAETitle",
+    "dicomNetworkConnectionReference",
+    "dicomAssociationInitiator",
+    "dicomAssociationAcceptor"
+  ],
+  "properties": {
+    "dicomAETitle": {
+      "title": "Titolo AE",
+      "description": "Titolo AE univoco per questo Network AE",
+      "type": "string",
+      "order":1,
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmSpanningCFindSCPRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackCMoveSCPDestination",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmReturnRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackCMoveSCPCallingAET",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExternalRetrieveAEDestination",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExporter[*].dicomAETitle",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExporter[*].dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmWebApp[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmSpanningCFindSCPRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmFallbackCMoveSCPDestination",
+        "$.dcmDevice.dcmArchiveDevice.dcmRejectExpiredStudiesAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmReturnRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmExternalRetrieveAEDestination",
+        "$.dcmDevice.dcmArchiveDevice.dcmXDSiImagingDocumentSourceAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorageVerificationAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmCompressionAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmRejectionNoteStorageAET",
+        "$.dcmDevice.dcmArchiveDevice.dcmFallbackCMoveSCPCallingAET",
+        "$.dcmDevice.dcmArchiveDevice.hl7StudyRetentionPolicy[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7StudyRetentionPolicy[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.hl7PrefetchRule[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmExporter[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmExporter[*].dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmMWLIdleTimeout[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmUPSProcessingRule[*].dicomAETitle",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDiffConfig[*].dcmuiDiffCallingAET",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCountAET"
+      ]
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "Riferimento per la connessione di rete",
+      "description": "Puntatori JSON agli oggetti di connessione di rete per questo AE",
+      "type": "array",
+      "order":2,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomAssociationInitiator": {
+      "title": "Iniziatore di associazione",
+      "description": "Vero se l'AE di rete può avviare associazioni.",
+      "type": "boolean",
+      "default": true,
+      "order":3
+    },
+    "dicomAssociationAcceptor": {
+      "title": "Accettatore di associazione",
+      "description": "True if the Network AE can accept associations.",
+      "type": "boolean",
+      "default": true,
+      "order":4
+    },
+    "dicomDescription": {
+      "title": "Descrizione AE",
+      "description": "Descrizione di testo libera dell'entità dell'applicazione",
+      "type": "string",
+      "order":5
+    },
+    "dicomApplicationCluster": {
+      "title": "Cluster di applicazioni",
+      "description": "Nomi definiti localmente per un sottoinsieme di applicazioni correlate",
+      "type": "array",
+      "order":6,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomPreferredCalledAETitle": {
+      "title": "Titolo AE Chiamato preferito",
+      "description": "Titoli AE preferiti per l'avvio di associazioni",
+      "type": "array",
+      "order":7,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomPreferredCallingAETitle": {
+      "title": "Titolo AE di chiamata preferito",
+      "description": "Titoli AE preferiti per accettare associazioni",
+      "type": "array",
+      "order":8,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomSupportedCharacterSet": {
+      "title": "Set di caratteri supportato",
+      "description": "Set di caratteri supportati dal Network AE per i set di dati che esso riceve",
+      "type": "array",
+      "order":9,
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmCharset"
+    },
+    "dicomInstalled": {
+      "title": "installato",
+      "description": "Vero se l'AE è installato sulla rete. Se non presente, le informazioni sullo stato di installazione dell'AE vengono ereditate dal dispositivo",
+      "order":10,
+      "type": "boolean"
+    },
+    "dicomTransferCapability": {
+      "title": "Capacità di trasferimento",
+      "description": "Funzionalità di trasferimento fornite dall'entità dell'applicazione",
+      "type": "array",
+      "order":11,
+      "titleKey":"{cn}",
+      "items": {
+        "$ref": "transferCapability.schema.json"
+      }
+    },
+    "dcmNetworkAE": {
+      "title": "Estensione AE di rete",
+      "description": "Attributi proprietari di Network AE di dcm4che",
+      "$ref": "dcmNetworkAE.schema.json",
+      "order":12
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "title": "इमेज राइटर",
+  "description": "DICOM दृष्टांतों के संपीडन में इस्तमाल किए जानेवाले लेखन मापदण्डों के साथ जावा इमेज IO इमेज राइटर को निर्दिष्ट करता है ।",
+  "type": "object",
+  "required": [
+    "dicomTransferSyntax",
+    "dcmIIOFormatName"
+  ],
+  "properties": {
+    "dicomTransferSyntax": {
+      "title": "हस्तांतरण वाक्यविन्यास",
+      "description": "DICOM इमेज संपीडित करने के लिए इस्तमाल किया गया हस्तांतरण वाक्यविन्यास",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmIIOFormatName": {
+      "title": "इमेज IO राइटर प्रारूप का नाम",
+      "description": "इमेज IO राइटर प्रारूप का नाम ।",
+      "type": "string"
+    },
+    "dcmJavaClassName": {
+      "title": "JAVA वर्ग का नाम",
+      "description": "इमेज IO राइटर का पूरी तरह से योग्य JAVA वर्ग । यदि निर्दिष्ट नहीं किया गया है, तो निर्दिष्ट प्रारूप के नाम से पाए जानेवाले किसी भी इमेज राइटर का इस्तमाल करें ।",
+      "type": "string"
+    },
+    "dcmPatchJPEGLS": {
+      "title": "पैच JPEG-LS",
+      "description": "संपीडन के बाद JPEG-LS पैच करें ।",
+      "type": "string",
+      "enum": [
+          "JAI2ISO",
+          "ISO2JAI",
+          "ISO2JAI_IF_APP_OR_COM"
+      ]
+    },
+    "dcmImageWriteParam": {
+      "title": "इमेज लेखन मापदण्ड",
+      "description": "संपीड़न होने से पहले इमेज लेखन पे कॉन्फ़िगर किए गए इमेज लेखन मापदण्ड (नाम=मूल्य) ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

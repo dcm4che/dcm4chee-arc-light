@@ -1,0 +1,25 @@
+{
+  "title": "メタデータ フィルター",
+  "description": "WADO-RS メタデータ 要求の 名前付き 属性 フィルター。",
+  "type": "object",
+  "required": [
+    "dcmMetadataFilterName",
+    "dcmTag"
+  ],
+  "properties": {
+    "dcmMetadataFilterName": {
+      "title": "メタデータ フィルター名",
+      "description": "WADO-RS メタデータ 要求の 独自の 「includefields」 クエリ パラメーターに よって 参照される メタデータ フィルター名。",
+      "type": "string"
+    },
+    "dcmTag": {
+      "title": "属性 タグ",
+      "description": "16進 文字列としての DICOM タグ",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    }
+  }
+}

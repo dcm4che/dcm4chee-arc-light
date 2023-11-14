@@ -1,0 +1,302 @@
+{
+  "title": "格納",
+  "description": "格納 記述子",
+  "type": "object",
+  "required": [
+    "dcmStorageID",
+    "dcmURI",
+    "dcmArchiveSeriesAsTAR",
+    "dcmStoragePathFormat",
+    "dcmOnStoragePathAlreadyExists",
+    "dcmRetryCreateDirectories",
+    "dcmAltCreateDirectories",
+    "dcmFileOpenOption",
+    "dcmLocationStatus",
+    "dcmCountLocationsByStatus",
+    "dcmMaxRetries",
+    "dcmInstanceAvailability",
+    "dcmRetrieveCacheMaxParallel",
+    "dcmReadOnly",
+    "dcmStorageThresholdExceedsPermanently",
+    "dcmNoDeletionConstraint",
+    "dcmNoRetrieveCacheOnPurgedInstanceRecords",
+    "dcmDeleterThreads",
+    "dcmStorageDuration"
+  ],
+  "properties": {
+    "dcmStorageID": {
+      "title": "格納 ID",
+      "description": "格納 ID",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmSeriesMetadataStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorageVerificationStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorage[*].dcmExportStorageID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorage[*].dcmRetrieveCacheStorageID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmObjectStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMetadataStorageID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStorageVerificationStorageID[*]"
+      ]
+    },
+    "dcmURI": {
+      "title": "格納 URI",
+      "description": "RFC2079: ユニフォーム リソース 識別子",
+      "type": "string"
+    },
+    "dcmArchiveSeriesAsTAR": {
+      "title": "Archive Series as TAR",
+      "description": "Indicates that binary DICOM objects of one Series are packed in one TAR archive on this Storage System; false if absent.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStoragePathFormat": {
+      "title": "Storage Path Format",
+      "description": "Format of file path of DICOM binary objects or metadata in JSON format or of ZIP archives containing metadata in JSON format for each DICOM object of one Series, written to this Storage System. '{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}', if absent.",
+      "type": "string",
+      "default": "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}"
+    },
+    "dcmOnStoragePathAlreadyExists": {
+      "title": "Already Exists on Storage Path",
+      "description": "Specifies behavior if an object already exists on the storage path on the storage system, assembled according to the configured 'Storage Path Format'. Default behaviour 'RANDOM_PATH'. (hover on options to see their descriptions)",
+      "type": "string",
+      "enum": [
+        "FAILURE|Signals failure writing the new object",
+        "NOOP|Proceed without writing the new object",
+        "RANDOM_PATH|Replace last path element be random 8 hex digit number and try again"
+      ],
+      "default": "RANDOM_PATH"
+    },
+    "dcmRetryCreateDirectories": {
+      "title": "Retry Create Directories",
+      "description": "Specifies number of retries to create parent directories of the storage file path - may workaround issues concerning NFS; 0 if absent.",
+      "type": "integer",
+      "default": 0
+    },
+    "dcmAltCreateDirectories": {
+      "title": "Alt Create Directories",
+      "description": "Indicate to not rely on 'createDirectories' function in 'java.nio.file.Files' Java class, to create all nonexistent parent directories first, but instead explicitly create parent directories if NoSuchFileException is thrown. May workaround issues concerning NFS.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmCheckMountFilePath": {
+      "title": "Check Mount File Path",
+      "description": "Indicates to check if a mounted file system did not get detached from its mount point, by specifying the path of a shadow file in the directory used as mount point. If the shadow file becomes inaccessible, write to storage operation fails. Checked for each DICOM object storage (write operation). Typically applicable to NFS / external file systems.",
+      "type": "string"
+    },
+    "dcmFileOpenOption": {
+      "title": "File Open Option(s)",
+      "description": "Options specifying how the file is opened for writing. Default behaviour 'CREATE_NEW'. (hover on options to see their descriptions) ",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "CREATE_NEW|Create a new file, failing if the file already exists",
+          "DSYNC|Requires that every update to the file's content be written synchronously to the underlying storage device",
+          "SYNC|Requires that every update to the file's content or metadata be written synchronously to the underlying storage device"
+        ]
+      },
+      "default": "CREATE_NEW"
+    },
+    "dcmLocationStatus": {
+      "title": "Location Status",
+      "description": "Initial Location Status of DICOM files written to this Storage System. Default behaviour 'OK'. (hover on options to see their descriptions)",
+      "type": "string",
+      "enum": [
+        "OK|Indicates access state of stored objects is stable",
+        "VERIFY_QSTAR_ACCESS_STATE|Indicates to verify access state of stored objects from QStar Tape File System"
+      ],
+      "default": "OK"
+    },
+    "dcmCountLocationsByStatus": {
+      "title": "Count Locations by Status",
+      "description": "Indicate to include counts of locations with status != 0 (=OK) for this Storage System by RESTful service to list Storage Systems; false if absent.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDigestAlgorithm": {
+      "title": "ダイジェスト アルゴリズム",
+      "description": "チェックサムを 生成する ための アルゴリズム。",
+      "type": "string",
+      "enum" : [
+        "MD5|Message-digest algorithm",
+        "SHA-1|Secure Hash Algorithm 1"
+      ]
+    },
+    "dcmMaxRetries": {
+      "title": "最大 再試行 回数",
+      "description": "格納 システムに オブジェクトを 保存 する 最大 再試行 回数。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "再試行 遅延",
+      "description": "ISO-8601 期間 形式PnDTnHnMn.nSで オブジェクトを 格納 システムに 格納 する ために 再試行 するの 遅延。 存在しない 場合、 すぐに 再試行して ください。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmInstanceAvailability": {
+      "title": "インスタンスの 可用性",
+      "description": "インスタンスの 可用性。",
+      "type": "string",
+      "default": "ONLINE",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmStorageDuration": {
+      "title": "格納 期間",
+      "description": "格納が 永続的 (=PERMANENT)、 キャッシュ (=CACHE) または 一時的 (=TEMPORARY) 格納として 使用されて いるか どうかを 示します。 オブジェクトは、 構成された 削除 敷居値に 従って、 キャッシュと 一時 格納から 削除されます。 または、 削除 敷居値が 指定されておらず、保持 期間が 構成されて いない 場合、 格納上の すべての オブジェクトが 削除されます。 一時的な 格納の 場合、どの オブジェクトが パージされたかの 検査も データベースから 削除されます。",
+      "type": "string",
+      "default": "PERMANENT",
+      "enum": [
+        "PERMANENT|Permanent storage",
+        "CACHE|Cache storage",
+        "TEMPORARY|Temporary storage"
+      ]
+    },
+    "dcmReadOnly": {
+      "title": "読み取り専用",
+      "description": "格納 システムが 読み取り専用か どうかを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageClusterID": {
+      "title": "格納 クラスタ ID",
+      "description": "格納 クラスタに 属する CACHE 格納を 識別します。 1つの 検査の オブジェクトは、 1つの 格納 クラスターの 格納 システムに 分散できます。 敷居値に よって トリガーされる 削除で 使用されます。",
+      "type": "string"
+    },
+    "dcmStorageThreshold": {
+      "title": "格納 敷居値",
+      "description": "格納 システム上の 最小 使用可能 スペース。 使用可能な スペースが その 値を 下回ると、 格納の 敷居値が 現在の 時間に 設定され、 格納 システムが フルとして マークされます。 また、 「格納 敷居値 永久に 超えます」は 「真」に して いる 場合、 その 格納 システムを 要求 する ネットワーク AEの 構成済みの 格納 システム リストから 格納 システムは 削除されます。 形式 nnn(MB|GB|MiB|GiB)",
+      "type": "string"
+    },
+    "dcmStorageThresholdExceeded": {
+      "title": "格納 敷居値 超えた",
+      "description": "「格納 敷居値」を 超えた ときに、 YYYYMMDDHHMMSS.FFFFFF 形式で 日付と 時間。",
+      "type": "string"
+    },
+    "dcmStorageThresholdExceedsPermanently": {
+      "title": "格納 敷居値 永久に 超えます",
+      "description": "「格納 敷居値」を 超えた ときに、 その 格納 システムを 要求 する ネットワーク AEの 構成済みの 格納 システム リストから 格納 システムを 削除 することを示します。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmNoDeletionConstraint": {
+      "title": "削除 制約が ない",
+      "description": "削除 敷居値と 他の 削除 制約が 構成されて いない 場合、 削除 制約なし、 キャッシュ / 一時的 格納 システムから 検査を 削除します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDeleterThreshold": {
+      "title": "削除 敷居値",
+      "description": "削除を トリガー する 格納 システムの 最小 使用 可能 スペース。 存在 する 場合、 使用 可能な スペースが その 値を 下回ると、 キャッシュ (「格納 期間」 = CACHE) または 一時的 (「格納 期間」 = TEMPORARY) 格納用に 構成された 格納 システムから 検査が 削除されます。 形式 [nn'['<schedule>']']nnn(MB|GB|MiB|GiB).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmDeleteStudiesOlderThan": {
+      "title": "より 古い 検査を 削除 する",
+      "description": "キャッシュ (「格納 期間」=CACHE) または 一時的 (「格納 期間」=TEMPORARY) 格納に 構成された 格納 システムから 検査を 削除 する, 検査日が ISO-8601 期間 PnDTnHnMnS 形式で 指定された 値よりも 前の 場合。 形式 [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesReceivedBefore": {
+      "title": "以前に 受信した 検査を 削除",
+      "description": "検査は ISO-8601 期間 形式で 指定した 値よりも 前に 受信した 場合は、構成された キャッシュ (「格納 期間」=CACHE) または 一時的 (「格納 期間」=TEMPORARY) 格納 システムから 検査を 削除します。 形式 [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleteStudiesNotUsedSince": {
+      "title": "以来 使用されて いない 検査を 削除 する",
+      "description": "キャッシュ (「格納 期間」=CACHE) または 一時的 (「格納 期間」=TEMPORARY) 格納に 構成された 格納 システムから 検査を 削除 する, ISO-8601 期間 PnDTnHnMnS 形式で 指定された 値よりも 前に 最後に アクセスされた 場合。 形式 [nn\"[\"<schedule>\"]\"](PnYnMnD|PnW).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmPeriod"
+    },
+    "dcmDeleterThreads": {
+      "title": "削除 スレッド",
+      "description": "格納 システムからの オブジェクトの 削除に 使用される スレッドの 数。",
+      "type": "integer",
+      "default" : 1,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmExternalRetrieveAET": {
+      "title": "外部 読み出し AETs",
+      "description": "構成された 削除 敷居値と 削除 保持 時間の 制約に 加えて、 格納 システムからの 検査の 削除を、 オブジェクトが 外部 C-MOVE SCP AEの 1つを 使用して 読み出しできる 検査に 制限します。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmExternalRetrieveInstanceAvailability": {
+      "title": "外部 読み出し アーカイブの インスタンスの 可用性",
+      "description": "外部 読み出し アーカイブで 利用 可能な インスタンスの 場合は, 検査の 削除時に インスタンスの 可用性を 更新します。",
+      "type": "string",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmExportStorageID": {
+      "title": "書き出し 格納 ID",
+      "description": "構成された 削除 敷居値と 削除 保持 時間の 制約に 加えて、 格納 システムからの 検査の 削除を、 指定された 他の 格納から オブジェクトに アクセスできる 検査に 制限します。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmStorageID"
+    },
+    "dcmRetrieveCacheStorageID": {
+      "title": "読み出し キャッシュ 格納 ID",
+      "description": "複数の 接続を 並列に 使用してより 多くの 帯域幅を 提供 する 格納 システムへの アクセスの パフォーマンスを 向上させるために、 読み出し時に オブジェクトが 並列に コピーされる 別の 格納を 指定します。",
+      "type": "string",
+      "format": "dcmStorageID"
+    },
+    "dcmNoRetrieveCacheOnDestinationAETitle": {
+      "title": "No Retrieve Cache on Destination AE Title",
+      "description": "Specifies AE Titles of C-STORE SCPs to which objects are retrieved without copying them to a configured Retrieve Cache Storage.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmNoRetrieveCacheOnPurgedInstanceRecords": {
+      "title": "No Retrieve Cache on Purged Instance Records",
+      "description": "Indicates to NOT copy retrieved objects to a configured Retrieve Cache Storage, wherein corresponding Instance Records were already purged from the DB.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRetrieveCacheMaxParallel": {
+      "title": "読み出し キャッシュ 最大数 並列",
+      "description": "読み出し時に キャッシュ 格納に 並列 コピーの 最大数。 「読み出し キャッシュ 格納 ID」が 設定されて いる 場合にのみ 有効です。",
+      "type": "integer",
+      "default" : 10,
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmProperty": {
+      "title": "格納 属性",
+      "description": "{name}={value} 形式で 属性。 Refer various <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Storage-Properties\" target=\"_blank\">Storage Properties</a> that can be configured based on the storage type.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

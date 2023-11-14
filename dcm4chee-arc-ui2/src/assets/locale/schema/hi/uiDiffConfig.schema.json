@@ -1,0 +1,66 @@
+{
+  "title": "UI तुलना विन्यास",
+  "description": "UI तुलना विन्यास ।",
+  "type": "object",
+  "required": [
+    "dcmuiDiffConfigName"
+  ],
+  "properties": {
+    "dcmuiDiffConfigName": {
+      "title": "UI तुलना विन्यास का नाम",
+      "description": "UI तुलना विन्यास का नाम ।",
+      "type": "string"
+    },
+    "dcmuiDiffCallingAET": {
+      "title": "तुलना आह्वान AET",
+      "description": "तुलना आह्वान AET ।",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmuiDiffPrimaryCFindSCP": {
+      "title": "UI तुलना प्राथमिक C-FIND SCP",
+      "description": "UI तुलना प्राथमिक C-FIND SCP ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmuiDiffPrimaryCMoveSCP": {
+      "title": "UI तुलना प्राथमिक C-MOVE SCP",
+      "description": "UI तुलना प्राथमिक C-MOVE SCP ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmuiDiffPrimaryCStoreSCP": {
+      "title": "UI तुलना प्राथमिक C-STORE SCP",
+      "description": "UI तुलना प्राथमिक C-STORE SCP ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmuiDiffSecondaryCFindSCP": {
+      "title": "UI तुलना द्वितीयक C-FIND SCP",
+      "description": "UI तुलना द्वितीयक C-FIND SCP ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmuiDiffSecondaryCMoveSCP": {
+      "title": "UI तुलना द्वितीयक C-MOVE SCP",
+      "description": "UI तुलना द्वितीयक C-MOVE SCP ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmuiDiffSecondaryCStoreSCP": {
+      "title": "UI तुलना द्वितीयक C-STORE SCP",
+      "description": "UI तुलना द्वितीयक C-STORE SCP ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmuiDiffCriteria": {
+      "title": "UI तुलना मानदण्ड",
+      "description": "UI तुलना मानदण्ड ।",
+      "titleKey":"{dcmuiDiffCriteriaTitle}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDiffCriteria.schema.json"
+      }
+    }
+  }
+}

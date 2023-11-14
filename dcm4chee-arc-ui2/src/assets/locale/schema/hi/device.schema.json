@@ -1,0 +1,292 @@
+{
+  "title": "डिवाइस",
+  "description": "DICOM डिवाइस से संबंधित जानकारी ।",
+  "type": "object",
+  "required": ["dicomDeviceName", "dicomInstalled"],
+  "groups": {
+    "Manufacturer Information": [
+      "dicomManufacturer",
+      "dicomManufacturerModelName",
+      "dicomSoftwareVersion",
+      "dicomDeviceSerialNumber"
+    ],
+    "Organisation": [
+      "dicomStationName",
+      "dicomInstitutionName",
+      "dicomInstitutionCode",
+      "dicomInstitutionAddress",
+      "dicomInstitutionDepartmentName"
+    ],
+    "Issuers": [
+      "dicomIssuerOfPatientID",
+      "dicomIssuerOfAccessionNumber",
+      "dicomOrderPlacerIdentifier",
+      "dicomOrderFillerIdentifier",
+      "dicomIssuerOfAdmissionID",
+      "dicomIssuerOfServiceEpisodeID",
+      "dicomIssuerOfContainerIdentifier",
+      "dicomIssuerOfSpecimenIdentifier"
+    ],
+    "Certificates": [
+      "dicomAuthorizedNodeCertificateReference",
+      "dicomThisNodeCertificateReference"
+    ]
+  },
+  "properties": {
+    "dicomDeviceName": {
+      "title": "डिवाइस का नाम",
+      "description": "इस डिवाइस का अनन्य नाम ।",
+      "type": "string",
+      "order":1
+    },
+    "dicomDescription": {
+      "title": "डिवाइस का वर्णन",
+      "description": "डिवाइस का स्वैच्छिक विषय वर्णन ।",
+      "type": "string",
+      "order":2
+    },
+    "dicomVendorData":{
+      "title": "Vendor Device Data",
+      "description": "Device specific vendor configuration information",
+      "type": "boolean",
+      "order":2
+    },
+    "dicomDeviceUID": {
+      "title": "डिवाइस UID",
+      "description": "डिवाइस का अनन्य पहचानकर्ता ।",
+      "type": "string",
+      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$",
+      "order":3
+    },
+    "dicomManufacturer": {
+      "title": "उत्पादक",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए उत्पादक (०००८,००७०) के मूल्य के सामान होना चाहीये ।",
+      "type": "string",
+      "order":4
+    },
+    "dicomManufacturerModelName": {
+      "title": "उत्पादक मॉडेल का नाम",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए उत्पादक मॉडेल का नाम (०००८,१०९०) के मूल्य के सामान होना चाहीये ।",
+      "type": "string",
+      "order":5
+    },
+    "dicomSoftwareVersion": {
+      "title": "सॉफ्टवेयर संस्करण",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए सॉफ्टवेयर संस्करण (००१८,१०२०) के मूल्य के सामान होना चाहीये ।",
+      "type": "array",
+      "order":6,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomStationName": {
+      "title": "स्टेशन का नाम",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए स्टेशन का नाम (०००८,१०१०) के मूल्य के सामान होना चाहीये ।",
+      "type": "string",
+      "order":7
+    },
+    "dicomDeviceSerialNumber": {
+      "title": "डिवाइस क्रमिक संख्या",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए डिवाइस क्रमिक संख्या (००१८,१०००) के मूल्य के सामान होना चाहीये ।",
+      "type": "string",
+      "order":8
+    },
+    "dicomPrimaryDeviceType": {
+      "title": "डिवाइस का प्राथमिक प्रकार",
+      "description": "डिवाइस के प्रकार का प्रतिनिधित्व करता है और अभिग्रहण साधन के लिए सबसे अधिक लागू होता है ।",
+      "type": "array",
+      "order":9,
+      "items" : {
+        "type": "string",
+        "enum":[
+          "ARCHIVE",
+          "COMP",
+          "CAD",
+          "DSS",
+          "FILMD",
+          "M3D",
+          "MCD",
+          "PRINT",
+          "CAPTURE",
+          "LOG",
+          "RT",
+          "WSD",
+          "AR",
+          "BMD",
+          "BDUS",
+          "EPS",
+          "CR",
+          "CT",
+          "DX",
+          "ECG",
+          "ES",
+          "XC",
+          "GM",
+          "HD",
+          "IO",
+          "IVOCT",
+          "IVUS",
+          "KER",
+          "LEN",
+          "MR",
+          "MG",
+          "NM",
+          "OAM",
+          "OCT",
+          "OPM",
+          "OP",
+          "OPR",
+          "OPT",
+          "OPTBSV",
+          "OPTENF",
+          "OPV",
+          "OSS",
+          "PX",
+          "PT",
+          "RF",
+          "RG",
+          "SM",
+          "SRF",
+          "US",
+          "VA",
+          "XA"
+        ]
+      }
+    },
+    "dicomInstitutionName": {
+      "title": "संस्था का नाम",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए संस्था का नाम (०००८,००८०) के मूल्य के सामान होना चाहीये ।",
+      "type": "array",
+      "order":10,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstitutionCode": {
+      "title": "संस्था का कोड",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए संस्था के कोड इस प्रारूप में (CV, CSD, \"CM\") के मूल्य के सामान होना चाहीये ।",
+      "type": "array",
+      "order":11,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstitutionAddress": {
+      "title": "संस्था का पता",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए संस्था का पता (०००८,००८१) के मूल्य के सामान होना चाहीये ।",
+      "type": "array",
+      "order":12,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstitutionDepartmentName": {
+      "title": "संस्थागत विभाग का नाम",
+      "description": "इस डिवाइस द्वारा निर्माण किए गए सोप दृष्टांतों में पाए गए संस्थागत विभाग का नाम (०००८,१०४०) के मूल्य के सामान होना चाहीये ।",
+      "type": "array",
+      "order":13,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomIssuerOfPatientID": {
+      "title": "मरीज़़ की ID का जारीकर्ता",
+      "description": "इस डिवाइस द्वारा निर्माण या प्राप्त किए गए सोप दृष्टांतों में मरीज़़ की ID का जारीकर्ता (००१०,००२१), और इच्छानुसार मरीज़ के ID के जारीकर्ता क्रम (००१०,००२४) के आइटम के यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के डिफ़ॉल्ट मूल्य । प्रारूप: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}] ।",
+      "type": "string",
+      "order":14
+    },
+    "dicomIssuerOfAccessionNumber": {
+      "title": "परिग्रहण संख्या का जारीकर्ता",
+      "description": "इस डिवाइस द्वारा निर्माण या प्राप्त किए गए सोप दृष्टांतों में परिग्रहण संख्या का जारीकर्ता क्रम (०००८,००५१) के आइटम के स्थानीय नेमस्पेस एंटिटी ID (००४०,००३१), यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के डिफ़ॉल्ट मूल्य । प्रारूप: {LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}] ।",
+      "type": "string",
+      "order":15
+    },
+    "dicomOrderPlacerIdentifier": {
+      "title": "ऑर्डर प्लेसर पहचानकर्ता",
+      "description": "इस डिवाइस द्वारा निर्माण या प्राप्त किए गए सोप दृष्टांतों में ऑर्डर प्लेसर पहचानकर्ता क्रम (००४०,००२६) के आइटम के स्थानीय नेमस्पेस एंटिटी ID (००४०,००३१), यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के डिफ़ॉल्ट मूल्य । प्रारूप: {LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}] ।",
+      "type": "string",
+      "order":16
+    },
+    "dicomOrderFillerIdentifier": {
+      "title": "ऑर्डर फिलर पहचानकर्ता",
+      "description": "इस डिवाइस द्वारा निर्माण या प्राप्त किए गए सोप दृष्टांतों में ऑर्डर फिलर पहचानकर्ता क्रम (००४०,००२७) के आइटम के स्थानीय नेमस्पेस एंटिटी ID (००४०,००३१), यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के डिफ़ॉल्ट मूल्य । प्रारूप: {LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}] ।",
+      "type": "string",
+      "order":17
+    },
+    "dicomIssuerOfAdmissionID": {
+      "title": "प्रवेश आईडी का जारीकर्ता",
+      "description": "इस डिवाइस द्वारा निर्माण या प्राप्त किए गए सोप दृष्टांतों में प्रवेश ID का जारीकर्ता क्रम (००३८,००१४) के आइटम के स्थानीय नेमस्पेस एंटिटी ID (००४०,००३१), यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के डिफ़ॉल्ट मूल्य । प्रारूप: {LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}] ।",
+      "type": "string",
+      "order":18
+    },
+    "dicomIssuerOfServiceEpisodeID": {
+      "title": "सर्विस एपिसोड ID का जारीकर्ता",
+      "description": "इस डिवाइस द्वारा निर्माण या प्राप्त किए गए सोप दृष्टांतों में सर्विस एपिसोड ID का जारीकर्ता क्रम (००३८,००६४) के आइटम के स्थानीय नेमस्पेस एंटिटी ID (००४०,००३१), the यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के डिफ़ॉल्ट मूल्य । प्रारूप: {LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}] ।",
+      "type": "string",
+      "order":19
+    },
+    "dicomIssuerOfContainerIdentifier": {
+      "title": "कंटेनर पहचानकर्ता का जारीकर्ता",
+      "description": "इस डिवाइस द्वारा निर्माण या प्राप्त किए गए सोप दृष्टांतों में नमूना पहचानकर्ता का जारीकर्ता क्रम (००४०,०५१३) के आइटम के स्थानीय नेमस्पेस एंटिटी ID (००४०,००३१), यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के डिफ़ॉल्ट मूल्य । प्रारूप: {LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}] ।",
+      "type": "string",
+      "order":20
+    },
+    "dicomIssuerOfSpecimenIdentifier": {
+      "title": "नमूना पहचानकर्ता का जारीकर्ता",
+      "description": "इस डिवाइस द्वारा निर्माण या प्राप्त किए गए सोप दृष्टांतों में नमूना पहचानकर्ता का जारीकर्ता क्रम (००४०,०५६२) के आइटम के स्थानीय नेमस्पेस एंटिटी ID (००४०,००३१), यूनिवर्सल एंटिटी ID (००४०,००३२) और यूनिवर्सल एंटिटी ID प्रकार (००४०,००३३) के डिफ़ॉल्ट मूल्य । प्रारूप: {LocalNamespaceEntityID}[&{UniversalEntityID}&{UniversalEntityIDType}] ।",
+      "type": "string",
+      "order":21
+    },
+    "dicomAuthorizedNodeCertificateReference": {
+      "title": "अधिकृत नोड प्रमाण पत्र संदर्भ",
+      "description": "नोड्स के प्रमाण पत्र के लिए प्रतिष्ठित नाम जो इस डिवाइस से जुड़ने के लिए अधिकृत हैं ।",
+      "type": "array",
+      "order":22,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomThisNodeCertificateReference": {
+      "title": "यह नोड प्रमाण पत्र संदर्भ",
+      "description": "इस नोड के लिए सार्वजनिक प्रमाणपत्र के विशिष्ट नाम ।",
+      "type": "array",
+      "order":23,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstalled": {
+      "title": "स्थापित",
+      "description": "यह डिवाइस इस समय नेटवर्क पे स्थापित है या नहीं संकेत करनेवाला बूलियन ।",
+      "type": "boolean",
+      "order":24,
+      "default": true
+    },
+    "dicomNetworkConnection": {
+      "title": "नेटवर्क कनेक्शन",
+      "description": "इस डिवाइस के नेटवर्क कनेक्शन ।",
+      "type": "array",
+      "order":25,
+      "titleKey":"{dicomHostname}:{dicomPort} {cn}",
+      "items": {
+        "$ref": "networkConnection.schema.json"
+      }
+    },
+    "dicomNetworkAE": {
+      "title": "नेटवर्क एइ",
+      "description": "इस डिवाइस द्वारा उपलब्ध कराये गए अनुप्रयोग तत्त्व ।",
+      "type": "array",
+      "titleKey":"{dicomAETitle}",
+      "order":26,
+      "items": {
+        "$ref": "networkAE.schema.json"
+      }
+    },
+    "dcmDevice": {
+      "title": "डिवाइस एक्सटेंशन",
+      "description": "DCM4CHE मालिकाना डिवाइस के गुण ।",
+      "$ref": "dcmDevice.schema.json",
+      "order":27
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "title": "UI エラスティクサーチ URL 構成",
+  "description": "エラスティクサーチ URL",
+  "type": "object",
+  "required": [
+    "dcmuiElasticsearchURLName",
+    "dcmuiElasticsearchURL",
+    "dcmuiElasticsearchIsDefault",
+    "dcmuiElasticsearchInstalled"
+  ],
+  "properties": {
+    "dcmuiElasticsearchURLName": {
+      "title": "エラスティクサーチ URL名",
+      "description": "UI エラスティクサーチ URL名",
+      "type": "string"
+    },
+    "dcmuiElasticsearchWebApp": {
+      "title": "エラスティクサーチ ウェブ アプリケーション",
+      "description": "使用 する ウェブ アプリケーションは エラスティクサーチ URLを 抽出し、 エラスティクサーチに アクセス します",
+      "type": "string",
+      "format": "webApp"
+    },
+    "dcmuiAuditEnterpriseSiteID": {
+      "title": "監査 エンタープライズ サイト ID",
+      "description": "エラスティクサーチ クエリで 使用 する 監査 エンタープライズ サイト IDを 設定 します",
+      "type": "string"
+    },
+    "dcmuiElasticsearchIsDefault": {
+      "title": "デフォルトです",
+      "description": "この URLを デフォルトに 設定します。(URL 兄弟の 子の 1つだけが デフォルトに 設定されて いる ことを 確認して ください)。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmuiElasticsearchInstalled": {
+      "title": "インストール済み",
+      "description": "UIで この URLを 使用 する",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

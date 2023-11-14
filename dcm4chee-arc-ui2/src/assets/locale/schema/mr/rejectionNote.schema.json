@@ -1,0 +1,74 @@
+{
+  "title": "अस्वीकृति नोट",
+  "description": "अस्वीकृति नोट साठवण्यावर वर्तणूक सूचित करते.",
+  "type": "object",
+  "required": [
+    "dcmRejectionNoteLabel",
+    "dcmRejectionNoteCode",
+    "dcmAcceptPreviousRejectedInstance"
+  ],
+  "properties": {
+    "dcmRejectionNoteLabel": {
+      "title": "अस्वीकृति नोट लेबल",
+      "description": "अस्वीकृति नोट लेबल.",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmQueryRetrieveView[*].dcmShowInstancesRejectedByCode[*]"
+      ]
+    },
+    "dcmRejectionNoteType": {
+      "title": "अस्वीकृति नोट प्रकार",
+      "description": "अस्वीकृति नोट प्रकार.",
+      "type": "string",
+      "enum": [
+        "REJECTED_FOR_QUALITY_REASONS",
+        "REJECTED_FOR_PATIENT_SAFETY_REASONS",
+        "INCORRECT_MODALITY_WORKLIST_ENTRY",
+        "DATA_RETENTION_POLICY_EXPIRED",
+        "REVOKE_REJECTION"
+      ]
+    },
+    "dcmRejectionNoteCode": {
+      "title": "अस्वीकृति नोट कोड",
+      "description": "अस्वीकृति नोटचे दस्तऐवज शीर्षक या स्वरूपात (CV, CSD, 'CM') निर्दिष्ट करते.",
+      "type": "string"
+    },
+    "dcmAcceptPreviousRejectedInstance": {
+      "title": "मागील अस्वीकारलेला दृष्टांत स्वीकारा",
+      "description": "एखाद्या विशिष्ट अस्वीकृति नोटने नाकारलेल्या दृष्टांतांच्या पुन्हा साठवण्यावर वर्तणूक निर्दिष्ट करते.",
+      "type": "string",
+      "default": "REJECT",
+      "enum": [
+        "REJECT",
+        "RESTORE",
+        "IGNORE"
+      ]
+    },
+    "dcmOverwritePreviousRejection": {
+      "title": "मागील अस्वीकृति अधिलिखित करा",
+      "description": "या स्वरूपातील (CV, CSD, 'CM') मागील अस्वीकृति नोटचे दस्तऐवज शीर्षक निर्दिष्ट करते जे आताच्या अस्वीकृति नोटद्वारे अधिलिखित केले जाऊ शकते.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAcceptRejectionBeforeStorage": {
+      "title": "साठवण करण्यापूर्वी अस्वीकृति नोट स्वीकारा",
+      "description": "अस्वीकृति नोट मिळाल्यानंतर ISO-8601 कालावधी स्वरूपात PnDTnHnMn.nS कालावधी अंतराल, ज्यामध्ये या अस्वीकृति नोटद्वारे संदर्भित दृष्टांतांना अस्वीकारलेले आहे, असे मानले जाते. नंतर प्राप्त झालेल्या संदर्भित दृष्टांतांना आधीपासूनच नाकारलेल्या दृष्टांतांच्या रूपात मानल्या जातात. उपस्थित नसल्यास, अस्वीकृति नोट्स जे न मिळालेल्या दृष्टांतांना संदर्भित करतात, त्यांना स्वीकारल्या जाणार नाही.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteRejectedInstanceDelay": {
+      "title": "अस्वीकारलेले दृष्टांतांना हटवण्याचे विलंब",
+      "description": "ISO-8601 कालावधी स्वरूपात विलंब PnDTnHnMn.nS ज्यानंतर विशिष्ट अस्वीकृति नोटद्वारे नाकारलेली दृष्टांते हटविली जातात. अनुपस्थित असल्यास अनंत.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmDeleteRejectionNoteDelay": {
+      "title": "अस्वीकृति नोट हटवण्याचे विलंब ",
+      "description": "ISO-8601 कालावधी स्वरूपात विलंब PnDTnHnMn.nS ज्यानंतर विशिष्ट अस्वीकृति नोट हटविली जातात. अनुपस्थित असल्यास अनंत.",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

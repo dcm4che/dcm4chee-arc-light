@@ -1,0 +1,54 @@
+{
+  "title": "Connessione di Rete",
+  "description": "Descrive una porta TCP/UDP su un dispositivo di rete.",
+  "type": "object",
+  "required": [
+    "dicomHostname"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Nome",
+      "description": "Nome arbitrario/significativo per l'oggetto Connessione di rete",
+      "type": "string"
+    },
+    "dicomHostname": {
+      "title": "Nome host",
+      "description": "Nome DNS per questa particolare connessione",
+      "type": "string"
+    },
+    "dicomPort": {
+      "title": "Porta",
+      "description": "Porta TCP/UDP su cui è in ascolto un servizio. Potrebbe mancare se questa connessione di rete viene utilizzata solo per le connessioni in uscita",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 99999
+    },
+    "dicomTLSCipherSuite": {
+      "title": "TLS CipherSuites",
+      "description": "Le CipherSuite TLS supportate su questa particolare connessione. Se non presente TLS è disabilitato",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "SSL_RSA_WITH_NULL_SHA",
+          "TLS_RSA_WITH_AES_128_CBC_SHA",
+          "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+          "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+          "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+          "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+          "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        ]
+      }
+    },
+    "dicomInstalled": {
+      "title": "installato",
+      "description": "Vero se la connessione di rete è installata sulla rete. Se non presente, le informazioni sullo stato di installazione dell'ARR vengono ereditate dal dispositivo",
+      "type": "boolean"
+    },
+    "dcmNetworkConnection": {
+      "title": "Estensione della connessione di rete",
+      "description": "Attributi di connessione di rete proprietari di dcm4che",
+      "$ref": "dcmNetworkConnection.schema.json"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "title": "画像 ライター",
+  "description": "DICOM 画像の 圧縮に 使用される 書き込み パラメーターを 持つ Java 画像 IO 画像 ライターを 指定します",
+  "type": "object",
+  "required": [
+    "dicomTransferSyntax",
+    "dcmIIOFormatName"
+  ],
+  "properties": {
+    "dicomTransferSyntax": {
+      "title": "転送 構文",
+      "description": "DICOM 画像を 圧縮 する 転送 構文",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmIIOFormatName": {
+      "title": "画像 IO ライター 形式名",
+      "description": "画像 IO ライター 形式名",
+      "type": "string"
+    },
+    "dcmJavaClassName": {
+      "title": "Java クラス名",
+      "description": "画像 IO ライターの 完全 修飾 Java クラス。 存在しない 場合は、 指定された 形式名で 見つかった 任意の 画像 ライターを 使用します",
+      "type": "string"
+    },
+    "dcmPatchJPEGLS": {
+      "title": "パッチ JPEG-LS",
+      "description": "圧縮の 後で JPEG-LSを パッチ する",
+      "type": "string",
+      "enum": [
+          "JAI2ISO",
+          "ISO2JAI",
+          "ISO2JAI_IF_APP_OR_COM"
+      ]
+    },
+    "dcmImageWriteParam": {
+      "title": "画像 書き込み パラメーター",
+      "description": "画像 書き込み パラメータ (名前 = 値)は 圧縮 前に 画像 ライターで 設定 します",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

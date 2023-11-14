@@ -1,0 +1,52 @@
+{
+  "title": "आर्काइव्ह संकुचन नियम",
+  "description": "आर्काइव्ह संकुचन नियम.",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomTransferSyntax",
+    "dcmRulePriority"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाव",
+      "description": "आर्काइव्ह संकुचन नियमाचे अनियंत्रित / अर्थपूर्ण नाव.",
+      "type": "string"
+    },
+    "dicomTransferSyntax": {
+      "title": "DICOM हस्तांतरण वाक्यरचना UID",
+      "description": "हस्तांतरण वाक्यरचना ज्यामध्ये प्राप्त झालेल्या प्रतिमा संकलित केल्या जातील.",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmRulePriority": {
+      "title": "नियम प्राधान्य",
+      "description": "प्राप्त झालेल्या प्रतिमेसाठी अनेक संकुचन नियमांची अट जुळल्यास, सर्वाधिक प्राधान्य असलेला नियम लागू होईल. समान प्राधान्यासह बरेच जुळणारे नियम असल्यास कोणता नियम लागू होईल हे अपरिभाषित आहे.",
+      "type": "integer",
+      "default" : 0,
+      "minimum": 0
+    },
+    "dcmProperty": {
+      "title": "अटी",
+      "description": "अटी या प्रारूपात (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}. कुठल्याही दिलेल्या विशेषतासाठी एकापेक्षा अधिक मूल्य निर्दिष्ट करण्यासाठी त्यांना | प्रतीकेचा वापर करून वेगळे केले जाऊ शकते. उदाहरण : SendingApplicationEntityTitle=FORWARD किंवा Modality=MR|CT किंवा ProcedureCodeSequence.CodeValue=MRProcedure किंवा 00180015=KNEE किंवा 00321034.00080100=RequestingServiceCode किंवा ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmImageWriteParam": {
+      "title": "प्रतिमा लेखन मापदंड",
+      "description": "संकुचन करायच्या आधी प्रतिमा लेखन वर कॉन्फीगर केलेले प्रतिमा लेखन मापदंड (नाव=मूल्य).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmCompressionDelay": {
+      "title": "संकुचन विलंब",
+      "description": "ISO-8601 कालावधी PnDTnHnMn.nS प्रारूपात संकुचन विलंभ. अनुपस्थित असल्यास प्राप्त होण्यावर संकुचित करा.",
+      "type": "string",
+      "format": "dcmDuration"
+    }
+  }
+}

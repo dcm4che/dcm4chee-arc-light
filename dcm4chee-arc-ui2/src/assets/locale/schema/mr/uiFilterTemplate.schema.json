@@ -1,0 +1,51 @@
+{
+  "title": "UI फिल्टर साचा",
+  "description": "परिभाषित फिल्टर साचा.",
+  "type": "object",
+  "required": [
+    "dcmuiFilterTemplateGroupName",
+    "dcmuiFilterTemplateID",
+    "dcmuiFilterTemplateFilters"
+  ],
+  "properties": {
+    "dcmuiFilterTemplateGroupName": {
+      "title": "नाव",
+      "description": "साचाचे नाव.",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateID": {
+      "title": "ID",
+      "description": "फिल्टरचा ID जिथे हा साचा लागू होईल.",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateDescription": {
+      "title": "वर्णन",
+      "description": "फिल्टर साचाचे वर्णन.",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateUsername": {
+      "title": "वापरकर्ताचे नाव",
+      "description": "वापरकर्ताचे नाव जो हा साचा वापरेल.",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateRole": {
+      "title": "भूमिका",
+      "description": "वापरकर्त्याची भूमिका जो हा साचा वापरेल.",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateFilters": {
+      "title": "फिल्टर्स",
+      "description": "या साचाचे डीफॉल्ट फिल्टर्स, प्रति key=value साठी फिल्टर परिभाषित करा (उदाहरण : LocalAET=DCM4CHEE). तारीख फिल्टरसाठी, तुम्ही पूर्वनिर्धारित कीवर्ड वापरू शकता (आज, काल, हा आठवडा, हा महिना, मागचा आठवडा, मागचा महिना, हा तिमाही, मागचा तिमाही, हा वर्ष, मागचा वर्ष) जेणेकरून फिल्टर्सची डायनॅमिक मूल्ये व्युत्पन्न करता येतील.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiFilterTemplateDefault": {
+      "title": "डीफॉल्ट",
+      "description": "या साचाला डीफॉल्ट म्हणून वापरा.",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

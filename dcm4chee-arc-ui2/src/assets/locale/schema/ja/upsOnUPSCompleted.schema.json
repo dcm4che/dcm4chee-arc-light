@@ -1,0 +1,202 @@
+{
+  "title": "以前の UPSの 完了に よって 作成された UPS",
+  "description": "以前の UPSの 完了に よって ワークリストで 作業項目を 作成 する。",
+  "type": "object",
+  "required": [
+    "dcmUPSOnUPSCompletedID",
+    "dcmUPSLabel",
+    "dcmUPSPriority",
+    "dcmUPSInputReadinessState",
+    "dcmUPSIncludeStudyInstanceUID",
+    "dcmUPSIncludeInputInformation",
+    "dcmUPSIncludePatient",
+    "dcmUPSIncludeReferencedRequest",
+    "dcmNoKeywords"
+  ],
+  "properties": {
+    "dcmUPSOnUPSCompletedID": {
+      "title": "以前の UPSの 完了に よって 作成された UPSの ID",
+      "description": "以前の UPSの 完了に よって 作成された UPS 規則の ID",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "Condition",
+      "description": "Conditions in format {attributeID[number]})[!]={regEx} or {sequenceAttributeID}[!]=(CV, CSD, \"CM\"). E.g.: PerformedWorkitemCodeSequence=(110005,DCM,\"Interpretation\"). More than one value can be specified for a given attribute by separating them with a | symbol.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmRequiresOtherUPSCompleted": {
+      "title": "Requires other UPS completed",
+      "description": "Specifies Query Parameters for other UPS referring the same request (= Study Instance UID), which must be already be completed for creating this UPS. Format: {attributeID}={value}[&...]",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmUPSLabel": {
+      "title": "手順 ステップ ラベル",
+      "description": "作成された UPSの 中で 手順 ステップ ラベルの 値 (0074,1204)。 {attributeID}は、以前の UPSの データセット 内の その 属性の 値に 置き換えられます。 例 : {StudyDescription}。",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "ワークリスト ラベル",
+      "description": "作成された UPSの 中で ワークリスト ラベルの 値 (0074,1202)。 {attributeID}は、以前の UPSの データセット 内の その 属性の 値に 置き換えられます。 例 : {StudyDescription}。",
+      "type": "string"
+    },
+    "dcmUPSPriority": {
+      "title": "優先度",
+      "description": "作成された UPSの 中で 予定 手順 ステップの 優先度の 値 (0074,1200)。 列挙値: HIGH, MEDIUM, LOW。存在しない 場合、MEDIUMが 適用されます。",
+      "type": "string",
+      "default": "MEDIUM",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "入力 覚悟 状態",
+      "description": "作成された UPSの 中で 入力 覚悟 状態の 値 (0040,4041)",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSStartDateTimeDelay": {
+      "title": "予定された 手順 ステップ 開始 日時の 遅延",
+      "description": "作成された UPSの 中で  PnDTnHnMn.nS 形式で 予定 手順 ステップ 開始 日時の 受信 時刻からの 遅延 (0040,4005)。 存在しない 場合、遅延はありません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSCompletionDateTimeDelay": {
+      "title": "予期される 完了 日時の 遅延",
+      "description": "作成された UPSの 中で PnDTnHnMn.nS 形式で 予期される 完了 日時の 受信 時刻からの 遅延 (0040,4011)。存在しない 場合、完了 予期 日時は 設定されません。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmUPSInstanceUIDBasedOnName": {
+      "title": "UPS Instance UID based on name",
+      "description": "Value to generate name based SOP Instance UID (0008,0018) in created UPS. If absent, a random generated SOP Instance UID (0008,0018) will be used.",
+      "type": "string"
+    },
+    "dcmUPSIncludeInputInformation": {
+      "title": "Include Input Information",
+      "description": "Indicates if the Input Information Sequence (0040,4021) or/and the Output Information Sequence (0040,4033) in the Unified Procedure Step Performed Procedure Sequence (0074,1216) of the previous UPS is included in Input Information Sequence (0040,4021) of the in created UPS.",
+      "type": "string",
+      "default": "COPY_OUTPUT",
+      "enum": [
+        "NO",
+        "COPY_INPUT",
+        "COPY_OUTPUT"
+      ]
+    },
+    "dcmUPSIncludePatient": {
+      "title": "UPS Include Patient",
+      "description": "Indicates if patient attributes are copied from the previous UPS.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmDestinationAE": {
+      "title": "宛先 AE",
+      "description": "インスタンスが 格納される DICOM アプリケーション エンティティの タイトル。",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmEntity": {
+      "title": "累積の 範囲",
+      "description": "累積の 範囲",
+      "type": "string",
+      "enum": [
+        "Study",
+        "Series",
+        "MPPS"
+      ]
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "予定された 作業項目 コード",
+      "description": "作成された UPSの 中で 予定された 作業項目 コード シーケンスの (CV, CSD, \"CM\") 形式で アイテム (0040,4018)。",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "予定された ステーション名 コード",
+      "description": "作成された UPSの 中で 予定された ステーション名 コード シーケンスの (CV, CSD, \"CM\") 形式で アイテム (0040,4025)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "予定された ステーション クラス コード",
+      "description": "作成された UPSの 中で 予定された ステーション クラス コード シーケンスの (CV, CSD, \"CM\") 形式で アイテム (0040,4026)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "予定された ステーション 地理的 ロケーション コード",
+      "description": "作成された UPSの 中で 予定された ステーション 地理的 ロケーション コード シーケンスの (CV, CSD, \"CM\") 形式で アイテム (0040,4027)。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerCode": {
+      "title": "予定された 人間の 実行者 コード",
+      "description": "作成された UPSの 中で 予定された 人間の 実行者の シーケンスの（0040,4034）アイテムに おける 人間の 実行者 コードの (CV, CSD, \"CM\") 形式で 値（0040,4009）。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSScheduledHumanPerformerName": {
+      "title": "予定された 人間の 実行者名",
+      "description": "作成された UPSの 中で 予定された 人間の 実行者の シーケンスの（0040,4034）アイテムに おける 人間の 実行者名の 値（0040,4037）。{attributeID}は、以前の UPSの データセット 内の その 属性の 値に 置き換えられます。例 : {PerformingPhysicianName}。",
+      "type": "string"
+    },
+    "dcmUPSScheduledHumanPerformerOrganization": {
+      "title": "予定された 人間の 実行者の 組織",
+      "description": "作成された UPSの 中で 予定された 人間の 実行者の シーケンスの（0040,4034）アイテムに おける 人間の 実行者の 組織の 値（0040,4036）。{attributeID}は、以前の UPSの データセット 内の その 属性の 値に 置き換えられます。 例 : {ResponsibleOrganization}。",
+      "type": "string"
+    },
+    "dcmAdmissionID": {
+      "title": "アドミッション 番号",
+      "description": "作成された UPSの 中で アドミッション 番号 (0038,0010) の 値。 {attributeID}は、以前の UPSの データセット 内の その 属性の 値に 置き換えられます。 例 : {AdmissionID}。",
+      "type": "string"
+    },
+    "dicomIssuerOfAdmissionID": {
+      "title": "アドミッション 番号の 発行者",
+      "description": "作成された UPSの 中で, アドミッション 番号の 発行者の シーケンスの アイテムの ローカル 名前空間 エンティティ ID（0040,0031）、ユニバーサル エンティティ IDと（0040,0032）ユニバーサル エンティティ ID タイプ（0040,0033) の 値。 形式 : <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
+      "type": "string"
+    },
+    "dcmUPSIncludeStudyInstanceUID": {
+      "title": "検査 インスタンス UIDを 含める",
+      "description": "作成された UPSの 中で 以前の UPSの オブジェクトの 検査 インスタンス UIDを（0020,000D) 含めるか どうかを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUPSIncludeReferencedRequest": {
+      "title": "参照された 要求を 含める",
+      "description": "作成された UPSの 中で, 参照 要求 シーケンス (0040,A370) アイテムの 中で, 以前の UPSの 検査 インスタンス UID (0020,000D) と アクセッション 番号 (0008,0050) と 要求 手順 ID (0040,1001) と 要求された サービス (0032,1033) が 含まれるか どうかを 示します。 それ 以外の 場合は、空の 参照 要求 シーケンス（0040、A370）が 含まれます。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmURI": {
+      "title": "XSL スタイルシート URI",
+      "description": "作成した UPSに 追加の 属性を 含めるために 受信した HL7 メッセージを トランスコード する XSL スタイルシートの URIを 指定します。",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "属性 キーワード なし",
+      "description": "XSLTに 渡される DICOM XMLで 属性 キーワードが 省略されるか どうかを 示します。",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

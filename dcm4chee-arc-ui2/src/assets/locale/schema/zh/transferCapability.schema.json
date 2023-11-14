@@ -1,0 +1,46 @@
+{
+  "title": "转发函数",
+  "description": "每个转发函数指定网络AE可以支持的SOP类,可用的模式（SCP或SCU）和可用的转发语法",
+  "type": "object",
+  "required": [
+    "dicomSOPClass",
+    "dicomTransferRole",
+    "dicomTransferSyntax"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名称",
+      "description": "传输对象的可选/有意义名称",
+      "type": "string"
+    },
+    "dicomSOPClass": {
+      "title": "SOP类",
+      "description": "SOP类UID",
+      "type": "string",
+      "format": "dcmSOPClass"
+    },
+    "dicomTransferRole": {
+      "title": "DICOM转发角色",
+      "description": "DICOM转发角色。",
+      "type": "string",
+      "enum": [
+        "SCP",
+        "SCU"
+      ]
+    },
+    "dicomTransferSyntax": {
+      "title": "传输语法",
+      "description": "作为SCU请求或作为SCP提供的传输语法。",
+      "type": "array",
+      "format": "dcmTransferSyntax",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmTransferCapability": {
+      "title": "传输扩展",
+      "description": "传输属性的\"dcm4che\"专有属性",
+      "$ref": "dcmTransferCapability.schema.json"
+    }
+  }
+}

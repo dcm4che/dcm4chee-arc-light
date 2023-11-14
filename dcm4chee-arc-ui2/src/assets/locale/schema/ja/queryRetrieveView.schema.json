@@ -1,0 +1,43 @@
+{
+  "title": "クエリ / 読み出し ビュー",
+  "description": "保存された 拒否 ノートの 動作を 指定します",
+  "type": "object",
+  "required": [
+    "dcmQueryRetrieveViewID",
+    "dcmHideNotRejectedInstances"
+  ],
+  "properties": {
+    "dcmQueryRetrieveViewID": {
+      "title": "クエリ / 読み出し ビュー ID",
+      "description": "クエリ / 読み出し ビューの 識別名",
+      "type": "string",
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmQueryRetrieveViewID"
+      ]
+    },
+    "dcmShowInstancesRejectedByCode": {
+      "title": "コードに よって 拒否された インスタンスを 見せる",
+      "description": "指定された コードに よって 拒否された インスタンスを 形式 (CV, CSD, 'CM') で Q/R サービスが 見せるか どうかを 示します",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmRejectionNoteCode"
+    },
+    "dcmHideRejectionNoteWithCode": {
+      "title": "拒否 ノート コードを 非表示 する",
+      "description": "指定された コードに よって 拒否 ノート コードを 形式 (CV, CSD, 'CM') で Q/R サービスが 非表示 するか どうかを 示します",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmRejectionNoteCode"
+    },
+    "dcmHideNotRejectedInstances": {
+      "title": "拒否されなかった インスタンスを 非表示に する",
+      "description": "指定された コードに よって 何らかの 理由で 拒否されなかった インスタンスを 形式 (CV, CSD, 'CM') で Q/R サービスが 非表示 するか どうかを 示します",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

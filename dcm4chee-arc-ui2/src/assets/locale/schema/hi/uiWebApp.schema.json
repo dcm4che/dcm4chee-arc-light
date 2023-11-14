@@ -1,0 +1,57 @@
+{
+  "title": "वेब अनुप्रयोगों की सूची",
+  "description": "वेब अनुप्रयोगों की सूची ।",
+  "type": "object",
+  "required": [
+    "dcmuiWebAppListName",
+    "dcmuiWebApps",
+    "dcmuiMode"
+  ],
+  "properties": {
+    "dcmuiWebAppListName": {
+      "title": "सूची का नाम",
+      "description": "इस कॉन्फिग के लिए एक नाम परिभाषित करें ।",
+      "type": "string"
+    },
+    "dcmuiWebAppListDescription": {
+      "title": "वर्णन",
+      "description": "वेब अनुप्रयोगों की सूची का वर्णन ।",
+      "type": "string"
+    },
+    "dcmuiMode": {
+      "title": "सूची का प्रकार",
+      "description": "आपके पास परिभाषित सूची को दिखाने की २ सम्भावनाए है: १.) शेष सूची के शीर्ष पर एक पंक्ति के साथ 'अलग', २.) केवल जो यहाँ परिभाषित है उन्हें दिखाए 'अनन्य' ।",
+      "type": "string",
+      "default":"separated",
+      "enum": [
+        "separated",
+        "exclusive"
+      ]
+    },
+    "dcmuiWebApps": {
+      "title": "वेब अनुप्रयोग",
+      "description": "वेब अनुप्रयोग ।",
+      "format": "webApp",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "स्वीकृत उपभोक्ता की भूमिका",
+      "description": "उन भूमिकाओं को परिभाषित करें जिनके लिए यह कॉन्फिग उपलब्ध होना चाहिए, सारे भूमिकाओं पे उपलब्ध होने के लिए 'user' का इस्तमाल करें । स्वीकृत उपभोक्ता की भूमिका या स्वीकृत उपभोक्ता का नाम, सिर्फ किसी एक को ही परिभाषित करें ।",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserName": {
+      "title": "स्वीकृत उपभोक्ता का नाम",
+      "description": "उन उपभोक्ताओं के नामों को परिभाषित करें जिनके लिए यह कॉन्फिग उपलब्ध होना चाहिए । स्वीकृत उपभोक्ता का नाम या स्वीकृत उपभोक्ता की भूमिका, सिर्फ किसी एक को ही परिभाषित करें ।",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

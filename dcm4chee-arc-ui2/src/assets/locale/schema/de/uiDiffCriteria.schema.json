@@ -1,0 +1,66 @@
+{
+  "title": "UI Diff Criteria",
+  "description": "UI Diff Criteria",
+  "type": "object",
+  "required": [
+    "dcmuiDiffCriteriaTitle",
+    "dcmuiDiffIncludeMissing"
+  ],
+  "properties": {
+    "dcmuiDiffCriteriaTitle": {
+      "title": "UI Diff Criteria Title",
+      "description": "Title of Diff Criteria",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "UI Diff Criteria Description",
+      "description": "Unconstrained text description of this UI Diff Criteria",
+      "type": "string"
+    },
+    "dcmuiDiffCriteriaNumber": {
+      "title": "UI Diff Criteria Number",
+      "description": "Attribute Set Number used to order Attribute Sets.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "dcmuiDiffIncludeMissing": {
+      "title": "UI Including Missing",
+      "description": "Indicate if missing Studies shall be included",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAttributeSetID": {
+      "title": "Attribute Set ID",
+      "description": "ID of Attribute Set specifying compared attributes",
+      "type": "string",
+      "format": "dcmAttributeSetID"
+    },
+    "dcmuiDiffGroupButton": {
+      "title": "UI Diff Group Button",
+      "description": "UI Diff Group Button",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "synchronize",
+          "export",
+          "reject"
+        ]
+      }
+    },
+    "dcmuiDiffAction": {
+      "title": "UI Diff Action",
+      "description": "UI Diff Action",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "patient-update",
+          "study-reject-export",
+          "study-reject",
+          "study-export"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "title": "UI इलास्टिकसर्च कॉन्फिगरेशन",
+  "description": "प्रो आवृत्तीसाठी इलास्टिकसर्च कॉन्फिगरेशन.",
+  "type": "object",
+  "required": [
+    "dcmuiElasticsearchConfigName"
+  ],
+  "properties": {
+    "dcmuiElasticsearchConfigName": {
+      "title": "UI इलास्टिकसर्च कॉन्फिगरेशनचे नाव",
+      "description": "UI इलास्टिकसर्च कॉन्फिगरेशनचे नाव",
+      "type": "string"
+    },
+    "dcmuiElasticsearchURLObjects": {
+      "title": "UI इलास्टिकसर्च URL",
+      "description": "UI इलास्टिकसर्च URL",
+      "titleKey":"{dcmuiElasticsearchURLName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiElasticsearchURL.schema.json"
+      }
+    }
+  }
+}

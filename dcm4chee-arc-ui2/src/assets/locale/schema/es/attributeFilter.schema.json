@@ -1,0 +1,58 @@
+{
+  "title": "Attribute Filter",
+  "description": "Attributes stored in the database",
+  "type": "object",
+  "required": [
+    "dcmEntity",
+    "dcmTag"
+  ],
+  "properties": {
+    "dcmEntity": {
+      "title": "Attribute Entity",
+      "description": "Entity of the Attribute Filter or Export Rule ('Patient', 'Study', 'Series', 'Instance', 'MPPS', 'MWL').",
+      "type": "string",
+      "enum": [
+        "Patient",
+        "Study",
+        "Series",
+        "Instance",
+        "MPPS",
+        "MWL"
+      ]
+    },
+    "dcmTag": {
+      "title": "Attribute Tag",
+      "description": "DICOM Tag as hex string",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
+    "dcmCustomAttribute1": {
+      "title": "Custom Attribute 1",
+      "description": "Configure any attribute from the DICOM object which shall be inserted in database as Custom Attribute 1. Only applicable for Patient / Study / Series / Instance entities. Eg. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] or for a Private attribute DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmCustomAttribute2": {
+      "title": "Custom Attribute 2",
+      "description": "Configure any attribute from the DICOM object which shall be inserted in database as Custom Attribute 2. Only applicable for Patient / Study / Series / Instance entities. Eg. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] or for a Private attribute DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmCustomAttribute3": {
+      "title": "Custom Attribute 3",
+      "description": "Configure any attribute from the DICOM object which shall be inserted in database as Custom Attribute 3. Only applicable for Patient / Study / Series / Instance entities. Eg. DicomAttribute[@tag=\"00200070\"]/Value[@number=\"1\"] or for a Private attribute DicomAttribute[@tag=\"00E10024\" and @privateCreator=\"ELSCINT1\"]/Value[@number=\"1\"]",
+      "type": "string"
+    },
+    "dcmAttributeUpdatePolicy": {
+      "title": "Attribute Update Policy",
+      "description": "Specifies update policy for extracted attributes into the DB on Series, Study & Patient level on receive of further instance of the entity. PRESERVE (= nullify attributes in the new dataset which are not present in the original dataset), SUPPLEMENT (= attributes not present in original dataset will be supplemented), REPLACE (= original dataset is completely replaced), MERGE (= attribute values will be written from new dataset), OVERWRITE (= attribute values if null in new dataset, will be nullified in original dataset). If absent, PRESERVE will be applied",
+      "type": "string",
+      "enum": [
+        "PRESERVE",
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE",
+        "REPLACE"
+      ]
+    }
+  }
+}

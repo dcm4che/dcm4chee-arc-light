@@ -1,0 +1,51 @@
+{
+  "title": "UI अभ्यास टेबल कॉलम कॉन्फिगरेशन",
+  "description": "अभ्यास टेबल कॉलम.",
+  "type": "object",
+  "required": [
+    "dcmuiColumnName",
+    "dcmuiValuePath",
+    "dcmuiValueType"
+  ],
+  "properties": {
+    "dcmuiColumnName": {
+      "title": "कॉलमचे नाव",
+      "description": "अभ्यास टेबल में कॉलमचे नाव.",
+      "type": "string"
+    },
+    "dcmuiColumnId": {
+      "title": "Column ID",
+      "description": "Every possible column that is used in the UI, has and ID, by using the ID you can change some of the properties of that Column, like Name, Description, Order or width",
+      "type": "string"
+    },
+    "dcmuiColumnTitle": {
+      "title": "कॉलमचे वर्णन",
+      "description": "होव्हर वर दर्शविलेले कॉलमचे वर्णन.",
+      "type": "string"
+    },
+    "dcmuiValuePath": {
+      "title": "मूल्य पथ",
+      "description": "कॉलमचे मूल्य (json-Object) चा पथ (उदाहरण : रुग्णाच्या नावासाठी '00100010.Value[0].Alphabetic' किंवा रुग्णाच्या ID साठी '00100020.Value[0]').",
+      "type": "string"
+    },
+    "dcmuiValueType": {
+      "title": "मूल्याचा प्रकार",
+      "description": "मूल्य प्राप्त करण्यासाठी कॉलमचा प्रकार, डीफॉल्ट 'value' असावे.",
+      "type": "string",
+      "enum": [
+        "value",
+        "pipe"
+      ]
+    },
+    "dcmuiColumnWidth": {
+      "title": "वजनात कॉलमची रुंदी",
+      "description": "वजनात कॉलमची रुंदी ( x > 0.1 - x < अनंत ), डीफॉल्ट १",
+      "type":  "string"
+    },
+    "dcmuiColumnOrder": {
+      "title": "कॉलमची क्रमानुरूप",
+      "description": "कॉलमची क्रमानुरूप",
+      "type":  "number"
+    }
+  }
+}

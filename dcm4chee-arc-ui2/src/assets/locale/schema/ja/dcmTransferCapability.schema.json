@@ -1,0 +1,78 @@
+{
+  "title": "転送 機能 拡張",
+  "description": "転送 機能 属性の 「dcm4che」 独自 属性",
+  "type": "object",
+  "required": [
+    "dcmRelationalQueries",
+    "dcmCombinedDateTimeMatching",
+    "dcmFuzzySemanticMatching",
+    "dcmTimezoneQueryAdjustment"
+  ],
+  "properties": {
+    "dcmPreferredTransferSyntax": {
+      "title": "好ましい 転送 構文",
+      "description": "優先度で 注文した プレゼンテーション コンテキスト内の 転送 構文を 選択するための 好ましい 転送 構文。 AE レベルで 指定された 値を 上書きします。",
+      "type": "array",
+      "format": "dcmTransferSyntax",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmRelationalQueries": {
+      "title": "関係 クエリ",
+      "description": "関係 クエリを 有効 / 無効に します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmCombinedDateTimeMatching": {
+      "title": "組み合わせた 日付と 時刻 マッチング",
+      "description": "日付と 時刻の 組み合わせた 一致を 有効 / 無効に します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmFuzzySemanticMatching": {
+      "title": "ファジー セマンティック マッチング",
+      "description": "個人の 名前の ファジー セマンティック マッチングを 有効 / 無効に します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmTimezoneQueryAdjustment": {
+      "title": "タイムゾーン クエリ 調整",
+      "description": "タイムゾーン クエリ 調整の 有効 / 無効 する",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStorageConformance": {
+      "title": "格納の 適合性",
+      "description": "格納 SCPの 適合性の レベルを 示します",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dcmDigitalSignatureSupport": {
+      "title": "デジタル 署名 支持 ",
+      "description": "格納 SCPの デジタル 署名 支持の レベルを 示します",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dcmDataElementCoercion": {
+      "title": "データ 要素の 強制",
+      "description": "格納 SCPの データ 要素の 強制を 示します",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2
+      ]
+    }
+  }
+}

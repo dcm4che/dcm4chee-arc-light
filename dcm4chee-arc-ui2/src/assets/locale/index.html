@@ -1,0 +1,13 @@
+<html>
+<head>
+    <script>
+        try{
+            const currentLanguage = JSON.parse(localStorage.getItem('current_language'));
+            if(currentLanguage && currentLanguage.language && currentLanguage.language.code && currentLanguage.language.code != "" ){
+                window.location.href = `/dcm4chee-arc/ui2/${currentLanguage.language.code}/`;
+            }
+        }catch (e) {}
+        window.location.href = `/dcm4chee-arc/ui2/en/`;
+    </script>
+</head>
+</html>

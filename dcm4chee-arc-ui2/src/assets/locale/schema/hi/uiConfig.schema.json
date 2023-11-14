@@ -1,0 +1,210 @@
+{
+  "title": "UI विन्यास",
+  "description": "UI विन्यास",
+  "type": "object",
+  "required": [
+    "dcmuiConfigName",
+    "dcmuiHideOtherPatientIDs"
+  ],
+  "properties": {
+    "dcmuiConfigName": {
+      "title": "UI विन्यास का नाम",
+      "description": "UI विन्यास का नाम",
+      "type": "string"
+    },
+    "dcmuiModalities": {
+      "title": "स्टेटिस्टिक मोडेलिटीज़",
+      "description": "पूर्व चुने हुए मोडेलिटीज़ जो स्टेटिस्टिक पेज में दिखने चाहिए",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiLanguageConfig":{
+      "title": "Language Config",
+      "description": "Config the languages of the UI",
+      "titleKey":"{dcmuiLanguageConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiLanguage.schema.json"
+      }
+    },
+    "dcmuiWidgetAets": {
+      "title": "विजेट AET",
+      "description": "उन AET को चुने जो AET विजेट में दिखने चाहिए, जिसमें कौनसे नए जोड़े गए AET को स्वीकृत आह्वान AET के रूप में इस्तमाल किया जाए, यह आप चुन सकते है ।",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmuiBackgroundURL": {
+      "title": "पृष्ठभूमि का URL",
+      "description": "UI का पृष्ठभूमि बदलने के लिए पृष्ठभूमि का URL, यह सापेक्ष या निरपेक्ष URL हो सकता है, छवि की चौड़ाई कम से कम १०२४px होनी चाहिए ।",
+      "type": "string"
+    },
+    "dcmuiHideOtherPatientIDs": {
+      "title": "Hide Other Patient IDs",
+      "description": "Indicates if other patient identifiers of patient record present in Other Patient IDs Sequence (0010,1002) shall be hidden. By default, all patient identifiers of patient record are displayed separated by comma.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmuiLogoURL": {
+      "title": "प्रतीक चिन्ह का URL",
+      "description": "UI का प्रतीक चिन्ह बदलने के लिए प्रतीक चिन्ह का URL, यह सापेक्ष या निरपेक्ष URL हो सकता है, छवि की चौड़ाई १४० पिक्सेल (140px) होनी चाहिए और पारदर्शी पृष्ठभूमि के साथ png प्रारूप में होनी चाहिए ।",
+      "type": "string"
+    },
+    "dcmuiDateTimeFormat": {
+      "title": "Format Date Time",
+      "description": "Here you can format the date time in the UI by using 'yyyy' for the year, 'MM' for the Month, 'dd' for the date, 'HH' for the hour 'mm' for the minutes, 'ss' for the seconds and 'SSS' for milliseconds. To format Date, Time and Date-Time you should use `DATE`, `TIME` and `DATE-TIME` for example like this: `DATE=yyyy-MM-dd, TIME=HH:mm, DATE-TIME=yyyy-MM-dd HH:mm`",
+      "type": "string"
+    },
+    "dcmuiHideClock": {
+      "title": "Hide Clock",
+      "description": "Set to true if you want to hide the clock in the UI",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmuiPageTitle": {
+      "title": "Page Title",
+      "description": "If set, it will be used as UI page Title ( The Text shown in the Tab of the Browser ) ",
+      "type": "string"
+    },
+    "dcmuiPersonNameFormat": {
+      "title": "Format Person Name",
+      "description": "Here you can format the person Name in the UI by using:{FAMILY-NAME}, {GIVEN-NAME}, {MIDDLE-NAME}, {NAME-PREFIX}, {NAME-SUFFIX} for Alphabetic, or by appending 'I_' for the Ideographic and 'P_' for the Phonetic version like {P_FAMILY-NAME}, {I_NAME-SUFFIX}",
+      "type": "string"
+    },
+    "dcmuiDefaultWidgetAets": {
+      "title": "डिफ़ॉल्ट विजेट AET",
+      "description": "उन AET का चयन करें, जिन्हें विजेट AET पर पूर्व चुने जाने चाहिए ।",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmuiMWLWorklistLabel": {
+      "title": "MWL Worklist Label",
+      "description": "Selectable values for MWL Worklist Label",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmMWLImport.dcmMWLWorklistLabel",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmMWLWorklistLabel",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.dcmMWLWorklistLabel",
+        "$.dcmDevice.dcmArchiveDevice.dcmArchiveAttributeCoercion[*].dcmMergeLocalMWLWorklistLabel[*]"
+      ]
+    },
+    "dcmuiInstitutionNameFilterType": {
+      "title": "Institution Name Filter Type",
+      "description": "This will define how the Institution Name filter used in the Navigation Page should be displayed and if there should be a prefilled dropdown and where to get those data from",
+      "type": "string",
+      "enum": [
+        "simple_filed|Simple input field|Simple input field",
+        "ui_config|Dropdown by using this config ( See next field 'Institution Names' )|Dropdown by using this config",
+        "db|Dropdown will be prefilled with the strings coming by calling the service '../institutions'|Dropdown by querying the Database"
+      ]
+    },
+    "dcmuiInstitutionName": {
+      "title": "Institution Names",
+      "description": "This will be used in combination with the previous field 'Institution Name Filter Type' to prefill the Dropdown of the Filter Institution Names in the Navigation Page",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiAetConfig": {
+      "title": "AET की सूची",
+      "description": "UI में AET की सूची के शीर्ष पर जो AET दिखने चाहिए, परिभाषित करें ।",
+      "titleKey":"{dcmuiAetListName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiAet.schema.json"
+      }
+    },
+    "dcmuiWebAppConfig": {
+      "title": "वेब अनुप्रयोगों की सूची",
+      "description": "UI में वेब अनुप्रयोगों की सूची के शीर्ष पर जो वेब अनुप्रयोग दिखने चाहिए, परिभाषित करें ।",
+      "titleKey":"{dcmuiWebAppListName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiWebApp.schema.json"
+      }
+    },
+    "dcmuiPermission": {
+      "title": "अनुमति",
+      "description": "अनुमति ।",
+      "titleKey":"{dcmuiPermissionName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiPermission.schema.json"
+      }
+    },
+    "dcmuiFilterTemplateObject": {
+      "title": "UI Filter Template",
+      "description": "Defined filter template",
+      "titleKey":"{dcmuiFilterTemplateGroupName} ( {dcmuiFilterTemplateID} )",
+      "type": "array",
+      "items" : {
+        "$ref": "uiFilterTemplate.schema.json"
+      }
+    },
+    "dcmuiDiffConfig": {
+      "title": "स्टडी तुलना विन्यास",
+      "description": "स्टडी तुलना विन्यास ।",
+      "titleKey":"{dcmuiDiffConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDiffConfig.schema.json"
+      }
+    },
+    "dcmuiTableConfig": {
+      "title": "UI Table Configuration",
+      "description": "Configuration of table",
+      "titleKey":"{dcmuiTableConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiTable.schema.json"
+      }
+    },
+    "dcmuiElasticsearchConfig": {
+      "title": "UI इलास्टिकसर्च विन्यास",
+      "description": "प्रो संस्करण के लिए इलास्टिकसर्च विन्यास ।",
+      "titleKey":"{dcmuiElasticsearchConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiElasticsearch.schema.json"
+      }
+    },
+    "dcmuiDeviceClusterObject": {
+      "title": "UI क्लस्टर विन्यास",
+      "description": "डिवाइसेस को क्लस्टर में समूहित करें ।",
+      "titleKey":"{dcmuiDeviceClusterName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDeviceCluster.schema.json"
+      }
+    },
+    "dcmuiDashboardConfig": {
+      "title": "UI डैशबोर्ड विन्यास",
+      "description": "UI डैशबोर्ड विन्यास ।",
+      "titleKey":"{dcmuiDashboardConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDashboard.schema.json"
+      }
+    },
+    "dcmuiCreateDialogTemplate": {
+      "title": "UI Create-Dialog Template",
+      "description": "Template that will be used on the create-dialogs while crating MWL or Patient",
+      "titleKey":"{dcmuiTemplateName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDialogTemplate.schema.json"
+      }
+    }
+  }
+}

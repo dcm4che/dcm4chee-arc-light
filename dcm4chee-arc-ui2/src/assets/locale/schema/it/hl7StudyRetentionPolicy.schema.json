@@ -1,0 +1,78 @@
+{
+  "title": "Criteri di Conservazione Studio HL7",
+  "description": "Criteri di Conservazione Studio HL7",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmRulePriority",
+    "dicomAETitle",
+    "dcmExpireSeriesIndividually",
+    "dcmStartRetentionPeriodOnStudyDate",
+    "dcmFreezeExpirationDate",
+    "dcmRevokeExpiration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Nome",
+      "description": "Nome arbitrario/significativo della politica di conservazione dello studio HL7",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "Titolo dell'entità dell'applicazione (AE)",
+      "description": "Titolo dell'entità dell'applicazione (AE)",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmRetentionPeriod": {
+      "title": "Periodo di conservazione minimo dello studio",
+      "description": "Periodo minimo di conservazione dello studio in formato periodo ISO-8601 PnYnMnD o PnW. Ineffective if 'Maximal Study Retention Period' is also set.",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmMaxRetentionPeriod": {
+      "title": "Periodo massimo di conservazione dello studio",
+      "description": "Periodo massimo di conservazione dello studio in formato periodo ISO-8601 PnYnMnD o PnW",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmRulePriority": {
+      "title": "Priorità delle regole",
+      "description": "Priorità della regola.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "Condizioni",
+      "description": "Condizioni nel formato {SEG}-{Seq #}[.{Comp#}[.{SubComp#}]][!]={regEx}. Esempi: MSH-4=FORWARD o MSH-9=ADT\\^A28\\^ADT_A05 o PID-3[.3]=PIDIssuer o PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmStartRetentionPeriodOnStudyDate": {
+      "title": "Inizia il Periodo di conservazione sulla data dello Studio",
+      "description": "Indica se il periodo di conservazione deve essere avviato nelle singole Date di studio anziché alla ricezione del messaggio HL7 che attiva questa regola.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmExporterID": {
+      "title": "Esporta studio scaduto",
+      "description": "Esporta studi/serie scaduti utilizzando l'esportatore specificato",
+      "type": "string",
+      "format": "dcmExporterID"
+    },
+    "dcmFreezeExpirationDate": {
+      "title": "Congela la data di scadenza",
+      "description": "Indica di disabilitare le modifiche della Data di Scadenza dagli eventi seguenti.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRevokeExpiration": {
+      "title": "Revoca data di scadenza",
+      "description": "Indica i revocare una data di scadenza impostata in precedenza.",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

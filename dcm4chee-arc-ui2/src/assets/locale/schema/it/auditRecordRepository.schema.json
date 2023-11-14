@@ -1,0 +1,24 @@
+{
+  "title": "Archivio delle registrazioni di controllo",
+  "description": "Informazioni relative all'archivio delle registrazioni di controllo",
+  "type": "object",
+  "required": [
+    "dicomNetworkConnectionReference"
+  ],
+  "properties": {
+    "dicomNetworkConnectionReference": {
+      "title": "Riferimento per la connessione di rete",
+      "description": "I puntatori JSON agli oggetti di connessione di rete di questo repository di registrazioni di controllo",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dicomDeviceName"
+    },
+    "dicomInstalled": {
+      "title": "installato",
+      "description": "Vero se ARR è installato sulla rete. Se non presente, le informazioni sullo stato di installazione dell'ARR vengono ereditate dal dispositivo",
+      "type": "boolean"
+    }
+  }
+}

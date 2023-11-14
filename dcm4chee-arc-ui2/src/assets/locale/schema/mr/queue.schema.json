@@ -1,0 +1,109 @@
+{
+  "title": "रांग",
+  "description": "व्यवस्थापित टास्क रांग",
+  "type": "object",
+  "required": [
+    "dcmQueueName",
+    "dcmMaxTasksParallel",
+    "dcmRetryDelay",
+    "dcmRetryOnWarning",
+    "dcmRetryDelayMultiplier",
+    "dcmMaxRetries",
+    "dicomInstalled"
+  ],
+  "properties": {
+    "dcmQueueName": {
+      "title": "रांगेचे नाव",
+      "description": "टास्क रांगेचे नाव.",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiQueueName[*]",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCompareSideObjects[*].dcmuiCompareSideQueueName"
+      ]
+    },
+    "dicomInstalled": {
+      "title": "installed",
+      "description": "कॉन्फीगर केलेले नसेल तर, या रांगेतील कार्यांची प्रक्रिया थांबवली जातील.",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmMaxTasksParallel": {
+      "title": "कमाल समांतर कार्ये",
+      "description": "समांतर पद्धतीने प्रक्रिया केलेल्या कार्यांची कमाल संख्या.",
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "dicomDescription": {
+      "title": "DICOM वर्णन",
+      "description": "DICOM घटकाचे मजकूर वर्णन.",
+      "type": "string"
+    },
+    "dcmMaxRetries": {
+      "title": "पुन्हा प्रयत्न करण्याची अधिकतम संख्या",
+      "description": "विशिष्ट रांगेत अनुसूची केलेल्या कार्यांचे प्रक्रिया करण्यासाठी जास्तीत जास्त पुन्हा प्रयत्न करण्याची संख्या.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "पुन्हा प्रयत्न करण्याचा विलंब",
+      "description": "विशिष्ट रांगेत अनुसूची केलेल्या कार्यांवर पुन्हा प्रक्रिया प्रयत्न करण्यासाठी ISO-8601 कालावधी स्वरूपात PnDTnHnMn.nS विलंब.",
+      "type": "string",
+      "default": "PT1M",
+      "format": "dcmDuration"
+    },
+    "dcmMaxRetryDelay": {
+      "title": "पुन्हा प्रयत्न करण्याचा अधिकतम विलंब",
+      "description": "विशिष्ट रांगेत अनुसूची केलेल्या कार्यांवर पुन्हा प्रक्रिया प्रयत्न करण्यासाठी ISO-8601 कालावधी स्वरूपात PnDTnHnMn.nS अधिकतम विलंब. अनुपस्थित असल्यास अनंत.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmRetryDelayMultiplier": {
+      "title": "पुन्हा प्रयत्न करण्याचा विलंब गुणक",
+      "description": "% मध्ये गुणक जे 'पुन्हा प्रयत्न करण्याचा अधिकतम विलंब' च्या बरोबर 'पुन्हा प्रयत्न करण्याचा विलंब' च्या शीर्षस्थानी प्रभावी होईल.",
+      "type": "integer",
+      "minimum": 100,
+      "default": 100
+    },
+    "dcmRetryOnWarning": {
+      "title": "चेतावणी देण्याचा पुन्हा प्रयत्न करा",
+      "description": "केवळ अयशस्वी झाल्यावरच नव्हे तर एका विशिष्ट रांगेतील चेतावणीच्या परिणामाच्या स्थितीवर कार्यांची प्रक्रिया पुन्हा करण्याचा प्रयत्न सक्षम करते.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmPurgeQueueMessageCompletedDelay": {
+      "title": "रांगेतले पूर्ण संदेश हटविण्याचे विलंब",
+      "description": "ISO-8601 कालावधी स्वरूपात विलंब PnDTnHnMn.nS ज्यानंतर रांगेतले पूर्ण संदेश हटविले जातात. अनुपस्थित असल्यास, त्या विशिष्ट रांगेसाठी कोणतेही हटविले जाणार नाही.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageFailedDelay": {
+      "title": "रांगेतले अयशस्वी संदेश हटविण्याचे विलंब",
+      "description": "ISO-8601 कालावधी स्वरूपात PnDTnHnMn.nS विलंब ज्यानंतर रांगेतले अयशस्वी संदेश हटविले जातात. अनुपस्थित असल्यास, त्या विशिष्ट रांगेसाठी कोणतेही हटविले जाणार नाही.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageWarningDelay": {
+      "title": "रांगेतले चेतावणी संदेश हटविण्याचे विलंब",
+      "description": "ISO-8601 कालावधी स्वरूपात PnDTnHnMn.nS विलंब ज्यानंतर रांगेतले चेतावणी संदेश हटविले जातात. अनुपस्थित असल्यास, त्या विशिष्ट रांगेसाठी कोणतेही हटविले जाणार नाही.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeQueueMessageCanceledDelay": {
+      "title": "रांगेतले रद्द संदेश हटविण्याचे विलंब",
+      "description": "ISO-8601 कालावधी स्वरूपात विलंब PnDTnHnMn.nS ज्यानंतर रांगेतले रद्द संदेश हटविले जातात. अनुपस्थित असल्यास, त्या विशिष्ट रांगेसाठी कोणतेही हटविले जाणार नाही.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmSchedule": {
+      "title": "अनुसूची करणे प्रतिबंधित करा",
+      "description": "निर्दिष्ट वेळ श्रेणीसाठी अनुसूची करणे प्रतिबंधित करा. निर्दिष्ट वेळ श्रेणी दरम्यान प्रक्रिया केलेल्या कार्यांची अधिकतम संख्याला रांगेच्या अधिकतम संख्याने नियंत्रित करा.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSchedule"
+    }
+  }
+}

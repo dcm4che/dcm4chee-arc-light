@@ -1,0 +1,65 @@
+{
+  "title": "नेटवर्क AE एक्सटेंशन",
+  "description": "DCM4CHE मालिकाना नेटवर्क AE के गुण ।",
+  "type": "object",
+  "properties": {
+    "dcmRoleSelectionNegotiationLenient": {
+      "title": "भूमिका चयन का उदार व्यवहार",
+      "description": "डिमसे अनुरोध के भेजे जाने पे अपेक्षित SCP/SCU के भूमिका चयन के व्यवहार की जाँच असक्षम करें । डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmAcceptedCallingAETitle": {
+      "title": "स्वीकृति आह्वान AE का नाम",
+      "description": "सूची में न पाए गए AE से सहयोजन स्वीकार न करें । अगर अनुपलभ्य हो तो, कोई भी AE स्वीकार किया जाएगा ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmOtherAETitle": {
+      "title": "अन्य AE के नाम",
+      "description": "नेटवर्क AE के अतिरिक्त AE के नाम - अर्थात ऐसे किसी बुलाये गए AE के नाम के साथ सहयोजन अनुरोध स्वीकार किए जाएंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmNoAsyncModeCalledAETitle": {
+      "title": "No Async Mode Called AE Title",
+      "description": "Blacklist AE Title of peer Network AE as not capable to handle Asynchronous Operations Window Negotiation correctly. Suppress including corresponding User-data sub-Item in A-ASSOCIATE RQs to that Network AEs.",
+      "type": "array",
+      "format": "dcmAETitle",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmMasqueradeCallingAETitle": {
+      "title": "स्वांग आह्वान AE का नाम",
+      "description": "नेटवर्क सहयोजन आरंभ किए जाने पे AE का नाम जो इस नेटवर्क AE के वास्तविक AE के नाम को स्वांग करेगा - इच्छानुसार उपसर्ग [<बुलाए गए AE का नाम>] लागू कराने से किसी विशेष AE के नाम के साथ सहयोजन के स्वांग को सीमित करता है ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmPreferredTransferSyntax": {
+      "title": "अधिमान्य हस्तांतरण वाक्यविन्यास",
+      "description": "प्रेजेंटेशन कॉन्टेक्स्ट में हस्तांतरण वाक्यविन्यास के चयन का अधिमान्य हस्तांतरण वाक्यविन्यास, प्राथमिकता द्वारा ऑर्डर किया जाएगा । अगर अनुपलभ्य हो तो, उपलब्ध कराये गए प्रेजेंटेशन कॉन्टेक्स्ट में से पहला स्वीकारयोग्य हस्तांतरण वाक्यविन्यास चुना जाएगा । इस AE के किसी हस्तांतरण क्षमताओं पे कॉन्फ़िगर किए गए मूल्यों से अधिलेखित किया जा सकता है ।",
+      "type": "array",
+      "format": "dcmTransferSyntax",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7ApplicationName": {
+      "title": "HL7 अनुप्रयोग का नाम",
+      "description": "इस AE से संबंधित HL7 अनुप्रयोग और सुविधा का नाम (अनुप्रयोग|सुविधा) ।",
+      "type": "string",
+      "format": "hl7ApplicationName"
+    },
+    "dcmArchiveNetworkAE": {
+      "title": "आर्काइव नेटवर्क AE",
+      "description": "DICOM आर्काइव नेटवर्क AE से संबंधित जानकारी ।",
+      "$ref": "archiveNetworkAE.schema.json"
+    }
+  }
+}

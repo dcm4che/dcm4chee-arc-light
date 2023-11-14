@@ -1,0 +1,166 @@
+{
+  "title": "UPS处理规则",
+  "description": "处理集成工作列表中的匹配工作项",
+  "type": "object",
+  "required": [
+    "dcmUPSProcessingRuleID",
+    "dcmUPSInputReadinessState",
+    "dcmURI",
+    "dicomAETitle",
+    "dcmUPSPerformedWorkitemCode",
+    "dcmUPSPerformedStationNameCode",
+    "dcmRetryDelay",
+    "dcmRetryDelayMultiplier",
+    "dcmMaxRetries",
+    "dcmMaxThreads"
+  ],
+  "properties": {
+    "dcmUPSProcessingRuleID": {
+      "title": "UPS处理规则ID",
+      "description": "UPS处理规则ID",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "应用实体(AE)标题",
+      "description": "应用实体(AE)标题",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmURI": {
+      "title": "UPS处理器URI",
+      "description": "标识用于处理匹配工作项的UPS处理器。 ",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "处理属性",
+      "description": "UPS处理器相关属性, 格式:<名称>=<值>",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmSchedule": {
+      "title": "待处理",
+      "description": "将延迟处理到指定的时间段。如果未指定处理计划,则在计划步骤的开始日期和时间（0040,4005）处理工作项目。格式:'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)。",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmSchedule"
+    },
+    "dcmMaxThreads": {
+      "title": "最大线程数",
+      "description": "用于处理匹配工作项的最大线程数。 ",
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "dcmUPSInputReadinessState": {
+      "title": "Input Readiness State",
+      "description": "Process Workitems with matching Input Readiness State (0040,4041).",
+      "type": "string",
+      "default": "READY",
+      "enum": [
+        "INCOMPLETE",
+        "UNAVAILABLE",
+        "READY"
+      ]
+    },
+    "dcmUPSPriority": {
+      "title": "优先级",
+      "description": "处理具有匹配的计划步骤步骤优先级（0074,1200）的工作项。 如果不存在,则处理具有任意优先级的工作项目,但按优先级对处理进行排序。 ",
+      "type": "string",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "dcmUPSLabel": {
+      "title": "过程步骤标签",
+      "description": "处理匹配过程步骤标签（0074,1204）的工作项。 如果不存在,则处理任何步骤步骤标签的工作项目。 ",
+      "type": "string"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "工作列表标签",
+      "description": "处理匹配工作列表标签的工作项（0074,1202）。如果不存在,则处理任何工作列表标签的工作项目。 ",
+      "type": "string"
+    },
+    "dcmUPSScheduledWorkitemCode": {
+      "title": "计划工作项目代码",
+      "description": "计划工作项目代码序列（0040,4018）的（CV,CSD,\"CM\"）形式的匹配代码项的工作项目。如果不存在,则处理任何计划工作项目代码中的工作项目。",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationNameCode": {
+      "title": "调度站名代码",
+      "description": "处理\"调度站名代码序列（0040,4025）\"的（CV,CSD,\"CM\"）形式的匹配代码项的工作项。 如果不存在,则处理任何计划的工作站名称代码工作项目。 ",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationClassCode": {
+      "title": "预期的站点类代码",
+      "description": "以格式(CV, CSD，“CM”)在计划站名类别序列(0040,4026)中处理具有匹配代码的工作项目。如果不存在,则处理任何计划的工作站类代码工作项目。",
+      "type": "string"
+    },
+    "dcmUPSScheduledStationLocationCode": {
+      "title": "预期站点地理位置代码",
+      "description": "处理预期站点地理位置类序列（0040,4027）\"的（CV,CSD,\"CM\"）形式的匹配代码项的工作项。 如果不存在,则处理任何预计工作站地理位置代码的工作项目。 ",
+      "type": "string"
+    },
+    "dcmUPSPerformedWorkitemCode": {
+      "title": "已执行的工作项目代码",
+      "description": "已处理的UPS中已执行的工作项目代码序列（0040,4019）的项目（CV,CSD,\"CM\"）。 ",
+      "type": "string",
+      "default": "(NO_WORKITEM_CODE, 99DCM4CHEE, \"Workitem Code\")"
+    },
+    "dcmUPSPerformedStationNameCode": {
+      "title": "已执行站点名称代码",
+      "description": "已处理UPS中已执行站点名称代码序列（0040,4028）的项， 格式为（CV,CSD,\"CM\"）。 ",
+      "type": "string",
+      "default": "(NO_STATION_NAME, 99DCM4CHEE, \"No Station Name specified\")"
+    },
+    "dcmUPSIgnoreDiscontinuationReasonCode": {
+      "title": "忽略中止原因代码",
+      "description": "指定格式为(CV, CSD, \"CM\")的中止原因代码以忽略和改变UPS状态到COMPLETED -代替CANCELED。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSRescheduleDiscontinuationReasonCode": {
+      "title": "重新安排中止原因代码",
+      "description": "指定格式为(CV, CSD, \"CM\")的中止原因代码来重新安排取消的UPS。如果不存在，则因任何中断原因码而取消的UPS将会被根据指定的最大重调度次数来重新安排。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmUPSTemplateID": {
+      "title": "取消时创建UPS",
+      "description": "指定UPS模板工作项的实例UID,用于在操作失败并且不再计划重试时创建UPS。如果不存在,则在失败时不会创建UPS。",
+      "type": "string"
+    },
+    "dcmMaxRetries": {
+      "title": "最大重新安排数",
+      "description": "处理失败的工作项目的最大重新安排数。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmRetryDelay": {
+      "title": "重新调度延迟",
+      "description": "ISO-8601周期格式PnDTnHnMn.nS中处理失败的工作项目的重新调度延迟。",
+      "type": "string",
+      "default": "PT1M",
+      "format": "dcmDuration"
+    },
+    "dcmMaxRetryDelay": {
+      "title": "最大重新调度延迟",
+      "description": "ISO-8601周期格式PnDTnHnMn.nS重新调度失败工作项的最大延迟。如果不存在,则无限。",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmRetryDelayMultiplier": {
+      "title": "重排延迟乘数",
+      "description": "在重排延迟上启用的乘数（%），考虑到最大重排延迟。",
+      "type": "integer",
+      "minimum": 100,
+      "default": 100
+    }
+  }
+}

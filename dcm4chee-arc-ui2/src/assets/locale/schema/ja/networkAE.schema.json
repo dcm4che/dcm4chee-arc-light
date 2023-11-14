@@ -1,0 +1,140 @@
+{
+  "title": "ネットワーク AE",
+  "description": "ネットワーク上で サービスを 提供 する アプリケーション エンティティ",
+  "type": "object",
+  "required": [
+    "dicomAETitle",
+    "dicomNetworkConnectionReference",
+    "dicomAssociationInitiator",
+    "dicomAssociationAcceptor"
+  ],
+  "properties": {
+    "dicomAETitle": {
+      "title": "AE タイトル",
+      "description": "この ネットワーク AEの 一意の AE タイトル",
+      "type": "string",
+      "order":1,
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmSpanningCFindSCPRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackCMoveSCPDestination",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmReturnRetrieveAET[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackCMoveSCPCallingAET",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExternalRetrieveAEDestination",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExporter[*].dicomAETitle",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExporter[*].dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmWebApp[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmSpanningCFindSCPRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmFallbackCMoveSCPDestination",
+        "$.dcmDevice.dcmArchiveDevice.dcmRejectExpiredStudiesAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmReturnRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmExternalRetrieveAEDestination",
+        "$.dcmDevice.dcmArchiveDevice.dcmXDSiImagingDocumentSourceAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmStorageVerificationAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmCompressionAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmRejectionNoteStorageAET",
+        "$.dcmDevice.dcmArchiveDevice.dcmFallbackCMoveSCPCallingAET",
+        "$.dcmDevice.dcmArchiveDevice.hl7StudyRetentionPolicy[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7StudyRetentionPolicy[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.hl7PrefetchRule[*].dicomAETitle",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7PrefetchRule[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmExporter[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmExporter[*].dcmRetrieveAET[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmMWLIdleTimeout[*].dicomAETitle",
+        "$.dcmDevice.dcmArchiveDevice.dcmUPSProcessingRule[*].dicomAETitle",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDiffConfig[*].dcmuiDiffCallingAET",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiCountAET"
+      ]
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "ネットワーク 接続 参照",
+      "description": "この AEの ネットワーク 接続 オブジェクトへの JSON ポインター",
+      "type": "array",
+      "order":2,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomAssociationInitiator": {
+      "title": "関連付け 起動側",
+      "description": "ネットワーク AEが 関連付けを 開始 できる 場合は 「真」です。",
+      "type": "boolean",
+      "default": true,
+      "order":3
+    },
+    "dicomAssociationAcceptor": {
+      "title": "関連付け 受諾側",
+      "description": "ネットワーク AEが 関連付けを 受け入れる ことが できる 場合は 「真」です。",
+      "type": "boolean",
+      "default": true,
+      "order":4
+    },
+    "dicomDescription": {
+      "title": "AE 説明",
+      "description": "アプリケーション エンティティの 制約のない テキスト 説明",
+      "type": "string",
+      "order":5
+    },
+    "dicomApplicationCluster": {
+      "title": "アプリケーション クラスタ",
+      "description": "局所的で 定義された、関連 する アプリケーションの サブセットの 名前",
+      "type": "array",
+      "order":6,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomPreferredCalledAETitle": {
+      "title": "好ましい 呼び出された AE タイトル",
+      "description": "アソシエーションの 開始に 推奨される AE タイトル",
+      "type": "array",
+      "order":7,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomPreferredCallingAETitle": {
+      "title": "好ましい 呼びかけている AE タイトル",
+      "description": "関連付けの 受け入れに 好ましい AE タイトル",
+      "type": "array",
+      "order":8,
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomSupportedCharacterSet": {
+      "title": "支持された 文字 セット",
+      "description": "ネットワーク AEが 受信 する データセットの ネットワーク AEで 支持されて いる 文字 セット",
+      "type": "array",
+      "order":9,
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmCharset"
+    },
+    "dicomInstalled": {
+      "title": "インストール済み",
+      "description": "AEが ネットワークに インストールされて いる 場合は 「真」です。 存在しない 場合、 AEの インストール ステータスに 関する 情報は デバイスから 継承されます",
+      "order":10,
+      "type": "boolean"
+    },
+    "dicomTransferCapability": {
+      "title": "転送 機能",
+      "description": "アプリケーション エンティティに よって 提供される 転送 機能",
+      "type": "array",
+      "order":11,
+      "titleKey":"{cn}",
+      "items": {
+        "$ref": "transferCapability.schema.json"
+      }
+    },
+    "dcmNetworkAE": {
+      "title": "ネットワーク AE 拡張",
+      "description": "ネットワーク AEの 「dcm4che」 独自 属性",
+      "$ref": "dcmNetworkAE.schema.json",
+      "order":12
+    }
+  }
+}

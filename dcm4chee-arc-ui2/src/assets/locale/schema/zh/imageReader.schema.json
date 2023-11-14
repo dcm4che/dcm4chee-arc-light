@@ -1,0 +1,45 @@
+{
+  "title": "图像读取器",
+  "description": "指定用于解压缩已压缩DICOM图像的Java图像IO图像读取器",
+  "type": "object",
+  "required": [
+    "dicomTransferSyntax",
+    "dcmIIOFormatName"
+  ],
+  "properties": {
+    "dicomTransferSyntax": {
+      "title": "传输语法",
+      "description": "压缩DICOM图像的传输语法",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmIIOFormatName": {
+      "title": "图像IO读取器格式名称",
+      "description": "图像IO读取器格式名称",
+      "type": "string"
+    },
+    "dcmJavaClassName": {
+      "title": "Java类名称",
+      "description": "图像IO读取器的完全限定Java类。如果不存在,则使用找到的具有指定格式名称的任何图像读取器。",
+      "type": "string"
+    },
+    "dcmPatchJPEGLS": {
+      "title": "修补JPEG-LS",
+      "description": "在解压缩之前修补JPEG-LS",
+      "type": "string",
+      "enum": [
+          "JAI2ISO",
+          "ISO2JAI",
+          "ISO2JAI_IF_APP_OR_COM"
+      ]
+    },
+    "dcmImageReadParam": {
+      "title": "图像读取参数",
+      "description": "图像读取参数（name=value）",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

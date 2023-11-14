@@ -1,0 +1,72 @@
+{
+  "title": "कीक्लोक क्लायंट",
+  "description": "कीक्लोक क्लायंट",
+  "type": "object",
+  "required": [
+    "dcmKeycloakClientID",
+    "dcmURI",
+    "dcmKeycloakRealm",
+    "dcmKeycloakGrantType",
+    "dcmTLSAllowAnyHostname",
+    "dcmTLSDisableTrustManager"
+  ],
+  "properties": {
+    "dcmKeycloakClientID": {
+      "title": "कीक्लोक क्लायंट ID",
+      "description": "टोकन विनंत्यांमध्ये वापरलेला कीक्लोक क्लायंट ID.",
+      "type": "string",
+      "use": [
+        "$.dcmWebApp[*].dcmKeycloakClientID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmUserIdentityNegotiationKeycloakClientID",
+        "$.dcmDevice.dcmArchiveDevice.dcmUserIdentityNegotiationKeycloakClientID"
+      ]
+    },
+    "dcmURI": {
+      "title": "सर्व्हर URL",
+      "description": "कीक्लोक सर्व्हरची मूळ URL.",
+      "type": "string"
+    },
+    "dcmKeycloakRealm": {
+      "title": "कीक्लोक क्षेत्र",
+      "description": "टोकन विनंत्यांमध्ये वापरलेला क्षेत्राचे नाव.",
+      "type": "string"
+    },
+    "dcmKeycloakGrantType": {
+      "title": "कीक्लोक अनुदान प्रकार",
+      "description": "टोकन विनंत्यांमध्ये वापरलेला कीक्लोक अनुदान प्रकार.",
+      "type": "string",
+      "enum": [
+        "client_credentials",
+        "password"
+      ],
+      "default": "client_credentials"
+    },
+    "dcmKeycloakClientSecret": {
+      "title": "कीक्लोक क्लायंट गुप्त",
+      "description": "कीक्लोक क्लायंट गुप्त. कीक्लोक अनुदान प्रकार 'client_credentials' संच केलेले असल्यास, आवश्यक आहे.",
+      "type": "string"
+    },
+    "dcmTLSAllowAnyHostname": {
+      "title": "TLS कोणत्याही होस्टला परवानगी द्या",
+      "description": "अन्य सर्व्हरला HTTPS आवश्यक असल्यास आणि हा कॉन्फिगरेशन पर्याय 'हो' म्हणून संच केले असल्यास, अन्य सर्व्हरचे प्रमाणपत्रला ट्रस्टस्टोरद्वारे मान्य केले जाईल, पण होस्टच्या नावाची मान्यता केले जाणार नाही.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmTLSDisableTrustManager": {
+      "title": "TLS ट्रस्ट मैनेजरला असक्षम करा",
+      "description": "अन्य सर्व्हरला HTTPS आवश्यक असल्यास आणि हा कॉन्फिगरेशन पर्याय 'हो' म्हणून संच केले असल्यास, ट्रस्टस्टोरला निर्दिष्ट करायची आवश्यकता नाही.",
+      "type": "boolean",
+      "default": false
+    },
+    "uid":  {
+      "title": "User ID",
+      "description": "User ID. Required if grant type = password.",
+      "type": "string"
+    },
+    "userPassword":  {
+      "title": "User Password",
+      "description": "User Password. Required if grant type = password.",
+      "type": "string"
+    }
+  }
+}

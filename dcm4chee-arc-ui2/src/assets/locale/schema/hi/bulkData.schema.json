@@ -1,0 +1,43 @@
+{
+  "title": "अधिकांश डेटा वर्णनकर्ता",
+  "description": "अधिकांश डेटा वर्णनकर्ता ।",
+  "type": "object",
+  "required": [
+    "dcmBulkDataDescriptorID",
+    "dcmBulkDataExcludeDefaults"
+  ],
+  "properties": {
+    "dcmBulkDataDescriptorID": {
+      "title": "अधिकांश डेटा वर्णनकर्ता की ID",
+      "description": "अधिकांश डेटा वर्णनकर्ता की ID ।",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmBulkDataDescriptorID"
+      ]
+    },
+    "dcmBulkDataExcludeDefaults": {
+      "title": "डिफॉल्ट्स निकाले",
+      "description": "'बिना अधिकांश डेटा सेवा वर्ग के मिश्र दृष्टांत की प्राप्ति' के गुणों को अधिकांश डेटा (=नहीं) के रूप में माना जाएगा या नहीं (=हाँ) यह संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAttributeSelector": {
+      "title": "गुणों का चयनकर्ता",
+      "description": "एक्स पाथ (उदाहरण के तौर पे: 'DicomAttribute[@tag=\"54000100\"]/Item/DicomAttribute[@tag=\"54001010\"]') द्वारा निर्दिष्ट गुणों को अधिकांश डेटा के रूप में माने ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAttributeSelector"
+    },
+    "dcmBulkDataVRLengthThreshold": {
+      "title": "VR लम्बाई की देहली",
+      "description": "एक विशेष मूल्य प्रतिनिधित्व (VR) के साथ सारे गुणों को अधिकांश डेटा के रूप में माने, जिनकी मूल्य लम्बाई निर्दिष्ट सीमा से अधिक है, प्रारूप: <VR>=<लम्बाई-सीमा> ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmBulkDataVRLengthThreshold"
+    }
+  }
+}

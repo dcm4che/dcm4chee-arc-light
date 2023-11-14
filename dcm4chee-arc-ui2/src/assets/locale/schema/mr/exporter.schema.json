@@ -1,0 +1,125 @@
+{
+  "title": "निर्यातक वर्णनकर्ता",
+  "description": "निर्यातक वर्णनकर्ता.",
+  "type": "object",
+  "required": [
+    "dcmExporterID",
+    "dcmURI",
+    "dcmQueueName",
+    "dcmExportPriority",
+    "dcmInstanceAvailability",
+    "dicomAETitle",
+    "dcmExportAsSourceAE",
+    "dcmRejectForDataRetentionExpiry"
+  ],
+  "properties": {
+    "dcmExporterID": {
+      "title": "निर्यातक ID",
+      "description": "निर्यातक ID.",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmExportPriorsRule[*].dcmExporterID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.dcmArchiveDevice.hl7ExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.dcmArchiveDevice.dcmStudyRetentionPolicy[*].dcmExporterID",
+        "$.dcmDevice.dcmArchiveDevice.hl7StudyRetentionPolicy[*].dcmExporterID",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExportPriorsRule[*].dcmExporterID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExportRule[*].dcmExporterID[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmStudyRetentionPolicy[*].dcmExporterID",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7ExportRule[*].dcmExporterID[*]",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7StudyRetentionPolicy[*].dcmExporterID",
+        "$.dcmDevice.dcmuiConfig[*].dcmuiDashboardConfig[*].dcmuiExportName[*]"
+      ]
+    },
+    "dcmURI": {
+      "title": "निर्यातक URI",
+      "description": "RFC2071 : एकसमान संसाधन अभिज्ञापक. Refer various <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Exporter-Properties\" target=\"_blank\">Exporter URI</a> that can be configured based on the exporter type.",
+      "type": "string"
+    },
+    "dcmQueueName": {
+      "title": "रांगेचे नाव",
+      "description": "टास्क रांगेचे नाव.",
+      "type": "string",
+      "format":"dcmQueueName"
+    },
+    "dicomDescription": {
+      "title": "निर्यातकाचे वर्णन",
+      "description": "निर्यातकाचे अनियंत्रित मजकूर वर्णन.",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "अनुप्रयोग घटक AE चे शीर्षक",
+      "description": "अनुप्रयोग घटक AE चे शीर्षक.",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmExportAsSourceAE": {
+      "title": "स्रोत अनुप्रयोग घटक (AE) म्हणून निर्यात करा",
+      "description": "गंतव्य अनुप्रयोग घटक (AE) च्या बरोबर संपर्क साधताना आर्काइव्ह अनुप्रयोग घटक (AE) च्या शीर्षकाला मालिका पाठवणाऱ्या अनुप्रयोग घटक (AE) च्या नावाने मुखौटित करा.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDeleteStudyFromStorageID": {
+      "title": "संचयन सिस्टमवरून अभ्यास हटवा",
+      "description": "संचयन सिस्टम चा ID जिथून निर्यात केलेले अभ्यासांच्या दृष्टांतांना हटवले जातील. केवळ अभ्यास पातळीवर निर्यात कार्यासाठी प्रभावी.",
+      "type": "string",
+      "format": "dcmStorageID"
+    },
+    "dcmRejectForDataRetentionExpiry": {
+      "title": "डेटा धारणा कालबाह्यतेसाठी घटक अस्वीकृत करा",
+      "description": "निर्यात कार्य पूर्ण झाल्यावर, डेटा धारणा कालबाह्यतेसाठी घटक अस्वीकृत करा.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStgCmtSCP": {
+      "title": "साठवण वचनबद्धता SCP AE चे शीर्षक",
+      "description": "दुसऱ्या अर्काइव्हवर निर्यात सत्यापित करण्यासाठी वापरसत्यापित करण्यासाठी वापरलेले बाह्य साठवण वचनबद्धता SCP AE चे शीर्षक.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmIanDestination": {
+      "title": "IAN गंतव्य",
+      "description": "IAN N-CREATE विनंती पाठवण्यासाठी गंतव्य.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
+    },
+    "dcmRetrieveAET": {
+      "title": "प्राप्ति AE चे शीर्षक",
+      "description": "या नेटवर्क AE शी संबंधित AE चे शीर्षक.",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmRetrieveLocationUID": {
+      "title": "पुनर्प्राप्त स्थान UID",
+      "description": "पुनर्प्राप्त स्थान UID.",
+      "type": "string",
+      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$"
+    },
+    "dcmInstanceAvailability": {
+      "title": "दृष्टांत उपलब्धता",
+      "description": "दृष्टांत उपलब्धता.",
+      "type": "string",
+      "default": "ONLINE",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
+    },
+    "dcmSchedule": {
+      "title": "निर्यात वेळापत्रक",
+      "description": "निर्दिष्ट वेळापत्रकांमध्ये निर्यात अनुसूचित करा. कोणतेही निर्यात वेळापत्रक निर्दिष्ट केलेले नसल्यास, प्रक्रिया करण्यासाठी निर्यात कार्यास त्वरित रांगेत ठेवा. या प्रारूपात : 'hour=[0-23] dayOfWeek=[0-6]' (0=रविवार).",
+      "type": "array",
+      "items": { "type": "string" },
+      "format": "dcmSchedule"
+    },
+    "dcmProperty": {
+      "title": "निर्यातक विशेषता",
+      "description": "Specify निर्यातक विशेषता या प्रारूपात {name}={value}. Refer various <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Exporter-Properties\" target=\"_blank\">निर्यातक विशेषता</a> that can be configured based on the exporter type.",
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

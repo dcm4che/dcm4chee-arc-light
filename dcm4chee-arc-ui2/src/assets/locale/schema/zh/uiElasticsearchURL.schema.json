@@ -1,0 +1,41 @@
+{
+  "title": "UI搜索引擎URL配置",
+  "description": "搜索引擎URL",
+  "type": "object",
+  "required": [
+    "dcmuiElasticsearchURLName",
+    "dcmuiElasticsearchURL",
+    "dcmuiElasticsearchIsDefault",
+    "dcmuiElasticsearchInstalled"
+  ],
+  "properties": {
+    "dcmuiElasticsearchURLName": {
+      "title": "搜索引擎URL名称",
+      "description": "UI搜索引擎URL名称",
+      "type": "string"
+    },
+    "dcmuiElasticsearchWebApp": {
+      "title": "搜索引擎Web应用程序",
+      "description": "提取搜索引擎URL并访问搜索引擎的Web应用程序",
+      "type": "string",
+      "format": "webApp"
+    },
+    "dcmuiAuditEnterpriseSiteID": {
+      "title": "审计企业站点ID",
+      "description": "设置要在搜索引擎查询中使用的审计企业站点ID",
+      "type": "string"
+    },
+    "dcmuiElasticsearchIsDefault": {
+      "title": "默认值",
+      "description": "将此URL设置为默认值。（确保只有URL兄弟中的一个子项被设置为默认值。）",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmuiElasticsearchInstalled": {
+      "title": "已安装",
+      "description": "在UI中使用此URL",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

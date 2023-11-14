@@ -1,0 +1,229 @@
+{
+  "title": "审计日志程序",
+  "description": "审计日志程序相关信息",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomNetworkConnectionReference",
+    "dcmAuditRecordRepositoryDeviceName",
+    "dcmAuditFacility",
+    "dcmAuditSuccessSeverity",
+    "dcmAuditMinorFailureSeverity",
+    "dcmAuditSeriousFailureSeverity",
+    "dcmAuditMajorFailureSeverity",
+    "dcmAuditMessageID",
+    "dcmAuditMessageEncoding",
+    "dcmAuditMessageSchemaURI",
+    "dcmAuditMessageBOM",
+    "dcmAuditTimestampInUTC",
+    "dcmAuditMessageFormatXML",
+    "dcmAuditIncludeInstanceUID"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名称",
+      "description": "审计日志程序对象的可选/有意义名称",
+      "type": "string"
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "网络连接参考",
+      "description": "指向此审计记录器使用的网络连接对象的JSON指针",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditRecordRepositoryDeviceName": {
+      "title": "审计记录存储库设备名称",
+      "description": "审计消息发送到的审计记录存储库的名字。",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
+    "dcmAuditSourceID": {
+      "title": "源ID",
+      "description": "RFC 3881审计源ID；如果不存在,则设备名称",
+      "type": "string"
+    },
+    "dcmAuditEnterpriseSiteID": {
+      "title": "企业站点ID",
+      "description": "RFC 3881审核企业站点ID；“dicomInstitutionName”的值将被DICOM设备的机构名称替换。",
+      "type": "string"
+    },
+    "dcmAuditSourceTypeCode": {
+      "title": "源代码类型代码",
+      "description": "RFC 3881审计源代码类型代码；“dicomPrimaryDeviceType”的值将被DICOM设备的主类型替换",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditFacility": {
+      "title": "系统日志设施",
+      "description": "审核消息中RFC 5424系统日志设施的字符串值。",
+      "type": "string",
+      "default": "authpriv",
+      "enum": [
+        "kern",
+        "user",
+        "mail",
+        "daemon",
+        "auth",
+        "syslog",
+        "lpr",
+        "news",
+        "uucp",
+        "cron",
+        "authpriv",
+        "ftp",
+        "ntp",
+        "audit",
+        "console",
+        "cron2",
+        "local0",
+        "local1",
+        "local2",
+        "local3",
+        "local4",
+        "local5",
+        "local6",
+        "local7"
+      ]
+    },
+    "dcmAuditSuccessSeverity": {
+      "title": "系统日志严重性-成功",
+      "description": "事件结果索引0（成功）的审计消息的RFC 5424系统日志严重性字符串值。",
+      "type": "string",
+      "default": "notice",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditMinorFailureSeverity": {
+      "title": "系统日志严重性-轻微失败",
+      "description": "事件结果索引4（轻微失败）的审计消息的RFC 5424系统日志严重性字符串值。",
+      "type": "string",
+      "default": "warning",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditSeriousFailureSeverity": {
+      "title": "系统日志严重性-严重失败",
+      "description": "事件结果索引8（严重失败）的审计消息的RFC 5424系统日志严重性字符串值。",
+      "type": "string",
+      "default": "err",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditMajorFailureSeverity": {
+      "title": "系统日志严重性-主要失败",
+      "description": "事件结果索引12（主要失败）的审计消息的RFC 5424系统日志严重性字符串值。",
+      "type": "string",
+      "default": "crit",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditApplicationName": {
+      "title": "系统日志应用程序名称",
+      "description": "审核消息的RFC 5424系统日志应用程序名称。如果不存在，则为审计源ID。 ",
+      "type": "string"
+    },
+    "dcmAuditMessageID": {
+      "title": "系统日志消息ID",
+      "description": "审核消息的RFC 5424 Syslog MSGID。",
+      "type": "string",
+      "default": "IHE+RFC-3881"
+    },
+    "dcmAuditMessageEncoding": {
+      "title": "消息编码",
+      "description": "审核消息的RFC 5424系统日志消息部分的字符编码。 ",
+      "type": "string",
+      "default": "UTF-8"
+    },
+    "dcmAuditMessageBOM": {
+      "title": "Message BOM",
+      "description": "启用/禁用审核消息的RFC 5424 Syslog MSG部分的Unicode BOM前缀。 如果不存在,则包含BOM。",
+      "type": "boolean",
+      "default": true
+    },
+    "dcmAuditTimestampInUTC": {
+      "title": "UTC格式时间戳",
+      "description": "指示RFC 5424系统日志时间戳和审计消息事件日期/时间是否指定使用协调的世界通用时间。 默认为本地时区。 ",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditMessageFormatXML": {
+      "title": "消息格式XML",
+      "description": "指定XML审计消息是否以换行和缩进格式格式化。 ",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditMessageSchemaURI": {
+      "title": "消息模式URI",
+      "description": "审计消息中引用的DICOM审计消息模式URI",
+      "type": "string",
+      "default": "http://www.dcm4che.org/DICOM/audit-message.rnc"
+    },
+    "dcmAuditIncludeInstanceUID": {
+      "title": "包含实例UID",
+      "description": "指示审计日志消息是否包含任意实例UID",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmAuditLoggerSpoolDirectoryURI": {
+      "title": "假脱机目录URI",
+      "description": "假脱机目录的URI,用于存储无法传送到记录存储库的消息。 如果不存在,则使用系统上的临时目录。",
+      "type": "string"
+    },
+    "dcmAuditLoggerRetryInterval": {
+      "title": "重试时间间隔",
+      "description": "重试时间间隔（以秒为单位）,用于重发无法传送到记录存储库的消息。 如果不存在,则不重试重新发送消息。",
+      "type": "integer",
+      "minimum": 1
+    },
+    "dicomInstalled": {
+      "title": "已安装",
+      "description": "如果审计日志程序安装在网络上,则为true。如果不存在,则关于审计日志程序的安装状态的信息将从设备继承。",
+      "type": "boolean"
+    },
+    "dcmAuditSuppressCriteria": {
+      "title": "审计抑制标准",
+      "description": "审计抑制标准",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items": {
+        "$ref": "auditSuppressCriteria.schema.json"
+      }
+    }
+  }
+}

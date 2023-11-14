@@ -1,0 +1,116 @@
+{
+  "title": "HL7应用程序",
+  "description": "HL7应用程序信息",
+  "type": "object",
+  "required": [
+    "hl7ApplicationName",
+    "dicomNetworkConnectionReference",
+    "hl7DefaultCharacterSet",
+    "hl7SendingCharacterSet"
+  ],
+  "properties": {
+    "hl7ApplicationName": {
+      "title": "HL7应用程序名称",
+      "description": "HL7应用程序和设施名称（应用程序设施）",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.hl7ADTSendingApplication",
+        "$.dcmDevice.dcmArchiveDevice.hl7ADTReceivingApplication[*]",
+        "$.dcmDevice.dcmArchiveDevice.hl7PSUSendingApplication",
+        "$.dcmDevice.dcmArchiveDevice.hl7PSUReceivingApplication[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.hl7PSUSendingApplication",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.hl7PSUReceivingApplication[*]",
+        "$.dicomNetworkAE[*].dcmNetworkAE.hl7ApplicationName",
+        "$.dcmDevice.dcmArchiveDevice.hl7ForwardRule[*].hl7FwdApplicationName[*]",
+        "$.dcmDevice.hl7Application[*].dcmArchiveHL7Application.hl7ForwardRule[*].hl7FwdApplicationName[*]"
+      ]
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "网络连接参考",
+      "description": "指向此HL7应用程序的网络连接对象的JSON指针",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7AcceptedSendingApplication": {
+      "title": "接受的发送应用程序",
+      "description": "接受的发送应用程序的应用程序或者设施名称；如果不存在,则任意",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7OtherApplicationName": {
+      "title": "其他HL7应用程序名称",
+      "description": "其他HL7应用程序和设施名字（应用程序设施）-同时也接受包含这些传入应用程序和设施名称的HL7消息。",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7AcceptedMessageType": {
+      "title": "接受的消息类型",
+      "description": "接受的消息的消息类型",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7DefaultCharacterSet": {
+      "title": "默认字符集",
+      "description": "如果未在MSH-18中指定,则用于解码接收到的消息的字符集。",
+      "type": "string",
+      "default": "ASCII",
+      "format": "hl7Charset"
+    },
+    "hl7SendingCharacterSet": {
+      "title": "发送字符集",
+      "description": "用于编码从档案发送的HL7消息的字符集。",
+      "type": "string",
+      "default": "ASCII",
+      "format": "hl7Charset"
+    },
+    "hl7OptionalMSHField": {
+      "title": "Optional MSH Field",
+      "description": "Accept HL7 Messages with missing values for specified MSH fields, even they are required according to <a href=\"https://www.ihe.net/uploadedFiles/Documents/Radiology/IHE_RAD_TF_Vol2.pdf#page=43\" target=\"_blank\">IHE RAD TF Vol 2 Message Control requirements</a>.",
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "enum": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          10,
+          11,
+          12
+        ]
+      }
+    },
+    "dicomDescription": {
+      "title": "HL7描述",
+      "description": "HL7应用程序的无约束文本描述",
+      "type": "string"
+    },
+    "dicomApplicationCluster": {
+      "title": "应用程序群集",
+      "description": "本地定义的相关应用程序子集的名称",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstalled": {
+      "title": "已安装",
+      "description": "如果HL7应用程序安装在网络上,则为true。如果不存在,关于HL7应用程序安装状态的信息将从设备继承。",
+      "type": "boolean"
+    },
+    "dcmArchiveHL7Application": {
+      "title": "Archive HL7 Application",
+      "description": "DICOM Archive HL7 Application related information",
+      "$ref": "archiveHL7Application.schema.json"
+    }
+  }
+}

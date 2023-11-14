@@ -1,0 +1,54 @@
+{
+  "title": "PDQ सेवा",
+  "description": "Patient Demographics Query सेवा वर्णनकर्ता.",
+  "type": "object",
+  "required": [
+    "dcmPDQServiceID",
+    "dcmURI",
+    "dcmEntity"
+  ],
+  "properties": {
+    "dcmPDQServiceID": {
+      "title": "PDQ सेवा ID",
+      "description": "Patient Demographics Query सेवा ID.",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmPatientVerificationPDQServiceID"
+      ]
+    },
+    "dcmURI": {
+      "title": "PDQ सर्व्हिस URI",
+      "description": "Patient Demographics Query सर्व्हिस URI, उदाहरण 'pdq-dicom:FINDSCP' किंवा 'pdq-hl7:SendingApplication/SendingFacility:ReceivingApplication/ReceivingFacility' किंवा pdq-fhir:HL7-FHIR-R4-WebApplication",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "PDQ सेवेचे वर्णन",
+      "description": "Patient Demographics Query सेवेचे अनियंत्रित मजकूर वर्णन.",
+      "type": "string"
+    },
+    "dcmTag": {
+      "title": "रुग्णाच्या रेकॉर्डचे गुणधर्म",
+      "description": "रुग्णाच्या रेकॉर्डचे गुणधर्म - निर्दिष्ट नसल्यास सर्व उपलब्ध रुग्णाच्या रेकॉर्डचे गुणधर्मांची चौकशी केली जाईल. Only applicable for 'pdq-dicom' PDQ Service",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    },
+    "dcmEntity": {
+      "title": "घटक प्राप्ति",
+      "description": "C-FIND SCP वरून रुग्णाचे रेकॉर्ड किंवा रुग्णाच्या रेकॉर्डचे अभ्यासांची प्राप्ती सूचित करते. फक्त DICOM PDQ सेवेंसाठी प्रभावी ('PDQ सेवा URI': pdq-dicom:{AETitle})",
+      "type": "string",
+      "enum": [ "Patient", "Study" ],
+      "default": "Patient"
+    },
+    "dcmProperty": {
+      "title": "PDQ सेवा गुणधर्म",
+      "description": "गुणधर्म या स्वरूपात <नाव> = <मूल्य>, उदाहरण 'LocalAET=DCM4CHEE' किंवा 'XSLStylesheetURI=${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl' or 'XSLStylesheetURI=${jboss.server.temp.url}/dcm4chee-arc/fhir-pat2dcm.xsl' for URI with schema pdq-fhir. Additional properties for URI with schema pdq-fhir may be set eg. 'search._format=xml', 'search.identifier.system={issuer}'. For complete list of properties, refer https://github.com/dcm4che/dcm4chee-arc-light/issues/3307",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

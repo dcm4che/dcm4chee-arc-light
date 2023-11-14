@@ -1,0 +1,51 @@
+{
+  "title": "UI フィルター テンプレート",
+  "description": "定義された フィルター テンプレート",
+  "type": "object",
+  "required": [
+    "dcmuiFilterTemplateGroupName",
+    "dcmuiFilterTemplateID",
+    "dcmuiFilterTemplateFilters"
+  ],
+  "properties": {
+    "dcmuiFilterTemplateGroupName": {
+      "title": "名前",
+      "description": "テンプレート名",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateID": {
+      "title": "ID",
+      "description": "この テンプレートを 適用できる フィルターの ID",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateDescription": {
+      "title": "説明",
+      "description": "フィルター テンプレートの 説明",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateUsername": {
+      "title": "ユーザー名",
+      "description": "この テンプレートを 使用できる ユーザー名",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateRole": {
+      "title": "役割",
+      "description": "この テンプレートを 使用できる ユーザー名 役割",
+      "type": "string"
+    },
+    "dcmuiFilterTemplateFilters": {
+      "title": "フィルター",
+      "description": "この テンプレートの デフォルト フィルター、フィルター対 <キー = 値> (例えば : LocalAET=DCM4CHEE)。日付 フィルターの 場合、事前定義された キーワードを 使用して (例えば : 今日, 昨日, 今週, 今月, 先週, 先月, 今 四半期, 前四半期, 今年, 去年) フィルターの 動的な 値を 生成できます。",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmuiFilterTemplateDefault": {
+      "title": "デフォルト",
+      "description": "この テンプレートを デフォルトとして 使用 する",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

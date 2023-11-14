@@ -1,0 +1,53 @@
+{
+  "title": "XDS Repository",
+  "description": "XDS Repository",
+  "type": "object",
+  "required": [
+    "xdsAdRepositoryName",
+    "xdsAdRepositoryDisplayName",
+    "xdsAdIti41URL",
+    "xdsAdIti43URL",
+    "xdsAdRepositoryOID",
+    "xdsAdIti86URL",
+    "xdsAdIti86Enabled"
+  ],
+  "properties": {
+    "xdsAdRepositoryName": {
+      "title": "XDS Repository Name",
+      "description": "XDS Repository Name",
+      "type": "string"
+    },
+    "xdsAdRepositoryDisplayName": {
+      "title": "Repository Display Name",
+      "description": "Repository Display Name",
+      "type": "string"
+    },
+    "xdsAdIti41URL": {
+      "title": "ITI-41 URL",
+      "description": "ITI-41 URL - f.e. xds-iti41://server/repository/provide?sslContextParameters=#xxx - xxx must be replaced with AD name",
+      "type": "string"
+    },
+    "xdsAdIti43URL": {
+      "title": "ITI-43 URL",
+      "description": "ITI-43 URL- f.e. xds-iti43://server/repository/retrieve?sslContextParameters=#xxx - xxx must be replaced with AD name",
+      "type": "string"
+    },
+    "xdsAdIti86URL": {
+      "title": "ITI-86 URL",
+      "description": "ITI-86 URL - f.e. rmd-iti86://server/repository/delete?sslContextParameters=#xxx - xxx must be replaced with AD name",
+      "type": "string",
+      "default": "rmd-iti86://disabled2"
+    },
+    "xdsAdIti86Enabled": {
+      "title": "ITI-86 Enabled",
+      "description": "ITI-86 Enabled",
+      "type": "boolean",
+      "default": false
+    },
+    "xdsAdRepositoryOID": {
+      "title": "Repository OID",
+      "description": "Repository OID - fe. 1.2.3.4",
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "title": "HL7 स्टडी धारण नीति",
+  "description": "HL7 स्टडी धारण नीति ।",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmRulePriority",
+    "dicomAETitle",
+    "dcmExpireSeriesIndividually",
+    "dcmStartRetentionPeriodOnStudyDate",
+    "dcmFreezeExpirationDate",
+    "dcmRevokeExpiration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाम",
+      "description": "HL7 स्टडी धारण नीति का मनमाना/सार्थक नाम ।",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "अनुप्रयोग तत्त्व AE का नाम",
+      "description": "अनुप्रयोग तत्त्व AE का नाम ।",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmRetentionPeriod": {
+      "title": "न्यूतनम स्टडी धारण कालावधि",
+      "description": "ISO-8601 कालावधि प्रारूप PnYnMnD या PnW में न्यूतनम स्टडी धारण कालावधि । Ineffective if 'Maximal Study Retention Period' is also set.",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmMaxRetentionPeriod": {
+      "title": "अधिकतम स्टडी धारण कालावधि",
+      "description": "ISO-8601 कालावधि प्रारूप PnYnMnD या PnW में अधिकतम स्टडी धारण कालावधि ।",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmRulePriority": {
+      "title": "नियम प्राथमिकता",
+      "description": "नियम प्राथमिकता ।",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "नियम",
+      "description": "नियम इस प्रारूप में {SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx} । उदाहरण के तौर पे: MSH-4=FORWARD या MSH-9=ADT\\^A28\\^ADT_A05 या PID-3[.3]=PIDIssuer या PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmStartRetentionPeriodOnStudyDate": {
+      "title": "धारण कालावधि को स्टडी के तारीख से आरंभ करें",
+      "description": "धारण कालावधि को HL7 संदेश (जिससे यह नियम सक्रीय हुआ) के आर्काइव में पाए जाने के तारीख के बजाय प्रत्येक स्टडी के तारीख से आरंभ करने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmExporterID": {
+      "title": "समाप्ति तारीख से बीते हुए स्टडीज निर्यात करें",
+      "description": "निर्दिष्ट किए हुए निर्यातक द्वारा समाप्ति तारीख से बीते हुए स्टडीज / सीरीज निर्यात करें ।",
+      "type": "string",
+      "format": "dcmExporterID"
+    },
+    "dcmFreezeExpirationDate": {
+      "title": "समाप्ति तारीख को स्थिर रखे",
+      "description": "निम्नलिखित घटनाओं द्वारा समाप्ति तारीख में बदलाव असक्षम करने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRevokeExpiration": {
+      "title": "समाप्ति तारीख को अभिशून्य करें",
+      "description": "पहले सेट किए हुए समाप्ति तारीख को अभिशून्य करने का संकेत करता है ।",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

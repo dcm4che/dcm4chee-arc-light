@@ -1,0 +1,46 @@
+{
+  "title": "हस्तांतरण क्षमता",
+  "description": "प्रत्येक हस्तांतरण क्षमता  SOP वर्ग निर्दिष्ट करते ज्यास नेटवर्क AE समर्थन देऊ शकते, तो वापरू शकेल तो मोड (SCP किंवा SCU), आणि त्याद्वारे वापरता येणारे हस्तांतरण वाक्यरचना निर्दिष्ट करते.",
+  "type": "object",
+  "required": [
+    "dicomSOPClass",
+    "dicomTransferRole",
+    "dicomTransferSyntax"
+  ],
+  "properties": {
+    "cn": {
+      "title": "नाव",
+      "description": "हस्तांतरण क्षमता ऑब्जेक्टसाठी अनियंत्रित / अर्थपूर्ण नाव.",
+      "type": "string"
+    },
+    "dicomSOPClass": {
+      "title": "SOP वर्ग",
+      "description": "SOP वर्ग UID.",
+      "type": "string",
+      "format": "dcmSOPClass"
+    },
+    "dicomTransferRole": {
+      "title": "डाइकोम हस्तांतरण भूमिका",
+      "description": "डाइकोम हस्तांतरण भूमिका.",
+      "type": "string",
+      "enum": [
+        "SCP",
+        "SCU"
+      ]
+    },
+    "dicomTransferSyntax": {
+      "title": "हस्तांतरण वाक्यरचना",
+      "description": "हस्तांतरण वाक्यरचना ज्यांना SCU म्हणून विनंती केली जाऊ शकते किंवा ज्यांना SCP म्हणून ऑफर केली जाईल.",
+      "type": "array",
+      "format": "dcmTransferSyntax",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmTransferCapability": {
+      "title": "हस्तांतरण क्षमता विस्तार",
+      "description": "DCM4CHE मालकीचे हस्तांतरण क्षमतांचे विशेषता.",
+      "$ref": "dcmTransferCapability.schema.json"
+    }
+  }
+}

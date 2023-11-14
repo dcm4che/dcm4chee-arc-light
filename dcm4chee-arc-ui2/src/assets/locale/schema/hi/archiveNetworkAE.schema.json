@@ -1,0 +1,889 @@
+{
+  "title": "आर्काइव नेटवर्क AE",
+  "description": "DICOM आर्काइव नेटवर्क AE से सम्बंधित जानकारी ।",
+  "type": "object",
+  "required": [
+    "dcmQueryRetrieveViewID",
+    "dcmObjectStorageCount"
+  ],
+  "properties": {
+    "dcmObjectStorageID": {
+      "title": "दृष्टांत स्टोरेज ID",
+      "description": "स्टोरेज सिस्टम् की ID जिसपे प्राप्त हुए DICOM मिश्र दृष्टांतों को सहेजा जाएगा । विविध स्टोरेज सिस्टम्स कॉन्फ़िगर किए जा सकते है ।",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmStorageID"
+    },
+    "dcmObjectStorageCount": {
+      "title": "दृष्टांत स्टोरेज गिनती",
+      "description": "सामानांतर रूप से भरे गए स्टोरेज सिस्टम्स की संख्या ।",
+      "type": "integer",
+      "default": 1,
+      "minimum": 1
+    },
+    "dcmMetadataStorageID": {
+      "title": "मेटाडेटा स्टोरेज ID",
+      "description": "स्टोरेज सिस्टम् की ID जिसपे JSON प्रारूप में मेटाडेटा को सहेजा जाएगा - DICOM मिश्र दृष्टांत के अतिरिक्त ।विविध स्टोरेज सिस्टम्स कॉन्फ़िगर किए जा सकते है । यदि कॉन्फ़िगर नहीं किया है, तो मेटाडेटा अतिरिक्त रूप से नहीं सहेजा जाएगा ।",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmStorageID"
+    },
+    "dcmBulkDataDescriptorID": {
+      "title": "अधिकांश डेटा वर्णनकर्ता की ID",
+      "description": "संगृहीत दृष्टांतों के मेटाडेटा उपलब्ध करानेवाले सारे सेवाओं द्वारा लागू की गई अधिकांश डेटा वर्णनकर्ता की ID । यदि कॉन्फ़िगर न किया हो तो, सिर्फ वही गुण अधिकांश डेटा के तौर पे माने जाएंगे जो 'बिना अधिकांश डेटा के मिश्र दृष्टांत की प्राप्ति' सेवा वर्ग द्वारा निर्दिष्ट किए है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmBulkDataDescriptorID"
+    },
+    "dcmSeriesMetadataDelay": {
+      "title": "कुल सीरीज मेटाडेटा विलम्ब",
+      "description": "कुल सीरीज मेटाडेटा को स्टोरेज पे सहेजने के लिए ISO-8601 कालावधि प्रारूप PnDTnHnMnS में विलम्ब । यदि कॉन्फ़िगर न किया हो तो, कुल सीरीज मेटाडेटा नहीं सहेजा जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmPurgeInstanceRecordsDelay": {
+      "title": "दृष्टांतों के रिकार्ड्स को निकालने का विलम्ब",
+      "description": "डेटाबेस से दृष्टांतों के रेकॉर्ड्स को निकालने के लिए ISO-8601 कालावधि प्रारूप PnDTnHnMnS में विलम्ब । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे । सिर्फ प्रभावशाली यदि 'दृष्टांतों के रिकार्ड्स को निकाले = सही' ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmStoreAccessControlID": {
+      "title": "संचय प्रवेश निरीक्षण ID",
+      "description": "इस AE द्वारा सहेजे गए स्टडीज पे निरूपित प्रवेश निरीक्षण ID का मूल्य ।",
+      "type": "string"
+    },
+    "dcmAccessControlID": {
+      "title": "प्रवेश निरीक्षण ID",
+      "description": "इस AE द्वारा प्राप्त हुए प्राप्ति या पुनःप्राप्ति अनुरोधों पे निरूपित प्रवेश निरीक्षण ID के मूल्य ।",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dcmAcceptedMoveDestination": {
+      "title": "स्वीकृत मूव गंतव्य",
+      "description": "C-MOVE अनुरोधों में स्वीकृत मूव गंतव्य; यदि कॉन्फ़िगर नहीं किया है, तो कोई भी गंतव्य स्वीकार करें ।",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmOverwritePolicy": {
+      "title": "अधिलेखन नीति",
+      "description": "अधिलेखन नीति । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "SAME_SOURCE",
+        "SAME_SERIES",
+        "SAME_SOURCE_AND_SERIES",
+        "EVEN_WITH_EQUAL_DIGEST"
+      ]
+    },
+    "dcmRecordAttributeModification": {
+      "title": "गुण के परिवर्तन को रेकॉर्ड करें",
+      "description": "सहेजे गए ऑब्जेक्ट्स के गुणों के परिवर्तन को मूल गुणों के क्रम के आइटम्स में रेकॉर्ड करने का संकेत करता है । किसी आर्काइव नेटवर्क AE या आर्काइव HL7 अनुप्रयोग पे कॉन्फ़िगर किए गए मूल्यों से अधिलेखित किया जा सकता है ।",
+      "type": "boolean"
+    },
+    "dcmAcceptMissingPatientID": {
+      "title": "अनुपस्थित मरीज़ की ID स्वीकार करें",
+      "description": "दृष्टांतों में अनुपस्थित मरीज़ की ID को स्वीकार कर मरीज़ के लिए नई ID निर्माण करने का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "CREATE"
+      ]
+    },
+    "dcmAcceptConflictingPatientID": {
+      "title": "परस्पर विरोधी मरीज़ की ID स्वीकार करें",
+      "description": "यदि प्राप्त हुए दृष्टांतों में मरीज़ की ID पहले से प्राप्त हुए स्टडी के दृष्टांतों में मरीज़ की ID के साथ परस्पर विरोधी हो तो, ऐसे दृष्टांतों को स्वीकार करने का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "MERGED"
+      ]
+    },
+    "dcmQueryRetrieveViewID": {
+      "title": "प्राप्ति व्यू ID",
+      "description": "प्राप्ति व्यूव का पहचानकर्ता ।",
+      "type": "string",
+      "format": "dcmQueryRetrieveViewID"
+    },
+    "dcmBulkDataSpoolDirectory": {
+      "title": "अधिकांश डेटा स्पूल निर्देशिका",
+      "description": "अधिकांश डेटा स्पूल निर्देशिका का पथ । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmHideSPSWithStatusFromMWL": {
+      "title": "MWL SCP द्वारा इन स्थिति के एसपीएस को छिपाए",
+      "description": "MWL SCP से न वापस की जानेवाले MWL आइटम्स के अनुसूचित प्रक्रिया स्टेप कोड । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "ARRIVED",
+          "READY",
+          "STARTED",
+          "DEPARTED",
+          "CANCELED",
+          "DISCONTINUED",
+          "COMPLETED"
+        ]
+      }
+    },
+    "dcmHideSPSWithStatusFromMWLRS": {
+      "title": "MWL RS द्वारा इन स्थिति के एसपीएस को छिपाए",
+      "description": "MWL RS से न वापस की जानेवाले MWL आइटम्स के अनुसूचित प्रक्रिया स्टेप कोड । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "ARRIVED",
+          "READY",
+          "STARTED",
+          "DEPARTED",
+          "CANCELED",
+          "DISCONTINUED",
+          "COMPLETED"
+        ]
+      }
+    },
+    "dcmMWLAccessionNumberGenerator": {
+      "title": "MWL परिग्रहण संख्या जेनरेटर",
+      "description": "RESTful सेवा द्वारा निर्माण किए गए अनुसूचित प्रक्रियाओं स्टेप्स के अनुपस्थित परिग्रहण संख्याओं को पूरक करने के लिए ID जेनरेटर की पहचान करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmMWLRequestedProcedureIDGenerator": {
+      "title": "MWL अनुरोधित प्रक्रिया ID जेनरेटर",
+      "description": "RESTful सेवा द्वारा निर्माण किए गए अनुसूचित अनुरोधित प्रक्रिया IDs के अनुपस्थित परिग्रहण संख्याओं को पूरक करने के लिए ID जेनरेटर की पहचान करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmMWLScheduledProcedureStepIDGenerator": {
+      "title": "MWL अनुसूचित प्रक्रिया स्टेप ID जेनरेटर",
+      "description": "RESTful सेवा द्वारा निर्माण किए गए अनुसूचित प्रक्रियाओं स्टेप्स के अनुपस्थित अनुसूचित प्रक्रिया स्टेप ID को पूरक करने के लिए ID जेनरेटर की पहचान करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmIDGenerator"
+    },
+    "dcmEncodeAsJSONNumber": {
+      "title": "JSON नंबर के रूप में एनकोड करें",
+      "description": "VR को JSON नंबर के रूप में एनकोड किया जाए । यदि कॉन्फ़िगर्ड नहीं है, तो IS, DS, SV और UV के मूल्यों को JSON स्ट्रिंग्स के रूप में एन्कोड किए जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य पूरक होंगे ।",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "DS",
+          "IS",
+          "SV",
+          "UV"
+        ]
+      }
+    },
+    "dcmValidateCallingAEHostname": {
+      "title": "आह्वान AE के मेज़बान नाम को मान्य करें",
+      "description": "संपर्क निवेदनकर्ता के आह्वान AE के मेज़बान नाम या आईपी एड्रेस को मान्य करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmUserIdentityNegotiation": {
+      "title": "उपभोक्ता पहचान व्यवहार",
+      "description": "निर्दिष्ट करता है की, संपर्क अनुरोधों में उपभोक्ता पहचान व्यवहार उप आयटम नज़रअंदाज़ करें (=NOT_SUPPORTED), या भेजे गए उपभोक्ता नाम और पासवर्ड अन्यथा JSON वेब टोकन को कीक्लोक सर्वरद्वारा जांच करें (=SUPPORTS), या संपर्क अनुरोधों में पहचान व्यवहार उप आयटम में सही उपभोक्ता नाम और पासवर्ड अन्यथा JSON वेब टोकन न होने पे अस्वीकार करें (=REQUIRED)। आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "NOT_SUPPORTED",
+        "SUPPORTS",
+        "REQUIRED"
+      ]
+    },
+    "dcmUserIdentityNegotiationRole": {
+      "title": "उपभोक्ता पहचान व्यवहार भूमिका",
+      "description": "उपभोक्ता पहचान व्यवहार अनुरोधों को निर्दिष्ट किए उपभोक्ता के भूमिकाओं तक सिमित रखे । यदि अनुपस्थित हो तो, सिर्फ भेजे गए उपभोक्ता नाम और पासवर्ड अन्यथा JSON वेब टोकन की कीक्लोक सर्वरद्वारा जांच होगी । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmUserIdentityNegotiationKeycloakClientID": {
+      "title": "उपभोक्ता पहचान व्यवहार कीक्लोक क्लाइंट ID",
+      "description": "कीक्लोक संपर्क कॉन्फ़िगरेशन संदर्भित कीक्लोक क्लाइंट ID जिसकेद्वारा उपभोक्ता नाम और पासवर्ड अन्यथा JSON वेब टोकन की जांच होगी । यदि अनुपस्थित हो तो, ${auth-server-url}, ${realm-name:dcm4che}, ${ui-client-id:dcm4chee-arc-ui}, ${disable-trust-manager:false}, ${allow-any-hostname:true} जैसे सिस्टम गुण लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmKeycloakClient"
+    },
+    "dcmPersonNameComponentOrderInsensitiveMatching": {
+      "title": "व्यक्ति के नाम के कम्पोनेंट ऑर्डर असंवेदनशील मिलान",
+      "description": "व्यक्तियों के नामों के फजी सिमेंटिक मिलान पे नाम के कम्पोनेंट ऑर्डर पे असंवेदनशील मिलान की प्रक्रिया का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmSendPendingCGet": {
+      "title": "अनिर्णीत C-Get भेजे",
+      "description": "अनिर्णीत C-Get प्रतिक्रिया सक्षम करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmSendPendingCMoveInterval": {
+      "title": "अनिर्णीत C-Move भेजने का अंतराल",
+      "description": "ISO-8601 कालावधि प्रारूप PnDTnHnMnS में अनिर्णीत C-Move प्रतिक्रियाओं का अंतराल; अनुपलभ्य हो तो असक्षम । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmWadoSR2HtmlTemplateURI": {
+      "title": "WADO SR से HTML फर्मा URI",
+      "description": "HTML में स्ट्रक्चर्ड रिपोर्टों को प्रस्तुत करने के लिए इस्तमाल किए गए स्टाइलशीट के URI को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmWadoSR2TextTemplateURI": {
+      "title": "WADO SR से टेक्स्ट फर्मा URI",
+      "description": "साधारण टेक्स्ट में स्ट्रक्चर्ड रिपोर्टों को प्रस्तुत करने के लिए इस्तमाल किए गए स्टाइलशीट के URI को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmWadoCDA2HtmlTemplateURI": {
+      "title": "WADO CDA से HTML फर्मा URI",
+      "description": "WADO-URI सेवा से प्राप्त हुए CDA डॉक्यूमेंटों में इस रूप <?xml-stylesheet type=\"text/xsl\" href=\"<url>\" > में निवेशन किए जानेवाले XML स्टाइलशीट के URL को निर्दिष्ट करता है । यदि कॉन्फ़िगर न किया हो तो, अंत:स्थापित CDI डॉक्यूमेंट को शब्दशः वापस किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmWadoThumbnailViewport": {
+      "title": "WADO थंबनेल व्युवपोर्ट",
+      "description": "यदि अनुरोध में किसी वयुवपोर्ट को निर्दिष्ट न किया हो तो, WADO प्राप्ति सेवा द्वारा वापस किए गए दृष्टांतों के थंबनेलों के आयाम ।प्रारूप : <width>,<height> । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmWadoThumbnailViewport"
+    },
+    "dcmWadoZIPEntryNameFormat": {
+      "title": "WADO ZIP एंट्री के नाम का प्रारूप",
+      "description": "WADO-RS सेवाओं द्वारा प्राप्त हुए ZIP आर्काइव में एंट्रियों के नामों का प्रारूप । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmWadoIgnorePresentationLUTShape": {
+      "title": "Wado प्रेजेंटेशन LUT शेप नज़रअंदाज़ करें",
+      "description": "दर्शाता है की प्रेजेंटेशन LUT शेप (2050,0020) को नज़रअंदाज़ करें, लेकिन फोटोमैट्रिक इंटरप्रिटेशन (0028,0004) को ज़्यादा महत्त्व दे ताकि WADO-RS या WADO-URI सेवाओं द्वारा पुनःप्राप्त किए गए रेंडर्ड DICOM प्रतिमाओं के न्यूनतम नमूना मूल्य को सफ़ेद (=MONCHROME1) या काला (=MONCHROME2) दिखाने में निश्चित हो सके । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmWadoMetadataExcludePrivate": {
+      "title": "Wado निजी मेटाडेटा हटाए",
+      "description": "WADO-RS पुनःप्राप्ति ट्रांजैक्शन द्वारा लौटाए गए मेटाडेटा से निजी डेटा तत्वों को हटाने का संकेत देता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmQueryMaxNumberOfResults": {
+      "title": "प्राप्ति नतीजों की अधिकतम संख्या",
+      "description": "C-Find SCP द्वारा वापस किए गए नतीजों की अधिकतम संख्या । यदि नतीजों की संख्या सीमा पार कर जाए, तो C-Find अनुरोध अस्वीकार होंगे । ० = असीमित । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmQidoMaxNumberOfResults": {
+      "title": "QIDO नतीजों की अधिकतम संख्या",
+      "description": "QIDO-RS सेवा द्वारा वापस किए गए नतीजों की अधिकतम संख्या । ० = असीमित । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmQidoETag": {
+      "title": "Qido ETag",
+      "description": "स्टडीज के सीरीज या दृष्टांत खोज सेवाओंमें अंतिम-संशोधित और ETag वापस करने का संकेत देता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmFwdMppsDestination": {
+      "title": "MPPS आगे भेजने का गंतव्य",
+      "description": "MPPS N-CREATE RQ और N-SET RQ अनुरोधों को आगे भेजने का गंतव्य । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
+    },
+    "dcmIanDestination": {
+      "title": "IAN आगे भेजने का गंतव्य",
+      "description": "IAN N-CREATE RQ अनुरोधों को आगे भेजने का गंतव्य । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
+    },
+    "dcmIanDelay": {
+      "title": "IAN विलम्ब",
+      "description": "ISO-8601 कालावधि प्रारूप PnDTnHnMn.nS में विलम्ब जिसके बाद प्राप्त हुए स्टडीज का IAN कॉन्फ़िगर्ड IAN गंतव्यों पे भेजा जाएगा । यदि कॉन्फ़िगर न किया हो तो, IAN प्राप्त हुए MPPS द्वारा सक्रीय होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmIanTimeout": {
+      "title": "IAN समयपाल",
+      "description": "ISO-8601 कालावधि प्रारूप PnDTnHnMn.nS में समयपाल जो MPPS में संदर्भित दृष्टांतों का इंतज़ार करता है; यदि निर्दिष्ट नहीं किया है, तो MPPS के संपूर्णता की जाँच हमेशा के लिए करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmIanOnTimeout": {
+      "title": "IAN समयपाल पे लागू",
+      "description": "निर्दिष्ट करता है MPPS में संदर्भित दृष्टांतों का इंतज़ार समयपाल की सीमा पर कर जाए, तो IAN को भेजे । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmSpanningCFindSCP": {
+      "title": "स्पेनिंग C-Find SCP",
+      "description": "बाहरी C-Find SCP के AE का नाम जहा पे C-FIND RQs अनुरोधों को भेजा जाएगा और कॉन्फ़िगर्ड स्पेनिंग C-Find SCP नीति के अनुसार प्रतिक्रियाओं को वापस किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmSpanningCFindSCPPolicy": {
+      "title": "स्पेनिंग C-Find SCP नीति",
+      "description": "कॉन्फ़िगर्ड स्पेनिंग C-Find SCP से वापस किए गए नतीजों को आर्काइव डेटाबेस के रिकार्ड्स के साथ संयोजित करने की नीति को निर्दिष्ट करता है । SUPPLEMENT (= स्थानीय रेकॉर्ड्स को अधिक स्पेनिंग C-Find SCP से वापस किए गए रेकॉर्ड्स के पहले भेजा जाएगा), MERGE (= स्पेनिंग C-Find SCP से वापस किए गए रेकॉर्ड्स को स्थानीय रेकॉर्ड्स के पहले भेजा जाएगा), REPLACE (= सिर्फ स्पेनिंग C-Find SCP से वापस किए गए रेकॉर्ड्स को भेजा जाएगा) । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "MERGE",
+        "REPLACE"
+      ]
+    },
+    "dcmSpanningCFindSCPRetrieveAET": {
+      "title": "स्पेनिंग C-Find SCP पुनःप्राप्ति AE का नाम",
+      "description": "स्पेनिंग C-Find SCP से वापस किए गए नतीजों में पुनःप्राप्ति AE के नामों को निर्दिष्ट करता है । यदि निर्दिष्ट नहीं किया है, तो स्पेनिंग C-Find SCP से वापस किए गए नतीजों में मूल पुनःप्राप्ति AE के नामों को रखे । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmFallbackCMoveSCP": {
+      "title": "पलटाव C-MOVE SCP",
+      "description": "बाहरी C-MOVE SCP के AE का नाम जहा पे C-MOVE RQs अनुरोधों को भेजा जाएगा, यदि अनुरोधित तत्वों को इस आर्काइव द्वारा प्रबंधित नहीं होगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmFallbackCMoveSCPStudyOlderThan": {
+      "title": "पलटाव C-MOVE SCP स्टडी इससे पुराना",
+      "description": "निर्दिष्ट करता है की स्टडीज के स्टडी तारीख, इस प्रारूप YYYYMMDD में, से पुराने हो तो, ऐसे प्राप्त हुए स्टडीज को (संभावित) अपूर्ण अंकित करके, कॉन्फ़िगर्ड 'पलटाव C-MOVE SCP' से पुनःप्राप्त करने के लिए क्रियात्मक करता है ।",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPDestination": {
+      "title": "पलटाव C-MOVE SCP गंतव्य",
+      "description": "'पलटाव C-MOVE SCP' द्वारा निर्दिष्ट बाहरी C-MOVE SCP पे भेजे गए C-MOVE RQs अनुरोधों में सेट किए हुए स्थानीय C-STORE-SCP के AE का नाम ।",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmFallbackCMoveSCPLeadingCFindSCP": {
+      "title": "पलटाव C-MOVE SCP प्रमुख C-Find SCP",
+      "description": "'पलटाव C-MOVE SCP' द्वारा निर्दिष्ट बाहरी C-MOVE SCP से पुनःप्राप्त हुए दृष्टांतों की संख्या की जाँच के लिए बाहरी C-Find SCP के AE का नाम ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmFallbackCMoveSCPRetries": {
+      "title": "पलटाव C-MOVE SCP पुनःपरीक्षण",
+      "description": "कॉन्फ़िगर्ड 'पलटाव C-MOVE SCP' से अनुपस्थित दृष्टांतों के पुनःप्राप्ति की अधिकतम संख्या । -1 = हमेशा ।",
+      "type": "integer"
+    },
+    "dcmFallbackWadoURIWebAppName": {
+      "title": "पलटाव WADO-URI वेब अनुप्रयोग का नाम",
+      "description": "यदि अनुरोधित दृष्टांत इस आर्काइव पे अनुपस्थित हो तो, बाहरी वेब अनुप्रयोग का नाम जहा पे WADO-URI अनुरोधों को अनुप्रेषित किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "webApp"
+    },
+    "dcmFallbackWadoURIHttpStatusCode": {
+      "title": "पलटाव WADO-URI HTTP स्थिति कोड",
+      "description": "'पलटाव WADO-URI वेब अनुप्रयोग के नाम' द्वारा कॉन्फ़िगर्ड HTTP स्थिति कोड । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "integer",
+      "enum": [
+        301,
+        302,
+        303,
+        307
+      ]
+    },
+    "dcmFallbackWadoURIRedirectOnNotFound": {
+      "title": "Fallback WADO-URI Redirect On Not Found",
+      "description": "Indicates if WADO-URI requests are redirected to configured Fallback WADO-URI Web Application Name even if the object was not found or - if set to false - only if the object is no longer accessible on this archive. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "dcmExternalWadoRSWebAppName": {
+      "title": "External WADO-RS Web Application Name",
+      "description": "Name of external Web Application to redirect WADO URI requests if the requested Object is not available by this archive. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "webApp"
+    },
+    "dcmExternalWadoRSHttpStatusCode": {
+      "title": "External WADO-RS HTTP Status Code",
+      "description": "HTTP Status code of Redirect Response configured by Fallback WADO-URI Web Application Name. Overwrites value specified on Device level.",
+      "type": "integer",
+      "enum": [
+        301,
+        302,
+        303,
+        307
+      ]
+    },
+    "dcmExternalWadoRSRedirectOnNotFound": {
+      "title": "External WADO-RS Redirect On Not Found",
+      "description": "Indicates if WADO-RS requests are redirected to configured External WADO-RS Web Application Name even if the requested objects were not found or - if set to false - only if some of the requested objects are no longer accessible on this archive. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "dcmFallbackCMoveSCPCallingAET": {
+      "title": "पलटाव C-MOVE SCP आह्वान AE का नाम",
+      "description": "पलटाव C-MOVE SCP पे भेजे गए A-Associate-RQ में इस्तमाल किए गए आह्वान AE का नाम । यदि निर्दिष्ट नहीं किया है, तो बाहरी C-MOVE SCU का उपयोग होगा । किसी आर्काइव नेटवर्क AE पे कॉन्फ़िगर किए गए मूल्य से अधिलेखित किया जा सकता है ।",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmAltCMoveSCP": {
+      "title": "वैकल्पिक C-MOVE SCP",
+      "description": "वैकल्पिक C-MOVE SCP के AE का नाम जहा पे C-MOVE RQs अनुरोधों को भेजा जाएगा, यदि अनुरोधित तत्वों स्थानीय स्टोरेज पे उपलब्ध नहीं है ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmStorePermissionServiceURL": {
+      "title": "संचय अनुमति सेवा का URL",
+      "description": "संचय अनुमति सेवा का URL जिसे इस AE द्वारा प्राप्त हुए स्टडी के पहले दृष्टांत के प्राप्ति पे बुलाया जाएगा । {<dicomTag>} को दृष्टांत के गुण के मूल्य से बदला जाएगा । उदाहरण के तौर पे : http(s)://<store-permission-service-provider-host>:<store-permission-service-provider-port>/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030,urlencoded} । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceResponse": {
+      "title": "संचय अनुमति सेवा प्रतिक्रिया",
+      "description": "इस AE द्वारा प्राप्त हुए स्टडी के पहले दृष्टांत के प्राप्ति पे संचय अनुमति सेवा प्रतिक्रिया के बराबर करें । {<dicomTag>} को दृष्टांत के गुण के मूल्य से बदला जाएगा ।सिर्फ प्रभावशाली, यदि कोई ‘संचय अनुमति सेवा का URL‘ कॉन्फ़िगर्ड नहीं है । उदाहरण के तौर पे : patientID={00100020},patientName={00100010},errorCode=0110H,errorComment=errorMessage । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceResponsePattern": {
+      "title": "संचय अनुमति सेवा प्रतिक्रिया पैटर्न",
+      "description": "संचय अनुमति सेवा के प्रतिक्रियाओं पे लागू रेगुलर एक्सप्रेशन जो स्टोरज पे समझौते का तय करता है । उदाहरण के तौर पे \"validation\"\\s*:\\s*\"true\" या '(?<=patientName=)[^null].*?(?=,)' । यदि कॉन्फ़िगर न किया हो तो, हर सफल प्रतिक्रिया को स्टोरेज पे समझौते के तौर पे माना जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceErrorCommentPattern": {
+      "title": "संचय अनुमति सेवा त्रुटि टिप्पणि पैटर्न",
+      "description": "संचय अनुमति सेवा के प्रतिक्रियाओं से त्रुटि टिप्पणि को निकालने के लिए लागू रेगुलर एक्सप्रेशन । उदाहरण के तौर पे \"errorcomment\"\\s*:\\s*\"(.*)\" । यदि कॉन्फ़िगर न किया हो तो, \"Storage denied.\" को त्रुटि टिप्पणि के तौर पे इस्तमाल किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceErrorCodePattern": {
+      "title": "संचय अनुमति सेवा त्रुटि कोड पैटर्न",
+      "description": "संचय अनुमति सेवा के प्रतिक्रियाओं से त्रुटि कोड को हेक्साडेसीमल में निकालने के लिए लागू रेगुलर एक्सप्रेशन । उदाहरण के तौर पे \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\" । यदि कॉन्फ़िगर न किया हो तो, 0124H (अधिकृत नहीं) को त्रुटि कोड के तौर पे इस्तमाल किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceExpirationDatePattern": {
+      "title": "संचय अनुमति सेवा समाप्ति तारीख पैटर्न",
+      "description": "संचय अनुमति सेवा के प्रतिक्रियाओं से प्राथमिक स्टडी समाप्ति तारीख को निकालने के लिए लागू रेगुलर एक्सप्रेशन । उदाहरण के तौर पे \"expirationdate\"\\s*:\\s*\"([0-9]{8})\" । यदि कॉन्फ़िगर न किया हो तो, स्थानीय कॉन्फ़िगर्ड स्टडी धारण नीतियाँ लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmAllowRejectionForDataRetentionPolicyExpired": {
+      "title": "डेटा धारण नीति समाप्ति पे अस्वीकृति की अनुमति दे",
+      "description": "डेटा धारण नीति समाप्ति पे अस्वीकृति की अनुमति दे । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "EXPIRED_UNSET",
+        "ONLY_EXPIRED"
+      ]
+    },
+    "dcmAcceptedUserRole": {
+      "title": "Accepted User Role",
+      "description": "Roles of users from which web requests are accepted; any if absent.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAllowDeleteStudyPermanently": {
+      "title": "स्टडी को पूरी तरह मिटाने की अनुमति दे",
+      "description": "स्टडी को पूरी तरह मिटाने की अनुमति दे । REJECTED = सिर्फ पहले से अस्वीकृत किए हुए स्टडीज । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "REJECTED"
+      ]
+    },
+    "dcmAllowDeletePatient": {
+      "title": "मरीज़ के रेकॉर्ड को मिटाने की अनुमति दे",
+      "description": "मरीज़ के रेकॉर्ड को पूरी तरह मिटाने की अनुमति दे । इन मूल्यों में से चुने : NEVER (= कभी नहीं), ALWAYS (= हमेशा), WITHOUT_STUDIES (= बिना स्टडीज के) । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "WITHOUT_STUDIES"
+      ]
+    },
+    "dcmDefaultCharacterSet": {
+      "title": "डिफ़ॉल्ट कॅरक्टर सेट",
+      "description": "इस AE द्वारा पाए गए C-Store अनुरोधों के डेटा सेट्स और अनिर्णीत C-FIND प्रतिक्रियाएँ, जो विशिष्ट कॅरक्टर सेट (०००८,०००५) गुण के मूल्य के बिना हो, उनमें जोड़े गए विशिष्ट कॅरक्टर सेट (०००८,०००५) गुण का मूल्य । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmCharset"
+    },
+    "dcmMWLWorklistLabel": {
+      "title": "MWL Worklist Label",
+      "description": "Value of Worklist Label (0074,1202) of created MWL items on receive of HL7 Order messages by the HL7 Receiver associated with this Archive AE. If absent, created MWL items are not bound to a particular MWL SCP.",
+      "type": "string",
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmUPSWorklistLabel": {
+      "title": "UPS कार्यसूची लेबल",
+      "description": "इस AE द्वारा निर्माण किए गए UPS में कार्यसूची लेबल (००७४,१२०२) का मूल्य, यदि UPS Push SCU या UPS-RS सेवा का उपभोक्ता इस गुण का मूल्य नहीं देता है । यदि कॉन्फ़िगर न किया हो तो, बुलाए गए AE के नाम का इस्तमाल किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string"
+    },
+    "dcmUPSEventSCU": {
+      "title": "UPS घटना SCU",
+      "description": "UPS घटना SOP वर्ग SCU AE का नाम, जिसपे UPS घटना रिपोर्ट्स को स्वतंत्र रूप से भेजे जाएंगे - यदि सदस्य्ता N-ACTION DIMSE सेवा या UPS-RS सेवा द्वारा निर्माण हुआ हो । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmAETitle"
+    },
+    "dcmUPSEventSCUKeepAlive": {
+      "title": "UPS घटना SCU ज़िंदा रखे",
+      "description": "UPS घटना SCU को ज़िंदा रखने का मिलीसेकण्डों में समयपाल । यदि कॉन्फ़िगर न किया हो तो, एक UPS घटना SCU पे विविध UPS घटना रिपोर्ट्स को भेजने के लिए संपर्कों का फिरसे इस्तमाल नहीं किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "integer",
+      "minimum": 100
+    },
+    "dcmRetrieveAET": {
+      "title": "पुनःप्राप्ति AE का नाम",
+      "description": "प्राप्त हुए DICOM दृष्टांतों से सम्बंधित पुनःप्राप्ति AE के नामों को निर्दिष्ट करता है । यदि कॉन्फ़िगर न किया हो तो, बुलाए गए AE के नाम का इस्तमाल होगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmReturnRetrieveAET": {
+      "title": "पुनःप्राप्ति AE का नाम लौटाए",
+      "description": "C-FIND और QIDO प्रतिक्रियाओं में लौटाए हुए पुनःप्राप्ति AE का नाम । यदि कॉन्फ़िगर न किया हो तो, संग्रहित तत्व से सम्बंधित पुनःप्राप्ति AE के नाम को लौटाया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmMultipleStoreAssociations": {
+      "title": "विविध संचय संपर्क",
+      "description": "मिश्र दृष्टांतों के पुनःप्राप्ति में इस्तमाल हुए संचय संपर्कों की संख्या । C-STORE SCP से विशिष्ट संख्याएँ '<AETitle>:' उपसर्ग द्वारा निर्दिष्ट की जा सकती है । उदाहरण के तौर पे : 2 या STORESCP:3 । यदि कॉन्फ़िगर न किया हो तो, सिर्फ एक संपर्क इस्तमाल होगा ।विशिष्ट आर्काइव नेटवर्क AE पे कॉन्फ़िगर्ड विविध संचय संपर्कों से पूरक हो सकते है ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmMultipleStoreAssociations"
+    },
+    "dcmExternalRetrieveAEDestination": {
+      "title": "बाहरी पुनःप्राप्ति AE गंतव्य",
+      "description": "बाहरी पुनःप्राप्ति AE पे भेजे गए C-MOVE RQs अनुरोधों में मूव गंतव्य के रूप में सेट किए हुए C-STORE SCP AE का नाम । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmCopyMoveUpdatePolicy": {
+      "title": "कॉपी मूव अपडेट नीति",
+      "description": "किसी स्टडी के दृष्टांतों को कॉपी या मूव करने पे गंतव्य स्टडी के गुणों पे लागू की गई नीति को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "PRESERVE",
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE",
+        "REPLACE"
+      ]
+    },
+    "dcmLinkMWLEntryUpdatePolicy": {
+      "title": "MWL एंट्री संयुक्ति अपडेट नीति",
+      "description": "पहले से मौजूद स्टडी को संदर्भित करनेवाले MWL एंट्री के साथ दूसरे स्टडी के दृष्टांतों को संयुक्त करने पे स्टडी के गुणों पे लागू हुई अपडेट नीति को निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "PRESERVE",
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE",
+        "REPLACE"
+      ]
+    },
+    "dcmStorageVerificationPolicy": {
+      "title": "स्टोरेज सिद्धकरण नीति",
+      "description": "DB_RECORD_EXISTS: सिर्फ डेटाबेस के रेकॉर्ड्स के  मौजूदगी की जाँच करें, OBJECT_EXISTS: जाँच करें यदि दृष्टांत स्टोरेज सिस्टम पे मौजूद है, OBJECT_SIZE: स्टोरेज सिस्टम पे दृष्टांत के माप की जाँच करें, OBJECT_FETCH: स्टोरेज सिस्टम से दृष्टांत को प्राप्त करें, OBJECT_CHECKSUM: स्टोरेज सिस्टम पे दृष्टांत के चेकसम की पुनर्गणना करें, S3_MD5SUM: S3 स्टोरेज सिस्टम पे DICOM फ़ाइल के MD5 की जांच योग करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "DB_RECORD_EXISTS",
+        "OBJECT_EXISTS",
+        "OBJECT_SIZE",
+        "OBJECT_FETCH",
+        "OBJECT_CHECKSUM",
+        "S3_MD5SUM"
+      ]
+    },
+    "dcmStorageVerificationUpdateLocationStatus": {
+      "title": "स्टोरेज सिद्धकरण स्थान की स्थिती का अपडेट",
+      "description": "स्टोरेज सिद्धकरण पे डेटाबेस में स्थान के रेकॉर्ड की स्थिती को अपडेट करने का संकेत करता है ।प्रभावशाली नहीं होगा, यदि 'स्टोरेज सिद्धकरण नीति' का मूल्य DB_RECORD_EXISTS है । यदि कॉन्फ़िगर नहीं किया है, तो कोई अपडेट नहीं होगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmStorageVerificationStorageID": {
+      "title": "स्टोरेज सिद्धकरण स्टोरेज की कई IDs",
+      "description": "स्टोरेज सिद्धकरण की सफलता के लिए दृष्टांत का संचय किसी एक निर्दिष्ट स्टोरेज सिस्टम पे होने का संकेत करता है । यदि कॉन्फ़िगर न किया हो तो, किसी भी स्टोरेज सिस्टम पे स्टोरेज सिद्धकरण की सफलता काफी है ।प्रभावशाली नहीं होगा, यदि 'स्टोरेज सिद्धकरण नीति' का मूल्य DB_RECORD_EXISTS है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmStorageID"
+    },
+    "dcmStorageVerificationInitialDelay": {
+      "title": "स्टोरेज सिद्धकरण प्राथमिक विलम्ब",
+      "description": "ISO-8601 कालावधि प्रारूप PnYnMnD या PnW में सीरीज के प्राप्ति पे उसके प्राथमिक स्टोरेज सिद्धकरण का विलम्ब । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmUpdateLocationStatusOnRetrieve": {
+      "title": "पुनःप्राप्ति पे स्थान की स्थिती का अपडेट",
+      "description": "पुनःप्राप्ति पे स्टोरेज से दृष्टांतों की प्राप्ति असफल होने पे डेटाबेस में स्थान के रेकॉर्ड की स्थिती को 'MISSING_OBJECT' या 'FAILED_TO_FETCH_OBJECT' के मूल्य से अपडेट करने का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmStorageVerificationOnRetrieve": {
+      "title": "पुनःप्राप्ति पे स्टोरेज सिद्धकरण",
+      "description": "पुनःप्राप्ति पे स्टोरेज से दृष्टांत के प्राप्ति में असफलताएँ हो तो सम्पूर्ण सीरीज के स्टोरेज सिद्धकरण को सक्रीय करने का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "hl7PSUSendingApplication": {
+      "title": "HL7 प्रक्रिया स्थिति अपडेट भेजनेवाला अनुप्रयोग",
+      "description": "HL7 प्रक्रिया स्थिति अपडेट संदेश भेजनेवाले अनुप्रयोग के अनुप्रयोग और सुविधा का नाम । यदि कॉन्फ़िगर न किया हो तो, HL7 प्रक्रिया स्थिति अपडेट संदेश नहीं भेजा जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "hl7ApplicationName"
+    },
+    "hl7PSUReceivingApplication": {
+      "title": "HL7 प्रक्रिया स्थिति अपडेट प्राप्ति अनुप्रयोग",
+      "description": "HL7 प्रक्रिया स्थिति अपडेट प्राप्त करनेवाले अनुप्रयोग के अनुप्रयोग और सुविधा का नाम । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "hl7ApplicationName"
+    },
+    "hl7PSUDelay": {
+      "title": "HL7 प्रक्रिया स्थिति अपडेट विलम्ब",
+      "description": "ISO-8601 कालावधि प्रारूप PnDTnHnMnS में विलम्ब जिसके बाद प्राप्त हुए स्टडी के लिए HL7 प्रक्रिया स्थिति अपडेट संदेश को कॉन्फ़िगर्ड HL7 संदेश प्राप्त करनेवाले सिस्टम्स पे भेजा जाएगा । यदि कॉन्फ़िगर न किया हो तो, HL7 प्रक्रिया स्थिति अपडेट प्राप्त हुए MPPS द्वारा सक्रीय होगी । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "hl7PSUStudyTemplateURI": {
+      "title": "HL7 Procedure Status Update Study Template URI",
+      "description": "URL of XSL style sheet to create HL7v2 message to notify configured HL7 receivers about changes of the Status of requested Procedures triggered by received Study. Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "hl7PSUTimeout": {
+      "title": "HL7 प्रक्रिया स्थिति अपडेट समयपाल",
+      "description": "MPPS में संदर्भित दृष्टांतों के प्राप्ति के इंतज़ार का ISO-8601 कालावधि प्रारूप PnDTnHnMnS में समयपाल; यदि कॉन्फ़िगर न किया हो तो, हमेशा के लिए इंतज़ार करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "hl7PSUOnTimeout": {
+      "title": "समयपाल पे HL7 प्रक्रिया स्थिति अपडेट",
+      "description": "MPPS में संदर्भित दृष्टांतों के प्राप्ति के इंतज़ार के समयपाल की सीमा पार होने पे HL7 प्रक्रिया स्थिति अपडेट संदेश भेजने का निर्दिष्ट करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "hl7PSUMppsTemplateURI": {
+      "title": "HL7 Procedure Status Update MPPS Template URI",
+      "description": "URL of XSL style sheet to create HL7v2 message to notify configured HL7 receivers about changes of the Status of requested Procedures triggered by MPPS. Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "hl7PSUCondition": {
+      "title": "HL7 प्रक्रिया स्थिति अपडेट गुण नियम",
+      "description": "प्राप्त हुए मिश्र दृष्टांत के गुणों पे नियमों के द्वारा कॉन्फ़िगर्ड 'HL7 प्रक्रिया स्थिति अपडेट प्राप्ति अनुप्रयोगों' पे भेजे गए प्रक्रिया स्थिति अपडेट संदेश के अधिसूचना को सीमित करें, इस प्रारूप में (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx} । किसी दिए गए विशेषता के लिए एक से अधिक मूल्य निर्दिष्ट करने के लिए उन्हें | प्रतीक के सहारे अलग किया जा सकता है । उदाहरण के तौर पे : SendingApplicationEntityTitle=FORWARD या Modality=MR|CT या ProcedureCodeSequence.CodeValue=MRProcedure या 00180015=KNEE या 00321034.00080100=RequestingServiceCode या ImageType[3]=LOCALIZER । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "hl7PSUForRequestedProcedure": {
+      "title": "अनुरोधित प्रक्रिया के लिए HL7 प्रक्रिया स्थिति अपडेट",
+      "description": "मिलान स्टडी दृष्टांत UID के अनुरोधित प्रक्रिया के अनुसूचित प्रक्रिया स्टेप्स (डेटाबेस में MWL आइटम्स) की मौजूदगी पे कॉन्फ़िगर्ड 'HL7 प्रक्रिया स्थिति अपडेट प्राप्ति अनुप्रयोगों' पे भेजे गए प्रक्रिया स्थिति अपडेट संदेश के अधिसूचना को सीमित करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "hl7PSUTemplateParam": {
+      "title": "HL7 Procedure Status Update Template Parameters",
+      "description": "XSLT parameters in format {attributeID}={value} passed to style sheet specified by HL7 Procedure Status Update MPPS Template URI or HL7 Procedure Status Update Study Template URI. {attributeID} inside of {value} will be replaced by the value of that attribute in the original dataset. E.g.: 'RequestedProcedureID={StudyInstanceUID,hash}' or 'AccessionNumber={0020000D,hash}'. Overwrites value specified on Device level.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7PSUMessageType": {
+      "title": "HL7 प्रक्रिया स्थिति अपडेट संदेश का प्रकार",
+      "description": "HL7 प्रक्रिया स्थिति अपडेट संदेश का प्रकार । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "enum": [
+        "OMG_O19",
+        "ORU_R01"
+      ]
+    },
+    "hl7PSUPIDPV1": {
+      "title": "HL7 प्रक्रिया स्थिति अपडेट PID PV1",
+      "description": "HL7 प्रक्रिया स्थिति अपडेट संदेश में मरीज़ की पहचान (PID) और मरीज़ की मुलाकात (PV1) सेग्मेंट्स को समावेश करने का संकेत करता है । अन्तर्निहित रूप से समावेश होगा, यदि 'HL7 प्रक्रिया स्थिति संदेश का प्रकार' का मूल्य ORU_R01 है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "hl7PSUMWL": {
+      "title": "HL7 प्रक्रिया स्थिति अपडेट MWL",
+      "description": "प्राप्त हुए स्टडी के लिए कॉन्फ़िगर्ड 'HL7 प्रक्रिया स्थिति अपडेट विलम्ब' का मूल्य पहुँचने पर डेटाबेस में MWL आइटम्स की स्थिति को COMPLETED (संपूर्ण) के रूप में अपडेट करने को निर्दिष्ट करता है । अन्तर्निहित रूप से 'हाँ' के तौर पे सेट होगा, यदि HL7 संदेश प्राप्त करनेवाले सिस्टम्स को प्राप्त हुए स्टडी के लिए अधिसूचित करना कॉन्फ़िगर्ड है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "hl7PSUMWLMatchingKey": {
+      "title": "HL7 Procedure Status Update MWL Matching Key",
+      "description": "Specifies attribute of received object to lookup MWL Item whose status is to be updated to COMPLETED. Only applicable is 'HL7 Procedure Status Update MWL' is configured as or implicitly set to true. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "AccessionNumber",
+        "StudyInstanceUID"
+      ]
+    },
+    "dcmRelationalQueryNegotiationLenient": {
+      "title": "संबंधक प्राप्ति का उदार व्यवहार",
+      "description": "प्राप्ति स्तर से श्रेष्ठ स्तरों के लिए, तथा इस प्राप्ति स्तर के लिए यदि संबंधक प्राप्ति का समझौता न हो, तो बिना अनन्य कुंजियों के C-FIND RQs अनुरोधों को स्वीकार करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmRelationalRetrieveNegotiationLenient": {
+      "title": "संबंधक पुनःप्राप्ति का उदार व्यवहार",
+      "description": "प्राप्ति स्तर से श्रेष्ठ स्तरों के लिए, तथा इस प्राप्ति स्तर के लिए यदि संबंधक प्राप्ति का समझौता न हो, तो बिना अनन्य कुंजियों के C-MOVE RQs और C-GET RQs अनुरोधों को स्वीकार करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmRestrictRetrieveSilently": {
+      "title": "पुनःप्राप्ति शांति से सिमित करें",
+      "description": "पुनःप्राप्ति गंतव्य के हस्तांतरण क्षमताोंनुसार अनुरोधित दृष्टांतों के पुनःप्राप्ति को शांति (= पुनःप्राप्त न हुए दृष्टांतों को असफलताओं के रूप में न गिनते हुए) से सिमित करने का संकेत करता है । अन्यथा अनुरोधित दृष्टांतों की संख्या, जिनके लिए कोई हस्तांतरण क्षमता पुनर्प्राप्त गंतव्य के लिए कॉन्फ़िगर नहीं की गई है और इसलिए पुनर्प्राप्त नहीं हो सकते है, उनकी गिनती असफलताओं के रूप में होगी । सिर्फ प्रभावशाली यदि पुनःप्राप्ति गंतव्य पे कम से कम एक SCP भूमिका की हस्तांतरण क्षमता कॉन्फ़िगर्ड है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmRejectConflictingPatientAttribute": {
+      "title": "मरीज़ के रेकॉर्ड के परस्पर विरोधी गुणों को अस्वीकार करें",
+      "description": "प्राप्त हुए दृष्टांतों में मरीज़ के रेकॉर्ड के गुणों के DICOM टैग्स जिन्हे समान मरीज़ के ID के पिछले प्राप्त हुए दृष्टांतों के गुणों के मूल्यों के साथ स्वीकार होने के लिए मिलान करना है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
+    "dcmStowRetiredTransferSyntax": {
+      "title": "STOW निवृत्त हस्तांतरण वाक्यविन्यास",
+      "description": "प्राप्त हुए JPEG फुल प्रोग्रेशन, नॉन-हैरारकिअल JPEG इमेजेस को DICOM इमेजस में तदनुसार (निवृत्त) हस्तांतरण वाक्यविन्यास UID १.२.८४०.१०००८.१.२.४.५५ के साथ सहेजे । अन्यथा सहेजे गए DICOM इमेज को १.२.८४०.१०००८.१.२.४.५० याने की JPEG Baseline या १.२.८४०.१०००८.१.२.४.५१ याने की JPEG Extended हस्तांतरण वाक्यविन्यास UID के तौर पे सेट करें, बिना JPEG Baseline या JPEG Extended में ट्रांसकोड किए, लेकिन JPEG इमेज को प्राप्त हुए रूप में ही समावेश करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmStowExcludeAPPMarkers": {
+      "title": "STOW अनुप्रयोग मार्करों को निकाले",
+      "description": "STOW-RS मेटाडेटा और अधिकांश डेटा अनुरोधों द्वारा प्राप्त हुए JPEG इमेजेस में ऍप (APP) मार्करों को निर्माण किए DICOM दृष्टांतों के एनकेप्सुलेटेड JPEG बिट स्ट्रीम्स में से निकालने का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmStowQuicktime2MP4": {
+      "title": "STOW क्विकटाइम से MP4",
+      "description": "STOW-RS मेटाडेटा और अधिकांश डेटा अनुरोधों द्वारा प्राप्त हुए क्विकटाइम कंटेनरों को निर्माण किए DICOM दृष्टांतों में MP4 कंटेनरों में परिवर्तित करके एनकेप्सुलेट करने का संकेत करता है । यह परिवर्तन सफल होने के लिए जरूरी है की ffmpeg यूटिलिटी सिस्टम पे स्थापित है और ffmpeg CLI यूटिलिटी सिस्टम के PATH वेरिएबल में उपलब्ध होना चाहिए । अन्यथा सहेजे गए DICOM दृष्टांत वेरबाटिम में क्विकटाइम कंटेनरों को घोषित MPEG-4 हस्तांतरण वाक्यविन्यास, जो कंटेनर में वीडियो स्ट्रीम के एन्कोडिंग को दर्शाता है, लेकिन वास्तविक कंटेनर प्रारूप का खंडन करता है, से एनकेप्सुलेट किया जाएगा । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmStowMaxFragmentLength": {
+      "title": "STOW Maximum Fragment Length",
+      "description": "Maximum length of data fragments of encapsulated JPEG/MPEG stream in stored DICOM object. If the received JPEG/MPEG stream exceeds that value, it will be split into several fragments, using a Fragmentable Encapsulated Transfer Syntax. Valid range: 1024..4294967294. Overwrites value specified on Device level.",
+      "type": "integer",
+      "minimum": 1024,
+      "exclusiveMinimum": false,
+      "maximum": 4294967294,
+      "exclusiveMaximum": false
+    },
+    "dcmRetrieveTaskWarningOnNoMatch": {
+      "title": "पुनःप्राप्ति कार्य मिलान नहीं पे चेतावनी",
+      "description": "यदि C-MOVE SCP से कोई भी अनुरोधित दृष्टांतों के न मिलने पे, पुनःप्राप्ति कार्यों के नतीजों की स्थिति को चेतावनी 'WARNING' के तौर पे सेट करने का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmRetrieveTaskWarningOnWarnings": {
+      "title": "पुनःप्राप्ति कार्य चेतावनियों पे चेतावनी",
+      "description": "यदि सारे दृष्टांतों की पुनःप्राप्ति सफल होने पर भी चेतावनी उप-क्रियाएँ है, तो भी पुनःप्राप्ति कार्यों के नतीजों की स्थिति को चेतावनी 'WARNING' के तौर पे सेट करने का संकेत करता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmChangeRequesterAET": {
+      "title": "परिवर्तन अनुरोधकर्ता AET",
+      "description": "आर्काइव द्वारा ट्रिगर किए गए अस्वीकृतियों में परिवर्तन अनुरोधकर्ता AET को दर्शाता है । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmFilterByIssuerOfPatientID": {
+      "title": "मरीज़ के ID के जारीकर्ता द्वारा फ़िल्टर करें",
+      "description": "मरीज़ के ID के जारीकर्ता द्वारा फ़िल्टर करें, भले ही मरीज़ के ID के लिए कोई मिलान कुंजी निर्दिष्ट न किया गया हो । आर्काइव डिवाइस स्तर पे निर्दिष्ट मूल्य अधिलेखित होंगे ।",
+      "type": "boolean"
+    },
+    "dcmMatchSOPClassOnInstanceLevel": {
+      "title": "Match SOP Class on Instance level",
+      "description": "Indicates to consider the SOP Class UID on Instance level for calculation of matches with SOP Classes in Study (0008,0062); otherwise rely on stored SOP Class UID on Series level, which may result in missing matches if one Series includes Instances of different SOP Classes. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "dcmUPSUpdateWithoutTransactionUID": {
+      "title": "UPS Update Without Transaction UID",
+      "description": "Indicates to permit an UPS Pull SCU or UPS-RS Web client to update or change the state of an UPS workitem in state IN PROCESS without specifying a Transaction UID. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "dcmExportRule": {
+      "title": "निर्यात नियम",
+      "description": "इस AE से सहेजे गए DICOM दृष्टांतों पे निर्यात नियम लागू करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट निर्यात नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "exportRule.schema.json"
+      }
+    },
+    "dcmExportPriorsRule": {
+      "title": "पूर्व स्टडीज निर्यात नियम",
+      "description": "इस AE से सहेजे गए DICOM दृष्टांतों पे पूर्व स्टडीज निर्यात नियम लागू करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट पूर्व स्टडीज निर्यात नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "exportPriorsRule.schema.json"
+      }
+    },
+    "dcmMPPSForwardRule": {
+      "title": "MPPS फॉरवर्ड नियम",
+      "description": "MPPS फॉरवर्ड नियम जो इस AE द्वारा प्राप्त MPPS पर लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट पूर्व स्टडीज निर्यात नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "mppsForwardRule.schema.json"
+      }
+    },
+    "dcmRSForwardRule": {
+      "title": "RESTful फॉरवर्ड नियम",
+      "description": "RESTful फॉरवर्ड नियम । आर्काइव डिवाइस स्तर पे निर्दिष्ट RESTful फॉरवर्ड नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "rsForwardRule.schema.json"
+      }
+    },
+    "dcmArchiveCompressionRule": {
+      "title": "संपीड़न नियम",
+      "description": "इस AE से सहेजे गए DICOM दृष्टांतों पे लागू किए गए संपीड़न नियम । आर्काइव डिवाइस स्तर पे निर्दिष्ट संपीड़न नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "archiveCompressionRule.schema.json"
+      }
+    },
+    "dcmArchiveAttributeCoercion": {
+      "title": "गुण नियंत्रण",
+      "description": "इस AE से प्राप्त हुए या भेजे गए DIMSE पे लागू किए गए गुण नियंत्रण । आर्काइव डिवाइस स्तर पे निर्दिष्ट गुण नियंत्रण पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "archiveAttributeCoercion.schema.json"
+      }
+    },
+    "dcmArchiveAttributeCoercion2": {
+      "title": "Attribute Coercion (New)",
+      "description": "Attribute Coercion of received/sent DIMSE. Supplements Attribute Coercions specified on Device level.",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "archiveAttributeCoercion2.schema.json"
+      }
+    },
+    "dcmStudyRetentionPolicy": {
+      "title": "स्टडी धारण नीति",
+      "description": "स्टडी धारण नीतियाँ जो इस AE द्वारा सहेजे गए स्टडीज पे लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट स्टडी धारण नीतियाँ पूरक होंगे ।",
+      "type": "array",
+      "titleKey": "{cn}",
+      "items": {
+        "$ref": "studyRetentionPolicy.schema.json"
+      }
+    },
+    "dcmStoreAccessControlIDRule": {
+      "title": "संचय प्रवेश निरीक्षण ID नियम",
+      "description": "संचय प्रवेश निरीक्षण ID नियम जो इस AE द्वारा सहेजे गए स्टडीज पे लागू होंगे । आर्काइव डिवाइस स्तर पे निर्दिष्ट संचय प्रवेश निरीक्षण ID नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{cn}",
+      "items" : {
+        "$ref": "storeAccessControlIDRule.schema.json"
+      }
+    },
+    "dcmUPSOnStore": {
+      "title": "दृष्टांतों के सहेजने पे UPS नियम",
+      "description": "इस AE से सहेजे गए DICOM दृष्टांतों पे दृष्टांतों के सहेजने पे UPS नियम लागू करें । आर्काइव डिवाइस स्तर पे निर्दिष्ट दृष्टांतों के सहेजने पे UPS नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey":"{dcmUPSOnStoreID}",
+      "items" : {
+        "$ref": "upsOnStore.schema.json"
+      }
+    },
+    "dcmUPSOnUPSCompleted": {
+      "title": "UPS समाप्ति पे फिरसे UPS रेकॉर्ड निर्माण के नियम",
+      "description": "इस AE द्वारा प्रबंधित किए गए UPS पे लागू होनेवाले UPS समाप्ति पे फिरसे UPS रेकॉर्ड निर्माण के नियम । आर्काइव डिवाइस स्तर पे निर्दिष्ट दृष्टांतों के सहेजने पे UPS नियम पूरक होंगे ।",
+      "type": "array",
+      "titleKey": "{dcmUPSOnUPSCompletedID}",
+      "items": {
+        "$ref": "upsOnUPSCompleted.schema.json"
+      }
+    }
+  }
+}

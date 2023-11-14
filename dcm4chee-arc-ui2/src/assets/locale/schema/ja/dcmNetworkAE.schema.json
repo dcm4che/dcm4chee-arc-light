@@ -1,0 +1,65 @@
+{
+  "title": "ネットワーク AE 拡張",
+  "description": "ネットワーク AEの 「dcm4che」 独自 属性",
+  "type": "object",
+  "properties": {
+    "dcmRoleSelectionNegotiationLenient": {
+      "title": "役割 選択 ネゴシエーション 寛容",
+      "description": "DIMSE-RQの 送信時に 必要な SCP / SCU 役割 選択 ネゴシエーションの チェックを 無効に する ことを 示します。 デバイス レベルで 指定された 値を 上書きします。",
+      "type": "boolean"
+    },
+    "dcmAcceptedCallingAETitle": {
+      "title": "受け入れられた 呼びかけている AE タイトル",
+      "description": "リストされて いない AEからの 関連付けの 受け入れを 禁止します。 存在しない 場合、 任意の AEが 受け入れられます",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmOtherAETitle": {
+      "title": "その 他の AE タイトル",
+      "description": "ネットワーク AEの 追加の AE タイトル - この ような 呼び出された AE タイトルを 持つ 関連付け RQも 受け入れます",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmNoAsyncModeCalledAETitle": {
+      "title": "No Async Mode Called AE Title",
+      "description": "Blacklist AE Title of peer Network AE as not capable to handle Asynchronous Operations Window Negotiation correctly. Suppress including corresponding User-data sub-Item in A-ASSOCIATE RQs to that Network AEs.",
+      "type": "array",
+      "format": "dcmAETitle",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmMasqueradeCallingAETitle": {
+      "title": "マスカレード 呼びかけている AE タイトル",
+      "description": "この ネットワーク AEの 実際の AE タイトルを マスカレードし、ネットワーク 関連付けの 開始に 使用される AE タイトル - 随意 接頭辞 [<Called AE Title>]は アソシエーションへの マスカレードを 特定の AE タイトルに 制限します",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmPreferredTransferSyntax": {
+      "title": "好ましい 転送 構文",
+      "description": "優先度で 注文した プレゼンテーション コンテキスト内の 転送 構文を 選択するための 好ましい 転送 構文。 存在しない 場合、 提供された プレゼンテーション コンテキストの 最初の 受け入れ 可能な 転送 構文が 選択されます。 この AEの 特定の 転送 機能の 構成された 値に よって上書きされる 場合が あります。",
+      "type": "array",
+      "format": "dcmTransferSyntax",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hl7ApplicationName": {
+      "title": "HL7 アプリケーション名",
+      "description": "この AEに 関連付けられて いる HL7 アプリケーションと 施設名 (アプリケーション|施設)",
+      "type": "string",
+      "format": "hl7ApplicationName"
+    },
+    "dcmArchiveNetworkAE": {
+      "title": "アーカイブ ネットワーク AE",
+      "description": "DICOM アーカイブ ネットワーク AE 関連 情報",
+      "$ref": "archiveNetworkAE.schema.json"
+    }
+  }
+}

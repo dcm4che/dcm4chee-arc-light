@@ -1,0 +1,24 @@
+{
+  "title": "审计记录存储库",
+  "description": "审计记录存储库相关信息",
+  "type": "object",
+  "required": [
+    "dicomNetworkConnectionReference"
+  ],
+  "properties": {
+    "dicomNetworkConnectionReference": {
+      "title": "网络连接参考",
+      "description": "指向此审计记录存储库的网络连接对象的JSON指针",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dicomDeviceName"
+    },
+    "dicomInstalled": {
+      "title": "已安装",
+      "description": "如果ARR安装在网络上,则为true。如果不存在,则关于ARR安装状态的信息将从设备继承。",
+      "type": "boolean"
+    }
+  }
+}

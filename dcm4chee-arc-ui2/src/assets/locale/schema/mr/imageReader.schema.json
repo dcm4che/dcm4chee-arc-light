@@ -1,0 +1,45 @@
+{
+  "title": "प्रतिमा वाचक",
+  "description": "संकुचित DICOM दृष्टांते असंकुचित करण्यात वापरलेले JAVA प्रतिमा IO प्रतिमा वाचक निर्दिष्ट करते.",
+  "type": "object",
+  "required": [
+    "dicomTransferSyntax",
+    "dcmIIOFormatName"
+  ],
+  "properties": {
+    "dicomTransferSyntax": {
+      "title": "हस्तांतरण वाक्यरचना",
+      "description": "संकुचित DICOM प्रतिमेचे हस्तांतरण वाक्यरचना.",
+      "type": "string",
+      "format": "dcmTransferSyntax"
+    },
+    "dcmIIOFormatName": {
+      "title": "प्रतिमा IO वाचक प्रारूपाचे नाव",
+      "description": "प्रतिमा IO वाचक प्रारूपाचे नाव.",
+      "type": "string"
+    },
+    "dcmJavaClassName": {
+      "title": "JAVA वर्गचे नाव",
+      "description": "प्रतिमा IO वाचकचा पूर्णपणे पात्र JAVA वर्ग. अनुपस्थित असल्यास, निर्दिष्ट प्रारूपाच्या नावासाठी आढळलेला कोणताही प्रतिमा वाचक वापरा.",
+      "type": "string"
+    },
+    "dcmPatchJPEGLS": {
+      "title": "पॅच JPEG-LS",
+      "description": "असंकुचित करायच्या आधी JPEG-LS पॅच करा.",
+      "type": "string",
+      "enum": [
+          "JAI2ISO",
+          "ISO2JAI",
+          "ISO2JAI_IF_APP_OR_COM"
+      ]
+    },
+    "dcmImageReadParam": {
+      "title": "प्रतिमा वाचन मापदंड",
+      "description": "प्रतिमा वाचन मापदंड (नाव=मूल्य).",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

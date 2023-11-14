@@ -1,0 +1,37 @@
+{
+  "title": "Regola ID controllo accesso all'archivio",
+  "description": "Regola ID controllo accesso all'archivio",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmStoreAccessControlID",
+    "dcmRulePriority"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Nome",
+      "description": "Nome arbitrario/significativo della regola dell'ID di controllo dell'accesso allo storage",
+      "type": "string"
+    },
+    "dcmStoreAccessControlID": {
+      "title": "ID controllo accesso all'archivio",
+      "description": "ID controllo accesso assegnato agli studi i cui attributi soddisfano tutte le condizioni",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "Priorità delle regole",
+      "description": "Priorità della regola.",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "Condizioni",
+      "description": "Condizioni nel formato (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}. More than one value can be specified for a given attribute by separating them with a | symbol. Esempio: SendingApplicationEntityTitle=FORWARD o Modality=MR|CT o ProcedureCodeSequence.CodeValue=MRProcedure o 00180015=KNEE o 00321034.00080100=RequestingServiceCode o ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "title": "MWL Import",
+  "description": "Specifies import of Scheduled Procedure Step from external MWL SCP",
+  "type": "object",
+  "required": [
+    "dcmMWLImportID",
+    "dicomAETitle",
+    "dcmMergeMWLSCP",
+    "dcmMWLImportFilterBySCU",
+    "dcmMWLImportDeleteNotFound"
+  ],
+  "properties": {
+    "dcmMWLImportID": {
+      "title": "MWL Import ID",
+      "description": "ID of MWL Import",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "Calling AE Title",
+      "description": "Calling AE Title used in A-ASSOCIATE-RQ to external MWL SCP",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmMergeMWLSCP": {
+      "title": "Source MWL SCP",
+      "description": "AE Title of external MWL SCP to query for Scheduled Procedure Step to import.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmMWLWorklistLabel": {
+      "title": "MWL Worklist Label",
+      "description": "Value of Worklist Label (0074,1202) of imported MWL items fetched from Source MWL SCP. If absent, imported MWL items are provided by all MWL SCP Archive Network AEs.",
+      "type": "string",
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmDuration": {
+      "title": "Import not before",
+      "description": "Import Scheduled Procedure Steps from external MWL SCP to Scheduled Procedure Steps scheduled earlier in the future than the specified Time interval in ISO-8601 duration format PnDTnHnMn.nS; if absent, import all Scheduled Procedure Steps which are scheduled in the future.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmMWLImportNotOlder": {
+      "title": "Import not older than",
+      "description": "Import Scheduled Procedure Steps from external MWL SCP to Scheduled Procedure Steps scheduled later in the past than the specified Time interval in ISO-8601 duration format PnDTnHnMn.nS; if absent, import all Scheduled Procedure Steps which are scheduled in the past.",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmMWLImportFilterBySCU": {
+      "title": "Filter by SCU",
+      "description": "Indicates to apply specified filter on matches returned by external MWL SCP.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmMWLImportDeleteNotFound": {
+      "title": "Delete not found",
+      "description": "Indicates to delete Scheduled Procedure Steps from local MWL not returned by external MWL SCP.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmProperty": {
+      "title": "Matching Keys",
+      "description": "Filter Attributes in format ({AttributeTagOrKeyword}|{SequenceTagOrKeyword.AttributeTagOrKeyword})={value}. Eg: ScheduledProcedureStepSequence.ScheduledStationAETitle=MODALITY_XY",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmIncludeField": {
+      "title": "Return Keys",
+      "description": "Attributes in format (all|{AttributeTagOrKeyword}|{SequenceTagOrKeyword.AttributeTagOrKeyword}) requested from the external MWL SCP additional to attributes required to be supported by MWL SCPs according DICOM. 'all' requests all attributes configured by the Patient and the MWL Attribute Filter of the Archive.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

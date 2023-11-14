@@ -1,0 +1,168 @@
+{
+  "title": "设备扩展",
+  "description": "dcm4che专有设备属性",
+  "type": "object",
+  "required": [
+    "dcmRoleSelectionNegotiationLenient",
+    "dcmLimitOpenAssociations"
+  ],
+  "properties": {
+    "dcmRoleSelectionNegotiationLenient": {
+      "title": "角色选择协商容忍度",
+      "description": "指示禁用发送DIMSE-RQ时所需的SCP/SCU角色选择协商检查。 对于特定的网络AEs，可能会被配置的值覆盖。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmLimitOpenAssociations": {
+      "title": "关联限制",
+      "description": "打开DICOM连接的最大数量； 果超出限制,则拒绝关联请求；0=无限制。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmLimitAssociationsInitiatedBy": {
+      "title": "AE关联限制",
+      "description": "由特定应用实体(AE)以<ae-title>=<number>的形式启动的打开DICOM连接的最大数目； 如果超出限制,则拒绝来自AE的关联请求。 ",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmLimitAssociationsInitiatedBy"
+    },
+    "dcmTrustStoreURL": {
+      "title": "信任存储URL",
+      "description": "信任存储URL，包含允许连接到此节点的DICOM节点的证书； 覆盖dicomAuthorizedNodeCertificateReference。",
+      "type": "string"
+    },
+    "dcmTrustStoreType": {
+      "title": "信任存储库类型",
+      "description": "信任存储库URL中指定的信任存储库密钥库类型。枚举:JKS，PKCS12",
+      "type":"string"
+    },
+    "dcmTrustStorePin": {
+      "title": "TrustStore Pin",
+      "description": "TrustStore URL中指定的TrustStore密钥库密码",
+      "type": "string"
+    },
+    "dcmTrustStorePinProperty": {
+      "title": "信任存储区pin属性",
+      "description": "信任存储区URL中指定的信任存储区密钥库密码系统属性",
+      "type": "string"
+    },
+    "dcmKeyStoreURL": {
+      "title": "Key Store URL",
+      "description": "包含用于在TLS连接中标识此DICOM节点的私钥和证书",
+      "type": "string"
+    },
+    "dcmKeyStoreType": {
+      "title": "Key Store类型",
+      "description": "keystore URL中指定的keystore类型。枚举:JKS，PKCS12.",
+      "type": "string"
+    },
+    "dcmKeyStorePin": {
+      "title": "keystore pin",
+      "description": "keystore URL中指定的keystore密码",
+      "type": "string"
+    },
+    "dcmKeyStorePinProperty": {
+      "title": "keystore pin属性",
+      "description": "keystore URL中指定的keystore密码的系统属性",
+      "type": "string"
+    },
+    "dcmKeyStoreKeyPin": {
+      "title": "钥匙库钥匙密钥",
+      "description": "keystore URL中指定的keystore key password",
+      "type": "string"
+    },
+    "dcmKeyStoreKeyPinProperty": {
+      "title": "密钥库密钥pin属性",
+      "description": "密钥库URL中指定的密钥库密钥密码系统属性",
+      "type": "string"
+    },
+    "dcmTimeZoneOfDevice": {
+      "title": "设备时区",
+      "description": "设备时区ID；匹配Java时区ID",
+      "type": "string"
+    },
+    "dcmWebApp": {
+      "title": "Web应用程序",
+      "description": "由设备提供的Web应用程序",
+      "type": "array",
+      "titleKey":"{dcmWebAppName}",
+      "order":26,
+      "items": {
+        "$ref": "webApplication.schema.json"
+      }
+    },
+    "dcmKeycloakClient": {
+      "title": "Keycloak客户端",
+      "description": "设备提供的密钥遮盖客户端",
+      "type": "array",
+      "titleKey":"{dcmKeycloakClientID}",
+      "order":27,
+      "items": {
+        "$ref": "keycloakClient.schema.json"
+      }
+    },
+    "hl7Application": {
+      "title": "HL7应用程序",
+      "description": "由设备提供的HL7应用程序。",
+      "type": "array",
+      "titleKey":"{hl7ApplicationName}",
+      "order":28,
+      "items": {
+        "$ref": "hl7Application.schema.json"
+      }
+    },
+    "dcmImageWriter": {
+      "title": "图像写入器",
+      "description": "指定具有用于DICOM图像压缩的写入参数的Java图像IO图像写入器。",
+      "type": "array",
+      "titleKey":"{dicomTransferSyntax}",
+      "order":29,
+      "items": {
+        "$ref": "imageWriter.schema.json"
+      }
+    },
+    "dcmImageReader": {
+      "title": "图像读取器",
+      "description": "指定用于解压缩已压缩的ICOM图像的Java图像IO图像读取器。",
+      "type": "array",
+      "titleKey":"{dicomTransferSyntax}",
+      "order":30,
+      "items": {
+        "$ref": "imageReader.schema.json"
+      }
+    },
+    "dcmAuditLogger": {
+      "title": "审计日志程序",
+      "description": "审计日志程序相关信息",
+      "titleKey":"{cn}",
+      "type": "array",
+      "order":31,
+      "items" : {
+        "$ref": "auditLogger.schema.json"
+      }
+    },
+    "dcmAuditRecordRepository": {
+      "title": "Audit Record Repository",
+      "description": "审计记录存储库相关信息",
+      "$ref": "auditRecordRepository.schema.json",
+      "order":32
+    },
+    "dcmArchiveDevice": {
+      "title": "归档装置",
+      "description": "DICOM 归档装置相关信息",
+      "order":33,
+      "$ref": "archiveDevice.schema.json"
+    },
+    "dcmuiConfig": {
+      "title": "UI配置",
+      "description": "UI配置",
+      "titleKey":"{dcmuiConfigName}",
+      "type": "array",
+      "order":34,
+      "items" : {
+        "$ref": "uiConfig.schema.json"
+      }
+    }
+  }
+}

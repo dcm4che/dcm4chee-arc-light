@@ -1,0 +1,107 @@
+{
+  "title": "Web Application",
+  "description": "Web Application information",
+  "type": "object",
+  "required": [
+    "dcmWebAppName",
+    "dcmWebServicePath",
+    "dcmWebServiceClass"
+  ],
+  "properties": {
+    "dcmWebAppName": {
+      "title": "Web Application name",
+      "description": "Name of the Web Application",
+      "type": "string",
+      "use": [
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmFallbackWadoURIWebAppName",
+        "$.dicomNetworkAE[*].dcmNetworkAE.dcmArchiveNetworkAE.dcmExternalWadoRSWebAppName",
+        "$.dcmDevice.dcmArchiveDevice.dcmFallbackWadoURIWebAppName",
+        "$.dcmDevice.dcmArchiveDevice.dcmExternalWadoRSWebAppName"
+      ]
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "Web Application Network Connection",
+      "description": "Network Connection(s) on which the services of the Web application are available",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomDescription": {
+      "title": "Web Application Description",
+      "description": "Unconstrained text description of the Web Application",
+      "type": "string"
+    },
+    "dcmWebServicePath": {
+      "title": "Web Service Path",
+      "description": "HTTP Path of the services of the Web application",
+      "type": "string"
+    },
+    "dcmWebServiceClass": {
+      "title": "Web Service Class",
+      "description": "Web Service Classes provided by the Web application",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "QIDO_RS",
+          "STOW_RS",
+          "WADO_RS",
+          "WADO_URI",
+          "UPS_RS",
+          "MWL_RS",
+          "MPPS_RS",
+          "QIDO_COUNT",
+          "DCM4CHEE_ARC",
+          "DCM4CHEE_ARC_AET",
+          "DCM4CHEE_ARC_AET_DIFF",
+          "PAM",
+          "REJECT",
+          "MOVE",
+          "MOVE_MATCHING",
+          "UPS_MATCHING",
+          "ELASTICSEARCH",
+          "XDS_RS",
+          "AGFA_BLOB",
+          "J4C_ROUTER",
+          "FHIR",
+          "WORKFLOW_MANAGER"
+        ]
+      }
+    },
+    "dcmKeycloakClientID": {
+      "title": "Keycloak Client ID",
+      "description": "Keycloak Client ID for the Web application",
+      "type": "string",
+      "format": "dcmKeycloakClient"
+    },
+    "dicomAETitle": {
+      "title": "AE Title",
+      "description": "AE title of Network AE associated with this Web Application",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dicomApplicationCluster": {
+      "title": "Application Cluster",
+      "description": "Locally defined names for a subset of related applications",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmProperty": {
+      "title": "Web Application Property",
+      "description": "Web application property in format {name}={value}. Refer <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Web-Application-Properties\" target=\"_blank\">Web Application Properties</a> configuration examples based on use cases.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dicomInstalled": {
+      "title": "installed",
+      "description": "True if the Web Application is installed on network. If not present, information about the installed status of the Web Application is inherited from the device",
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "title": "HL7 検査 保持 ポリシー",
+  "description": "HL7 検査 保持 ポリシー",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmRulePriority",
+    "dicomAETitle",
+    "dcmExpireSeriesIndividually",
+    "dcmStartRetentionPeriodOnStudyDate",
+    "dcmFreezeExpirationDate",
+    "dcmRevokeExpiration"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名前",
+      "description": "HL7 検査 保持 ポリシーの 任意 / 意味の ある 名前",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "アプリケーション エンティティ (AE) タイトル",
+      "description": "アプリケーション エンティティ (AE) タイトル",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmRetentionPeriod": {
+      "title": "最小 検査 保持 期間",
+      "description": "ISO-8601 期間 PnYnMnD または PnW 形式で 最小 検査 保持 期間. Ineffective if 'Maximal Study Retention Period' is also set.",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmMaxRetentionPeriod": {
+      "title": "最大 検査 保持 期間",
+      "description": "ISO-8601 期間 PnYnMnD または PnW 形式で 最大 検査 保持 期間",
+      "type": "string",
+      "format": "dcmPeriod"
+    },
+    "dcmRulePriority": {
+      "title": "規則の 優先度",
+      "description": "規則の 優先度。",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "dcmProperty": {
+      "title": "条件",
+      "description": "{SEG}-{Seq#}[.{Comp#}[.{SubComp#}]][!]={regEx} 形式で 条件。 例 : MSH-4=FORWARD または MSH-9=ADT\\^A28\\^ADT_A05 または PID-3[.3]=PIDIssuer または PID-3[.3[.2]]=PIDIssuerUniversalEntityIDType",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmStartRetentionPeriodOnStudyDate": {
+      "title": "検査日に 保持 期間を 開始します",
+      "description": "この 規則を トリガー する HL7 メッセージを 受信したときではなく、 個々の 検査日に 保持 期間を 開始 する 必要が あるか どうかを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmExporterID": {
+      "title": "期限切れの 検査を 書き出す",
+      "description": "指定された エクスポーターを 使用した 期限切れの 検査 / シリーズを 書き出す",
+      "type": "string",
+      "format": "dcmExporterID"
+    },
+    "dcmFreezeExpirationDate": {
+      "title": "失効日を 凍結 する",
+      "description": "つぎの イベントに 従うことに よる 失効日の 変更を 無効に する ことを 示します。",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmRevokeExpiration": {
+      "title": "失効日を 取り消す",
+      "description": "以前に 設定された 失効日を 取り消す ことを 示します。",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

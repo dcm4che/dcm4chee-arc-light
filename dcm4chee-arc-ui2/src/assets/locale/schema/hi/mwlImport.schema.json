@@ -1,0 +1,77 @@
+{
+  "title": "MWL आयात",
+  "description": "बाहरी MWL SCP से अनुसूचित प्रक्रिया स्टेप्स के आयात को निर्दिष्ट करता है",
+  "type": "object",
+  "required": [
+    "dcmMWLImportID",
+    "dicomAETitle",
+    "dcmMergeMWLSCP",
+    "dcmMWLImportFilterBySCU",
+    "dcmMWLImportDeleteNotFound"
+  ],
+  "properties": {
+    "dcmMWLImportID": {
+      "title": "MWL आयात ID",
+      "description": "MWL आयात का ID",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "कॉलिंग AE का शीर्षक",
+      "description": "बाहरी MWL SCP को भेजे गए A-ASSOCIATE-RQ में उपयोग किए गया कॉलिंग AE का शीर्षक ।",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
+    },
+    "dcmMergeMWLSCP": {
+      "title": "स्रोत MWL SCP",
+      "description": "आयात करने के लिए अनुसूचित प्रक्रिया स्टेप्स क्वेरी करने के लिए बाहरी MWL SCP के AE का शीर्षक ।",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmMWLWorklistLabel": {
+      "title": "MWL Worklist Label",
+      "description": "Value of Worklist Label (0074,1202) of imported MWL items fetched from Source MWL SCP. If absent, imported MWL items are provided by all MWL SCP Archive Network AEs.",
+      "type": "string",
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmDuration": {
+      "title": "इससे पहले आयात न करें",
+      "description": "ISO-8601 कालावधि प्रारूप PnDTnHnMnS में निर्दिष्ट समय अंतराल से पहले भविष्य में अनुसूचित बाहरी MWL SCP से अनुसूचित प्रक्रिया स्टेप्स आयात करें; यदि अनुपस्थित है, तो भविष्य में निर्धारित सभी अनुसूचित प्रक्रिया स्टेप्स को आयात करें ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmMWLImportNotOlder": {
+      "title": "इससे पुराने आयात न करें",
+      "description": "ISO-8601 कालावधि प्रारूप PnDTnHnMnS में निर्दिष्ट समय अंतराल से पहले पूर्व में अनुसूचित बाहरी MWL SCP से अनुसूचित प्रक्रिया स्टेप्स आयात करें; यदि अनुपस्थित है, तो पूर्व में निर्धारित सभी अनुसूचित प्रक्रिया स्टेप्स को आयात करें ।",
+      "type": "string",
+      "format": "dcmDuration"
+    },
+    "dcmMWLImportFilterBySCU": {
+      "title": "SCU द्वारा फ़िल्टर करें",
+      "description": "बाहरी MWL SCP द्वारा लौटाए गए परिणामों पर निर्दिष्ट फ़िल्टर लागू करने का संकेत देता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmMWLImportDeleteNotFound": {
+      "title": "न लौटाए गए MWL हटाए",
+      "description": "बाहरी MWL SCP द्वारा वापस नहीं किए गए अनुसूचित प्रक्रिया स्टेप्स को स्थानीय MWL से हटाने का संकेत देता है ।",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmProperty": {
+      "title": "मिलान कुंजी",
+      "description": "मिलान कुंजी इस प्रारूप में ({AttributeTagOrKeyword}|{SequenceTagOrKeyword.AttributeTagOrKeyword})={value} । उदहारण: ScheduledProcedureStepSequence.ScheduledStationAETitle=MODALITY_XY",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmIncludeField": {
+      "title": "लौटाए कुंजी",
+      "description": "लौटाए कुंजी इस प्रारूप में (all|{AttributeTagOrKeyword}|{SequenceTagOrKeyword.AttributeTagOrKeyword}) जो DICOM के अनुसार MWL SCPs द्वारा समर्थित होने के लिए आवश्यक विशेषताओं के अतिरिक्त बाहरी MWL SCP से अनुरोध किया गया । 'all' आर्काइव के मरीज़ और MWL विशेषता फ़िल्टर द्वारा कॉन्फ़िगर की गई सभी विशेषताओं का अनुरोध करता है ।",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "title": "PDQ サービス",
+  "description": "Patient Demographics Query サービス 記述子",
+  "type": "object",
+  "required": [
+    "dcmPDQServiceID",
+    "dcmURI",
+    "dcmEntity"
+  ],
+  "properties": {
+    "dcmPDQServiceID": {
+      "title": "PDQ サービス ID",
+      "description": "Patient Demographics Query サービス ID",
+      "type": "string",
+      "use": [
+        "$.dcmDevice.dcmArchiveDevice.dcmPatientVerificationPDQServiceID"
+      ]
+    },
+    "dcmURI": {
+      "title": "PDQ サービス URI",
+      "description": "Patient Demographics Query サービス URI, 例 : 'pdq-dicom:FINDSCP' または 'pdq-hl7:SendingApplication/SendingFacility:ReceivingApplication/ReceivingFacility' または pdq-fhir:HL7-FHIR-R4-WebApplication",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "PDQ サービスの 説明",
+      "description": "Patient Demographics Query サービスの 制約のない テキスト 説明",
+      "type": "string"
+    },
+    "dcmTag": {
+      "title": "患者 属性",
+      "description": "クエリされた 患者 属性 - 指定されて いない 場合、 使用 可能な すべての 患者 属性が クエリされます. Only applicable for 'pdq-dicom' PDQ Service",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmTag"
+    },
+    "dcmEntity": {
+      "title": "クエリ エンティティ",
+      "description": "特定の 患者 または 特定の 患者の 検査に 対して C-FIND SCPが クエリされるか どうかを 示します。 DICOM PDQ サービスに 対してのみ 有効 (URI: pdq-dicom:{AETitle})",
+      "type": "string",
+      "enum": [ "Patient", "Study" ],
+      "default": "Patient"
+    },
+    "dcmProperty": {
+      "title": "PDQ サービス 属性",
+      "description": "<name>=<value> 形式で 属性, 例 : 'LocalAET=DCM4CHEE' または 'XSLStylesheetURI=${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl' or 'XSLStylesheetURI=${jboss.server.temp.url}/dcm4chee-arc/fhir-pat2dcm.xsl' for URI with schema pdq-fhir. Additional properties for URI with schema pdq-fhir may be set eg. 'search._format=xml', 'search.identifier.system={issuer}'. For complete list of properties, refer https://github.com/dcm4che/dcm4chee-arc-light/issues/3307",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

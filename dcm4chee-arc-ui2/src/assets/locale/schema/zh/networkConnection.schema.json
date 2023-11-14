@@ -1,0 +1,54 @@
+{
+  "title": "网络连接",
+  "description": "描述一个网络设备上的一个TCP/UDP端口。",
+  "type": "object",
+  "required": [
+    "dicomHostname"
+  ],
+  "properties": {
+    "cn": {
+      "title": "名称",
+      "description": "网络连接对象的任意/有意义名称",
+      "type": "string"
+    },
+    "dicomHostname": {
+      "title": "主机名",
+      "description": "此特定连接的DNS名称",
+      "type": "string"
+    },
+    "dicomPort": {
+      "title": "端口",
+      "description": "服务正在侦听的TCP/UDP端口。如果此网络连接仅用于出站连接,则可能缺少它。",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 99999
+    },
+    "dicomTLSCipherSuite": {
+      "title": "TLS密码套件",
+      "description": "此特定连接支持的TLS密码套件。如果不存在,TLS将被禁用。",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "SSL_RSA_WITH_NULL_SHA",
+          "TLS_RSA_WITH_AES_128_CBC_SHA",
+          "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+          "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+          "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+          "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+          "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        ]
+      }
+    },
+    "dicomInstalled": {
+      "title": "已安装",
+      "description": "如果网络连接安装在网络上,则为True。如果不存在,则网络连接的安装状态信息将从设备继承。",
+      "type": "boolean"
+    },
+    "dcmNetworkConnection": {
+      "title": "网络连接扩展",
+      "description": "dcm4che网络连接专有属性",
+      "$ref": "dcmNetworkConnection.schema.json"
+    }
+  }
+}

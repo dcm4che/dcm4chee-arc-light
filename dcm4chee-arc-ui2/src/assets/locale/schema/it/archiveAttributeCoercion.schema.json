@@ -1,0 +1,236 @@
+{
+  "title": "Archive Attribute Coercion",
+  "description": "Coercizione dell'attributo di archivio del DIMSE ricevuto / inviato",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmDIMSE",
+    "dicomTransferRole",
+    "dcmRulePriority",
+    "dcmRetrieveAsReceived",
+    "dcmNoKeywords",
+    "dcmMWLImportFilterBySCU",
+    "dcmAttributeUpdatePolicy",
+    "dcmTrimISO2022CharacterSet"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Nome",
+      "description": "Nome arbitrario/significativo di Archive Attribute Coercion",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "Priorità delle regole",
+      "description": "Priorità della regola. Higher priority rule applied.",
+      "type": "integer",
+      "default" : 0,
+      "minimum": 0
+    },
+    "dcmDIMSE": {
+      "title": "DIMSE",
+      "description": "Elemento messaggio DICOM su cui deve essere applicata questa coercizione degli attributi",
+      "type": "string",
+      "enum": [
+        "N_CREATE_RQ",
+        "C_STORE_RQ",
+        "C_FIND_RQ",
+        "C_FIND_RSP"
+      ]
+    },
+    "dicomTransferRole": {
+      "title": "Ruolo di trasferimento DICOM",
+      "description": "Ruolo di trasferimento DICOM di un DICOM AE.",
+      "type": "string",
+      "enum": [
+        "SCU",
+        "SCP"
+      ]
+    },
+    "dcmSOPClass": {
+      "title": "UID SOP Class ",
+      "description": "UID della classe SOP per la quale deve essere applicata questa coercizione degli attributi. Applicare su qualsiasi se assente.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmSOPClass"
+    },
+    "dcmProperty": {
+      "title": "Condizioni",
+      "description": "Condizioni nel formato (SendingHostname|SendingApplicationEntityTitle|ReceivingHostname|ReceivingApplicationEntityTitle|{AttributeTagOrKeyword[number]}|{SequenceTagOrKeyword.AttributeTagOrKeyword})[!]={regEx}. More than one value can be specified for a given attribute by separating them with a | symbol. Esempio: SendingApplicationEntityTitle=FORWARD o Modality=MR|CT o ProcedureCodeSequence.CodeValue=MRProcedure o 00180015=KNEE o 00321034.00080100=RequestingServiceCode o ImageType[3]=LOCALIZER",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmRetrieveAsReceived": {
+      "title": "Recupera come ricevuto",
+      "description": "Disabilita l'unione delle informazioni del database nell'oggetto composito recuperato, restituendo gli oggetti come ricevuti. Efficace solo con DIMSE = C_STORE_RQ e DICOM Transfer Role = SCP.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmDeIdentification": {
+      "title": "Deidentificazione",
+      "description": "Deidentifica gli oggetti in base al profilo di riservatezza del livello di applicazione di base specificato in DICOM PS3.15. La selezione di un'opzione include implicitamente il profilo di riservatezza a livello di applicazione di base.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BasicApplicationConfidentialityProfile",
+          "RetainLongitudinalTemporalInformationFullDatesOption",
+          "RetainDeviceIdentityOption",
+          "RetainInstitutionIdentityOption",
+          "RetainUIDsOption",
+          "RetainPatientIDHashOption"
+        ]
+      }
+    },
+    "dcmURI": {
+      "title": "URI del foglio di stile XSL",
+      "description": "Specifica l'URI del foglio di stile XSL per Attribute Coercion",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "Nessuna parola chiave attributo",
+      "description": "Indica se le parole chiave degli attributi devono essere omesse nel DICOM XML passato a XSLT",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmMergeMWLMatchingKey": {
+      "title": "Unisci chiave di corrispondenza MWL",
+      "description": "Specifica l'attributo dell'oggetto ricevuto per la ricerca dell'elemento MWL utilizzato per forzare gli attributi della richiesta. Se assenti, gli attributi di richiesta degli oggetti ricevuti non verranno forzati. PatientID - Patient ID and Accession Number considered for querying MWLs. If Accession Number not available in object attributes, only Patient ID considered for querying MWLs. PatientIDOnly - Only Patient ID considered for querying MWLs. PatientIDAccessionNumber - Patient ID and Accession Number considered for querying MWLs. If Accession Number not available in object attributes, fall back to Study Instance UID. AccessionNumber - Only Accession Number considered for querying MWLs. StudyInstanceUID - Only Study Instance UID considered for querying MWLs. ScheduledProcedureStepID - Scheduled Procedure Step ID and Study Instance UID considered for querying MWLs.",
+      "type": "string",
+      "enum": [
+        "PatientID",
+        "PatientIDOnly",
+        "PatientIDAccessionNumber",
+        "AccessionNumber",
+        "StudyInstanceUID",
+        "ScheduledProcedureStepID"
+      ]
+    },
+    "dcmMergeMWLTemplateURI": {
+      "title": "Unisci l'URI del modello MWL",
+      "description": "Specifica l'URI per il foglio di stile per forzare gli attributi di richiesta degli oggetti ricevuti dagli elementi DICOM MWL corrispondenti. Efficace solo se è specificato dcmMergeMWLMatchingKey.",
+      "type": "string"
+    },
+    "dcmMergeMWLSCP": {
+      "title": "Merge MWL SCP",
+      "description": "AE Title of External MWL SCP used to lookup MWL Item to coerce request attributes of received objects. If configured, external MWL SCP is queried by invoking a C-FIND RQ of the DICOM MWL Service and Merge Local MWL SCP is ignored.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmMergeLocalMWLWorklistLabel": {
+      "title": "Merge Local MWL Worklist Label",
+      "description": "Only consider MWL items with one of the specified values of its Worklist Label (0074,1202) in the Archive DB to coerce request attributes of received objects. If absent, the Archive DB is queried for matching MWL items with any Worklist Label (0074,1202).",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "format": "dcmMWLWorklistLabel"
+    },
+    "dcmMergeLocalMWLWithStatus" : {
+      "title": "Merge Local MWL With Status",
+      "description": "Only consider MWL items with one of the specified Scheduled Procedure Step Status codes. If absent, MWL items with any Scheduled Procedure Step Status are considered.",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "ARRIVED",
+          "READY",
+          "STARTED",
+          "DEPARTED",
+          "CANCELED",
+          "DISCONTINUED",
+          "COMPLETED"
+        ]
+      }
+    },
+    "dcmMWLImportFilterBySCU": {
+      "title": "Merge MWL Filter by SCU",
+      "description": "Indicates to apply specified filter on matches returned by external MWL SCP.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmLeadingCFindSCP": {
+      "title": "Leading C-FIND SCP",
+      "description": "Titolo AE  dell'SCP C-FIND esterno per la coercizione degli attributi con gli attributi del paziente e dello studio recuperati da questo AE. Se non viene specificato alcun set di attributi particolare per C-FIND SCP, verranno recuperati tutti gli attributi del paziente configurato e il filtro degli attributi dello studio.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmAttributeUpdatePolicy": {
+      "title": "Criteri di aggiornamento degli attributi",
+      "description": "Specifica come gli attributi devono essere aggiornati con gli attributi recuperati da Leading C-FIND SCP. Refer <a href=\"https://github.com/dcm4che/dcm4chee-arc-light/wiki/Attribute-Update-Policy\" target=\"_blank\">Attribute Update Policies meanings</a>",
+      "type": "string",
+      "default": "MERGE",
+      "enum": [
+        "PRESERVE",
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE"
+      ]
+    },
+    "dcmTrimISO2022CharacterSet": {
+      "title": "Trim ISO 2022 Character Set",
+      "description": "Sostituisci il codice singolo per set di caratteri a byte singolo con estensioni di codice con codice per set di caratteri a byte singolo senza estensioni di codice. Efficace solo con DIMSE = C_STORE_RQ e DICOM Transfer Role = SCP.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmUseCallingAETitleAs": {
+      "title": "Usa Calling AE Title come",
+      "description": "Identifica l'attributo che è impostato sul valore di Calling AET se è assente o vuoto. ScheduledStationAETitle (= Scheduled Station AE Title (0040,0001) in item of Scheduled Procedure Step Sequence (0040,0100)), SendingApplicationEntityTitleOfSeries (= Sending Application Entity Title of Series (7777,xx37)).",
+      "type": "string",
+      "enum": [
+        "ScheduledStationAETitle",
+        "SendingApplicationEntityTitleOfSeries"
+      ]
+    },
+    "dcmNullifyTag": {
+      "title": "Nullify Attribute Tag",
+      "description": "Tag DICOM dell'attributo da annullare come stringa esadecimale",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
+    "dcmMergeAttribute": {
+      "title": "Attributo Unione",
+      "description": "Attributo di unione DICOM nel formato {attributeID} = {value}. {attributeID} all'interno di {value} verrà sostituito dal valore di quello attribuito nel set di dati originale. Esempio: InstitutionName=RegionalHospital o 00081040=XRay.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmProperty"
+    },
+    "dcmNullifyIssuerOfPatientID": {
+      "title": "Annullare l'emittente dell'ID paziente",
+      "description": "Annullare condizionalmente l'emittente dell'ID paziente (0010,0021) e l'emittente della sequenza qualificatori ID paziente (0010,0024) dagli oggetti ricevuti",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "MATCHING",
+        "NOT_MATCHING"
+      ]
+    },
+    "dcmIssuerOfPatientID": {
+      "title": "Emittente dell'ID paziente",
+      "description": "Emittente dell'ID paziente (0010,0021) e, facoltativamente, anche i valori per l'ID entità universale (0040,0032) e il tipo ID entità universale (0040,0033) dell'elemento della sequenza dei qualificatori dell'ID emittente dell'ID paziente (0010,0024) rispetto ai valori che combaciano negli oggetti ricevuti, se il nullify dell'emittente dell'ID paziente è impostato su MATCHING o NOT_MATCHING. Formato: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>].",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmIssuerOfPatientIDFormat": {
+      "title": "Formato dell'Emittente dell'ID paziente",
+      "description": "Formato dell'emittente dell'ID paziente (0010,0021) derivato da altri attributi. Ad esempio \"{00100010, hash} - {00100030}\": utilizza il valore hash del nome del paziente e della data di nascita separati da \"-\". Per la coercizione dei valori esistenti di Issuer of Patient ID negli oggetti ricevuti anche dcmNullifyIssuerOfPatientID deve essere impostato di conseguenza.",
+      "type": "string"
+    },
+    "dcmSupplementFromDeviceReference": {
+      "title": "Supplement from Device",
+      "description": "Nome del dispositivo da cui vengono prese le autorità assegnatrici (Assigning Authorities) e altre informazioni per integrare gli oggetti compositi e MPPS ricevuti.",
+      "type": "string",
+      "format": "dicomDeviceName"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "title": "बाजूंची तुलना करा",
+  "description": "बाजूंची तुलना करा",
+  "type": "object",
+  "required": [
+    "dcmuiCompareSideName",
+    "dcmuiCompareSideCluster",
+    "dcmuiCompareSideElasticsearch",
+    "dcmuiCompareSideInstalled",
+    "dcmuiCompareSideOrder"
+  ],
+  "properties": {
+    "dcmuiCompareSideName": {
+      "title": "नाव",
+      "description": "बाजूंची तुलना करण्याचे नाव",
+      "type": "string"
+    },
+    "dcmuiCompareSideDescription": {
+      "title": "वर्णन",
+      "description": "या गटाबद्दल एक लहान वर्णन.",
+      "type": "string"
+    },
+    "dcmuiCompareSideOrder": {
+      "title": "क्रम",
+      "description": "बाजूंची तुलनाचे क्रम.",
+      "type": "integer",
+      "default":0,
+      "enum":[
+         0,
+         1
+      ]
+    },
+    "dcmuiCompareSideCluster": {
+      "title": "क्लस्टर",
+      "description": "क्लस्टर निवडा.",
+      "type": "string",
+      "format":"dcmuiDeviceClusterObject"
+    },
+    "dcmuiCompareSideElasticsearch": {
+      "title": "इलास्टिकसर्च",
+      "description": "इलास्टिकसर्च URL निवडा.",
+      "type": "string",
+      "format":"dcmuiElasticsearchConfig"
+    },
+    "dcmuiCompareSideQueueName": {
+      "title": "रांगेचे नाव",
+      "description": "बाजूंची तुलना करण्यासाठी वापरला जाणारा रांगेचे नाव निवडा.",
+      "type": "string",
+      "format":"dcmQueueName"
+    },
+    "dcmuiCompareSideInstalled": {
+      "title": "स्थापित",
+      "description": "'हो' असल्यास या बाजूंची तुलना डॅशबोर्डमध्ये सक्रिय करते.",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}
