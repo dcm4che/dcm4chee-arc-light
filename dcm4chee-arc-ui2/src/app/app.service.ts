@@ -24,7 +24,7 @@ export class AppService implements OnInit, OnDestroy{
     private serverTimeSubject = new Subject<Date>();
     private securedValue:boolean;
     private _global;
-    private _baseUrl:string = '../';
+    private _baseUrl:string = '/dcm4chee-arc/';
     extensionsMap;
     subscription: Subscription;
     keycloak;
@@ -370,7 +370,7 @@ export class AppService implements OnInit, OnDestroy{
 
     getKeycloakJson(){
         if(!this.global || !this.global.notSecure){
-            return this.$httpClient.get("./rs/keycloak.json")
+            return this.$httpClient.get("/dcm4chee-arc/ui2/rs/keycloak.json")
                 .pipe(map((res:any)=>{
                     if(_.isEmpty(res)){
                         console.log("ojbect is empty",res);

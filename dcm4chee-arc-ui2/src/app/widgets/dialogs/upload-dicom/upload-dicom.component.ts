@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 // import {FileUploader} from 'ng2-file-upload';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {UploadDicomService} from './upload-dicom.service';
 import * as _ from 'lodash-es';
 import {AppService} from "../../../app.service";
@@ -11,6 +11,7 @@ import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.servic
 import {j4care} from "../../../helpers/j4care.service";
 import {DcmWebApp} from "../../../models/dcm-web-app";
 import {StudyService} from "../../../study/study/study.service";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-upload-dicom',

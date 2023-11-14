@@ -9,7 +9,8 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {forkJoin} from "rxjs";
 import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
 import {CreateWebappComponent} from "../../widgets/dialogs/create-webapp/create-webapp.component";
-import {MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef} from "@angular/material/legacy-dialog";
+// import {MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef} from "@angular/material/legacy-dialog";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-web-apps-list',
@@ -34,7 +35,6 @@ export class WebAppsListComponent implements OnInit {
         private httpErrorHandler:HttpErrorHandler,
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog,
-        private config: MatDialogConfig,
     ){}
 
     ngOnInit() {
@@ -97,8 +97,8 @@ export class WebAppsListComponent implements OnInit {
         );
     }
     createWebApp(){
-        this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(CreateWebappComponent, this.config);
+        //this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(CreateWebappComponent, {});
         this.dialogRef.afterClosed().subscribe(ok=>{
             console.log("ok");
         });

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
@@ -10,6 +10,7 @@ import {SelectDropdown, UPSModifyMode, UPSSubscribeType} from "../../../interfac
 import {j4care} from "../../../helpers/j4care.service";
 import {Aet} from "../../../models/aet";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
     selector: 'modify-ups',

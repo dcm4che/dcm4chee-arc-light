@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {j4care} from "../../../helpers/j4care.service";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-product-labelling',

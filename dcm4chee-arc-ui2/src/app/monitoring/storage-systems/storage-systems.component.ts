@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
-import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+// import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AppService} from '../../app.service';
 import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
@@ -55,7 +56,6 @@ export class StorageSystemsComponent implements OnInit {
         public  service: StorageSystemsService,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler
     ){}
     ngOnInit(){
@@ -87,7 +87,7 @@ export class StorageSystemsComponent implements OnInit {
         }
     };
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'
@@ -180,7 +180,7 @@ export class StorageSystemsComponent implements OnInit {
                         if(res && _.hasIn(res,"count")){
                             this.mainservice.showMsg($localize `:@@count_of_corresponding_operation:Count of corresponding operation:${res.count}`);
                         }else{
-                            this.mainservice.showMsg($localize `:@@count_of_corresponding_operation:Count of corresponding operation:0`);
+                            this.mainservice.showMsg($localize `:@@count_of_corresponding_operation:Count of corresponding operation:${0}`);
                         }
                         this.cfpLoadingBar.complete();
                     },err=>{

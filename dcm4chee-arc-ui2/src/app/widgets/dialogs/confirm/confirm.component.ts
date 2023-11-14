@@ -1,6 +1,7 @@
 import {Component, OnDestroy} from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import * as _ from 'lodash-es';
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
     selector: 'app-confirm',

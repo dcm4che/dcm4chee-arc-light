@@ -2,7 +2,8 @@ import {Component, OnDestroy} from '@angular/core';
 import {AppService} from '../../app.service';
 import {Subscription} from 'rxjs';
 import {InfoComponent} from '../dialogs/info/info.component';
-import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+// import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {WindowRefService} from "../../helpers/window-ref.service";
 @Component({
   selector: 'app-messaging',
@@ -29,8 +30,7 @@ export class MessagingComponent implements OnDestroy{
     dialogRef: MatDialogRef<any>;
     constructor(
         private mainservice: AppService,
-        public dialog: MatDialog,
-        public config: MatDialogConfig
+        public dialog: MatDialog
     ){
         this.subscription = this.mainservice.messageSet$.subscribe(msg => {
             console.log('msg in subscribe messagecomponent ', msg);

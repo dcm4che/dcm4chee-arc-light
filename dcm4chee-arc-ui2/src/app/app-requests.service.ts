@@ -62,14 +62,14 @@ export class AppRequestsService {
     }
     dcm4cheeArcRequest$():Observable<any>{
         if(!this.sharedObservables$["rs_dcm4chee-arc"]){
-            this.sharedObservables$["rs_dcm4chee-arc"] = this.$httpClient.get("./rs/dcm4chee-arc").pipe(shareReplay(1));
+            this.sharedObservables$["rs_dcm4chee-arc"] = this.$httpClient.get(`${j4care.addLastSlash(this.appService.baseUrl)}ui2/rs/dcm4chee-arc`).pipe(shareReplay(1));
         }
         return this.sharedObservables$["rs_dcm4chee-arc"];
     }
     devicesRequest$(deviceName){
         if(!(this.sharedObservables$["devices"] && this.sharedObservables$["devices"][deviceName])){
             this.sharedObservables$["devices"] = this.sharedObservables$["devices"] || {};
-            this.sharedObservables$["devices"][deviceName] = this.$httpClient.get(`${j4care.addLastSlash(this.baseUrl)}devices/${deviceName}`).pipe(shareReplay(1));
+            this.sharedObservables$["devices"][deviceName] = this.$httpClient.get(`${j4care.addLastSlash(this.appService.baseUrl)}devices/${deviceName}`).pipe(shareReplay(1));
         }
         return this.sharedObservables$["devices"][deviceName];
     }

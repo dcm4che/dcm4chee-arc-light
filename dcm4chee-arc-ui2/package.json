@@ -13,10 +13,11 @@
     "lint": "ng lint",
     "extract_local": "ng extract-i18n --output-path src/assets/locale --format=json",
     "prod_old": "ng build --aot --configuration production",
-    "prod": "ng build --configuration production --aot && yarn run addversion",
+    "prod": "ng build --localize --configuration production --aot && yarn run addversion && yarn run postbuild",
     "dev": "ng build",
     "e2e": "ng e2e",
     "addversion": "node add_version_to_scripts.js",
+    "postbuild": "cp src/assets/locale/index.html target/webapp",
     "extract-translation": "npx locl extract -s=./target/webapp/**/*.js -f=json -o=./src/assets/locale/en2.json"
   },
   "private": true,

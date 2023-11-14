@@ -29,9 +29,9 @@ export class WebAppsListService{
 
     getServiceClasses = () => {
         const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
-        let deviceSchemaURL = `./assets/schema/webApplication.schema.json`;
+        let deviceSchemaURL = `./assets/locale/schema/webApplication.schema.json`;
         if(_.hasIn(currentSavedLanguage,"language.code") && currentSavedLanguage.language.code && currentSavedLanguage.language.code != "en"){
-            deviceSchemaURL = `./assets/schema/${currentSavedLanguage.language.code}/webApplication.schema.json`;
+            deviceSchemaURL = `./assets/locale/schema/${currentSavedLanguage.language.code}/webApplication.schema.json`;
         }
         return this.$http.get(deviceSchemaURL).pipe(map(schema=>{
           return (<any[]>_.get(schema,"properties.dcmWebServiceClass.items.enum")).map(serviceClass=>{

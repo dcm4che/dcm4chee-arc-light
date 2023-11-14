@@ -233,9 +233,9 @@ export class DeviceConfiguratorService{
     }
     getSchema(schema){
         const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
-        let schemaURL = `./assets/schema/` + schema;
+        let schemaURL = `./assets/locale/schema/` + schema;
         if(_.hasIn(currentSavedLanguage,"language.code") && currentSavedLanguage.language.code && currentSavedLanguage.language.code != "en"){
-            schemaURL = `./assets/schema/${currentSavedLanguage.language.code}/` + schema;
+            schemaURL = `./assets/locale/schema/${currentSavedLanguage.language.code}/` + schema;
         }
         return this.$http.get(schemaURL)
             //.map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;});

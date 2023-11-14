@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import {j4care} from "../../../helpers/j4care.service";
 import {AppService} from "../../../app.service";
-import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+//import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
 import {StudyService} from "../../../study/study/study.service";
 import {StudyWebService} from "../../../study/study/study-web-service.model";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-viewer',

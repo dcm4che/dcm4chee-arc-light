@@ -105,7 +105,7 @@ import {MY_FORMATS} from "./constants/globalvar";
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/material-moment-adapter";
 
 // import localeDe from '@angular/common/locales/de';
-import {MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogModule as MatDialogModule} from '@angular/material/legacy-dialog';
+//import {MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogModule as MatDialogModule} from '@angular/material/legacy-dialog';
 import { CustomAttributeListComponent } from './helpers/custom-attribute-list/custom-attribute-list.component';
 import { CustomDatePipe } from './pipes/custom-date.pipe';
 import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.service";
@@ -117,6 +117,9 @@ import {MatInputModule} from "@angular/material/input";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {MatRadioModule} from "@angular/material/radio";
 import {MatMenuModule} from "@angular/material/menu";
+//import {MatDialogModule} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
+//import {MatLegacyDialogModule} from "@angular/material/legacy-dialog";
 
 
 // registerLocaleData(localeDe, 'de-DE');
@@ -189,12 +192,12 @@ import {MatMenuModule} from "@angular/material/menu";
         BrowserModule,
         FormsModule,
         HttpClientModule,
-        MatDialogModule,
         MatIconModule,
         MatSelectModule,
         MatProgressBarModule,
         MatInputModule,
         MatFormFieldModule,
+        MatDialogModule,
         MatProgressSpinnerModule,
         MatCheckboxModule,
         MatRadioModule,
@@ -285,7 +288,13 @@ import {MatMenuModule} from "@angular/material/menu";
         CustomDatePipe,
         DynamicPipePipe,
         Title,
+/*        {
+            provide: MatDialogRef,
+            useValue: {}
+        },*/
         { provide: LOCALE_ID, useValue: 'en-US' },
+        { provide: LOCALE_ID, useValue: 'de' },
+        {provide:MAT_DIALOG_DATA,useValue:{}},
         {
             provide: DateAdapter,
             useClass: MomentDateAdapter,

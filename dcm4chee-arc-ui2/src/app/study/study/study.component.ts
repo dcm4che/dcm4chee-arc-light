@@ -48,7 +48,8 @@ import {WadoQueryParams} from "./wado-wuery-params";
 import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 import {EditPatientComponent} from "../../widgets/dialogs/edit-patient/edit-patient.component";
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+// import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {HttpHeaders} from "@angular/common/http";
 import {EditMwlComponent} from "../../widgets/dialogs/edit-mwl/edit-mwl.component";
@@ -295,7 +296,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         private deviceConfigurator:DeviceConfiguratorService,
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog,
-        private config: MatDialogConfig,
         private _keycloakService:KeycloakService,
         private changeDetector: ChangeDetectorRef
     ) {
@@ -747,7 +747,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if (this.selectedElements.preActionElements.currentIndexes.indexOf(this.selectedElements.postActionElements.currentIndexes[0]) > -1) {
                     this.appService.showError($localize `:@@study.target_object_can_not_be_in_clipboard:Target object can not be in the clipboard`);
                 }else{
-                    this.config.viewContainerRef = this.viewContainerRef;
+                    // this.config.viewContainerRef = this.viewContainerRef;
                     this.dialogRef = this.dialog.open(StudyTransferringOverviewComponent, {
                         height: 'auto',
                         width: '90%'
@@ -1134,7 +1134,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     uploadDicom(){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(UploadDicomComponent, {
             height: 'auto',
             width: '500px'
@@ -1217,7 +1217,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
                 tempObject.attrs = newObject;
             }
-            this.config.viewContainerRef = this.viewContainerRef;
+            //this.config.viewContainerRef = this.viewContainerRef;
             this.dialogRef = this.dialog.open(UploadFilesComponent, {
                 height: 'auto',
                 width: '900px'
@@ -1353,7 +1353,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
     modifyMWL(patient, mode, patientkey, mwlkey, mwl, config:{saveLabel:string, titleLabel:string}){
         let originalMwlObject = _.cloneDeep(mwl);
-        this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
 
         this.lastPressedCode = 0;
         if (mode === 'edit'){
@@ -1677,7 +1677,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     * */
     confirm(confirmparameters, width?:string){
         width = width || '500px';
-        this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: width
@@ -1778,7 +1778,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             }else{
                 urlObservable.subscribe(url=>{
-                    this.config.viewContainerRef = this.viewContainerRef;
+                    // this.config.viewContainerRef = this.viewContainerRef;
                     this.dialogRef = this.dialog.open(ViewerComponent, {
                         height: 'auto',
                         width: 'auto',
@@ -3925,7 +3925,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             originalPatientObject = _.cloneDeep(patient);
         }
         this.lastPressedCode = 0;
-        this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
         this.service.getPatientIod().subscribe((iod) => {
             this.service.initEmptyValue(patient.attrs);
             this.dialogRef = this.dialog.open(EditPatientComponent, {
@@ -4634,7 +4634,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
     modifySeries(series, mode, config?:{saveLabel:string,titleLabel:string}){
         let $this = this;
-        this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
         let originalSeriesObject = _.cloneDeep(series);
         if (mode === 'edit'){
             _.forEach(series.attrs, function(value, index) {
@@ -4844,7 +4844,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     modifyStudy(study, mode, config?:{saveLabel:string,titleLabel:string}){
         let $this = this;
-        this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
         let originalStudyObject = _.cloneDeep(study);
         if (mode === 'edit'){
             _.forEach(study.attrs, function(value, index) {
@@ -5072,7 +5072,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let result = {
             reject: undefined
         };
-        this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, {
             height: 'auto',
             width: '500px'
@@ -5982,7 +5982,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 noDicomExporters.push(m);
             }
         });
-        this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
         let config = {
             height: 'auto',
             width: '500px'

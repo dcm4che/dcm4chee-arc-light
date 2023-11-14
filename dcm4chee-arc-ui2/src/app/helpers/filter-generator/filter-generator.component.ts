@@ -14,9 +14,10 @@ import {AppService} from "../../app.service";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+// import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {RangePickerService} from "../../widgets/range-picker/range-picker.service";
 import {StudyService} from "../../study/study/study.service";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 
 @Component({
     selector: 'filter-generator',
@@ -80,7 +81,6 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         private appService:AppService,
         private viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         private deviceConfigurator:DeviceConfiguratorService,
         private devices:DevicesService,
         private rangePicker:RangePickerService,
@@ -307,7 +307,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         this.filterChange(e);
     }
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '465px'

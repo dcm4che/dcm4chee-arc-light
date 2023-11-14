@@ -9,7 +9,8 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+// import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
@@ -74,7 +75,6 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       private httpErrorHandler:HttpErrorHandler,
       private service:StorageVerificationService,
       public dialog: MatDialog,
-      public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
       private permissionService:PermissionService,
       private deviceService:DevicesService,
@@ -397,7 +397,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     }
 
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'

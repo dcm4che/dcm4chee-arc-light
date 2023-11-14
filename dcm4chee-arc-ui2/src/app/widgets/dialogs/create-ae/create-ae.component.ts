@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import * as _ from 'lodash-es';
 import {AppService} from '../../../app.service';
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
@@ -10,6 +10,7 @@ import {j4care} from "../../../helpers/j4care.service";
 import {SelectDropdown} from "../../../interfaces";
 import {CreateAeService} from "./create-ae.service";
 import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
     selector: 'app-create-ae',

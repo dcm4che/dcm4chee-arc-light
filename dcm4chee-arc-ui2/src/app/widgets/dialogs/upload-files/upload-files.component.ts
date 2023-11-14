@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+//import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import * as _ from 'lodash-es';
 import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
@@ -13,6 +13,7 @@ import {StudyService} from "../../../study/study/study.service";
 import {DcmWebApp} from "../../../models/dcm-web-app";
 import {Observable, Subscriber} from "rxjs";
 import {UploadFilesService} from "./upload-files.service";
+import {MatDialogRef} from "@angular/material/dialog";
 // import {StudyWebService} from "../../../study/study/study-web-service.model";
 
 // declare var uuidv4: any;

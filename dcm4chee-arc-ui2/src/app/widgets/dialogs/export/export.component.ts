@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {AppService} from '../../../app.service';
 import * as _ from 'lodash-es';
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
@@ -8,6 +8,7 @@ import {SelectDropdown} from "../../../interfaces";
 import {Aet} from "../../../models/aet";
 import {DcmWebApp} from "../../../models/dcm-web-app";
 import {j4care} from "../../../helpers/j4care.service";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
     selector: 'app-export',

@@ -356,9 +356,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     } else {
                         $this.service.breadcrumbs.push(newBreadcrumbObject);
                     }
-                        let deviceSchemaURL = `./assets/schema/device.schema.json`;
+                        let deviceSchemaURL = `./assets/locale/schema/device.schema.json`;
                         if(_.hasIn(this.currentSavedLanguage,"language.code") && this.currentSavedLanguage.language.code && this.currentSavedLanguage.language.code != "en"){
-                            deviceSchemaURL = `./assets/schema/${this.currentSavedLanguage.language.code}/device.schema.json`;
+                            deviceSchemaURL = `./assets/locale/schema/${this.currentSavedLanguage.language.code}/device.schema.json`;
                         }
                         if (params['device'] == '[new_device]') {
                             $this.$http.get(deviceSchemaURL)

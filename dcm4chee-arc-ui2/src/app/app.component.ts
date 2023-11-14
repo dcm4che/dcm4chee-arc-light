@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import {MessagingComponent} from './widgets/messaging/messaging.component';
 import {AppService} from './app.service';
 import {ViewChild} from '@angular/core';
@@ -24,6 +24,7 @@ import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {ConfiguredDateTameFormatObject, LanguageObject, LocalLanguageObject} from "./interfaces";
 import {AppRequestsService} from "./app-requests.service";
 import { Title } from '@angular/platform-browser';
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 const worker = new Worker(new URL('./server-time.worker', import.meta.url), { type: 'module', name: 'server-time'});
@@ -75,7 +76,6 @@ export class AppComponent implements OnInit {
     constructor(
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         public mainservice: AppService,
         private appRequests: AppRequestsService,
         private permissionService:PermissionService,
@@ -136,6 +136,7 @@ export class AppComponent implements OnInit {
         if(languageConfig){
             this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig), this.mainservice.user);
         }
+        this.compareSavedLanguageWithLanguageInPath();
         this.mainservice.globalSet$.subscribe(global=>{
             if(_.hasIn(global,"uiConfig")){
                 if(_.hasIn(global, "uiConfig.dcmuiInstitutionNameFilterType") && !this.dcmuiInstitutionNameFilterType){
@@ -263,11 +264,12 @@ export class AppComponent implements OnInit {
                 username:this.mainservice.user.user
             };
             localStorage.setItem('current_language', JSON.stringify(localLanguage));
+            window.location.href = `/dcm4chee-arc/ui2/${language.code}/`;
             //TODO update the uiConfig so that the new choose language to be the default one for this user
         //}
-        setTimeout(()=>{
+/*        setTimeout(()=>{
             location.reload();
-        },1);
+        },1);*/
     }
     testUser(){
         KeycloakService.keycloakAuth.loadUserInfo().success(user=>{
@@ -416,7 +418,7 @@ export class AppComponent implements OnInit {
     }
     productLabelling(){
         // this.scrollToDialog();
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ProductLabellingComponent, {
             height: 'auto',
             width: 'auto'
@@ -503,5 +505,17 @@ export class AppComponent implements OnInit {
     }
 
 
+    private compareSavedLanguageWithLanguageInPath() {
+        try{
+            const currentLanguage:LocalLanguageObject = JSON.parse(localStorage.getItem('current_language'));
+            const regex = /dcm4chee-arc\/ui2\/(\w{2})\//gm;
+            let match;
+            if ((match = regex.exec(location.href)) !== null) {
+                if(match[1] != currentLanguage.language.code){
+                    window.location.href = `/dcm4chee-arc/ui2/${currentLanguage.language.code}/`;
+                }
+            }
+        }catch (e) {}
+    }
 }
 

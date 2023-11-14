@@ -1,7 +1,8 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+// import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import * as _ from 'lodash-es';
 import {AppService} from '../../app.service';
 import {StorageCommitmentService} from './storage-commitment.service';
@@ -41,7 +42,6 @@ export class StorageCommitmentComponent implements OnInit {
         public  service: StorageCommitmentService,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler
     ) {}
     ngOnInit(){
@@ -71,7 +71,7 @@ export class StorageCommitmentComponent implements OnInit {
         }
     };
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'

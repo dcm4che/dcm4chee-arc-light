@@ -9,7 +9,8 @@ import {j4care} from "../../helpers/j4care.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+// import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {Globalvar} from "../../constants/globalvar";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
@@ -75,7 +76,6 @@ export class DiffMonitorComponent implements OnInit {
         private httpErrorHandler:HttpErrorHandler,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public dialogConfig: MatDialogConfig,
         private permissionService:PermissionService,
         private deviceService:DevicesService,
         private _keycloakService: KeycloakService
@@ -419,7 +419,7 @@ export class DiffMonitorComponent implements OnInit {
         }
     }
     confirm(confirmparameters){
-        this.dialogConfig.viewContainerRef = this.viewContainerRef;
+        //this.dialogConfig.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'

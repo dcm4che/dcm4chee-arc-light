@@ -1,10 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators} from "@angular/forms";
-import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+//import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {CsvUploadService} from "./csv-upload.service";
 import {AppService} from "../../../app.service";
 import {j4care} from "../../../helpers/j4care.service";
 import * as _ from "lodash-es";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'csv-upload',

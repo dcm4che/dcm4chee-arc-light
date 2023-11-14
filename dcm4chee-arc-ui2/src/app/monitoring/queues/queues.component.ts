@@ -2,7 +2,8 @@ import {Component, OnInit, ViewContainerRef, OnDestroy} from '@angular/core';
 import {QueuesService} from './queues.service';
 import {AppService} from '../../app.service';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+// import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
@@ -117,7 +118,6 @@ export class QueuesComponent implements OnInit, OnDestroy{
         public cfpLoadingBar: LoadingBarService,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler,
         private route: ActivatedRoute,
         private deviceService:DevicesService,
@@ -447,7 +447,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         }
     }
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'

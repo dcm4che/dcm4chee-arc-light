@@ -1,6 +1,7 @@
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+// import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import * as _ from 'lodash-es';
 import {AppService} from '../../app.service';
 import {ExportService} from './export.service';
@@ -80,7 +81,6 @@ export class ExportComponent implements OnInit, OnDestroy {
         public  service: ExportService,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler,
         private route: ActivatedRoute,
         public aeListService:AeListService,
@@ -211,7 +211,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         }
     };
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent,{
             height: 'auto',
             width: '465px'

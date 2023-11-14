@@ -7,12 +7,14 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {AeListService} from "./ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MatLegacyDialogConfig as MatDialogConfig } from "@angular/material/legacy-dialog";
+//import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MatLegacyDialogConfig as MatDialogConfig } from "@angular/material/legacy-dialog";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DevicesService} from "../devices/devices.service";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpHeaders} from "@angular/common/http";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+
 import { loadTranslations } from '@angular/localize';
 
 @Component({
@@ -49,7 +51,6 @@ export class AeListComponent implements OnInit{
       public mainservice: AppService,
       public viewContainerRef: ViewContainerRef ,
       public dialog: MatDialog,
-      public config: MatDialogConfig,
       public service: AeListService,
       public httpErrorHandler:HttpErrorHandler,
       private devicesService:DevicesService
@@ -135,7 +136,7 @@ export class AeListComponent implements OnInit{
             });
     };
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'
@@ -286,7 +287,7 @@ export class AeListComponent implements OnInit{
             'name': 'dicom'
         });
         let $this = this;
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(CreateAeComponent, {
             height: 'auto',
             width: '90%'

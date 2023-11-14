@@ -5,8 +5,12 @@ import { environment } from './environments/environment';
 import { loadTranslations } from '@angular/localize';
 // import { getTranslations, ParsedTranslationBundle } from '@locl/core';
 import {LocalLanguageObject} from "./app/interfaces";
+import localeDe from '@angular/common/locales/de';
+import localeDeExtra from '@angular/common/locales/extra/de';
 
 import { AppModule } from './app/app.module';
+import {registerLocaleData} from "@angular/common";
+registerLocaleData(localeDe, 'de-DE', localeDeExtra);
 
 const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
 

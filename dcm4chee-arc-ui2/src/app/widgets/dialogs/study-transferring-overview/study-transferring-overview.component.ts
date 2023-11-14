@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+//import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {SelectionActionElement} from "../../../study/study/selection-action-element.models";
 import {SelectDropdown} from "../../../interfaces";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-study-transferring-overview',

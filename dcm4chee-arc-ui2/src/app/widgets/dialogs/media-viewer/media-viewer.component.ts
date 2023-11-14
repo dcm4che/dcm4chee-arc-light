@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+//import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {DomSanitizer} from "@angular/platform-browser";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {j4care} from "../../../helpers/j4care.service";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
     selector: 'app-media-viewer',

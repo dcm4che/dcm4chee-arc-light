@@ -3,7 +3,8 @@ import {AppService} from "../../app.service";
 import * as _ from 'lodash-es';
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+// import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
 import {j4care} from "../../helpers/j4care.service";
@@ -87,7 +88,6 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
       public service:RetrieveMonitoringService,
       public httpErrorHandler:HttpErrorHandler,
       public dialog: MatDialog,
-      public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
       private permissionService:PermissionService,
       private deviceService:DevicesService,
@@ -314,7 +314,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     }
 
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'

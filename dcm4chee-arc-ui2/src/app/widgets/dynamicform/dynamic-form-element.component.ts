@@ -12,7 +12,8 @@ import {FormElement} from '../../helpers/form/form-element';
 import * as _ from 'lodash-es';
 import {Router} from '@angular/router';
 import {DeviceConfiguratorService} from '../../configuration/device-configurator/device-configurator.service';
-import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+// import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {UploadVendorComponent} from '../dialogs/upload-vendor/upload-vendor.component';
 import {ConfirmComponent} from '../dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
@@ -48,7 +49,6 @@ export class DynamicFormElementComponent implements OnDestroy{
         private router: Router,
         private deviceConfiguratorService: DeviceConfiguratorService,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         public viewContainerRef: ViewContainerRef,
         public $http:J4careHttpService,
         private ref: ChangeDetectorRef,
@@ -64,7 +64,7 @@ export class DynamicFormElementComponent implements OnDestroy{
         return this.form.controls[this.formelement.key].valid;
     }
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'

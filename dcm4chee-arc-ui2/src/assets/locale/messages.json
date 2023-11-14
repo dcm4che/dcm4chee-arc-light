@@ -1100,7 +1100,7 @@
     "storage-commitment._ms": " ms",
     "preparemsg.updated": "- updated successfully for :{$updated}<br>\n",
     "preparemsg.failed": "- failed to update for :{$failed}<br>\n",
-    "preparemsg.noop": "- resulted in No Op for :{$count}<br>\n",
+    "preparemsg.noop": "- resulted in No Op for :{$updated}<br>\n",
     "preparemsg.error": "Error:{$error}<br>\n",
     "preparemsg.count": "Count:{$count}<br>\n",
     "preparemsg.warning": "Warning:{$warning}<br>\n",

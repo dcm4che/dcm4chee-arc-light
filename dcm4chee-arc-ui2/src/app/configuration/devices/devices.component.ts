@@ -2,7 +2,8 @@ import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {DevicesService} from './devices.service';
 import {HostListener} from '@angular/core';
 import {CreateExporterComponent} from '../../widgets/dialogs/create-exporter/create-exporter.component';
@@ -60,7 +61,6 @@ export class DevicesComponent implements OnInit{
         public mainservice: AppService,
         public viewContainerRef: ViewContainerRef ,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         public service: DevicesService,
         private router: Router,
         private hl7service:Hl7ApplicationsService,
@@ -161,7 +161,7 @@ export class DevicesComponent implements OnInit{
     };
 
     confirm(confirmparameters){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'
@@ -199,7 +199,7 @@ export class DevicesComponent implements OnInit{
                 return res.dicomDeviceName;
             });
 
-            this.config.viewContainerRef = this.viewContainerRef;
+            //this.config.viewContainerRef = this.viewContainerRef;
             this.dialogRef = this.dialog.open(DeviceCloneComponent, {
                 height: 'auto',
                 width: '90vw'
@@ -258,7 +258,7 @@ export class DevicesComponent implements OnInit{
         });
     }
     createExporter(){
-        this.config.viewContainerRef = this.viewContainerRef;
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(CreateExporterComponent, {
             height: 'auto',
             width: '90%'

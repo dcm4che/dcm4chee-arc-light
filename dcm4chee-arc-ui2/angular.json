@@ -503,31 +503,42 @@
         }
       },
       "i18n": {
-        "sourceLocale": "en-US",
+        "sourceLocale": {
+          "code": "en",
+          "baseHref": "/dcm4chee-arc/ui2/en/"
+        },
         "locales": {
           "de": {
-            "translation": "src/assets/locale/de.json"
+            "translation": "src/assets/locale/de.json",
+            "baseHref": "/dcm4chee-arc/ui2/de/"
           },
           "es": {
-            "translation": "src/assets/locale/es.json"
+            "translation": "src/assets/locale/es.json",
+            "baseHref": "/dcm4chee-arc/ui2/es/"
           },
           "hi": {
-            "translation": "src/assets/locale/hi.json"
+            "translation": "src/assets/locale/hi.json",
+            "baseHref": "/dcm4chee-arc/ui2/hi/"
           },
           "it": {
-            "translation": "src/assets/locale/it.json"
+            "translation": "src/assets/locale/it.json",
+            "baseHref": "/dcm4chee-arc/ui2/it/"
           },
           "ja": {
-            "translation": "src/assets/locale/ja.json"
+            "translation": "src/assets/locale/ja.json",
+            "baseHref": "/dcm4chee-arc/ui2/ja/"
           },
           "mr": {
-            "translation": "src/assets/locale/mr.json"
+            "translation": "src/assets/locale/mr.json",
+            "baseHref": "/dcm4chee-arc/ui2/mr/"
           },
           "ru": {
-            "translation": "src/assets/locale/ru.json"
+            "translation": "src/assets/locale/ru.json",
+            "baseHref": "/dcm4chee-arc/ui2/ru/"
           },
           "zh": {
-            "translation": "src/assets/locale/zh.json"
+            "translation": "src/assets/locale/zh.json",
+            "baseHref": "/dcm4chee-arc/ui2/zh/"
           }
         }
       }

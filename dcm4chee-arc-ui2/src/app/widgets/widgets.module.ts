@@ -47,7 +47,7 @@ import { CreateWebappComponent } from './dialogs/create-webapp/create-webapp.com
 import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.component';
 import { ModifiedWidgetComponent } from './modified-widget/modified-widget.component';
 import { PersonNamePickerComponent } from './person-name-picker/person-name-picker.component';
-import {MatDialogConfig, MatDialogModule} from "@angular/material/dialog";
+import { MatDialogModule} from "@angular/material/dialog";
 
 
 @Injectable()
@@ -60,7 +60,7 @@ import {MatDialogConfig, MatDialogModule} from "@angular/material/dialog";
     ],
     declarations: [WidgetsComponent],
     exports: [WidgetsComponent],
-    providers: [MatDialogConfig, MatDialogModule]
+    providers: [ MatDialogModule]
 })
 export class WidgetsModule { }
 export const WidgetsComponents = [

@@ -1,12 +1,13 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {AppService} from '../../../app.service';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
 import {SearchPipe} from '../../../pipes/search.pipe';
 declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {SelectDropdown} from "../../../interfaces";
+import {MatDialogRef} from "@angular/material/dialog";
 
 
 @Component({

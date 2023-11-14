@@ -4,7 +4,7 @@ declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+//import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {Router} from "@angular/router";
 import {
@@ -25,6 +25,8 @@ import {User} from "../models/user";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Aet} from "../models/aet";
 import {Device} from "../models/device";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+
 declare const bigInt:Function;
 
 @Injectable()
@@ -34,7 +36,6 @@ export class j4care {
     constructor(
         private $httpClient:HttpClient,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         private router: Router,
         private sanitizer : DomSanitizer
     ) {}
@@ -1654,7 +1655,7 @@ export class j4care {
             if(_.hasIn(returnedObject,"count")
                 && !(_.hasIn(returnedObject,"failed"))
                     && !(_.hasIn(returnedObject,"updated"))) {
-                msg += $localize `:@@preparemsg.noop:- resulted in No Op for \:${returnedObject.count}:updated:<br>\n`;
+                msg += $localize `:@@preparemsg.noop:- resulted in No Op for:${returnedObject.count}:updated:<br>\n`;
             }
             if(_.hasIn(returnedObject,"error")){
                 msg += $localize `:@@preparemsg.error:Error\:${returnedObject.error}:error:<br>\n`;

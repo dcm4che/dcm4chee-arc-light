@@ -4,13 +4,14 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+//import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {HttpHeaders} from "@angular/common/http";
 import {SelectDropdown} from "../../interfaces";
 import { loadTranslations } from '@angular/localize';
 import {AppService} from "../../app.service";
 import {map, switchMap} from "rxjs/operators";
 import {AeListService} from "../ae-list/ae-list.service";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 
 @Injectable()
 export class DevicesService {
@@ -20,7 +21,6 @@ export class DevicesService {
     constructor(
         private $http:J4careHttpService,
         public dialog: MatDialog,
-        public config: MatDialogConfig,
         private appService: AppService
     ) { }
 

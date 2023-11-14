@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+//import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
@@ -7,6 +7,7 @@ import {AppService} from '../../../app.service';
 import {SearchPipe} from '../../../pipes/search.pipe';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {j4care} from "../../../helpers/j4care.service";
+import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-edit-patient',

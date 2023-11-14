@@ -8,6 +8,37 @@
   <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
     <meta name="viewport" content="width=1324">
     <base href="/dcm4chee-arc/ui2/">
+    <script>
+        //let language = window.localStorage.getItem('language');
+        let redirectToLanguage = function (languageCode){
+            try{
+                const regex = /dcm4chee-arc\/ui2\/(\w{2})/;
+                const currentBaseHref = document.getElementsByTagName('base')[0].href;
+                let match;
+                if ((match = regex.exec(currentBaseHref)) !== null) {
+                    if(match[1] && match[1] != ""){
+                        if(languageCode != match[1]){
+                          console.log("about to redirect", languageCode);
+                          window.location.href = `/dcm4chee-arc/ui2/${languageCode}/`;
+                        }
+                    }
+                }
+            }catch (e) {}
+        }
+        try{
+            const savedLanguage = localStorage.getItem('current_language');
+            if(savedLanguage){
+                const currentLanguage = JSON.parse(savedLanguage);
+                if(currentLanguage && currentLanguage.language && currentLanguage.language.code && currentLanguage.language.code != "" ){
+                    redirectToLanguage(currentLanguage.language.code);
+                }else{
+                    redirectToLanguage('en');
+                }
+            }else{
+              redirectToLanguage('en');
+            }
+        }catch (e) {}
+    </script>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
