@@ -59,16 +59,6 @@
     <secure-classifier>secure</secure-classifier>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-lang</artifactId>
-      <version>${project.version}</version>
-      <type>war</type>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
-
   <profiles>
     <profile>
       <id>ng-build</id>
@@ -79,6 +69,24 @@
       </activation>
       <build>
         <plugins>
+          <plugin>
+            <artifactId>maven-remote-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>dictionary</id>
+                <goals>
+                  <goal>process</goal>
+                </goals>
+                <configuration>
+                  <resourceBundles>
+                    <resourceBundle>org.dcm4che.dcm4chee-arc:dcm4chee-arc-lang:${project.version}</resourceBundle>
+                  </resourceBundles>
+                  <attachToMain>false</attachToMain>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>com.github.eirslett</groupId>
             <artifactId>frontend-maven-plugin</artifactId>
