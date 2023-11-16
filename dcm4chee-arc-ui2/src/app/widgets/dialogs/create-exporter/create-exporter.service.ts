@@ -21,10 +21,7 @@ export class CreateExporterService {
 
     getExporterDescriptorSchema = () => {
         const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
-        let deviceSchemaURL = `./assets/locale/schema/exporter.schema.json`;
-        if(_.hasIn(currentSavedLanguage,"language.code") && currentSavedLanguage.language.code && currentSavedLanguage.language.code != "en"){
-            deviceSchemaURL = `./assets/locale/schema/${currentSavedLanguage.language.code}/exporter.schema.json`;
-        }
+        let deviceSchemaURL = `./assets/schema/exporter.schema.json`;
         return this.$http.get(deviceSchemaURL)
     };
 

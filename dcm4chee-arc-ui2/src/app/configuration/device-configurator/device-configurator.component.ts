@@ -356,10 +356,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     } else {
                         $this.service.breadcrumbs.push(newBreadcrumbObject);
                     }
-                        let deviceSchemaURL = `./assets/locale/schema/device.schema.json`;
-                        if(_.hasIn(this.currentSavedLanguage,"language.code") && this.currentSavedLanguage.language.code && this.currentSavedLanguage.language.code != "en"){
-                            deviceSchemaURL = `./assets/locale/schema/${this.currentSavedLanguage.language.code}/device.schema.json`;
-                        }
+                        let deviceSchemaURL = `./assets/schema/device.schema.json`;
                         if (params['device'] == '[new_device]') {
                             $this.$http.get(deviceSchemaURL)
                                 // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
