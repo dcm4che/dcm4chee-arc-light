@@ -778,6 +778,8 @@ class ArchiveDeviceFactory {
             UID.OphthalmicOpticalCoherenceTomographyBscanVolumeAnalysisStorage,
             UID.VLWholeSlideMicroscopyImageStorage,
             UID.DermoscopicPhotographyImageStorage,
+            UID.ConfocalMicroscopyImageStorage,
+            UID.ConfocalMicroscopyTiledPyramidalImageStorage,
             UID.OphthalmicThicknessMapStorage,
             UID.CornealTopographyMapStorage,
             UID.PositronEmissionTomographyImageStorage,
@@ -816,6 +818,9 @@ class ArchiveDeviceFactory {
             UID.JPEGLSNearLossless,
             UID.JPEG2000Lossless,
             UID.JPEG2000,
+            UID.HTJ2KLossless,
+            UID.HTJ2KLosslessRPCL,
+            UID.HTJ2K,
             UID.RLELossless
     };
     static final String[] VIDEO_CUIDS = {
