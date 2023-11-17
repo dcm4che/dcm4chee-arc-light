@@ -523,7 +523,7 @@ export class StudyService {
             case "patient":
                 return $localize `:@@query_patients:Query Patients`;
             case "series":
-                return $localize `:@@query_studies:Query Series`;
+                return $localize `:@@query_series:Query Series`;
             case "mwl":
                 return $localize `:@@query_mwl:Query MWL`;
             case "mpps":
@@ -1996,7 +1996,7 @@ export class StudyService {
                                     }, e);
                                 },
                                 id: "study_export",
-                                title: options.internal ? $localize `:@@study.export_study:Export study`: $localize `:@@study.retrieve_study:Retrieve study`,
+                                title: options.internal ? $localize `:@@study.export_study:Export study`: $localize `:@@study.retrieve_study:Retrieve Study`,
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'export'
@@ -2524,7 +2524,7 @@ export class StudyService {
                                     }, e);
                                 },
                                 id: "series_send_instance_availability_notification",
-                                title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this Series`,
+                                title: $localize `:@@send_instance_availability_notification_for_this_series:Send Instance Availability Notification for this Series`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
@@ -2851,7 +2851,7 @@ export class StudyService {
                                     }, e);
                                 },
                                 id: "instance_send_storage_commit",
-                                title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this Instance`,
+                                title: $localize `:@@send_instance_availability_notification_for_this_instance:Send Instance Availability Notification for this Instance`,
                                 showIf:(e,config)=>{
                                     return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
                                 },
@@ -3288,7 +3288,7 @@ export class StudyService {
                 }),
                 new TableSchemaElement({
                     type: "value",
-                    header: $localize `:@@study.ss_aet:PS AET`,
+                    header: $localize `:@@study.ps_aet:PS AET`,
                     pathToValue: "00400241.Value[0]",
                     headerDescription: $localize `:@@performed_station_ae_title:Performed Station AE Title`,
                     widthWeight: 1.5,
@@ -4527,7 +4527,7 @@ export class StudyService {
                 [
                     {
                         tag: "label",
-                        text: $localize `:@@expired_date:Expired date`
+                        text: $localize `:@@expired_date:Expired Date`
                     },
                     {
                         tag: "p-calendar",
@@ -4553,7 +4553,7 @@ export class StudyService {
                 [
                     {
                         tag: "label",
-                        text: $localize `:@@expired_date:Expired date`
+                        text: $localize `:@@expired_date:Expired Date`
                     },
                     {
                         tag: "p-calendar",
@@ -4593,7 +4593,7 @@ export class StudyService {
                 [
                     {
                         tag: "label",
-                        text: $localize `:@@expired_date:Expired date`
+                        text: $localize `:@@expired_date:Expired Date`
                     },
                     {
                         tag: "p-calendar",
@@ -4649,7 +4649,7 @@ export class StudyService {
                         [
                             {
                                 tag: "label",
-                                text: $localize `:@@expired_date:Expired date`,
+                                text: $localize `:@@expired_date:Expired Date`,
                                 showIf: (model) => {
                                     return !model.setExpirationDateToNever
                                 }
@@ -4702,7 +4702,7 @@ export class StudyService {
                     [
                         {
                             tag: "label",
-                            text: $localize `:@@expired_date:Expired date`
+                            text: $localize `:@@expired_date:Expired Date`
                         },
                         {
                             tag: "p-calendar",
@@ -5350,7 +5350,7 @@ export class StudyService {
             case "study":
                 return $localize `:@@study:study`;
             case "series":
-                return $localize `:@@series:series`;
+                return $localize `:@@series:Series`;
             case "instance":
                 return $localize `:@@instance:instance`;
             case "patient":
@@ -5358,7 +5358,7 @@ export class StudyService {
             case "diff":
                 return $localize `:@@diff:diff`;
             case "mwl":
-                return $localize `:@@mwl:mwl`;
+                return $localize `:@@mwl:MWL`;
         }
     }
 

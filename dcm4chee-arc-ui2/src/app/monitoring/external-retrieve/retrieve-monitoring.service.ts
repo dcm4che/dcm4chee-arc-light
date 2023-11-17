@@ -128,7 +128,7 @@ export class RetrieveMonitoringService {
                 [
                     {
                         tag:"label",
-                        text:$localize `:@@device_name:Device name`
+                        text:$localize `:@@device_name:Device Name`
                     },
                     {
                         tag: "html-select",
@@ -376,9 +376,9 @@ export class RetrieveMonitoringService {
                 }),
                 new TableSchemaElement({
                     type:"value",
-                    title:$localize `:@@processing_end_time_range:Processing End Time Range`,
+                    title:$localize `:@@processing_end_time_range:Processing end time range`,
                     pathToValue:"processingEndTimeRange",
-                    description: $localize `:@@processing_end_time_range:Processing End Time Range`,
+                    description: $localize `:@@processing_end_time_range:Processing end time range`,
                     widthWeight:1,
                     calculatedWidth:"20%"
                 }),

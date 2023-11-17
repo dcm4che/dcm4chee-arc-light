@@ -169,10 +169,10 @@
                 </label>
             </div>
             <div class="left {{mode}}_mode" *ngIf="includeTime || onlyTime" >
-                <time-picker [model]="fromTimeModel" cohereMode="true" (onValueSet)="onTimeSet('fromTimeModel', $event)" i18n-placeholder="@@placeholder.from_formated" placeholder="from (hh:mm:ss)" *ngIf="mode === 'range' || mode === 'rightOpen'"></time-picker>
+                <time-picker [model]="fromTimeModel" cohereMode="true" (onValueSet)="onTimeSet('fromTimeModel', $event)" i18n-placeholder="@@placeholder.from_formated_time" placeholder="from (hh:mm:ss)" *ngIf="mode === 'range' || mode === 'rightOpen'"></time-picker>
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
                 <span *ngIf="mode != 'single'" class="dash">-</span>
-                <time-picker [model]="toTimeModel" *ngIf="mode === 'range' || mode === 'leftOpen'" cohereMode="true" (onValueSet)="onTimeSet('toTimeModel', $event)" i18n-placeholder="@@placeholder.to_formated" placeholder="to (hh:mm:ss)"></time-picker>
+                <time-picker [model]="toTimeModel" *ngIf="mode === 'range' || mode === 'leftOpen'" cohereMode="true" (onValueSet)="onTimeSet('toTimeModel', $event)" i18n-placeholder="@@placeholder.to_formated_time" placeholder="to (hh:mm:ss)"></time-picker>
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
                 <time-picker *ngIf="mode === 'single'"  [model]="singleTimeModel" cohereMode="true" (onValueSet)="onTimeSet('singleTimeModel', $event)" placeholder="(hh:mm:ss)"></time-picker>
             </div>

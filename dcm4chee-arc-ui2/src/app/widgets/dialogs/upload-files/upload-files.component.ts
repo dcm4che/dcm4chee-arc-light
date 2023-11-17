@@ -63,7 +63,7 @@ export class UploadFilesComponent implements OnInit {
         }
 
     }
-    title = $localize `:@@upload-file.title:Upload objects to the Patient`;
+    title = $localize `:@@upload-file.title:Upload bulkdata files to patient`;
     file;
     fileList: File[];
     xmlHttpRequest;

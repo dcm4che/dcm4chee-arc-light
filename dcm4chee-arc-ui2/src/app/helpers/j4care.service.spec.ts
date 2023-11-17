@@ -794,9 +794,9 @@ describe('j4care', () => {
             }),
             new TableSchemaElement({
                 type:"value",
-                title:$localize `:@@device_name:Device name`,
+                title:$localize `:@@device_name:Device Name`,
                 pathToValue:"dicomDeviceName",
-                description: $localize `:@@device_name:Device name`,
+                description: $localize `:@@device_name:Device Name`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             }),
@@ -819,9 +819,9 @@ describe('j4care', () => {
             }),
             new TableSchemaElement({
                 type:"value",
-                title:$localize `:@@device_name:Device name`,
+                title:$localize `:@@device_name:Device Name`,
                 pathToValue:"dicomDeviceName",
-                description: $localize `:@@device_name:Device name`,
+                description: $localize `:@@device_name:Device Name`,
                 widthWeight:1,
                 calculatedWidth:"calc(50% - 53px)"
             }),

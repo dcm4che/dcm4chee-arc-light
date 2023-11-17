@@ -41,14 +41,14 @@ export class ControlService {
                 calculatedWidth:"20%"
             },
             {
-                title:$localize `:@@device_name:Device name`,
+                title:$localize `:@@device_name:Device Name`,
                 code:"dcmuiDeviceURLName",
                 description:$localize `:@@control.archive_device_name:Archive device name`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },
             {
-                title:$localize `:@@device_description:Device description`,
+                title:$localize `:@@device_description:Device Description`,
                 code:"dicomDescription",
                 description:$localize `:@@control.archive_device_description:Archive device description`,
                 widthWeight:3,
@@ -62,14 +62,14 @@ export class ControlService {
                 calculatedWidth:"20%"
             },
             {
-                title:$localize `:@@model_name:Model name`,
+                title:$localize `:@@model_name:Model Name`,
                 code:"dicomManufacturerModelName",
                 description:$localize `:@@manufacturer_model_name:Manufacturer model name`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },
             {
-                title:$localize `:@@primary_device_type:Primary device type`,
+                title:$localize `:@@primary_device_type:Primary Device Type`,
                 code:"dicomPrimaryDeviceType",
                 widthWeight:1,
                 calculatedWidth:"20%"

@@ -68,8 +68,8 @@ export class AeListService {
                 showStar:true,
                 showSearchField:true,
                 filterKey:"dicomDeviceName",
-                description:$localize `:@@device_name:Device name`,
-                placeholder:$localize `:@@device_name:Device name`
+                description:$localize `:@@device_name:Device Name`,
+                placeholder:$localize `:@@device_name:Device Name`
             },{
                 tag:"html-select",
                 options:aes.map(ae=>{

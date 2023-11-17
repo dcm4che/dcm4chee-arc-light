@@ -79,8 +79,8 @@ export class StorageSystemsService {
                         showStar:true,
                         showSearchField:true,
                         filterKey:"dicomAETitle",
-                        description:$localize `:@@aetitle:AETitle`,
-                        placeholder:$localize `:@@aetitle:AETitle`
+                        description:$localize `:@@aetitle:AE Title`,
+                        placeholder:$localize `:@@aetitle:AE Title`
                     },
                     {
                         tag:"select",

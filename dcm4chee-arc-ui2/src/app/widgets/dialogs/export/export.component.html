@@ -94,7 +94,7 @@
                 </mat-select>
                 <br>
                 <div *ngIf="mode === 'multiple-retrieve'" class="noneDicomBlock">
-                    <p i18n="@@batch_id">Batch ID:</p>
+                    <p><ng-container i18n="@@batch_id">Batch ID</ng-container>:</p>
                     <input type="text" [(ngModel)]="result.batchID" i18n-placeholder="@@batch_id" placeholder="Batch ID">
                     <range-picker
                             [model]="result.scheduledTime"
@@ -118,7 +118,7 @@
                 </mat-select>
             </div>
             <div *ngIf="mode ==='single'">
-                <p i18n="@@queue_name">Queue Name:</p>
+                <p><ng-container i18n="@@queue_name">Queue Name</ng-container>:</p>
                 <mat-select class="aes" [(ngModel)]="result.dcmQueueName">
                     <mat-option value="">*</mat-option>
                     <mat-option value="{{queue.value}}" *ngFor="let queue of queues" title="{{queue.title}}">{{queue.text}}</mat-option>
@@ -153,7 +153,7 @@
         </div>
         <div class="content" *ngIf="mode === 'reschedule'">
             <div class="dicomBlock">
-                <p i18n="@@exporter_id">Exporter ID:</p>
+                <p><ng-container i18n="@@exporter_id">Exporter ID</ng-container>:</p>
                 <mat-select class="aes" [(ngModel)]="result.selectedExporter">
                     <mat-option value="{{export.id}}" *ngFor="let export of noDicomExporters" title="{{export.id}}">{{export.id}}</mat-option>
                 </mat-select>

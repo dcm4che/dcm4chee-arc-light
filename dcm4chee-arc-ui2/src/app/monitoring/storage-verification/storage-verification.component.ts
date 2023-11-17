@@ -214,7 +214,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     {
                         tag:"button",
                         text:$localize `:@@TRIGGER:TRIGGER`,
-                        description:$localize `:@@TRIGGER:TRIGGE`
+                        description:$localize `:@@TRIGGER:TRIGGER`
                     }
                 ]
         ]);

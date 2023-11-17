@@ -420,18 +420,18 @@ export class DiffMonitorService {
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:$localize `:@@scheduled_time_range:Scheduled time range`,
+                title:$localize `:@@scheduled_time_range:Scheduled Time Range`,
                 key:"scheduledTimeRange",
-                description:$localize `:@@scheduled_time_range:Scheduled time range`,
+                description:$localize `:@@scheduled_time_range:Scheduled Time Range`,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
                 type:"model",
-                title:$localize `:@@processing_start_time_range:Processing start time range`,
+                title:$localize `:@@processing_start_time_range:Processing Start Time Range`,
                 key:"processingStartTimeRange",
-                description:$localize `:@@processing_start_time_range:Processing start time range`,
+                description:$localize `:@@processing_start_time_range:Processing Start Time Range`,
                 widthWeight:1.4,
                 modifyData:(data)=> this.stringifyRangeArray(data),
                 calculatedWidth:"20%",

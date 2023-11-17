@@ -183,10 +183,14 @@ export class AssociationsComponent implements OnDestroy{
     };
     downloadAssocImmage(){
         let csv = $localize `:@@local_aet_remote_aet:Local AE Title ⇆ Remote AE Title`;
-        csv += $localize `:@@invoked_ops:,Invoked Ops.`;
-        csv += $localize `:@@performed_ops:,Performed Ops.`;
-        csv += $localize `:@@connection_time_server:,Connection time (Server)`;
-        csv += $localize `:@@connection_time_browser:,Connection time (Browser)`;
+        csv += `,`;
+        csv += $localize `:@@invoked_ops:Invoked Ops.`;
+        csv += `,`;
+        csv += $localize `:@@performed_ops:Performed Ops.`;
+        csv += `,`;
+        csv += $localize `:@@connection_time_server:Connection time (Server)`;
+        csv += `,`;
+        csv += $localize `:@@connection_time_browser:Connection time (Browser)`;
         csv += $localize `:@@connection_open_for_hh_mm_ss:,Connection open for (hh:mm:ss)`;
 
         if (this.others){

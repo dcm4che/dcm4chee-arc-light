@@ -18,7 +18,7 @@
                 </dcm-drop-down>
             </div>
             <div class="form_input">
-                <label i18n="@@reason_for_modification_label">Reason for modification :</label>
+                <label i18n="@@reason_for_modification_label">Reason for modification:</label>
                 <dcm-drop-down [options]="reasonForModification" [(model)]="_studyResult.reasonForModificationResult"
                                [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
                                (modelChange)="_studyResult.reasonForModificationResult = $event">

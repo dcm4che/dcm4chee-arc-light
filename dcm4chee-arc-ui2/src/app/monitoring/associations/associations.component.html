@@ -16,7 +16,7 @@
                                 <div *ngIf="stopLoop" class="dummy"></div>
                                 <mat-progress-spinner *ngIf="!stopLoop" mode="indeterminate" [diameter]="28" ></mat-progress-spinner>
                                 <button *ngIf="stopLoop" type="button" class="btn-default submit" (click)="monitor()" i18n-title="@@title.associations.start_getting_associations" title="Start getting associations">Start</button>
-                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" i18n-title="@@stop_auto_refresh" title="Stop auto refresh">Stop</button>
+                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" i18n-title="@@stop_auto_refresh" title="Stop Auto Refresh">Stop</button>
                             </div>
                         </div>
                         <div class="filter_block height_2">
@@ -46,7 +46,7 @@
                 <table  class="table table-inverse"  (mouseenter)="mauseEnter()" (mouseleave)="mauseLeave()">
                 <tr>
                     <th>
-                        <span i18n-title="@@title.associations.sort_by_local_ae_title" title="Sort by Local AE Title" class="pointer" (click)="sortBy('localAETitle')" i18n="@@local_aet">
+                        <span i18n-title="@@title.associations.sort_by_local_ae_title" title="Sort by Local AE Title" class="pointer" (click)="sortBy('localAETitle')" i18n="@@local_ae_title">
                             Local AE Title
                         </span>
                     </th>
@@ -56,14 +56,12 @@
                         </span>
                     </th>
                     <th>
-                        <span i18n-title="@@title.associations.sort_by_remote_ae_title" title="Sort by Remote AE Title" class="pointer" (click)="sortBy('remoteAETitle')" i18n="@@remote_aet">
+                        <span i18n-title="@@title.associations.sort_by_remote_ae_title" title="Sort by Remote AE Title" class="pointer" (click)="sortBy('remoteAETitle')" i18n="@@remote_ae_title">
                             Remote AE Title
                         </span>
                     </th>
                     <th>
-                        <span  i18n-title="@@title.associations.sort_by_invoked_ops" title="Sort by Invoked Ops." class="pointer" (click)="sortBy('invokedOps')" i18n="@@invoked_ops">
-                            Invoked Ops.
-                        </span>
+                        <span  i18n-title="@@title.associations.sort_by_invoked_ops" title="Sort by Invoked Ops." class="pointer" (click)="sortBy('invokedOps')" i18n="@@invoked_ops">Invoked Ops.</span>
                     </th>
                     <th><span i18n-title="@@title.associations.sort_by_performed_ops"  title="Sort by Performed Ops." class="pointer" (click)="sortBy('performedOps')" i18n="@@performed_ops">Performed Ops.</span></th>
                     <th><span i18n-title="@@title.associations.sort_by_connection_time_server" title="Sort by Connection time (Server)" class="pointer" (click)="sortBy('connectTime')" i18n="@@connection_time_server">Connection time (Server)</span></th>

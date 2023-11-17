@@ -687,7 +687,7 @@ export class Globalvar {
         return [
             {
                 value: '',
-                label: $localize `:@@orderby.patient:<label>Patient </label>`,
+                label: $localize `:@@orderby.patient:<label>Patient</label>`,
                 mode: 'patient',
                 title:$localize `:@@orderby.query_patients_to_external_archive:Query Patients to external archive`
             }, {
@@ -702,13 +702,13 @@ export class Globalvar {
         return [
             {
                 value: 'PatientName',
-                label: $localize `:@@orderby.patient_alph:<label class="order_label">Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
+                label: $localize `:@@orderby.patient_with_class:<label class="order_label">Patient</label>`+`<span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>`,
                 mode: 'patient',
                 title:$localize `:@@query_patients:Query Patients`
             },
             {
                 value: '-PatientName',
-                label: $localize `:@@orderby.patient:name_desc:<label class="order_label">Patient</label><span class=\"orderbynamedesc\"></span>`,
+                label: $localize `:@@orderby.patient_with_class:<label class="order_label">Patient</label>`+`<span class=\"orderbynamedesc\"></span>`,
                 mode: 'patient',
                 title:$localize `:@@query_patients:Query Patients`
             },
@@ -847,7 +847,7 @@ export class Globalvar {
             {
 
                 value: '-StudyDate,-StudyTime',
-                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label><span class=\"orderbydatedesc\"></span>`,
+                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label>` + `<span class=\"orderbydatedesc\"></span>`,
                 mode: 'study',
                 title:$localize `:@@query_studies_study_datetime_newest_first:Newest StudyDateTime first`
             },
@@ -883,7 +883,7 @@ export class Globalvar {
             },
             {
                 value: '-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
-                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label><span class=\"orderbydatedesc\"></span>`,
+                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label>`+`<span class=\"orderbydatedesc\"></span>`,
                 mode: 'series',
                 title:$localize `:@@query_series_mpps_pps_newest_first:Newest PerformedProcedureStepStartDateTime first`
             },
@@ -919,7 +919,7 @@ export class Globalvar {
             },
             {
                 value: '-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime',
-                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label></span><span class=\"orderbydatedesc\"></span>`,
+                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label>`+`<span class=\"orderbydatedesc\"></span>`,
                 mode: 'mwl',
                 title:$localize `:@@query_mwls_sps_newest_first:Newest ScheduledProcedureStepStartDateTime first`
             },
@@ -955,7 +955,7 @@ export class Globalvar {
             },
             {
                 value: '-PerformedProcedureStepStartDate,-PerformedProcedureStepStartTime',
-                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label></span><span class=\"orderbydatedesc\"></span>`,
+                label: $localize `:@@orderby_new.newest_first:<label class="order_label">Newest first</label>`+`<span class=\"orderbydatedesc\"></span>`,
                 mode: 'mpps',
                 title:$localize `:@@query_series_mpps_pps_newest_first:Newest PerformedProcedureStepStartDateTime first`
             },
@@ -3089,11 +3089,11 @@ export class Globalvar {
             dcmBulkDataDescriptorID:{
                 key:'dcmBulkDataDescriptorID',
                 labelKey:'{dcmBulkDataDescriptorID}',
-                msg:$localize `:@@dynamic_formatter.web_app:Create first a Bulkdata Descriptor!`,
+                msg:$localize `:@@create_first_bukdata_descriptor:Create first a Bulkdata Descriptor!`,
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmBulkDataDescriptor'
             },
             dcmMWLWorklistLabel:{
-                msg:$localize `:@@dynamic_formatter.web_app:Create first a UI MWL Worklist Label!`,
+                msg:$localize `:@@create_first_ui_mwl_label:Create first a UI MWL Worklist Label!`,
                 pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiMWLWorklistLabel'
             }
 /*            dicomDeviceName:{
@@ -4069,8 +4069,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"AccessionNumber",
-                    description:$localize `:@@accession_number:Accession number`,
-                    placeholder:$localize `:@@accession_number:Accession number`
+                    description:$localize `:@@accession_number:Accession Number`,
+                    placeholder:$localize `:@@accession_number:Accession Number`
                 }, {
                     tag:"issuer-selector",
                     issuers:[
@@ -4302,8 +4302,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"ScheduledStepAttributesSequence.AccessionNumber",
-                    description:$localize `:@@accession_number:Accession number`,
-                    placeholder:$localize `:@@accession_number:Accession number`
+                    description:$localize `:@@accession_number:Accession Number`,
+                    placeholder:$localize `:@@accession_number:Accession Number`
                 }, {
                     tag:"issuer-selector",
                     issuers:[
@@ -4833,8 +4833,8 @@ export class Globalvar {
                         }
                     ],
                     filterKey:"BodyPartExamined",
-                    description:$localize `:@@body_part_examined:Body part examined`,
-                    placeholder:$localize `:@@body_part_examined:Body part examined`
+                    description:$localize `:@@body_part_examined:Body Part Examined`,
+                    placeholder:$localize `:@@body_part_examined:Body Part Examined`
                 }, {
                     tag:"input",
                     type:"text",
@@ -4976,8 +4976,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"AccessionNumber",
-                description:$localize `:@@accession_number:Accession number`,
-                placeholder:$localize `:@@accession_number:Accession number`
+                description:$localize `:@@accession_number:Accession Number`,
+                placeholder:$localize `:@@accession_number:Accession Number`
             }, {
                 tag:"issuer-selector",
                 issuers:[
@@ -5010,7 +5010,7 @@ export class Globalvar {
                 tag:"range-picker-limit",
                 type:"text",
                 filterKey:"StudyDate",
-                description:$localize `:@@study_date:Study date`,
+                description:$localize `:@@study_date:Study Date`,
                 onlyDate:true
             }, {
                 tag:"range-picker-time",
@@ -5218,8 +5218,8 @@ export class Globalvar {
                     tag:"input",
                     type:"text",
                     filterKey:"SeriesDescription",
-                    description:$localize `:@@series_description:Series description`,
-                    placeholder:$localize `:@@series_description:Series description`
+                    description:$localize `:@@series_description:Series Description`,
+                    placeholder:$localize `:@@series_description:Series Description`
                 }, {
                     tag:"editable-multi-select",
                     type:"text",
@@ -5232,8 +5232,8 @@ export class Globalvar {
                         }
                     ],
                     filterKey:"BodyPartExamined",
-                    description:$localize `:@@body_part_examined:Body part examined`,
-                    placeholder:$localize `:@@body_part_examined:Body part examined`
+                    description:$localize `:@@body_part_examined:Body Part Examined`,
+                    placeholder:$localize `:@@body_part_examined:Body Part Examined`
                 }, {
                     tag:"checkbox",
                     filterKey:"storageVerificationFailed",
@@ -5289,8 +5289,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"AccessionNumber",
-                description:$localize `:@@accession_number:Accession number`,
-                placeholder:$localize `:@@accession_number:Accession number`
+                description:$localize `:@@accession_number:Accession Number`,
+                placeholder:$localize `:@@accession_number:Accession Number`
             }, {
                 tag:"issuer-selector",
                 issuers:[
@@ -5311,7 +5311,7 @@ export class Globalvar {
                 tag:"range-picker-limit",
                 type:"text",
                 filterKey:"StudyDate",
-                description:$localize `:@@study_date:Study date`
+                description:$localize `:@@study_date:Study Date`
             }, {
                 tag:"range-picker-time",
                 type:"text",
@@ -5534,7 +5534,7 @@ export class Globalvar {
                     tag:"range-picker-limit",
                     type:"text",
                     filterKey:"StudyDate",
-                    description:$localize `:@@study_date:Study date`,
+                    description:$localize `:@@study_date:Study Date`,
                     onlyDate:true
                 }, {
                     tag:"range-picker-time",
@@ -5730,8 +5730,8 @@ export class Globalvar {
                 tag:"input",
                 type:"text",
                 filterKey:"AccessionNumber",
-                description:$localize `:@@accession_number:Accession number`,
-                placeholder:$localize `:@@accession_number:Accession number`
+                description:$localize `:@@accession_number:Accession Number`,
+                placeholder:$localize `:@@accession_number:Accession Number`
             }, {
                 tag:"issuer-selector",
                 issuers:[
@@ -5789,8 +5789,8 @@ export class Globalvar {
                     }
                 ],
                 filterKey:"BodyPartExamined",
-                description:$localize `:@@body_part_examined:Body part examined`,
-                placeholder:$localize `:@@body_part_examined:Body part examined`
+                description:$localize `:@@body_part_examined:Body Part Examined`,
+                placeholder:$localize `:@@body_part_examined:Body Part Examined`
             }, {
                 tag:"person-name-picker",
                 filterKey:"PerformingPhysicianName",
@@ -5975,7 +5975,7 @@ export class Globalvar {
                 tag:"input",
                 type:"number",
                 filterKey:"limit",
-                description:$localize `:@@limit:limit`,
+                description:$localize `:@@limit:Limit`,
                 placeholder:$localize `:@@limit_of_patients:Limit of patients`
             }
         ]

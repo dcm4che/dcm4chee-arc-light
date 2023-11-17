@@ -200,7 +200,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         options:[
             new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
             new SelectDropdown("supplement_issuer",$localize `:@@supplement_issuer:Supplement Issuer`),
-            new SelectDropdown("update_charset",$localize `:@@update_charset:Update Character Set of patients`),
+            new SelectDropdown("update_charset",$localize `:@@update_charset:Update Character Set of Patients`),
             new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
             new SelectDropdown("subscribe_uwl",$localize `:@@subscribe_uwl:Subscribe to Unified Worklist`),
             new SelectDropdown("unsubscribe_uwl",$localize `:@@unsubscribe_uwl:Unsubscribe from Unified Worklist`),
@@ -237,7 +237,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         options:[
             new SelectDropdown("toggle_checkboxes", $localize `:@@toggle_checkboxes:Toggle checkboxes`, $localize `:@@toggle_checkboxes_for_selection:Toggle checkboxes for selection`),
             new SelectDropdown("export_object", $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),
-            new SelectDropdown("retrieve_object", $localize `:@@retrieve_selections:Retrieve selections`, $localize `:@@retrieve_selected_objects:Retrieve selected studies, series or instances`),
+            new SelectDropdown("retrieve_object", $localize `:@@retrieve_selections:Retrieve selections`, $localize `:@@retrieve_selected_studies_series_instances:Retrieve selected studies, series or instances`),
             new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
             new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
             new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
@@ -1322,9 +1322,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     editMWL(patient, mwl){
         let config = {
             saveLabel:$localize `:@@SAVE:SAVE`,
-            titleLabel:$localize `:@@study.edit_mwl:Edit MWL of patient `
+            titleLabel:$localize `:@@study.edit_mwl_of_patient:Edit MWL of patient `
         };
-        config.titleLabel = $localize `:@@study.edit_mwl:Edit MWL of patient `;
+        config.titleLabel = $localize `:@@study.edit_mwl_of_patient:Edit MWL of patient `;
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
         this.modifyMWL(patient, 'edit', '', '', mwl, config);
@@ -1611,7 +1611,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     case "matching":
                         this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,ok.schema_model.spsState, this.createStudyFilterParams(true,true, true)).subscribe(res=>{
                             this.cfpLoadingBar.complete();
-                            this.appService.showMsgUpdateMatchingMWLs(res, $localize `:@@mwl.status_changed_successfully:MWL Items' SPS Status changed successfully`);
+                            this.appService.showMsgUpdateMatchingMWLs(res, $localize `:@@mwl.item_sps_status_changed_successfully:MWL Items' SPS Status changed successfully`);
                             this.search("current",{id:"submit"});
                         },err=>{
                             this.cfpLoadingBar.complete();
@@ -4930,7 +4930,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             markModeTitle = $localize `:@@mark_mode_series_text:Mark series as Requested or Unscheduled`;
         } else {
             markModeHover = $localize `:@@mark_mode_study_desc:Select mark mode to mark all series of study as Requested or Unscheduled`;
-            markModeTitle = $localize `:@@mark_mode_study_text:Mark all series of study as Requested or Unscheduled`;
+            markModeTitle = $localize `:@@mark_all_series_study_text:Mark all series of study as Requested or Unscheduled`;
         }
 
         this.service.getRequestSchema().subscribe(([requestedSchema, iod])=>{
@@ -6114,7 +6114,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                                     //TODO url schould be her overwritten with the 'MOVE' webapp url for external
                                 }else{
-                                    this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE,DCM4CHEE_ARC_AET' not found!`)
+                                    this.appService.showError($localize `:@@webapp_with_web_service_class_not_found:Web Application Service with the web service class ${'MOVE,DCM4CHEE_ARC_AET'} not found!`)
                                 }
                                 fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                             });

@@ -23,8 +23,8 @@ export class Hl7ApplicationsService {
                 tag:"input",
                 type:"text",
                 filterKey:"dicomDeviceName",
-                description:$localize `:@@device_name:Device name`,
-                placeholder:$localize `:@@device_name:Device name`
+                description:$localize `:@@device_name:Device Name`,
+                placeholder:$localize `:@@device_name:Device Name`
             },{
                 tag:"input",
                 type:"text",
