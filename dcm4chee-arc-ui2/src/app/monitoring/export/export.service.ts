@@ -242,7 +242,7 @@ export class ExportService {
                         tag:"input",
                         type:"number",
                         filterKey:"limit",
-                        description:$localize `:@@.maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
+                        description:$localize `:@@maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
                     }
                 ],
                 [
