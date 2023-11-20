@@ -172,10 +172,12 @@ public class MWLItem {
     private long version;
 
     @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_time", updatable = false)
     private Date createdTime;
 
     @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_time")
     private Date updatedTime;
 

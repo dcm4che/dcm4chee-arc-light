@@ -644,6 +644,7 @@ public class Series {
     private String expirationExporterID;
 
     @Basic
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "metadata_update_time")
     private Date metadataScheduledUpdateTime;
 
@@ -652,6 +653,7 @@ public class Series {
     private int metadataUpdateFailures;
 
     @Basic
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "inst_purge_time")
     private Date instancePurgeTime;
 
@@ -661,6 +663,7 @@ public class Series {
     private InstancePurgeState instancePurgeState;
 
     @Basic
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "stgver_time")
     private Date storageVerificationTime;
 
@@ -669,6 +672,7 @@ public class Series {
     private int failuresOfLastStorageVerification;
 
     @Basic
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "compress_time")
     private Date compressionTime;
 
