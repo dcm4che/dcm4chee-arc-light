@@ -75,7 +75,7 @@ public class CompressionEJB {
     public boolean claimForCompression(Series.Compression compression) {
         return em.createNamedQuery(Series.CLAIM_COMPRESSION)
                 .setParameter(1, compression.seriesPk)
-                .setParameter(2, compression.compressionTime)
+                .setParameter(2, compression.version)
                 .executeUpdate() > 0;
     }
 

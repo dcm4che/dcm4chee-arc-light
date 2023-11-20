@@ -697,7 +697,7 @@ public class DeletionServiceEJB {
     public boolean claimPurgeInstanceRecordsOfSeries(Series.MetadataUpdate metadataUpdate) {
         return em.createNamedQuery(Series.CLAIM_PURGE_INSTANCE_RECORDS)
                 .setParameter(1, metadataUpdate.seriesPk)
-                .setParameter(2, metadataUpdate.instancePurgeTime)
+                .setParameter(2, metadataUpdate.version)
                 .executeUpdate() > 0;
     }
 

@@ -141,7 +141,7 @@ public class StgVerScheduler extends Scheduler {
         try {
             return ejb.claimForStorageVerification(
                     storageVerification.seriesPk,
-                    storageVerification.storageVerificationTime,
+                    storageVerification.version,
                     nextVerificationTime(storageVerification, period))
                     > 0;
         } catch (Exception e) {

@@ -78,7 +78,7 @@ public class UpdateMetadataEJB {
     public boolean claim(Series.MetadataUpdate metadataUpdate) {
         return em.createNamedQuery(Series.CLAIM_UPDATE_METADATA)
                 .setParameter(1, metadataUpdate.seriesPk)
-                .setParameter(2, metadataUpdate.scheduledUpdateTime)
+                .setParameter(2, metadataUpdate.version)
                 .executeUpdate() > 0;
     }
 

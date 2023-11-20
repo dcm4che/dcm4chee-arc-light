@@ -210,7 +210,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
         query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
-                "se.pk, se.metadataScheduledUpdateTime, se.metadataUpdateFailures, se.instancePurgeTime, " +
+                "se.pk, se.version, se.metadataUpdateFailures, " +
                 "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
                 "from Series se " +
                 "left join se.metadata metadata " +
@@ -218,7 +218,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
         query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
-                "se.pk, se.metadataScheduledUpdateTime, se.metadataUpdateFailures, se.instancePurgeTime, " +
+                "se.pk, se.version, se.metadataUpdateFailures, " +
                 "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
                 "from Series se " +
                 "join se.metadata metadata " +
@@ -265,13 +265,13 @@ import java.util.stream.Stream;
 @NamedQuery(
         name = Series.SCHEDULED_STORAGE_VERIFICATION,
         query = "select new org.dcm4chee.arc.entity.Series$StorageVerification(" +
-                "se.pk, se.storageVerificationTime, se.seriesInstanceUID, se.study.studyInstanceUID) " +
+                "se.pk, se.version, se.storageVerificationTime, se.seriesInstanceUID, se.study.studyInstanceUID) " +
                 "from Series se " +
                 "where se.storageVerificationTime < current_timestamp"),
 @NamedQuery(
         name = Series.SCHEDULED_COMPRESSION,
         query = "select new org.dcm4chee.arc.entity.Series$Compression(" +
-                "se.study.pk, se.pk, se.compressionTime, se.instancePurgeState, se.compressionTransferSyntaxUID, " +
+                "se.study.pk, se.pk, se.version, se.instancePurgeState, se.compressionTransferSyntaxUID, " +
                 "se.compressionImageWriteParams, se.seriesInstanceUID, se.study.studyInstanceUID) " +
                 "from Series se " +
                 "where se.compressionTime < current_timestamp"),
@@ -285,20 +285,20 @@ import java.util.stream.Stream;
                 "where se.pk = ?1"),
 @NamedQuery(
         name=Series.CLAIM_STORAGE_VERIFICATION,
-        query = "update Series se set se.storageVerificationTime = ?3 " +
-                "where se.pk = ?1 and se.storageVerificationTime = ?2"),
+        query = "update Series se set se.storageVerificationTime = ?3, se.version = se.version + 1 " +
+                "where se.pk = ?1 and se.version = ?2"),
 @NamedQuery(
         name=Series.CLAIM_COMPRESSION,
-        query = "update Series se set se.compressionTime = null " +
-                "where se.pk = ?1 and se.compressionTime =?2"),
+        query = "update Series se set se.compressionTime = null, se.version = se.version + 1 " +
+                "where se.pk = ?1 and se.version =?2"),
 @NamedQuery(
         name=Series.CLAIM_UPDATE_METADATA,
-        query = "update Series se set se.metadataScheduledUpdateTime = null " +
-                "where se.pk = ?1 and se.metadataScheduledUpdateTime = ?2"),
+        query = "update Series se set se.metadataScheduledUpdateTime = null, se.version = se.version + 1 " +
+                "where se.pk = ?1 and se.version = ?2"),
 @NamedQuery(
         name=Series.CLAIM_PURGE_INSTANCE_RECORDS,
-        query = "update Series se set se.instancePurgeTime = null " +
-                "where se.pk = ?1 and se.instancePurgeTime = ?2"),
+        query = "update Series se set se.instancePurgeTime = null, se.version = se.version + 1 " +
+                "where se.pk = ?1 and se.version = ?2"),
 @NamedQuery(
         name=Series.FIND_LAST_MODIFIED_STUDY_LEVEL,
         query="SELECT p.updatedTime, st.modifiedTime, MAX(se.modifiedTime) from Series se " +
@@ -415,19 +415,17 @@ public class Series {
 
     public static class MetadataUpdate {
         public final Long seriesPk;
-        public final Date scheduledUpdateTime;
+        public final Long version;
         public final int updateFailures;
-        public final Date instancePurgeTime;
         public final InstancePurgeState instancePurgeState;
         public final String storageID;
         public final String storagePath;
 
-        public MetadataUpdate(Long seriesPk, Date scheduledUpdateTime, int updateFailures, Date instancePurgeTime,
+        public MetadataUpdate(Long seriesPk, Long version, int updateFailures,
                               InstancePurgeState instancePurgeState, String storageID, String storagePath) {
             this.seriesPk = seriesPk;
-            this.scheduledUpdateTime = scheduledUpdateTime;
+            this.version = version;
             this.updateFailures = updateFailures;
-            this.instancePurgeTime = instancePurgeTime;
             this.instancePurgeState = instancePurgeState;
             this.storageID = storageID;
             this.storagePath = storagePath;
@@ -443,13 +441,15 @@ public class Series {
 
     public static class StorageVerification {
         public final Long seriesPk;
+        public final Long version;
         public final Date storageVerificationTime;
         public final String seriesInstanceUID;
         public final String studyInstanceUID;
 
-        public StorageVerification(Long seriesPk, Date storageVerificationTime,
+        public StorageVerification(Long seriesPk, Long version, Date storageVerificationTime,
                                    String seriesInstanceUID, String studyInstanceUID) {
             this.seriesPk = seriesPk;
+            this.version = version;
             this.storageVerificationTime = storageVerificationTime;
             this.seriesInstanceUID = seriesInstanceUID;
             this.studyInstanceUID = studyInstanceUID;
@@ -467,20 +467,20 @@ public class Series {
     public static class Compression {
         public final Long studyPk;
         public final Long seriesPk;
-        public final Date compressionTime;
+        public final Long version;
         public final InstancePurgeState instancePurgeState;
         public final String transferSyntaxUID;
         public final String imageWriteParams;
         public final String seriesInstanceUID;
         public final String studyInstanceUID;
 
-        public Compression(Long studyPk, Long seriesPk, Date compressionTime,
+        public Compression(Long studyPk, Long seriesPk, Long version,
                            InstancePurgeState instancePurgeState,
                            String transferSyntaxUID, String imageWriteParams,
                            String seriesInstanceUID, String studyInstanceUID) {
             this.studyPk = studyPk;
             this.seriesPk = seriesPk;
-            this.compressionTime = compressionTime;
+            this.version = version;
             this.instancePurgeState = instancePurgeState;
             this.transferSyntaxUID = transferSyntaxUID;
             this.imageWriteParams = imageWriteParams;

@@ -344,10 +344,10 @@ public class StgCmtEJB {
                 .getResultList();
     }
 
-    public int claimForStorageVerification(Long seriesPk, Date verificationTime, Date nextVerificationTime) {
+    public int claimForStorageVerification(Long seriesPk, Long version, Date nextVerificationTime) {
         return em.createNamedQuery(Series.CLAIM_STORAGE_VERIFICATION)
                 .setParameter(1, seriesPk)
-                .setParameter(2, verificationTime, TemporalType.TIMESTAMP)
+                .setParameter(2, version)
                 .setParameter(3, nextVerificationTime, TemporalType.TIMESTAMP)
                 .executeUpdate();
     }
