@@ -86,7 +86,7 @@ public class JiveXReportExporter extends AbstractExporter {
         if (contentDate == null || contentTime == null)
             return new Outcome(Task.Status.COMPLETED,
                     "Encapsulated PDF[uid=" + iuid + "] of Study[uid=" + suid +
-                            "] does not contain (0040,E001) Content Date and (0040,E001) Content Date.");
+                            "] does not contain (0008,0023) Content Date and (0008,0033) Content Time.");
         Sequence predecessorDocumentsSequence = attrs.ensureSequence(Tag.PredecessorDocumentsSequence, 1);
         if (!predecessorDocumentsSequence.isEmpty()) {
             return new Outcome(Task.Status.COMPLETED,
