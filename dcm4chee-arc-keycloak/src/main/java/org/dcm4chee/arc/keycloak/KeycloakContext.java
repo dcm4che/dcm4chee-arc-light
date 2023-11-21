@@ -39,7 +39,11 @@
 package org.dcm4chee.arc.keycloak;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.keycloak.KeycloakSecurityContext;
+import org.dcm4che3.util.StringUtils;
+import org.wildfly.security.http.oidc.OidcSecurityContext;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -50,27 +54,21 @@ import org.keycloak.KeycloakSecurityContext;
 public class KeycloakContext {
 
     private final HttpServletRequest request;
-    private final KeycloakSecurityContext ksc;
-
+    private final OidcSecurityContext ksc;
     public static KeycloakContext valueOf(HttpServletRequest request) {
         return new KeycloakContext(request);
     }
 
     private KeycloakContext(HttpServletRequest req) {
         request = req;
-        ksc = (KeycloakSecurityContext) request.getAttribute("org.keycloak.KeycloakSecurityContext");
+        ksc = (OidcSecurityContext) request.getAttribute(OidcSecurityContext.class.getName());
     }
 
     public String getUserName() {
-        return ksc != null ? ksc.getToken().getPreferredUsername() : request.getRemoteAddr();
-    }
 
-    public String getToken() {
-        return ksc != null ? ksc.getTokenString() : null;
-    }
-
-    public int getExpiration() {
-        return ksc != null ? ksc.getToken().getExpiration() : 0;
+        return ksc != null
+                ? ksc.getToken().getClaimValueAsString("preferred_username")
+                : request.getRemoteAddr();
     }
 
     public boolean isSecured() {
@@ -78,10 +76,18 @@ public class KeycloakContext {
     }
 
     public boolean isUserInRole(String role) {
-        return ksc != null && ksc.getToken().getRealmAccess().isUserInRole(role);
+        return ksc != null && getRoleList().contains(role);
     }
 
     public String[] getRoles() {
-        return ksc != null ? ksc.getToken().getRealmAccess().getRoles().toArray(new String[0]) : new String[0];
+        return ksc != null ? getRoleList().toArray(StringUtils.EMPTY_STRING) : StringUtils.EMPTY_STRING;
+    }
+
+    private List<String> getRoleList() {
+        return (List<String>) getRealmAccess().get("roles");
+    }
+
+    private Map<String, Object> getRealmAccess() {
+        return ksc.getToken().getClaimValue("realm_access", Map.class);
     }
 }
