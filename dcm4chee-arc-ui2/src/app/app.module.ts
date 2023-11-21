@@ -5,7 +5,7 @@ import { RouterModule }   from '@angular/router';
 import {AppComponent} from './app.component';
 import { MatNativeDateModule, MAT_DATE_FORMATS, DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import {MAT_LEGACY_FORM_FIELD_DEFAULT_OPTIONS as MAT_FORM_FIELD_DEFAULT_OPTIONS, MatLegacyFormFieldModule as MatFormFieldModule} from '@angular/material/legacy-form-field';
+//import {MAT_LEGACY_FORM_FIELD_DEFAULT_OPTIONS as MAT_FORM_FIELD_DEFAULT_OPTIONS, MatLegacyFormFieldModule as MatFormFieldModule} from '@angular/material/legacy-form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './configuration/control/control.component';
@@ -119,6 +119,7 @@ import {MatRadioModule} from "@angular/material/radio";
 import {MatMenuModule} from "@angular/material/menu";
 //import {MatDialogModule} from '@angular/material/dialog';
 import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
+import { MatFormFieldModule} from "@angular/material/form-field";
 //import {MatLegacyDialogModule} from "@angular/material/legacy-dialog";
 
 

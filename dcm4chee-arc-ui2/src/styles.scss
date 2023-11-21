@@ -288,7 +288,7 @@ th {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 1001;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
   -webkit-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
@@ -880,6 +880,10 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.mat-checkbox:not(.mat-checkbox-disabled).mat-accent .mat-checkbox-ripple .mat-ripple-element{
+  background-color: rgba(55, 79, 96, 0.26) !important;
+}
+
 mat-sidenav-layout{
     height:100vh;
 }
@@ -1294,14 +1298,22 @@ iod-form-generator{
     margin-bottom: 20px;
     padding-left:7px;
   }
-  mat-dialog-container{
+  mat-dialog-container, mat-mdc-dialog-container{
     overflow:visible;
     float: left;
     width: 100%;
   }
   .edit-patient, .edit-study, .edit-series, .edit-mwl{
-    .mat-dialog-content{
+    .mat-dialog-content, .mat-mdc-dialog-content{
       margin:15px -24px;
+      float:left;
+    }
+  }
+  .edit-study{
+    .mat-dialog-content, .mat-mdc-dialog-content{
+      margin: 20px 0;
+      float: left;
+      padding: 0;
     }
   }
   .dropdown.study_edit{
@@ -1623,39 +1635,52 @@ p-calendar{
 p-calendar select{
 
 }
-.mat-overlay-backdrop{
+.mat-overlay-backdrop, .mat-mdc-overlay-backdrop{
   position: fixed !important;
 }
-
-mat-dialog-container{
+.mat-mdc-dialog-surface {
+  display: block;
+  padding: 24px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  overflow: auto;
+  outline: 0;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  max-height: inherit;
+}
+mat-dialog-container, mat-mdc-dialog-container{
   border-top: 20px solid $lightBlue;
   border-radius: 5px;
   background:white;
-  &.mat-dialog-container{
+  &.mat-dialog-container, &.mat-mdc-dialog-container{
     max-width:100% !important;
   }
 }
-
-mat-form-field{
-  &.mat-form-field-appearance-legacy {
-    .mat-form-field-wrapper{
+input.mat-mdc-input-element::-webkit-calendar-picker-indicator {
+  display: block;
+}
+mat-form-field, mat-mdc-form-field{
+  &.mat-form-field-appearance-legacy, &.mat-mdc-form-field-appearance-legacy {
+    .mat-form-field-wrapper, .mat-mdc-form-field-wrapper{
       padding-bottom: 0;
     }
   }
-  .mat-form-field-flex{
+  .mat-form-field-flex, .mat-mdc-form-field-flex{
     padding-bottom: 0px;
   }
-  .mat-form-field-infix{
+  .mat-form-field-infix, .mat-mdc-form-field-infix{
     border-top-width: 0px;
   }
-  .mat-form-field-underline{
+  .mat-form-field-underline, .mat-mdc-form-field-underline{
     display: none;
   }
-  .mat-form-field-wrapper{
+  .mat-form-field-wrapper, .mat-mdc-form-field-wrapper{
     padding: 0;
   }
-  .mat-form-field-flex{
-    .mat-form-field-infix{
+  .mat-form-field-flex, .mat-mdc-form-field-flex{
+    .mat-form-field-infix, .mat-mdc-form-field-infix{
       input{
         border: none;
         border-bottom: 1px solid #ccc;
@@ -1665,7 +1690,7 @@ mat-form-field{
   .mat-form-field-label-wrapper{
 
   }
-  .mat-button-wrapper{
+  .mat-button-wrapper, .mat-mdc-button-wrapper{
     .mat-icon{
       height: 40px;
       .glyphicon.glyphicon-calendar{
@@ -1695,11 +1720,11 @@ mat-form-field{
     }
   }
 }*/
-.mat-overlay-container{
-  .mat-overlay-pane{
+.mat-overlay-container,.mat-mdc-overlay-container{
+  .mat-overlay-pane, .mat-mdc-overlay-pane{
     top: 5% !important;
     transform: translateX(-50%) translateX(0px) translateY(0px) !important;
-    mat-dialog-container{
+    mat-dialog-container, mat-mdc-dialog-container{
       border-top: 20px solid $lightBlue;
       border-radius: 5px;
     }
@@ -1801,7 +1826,7 @@ mat-form-field{
   }
 }
 .vex.vex-theme-os.copymove{
-  .mat-dialog-content{
+  .mat-dialog-content, .mat-mdc-dialog-content{
     max-height: 51vh;
   }
 }
@@ -1809,7 +1834,7 @@ mat-form-field{
   .nav-tabs{
     border-bottom:none;
   }
-  .mat-dialog-content{
+  .mat-dialog-content, mat-mdc-dialog-content{
     .tabcontain{
       border-top:1px solid #dddddd;
     }
@@ -2035,9 +2060,9 @@ mat-form-field{
     cursor: pointer;
   }
 }
-.monitoring{
+.monitoring,.main_white_content{
   .tab-content{
-    padding: 30px 10px 0px 10px;
+    padding: 30px 10px 10px 10px;
     border: 1px solid #ccc;
     border-top: none;
     table{
@@ -2107,7 +2132,7 @@ mat-form-field{
     }
   }
   .noneDicomBlock{
-    mat-select{
+    mat-select, mat-mdc-select{
       width:100%;
     }
   }
@@ -2309,14 +2334,14 @@ mat-form-field{
     select.dropdown{
       position: static !important;
     }
-    mat-select{
+    mat-select, mat-mdc-select{
       .mat-select-trigger, .mat-mdc-select-trigger{
         border: 1px solid #ccc;
-        .mat-select-value{
+        .mat-select-value, .mat-mdc-select-value{
           line-height: 30px;
           height: 30px;
         }
-        .mat-select-value-text{
+        .mat-select-value-text, .mat-mdc-select-value-text{
           padding-left: 7px;
         }
       }
@@ -2377,7 +2402,7 @@ mat-form-field{
 
 }
 .clone{
-  .mat-select{
+  .mat-select, .mat-mdc-select{
     width:100%;
   }
 }
@@ -3028,7 +3053,7 @@ mat-form-field{
   &:hover{
     cursor: pointer;
   }
-  mat-progress-spinner.mat-progress-spinner{
+  mat-progress-spinner.mat-progress-spinner, mat-mdc-progress-spinner.mat-mdc-progress-spinner{
     height:15px;
     width:15px;
     path,circle{
@@ -3093,7 +3118,7 @@ mat-form-field{
   input{
     width:65%;
   }
-  mat-select, select{
+  mat-select, select, mat-mdc-select{
     width:35%;
     float: right;
     border-left:none;
@@ -3112,6 +3137,353 @@ mat-form-field{
     }
   }
 
+}
+
+.vex.vex-theme-os.diff,.tripal_compare{
+  width:100%;
+  h5{
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size:22px;
+    color: $lightBlue;
+  }
+  .queued{
+    float: left;
+    width: 100%;
+    border-top: 1px solid #ccc;
+    margin-top: 10px;
+    padding-top: 6px;
+    position: relative;
+    margin-bottom: -7px;
+    height: 40px;
+    mat-checkbox, mat-mdc-checkbox{
+      position: absolute;
+      left: 50%;
+      border: 1px solid #ccc;
+      padding: 2px 10px;
+      width: 250px;
+      margin-left: -125px;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 30px;
+      height: 33px;
+      color: $lightBlue;
+      ::ng-deep .mat-checkbox-background {
+        background-color: $lightBlue;
+      }
+
+      ::ng-deep &.mat-checkbox-focused{
+        .mat-ink-ripple{
+          background-color: $lightBlue;
+        }
+      }
+
+    }
+    .mat-checkbox-checked.mat-accent .mat-checkbox-background,
+    .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background,
+    .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+    .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background,
+    .mat-checkbox-checked.mat-accent .mat-checkbox-background:hover,
+    .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background:hover,
+    .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background:hover .mat-checkbox-checked.mat-accent .mat-checkbox-background:active,
+    .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background:hover .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background:active,
+    .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background:active,
+    .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background:active {
+      background-color:$lightBlue;
+    }
+  }
+  .table{
+    .failed{
+      background:rgb(142, 0, 0);
+      color: white;
+      width: 100%;
+      color: white;
+      margin-bottom: 1px;
+      .mat-select-value, .mat-mdc-select-value {
+        .mat-select-placeholder, .mat-mdc-select-placeholder {
+          color: #777;
+        }
+      }
+    }
+  }
+  .table_block{
+    &.selected{
+      border:1px solid rgba(12, 85, 142, 0.84);
+      -webkit-box-shadow: 5px 5px 10px rgba(12, 85, 142, 0.84);
+      -moz-box-shadow: 5px 5px 10px rgba(12, 85, 142, 0.84);
+      box-shadow: 5px 5px 10px rgba(12, 85, 142, 0.84);
+    }
+    table{
+      width: 100%;
+      tr{
+        border: 1px solid #ccc;
+        &.active{
+          background:#ccc;
+        }
+        &.active.diff_line{
+          background:rgba(33, 56, 74, 0.76);
+        }
+        td{
+          padding: 1px 11px;
+        }
+      }
+    }
+  }
+  .checkbox_content{
+    float: left;
+    width:100%;
+    min-height: 29px;
+    text-align: center;
+    margin: 20px 0;
+    .mat-checkbox-checked.mat-accent .mat-checkbox-background,
+    .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+    .mat-checkbox-checked.mat-accent .mat-checkbox-background:hover,
+    .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background:hover .mat-checkbox-checked.mat-accent .mat-checkbox-background:active,
+    .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background:active,
+
+    .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background,
+    .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background,
+    .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background:hover,
+    .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background:hover .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background:active,
+    .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background:active
+    {
+      background-color:$lightBlue;
+    }
+    mat-checkbox, mat-mdc-checkbox {
+      color: $lightBlue;
+      ::ng-deep .mat-checkbox-background {
+        background-color: $lightBlue;
+      }
+
+      ::ng-deep &.mat-checkbox-focused{
+        .mat-ink-ripple, .mat-mdc-ink-ripple{
+          background-color: $lightBlue;
+        }
+      }
+    }
+  }
+  .mat-dialog-content, .mat-mdc-dialog-content{
+    padding:9px 24px;
+
+  }
+  .arrows{
+    float: left;
+    width: 100%;
+    margin-top: 15px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+    position: relative;
+    .save{
+      display: inline-block;
+      left: 50%;
+      margin-left: -124px;
+      position: absolute;
+      top: 15px;
+      width:248px;
+      border: 0 none;
+      border-radius: 0px;
+      text-transform: uppercase;
+      background: $lightBlue;
+      height:30px;
+      line-height:30px;
+      color: white;
+      &:hover{
+        background: $blue;
+      }
+      &[disabled]{
+        background: gray;
+        &:hover{
+          background: gray;
+        }
+      }
+    }
+    .prev{
+      float: left;
+      span.text{
+        font-size: 15px;
+        display: block;
+        height: 35px;
+        line-height: 35px;
+        float: right;
+        margin-left:5px;
+        &:hover{
+          text-decoration: none;
+          cursor: pointer;
+        }
+      }
+      span.glyphicon{
+        font-size:30px;
+      }
+    }
+    .next{
+      float: right;
+      span.text{
+        font-size: 15px;
+        display: block;
+        height: 35px;
+        line-height: 35px;
+        float: left;
+        margin-right:5px;
+        &:hover{
+          text-decoration: none;
+        }
+      }
+      span.glyphicon{
+        font-size:30px;
+      }
+    }
+    a{
+      &[disabled] {
+        color: #888;
+        opacity:1;
+        &:hover{
+          color: #888;
+        }
+      }
+      color:$lightBlue;
+      &:hover{
+        color: rgba(13, 39, 60, 0.84);
+        cursor: pointer;
+      }
+    }
+  }
+  .diff_line{
+    background:rgba(36, 71, 98, 0.31);
+    color:black;
+  }
+  .first_diff,.second_diff{
+    float: left;
+    width:49%;
+    border:1px solid $lightBlue;
+    box-sizing: border-box;
+    //padding: 20px 15px;
+  }
+  .first_diff{
+    margin-right:2%;
+    &.missing_mode{
+      width:100%;
+      margin-right:0;
+    }
+  }
+  .actions{
+    position: absolute;
+    left: 50%;
+    top: 15px;
+    list-style: none;
+    margin-left: -124px;
+    padding-left: 0;
+    width: 248px;
+    margin-bottom: 0;
+    li{
+      width: 100%;
+      float: left;
+      display: inline-block;
+      text-transform: uppercase;
+      background: $lightBlue;
+      height:30px;
+      line-height:30px;
+      color: white;
+      text-align: center;
+      margin-bottom: 1px;
+      &:hover{
+        background: $blue;
+        cursor: pointer;
+      }
+    }
+  }
+  .second_diff{
+  }
+}
+.tripal_compare{
+  .main_diff_block{
+    width:30%;
+    margin-right:0;
+  }
+  .attribute_diff_block{
+    width: 22%;
+    margin-left: 1%;
+    margin-right: 0;
+  }
+  .blockcount_2{
+    .attribute_diff_block{
+      width: 34%;
+    }
+  }
+  .button_group{
+    .left_button_group{
+      margin-left: -249px;
+    }
+    .right_button_group{
+      margin-left: 0;
+      li{
+        background: transparent;
+        color: black;
+        border: 1px solid #888;
+        text-align: left;
+        padding-left: 15%;
+        .mat-checkbox-background, .mat-mdc-checkbox-background{
+          background-color:rgba(6, 29, 47, 0.84);
+        }
+      }
+    }
+  }
+}
+.simple_table{
+  width:100%;
+  tr{
+    td,th{
+      padding:3px 7px;
+    }
+    &:hover{
+      background: transparent !important;
+    }
+    td{
+      mat-select, mat-mdc-select{
+        padding:0;
+      }
+    }
+  }
+}
+.bluecontent {
+  float: left;
+  width: 100%;
+  border: 1px solid $lightBlue;
+  border-top: none;
+  box-sizing: border-box;
+  //padding:20px 10px;
+}
+.input_group_dropdown{
+  input{
+    width:65%;
+  }
+  mat-select, select, mat-mdc-select{
+    width:35%;
+    float: right;
+    border-left:none;
+  }
+}
+.pointer:hover{
+  cursor: pointer;
+}
+.tab_content_with_fixed_header{
+  .j4care_dynamic_table{
+    .th{
+      position: sticky;
+      z-index: 10;
+      top: 186px;
+      //width: calc(100% - 80px) !important;
+    }
+  }
+
+}
+.footnote{
+  font-size: 10px;
+  bottom: 0;
+  width: 100%;
+  float: left;
+  text-align: left;
 }
 .form-row.submit_button_block{
 
@@ -3136,15 +3508,15 @@ mat-form-field{
       width: 100%;
       color: white;
       margin-bottom: 1px;
-      .mat-select-value {
-        .mat-select-placeholder {
+      .mat-select-value, .mat-mdc-select-value {
+        .mat-select-placeholder, .mat-mdc-select-placeholder {
           color: #777;
         }
       }
     }
   }
 }
-mat-dialog-container{
+mat-dialog-container, mat-mdc-dialog-container{
   .table_content{
     max-height: 74vh;
     overflow: auto;
@@ -3194,6 +3566,25 @@ mat-dialog-container{
   border: none;
   top: -31px;
   left: 1px;
+}
+
+.main_white_content{
+  float: left;
+  width:100%;
+  box-sizing: border-box;
+  padding: 45px 30px 20px 30px;
+  margin: 27px 4px;
+  background: rgba(255, 255, 255, 0.85) none repeat scroll 0 0;
+  -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+}
+.filter{
+  .btn-default.submit{
+    background: rgba(6, 29, 47, 0.84);
+    color: white;
+    border-radius: 0;
+  }
 }
 .dropdown {
   position: static;
@@ -3301,9 +3692,12 @@ dicom-list{
 }
 
 .cdk-overlay-container{
-  mat-dialog-container.mat-dialog-content{
+  mat-dialog-container.mat-dialog-content, mat-mdc-dialog-container.mat-mdc-dialog-content{
     position: relative;
     margin: 50px 0;
+    .filter .filter_block{
+      width: 100%;
+    }
   }
   .dynamic_form_dialog{
     .dialog_content{
@@ -3344,11 +3738,11 @@ dicom-list{
     }
   }
 }
-.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle, .mat-mdc-radio-button.mat-mdc-accent.mat-mdc-radio-checked .mat-mdc-radio-outer-circle {
   border-color: #061d2f;
 }
 
-.mat-radio-button.mat-accent .mat-radio-inner-circle {
+.mat-radio-button.mat-accent .mat-radio-inner-circle, .mat-mdc-radio-button.mat-mdc-accent .mat-mdc-radio-inner-circle  {
   background-color: #061d2f;
 }
 .pointer:hover{
@@ -3361,6 +3755,16 @@ dicom-list{
   float: left;
   text-align: left;
 }
+.header_with_dropdown{
+  .text{
+    float:left;
+    margin-right:15px;
+  }
+  dcm-drop-down{
+    float: left;
+    font-size: 14px;
+  }
+}
 /* New black and white design*/
 $pink:rgba(82, 36, 88, 0.85);
 $backgroundColor:rgba(28, 36, 43, 0.92);
@@ -3372,8 +3776,8 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     width: 100%;
     color: white;
     margin-bottom: 1px;
-    .mat-select-value{
-      .mat-select-placeholder{
+    .mat-select-value, mat-mdc-select-value{
+      .mat-select-placeholder, mat-mdc-select-placeholder{
         color:#777;
       }
     }
@@ -3596,7 +4000,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
         min-height: 105px;
       }
       .line{
-        mat-progress-spinner{
+        mat-progress-spinner, mat-mdc-progress-spinner{
           margin-left: 35%;
         }
         .input_group_dropdown{
@@ -3648,7 +4052,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
         padding-left:4px;
       }
     }
-    .mat-select-placeholder {
+    .mat-select-placeholder, .mat-mdc-select-placeholder {
       font-style: italic;
     }
   }
@@ -3842,10 +4246,10 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     height: 30px;
     line-height: 27px;
     vertical-align: middle;
-    .mat-radio-button{
+    .mat-radio-button, .mat-mdc-radio-button{
       height: 28px;
       padding: 0 13px;
-      .mat-radio-label{
+      .mat-radio-label,.mat-mdc-radio-label{
         margin-bottom: 0;
         font-weight: normal;
         &:hover{
@@ -4011,26 +4415,26 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   .checkbox_button{
     &:hover {
       background:rgba(28, 36, 43, 0.92);
-      .mat-checkbox-frame{
+      .mat-checkbox-frame, .mat-mdc-checkbox-frame{
         border-color: rgba(68, 68, 68, 0.6);
       }
-      .mat-checkbox-background{
+      .mat-checkbox-background, .mat-mdc-checkbox-background{
         background-color: rgba(28, 36, 43, 0.45);
       }
-      .mat-checkbox-checkmark-path{
+      .mat-checkbox-checkmark-path, .mat-mdc-checkbox-checkmark-path{
         stroke: rgba(28, 36, 43, 0.92);
       }
     }
 
   }
-  .mat-select-placeholder{
+  .mat-select-placeholder, .mat-mdc-select-placeholder{
     color: rgba(68, 68, 68, 0.6);
   }
-  .mat-checkbox-frame{
+  .mat-checkbox-frame, .mat-mdc-checkbox-frame{
     border-color: white;
   }
   .template_list{
-    .mat-checkbox-frame{
+    .mat-checkbox-frame, .mat-mdc-checkbox-frame{
       border-color:rgba(0,0,0,.54);
     }
   }
@@ -4064,7 +4468,9 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
           color:rgba(68, 68, 68, 0.6);
         }
       }
-      &.auto_reloader .option_block button .mat-progress-spinner.mat-progress-spinner-indeterminate-animation[mode=indeterminate] circle{
+      &.auto_reloader .option_block button .mat-progress-spinner.mat-progress-spinner-indeterminate-animation[mode=indeterminate] circle,
+      &.auto_reloader .option_block button .mat-mdc-progress-spinner.mat-mdc-progress-spinner-indeterminate-animation[mode=indeterminate] circle
+      {
         stroke:rgba(28, 36, 43, 0.92);;
       }
       &.auto_reloader .option_block .interval_block input{
@@ -4081,7 +4487,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         color: black;
       }
       .line{
-        .mat-progress-spinner circle{
+        .mat-progress-spinner circle,.mat-mdc-progress-spinner circle{
           stroke: rgba(28, 36, 43, 0.92);
         }
         .input_group_dropdown{
@@ -4090,7 +4496,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
             border-right: 1px solid rgba(0, 0, 0, 0.18);
           }
         }
-        .mat-select-value .mat-select-placeholder{
+        .mat-select-value .mat-select-placeholder, .mat-mdc-select-value .mat-mdc-select-placeholder{
           color: black;
         }
       }
@@ -4102,6 +4508,14 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
           background-position: center;
           &:hover{
             background-color:  rgb(22, 29, 35);
+          }
+        }
+      }
+      dcm-drop-down{
+        .dcm_dropdown{
+          .dropdown_input .input_part .edited_input_value{
+            border:none !important;
+            background: transparent;
           }
         }
       }
@@ -4177,6 +4591,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         background: rgba(28, 36, 43, 0.92);
         .th{
           background: transparent;
+          overflow: hidden;
         }
       }
     }
@@ -4221,10 +4636,12 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     }
   }
   //}
-  .mat-select-value, .mat-select-arrow{
+  .mat-select-value, .mat-select-arrow, .mat-mdc-select-value, .mat-mdc-select-arrow{
     color: black;
   }
-  .checkbox_button.active .mat-checkbox-checked.mat-accent .mat-checkbox-background, .checkbox_button.active .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background{
+  .checkbox_button.active .mat-checkbox-checked.mat-accent .mat-checkbox-background, .checkbox_button.active .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+  .checkbox_button.active .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background, .checkbox_button.active .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background
+  {
     background-color:$backgroundColorWhite;
   }
   .more{
@@ -4344,6 +4761,22 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         }
       }
     }
+    .mat-mdc-radio-button{
+      border-right: 1px solid rgba(28, 36, 43, 0.92);
+      .mat-mdc-radio-label{
+        color: rgba(28, 36, 43, 0.92);
+        .mat-mdc-radio-container{
+          color: rgba(28, 36, 43, 0.92);
+          .mat-mdc-radio-outer-circle{
+            color: rgba(28, 36, 43, 0.92);
+            border-color:rgba(28, 36, 43, 0.92);
+          }
+          .mat-mdc-radio-inner-circle{
+            background-color: rgba(28, 36, 43, 0.92);
+          }
+        }
+      }
+    }
   }
   .mat-select-trigger, .mat-mdc-select-trigger{
     color: rgb(22, 29, 35);
@@ -4442,6 +4875,12 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       }
     }
   }
+}
+code{
+  background: black;
+  color: white;
+  font-style: italic;
+  padding: 2px 7px;
 }
 
 html, body { height: 100%; }
