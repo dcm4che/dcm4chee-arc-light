@@ -44,6 +44,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -79,8 +80,11 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    public StudyMgtContext createStudyMgtContextHL7(Socket socket, UnparsedHL7Message msg) {
-        return new StudyMgtContextImpl(device).withSocket(socket).withUnparsedHL7Message(msg);
+    public StudyMgtContext createStudyMgtContextHL7(Socket socket, Connection conn, UnparsedHL7Message msg) {
+        return new StudyMgtContextImpl(device)
+                .withSocket(socket)
+                .withConnection(conn)
+                .withUnparsedHL7Message(msg);
     }
 
     @Override

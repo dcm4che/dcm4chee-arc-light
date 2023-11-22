@@ -43,6 +43,7 @@ package org.dcm4chee.arc.patient;
 import jakarta.persistence.criteria.CriteriaQuery;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.AttributesFormat;
@@ -78,7 +79,7 @@ public interface PatientService {
 
     PatientMgtContext createPatientMgtContextWEB(HttpServletRequestInfo httpRequest);
 
-    PatientMgtContext createPatientMgtContextHL7(HL7Application hl7App, Socket socket, UnparsedHL7Message msg);
+    PatientMgtContext createPatientMgtContextHL7(HL7Application hl7App, Connection conn, Socket socket, UnparsedHL7Message msg);
 
     PatientMgtContext createPatientMgtContextScheduler();
 

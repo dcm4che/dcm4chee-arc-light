@@ -100,7 +100,7 @@ public class MPPSContextImpl implements MPPSContext {
 
     @Override
     public String getLocalHostName() {
-        return ReverseDNS.hostNameOf(as.getSocket().getLocalAddress());
+        return as.getConnection().getHostname();
     }
 
     @Override

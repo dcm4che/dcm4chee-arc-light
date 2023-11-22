@@ -466,20 +466,21 @@ public class UPSServiceImpl implements UPSService {
         if (arcHL7App == null || !arcHL7App.hasUPSOnHL7())
             return;
 
+        Connection conn = event.getConnection();
         Socket socket = event.getSocket();
         String host = ReverseDNS.hostNameOf(socket.getInetAddress());
         HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
         Calendar now = Calendar.getInstance();
         arcHL7App.upsOnHL7Stream()
                 .filter(upsOnHL7 -> upsOnHL7.getConditions().match(host, hl7Fields))
-                .forEach(upsOnHL7 -> createOnHL7(socket, arcHL7App, msg, hl7Fields, now, upsOnHL7));
+                .forEach(upsOnHL7 -> createOnHL7(socket, conn, arcHL7App, msg, hl7Fields, now, upsOnHL7));
     }
 
     private void createOnHL7(
-            Socket socket, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
+            Socket socket, Connection conn, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
             Calendar now, UPSOnHL7 upsOnHL7) {
         LOG.info("{}: Apply {}", socket, upsOnHL7);
-        UPSContext ctx = new UPSContextImpl(socket, arcHL7App);
+        UPSContext ctx = new UPSContextImpl(socket, conn, arcHL7App);
         ctx.setUPSInstanceUID(upsOnHL7.getInstanceUID(hl7Fields));
         try {
             UPS ups = ejb.findUPS(ctx);

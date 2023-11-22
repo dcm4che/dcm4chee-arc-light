@@ -43,6 +43,7 @@ package org.dcm4chee.arc.study.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -71,6 +72,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private final FuzzyStr fuzzyStr;
     private HttpServletRequestInfo httpRequest;
     private ArchiveAEExtension arcAE;
+    private Connection conn;
     private Socket socket;
     private UnparsedHL7Message msg;
     private Study study;
@@ -113,6 +115,12 @@ public class StudyMgtContextImpl implements StudyMgtContext {
         return this;
     }
 
+
+    StudyMgtContextImpl withConnection(Connection conn) {
+        this.conn = conn;
+        return this;
+    }
+
     StudyMgtContextImpl withUnparsedHL7Message(UnparsedHL7Message msg) {
         this.msg = msg;
         return this;
@@ -147,10 +155,9 @@ public class StudyMgtContextImpl implements StudyMgtContext {
 
     @Override
     public String getLocalHostName() {
-        return httpRequest != null
-                ? httpRequest.localHost
-                : socket != null
-                ? ReverseDNS.hostNameOf(socket.getLocalAddress()) : null;
+        return httpRequest != null ? httpRequest.localHost
+                : conn != null ? conn.getHostname()
+                : null;
     }
 
     @Override

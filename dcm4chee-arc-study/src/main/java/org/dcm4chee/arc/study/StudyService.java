@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.study;
 
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
@@ -58,7 +59,7 @@ import java.net.Socket;
 public interface StudyService {
     StudyMgtContext createStudyMgtContextWEB(HttpServletRequestInfo httpRequest, ApplicationEntity ae);
 
-    StudyMgtContext createStudyMgtContextHL7(Socket socket, UnparsedHL7Message msg);
+    StudyMgtContext createStudyMgtContextHL7(Socket socket, Connection conn, UnparsedHL7Message msg);
 
     void updateStudy(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException;
 

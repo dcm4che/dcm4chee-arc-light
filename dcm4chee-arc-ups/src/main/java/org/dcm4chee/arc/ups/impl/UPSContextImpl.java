@@ -45,6 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
@@ -67,6 +68,7 @@ public class UPSContextImpl implements UPSContext {
     private final HttpServletRequestInfo httpRequestInfo;
     private final ArchiveAEExtension archiveAEExtension;
     private final ArchiveHL7ApplicationExtension archiveHL7AppExtension;
+    private final Connection conn;
     private final Socket socket;
     private final Patient patient;
     private Attributes attributes;
@@ -81,6 +83,7 @@ public class UPSContextImpl implements UPSContext {
 
     public UPSContextImpl(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension archiveAEExtension) {
         this.as = null;
+        this.conn = null;
         this.httpRequestInfo = httpRequestInfo;
         this.archiveAEExtension = archiveAEExtension;
         this.patient = null;
@@ -90,6 +93,7 @@ public class UPSContextImpl implements UPSContext {
 
     public UPSContextImpl(Association as) {
         this.as = as;
+        this.conn = as.getConnection();
         this.requesterAET = as.getCallingAET();
         this.httpRequestInfo = null;
         this.archiveAEExtension = as.getApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -100,6 +104,7 @@ public class UPSContextImpl implements UPSContext {
 
     public UPSContextImpl(StoreContext storeContext, UPSOnStore rule) {
         this.as = storeContext.getStoreSession().getAssociation();
+        this.conn = as.getConnection();
         this.httpRequestInfo = storeContext.getStoreSession().getHttpRequest();
         this.archiveAEExtension = storeContext.getStoreSession().getArchiveAEExtension();
         this.patient = rule.isIncludePatient()
@@ -109,8 +114,9 @@ public class UPSContextImpl implements UPSContext {
         this.archiveHL7AppExtension = null;
     }
 
-    public UPSContextImpl(Socket socket, ArchiveHL7ApplicationExtension archiveHL7AppExtension) {
+    public UPSContextImpl(Socket socket, Connection conn, ArchiveHL7ApplicationExtension archiveHL7AppExtension) {
         this.as = null;
+        this.conn = conn;
         this.httpRequestInfo = null;
         this.archiveAEExtension = archiveHL7AppExtension.getArchiveAEExtension();
         this.patient = null;
@@ -121,6 +127,7 @@ public class UPSContextImpl implements UPSContext {
 
     public UPSContextImpl(UPSContext other) {
         this.as = other.getAssociation();
+        this.conn = other.getConnection();
         this.httpRequestInfo = other.getHttpRequestInfo();
         this.socket = other.getSocket();
         this.archiveAEExtension = other.getArchiveAEExtension();
@@ -164,7 +171,7 @@ public class UPSContextImpl implements UPSContext {
     @Override
     public String getLocalHostName() {
         return httpRequestInfo != null ? httpRequestInfo.localHost
-                : socket != null ? ReverseDNS.hostNameOf(socket.getLocalAddress())
+                : conn != null ? conn.getHostname()
                 : null;
     }
 
@@ -267,6 +274,11 @@ public class UPSContextImpl implements UPSContext {
     @Override
     public ArchiveHL7ApplicationExtension getArchiveHL7AppExtension() {
         return archiveHL7AppExtension;
+    }
+
+    @Override
+    public Connection getConnection() {
+        return conn;
     }
 
     @Override

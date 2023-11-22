@@ -43,6 +43,7 @@ package org.dcm4chee.arc.store;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.*;
@@ -68,6 +69,8 @@ public interface StoreSession extends Closeable {
     Association getAssociation();
 
     HttpServletRequestInfo getHttpRequest();
+
+    Connection getConnection();
 
     Socket getSocket();
 

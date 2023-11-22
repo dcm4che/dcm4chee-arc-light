@@ -43,6 +43,7 @@ package org.dcm4chee.arc.store.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.ReverseDNS;
@@ -80,6 +81,7 @@ class StoreSessionImpl implements StoreSession {
     private HL7Application hl7App;
     private String calledAET;
     private String callingAET;
+    private Connection conn;
     private Socket socket;
     private UnparsedHL7Message msg;
     private final StoreService storeService;
@@ -140,6 +142,10 @@ class StoreSessionImpl implements StoreSession {
         this.callingAET = callingAET;
     }
 
+    void setConnection(Connection conn) {
+        this.conn = conn;
+    }
+
     void setSocket(Socket socket) {
         this.socket = socket;
     }
@@ -151,6 +157,7 @@ class StoreSessionImpl implements StoreSession {
     void setAssociation(Association as) {
         setApplicationEntity(as.getApplicationEntity());
         this.as = as;
+        this.conn = as.getConnection();
         this.socket = as.getSocket();
         this.calledAET = as.getCalledAET();
         this.callingAET = as.getCallingAET();
@@ -169,6 +176,11 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public HttpServletRequestInfo getHttpRequest() {
         return httpRequest;
+    }
+
+    @Override
+    public Connection getConnection() {
+        return conn;
     }
 
     @Override
@@ -238,7 +250,7 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public String getLocalHostName() {
         return httpRequest != null ? httpRequest.localHost
-                : socket != null ? ReverseDNS.hostNameOf(socket.getLocalAddress())
+                : conn != null ? conn.getHostname()
                 : null;
     }
 
@@ -253,8 +265,8 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public String getReceivingPresentationAddress() {
         return httpRequest != null ? toReceivingPresentationAddress(httpRequest)
-                : as != null ? "dicom:" + ReverseDNS.hostNameOf(socket.getLocalAddress()) + ":" + socket.getLocalPort()
-                : hl7App != null ? "mllp:" + ReverseDNS.hostNameOf(socket.getLocalAddress()) + ":" + socket.getLocalPort()
+                : as != null ? "dicom:" + conn.getHostname() + ":" + conn.getPort()
+                : hl7App != null ? "mllp:" + conn.getHostname() + ":" + conn.getPort()
                 : null;
     }
 

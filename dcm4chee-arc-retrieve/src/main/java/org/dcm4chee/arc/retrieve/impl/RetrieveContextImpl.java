@@ -337,7 +337,7 @@ class RetrieveContextImpl implements RetrieveContext {
         return httpServletRequestInfo != null
                     ? httpServletRequestInfo.localHost
                     : storeAssociation != null
-                        ? ReverseDNS.hostNameOf(storeAssociation.getSocket().getLocalAddress())
+                        ? storeAssociation.getConnection().getHostname()
                         : null;
     }
 

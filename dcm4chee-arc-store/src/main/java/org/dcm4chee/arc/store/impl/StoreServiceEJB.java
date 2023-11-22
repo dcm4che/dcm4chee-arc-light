@@ -838,7 +838,10 @@ public class StoreServiceEJB {
                 : httpRequest != null
                 ? patientService.createPatientMgtContextWEB(httpRequest)
                 : patientService.createPatientMgtContextHL7(
-                        session.getLocalHL7Application(), session.getSocket(), session.getUnparsedHL7Message());
+                        session.getLocalHL7Application(),
+                        session.getConnection(),
+                        session.getSocket(),
+                        session.getUnparsedHL7Message());
         patMgtCtx.setAttributes(ctx.getAttributes());
         patMgtCtx.setPatientIDs(
                 session.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(

@@ -113,7 +113,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
             throws HL7Exception {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
-        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
+        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, conn, s, msg);
         transform(ctx);
         ctx.setPatient(PatientUpdateService.updatePatient(ctx, patientService, archiveHL7Message));
         try {

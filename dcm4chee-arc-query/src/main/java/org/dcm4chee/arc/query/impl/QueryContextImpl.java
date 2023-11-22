@@ -162,7 +162,7 @@ class QueryContextImpl implements QueryContext {
 
     @Override
     public String getLocalHostName() {
-        return httpRequest != null ? httpRequest.localHost : ReverseDNS.hostNameOf(as.getSocket().getLocalAddress());
+        return httpRequest != null ? httpRequest.localHost : as.getConnection().getHostname();
     }
 
     @Override

@@ -108,7 +108,7 @@ class ImportReportService extends DefaultHL7Service {
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
 
-        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
+        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, conn, s, msg);
         try {
             transform(ctx);
             ctx.setPatient(PatientUpdateService.updatePatient(ctx, patientService, archiveHL7Message));

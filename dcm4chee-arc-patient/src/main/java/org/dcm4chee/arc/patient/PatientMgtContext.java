@@ -43,6 +43,7 @@ package org.dcm4chee.arc.patient;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -133,6 +134,8 @@ public interface PatientMgtContext {
     String getSourceMwlScp();
 
     void setSourceMwlScp(String sourceMwlScp);
+
+    Connection getConnection();
 
     Socket getSocket();
 }

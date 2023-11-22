@@ -44,6 +44,7 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -69,6 +70,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private final FuzzyStr fuzzyStr;
     private HL7Application hl7app;
     private Association as;
+    private Connection conn;
     private Socket socket;
     private UnparsedHL7Message msg;
     private Collection<IDWithIssuer> patientIDs;
@@ -101,8 +103,13 @@ public class PatientMgtContextImpl implements PatientMgtContext {
         this.socket = socket;
     }
 
+    void setConnection(Connection conn) {
+        this.conn = conn;
+    }
+
     void setAssociation(Association as) {
         this.as = as;
+        this.conn = as.getConnection();
         this.socket = as.getSocket();
         this.arcAE = as.getApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class);
     }
@@ -311,6 +318,11 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setSourceMwlScp(String sourceMwlScp) {
         this.sourceMwlScp = sourceMwlScp;
+    }
+
+    @Override
+    public Connection getConnection() {
+        return conn;
     }
 
     @Override

@@ -150,7 +150,7 @@ public class ApplyHL7RetentionPolicy {
     }
 
     private void updateExpirationDate(HL7ConnectionEvent event, HL7StudyRetentionPolicy policy, Attributes match) {
-        StudyMgtContext ctx = studyService.createStudyMgtContextHL7(event.getSocket(), event.getHL7Message());
+        StudyMgtContext ctx = studyService.createStudyMgtContextHL7(event.getSocket(), event.getConnection(), event.getHL7Message());
         String suid = match.getString(Tag.StudyInstanceUID);
         ctx.setStudyInstanceUID(suid);
         ctx.setExpirationExporterID(policy.getExporterID());

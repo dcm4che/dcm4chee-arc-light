@@ -48,6 +48,7 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -98,11 +99,13 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientMgtContext createPatientMgtContextHL7(HL7Application hl7App, Socket socket, UnparsedHL7Message msg) {
+    public PatientMgtContext createPatientMgtContextHL7(HL7Application hl7App, Connection conn, Socket socket,
+                                                        UnparsedHL7Message msg) {
         PatientMgtContextImpl ctx = new PatientMgtContextImpl(device);
         ctx.setSocket(socket);
         ctx.setUnparsedHL7Message(msg);
         ctx.setHL7Application(hl7App);
+        ctx.setConnection(conn);
         return ctx;
     }
 

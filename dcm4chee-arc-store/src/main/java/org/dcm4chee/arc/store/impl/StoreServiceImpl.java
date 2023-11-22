@@ -177,19 +177,10 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSession newStoreSession(HL7Application hl7App, Socket socket, UnparsedHL7Message msg, ApplicationEntity ae) {
-        StoreSessionImpl session = new StoreSessionImpl(this);
-        session.setApplicationEntity(ae);
-        session.setSocket(socket);
-        session.setMsg(msg);
-        session.setHL7Application(hl7App);
-        return session;
-    }
-
-    @Override
     public StoreSession newStoreSession(ApplicationEntity ae, PatientMgtContext ctx) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setApplicationEntity(ae);
+        session.setConnection(ctx.getConnection());
         session.setSocket(ctx.getSocket());
         session.setMsg(ctx.getUnparsedHL7Message());
         session.setHL7Application(ctx.getHL7Application());

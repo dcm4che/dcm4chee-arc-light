@@ -99,8 +99,6 @@ public interface StoreService {
 
     StoreSession newStoreSession(ApplicationEntity ae);
 
-    StoreSession newStoreSession(HL7Application hl7App, Socket socket, UnparsedHL7Message msg, ApplicationEntity ae);
-
     StoreSession newStoreSession(ApplicationEntity ae, PatientMgtContext ctx);
 
     StoreContext newStoreContext(StoreSession session);
