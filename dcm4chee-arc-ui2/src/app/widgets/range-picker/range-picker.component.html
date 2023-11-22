@@ -22,7 +22,7 @@
         <span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>
     </div>
     <ng-container *ngIf="datePickerMode">
-        <mat-form-field class="example-full-width"  class="material_calendar single_date_mode"  [floatLabel]="'never'">
+        <mat-form-field class="example-full-width"  class="material_calendar single_date_mode"  [floatLabel]="'auto'">
             <input matInput
                    [matDatepicker]="picker"
                    i18n-placeholder="@@placeholder.date_formated" placeholder="Date (yyyymmdd)"
@@ -38,7 +38,7 @@
             <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
             <h5>{{header}}</h5>
             <div class="left {{mode}}_mode" *ngIf="!onlyTime">
-                <mat-form-field class="material_calendar"  *ngIf="mode === 'range' || mode === 'rightOpen'"  [floatLabel]="'never'">
+<!--                <mat-form-field class="material_calendar"  *ngIf="mode === 'range' || mode === 'rightOpen'"  [floatLabel]="'auto'">
                     <input matInput
                            [matDatepicker]="picker"
                            i18n-placeholder="@@placeholder.from_formated" placeholder="from (yyyymmdd)"
@@ -52,7 +52,15 @@
                         </mat-icon>
                     </mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field>
+                </mat-form-field>-->
+                <date-picker
+                        *ngIf="mode === 'range' || mode === 'rightOpen'"
+                        [model]="fromModel"
+                        [format]="'yyyyMMdd'"
+                        i18n-placeholder="@@placeholder.from_formated" placeholder="from (yyyymmdd)"
+                        [returnAsDateType]="true"
+                        (onValueSet)="addEvent('fromModel', $event)"
+                ></date-picker>
                 <!--            <p-calendar
                                     (onFocus)="closeCalendar('fromCalendarObject')" #fromCalendar
                                     *ngIf="mode === 'range' || mode === 'rightOpen'"
@@ -69,21 +77,32 @@
                                     showButtonBar="true"></p-calendar>-->
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
                 <span class="dash" *ngIf="mode != 'single'">-</span>
-                <mat-form-field class="material_calendar"  *ngIf="mode === 'range' || mode === 'leftOpen'"  [floatLabel]="'never'">
-                    <input matInput
-                           [matDatepicker]="picker"
-                           i18n-placeholder="@@placeholder.to_formated" placeholder="to (yyyymmdd)"
-                           [(ngModel)]="toModel"
-                           (dateInput)="addEvent('toModel', $event)"
-                           (dateChange)="addEvent('toModel', $event)"
-                    >
-                    <mat-datepicker-toggle matSuffix [for]="picker">
-                        <mat-icon matDatepickerToggleIcon>
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </mat-icon>
-                    </mat-datepicker-toggle>
-                    <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field>
+                <div class="material_calendar">
+<!--                    <input type="date" [(ngModel)]="toModel">-->
+                    <date-picker
+                            *ngIf="mode === 'range' || mode === 'leftOpen'"
+                            [model]="toModel"
+                            [format]="'yyyyMMdd'"
+                            i18n-placeholder="@@placeholder.date_formated" placeholder="Date (yyyymmdd)"
+                            [returnAsDateType]="true"
+                            (onValueSet)="addEvent('toModel', $event)"
+                    ></date-picker>
+                </div>
+<!--                    <mat-form-field class="material_calendar"  *ngIf="mode === 'range' || mode === 'leftOpen'"  [floatLabel]="'auto'">
+                        <input matInput
+                               [matDatepicker]="picker"
+                               i18n-placeholder="@@placeholder.to_formated" placeholder="to (yyyymmdd)"
+                               [(ngModel)]="toModel"
+                               (dateInput)="addEvent('toModel', $event)"
+                               (dateChange)="addEvent('toModel', $event)"
+                        >
+                        <mat-datepicker-toggle matSuffix [for]="picker">
+                            <mat-icon matDatepickerToggleIcon>
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </mat-icon>
+                        </mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>-->
                 <!--            <p-calendar
                                     (onFocus)="closeCalendar('toCalendarObject')"
                                     #toCalendar
@@ -101,7 +120,15 @@
 
 
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
-                <mat-form-field class="material_calendar single_datepicker"  *ngIf="mode === 'single'"  [floatLabel]="'never'">
+                <date-picker
+                        *ngIf="mode === 'single'"
+                        [model]="toModel"
+                        [format]="'yyyyMMdd'"
+                        i18n-placeholder="@@placeholder.date_formated" placeholder="Date (yyyymmdd)"
+                        [returnAsDateType]="true"
+                        (onValueSet)="addEvent('toModel', $event)"
+                ></date-picker>
+<!--                <mat-form-field class="material_calendar single_datepicker"  *ngIf="mode === 'single'"  [floatLabel]="'auto'">
                     <input matInput
                            [matDatepicker]="picker"
                            i18n-placeholder="@@placeholder.date_formated" placeholder="Date (yyyymmdd)"
@@ -115,7 +142,7 @@
                         </mat-icon>
                     </mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field>
+                </mat-form-field>-->
                 <!--            <p-calendar
                                     (onFocus)="closeCalendar('singleCalendarObject')"
                                     #singleCalendar

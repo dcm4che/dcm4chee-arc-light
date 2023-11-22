@@ -48,6 +48,7 @@ import { DeviceCloneComponent } from './dialogs/device-clone/device-clone.compon
 import { ModifiedWidgetComponent } from './modified-widget/modified-widget.component';
 import { PersonNamePickerComponent } from './person-name-picker/person-name-picker.component';
 import { MatDialogModule} from "@angular/material/dialog";
+import { DatePickerComponent } from './date-picker/date-picker.component';
 
 
 @Injectable()
@@ -86,6 +87,7 @@ export const WidgetsComponents = [
     SpecificCharPickerComponent,
     DictionaryPickerComponent,
     TimePickerComponent,
+    DatePickerComponent,
     DurationPickerComponent,
     SchedulePickerComponent,
     AttributeInfoComponent,

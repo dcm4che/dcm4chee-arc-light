@@ -3,6 +3,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {RangePickerService} from "./range-picker.service";
 import {Moment} from "moment";
 import * as _ from "lodash-es";
+import {FormControl, FormGroup} from "@angular/forms";
 
 @Component({
     selector: 'range-picker',
@@ -50,7 +51,10 @@ export class RangePickerComponent implements OnInit {
         minDate: new Date(2000, 0, 1),
         maxDate: new Date()
     };
-
+    range = new FormGroup({
+        start: new FormControl<Date | null>(null),
+        end: new FormControl<Date | null>(null),
+    });
     constructor(
         private service:RangePickerService
     ) {}
@@ -75,7 +79,17 @@ export class RangePickerComponent implements OnInit {
         }
     }
     addEvent(mode, e){
-        this[mode] = (<Moment>e.value).format("YYYYMMDD");
+        try{
+            if (e) {
+                if (e.value) {
+                    this[mode] = (<Moment>e.value).format("YYYYMMDD");
+                } else {
+                    this[mode] = j4care.formatDate(new Date(e),"yyyyMMdd");
+                }
+            }
+        }catch (e) {
+            console.error(e);
+        }
     }
     setSingeDatePicker(mode, e){
         let format = this.dateFormat || "YYYYMMDD";

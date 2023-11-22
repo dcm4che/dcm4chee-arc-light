@@ -1,0 +1,21 @@
+.date_picker{
+  .input_block{
+    display: grid;
+    grid-template-columns: calc( 100% - 25px ) 25px;
+    width: 100%;
+    justify-content: center;
+    z-index: 1;
+    align-items: center;
+    position: relative;
+    background: white;
+    border-bottom: 1px solid #ccc;
+    .input_mask{
+      border: none;
+    }
+  }
+  .original_input{
+    position: relative;
+    top: -29px;
+    z-index: -17;
+  }
+}
