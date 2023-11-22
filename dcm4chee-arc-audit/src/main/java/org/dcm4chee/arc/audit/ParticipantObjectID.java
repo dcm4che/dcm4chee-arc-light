@@ -40,19 +40,12 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.audit.ParticipantObjectDescriptionBuilder;
-import org.dcm4che3.audit.ParticipantObjectIdentification;
-import org.dcm4che3.audit.ParticipantObjectIdentificationBuilder;
-import org.dcm4che3.audit.ParticipantObjectDetail;
-import org.dcm4che3.audit.SOPClass;
-import org.dcm4che3.data.UID;
+import org.dcm4che3.audit.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Patient;
 
-import java.nio.charset.StandardCharsets;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
@@ -246,29 +239,6 @@ class ParticipantObjectID {
                         .toArray(SOPClass[]::new))
                 .acc(instanceInfo.getAcc())
                 .mpps(instanceInfo.getMpps());
-    }
-
-    static ParticipantObjectIdentification qidoParticipant(AuditInfo auditInfo) {
-        ParticipantObjectIdentificationBuilder qidoParticipant = new ParticipantObjectIdentificationBuilder(
-                auditInfo.getField(AuditInfo.Q_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.QIDO_QUERY,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Query)
-                .detail(AuditMessages.createParticipantObjectDetail("QueryEncoding", StandardCharsets.UTF_8.name()));
-        if (auditInfo.getField(AuditInfo.Q_STRING) != null)
-            qidoParticipant.query(auditInfo.getField(AuditInfo.Q_STRING).getBytes());
-        return qidoParticipant.build();
-    }
-
-    static ParticipantObjectIdentification cFindParticipant(AuditInfo auditInfo, byte[] data) {
-        return new ParticipantObjectIdentificationBuilder(
-                auditInfo.getField(AuditInfo.Q_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .query(data)
-                .detail(AuditMessages.createParticipantObjectDetail("TransferSyntax", UID.ImplicitVRLittleEndian))
-                .build();
     }
 
     static ParticipantObjectIdentification taskParticipant(AuditInfo auditInfo) {

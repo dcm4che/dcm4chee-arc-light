@@ -179,20 +179,20 @@ class DeletionAuditService extends AuditService {
     }
 
     private static ActiveParticipant requestorAE(AuditInfo auditInfo) {
-        ActiveParticipant requestor = new ActiveParticipant();
+        ActiveParticipant requestorAE = new ActiveParticipant();
         String requestorID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        requestor.setUserID(requestorID);
-        requestor.setUserIsRequestor(true);
-        requestor.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
-        requestor.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        requestorAE.setUserID(requestorID);
+        requestorAE.setUserIsRequestor(true);
+        requestorAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        requestorAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
 
         String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
-        requestor.setNetworkAccessPointID(requestorHost);
-        requestor.setNetworkAccessPointTypeCode(
+        requestorAE.setNetworkAccessPointID(requestorHost);
+        requestorAE.setNetworkAccessPointTypeCode(
                 AuditMessages.isIP(requestorHost)
                         ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
                         : AuditMessages.NetworkAccessPointTypeCode.MachineName);
-        return requestor;
+        return requestorAE;
     }
 
     private static ActiveParticipant remoteAE(AuditInfo auditInfo) {

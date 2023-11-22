@@ -41,69 +41,97 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.query.QueryContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2019
  */
-class QueryAuditService {
+class QueryAuditService extends AuditService {
 
-    private static boolean qidoQuery;
+    private final static Logger LOG = LoggerFactory.getLogger(QueryAuditService.class);
 
-    static AuditInfoBuilder auditInfo(QueryContext ctx) {
-        return ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
-    }
-
-    private static AuditInfoBuilder createAuditInfoForFIND(QueryContext ctx) {
-        return new AuditInfoBuilder.Builder()
-                        .callingHost(ctx.getRemoteHostName())
-                        .callingUserID(ctx.getCallingAET())
-                        .calledUserID(ctx.getCalledAET())
-                        .queryPOID(ctx.getSOPClassUID())
-                        .build();
-    }
-
-    private static AuditInfoBuilder createAuditInfoForQIDO(QueryContext ctx) {
-        HttpServletRequestInfo httpRequest = ctx.getHttpRequest();
-        return new AuditInfoBuilder.Builder()
-                        .callingHost(ctx.getRemoteHostName())
-                        .callingUserID(httpRequest.requesterUserID)
-                        .calledUserID(httpRequest.requestURI)
-                        .queryPOID(ctx.getSearchMethod())
-                        .queryString(httpRequest.queryString)
-                        .build();
-    }
-
-    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws IOException {
-        AuditInfo auditInfo;
-        ParticipantObjectIdentification poi;
-        ActiveParticipant[] activeParticipants;
+    static void auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
+            throws IOException {
         try (InputStream in = new BufferedInputStream(Files.newInputStream(path))) {
-            auditInfo = new AuditInfo(new DataInputStream(in).readUTF());
-            activeParticipants = activeParticipants(auditLogger, eventType, auditInfo);
-            poi = qidoQuery
-                    ? ParticipantObjectID.qidoParticipant(auditInfo)
-                    : ParticipantObjectID.cFindParticipant(auditInfo, findQueryData(path, in));
-        }
+            AuditInfo auditInfo = new AuditInfo(new DataInputStream(in).readUTF());
+            EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+            eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
 
-        return AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipants,
-                poi);
+            List<ActiveParticipant> activeParticipants = new ArrayList<>();
+            String archiveCalledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+            boolean qidoTrigger = archiveCalledUserID.contains("/");
+            activeParticipants.add(archive(archiveCalledUserID,
+                                            qidoTrigger
+                                                ? AuditMessages.UserIDTypeCode.URI
+                                                : AuditMessages.UserIDTypeCode.StationAETitle,
+                                            eventType,
+                                            auditLogger));
+            activeParticipants.add(qidoTrigger
+                                    ? requestor(auditInfo, eventType)
+                                    : requestorAE(auditInfo, eventType));
+
+            ParticipantObjectIdentification query = qidoTrigger
+                                                    ? qidoQuery(auditInfo)
+                                                    : cFindQuery(auditInfo, cFindQueryData(path, in));
+            emitAuditMessage(auditLogger, eventIdentification, activeParticipants, query);
+        } catch (Exception e) {
+            LOG.info("", e);
+        }
     }
 
-    private static byte[] findQueryData(Path path, InputStream in) throws IOException {
+    private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        String outcomeDesc = auditInfo.getField(AuditInfo.OUTCOME);
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(eventType.eventID);
+        ei.setEventActionCode(eventType.eventActionCode);
+        ei.setEventOutcomeDescription(outcomeDesc);
+        ei.setEventOutcomeIndicator(outcomeDesc == null
+                ? AuditMessages.EventOutcomeIndicator.Success
+                : AuditMessages.EventOutcomeIndicator.MinorFailure);
+        return ei;
+    }
+
+    static ParticipantObjectIdentification qidoQuery(AuditInfo auditInfo) {
+        ParticipantObjectIdentification poi = new ParticipantObjectIdentification();
+        poi.setParticipantObjectID(auditInfo.getField(AuditInfo.Q_POID));
+        poi.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.QIDO_QUERY);
+        poi.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        poi.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Query);
+        poi.getParticipantObjectDetail()
+            .add(AuditMessages.createParticipantObjectDetail("QueryEncoding", StandardCharsets.UTF_8.name()));
+        if (auditInfo.getField(AuditInfo.Q_STRING) != null)
+            poi.setParticipantObjectQuery(auditInfo.getField(AuditInfo.Q_STRING).getBytes());
+        return poi;
+    }
+
+    static ParticipantObjectIdentification cFindQuery(AuditInfo auditInfo, byte[] data) {
+        ParticipantObjectIdentification poi = new ParticipantObjectIdentification();
+        poi.setParticipantObjectID(auditInfo.getField(AuditInfo.Q_POID));
+        poi.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID);
+        poi.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        poi.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        poi.getParticipantObjectDetail()
+            .add(AuditMessages.createParticipantObjectDetail("TransferSyntax", UID.ImplicitVRLittleEndian));
+        poi.setParticipantObjectQuery(data);
+        return poi;
+    }
+
+    private static byte[] cFindQueryData(Path path, InputStream in) throws IOException {
         byte[] buffer = new byte[(int) Files.size(path)];
         int len = in.read(buffer);
         byte[] data;
@@ -116,36 +144,61 @@ class QueryAuditService {
         return data;
     }
 
-    private static ActiveParticipant[] activeParticipants(
-            AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
-        String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
-        activeParticipants[0] = new ActiveParticipantBuilder(
-                callingUserID,
-                auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester()
-                .roleIDCode(eventType.source)
-                .build();
-        activeParticipants[1] = new ActiveParticipantBuilder(
-                archiveUserID,
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(archiveUserIDTypeCode)
-                .altUserID(AuditLogger.processID())
-                .roleIDCode(eventType.destination)
-                .build();
-        return activeParticipants;
+    private static ActiveParticipant archive(
+            String archiveUserID, AuditMessages.UserIDTypeCode archiveUserIDTypeCode, AuditUtils.EventType eventType,
+            AuditLogger auditLogger) {
+        ActiveParticipant archive = new ActiveParticipant();
+        archive.setUserID(archiveUserID);
+        archive.setAlternativeUserID(AuditLogger.processID());
+        archive.setUserIsRequestor(false);
+        archive.setUserIDTypeCode(archiveUserIDTypeCode);
+        archive.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archive.getRoleIDCode().add(eventType.destination);
+
+        String auditLoggerHostName = auditLogger.getConnections().get(0).getHostname();
+        archive.setNetworkAccessPointID(auditLoggerHostName);
+        archive.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(auditLoggerHostName)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archive;
     }
 
-    private static AuditMessages.UserIDTypeCode userIDTypeCode(String userID) {
-        return (qidoQuery = userID.indexOf('/') != -1)
-                ? AuditMessages.UserIDTypeCode.URI
-                : AuditMessages.UserIDTypeCode.StationAETitle;
+    private static ActiveParticipant requestor(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        ActiveParticipant requestor = new ActiveParticipant();
+        String requestorID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        requestor.setUserID(requestorID);
+        requestor.setUserIsRequestor(true);
+        requestor.setUserIDTypeCode(AuditMessages.isIP(requestorID)
+                ? AuditMessages.UserIDTypeCode.NodeID
+                : AuditMessages.UserIDTypeCode.PersonID);
+        requestor.setUserTypeCode(AuditMessages.UserTypeCode.Person);
+        requestor.getRoleIDCode().add(eventType.source);
+
+        String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        requestor.setNetworkAccessPointID(requestorHost);
+        requestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(requestorHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return requestor;
     }
 
-    private static String getLocalHostName(AuditLogger auditLogger) {
-        return auditLogger.getConnections().get(0).getHostname();
+    private static ActiveParticipant requestorAE(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        ActiveParticipant requestorAE = new ActiveParticipant();
+        String requestorID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        requestorAE.setUserID(requestorID);
+        requestorAE.setUserIsRequestor(true);
+        requestorAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        requestorAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        requestorAE.getRoleIDCode().add(eventType.source);
+
+        String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        requestorAE.setNetworkAccessPointID(requestorHost);
+        requestorAE.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(requestorHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return requestorAE;
     }
 }

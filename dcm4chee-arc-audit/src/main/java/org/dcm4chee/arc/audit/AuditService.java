@@ -526,15 +526,32 @@ public class AuditService {
         if (ctx.getAssociation() == null && ctx.getHttpRequest() == null)
             return;
 
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpRequest();
+        AuditInfo auditInfo = httpServletRequestInfo == null
+                                ? new AuditInfoBuilder.Builder()
+                                        .callingHost(ctx.getRemoteHostName())
+                                        .callingUserID(ctx.getCallingAET())
+                                        .calledUserID(ctx.getCalledAET())
+                                        .queryPOID(ctx.getSOPClassUID())
+                                        .toAuditInfo()
+                                : new AuditInfoBuilder.Builder()
+                                        .callingHost(ctx.getRemoteHostName())
+                                        .callingUserID(httpServletRequestInfo.requesterUserID)
+                                        .calledUserID(httpServletRequestInfo.requestURI)
+                                        .queryPOID(ctx.getSearchMethod())
+                                        .queryString(httpServletRequestInfo.queryString)
+                                        .toAuditInfo();
+        writeQuerySpoolFile(auditInfo, ctx);
+    }
+
+    private void writeQuerySpoolFile(AuditInfo auditInfo, QueryContext ctx) {
+        FileTime eventTime = null;
         try {
-            AuditUtils.EventType eventType = AuditUtils.EventType.QUERY__EVT;
-            AuditInfo auditInfo = new AuditInfo(QueryAuditService.auditInfo(ctx));
-            FileTime eventTime = null;
-            for (AuditLogger auditLogger : auditLoggers(ctx, eventType)) {
+            for (AuditLogger auditLogger : auditLoggersForQuery(ctx)) {
                 Path directory = toDirPath(auditLogger);
                 try {
                     Files.createDirectories(directory);
-                    Path file = Files.createTempFile(directory, eventType.name(), null);
+                    Path file = Files.createTempFile(directory, AuditUtils.EventType.QUERY__EVT.name(), null);
                     try (BufferedOutputStream out = new BufferedOutputStream(
                             Files.newOutputStream(file, StandardOpenOption.APPEND))) {
                         new DataOutputStream(out).writeUTF(auditInfo.toString());
@@ -546,10 +563,12 @@ public class AuditService {
                             }
                         }
                     }
+
                     if (eventTime == null)
                         eventTime = Files.getLastModifiedTime(file);
                     else
                         Files.setLastModifiedTime(file, eventTime);
+
                     if (!getArchiveDevice().isAuditAggregate())
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
@@ -558,27 +577,31 @@ public class AuditService {
                 }
             }
         } catch (Exception e) {
-            LOG.info("Failed to spool Query.\n", e);
+            LOG.info("Failed to spool Query\n", e);
         }
     }
 
-    private List<AuditLogger> auditLoggers(QueryContext ctx, AuditUtils.EventType eventType) {
+    private List<AuditLogger> auditLoggersForQuery(QueryContext ctx) {
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         if (ext == null)
             return Collections.emptyList();
 
         return ext.getAuditLoggers().stream()
                 .filter(auditLogger -> auditLogger.isInstalled()
-                                        && !auditLogger.isAuditMessageSuppressed(
-                                                createMinimalAuditMsg(eventType, ctx.getCallingAET())))
+                                        && !auditLogger.isAuditMessageSuppressed(minimalAuditMsgForQuery(ctx)))
                 .collect(Collectors.toList());
     }
 
-    private AuditMessage createMinimalAuditMsg(AuditUtils.EventType eventType, String userID) {
+    private AuditMessage minimalAuditMsgForQuery(QueryContext ctx) {
         AuditMessage msg = new AuditMessage();
-        msg.setEventIdentification(EventID.toEventIdentification(eventType));
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(AuditMessages.EventID.Query);
+        ei.setEventActionCode(AuditMessages.EventActionCode.Execute);
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+        msg.setEventIdentification(ei);
+
         ActiveParticipant ap = new ActiveParticipant();
-        ap.setUserID(userID);
+        ap.setUserID(ctx.getCallingAET());
         ap.setUserIsRequestor(true);
         msg.getActiveParticipant().add(ap);
         return msg;
@@ -601,9 +624,12 @@ public class AuditService {
     }
 
     private void auditQuery(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        AuditMessage msg = eventType.eventTypeCode == null
-                            ? QueryAuditService.auditMsg(auditLogger, path, eventType)
-                            : PDQAuditService.auditMsg(auditLogger, path, eventType, hl7AppCache, webAppCache);
+        if (eventType.eventTypeCode == null) {
+            QueryAuditService.auditMsg(auditLogger, path, eventType);
+            return;
+        }
+
+        AuditMessage msg = PDQAuditService.auditMsg(auditLogger, path, eventType, hl7AppCache, webAppCache);
         emitAuditMessage(msg, auditLogger);
     }
 
