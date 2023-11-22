@@ -201,7 +201,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         boolean uidsGenerated = adjustIdentifiers(attrs, arcHL7App, msh);
 
         Collection<Device> hl7OrderScheduledStations = arcHL7App.hl7OrderScheduledStation(
-                ReverseDNS.hostNameOf(ctx.getSocket().getLocalAddress()),
+                ReverseDNS.hostNameOf(ctx.getSocket().getInetAddress()),
                 new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()));
 
         Iterator<Attributes> spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
