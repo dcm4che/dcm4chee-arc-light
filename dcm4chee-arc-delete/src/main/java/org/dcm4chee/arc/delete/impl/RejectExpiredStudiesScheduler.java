@@ -95,7 +95,7 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
         if (!ScheduleExpression.emptyOrAnyContainsNow(arcDev.getRejectExpiredStudiesSchedules()))
             return;
 
-        ApplicationEntity ae = getApplicationEntity(arcDev.getRejectExpiredStudiesAETitle());
+        ApplicationEntity ae = device.getApplicationEntity(arcDev.getRejectExpiredStudiesAETitle(), true);
         if (ae == null || !ae.isInstalled()) {
             LOG.warn("No such Application Entity: {}", arcDev.getRejectExpiredStudiesAETitle());
             return;
@@ -222,10 +222,6 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                     null,
                     new Date(),
                     null);
-    }
-
-    private ApplicationEntity getApplicationEntity(String aet) {
-        return device.getApplicationEntity(aet, true);
     }
 
 }

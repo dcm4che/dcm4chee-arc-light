@@ -110,6 +110,12 @@ public class HttpServletRequestInfo {
         return this;
     }
 
+    public String requestURIWithQueryStr() {
+        return queryString == null
+                ? requestURI
+                : requestURI + '?' + queryString;
+    }
+
     @Override
     public String toString() {
         return "HttpServletRequestInfo[requesterUserID=" + requesterUserID

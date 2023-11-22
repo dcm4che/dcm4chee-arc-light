@@ -334,6 +334,10 @@ class AuditInfoBuilder {
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
+
+        AuditInfo toAuditInfo() {
+            return new AuditInfo(new AuditInfoBuilder(this));
+        }
     }
 
     private AuditInfoBuilder(Builder builder) {

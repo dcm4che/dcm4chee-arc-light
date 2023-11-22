@@ -53,6 +53,8 @@ class InstanceInfo {
     private HashSet<String> acc = new HashSet<>();
     private HashSet<String> studyDate = new HashSet<>();
 
+    private String accessionNo;
+
     InstanceInfo() {}
 
     HashMap<String, HashSet<String>> getSopClassMap() {
@@ -93,5 +95,13 @@ class InstanceInfo {
         String studyDt = info.getField(AuditInfo.STUDY_DATE);
         if (studyDt != null)
             studyDate.add(studyDt);
+    }
+
+    String getAccessionNo() {
+        return accessionNo;
+    }
+
+    void setAccessionNo(String accessionNo) {
+        this.accessionNo = accessionNo;
     }
 }

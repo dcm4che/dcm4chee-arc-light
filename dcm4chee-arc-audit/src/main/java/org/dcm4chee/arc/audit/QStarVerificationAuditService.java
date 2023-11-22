@@ -120,12 +120,13 @@ class QStarVerificationAuditService extends AuditService {
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
         eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
-        activeParticipants.add(getDeviceActiveParticipant(auditInfo, eventType));
-        activeParticipants.add(getQStarActiveParticipant(auditInfo, eventType, arcDev));
-        ParticipantObjectIdentification study = getStudyParticipantObjectIdentification(auditInfo);
-        boolean showSOPIUIDs = auditLogger.isIncludeInstanceUID() || !eventIdentification.getEventOutcomeIndicator().equals("0");
-        study.setParticipantObjectDescription(getStudyParticipantObjDesc(reader, showSOPIUIDs));
-        ParticipantObjectIdentification patient = getPatientParticipantObjectIdentification(auditInfo);
+        activeParticipants.add(device(auditInfo, eventType));
+        activeParticipants.add(qStar(auditInfo, eventType, arcDev));
+        ParticipantObjectIdentification study = study(auditInfo);
+        boolean showSOPIUIDs = auditLogger.isIncludeInstanceUID() 
+                                || !eventIdentification.getEventOutcomeIndicator().equals("0");
+        study.setParticipantObjectDescription(studyParticipantObjDesc(reader, showSOPIUIDs));
+        ParticipantObjectIdentification patient = patient(auditInfo);
         emitAuditMessage(auditLogger, eventIdentification, activeParticipants, study, patient);
     }
 
@@ -139,31 +140,31 @@ class QStarVerificationAuditService extends AuditService {
         return ei;
     }
 
-    private static ActiveParticipant getDeviceActiveParticipant(AuditInfo auditInfo, EventType eventType) {
-        ActiveParticipant deviceActiveParticipant = new ActiveParticipant();
-        deviceActiveParticipant.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
-        deviceActiveParticipant.setUserIsRequestor(true);
-        deviceActiveParticipant.setUserIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName);
-        deviceActiveParticipant.setUserTypeCode(AuditMessages.UserTypeCode.Application);
-        deviceActiveParticipant.getRoleIDCode().add(eventType.source);
-        return deviceActiveParticipant;
+    private static ActiveParticipant device(AuditInfo auditInfo, EventType eventType) {
+        ActiveParticipant device = new ActiveParticipant();
+        device.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
+        device.setUserIsRequestor(true);
+        device.setUserIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName);
+        device.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        device.getRoleIDCode().add(eventType.source);
+        return device;
     }
 
-    private static ActiveParticipant getQStarActiveParticipant(
+    private static ActiveParticipant qStar(
             AuditInfo auditInfo, EventType eventType, ArchiveDeviceExtension arcDev) {
-        ActiveParticipant qStarActiveParticipant = new ActiveParticipant();
-        qStarActiveParticipant.setUserID("file:" + auditInfo.getField(AuditInfo.CALLED_USERID));
-        qStarActiveParticipant.setUserIsRequestor(false);
-        qStarActiveParticipant.setUserIDTypeCode(AuditMessages.UserIDTypeCode.URI);
-        qStarActiveParticipant.setUserTypeCode(AuditMessages.UserTypeCode.Application);
-        qStarActiveParticipant.setNetworkAccessPointID(arcDev.getQStarVerificationURL());
-        qStarActiveParticipant.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.URI);
-        qStarActiveParticipant.setMediaType(AuditMessages.MediaType.QStar);
-        qStarActiveParticipant.getRoleIDCode().add(eventType.destination);
-        return qStarActiveParticipant;
+        ActiveParticipant qStar = new ActiveParticipant();
+        qStar.setUserID("file:" + auditInfo.getField(AuditInfo.CALLED_USERID));
+        qStar.setUserIsRequestor(false);
+        qStar.setUserIDTypeCode(AuditMessages.UserIDTypeCode.URI);
+        qStar.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        qStar.setNetworkAccessPointID(arcDev.getQStarVerificationURL());
+        qStar.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.URI);
+        qStar.setMediaType(AuditMessages.MediaType.QStar);
+        qStar.getRoleIDCode().add(eventType.destination);
+        return qStar;
     }
 
-    private static ParticipantObjectIdentification getStudyParticipantObjectIdentification(AuditInfo auditInfo) {
+    private static ParticipantObjectIdentification study(AuditInfo auditInfo) {
         ParticipantObjectIdentification study = new ParticipantObjectIdentification();
         study.setParticipantObjectID(auditInfo.getField(AuditInfo.STUDY_UID));
         study.setParticipantObjectDataLifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification);
@@ -173,7 +174,7 @@ class QStarVerificationAuditService extends AuditService {
         return study;
     }
 
-    private static ParticipantObjectDescription getStudyParticipantObjDesc(SpoolFileReader reader, boolean showSOPIUIDs) {
+    private static ParticipantObjectDescription studyParticipantObjDesc(SpoolFileReader reader, boolean showSOPIUIDs) {
         ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
         InstanceInfo instances = new InstanceInfo();
         reader.getInstanceLines().forEach(instanceLine -> {
@@ -192,7 +193,7 @@ class QStarVerificationAuditService extends AuditService {
         return studyParticipantObjDesc;
     }
 
-    private static ParticipantObjectIdentification getPatientParticipantObjectIdentification(AuditInfo auditInfo) {
+    private static ParticipantObjectIdentification patient(AuditInfo auditInfo) {
         ParticipantObjectIdentification patient = new ParticipantObjectIdentification();
         patient.setParticipantObjectID(auditInfo.getField(AuditInfo.P_ID));
         patient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);

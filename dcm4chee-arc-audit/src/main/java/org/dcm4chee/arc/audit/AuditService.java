@@ -69,6 +69,7 @@ import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -131,7 +132,7 @@ public class AuditService {
         }
         switch (eventType.eventClass) {
             case APPLN_ACTIVITY:
-                auditApplicationActivity(auditLogger, path, eventType);
+                ApplicationActivityAuditService.auditMsg(auditLogger, path, eventType);
                 break;
             case CONN_FAILURE:
                 auditConnectionFailure(auditLogger, path, eventType);
@@ -144,7 +145,7 @@ public class AuditService {
                 break;
             case USER_DELETED:
             case SCHEDULER_DELETED:
-                auditDeletion(auditLogger, path, eventType);
+                DeletionAuditService.auditMsg(auditLogger, path, eventType);
                 break;
             case QUERY:
                 auditQuery(auditLogger, path, eventType);
@@ -186,56 +187,190 @@ public class AuditService {
     }
 
     void spoolApplicationActivity(ArchiveServiceEvent event) {
+        String fileName = AuditUtils.EventType.forApplicationActivity(event).name();
         try {
-            writeSpoolFile(AuditUtils.EventType.forApplicationActivity(event), null,
-                    ApplicationActivityAuditService.auditInfo(event, device.getDeviceName()));
+            HttpServletRequest request = event.getRequest();
+            if (request == null) {
+                writeSpoolFile(fileName, false, new AuditInfoBuilder.Builder()
+                                                .calledUserID(device.getDeviceName())
+                                                .toAuditInfo());
+                return;
+            }
+
+            writeSpoolFile(fileName, false, new AuditInfoBuilder.Builder()
+                                        .calledUserID(request.getRequestURI())
+                                        .callingUserID(KeycloakContext.valueOf(request).getUserName())
+                                        .callingHost(request.getRemoteAddr())
+                                        .toAuditInfo());
         } catch (Exception e) {
-            LOG.info("Failed to spool Application Activity [EventType={}]\n", event.getType(), e);
+            LOG.info("Failed to spool {}\n", event, e);
         }
     }
 
-    private void auditApplicationActivity(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        emitAuditMessage(
-                ApplicationActivityAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
+    private void spoolInstancesRejected(StoreContext ctx) {
+        StoreSession storeSession = ctx.getStoreSession();
+        boolean schedulerDeletedExpiredStudies = storeSession.getAssociation() == null
+                                                    && storeSession.getHttpRequest() == null;
+        String fileName = AuditUtils.EventType.forInstancesRejected(ctx).name();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        try {
+            List<AuditInfo> studyRejected = new ArrayList<>();
+            List<AuditInfo> sopInstancesRejected = sopInstancesRejectionNote(ctx.getAttributes());
+            if (schedulerDeletedExpiredStudies) {
+                studyRejected.add(new AuditInfoBuilder.Builder()
+                                        .callingUserID(device.getDeviceName())
+                                        .studyUIDAccNumDate(ctx.getAttributes(), arcDev)
+                                        .pIDAndName(ctx.getAttributes(), arcDev)
+                                        .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                        .warning(ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning())
+                                        .toAuditInfo());
+                studyRejected.addAll(sopInstancesRejected);
+                writeSpoolFile(fileName, false, studyRejected.toArray(new AuditInfo[0]));
+                return;
+            }
+
+            HttpServletRequestInfo httpServletRequestInfo = storeSession.getHttpRequest();
+            String callingUserID = httpServletRequestInfo == null
+                                    ? storeSession.getCallingAET() == null
+                                        ? storeSession.getLocalApplicationEntity().getAETitle()
+                                        : storeSession.getCallingAET()
+                                    : httpServletRequestInfo.requesterUserID;
+            String calledUserID = httpServletRequestInfo == null
+                                    ? storeSession.getCalledAET()
+                                    : httpServletRequestInfo.requestURIWithQueryStr();
+
+            studyRejected.add(new AuditInfoBuilder.Builder()
+                                    .callingUserID(callingUserID)
+                                    .callingHost(storeSession.getRemoteHostName())
+                                    .calledUserID(calledUserID)
+                                    .studyUIDAccNumDate(ctx.getAttributes(), arcDev)
+                                    .pIDAndName(ctx.getAttributes(), arcDev)
+                                    .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                    .warning(ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning())
+                                    .toAuditInfo());
+            studyRejected.addAll(sopInstancesRejected);
+            writeSpoolFile(fileName, false, studyRejected.toArray(new AuditInfo[0]));
+        } catch (Exception e) {
+            LOG.info("Failed to spool Instances Rejected {}\n", ctx.getStoreSession(), e);
+        }
     }
 
-    private void spoolInstancesDeleted(StoreContext ctx, String suffix) {
-        AuditUtils.EventType eventType = AuditUtils.EventType.forInstancesDeleted(ctx);
+    private void spoolPreviousInstancesDeleted(StoreContext ctx) {
+        StoreSession storeSession = ctx.getStoreSession();
+        Study prevStudy = ctx.getPreviousInstance().getSeries().getStudy();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String fileName = AuditUtils.EventType.forPreviousInstancesDeleted(ctx).name()
+                            + '-' + storeSession.getCallingAET()
+                            + '-' + storeSession.getCalledAET()
+                            + '-' + ctx.getStudyInstanceUID();
         try {
-            writeSpoolFile(eventType,suffix,
-                    DeletionAuditService.instancesDeletedAuditInfo(ctx, getArchiveDevice()));
+            List<AuditInfo> prevInstancesDeleted = new ArrayList<>();
+            prevInstancesDeleted.add(new AuditInfoBuilder.Builder()
+                                            .callingHost(storeSession.getRemoteHostName())
+                                            .callingUserID(storeSession.getCallingAET())
+                                            .calledUserID(storeSession.getCalledAET())
+                                            .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                            .studyUIDAccNumDate(prevStudy.getAttributes(), arcDev)
+                                            .pIDAndName(prevStudy.getPatient().getAttributes(), arcDev)
+                                            .toAuditInfo());
+            prevInstancesDeleted.add(new AuditInfoBuilder.Builder()
+                                            .sopCUID(ctx.getAttributes().getString(Tag.SOPClassUID))
+                                            .sopIUID(ctx.getAttributes().getString(Tag.SOPInstanceUID))
+                                            .toAuditInfo());
+            writeSpoolFile(fileName, true, prevInstancesDeleted.toArray(new AuditInfo[0]));
         } catch (Exception e) {
-            LOG.info("Failed to spool Instances Deleted [AuditEventType={}]\n", eventType, e);
+            LOG.info("Failed to spool previous instances deleted {}\n", storeSession, e);
         }
     }
 
     void spoolStudyDeleted(StudyDeleteContext ctx) {
-        AuditUtils.EventType eventType = AuditUtils.EventType.forStudyDeleted(ctx);
+        String fileName = AuditUtils.EventType.forStudyDeleted(ctx).name();
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        Study study = ctx.getStudy();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         try {
-            writeSpoolFile(eventType, null,
-                    DeletionAuditService.studyDeletedAuditInfo(ctx, getArchiveDevice()));
+            List<AuditInfo> studyDeleted = new ArrayList<>();
+            List<AuditInfo> sopInstancesDeleted = sopInstancesDeleted(ctx);
+            if (httpServletRequestInfo == null) {
+                studyDeleted.add(new AuditInfoBuilder.Builder()
+                                                .callingUserID(device.getDeviceName())
+                                                .studyUIDAccNumDate(study.getAttributes(), arcDev)
+                                                .pIDAndName(study.getPatient().getAttributes(), arcDev)
+                                                .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                                .toAuditInfo());
+                studyDeleted.addAll(sopInstancesDeleted);
+                writeSpoolFile(fileName, false, studyDeleted.toArray(new AuditInfo[0]));
+                return;
+            }
+
+            studyDeleted.add(new AuditInfoBuilder.Builder()
+                    .callingUserID(httpServletRequestInfo.requesterUserID)
+                    .callingHost(httpServletRequestInfo.requesterHost)
+                    .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
+                    .studyUIDAccNumDate(study.getAttributes(), arcDev)
+                    .pIDAndName(study.getPatient().getAttributes(), arcDev)
+                    .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                    .toAuditInfo());
+            studyDeleted.addAll(sopInstancesDeleted);
+            writeSpoolFile(fileName, false, studyDeleted.toArray(new AuditInfo[0]));
         } catch (Exception e) {
-            LOG.info("Failed to spool Study Deleted for [StudyIUID={}, AuditEventType={}]\n",
-                    ctx.getStudy().getStudyInstanceUID(), eventType, e);
+            LOG.info("Failed to spool Study Deleted for {}\n", ctx.getStudy(), e);
         }
+    }
+
+    private List<AuditInfo> sopInstancesDeleted(StudyDeleteContext ctx) {
+        List<AuditInfo> sopInstancesDeleted = new ArrayList<>();
+        ctx.getInstances().forEach(instance -> {
+            sopInstancesDeleted.add(new AuditInfoBuilder.Builder()
+                    .sopCUID(instance.getSopClassUID())
+                    .sopIUID(instance.getSopInstanceUID())
+                    .toAuditInfo());
+        });
+        return sopInstancesDeleted;
     }
 
     void spoolExternalRejection(RejectionNoteSent rejectionNoteSent) {
-        AuditUtils.EventType eventType = AuditUtils.EventType.forExternalRejection(rejectionNoteSent);
+        String fileName = AuditUtils.EventType.forExternalRejection(rejectionNoteSent).name();
+        Attributes attrs = rejectionNoteSent.getRejectionNote();
+        HttpServletRequest req = rejectionNoteSent.getRequest();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         try {
-            writeSpoolFile(eventType,null,
-                    DeletionAuditService.externalRejectionAuditInfo(rejectionNoteSent, getArchiveDevice()));
+            Attributes codeItem = attrs.getSequence(Tag.ConceptNameCodeSequence).get(0);
+            List<AuditInfo> studyRejectionNoteSent = new ArrayList<>();
+            studyRejectionNoteSent.add(new AuditInfoBuilder.Builder()
+                                        .callingUserID(KeycloakContext.valueOf(req).getUserName())
+                                        .callingHost(req.getRemoteHost())
+                                        .calledUserID(req.getRequestURI())
+                                        .destUserID(rejectionNoteSent.getRemoteAE().getAETitle())
+                                        .destNapID(rejectionNoteSent.getRemoteAE().getConnections().get(0).getHostname())
+                                        .outcome(rejectionNoteSent.getErrorComment())
+                                        .warning(codeItem.getString(Tag.CodeMeaning))
+                                        .studyUIDAccNumDate(attrs, arcDev)
+                                        .pIDAndName(attrs, arcDev)
+                                        .toAuditInfo());
+            studyRejectionNoteSent.addAll(sopInstancesRejectionNote(rejectionNoteSent.getRejectionNote()));
+            writeSpoolFile(fileName, false, studyRejectionNoteSent.toArray(new AuditInfo[0]));
+//            writeSpoolFile(eventType,null,
+//                    DeletionAuditService.externalRejectionAuditInfo(rejectionNoteSent, getArchiveDevice()));
         } catch (Exception e) {
-            LOG.info("Failed to spool External Rejection [AuditEventType={}]\n", eventType, e);
+            LOG.info("Failed to spool {}\n", rejectionNoteSent, e);
         }
     }
 
-    private void auditDeletion(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        emitAuditMessage(
-                DeletionAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
+    private List<AuditInfo> sopInstancesRejectionNote(Attributes attrs) {
+        List<AuditInfo> sopInstancesRejectionNoteSent = new ArrayList<>();
+        attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)
+                .forEach(studyRef ->
+                    studyRef.getSequence(Tag.ReferencedSeriesSequence).forEach(seriesRef ->
+                        seriesRef.getSequence(Tag.ReferencedSOPSequence).forEach(sopRef ->
+                                sopInstancesRejectionNoteSent.add(new AuditInfoBuilder.Builder()
+                                        .sopCUID(sopRef.getString(Tag.ReferencedSOPClassUID))
+                                        .sopIUID(sopRef.getString(Tag.ReferencedSOPInstanceUID))
+                                        .toAuditInfo())
+                        )
+                )
+        );
+        return sopInstancesRejectionNoteSent;
     }
 
     void spoolTaskEvent(TaskEvent taskEvent) {
@@ -484,7 +619,7 @@ public class AuditService {
 
             RejectionNote rejectionNote = ctx.getRejectionNote();
             if (rejectionNote != null && !rejectionNote.isRevokeRejection()) {
-                spoolInstancesDeleted(ctx, null);
+                spoolInstancesRejected(ctx);
                 return;
             }
 
@@ -507,6 +642,10 @@ public class AuditService {
     }
 
     private void spoolInstancesStored(StoreContext ctx) {
+        if (ctx.getPreviousInstance() != null
+                && ctx.getPreviousInstance().getSopInstanceUID().equals(ctx.getStoredInstance().getSopInstanceUID()))
+            spoolPreviousInstancesDeleted(ctx);
+
         StoreSession ss = ctx.getStoreSession();
         HttpServletRequestInfo httpServletRequestInfo = ss.getHttpRequest();
         String callingUserID = httpServletRequestInfo != null
@@ -550,9 +689,6 @@ public class AuditService {
                     + '-' + ctx.getStudyInstanceUID();
             suffix = outcome != null ? suffix.concat("_ERROR") : suffix;
             writeSpoolFile(AuditUtils.EventType.forInstanceStored(ctx), suffix, info, instanceInfo);
-            if (ctx.getPreviousInstance() != null
-                    && ctx.getPreviousInstance().getSopInstanceUID().equals(ctx.getStoredInstance().getSopInstanceUID()))
-                spoolInstancesDeleted(ctx, suffix);
             if (ctx.getImpaxReportPatientMismatch() != null) {
                 AuditInfoBuilder patMismatchInfo = infoBuilder
                         .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
@@ -1198,27 +1334,27 @@ public class AuditService {
                                 + "-" + qStarVerification.status
                                 + "-" + qStarVerification.seriesPk;
             Set<AuditInfo> auditInfos = new LinkedHashSet<>();
-            AuditInfo qStar = new AuditInfo(new AuditInfoBuilder.Builder()
-                                            .callingUserID(device.getDeviceName())
-                                            .calledUserID(qStarVerification.filePath)
-                                            .outcome(QStarVerificationAuditService.QStarAccessStateEventOutcome.fromQStarVerification(qStarVerification)
-                                                    .getDescription())
-                                            .studyIUID(qStarVerification.studyInstanceUID)
-                                            .unknownPID(arcDev)
-                                            .build());
+            AuditInfo qStar = new AuditInfoBuilder.Builder()
+                                    .callingUserID(device.getDeviceName())
+                                    .calledUserID(qStarVerification.filePath)
+                                    .outcome(QStarVerificationAuditService.QStarAccessStateEventOutcome.fromQStarVerification(qStarVerification)
+                                            .getDescription())
+                                    .studyIUID(qStarVerification.studyInstanceUID)
+                                    .unknownPID(arcDev)
+                                    .toAuditInfo();
             auditInfos.add(qStar);
             qStarVerification.sopRefs.forEach(sopRef ->
-                auditInfos.add(new AuditInfo(new AuditInfoBuilder.Builder()
-                                                .sopCUID(sopRef.sopClassUID)
-                                                .sopIUID(sopRef.sopInstanceUID)
-                                                .build())));
-            writeSpoolFile(fileName, auditInfos.toArray(new AuditInfo[0]));
+                auditInfos.add(new AuditInfoBuilder.Builder()
+                                    .sopCUID(sopRef.sopClassUID)
+                                    .sopIUID(sopRef.sopInstanceUID)
+                                    .toAuditInfo()));
+            writeSpoolFile(fileName, true, auditInfos.toArray(new AuditInfo[0]));
         } catch (Exception e) {
             LOG.info("Failed to spool {}", qStarVerification);
         }
     }
 
-    void writeSpoolFile(String fileName, AuditInfo... auditInfos) {
+    void writeSpoolFile(String fileName, boolean aggregate, AuditInfo... auditInfos) {
         if (auditInfos == null) {
             LOG.info("Attempt to write empty file : " + fileName);
             return;
@@ -1233,13 +1369,13 @@ public class AuditService {
             try {
                 Path dir = toDirPath(auditLogger);
                 Files.createDirectories(dir);
-                Path filePath = dir.resolve(fileName);
+                Path filePath = aggregate ? dir.resolve(fileName) : Files.createTempFile(dir, fileName, null);
                 boolean append = Files.exists(filePath);
                 try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(
                         filePath, StandardCharsets.UTF_8, append
                                                             ? StandardOpenOption.APPEND
                                                             : StandardOpenOption.CREATE_NEW))) {
-                    if (!append)
+                    if (!append || !aggregate)
                         writer.writeLine(auditInfos[0]);
 
                     for (int i = 1; i < auditInfos.length; i++)
@@ -1259,6 +1395,5 @@ public class AuditService {
             }
         }
     }
-
 
 }

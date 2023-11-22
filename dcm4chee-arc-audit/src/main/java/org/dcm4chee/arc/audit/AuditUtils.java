@@ -39,7 +39,7 @@
  */
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -48,10 +48,11 @@ import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
-import org.dcm4chee.arc.event.TaskOperation;
 import org.dcm4chee.arc.event.RejectionNoteSent;
+import org.dcm4chee.arc.event.TaskOperation;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -242,6 +243,23 @@ class AuditUtils {
                         ? RJ_SCH_FEW : RJ_PARTIAL;
         }
 
+        static EventType forPreviousInstancesDeleted(StoreContext ctx) {
+            Study storedStudy = ctx.getStoredInstance().getSeries().getStudy();
+            Study previousStudy = ctx.getPreviousInstance().getSeries().getStudy();
+            return storedStudy.getPk() == previousStudy.getPk() ? RJ_PARTIAL : RJ_COMPLET;
+        }
+
+        static EventType forInstancesRejected(StoreContext ctx) {
+            StoreSession storeSession = ctx.getStoreSession();
+            boolean isSchedulerDeletedExpiredStudies = storeSession.getAssociation() == null
+                                                        && storeSession.getHttpRequest() == null;
+            RejectionState rejectionState = ctx.getStoredInstance().getSeries().getStudy().getRejectionState();
+            if (rejectionState == RejectionState.PARTIAL)
+                return isSchedulerDeletedExpiredStudies ? RJ_SCH_FEW : RJ_PARTIAL;
+
+            return isSchedulerDeletedExpiredStudies ? PRMDLT_SCH : RJ_COMPLET;
+        }
+
         static EventType forStudyDeleted(StudyDeleteContext ctx) {
             return ctx.getHttpServletRequestInfo() != null ? RJ_COMPLET : PRMDLT_SCH;
         }
@@ -348,10 +366,13 @@ class AuditUtils {
 
         @Override
         public String toString() {
-            return "Audit Event Type[EventID = " + eventID +
-                    ", EventActionCode = " + eventActionCode +
-                    ", EventTypeCode = " + eventTypeCode +
-                    "]";
+            return "Audit Event Type[EventClass = " + eventClass
+                    + ", EventID = " + eventID
+                    + ", EventActionCode = " + eventActionCode
+                    + ", RoleIDSource = " + source
+                    + ", RoleIDDestination = " + destination
+                    + ", EventTypeCode = " + eventTypeCode
+                    + "]";
         }
     }
 
