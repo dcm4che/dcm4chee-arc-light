@@ -350,8 +350,6 @@ public class AuditService {
                                         .toAuditInfo());
             studyRejectionNoteSent.addAll(sopInstancesRejectionNote(rejectionNoteSent.getRejectionNote()));
             writeSpoolFile(fileName, false, studyRejectionNoteSent.toArray(new AuditInfo[0]));
-//            writeSpoolFile(eventType,null,
-//                    DeletionAuditService.externalRejectionAuditInfo(rejectionNoteSent, getArchiveDevice()));
         } catch (Exception e) {
             LOG.info("Failed to spool {}\n", rejectionNoteSent, e);
         }

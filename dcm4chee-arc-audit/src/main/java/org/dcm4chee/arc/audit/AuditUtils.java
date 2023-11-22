@@ -46,10 +46,9 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.RejectionState;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.event.TaskOperation;
@@ -225,22 +224,6 @@ class AuditUtils {
         static EventType forInstanceStored(StoreContext ctx) {
             return !ctx.getLocations().isEmpty() && ctx.getPreviousInstance() != null
                         ? STORE_UPDT : STORE_CREA;
-        }
-
-        static EventType forInstancesDeleted(StoreContext ctx) {
-            StoreSession storeSession = ctx.getStoreSession();
-            boolean isSchedulerDeletedExpiredStudies = storeSession.getAssociation() == null
-                                                        && storeSession.getHttpRequest() == null;
-            Instance storedInstance = ctx.getStoredInstance();
-            Instance previousInstance = ctx.getPreviousInstance();
-            return storedInstance.getSeries().getStudy().getRejectionState() == RejectionState.COMPLETE
-                    || (previousInstance != null
-                            && previousInstance.getSopInstanceUID().equals(storedInstance.getSopInstanceUID())
-                            && previousInstance.getSeries().getStudy().getPk() != storedInstance.getSeries().getStudy().getPk())
-                    ? isSchedulerDeletedExpiredStudies
-                        ? PRMDLT_SCH : RJ_COMPLET
-                    : isSchedulerDeletedExpiredStudies
-                        ? RJ_SCH_FEW : RJ_PARTIAL;
         }
 
         static EventType forPreviousInstancesDeleted(StoreContext ctx) {
