@@ -169,10 +169,24 @@
                               [multiSelectMode]="false"
                               [showStar]="line[index].showStar"
                       ></dcm-drop-down>
-                    <mat-select [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
+<!--                    <mat-select [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'select'" placeholder="{{line[index]?.placeholder}}" title="{{line[index]?.description}}">
                       <mat-option *ngIf="line[index].showStar" value="">*</mat-option>
                       <mat-option *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description || option.title}}" [innerHtml]="option.label || option.text"></mat-option>
-                    </mat-select>
+                    </mat-select>-->
+                      <dcm-drop-down
+                              [ngStyle]="line[index].style"
+                              *ngSwitchCase="'select'"
+                              [placeholder]="line[index]?.placeholder"
+                              [title]="line[index]?.description || ''"
+                              [ngClass]="line[index].cssClass"
+                              [options]="line[index].options"
+                              [(model)]="model[line[index].filterKey]"
+                              [optionsTree]="line[index].optionsTree"
+                              [showSearchField]="line[index].showSearchField"
+                              (modelChange)="filterChange($event)"
+                              [multiSelectMode]="false"
+                              [showStar]="line[index].showStar"
+                      ></dcm-drop-down>
                     <mat-radio-group [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'radio'">
                         <mat-radio-button *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description}}">{{option.text}}</mat-radio-button>
                     </mat-radio-group>
