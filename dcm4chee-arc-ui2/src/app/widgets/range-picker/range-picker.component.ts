@@ -93,7 +93,19 @@ export class RangePickerComponent implements OnInit {
     }
     setSingeDatePicker(mode, e){
         let format = this.dateFormat || "YYYYMMDD";
-        this[mode] = (<Moment>e.value).format(format);
+        try{
+            if (e) {
+                if (e.value) {
+                    this[mode] = (<Moment>e.value).format(format);
+                } else {
+                    this[mode] = j4care.formatDate(new Date(e),"yyyyMMdd");
+                }
+            }
+        }catch (e) {
+            console.error(e);
+        }
+        //this[mode] = (<Moment>e.value).format(format);
+        this.showPicker = false;
         this.setRange();
     }
     closeCalendar(clanedarName){
@@ -137,12 +149,8 @@ export class RangePickerComponent implements OnInit {
         this.showSelectOptions = false;
     }
     togglePicker(){
-        if(this.datePickerMode){
-            console.log("this.datePicker",this.picker);
-            this.picker.open();
-        }else{
-            this.showPicker = !this.showPicker;
-        }
+        console.log("showPicker", this.showPicker)
+        this.showPicker = !this.showPicker;
     }
     close(){
         this.showPicker = false;

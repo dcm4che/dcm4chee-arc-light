@@ -12,10 +12,37 @@
     .input_mask{
       border: none;
     }
+    .glyphicon-calendar{
+      color:white;
+    }
   }
   .original_input{
     position: relative;
-    top: -29px;
-    z-index: -17;
+    color: white !important;
+    left: -110px;
+    top: -2px;
+    &.date_picker_mode{
+      left: 0;
+    }
+
+  }
+  .hide_layer{
+    display: block;
+    width: 1px;
+    height: 1px;
+    color: white;
+    position: absolute;
+    overflow: hidden;
+  }
+  .icon_block{
+    background: #061d2f;
+    display: flex;
+    height: 25px;
+    width: 25px;
+    justify-content: center;
+    align-items: center;
+    &:hover{
+      cursor: pointer;
+    }
   }
 }

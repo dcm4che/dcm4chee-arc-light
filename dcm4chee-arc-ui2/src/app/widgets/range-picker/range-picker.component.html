@@ -22,7 +22,7 @@
         <span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>
     </div>
     <ng-container *ngIf="datePickerMode">
-        <mat-form-field class="example-full-width"  class="material_calendar single_date_mode"  [floatLabel]="'auto'">
+<!--        <mat-form-field class="example-full-width"  class="material_calendar single_date_mode"  [floatLabel]="'auto'">
             <input matInput
                    [matDatepicker]="picker"
                    i18n-placeholder="@@placeholder.date_formated" placeholder="Date (yyyymmdd)"
@@ -31,7 +31,17 @@
                    (dateChange)="setSingeDatePicker('singleDateModel', $event)"
             >
             <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
+        </mat-form-field>-->
+        <date-picker
+                *ngIf="showPicker"
+                [showPicker]="showPicker"
+                [model]="fromModel"
+                [format]="'yyyyMMdd'"
+                [datePickerMode]="datePickerMode"
+                placeholder="{{placeholder}}"
+                [returnAsDateType]="true"
+                (onValueSet)="setSingeDatePicker('singleDateModel', $event)"
+        ></date-picker>
     </ng-container>
     <ng-container *ngIf="!datePickerMode">
         <div class="picker" *ngIf="showPicker">
@@ -77,7 +87,7 @@
                                     showButtonBar="true"></p-calendar>-->
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
                 <span class="dash" *ngIf="mode != 'single'">-</span>
-                <div class="material_calendar">
+<!--                <div class="material_calendar">-->
 <!--                    <input type="date" [(ngModel)]="toModel">-->
                     <date-picker
                             *ngIf="mode === 'range' || mode === 'leftOpen'"
@@ -87,7 +97,7 @@
                             [returnAsDateType]="true"
                             (onValueSet)="addEvent('toModel', $event)"
                     ></date-picker>
-                </div>
+<!--                </div>-->
 <!--                    <mat-form-field class="material_calendar"  *ngIf="mode === 'range' || mode === 'leftOpen'"  [floatLabel]="'auto'">
                         <input matInput
                                [matDatepicker]="picker"

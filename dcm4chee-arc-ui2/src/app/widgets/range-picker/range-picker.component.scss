@@ -5,6 +5,12 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
   h5{
     font-size: 16px;
   }
+  .range_mode, .leftOpen_mode, .rightOpen_mode{
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: calc( 50% - 15px ) 30px calc( 50% - 15px );
+    height: 50px;
+  }
   .main_input_block{
     width: 100%;
     .main_input{
@@ -82,6 +88,11 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
     }
     .left{
       height: 50px;
+/*      display: grid;
+      grid-template-columns: 1fr 16px 1fr;
+      justify-content: center;
+      justify-items: center;*/
+/*      height: 50px;
       //float: left;
       //width:60%;
       display: -webkit-box;
@@ -91,10 +102,10 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
       display: flex;
       margin: 10px 0;
       -webkit-flex-flow: row wrap;
-      justify-content: space-around;
+      justify-content: space-around;*/
       .material_calendar{
         float: left;
-        width: 45%;
+        //width: 45%;
         input{
           border:none;
           border-bottom: 1px solid #cccccc;
@@ -135,7 +146,7 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
       }
       span.dash{
         display: inline-block;
-        width: 6%;
+        //width: 6%;
         height: 30px;
         text-align: center;
         line-height: 30px;

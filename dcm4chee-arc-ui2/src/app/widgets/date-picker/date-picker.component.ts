@@ -3,6 +3,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {Moment} from "moment/moment";
 import {RangeObject} from "../../interfaces";
 
+
 @Component({
   selector: 'date-picker',
   templateUrl: './date-picker.component.html',
@@ -27,9 +28,23 @@ export class DatePickerComponent implements OnInit{
   @Input() format:string;
   @Output() onValueSet = new EventEmitter();
   @Input() returnAsDateType:boolean = false;
-
+  @Input() datePickerMode:boolean = false;
+  dialogOpen:boolean;
+  private _showPicker:boolean;
+  get showPicker(): boolean {
+    return this._showPicker;
+  }
+  @Input()
+  set showPicker(value: boolean) {
+    console.log("in showpickerset",value);
+    this._showPicker = value;
+  }
   ngOnInit(): void {
     console.log("init date picker",this._model);
+    if(this.datePickerMode){
+      this.dialogOpen = true;
+      this.togglePicker(true);
+    }
   }
   setValues(value){
     try{
@@ -50,9 +65,16 @@ export class DatePickerComponent implements OnInit{
     }catch (e) {}
   }
 
-  togglePicker() {
-    console.log("this.pciker",this.datePicker);
-    this.datePicker.nativeElement.showPicker()
+  togglePicker(wait?:boolean) {
+    //console.log("this.pciker",this.datePicker);
+    this.dialogOpen = !this.dialogOpen;
+    if(wait){
+      setTimeout(()=>{
+        this.datePicker.nativeElement.showPicker()
+      },100)
+    }else{
+      this.datePicker.nativeElement.showPicker();
+    }
   }
 
 }
