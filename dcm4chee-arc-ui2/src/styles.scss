@@ -268,6 +268,11 @@ th {
 .text-danger{
   color: red;
 }
+.mat-mdc-dialog-container{
+  .mat-mdc-dialog-surface{
+    overflow:visible !important;
+  }
+}
 .table, table.table{
     &>tbody>tr>td,
     &>tbody>tr>th,
