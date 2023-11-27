@@ -51,6 +51,7 @@ export class DcmDropDownComponent implements OnInit {
     @Input() showSearchField:boolean = false;
     @Input() mixedMode:boolean = false;
     @Input() maxSelectedValueShown = 2;
+    @Input() showSelectedEmptyValue:boolean = false;
     private _options:SelectDropdown<any>[];
     @Input()
     set options(values:SelectDropdown<any>[]){

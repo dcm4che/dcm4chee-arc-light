@@ -4172,6 +4172,7 @@ export class Globalvar {
                 }, {
                     tag:"select",
                     filterKey:"includefield",
+                    showSelectedEmptyValue:true,
                     options:[
                         new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
                         new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
@@ -4354,6 +4355,7 @@ export class Globalvar {
                 }, {
                     tag:"select",
                     filterKey:"includefield",
+                    showSelectedEmptyValue:true,
                     options:[
                         new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
                         new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
@@ -4637,6 +4639,7 @@ export class Globalvar {
                 }, {
                     tag:"select",
                     filterKey:"includefield",
+                    showSelectedEmptyValue:true,
                     options:[
                         new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
                         new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
@@ -5070,6 +5073,7 @@ export class Globalvar {
             }, {
                 tag:"select",
                 filterKey:"includefield",
+                showSelectedEmptyValue:true,
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
                     new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
@@ -5358,6 +5362,7 @@ export class Globalvar {
             }, {
                 tag:"select",
                 filterKey:"includefield",
+                showSelectedEmptyValue:true,
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
                     new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
@@ -5837,6 +5842,7 @@ export class Globalvar {
             }, {
                 tag:"select",
                 filterKey:"includefield",
+                showSelectedEmptyValue:true,
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
                     new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
@@ -5955,6 +5961,7 @@ export class Globalvar {
             }, {
                 tag:"select",
                 filterKey:"includefield",
+                showSelectedEmptyValue:true,
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
                     new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)

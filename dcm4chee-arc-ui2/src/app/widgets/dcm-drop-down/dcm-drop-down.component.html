@@ -8,12 +8,14 @@
             <div class="selected_value" *ngIf="multiSelectValue.length > maxSelectedValueShown">( {{multiSelectValue.length}} ) selected</div>
             <div class="selected_value" *ngIf="multiSelectValue.length === 0">{{placeholder}}</div>
         </ng-container>
-        <ng-container *ngIf="!multiSelectMode && (selectedValue && selectedDropdown)">
-            <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && !editable">{{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}</div>
+        <ng-container *ngIf="!multiSelectMode && ((selectedValue || showSelectedEmptyValue) && selectedDropdown)">
+            <div class="selected_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && !editable">
+                {{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}
+            </div>
             <div class="selected_value" *ngIf="selectedDropdown && selectedDropdown.htmlLabel" [innerHTML]="selectedDropdown.htmlLabel"></div>
         </ng-container>
         <input class="edited_input_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && editable && !multiSelectMode" title="{{placeholder}}" placeholder="{{placeholder}}" min="{{min}}" max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
-      <div *ngIf="!(selectedValue && selectedDropdown) && !multiSelectMode && !editable" class="selected_value empty_field">{{placeholder}}</div>
+      <div *ngIf="!((selectedValue || showSelectedEmptyValue) && selectedDropdown) && !multiSelectMode && !editable" class="selected_value empty_field">{{placeholder}}</div>
     </div>
     <span class="glyphicon glyphicon-triangle-bottom"></span>
   </div>

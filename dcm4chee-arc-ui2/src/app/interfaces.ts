@@ -145,6 +145,7 @@ export interface FilterSchemaElement {
     showStar?:boolean;
     maxSelectedLabels?:number;
     showSearchField?:boolean;
+    showSelectedEmptyValue?:boolean;
     min?:number,
     max?:number,
     title?:string,
