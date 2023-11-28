@@ -1143,16 +1143,8 @@ public class RetrieveServiceImpl implements RetrieveService {
     public Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst)
             throws Exception {
         Attributes attrs;
-        attrs = loadMetadataFromJSONFile(ctx, inst);
-        if (attrs == null)
-            attrs = loadMetadataFromDicomFile(ctx, inst);
-
-        if (ctx.isUpdateSeriesMetadata()) {
-            coerceSeriesMetadata(ctx, inst, attrs);
-        } else {
-            getAttributesCoercion(ctx, inst).coerce(attrs, null);
-        }
-        return attrs;
+        return (attrs = loadMetadataFromJSONFile(ctx, inst)) != null ? attrs
+                : loadMetadataFromDicomFile(ctx, inst);
     }
 
     private Attributes loadMetadataFromJSONFile(RetrieveContext ctx, InstanceLocations inst) throws IOException {

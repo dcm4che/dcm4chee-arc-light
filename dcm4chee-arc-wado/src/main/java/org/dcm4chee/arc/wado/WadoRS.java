@@ -1629,23 +1629,28 @@ public class WadoRS {
     }
 
     private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws Exception {
-        Attributes metadata = inst.isContainsMetadata() ? inst.getAttributes() : service.loadMetadata(ctx, inst);
-        StringBuffer sb = device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request);
-        sb.setLength(sb.lastIndexOf("/metadata"));
-        mkInstanceURL(sb, inst);
+        List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
+        AttributesCoercion coerce;
+        boolean retrieveAsReceived;
+        if (coercions.isEmpty()) {
+            ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
+            retrieveAsReceived = rule != null && rule.isRetrieveAsReceived();
+            coerce = service.getAttributesCoercion(ctx, inst, rule);
+        } else {
+            retrieveAsReceived = ArchiveAttributeCoercion2.containsScheme(
+                    coercions, ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED);
+            coerce = service.getAttributesCoercion(ctx, inst, coercions);
+        }
+        Attributes metadata = inst.isContainsMetadata() && !retrieveAsReceived ? inst.getAttributes()
+                : service.loadMetadata(ctx, inst);
         if (ctx.getMetadataFilter() != null)
             metadata = new Attributes(metadata, ctx.getMetadataFilter().getSelection());
         else if (ctx.isWithoutPrivateAttributes())
             metadata.removePrivateAttributes();
+        StringBuffer sb = device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request);
+        sb.setLength(sb.lastIndexOf("/metadata"));
+        mkInstanceURL(sb, inst);
         setBulkdataURI(metadata, sb.toString());
-        List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
-        AttributesCoercion coerce;
-        if (coercions.isEmpty()) {
-            ArchiveAttributeCoercion rule = service.getArchiveAttributeCoercion(ctx, inst);
-            coerce = service.getAttributesCoercion(ctx, inst, rule);
-        } else {
-            coerce = service.getAttributesCoercion(ctx, inst, coercions);
-        }
         coerce.coerce(metadata, null);
         return metadata;
     }
