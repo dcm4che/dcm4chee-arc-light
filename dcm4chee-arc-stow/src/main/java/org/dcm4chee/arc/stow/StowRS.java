@@ -911,7 +911,10 @@ public class StowRS {
 
         static CompressedPixelData valueOf(MediaType mediaType) {
             return MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPEG_TYPE)
-                        || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JP2_TYPE) ? JPEG
+                        || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JP2_TYPE)
+                        || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPC_TYPE)
+                        || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPH_TYPE)
+                        || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPHC_TYPE) ? JPEG
                     : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MPEG_TYPE) ? MPEG
                     : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MP4_TYPE)
                         || MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_QUICKTIME_TYPE) ? MP4
