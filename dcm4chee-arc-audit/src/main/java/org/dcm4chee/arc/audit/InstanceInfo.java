@@ -67,7 +67,7 @@ class InstanceInfo {
                 k -> new HashSet<>()).add(info.getField(AuditInfo.SOP_IUID));
     }
 
-    String[] getMpps() {
+    String[] getMppsArray() {
         return mpps.toArray(new String[0]);
     }
 
@@ -95,6 +95,10 @@ class InstanceInfo {
         String studyDt = info.getField(AuditInfo.STUDY_DATE);
         if (studyDt != null)
             studyDate.add(studyDt);
+    }
+
+    public HashSet<String> getMpps() {
+        return mpps;
     }
 
     String getAccessionNo() {

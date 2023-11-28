@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
@@ -287,8 +288,10 @@ class AuditInfoBuilder {
             taskPOID = val;
             return this;
         }
-        Builder errorCode(int val) {
-            errorCode = val == 0 ? "0" : errorCodeAsString(val);
+        Builder errorCode(Exception e) {
+            errorCode = e instanceof DicomServiceException
+                            ? errorCodeAsString(((DicomServiceException) e).getStatus())
+                            : "0";
             return this;
         }
         Builder patMismatchCode(String val) {

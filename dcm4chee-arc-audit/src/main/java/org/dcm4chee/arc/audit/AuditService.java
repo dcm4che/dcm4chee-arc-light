@@ -56,10 +56,8 @@ import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
-import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -654,8 +652,8 @@ public class AuditService {
             }
 
             if (ctx.getAttributes() == null) {
-                LOG.info("Instances stored is not audited as store context attributes are not set. "
-                        + (ctx.getException() != null ? ctx.getException().getMessage() : null));
+                LOG.info("Instances stored is not audited as store context attributes are not set.\n",
+                        ctx.getException());
                 return;
             }
 
@@ -670,58 +668,152 @@ public class AuditService {
                 && ctx.getPreviousInstance().getSopInstanceUID().equals(ctx.getStoredInstance().getSopInstanceUID()))
             spoolPreviousInstancesDeleted(ctx);
 
-        StoreSession ss = ctx.getStoreSession();
-        HttpServletRequestInfo httpServletRequestInfo = ss.getHttpRequest();
-        String callingUserID = httpServletRequestInfo != null
-                ? httpServletRequestInfo.requesterUserID
-                : ss.getCallingAET() != null
-                ? ss.getCallingAET() : device.getDeviceName();
-        String calledUserID = httpServletRequestInfo != null
-                                ? requestURLWithQueryParams(httpServletRequestInfo)
-                                : ss.getCalledAET();
+        AuditUtils.EventType eventType = AuditUtils.EventType.forInstanceStored(ctx);
+        StoreSession storeSession = ctx.getStoreSession();
         try {
-            String outcome = ctx.getException() != null
-                    ? ctx.getRejectionNote() != null
-                    ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + '-' + ctx.getException().getMessage()
-                    : ctx.getException().getMessage()
-                    : null;
-
-            AuditInfoBuilder instanceInfo = new AuditInfoBuilder.Builder()
-                    .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
+            AuditInfo instanceInfo = new AuditInfoBuilder.Builder()
+                    .sopCUID(ctx.getSopClassUID())
+                    .sopIUID(ctx.getSopInstanceUID())
                     .mppsUID(ctx.getMppsInstanceUID())
-                    .outcome(outcome)
-                    .errorCode(ctx.getException() instanceof DicomServiceException
-                            ? ((DicomServiceException) ctx.getException()).getStatus() : 0)
-                    .build();
+                    .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                    .errorCode(ctx.getException())
+                    .toAuditInfo();
 
-            ArchiveDeviceExtension arcDev = getArchiveDevice();
-            Attributes attr = ctx.getAttributes();
-            AuditInfoBuilder.Builder infoBuilder = new AuditInfoBuilder.Builder()
-                    .callingHost(ss.getRemoteHostName())
-                    .callingUserID(callingUserID)
-                    .calledUserID(calledUserID)
-                    .impaxEndpoint(ss.getImpaxReportEndpoint())
-                    .studyUIDAccNumDate(attr, arcDev)
-                    .pIDAndName(attr, arcDev);
-            AuditInfoBuilder info = infoBuilder
-                    .warning(ctx.getRejectionNote() != null
-                            ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null)
-                    .build();
-
-            String suffix = '-' + callingUserID.replace('|', '-')
-                    + '-' + ctx.getStoreSession().getCalledAET()
-                    + '-' + ctx.getStudyInstanceUID();
-            suffix = outcome != null ? suffix.concat("_ERROR") : suffix;
-            writeSpoolFile(AuditUtils.EventType.forInstanceStored(ctx), suffix, info, instanceInfo);
-            if (ctx.getImpaxReportPatientMismatch() != null) {
-                AuditInfoBuilder patMismatchInfo = infoBuilder
-                        .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
-                        .build();
-                writeSpoolFile(AuditUtils.EventType.IMPAX_MISM, null, patMismatchInfo, instanceInfo);
+            if (storeSession.getImpaxReportEndpoint() != null) {
+                spoolInstancesStoredImpaxReport(instanceInfo, eventType, ctx);
+                return;
             }
+
+            if (storeSession.getHttpRequest() != null)
+                spoolInstancesStoredBySTOW(instanceInfo, eventType, ctx);
+            else if (storeSession.getUnparsedHL7Message() != null)
+                spoolInstancesStoredByHL7(instanceInfo, eventType, ctx);
+            else
+                spoolInstancesStoredByCStore(instanceInfo, eventType, ctx);
         } catch (Exception e) {
-            LOG.info("Failed to spool Instances Stored for [StudyIUID={}] triggered by [CallingUser={}]\n",
-                    ctx.getStudyInstanceUID(), callingUserID, e);
+            LOG.info("Failed to spool Instances Stored for [StudyIUID={}] triggered by {}\n",
+                    ctx.getStudyInstanceUID(), storeSession, e);
+        }
+    }
+
+    private void spoolInstancesStoredByCStore(AuditInfo instanceInfo, AuditUtils.EventType eventType, StoreContext ctx) {
+        StoreSession storeSession = ctx.getStoreSession();
+        Attributes attrs = ctx.getAttributes();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        AuditInfo auditInfo = new AuditInfoBuilder.Builder()
+                                    .callingHost(storeSession.getRemoteHostName())
+                                    .callingUserID(storeSession.getCallingAET())
+                                    .calledUserID(storeSession.getCalledAET())
+                                    .studyUIDAccNumDate(attrs, arcDev)
+                                    .pIDAndName(attrs, arcDev)
+                                    .toAuditInfo();
+        String fileName = eventType.name()
+                            + '-' + storeSession.getCallingAET()
+                            + '-' + storeSession.getCalledAET()
+                            + '-' + ctx.getStudyInstanceUID();
+        if (ctx.getException() != null)
+            fileName += "_ERROR";
+
+        writeSpoolFile(fileName, true, auditInfo, instanceInfo);
+    }
+
+    private void spoolInstancesStoredBySTOW(AuditInfo instanceInfo, AuditUtils.EventType eventType, StoreContext ctx) {
+        StoreSession storeSession = ctx.getStoreSession();
+        HttpServletRequestInfo httpServletRequestInfo = storeSession.getHttpRequest();
+        Attributes attrs = ctx.getAttributes();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        AuditInfo auditInfo = new AuditInfoBuilder.Builder()
+                                    .callingHost(storeSession.getRemoteHostName())
+                                    .callingUserID(httpServletRequestInfo.requesterUserID)
+                                    .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                                    .studyUIDAccNumDate(attrs, arcDev)
+                                    .pIDAndName(attrs, arcDev)
+                                    .toAuditInfo();
+        String fileName = eventType.name()
+                            + '-' + httpServletRequestInfo.requesterUserID
+                            + '-' + storeSession.getCalledAET()
+                            + '-' + ctx.getStudyInstanceUID();
+        if (ctx.getException() != null)
+            fileName += "_ERROR";
+
+        writeSpoolFile(fileName, true, auditInfo, instanceInfo);
+    }
+
+    private void spoolInstancesStoredByHL7(AuditInfo instanceInfo, AuditUtils.EventType eventType, StoreContext ctx) {
+        StoreSession storeSession = ctx.getStoreSession();
+        Attributes attrs = ctx.getAttributes();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        HL7Segment msh = storeSession.getUnparsedHL7Message().msh();
+        AuditInfo auditInfo = new AuditInfoBuilder.Builder()
+                                    .callingHost(storeSession.getRemoteHostName())
+                                    .callingUserID(msh.getSendingApplicationWithFacility())
+                                    .calledUserID(msh.getReceivingApplicationWithFacility())
+                                    .studyUIDAccNumDate(attrs, arcDev)
+                                    .pIDAndName(attrs, arcDev)
+                                    .toAuditInfo();
+        String fileName = eventType.name()
+                            + '-' + msh.getSendingApplicationWithFacility().replace('|', '-')
+                            + '-' + msh.getReceivingApplicationWithFacility().replace('|', '-')
+                            + '-' + ctx.getStudyInstanceUID();
+        if (ctx.getException() != null)
+            fileName += "_ERROR";
+
+        writeSpoolFile(fileName, true, auditInfo, instanceInfo);
+    }
+
+    private void spoolInstancesStoredImpaxReport(AuditInfo instanceInfo, AuditUtils.EventType eventType, StoreContext ctx) {
+        StoreSession storeSession = ctx.getStoreSession();
+        HttpServletRequestInfo httpServletRequestInfo = storeSession.getHttpRequest();
+        Attributes attrs = ctx.getAttributes();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+
+        AuditInfo auditInfoStore = httpServletRequestInfo == null
+                                    ? new AuditInfoBuilder.Builder()
+                                        .callingUserID(device.getDeviceName())
+                                        .calledUserID(storeSession.getCalledAET())
+                                        .studyUIDAccNumDate(attrs, arcDev)
+                                        .pIDAndName(attrs, arcDev)
+                                        .impaxEndpoint(storeSession.getImpaxReportEndpoint())
+                                        .toAuditInfo()
+                                    : new AuditInfoBuilder.Builder()
+                                        .callingHost(storeSession.getRemoteHostName())
+                                        .callingUserID(httpServletRequestInfo.requesterUserID)
+                                        .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                                        .studyUIDAccNumDate(attrs, arcDev)
+                                        .pIDAndName(attrs, arcDev)
+                                        .impaxEndpoint(storeSession.getImpaxReportEndpoint())
+                                        .toAuditInfo();
+
+        String fileName = eventType.name()
+                            + '-' + (httpServletRequestInfo == null
+                                        ? device.getDeviceName()
+                                        : httpServletRequestInfo.requesterUserID)
+                            + '-' + storeSession.getCalledAET()
+                            + '-' + ctx.getStudyInstanceUID();
+        if (ctx.getException() != null)
+            fileName += "_ERROR";
+
+        writeSpoolFile(fileName, true, auditInfoStore, instanceInfo);
+        if (ctx.getImpaxReportPatientMismatch() != null) {
+            AuditInfo auditInfoPatientMismatch = httpServletRequestInfo == null
+                                                    ? new AuditInfoBuilder.Builder()
+                                                        .callingUserID(device.getDeviceName())
+                                                        .calledUserID(storeSession.getCalledAET())
+                                                        .studyUIDAccNumDate(attrs, arcDev)
+                                                        .pIDAndName(attrs, arcDev)
+                                                        .impaxEndpoint(storeSession.getImpaxReportEndpoint())
+                                                        .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
+                                                        .toAuditInfo()
+                                                    : new AuditInfoBuilder.Builder()
+                                                        .callingHost(storeSession.getRemoteHostName())
+                                                        .callingUserID(httpServletRequestInfo.requesterUserID)
+                                                        .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                                                        .studyUIDAccNumDate(attrs, arcDev)
+                                                        .pIDAndName(attrs, arcDev)
+                                                        .impaxEndpoint(storeSession.getImpaxReportEndpoint())
+                                                        .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
+                                                        .toAuditInfo();
+            writeSpoolFile(AuditUtils.EventType.IMPAX_MISM.name(), false, auditInfoPatientMismatch, instanceInfo);
         }
     }
 
@@ -841,13 +933,7 @@ public class AuditService {
             return;
         }
 
-        SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        AuditMessage auditMsg = AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType, auditLogger));
-        emitAuditMessage(auditMsg, auditLogger);
+        StoreAuditService.auditStore(auditLogger, path, eventType);
     }
 
     private void auditWADORetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
@@ -1176,20 +1262,13 @@ public class AuditService {
 
     private byte[] limitHL7MsgInAudit(UnparsedHL7Message unparsedHL7Msg, HL7ConnectionEvent.Type type) {
         HL7Segment msh = unparsedHL7Msg.msh();
-        HL7Application hl7App = device.getDeviceExtensionNotNull(HL7DeviceExtension.class)
-                .getHL7Application(type == HL7ConnectionEvent.Type.MESSAGE_PROCESSED
-                                    ? msh.getReceivingApplicationWithFacility()
-                                    : msh.getSendingApplicationWithFacility(),
-                        true);
-        ArchiveHL7ApplicationExtension arcHL7App;
-        int auditHL7MsgLimit = hl7App == null
-                                || ((arcHL7App = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)) == null)
-                                    ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getAuditHL7MsgLimit()
-                                    : arcHL7App.auditHL7MsgLimit();
-        return truncateHL7(unparsedHL7Msg, auditHL7MsgLimit);
-    }
-
-    private byte[] truncateHL7(UnparsedHL7Message unparsedHL7Msg, int auditHL7MsgLimit) {
+        int auditHL7MsgLimit = device.getDeviceExtension(HL7DeviceExtension.class)
+                                     .getHL7Application(type == HL7ConnectionEvent.Type.MESSAGE_PROCESSED
+                                                                ? msh.getReceivingApplicationWithFacility()
+                                                                : msh.getSendingApplicationWithFacility(),
+                     true)
+                                     .getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)
+                                     .auditHL7MsgLimit();
         byte[] data = unparsedHL7Msg.data();
         if (data.length <= auditHL7MsgLimit)
             return data;

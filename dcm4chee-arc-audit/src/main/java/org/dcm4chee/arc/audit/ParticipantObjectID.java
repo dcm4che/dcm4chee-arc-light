@@ -238,7 +238,7 @@ class ParticipantObjectID {
                                 entry.getValue().size()))
                         .toArray(SOPClass[]::new))
                 .acc(instanceInfo.getAcc())
-                .mpps(instanceInfo.getMpps());
+                .mpps(instanceInfo.getMppsArray());
     }
 
     static ParticipantObjectIdentification taskParticipant(AuditInfo auditInfo) {
