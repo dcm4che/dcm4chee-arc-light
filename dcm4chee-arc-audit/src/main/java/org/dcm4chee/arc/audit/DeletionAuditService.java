@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  */
 class DeletionAuditService extends AuditService {
 
-    static void auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);

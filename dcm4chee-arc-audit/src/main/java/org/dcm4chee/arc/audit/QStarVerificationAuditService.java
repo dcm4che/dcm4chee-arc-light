@@ -113,8 +113,7 @@ class QStarVerificationAuditService extends AuditService {
         }
     }
 
-    static void auditQStarVerification(
-            AuditLogger auditLogger, Path path, EventType eventType, ArchiveDeviceExtension arcDev) {
+    static void audit(AuditLogger auditLogger, Path path, EventType eventType, ArchiveDeviceExtension arcDev) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
