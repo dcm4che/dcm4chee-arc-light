@@ -120,7 +120,10 @@ class ApplicationActivityAuditService extends AuditService {
                 AuditMessages.isIP(personOrProcessID)
                     ? AuditMessages.UserIDTypeCode.NodeID
                     : AuditMessages.UserIDTypeCode.PersonID);
-        personOrProcess.setUserTypeCode(AuditMessages.UserTypeCode.Person);
+        personOrProcess.setUserTypeCode(
+                AuditMessages.isIP(personOrProcessID)
+                    ? AuditMessages.UserTypeCode.Application
+                    : AuditMessages.UserTypeCode.Person);
         personOrProcess.getRoleIDCode().add(eventType.source);
         return personOrProcess;
     }
