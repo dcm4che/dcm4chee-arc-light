@@ -130,20 +130,21 @@ public class AuditService {
         }
         switch (eventType.eventClass) {
             case APPLN_ACTIVITY:
-                ApplicationActivityAuditService.auditMsg(auditLogger, path, eventType);
+                ApplicationActivityAuditService.audit(auditLogger, path, eventType);
                 break;
             case CONN_FAILURE:
                 auditConnectionFailure(auditLogger, path, eventType);
                 break;
             case STORE_WADOR:
-                auditStoreOrWADORetrieve(auditLogger, path, eventType);
+                if (eventType.name().startsWith("WADO")) auditWADORetrieve(auditLogger, path, eventType);
+                else StoreAuditService.audit(auditLogger, path, eventType);
                 break;
             case RETRIEVE:
                 auditRetrieve(auditLogger, path, eventType);
                 break;
             case USER_DELETED:
             case SCHEDULER_DELETED:
-                DeletionAuditService.auditMsg(auditLogger, path, eventType);
+                DeletionAuditService.audit(auditLogger, path, eventType);
                 break;
             case QUERY:
                 auditQuery(auditLogger, path, eventType);
@@ -179,7 +180,7 @@ public class AuditService {
                 auditAssociationFailure(auditLogger, path, eventType);
                 break;
             case QSTAR:
-                QStarVerificationAuditService.auditQStarVerification(auditLogger, path, eventType, getArchiveDevice());
+                QStarVerificationAuditService.audit(auditLogger, path, eventType, getArchiveDevice());
                 break;
         }
     }
@@ -892,48 +893,6 @@ public class AuditService {
         return httpServletRequestInfo.queryString == null
                 ? httpServletRequestInfo.requestURI
                 : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
-    }
-
-    private void auditStoreError(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-
-        InstanceInfo instanceInfo = new InstanceInfo();
-        HashSet<String> outcome = new HashSet<>();
-        HashSet<AuditMessages.EventTypeCode> errorCode = new HashSet<>();
-
-        instanceInfo.addAcc(auditInfo);
-        reader.getInstanceLines().forEach(line -> {
-            AuditInfo info = new AuditInfo(line);
-            outcome.add(info.getField(AuditInfo.OUTCOME));
-            AuditMessages.EventTypeCode errorEventTypeCode = AuditUtils.errorEventTypeCode(info.getField(AuditInfo.ERROR_CODE));
-            if (errorEventTypeCode != null)
-                errorCode.add(errorEventTypeCode);
-
-            instanceInfo.addSOPInstance(info);
-            instanceInfo.addMpps(info);
-        });
-
-        AuditMessage auditMsg = AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, outcome, errorCode),
-                storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
-                ParticipantObjectID.studyPatParticipants(auditInfo, instanceInfo));
-        emitAuditMessage(auditMsg, auditLogger);
-    }
-
-    private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        if (path.toFile().getName().endsWith("_ERROR")) {
-            auditStoreError(auditLogger, path, eventType);
-            return;
-        }
-
-        if (eventType.name().startsWith("WADO")) {
-            auditWADORetrieve(auditLogger, path, eventType);
-            return;
-        }
-
-        StoreAuditService.auditStore(auditLogger, path, eventType);
     }
 
     private void auditWADORetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {

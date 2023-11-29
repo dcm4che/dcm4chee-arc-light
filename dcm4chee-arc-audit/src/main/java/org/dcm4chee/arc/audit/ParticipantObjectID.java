@@ -146,20 +146,6 @@ class ParticipantObjectID {
     }
 
     static ParticipantObjectIdentification[] studyPatParticipants(
-            AuditInfo auditInfo, InstanceInfo instanceInfo) {
-        ParticipantObjectIdentification[] studyPatParticipants = new ParticipantObjectIdentification[2];
-        studyPatParticipants[0] = studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
-                                    .detail(AuditMessages.createParticipantObjectDetail(
-                                            "StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
-                                    .desc(participantObjDesc(instanceInfo, true)
-                                            .build())
-                                    .lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation)
-                                    .build();
-        studyPatParticipants[1] = patientPOIBuilder(auditInfo).build();
-        return studyPatParticipants;
-    }
-
-    static ParticipantObjectIdentification[] studyPatParticipants(
             AuditInfo auditInfo, SpoolFileReader reader, AuditLogger auditLogger) {
         InstanceInfo instanceInfo = new InstanceInfo();
         instanceInfo.addAcc(auditInfo);

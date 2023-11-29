@@ -54,11 +54,9 @@ import java.util.stream.Collectors;
  */
 class StoreAuditService extends AuditService {
 
-    static void auditStore(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentification eventIdentification = getEventIdentification(eventType);
-        eventIdentification.setEventDateTime(AuditService.getEventTime(path, auditLogger));
 
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
         activeParticipants.add(archive(auditInfo, eventType, auditLogger));
@@ -67,7 +65,16 @@ class StoreAuditService extends AuditService {
         if (auditInfo.getField(AuditInfo.IMPAX_ENDPOINT) != null)
             activeParticipants.add(impax(auditInfo, eventType));
 
-        ParticipantObjectIdentification study = study(auditInfo, reader, auditLogger.isIncludeInstanceUID());
+        boolean error = path.toFile().getName().endsWith("_ERROR");
+        InstanceInfo instanceInfo = error
+                                        ? instanceInfoForError(auditInfo, reader)
+                                        : instanceInfo(auditInfo, reader);
+        EventIdentification eventIdentification = error
+                                                    ? getEventIdentificationForError(eventType, instanceInfo)
+                                                    : getEventIdentification(eventType);
+        eventIdentification.setEventDateTime(AuditService.getEventTime(path, auditLogger));
+
+        ParticipantObjectIdentification study = study(auditInfo, instanceInfo, auditLogger.isIncludeInstanceUID());
         ParticipantObjectIdentification patient = patient(auditInfo);
         emitAuditMessage(auditLogger, eventIdentification, activeParticipants, study, patient);
     }
@@ -77,6 +84,16 @@ class StoreAuditService extends AuditService {
         ei.setEventID(eventType.eventID);
         ei.setEventActionCode(eventType.eventActionCode);
         ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+        return ei;
+    }
+
+    private static EventIdentification getEventIdentificationForError(AuditUtils.EventType eventType, InstanceInfo instanceInfo) {
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(eventType.eventID);
+        ei.setEventActionCode(eventType.eventActionCode);
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.MinorFailure);
+        ei.setEventOutcomeDescription(String.join("\n", instanceInfo.getOutcomes()));
+        ei.getEventTypeCode().addAll(instanceInfo.getErrorCodes());
         return ei;
     }
 
@@ -156,7 +173,7 @@ class StoreAuditService extends AuditService {
         return impax;
     }
 
-    private static ParticipantObjectIdentification study(AuditInfo auditInfo, SpoolFileReader reader, boolean showSOPIUIDs) {
+    private static ParticipantObjectIdentification study(AuditInfo auditInfo, InstanceInfo instanceInfo, boolean showSOPIUIDs) {
         ParticipantObjectIdentification study = new ParticipantObjectIdentification();
         study.setParticipantObjectID(auditInfo.getField(AuditInfo.STUDY_UID));
         study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
@@ -164,7 +181,6 @@ class StoreAuditService extends AuditService {
         study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
         study.getParticipantObjectDetail()
                 .add(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
-        InstanceInfo instanceInfo = instanceInfo(auditInfo, reader);
         study.setParticipantObjectDescription(studyParticipantObjDesc(instanceInfo, showSOPIUIDs));
         study.setParticipantObjectDataLifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation);
         return study;
@@ -175,6 +191,22 @@ class StoreAuditService extends AuditService {
         instanceInfo.setAccessionNo(auditInfo.getField(AuditInfo.ACC_NUM));
         reader.getInstanceLines().forEach(instanceLine -> {
             AuditInfo info = new AuditInfo(instanceLine);
+            instanceInfo.addMpps(info);
+            instanceInfo.addSOPInstance(info);
+        });
+        return instanceInfo;
+    }
+
+    private static InstanceInfo instanceInfoForError(AuditInfo auditInfo, SpoolFileReader reader) {
+        InstanceInfo instanceInfo = new InstanceInfo();
+        instanceInfo.setAccessionNo(auditInfo.getField(AuditInfo.ACC_NUM));
+        reader.getInstanceLines().forEach(instanceLine -> {
+            AuditInfo info = new AuditInfo(instanceLine);
+            instanceInfo.getOutcomes().add(info.getField(AuditInfo.OUTCOME));
+            AuditMessages.EventTypeCode errorEventTypeCode = AuditUtils.errorEventTypeCode(info.getField(AuditInfo.ERROR_CODE));
+            if (errorEventTypeCode != null)
+                instanceInfo.getErrorCodes().add(errorEventTypeCode);
+            
             instanceInfo.addMpps(info);
             instanceInfo.addSOPInstance(info);
         });

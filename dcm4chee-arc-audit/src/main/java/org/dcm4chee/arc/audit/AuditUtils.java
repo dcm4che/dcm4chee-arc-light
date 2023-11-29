@@ -370,72 +370,51 @@ class AuditUtils {
     }
 
     static AuditMessages.EventTypeCode errorEventTypeCode(String errorCode) {
-        AuditMessages.EventTypeCode errorEventTypeCode = null;
         switch (errorCode) {
             case "0":
                 break;
             case "x0110":
-                errorEventTypeCode = AuditMessages.EventTypeCode.x0110;
-                break;
+                return AuditMessages.EventTypeCode.x0110;
             case "x0118":
-                errorEventTypeCode = AuditMessages.EventTypeCode.x0118;
-                break;
+                return AuditMessages.EventTypeCode.x0118;
             case "x0122":
-                errorEventTypeCode = AuditMessages.EventTypeCode.x0122;
-                break;
+                return AuditMessages.EventTypeCode.x0122;
             case "x0124":
-                errorEventTypeCode = AuditMessages.EventTypeCode.x0124;
-                break;
+                return AuditMessages.EventTypeCode.x0124;
             case "x0211":
-                errorEventTypeCode = AuditMessages.EventTypeCode.x0211;
-                break;
+                return AuditMessages.EventTypeCode.x0211;
             case "x0212":
-                errorEventTypeCode = AuditMessages.EventTypeCode.x0212;
-                break;
+                return AuditMessages.EventTypeCode.x0212;
             case "A700":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A700;
-                break;
+                return AuditMessages.EventTypeCode.A700;
             case "A770":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A770;
-                break;
+                return AuditMessages.EventTypeCode.A770;
             case "A771":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A771;
-                break;
+                return AuditMessages.EventTypeCode.A771;
             case "A772":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A772;
-                break;
+                return AuditMessages.EventTypeCode.A772;
             case "A773":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A773;
-                break;
+                return AuditMessages.EventTypeCode.A773;
             case "A774":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A774;
-                break;
+                return AuditMessages.EventTypeCode.A774;
             case "A775":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A775;
-                break;
+                return AuditMessages.EventTypeCode.A775;
             case "A776":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A776;
-                break;
+                return AuditMessages.EventTypeCode.A776;
             case "A777":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A777;
-                break;
+                return AuditMessages.EventTypeCode.A777;
             case "A778":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A778;
-                break;
+                return AuditMessages.EventTypeCode.A778;
             case "A779":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A779;
-                break;
+                return AuditMessages.EventTypeCode.A779;
             case "A900":
-                errorEventTypeCode = AuditMessages.EventTypeCode.A900;
-                break;
+                return AuditMessages.EventTypeCode.A900;
             case "C409":
-                errorEventTypeCode = AuditMessages.EventTypeCode.C409;
-                break;
+                return AuditMessages.EventTypeCode.C409;
             default:
                 LOG.info("Unknown DICOM error code {}", errorCode);
         }
-
-        return errorEventTypeCode;
+        return null;
     }
 
 }

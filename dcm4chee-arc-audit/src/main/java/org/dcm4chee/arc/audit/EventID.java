@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Calendar;
-import java.util.HashSet;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -72,29 +71,6 @@ class EventID {
                 event.outcomeIndicator)
                 .outcomeDesc(event.outcomeDescription)
                 .eventTypeCode(event.eventTypeCode)
-                .build();
-    }
-
-    static EventIdentification toEventIdentification(AuditUtils.EventType eventType) {
-        return new EventIdentificationBuilder(
-                eventType.eventID,
-                eventType.eventActionCode,
-                null,
-                AuditMessages.EventOutcomeIndicator.Success)
-                .eventTypeCode(eventType.eventTypeCode)
-                .build();
-    }
-
-    static EventIdentification toEventIdentification(
-            AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, HashSet<String> outcome,
-            HashSet<AuditMessages.EventTypeCode> errorCode) {
-        return new EventIdentificationBuilder(
-                eventType.eventID,
-                eventType.eventActionCode,
-                getEventTime(path, auditLogger),
-                AuditMessages.EventOutcomeIndicator.MinorFailure)
-                .outcomeDesc(String.join("\n", outcome))
-                .eventTypeCode(errorCode.toArray(new AuditMessages.EventTypeCode[0]))
                 .build();
     }
 

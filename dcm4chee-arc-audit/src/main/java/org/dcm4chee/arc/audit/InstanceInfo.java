@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.AuditMessages;
+
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -52,6 +54,8 @@ class InstanceInfo {
     private HashSet<String> mpps = new HashSet<>();
     private HashSet<String> acc = new HashSet<>();
     private HashSet<String> studyDate = new HashSet<>();
+    HashSet<String> outcomes = new HashSet<>();
+    HashSet<AuditMessages.EventTypeCode> errorCodes = new HashSet<>();
 
     private String accessionNo;
 
@@ -108,4 +112,13 @@ class InstanceInfo {
     void setAccessionNo(String accessionNo) {
         this.accessionNo = accessionNo;
     }
+
+    HashSet<String> getOutcomes() {
+        return outcomes;
+    }
+
+    HashSet<AuditMessages.EventTypeCode> getErrorCodes() {
+        return errorCodes;
+    }
+
 }
