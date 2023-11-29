@@ -75,14 +75,10 @@ class ApplicationActivityAuditService extends AuditService {
     }
 
     private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
-        String outcomeDesc = auditInfo.getField(AuditInfo.OUTCOME);
         EventIdentification ei = new EventIdentification();
         ei.setEventID(eventType.eventID);
         ei.setEventActionCode(eventType.eventActionCode);
-        ei.setEventOutcomeDescription(outcomeDesc);
-        ei.setEventOutcomeIndicator(outcomeDesc == null
-                ? AuditMessages.EventOutcomeIndicator.Success
-                : AuditMessages.EventOutcomeIndicator.MinorFailure);
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
         ei.getEventTypeCode().add(eventType.eventTypeCode);
         return ei;
     }
