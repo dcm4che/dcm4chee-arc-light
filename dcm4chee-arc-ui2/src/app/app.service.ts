@@ -255,6 +255,9 @@ export class AppService implements OnInit, OnDestroy{
             detail = detail + `Too many duplicates for: ` + tooManyDuplicates;
         }
 
+        if (detail == '') //no content response from server
+            detail = "No matching patient identifier found for supplementing issuer";
+
         if (failures  != '' || ambiguous != '' || tooManyDuplicates != '') {
             if (successful != '')
                 this.showWarning(detail);
