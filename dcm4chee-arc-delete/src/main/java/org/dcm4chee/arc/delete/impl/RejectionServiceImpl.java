@@ -130,6 +130,7 @@ public class RejectionServiceImpl implements org.dcm4chee.arc.delete.RejectionSe
         String changeRequesterAET = ae.getAEExtension(ArchiveAEExtension.class).changeRequesterAET();
         StoreSession storeSession = storeService.newStoreSession(httpRequest, ae, aet,
                 changeRequesterAET != null ? changeRequesterAET : ae.getAETitle());
+        storeSession.setSkipStorePermission(true);
         String rejectionNoteObjectStorageID = rejectionNoteObjectStorageID(storeSession);
         storeSession.withObjectStorageID(rejectionNoteObjectStorageID);
         storeService.restoreInstances(storeSession, studyIUID, seriesIUID, null, null);

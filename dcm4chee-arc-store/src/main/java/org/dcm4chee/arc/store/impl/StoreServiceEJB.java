@@ -1307,6 +1307,7 @@ public class StoreServiceEJB {
 
     private void checkStorePermission(StoreContext ctx, Patient pat) throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
+        if (session.isSkipStorePermission()) return;
         String serviceURL = session.getArchiveAEExtension().storePermissionServiceURL();
         if (serviceURL == null) {
             emulateStorePermissionResponse(ctx, pat);

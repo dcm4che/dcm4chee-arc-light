@@ -98,6 +98,7 @@ class StoreSessionImpl implements StoreSession {
     private Attributes.UpdatePolicy patientUpdatePolicy;
     private Attributes.UpdatePolicy studyUpdatePolicy;
     private String impaxReportEndpoint;
+    boolean skipStorePermission;
 
     StoreSessionImpl(StoreService storeService) {
         this.serialNo = prevSerialNo.incrementAndGet();
@@ -406,4 +407,15 @@ class StoreSessionImpl implements StoreSession {
     public void setImpaxReportEndpoint(String impaxReportEndpoint) {
         this.impaxReportEndpoint = impaxReportEndpoint;
     }
+
+    @Override
+    public boolean isSkipStorePermission() {
+        return skipStorePermission;
+    }
+
+    @Override
+    public void setSkipStorePermission(boolean skipStorePermission) {
+        this.skipStorePermission = skipStorePermission;
+    }
+
 }

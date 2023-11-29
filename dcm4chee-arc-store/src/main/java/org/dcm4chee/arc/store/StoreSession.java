@@ -143,4 +143,8 @@ public interface StoreSession extends Closeable {
     String getImpaxReportEndpoint();
 
     void setImpaxReportEndpoint(String impaxReportEndpoint);
+
+    boolean isSkipStorePermission();
+
+    void setSkipStorePermission(boolean skipStorePermission);
 }
