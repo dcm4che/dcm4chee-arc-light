@@ -210,7 +210,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("export_multiple_study",$localize `:@@study.export_multiple:Export matching studies`),
             new SelectDropdown("apply_retention_multiple_series",$localize `:@@study.apply_retention_multiple_series:Apply retention policy to matching series`),
             new SelectDropdown("export_multiple_series",$localize `:@@study.export_multiple_series:Export matching series`),
-            new SelectDropdown("reject_multifple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
+            new SelectDropdown("reject_multiple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
             new SelectDropdown("reject_multiple_series",$localize `:@@study.reject_multiple_series:Reject matching series`),
             new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
             new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
