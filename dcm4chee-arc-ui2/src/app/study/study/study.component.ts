@@ -1629,7 +1629,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 const errorCount = res.filter((result:any)=>result && result.isError).length;
                                 if(errorCount > 0){
                                     this.appService.showMsg($localize `:@@mwl.process_executed_successfully_detailed:Process executed successfully:<br>\nErrors: ${errorCount}:error:
-<br>\nSuccessful: ${res.length - errorCount}:@@successful:`);
+<br>\nSuccessful: ${res.length - errorCount}:successful:`);
                                 }else{
                                     this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
                                 }

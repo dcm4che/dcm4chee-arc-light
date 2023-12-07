@@ -81,7 +81,7 @@ export class RetrieveMonitoringService {
                 text:$localize `:@@SCHEDULED_FOR_RETRY:SCHEDULED FOR RETRY`,
             },
             {
-                value:$localize `IN PROCESS`,
+                value:$localize `:@@in_process:IN PROCESS`,
                 text:$localize `:@@in_process:IN PROCESS`
             },
             {

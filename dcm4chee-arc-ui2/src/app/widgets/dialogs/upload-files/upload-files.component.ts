@@ -208,7 +208,7 @@ export class UploadFilesComponent implements OnInit {
     private setDicomObject(fileTypeOrExt, file0){
         if(fileTypeOrExt === "application/dicom" && this.selectedWebApp && this.selectedWebApp.dcmWebServiceClass && this.selectedWebApp.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") === -1){
             this.neededClassMissing = true;
-            this.mainservice.showError($localize `:@@selected_webapp_doesent_have_the_webapp_class:The selected WebApp doesn't have the webapp class ${'DCM4CHEE_ARC_AET'}:@@webAppServiceClass:`);
+            this.mainservice.showError($localize `:@@selected_webapp_doesent_have_the_webapp_class:The selected WebApp doesn't have the webapp class ${'DCM4CHEE_ARC_AET'}:webAppServiceClass:`);
         }else{
             if(file0 && (file0.type === "image/jpeg"
                             || file0.type === "image/jp2"
