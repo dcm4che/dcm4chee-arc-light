@@ -131,7 +131,7 @@ export class QueuesService{
             },
             {
                 value:"SCHEDULED FOR RETRY",
-                text:$localize `:@@SCHEDULED_FOR_RETRY:SCHEDULED FOR RETRY`
+                text:$localize `:@@S_FOR_RETRY:S. FOR RETRY`
             },
             {
                 value:"IN PROCESS",

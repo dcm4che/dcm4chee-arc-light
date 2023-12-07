@@ -25,7 +25,8 @@
     </div>
     <div *ngSwitchDefault>
         <h3 i18n="@@selected_target_study">Selected target study</h3>
-        <ng-container i18n="@@study-transferring-overview.studuid_from_patient_report">Study instance UID: <b>{{target.object.attrs['0020000D'].Value[0]}}</b> from the patient  <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b></ng-container><br>
+        <ng-container i18n="@@study-transferring-overview.studuid_from_patient_report">
+            Study instance UID: <b>{{target.object.attrs['0020000D'].Value[0]}}</b> from the patient  <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs['00100020'].Value[0]}}</b></ng-container><br>
     </div>
 </ng-container>
 
