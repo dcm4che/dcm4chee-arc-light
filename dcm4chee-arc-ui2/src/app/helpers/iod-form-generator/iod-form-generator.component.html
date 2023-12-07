@@ -39,10 +39,6 @@
                         <option *ngFor="let label of _.get(this.appService.global,'uiConfig.dcmuiMWLWorklistLabel')" value="{{label}}">{{label}}</option>
                     </select>
                 </ng-container>
-                <select *ngIf="o === '00102203'" [(ngModel)]="object[o].Value[0]">
-                    <option value="ALTERED">Altered</option>
-                    <option value="UNALTERED">Unaltered</option>
-                </select>
                 <select *ngIf="object[o].enum && object[o].enum.length > 0" [(ngModel)]="object[o].Value[0]">
                     <option *ngIf="!(object[o].required && object[o].required === 1)" value="">*</option>
                     <option *ngFor="let n of object[o].enum" value="{{n}}">{{n}}</option>
