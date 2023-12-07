@@ -64,7 +64,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         },{
             value:"SCHEDULED FOR RETRY",
             text:$localize `:@@S_FOR_RETRY:S. FOR RETRY`,
-            key:"scheduled"
+            key:"scheduled-for-retry"
         },{
             value:"IN PROCESS",
             text:$localize `:@@in_process:IN PROCESS`,

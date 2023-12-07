@@ -107,8 +107,8 @@ export class ExportService {
                 key:"scheduled"
             },{
                 value:"SCHEDULED FOR RETRY",
-                text:$localize `:@@SCHEDULED_FOR_RETRY:SCHEDULED FOR RETRY`,
-                key:"scheduled"
+                text:$localize `:@@S_FOR_RETRY:S. FOR RETRY`,
+                key:"scheduled-for-retry"
             },{
                 value:"IN PROCESS",
                 text:$localize `:@@in_process:IN PROCESS`,
