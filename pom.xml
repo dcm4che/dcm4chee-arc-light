@@ -65,7 +65,7 @@
     <jakarta.json.version>2.1.2</jakarta.json.version>
     <hibernate.orm.version>6.2.13.Final</hibernate.orm.version>
     <apache-commons-csv.version>1.10.0</apache-commons-csv.version>
-    <apache-commons-compress.version>1.23.0</apache-commons-compress.version>
+    <apache-commons-compress.version>1.25.0</apache-commons-compress.version>
     <jclouds.version>2.5.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
 
