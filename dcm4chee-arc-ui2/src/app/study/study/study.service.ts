@@ -5019,11 +5019,11 @@ export class StudyService {
         ]
     }
 
-    restoreStudy(studyAttr, webService:StudyWebService, rejectionCode) {
+    restoreStudy(studyAttr, webService:StudyWebService) {
         let _webApp;
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;
-            return `${this.studyURL(studyAttr, webApp)}/reject/${rejectionCode}`;
+            return `${this.studyURL(studyAttr, webApp)}/reject/REVOKE_REJECTION^99DCM4CHEE`;
         })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,
@@ -5064,11 +5064,11 @@ export class StudyService {
     }
 
 
-    restoreSeries(seriesAttr, webService:StudyWebService, rejectionCode) {
+    restoreSeries(seriesAttr, webService:StudyWebService) {
         let _webApp;
         return this.getWebAppFromWebServiceClassAndSelectedWebApp(webService, "DCM4CHEE_ARC_AET", "REJECT").pipe(map(webApp=>{
             _webApp = webApp;
-            return `${this.seriesURL(seriesAttr, webApp)}/reject/${rejectionCode}`;
+            return `${this.seriesURL(seriesAttr, webApp)}/reject/REVOKE_REJECTION^99DCM4CHEE`;
         })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,

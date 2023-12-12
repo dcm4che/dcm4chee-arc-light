@@ -5332,7 +5332,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let $this = this;
         if (this.trash.active) {
             //restore
-            this.service.restoreStudy(study.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator)
+            this.service.restoreStudy(study.attrs, this.studyWebService)
             .subscribe(
                 (res) => {
                     $this.appService.showMsg($localize `:@@study.study_restored:Study restored successfully!`);
@@ -5448,7 +5448,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     rejectSeries(series) {
         let $this = this;
         if (this.trash.active) {
-            this.service.restoreSeries(series.attrs, this.studyWebService, this.trash.rjcode.codeValue + '^' + this.trash.rjcode.codingSchemeDesignator )
+            this.service.restoreSeries(series.attrs, this.studyWebService)
             .subscribe(
                 (res) => {
                     // $scope.queryStudies($scope.studies[0].offset);
