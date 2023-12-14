@@ -187,7 +187,7 @@ public class UrlRewriting implements Filter {
         chain.doFilter(new HttpServletRequestWrapper(httpServletRequest) {
             @Override
             public String getServletPath() {
-                return "/index.html";
+                return httpServletRequest.getServletPath().substring(0, 3) + "/index.html";
             }
         }, response);
     }
