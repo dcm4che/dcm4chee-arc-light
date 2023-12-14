@@ -564,6 +564,12 @@ export class DeviceConfiguratorService{
         if (_.hasIn(m, 'maximum')){
             validation['maximum'] = m.maximum;
         }
+        if (_.hasIn(m, 'maxLength')){
+            validation['maxLength'] = m.maxLength;
+        }
+        if (_.hasIn(m, 'minLength')){
+            validation['minLength'] = m.minLength;
+        }
         if (_.hasIn(m, 'exclusiveMinimum')){
             validation['exclusiveMinimum'] = m.exclusiveMinimum;
         }

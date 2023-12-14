@@ -33,15 +33,31 @@ export class FormService{
                     _.forEach(element['validation'], (m, i) => {
                         switch (i){
                             case 'minimum':
-                                min = m;
-                                validationArray.push(CustomValidatorDirective.min(m));
+                                if(element.type === "string" && element.controlType === "text"){
+                                    validationArray.push(Validators.minLength(m));
+                                }else{
+                                    min = m;
+                                    validationArray.push(CustomValidatorDirective.min(m));
+                                }
                                 break;
                             case 'exclusiveMinimum':
                                 validationArray.push(CustomValidatorDirective.exclusiveMin(min, m));
                                 break;
                             case 'maximum':
+                                if(element.type === "string" && element.controlType === "text"){
+                                    validationArray.push(Validators.maxLength(m));
+                                }else{
+                                    max = m;
+                                    validationArray.push(CustomValidatorDirective.max(m));
+                                }
+                                break;
+                            case 'maxLength':
                                 max = m;
-                                validationArray.push(CustomValidatorDirective.max(m));
+                                validationArray.push(Validators.maxLength(m));
+                                break;
+                            case 'minLength':
+                                max = m;
+                                validationArray.push(Validators.minLength(m));
                                 break;
                             case 'exclusiveMaximum':
                                 validationArray.push(CustomValidatorDirective.exclusiveMax(max, m));

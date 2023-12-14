@@ -135,6 +135,12 @@
                 <span class="text-danger" *ngIf="form.controls[formelement.key].errors && form.controls[formelement.key].errors.required">
                     <ng-container i18n="@@this_field_is_required">This field is required!</ng-container>
                 </span>
+                <span class="text-danger" *ngIf="form.controls[formelement.key].errors && form.controls[formelement.key].errors.maxlength">
+                    <ng-container i18n="@@the_text_is_too_long">The text is too long!</ng-container>
+                </span>
+                <span class="text-danger" *ngIf="form.controls[formelement.key].errors && form.controls[formelement.key].errors.minlength">
+                    <ng-container i18n="@@the_text_is_too_short">The text is too short!</ng-container>
+                </span>
                 <span class="text-danger" *ngIf="form.controls[formelement.key].errors && form.controls[formelement.key].errors.msg">
                     {{form.controls[formelement.key].errors.msg}}
                 </span>
