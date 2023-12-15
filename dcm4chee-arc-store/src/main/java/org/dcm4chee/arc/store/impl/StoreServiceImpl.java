@@ -491,10 +491,17 @@ class StoreServiceImpl implements StoreService {
 
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         coerceAttrs = new Attributes(coerceAttrs);
+        nullifyOtherPatientIDOnPatientIDCoercion(attrs, coerceAttrs);
         Attributes.unifyCharacterSets(attrs, coerceAttrs);
         attrs.update(updatePolicy, coerceAttrs, ctx.getCoercedAttributes());
+    }
+
+    private static void nullifyOtherPatientIDOnPatientIDCoercion(Attributes attrs, Attributes coerceAttrs) {
+        if (coerceAttrs.containsValue(Tag.PatientID)
+                && !coerceAttrs.contains(Tag.OtherPatientIDsSequence)
+                && attrs.containsValue(Tag.OtherPatientIDsSequence))
+            coerceAttrs.setNull(Tag.OtherPatientIDsSequence, VR.SQ);
     }
 
     private void populateResult(Sequence refSOPSeq, Attributes ilAttr) {

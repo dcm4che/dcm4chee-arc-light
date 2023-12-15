@@ -135,7 +135,7 @@ class IocmUtils {
         session.setPatientUpdatePolicy(Attributes.UpdatePolicy.PRESERVE);
         session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
         Attributes result = storeService.copyInstances(
-                                        session, instanceLocations, coerceAttrs, Attributes.UpdatePolicy.MERGE);
+                                        session, instanceLocations, coerceAttrs, Attributes.UpdatePolicy.OVERWRITE);
         if (rjNote != null)
             rejectInstances(instanceRefs, queryService, rjNote, session, result);
         return result;
