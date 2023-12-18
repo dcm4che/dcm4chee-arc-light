@@ -35,7 +35,7 @@
                   <input type="checkbox" class="dcm_input_checkbox" *ngIf="option.value && option.value != '' && multiSelectMode" [(ngModel)]="option.selected">
                   <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="option.htmlLabel" [innerHTML]="option.htmlLabel"></div>
                   <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="!option.htmlLabel">
-                      {{option.text || option.value || option.label}}
+                      {{option.label || option.text || option.value}}
                   </div>
               </li>
               <li class="option" *ngIf="!options || options.length === 0" (click)="select('')">
@@ -51,7 +51,7 @@
                       <input type="checkbox"  class="dcm_input_checkbox" *ngIf="option.value && option.value != '' && multiSelectMode" [(ngModel)]="option.selected">
                       <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="option.htmlLabel" [innerHTML]="option.htmlLabel"></div>
                       <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" *ngIf="!option.htmlLabel">
-                          {{option.text || option.value || option.label}}
+                          {{option.label || option.text || option.value }}
                       </div>
                   </li>
                   <li class="option" *ngIf="!group || group.length === 0" (click)="select('')">
