@@ -274,7 +274,9 @@ export class StudyService {
     };
 
     clearFilterObject(tab: DicomMode, filterObject:StudyFilterConfig){
-        const keys = this.getFilterKeysFromTab(tab);
+        let keys = this.getFilterKeysFromTab(tab);
+        keys = keys || [];
+        keys.push('webApp');
         Object.keys(filterObject.filterModel).forEach(filterKey=>{
            if(keys.indexOf(filterKey) === -1){
                delete filterObject.filterModel[filterKey];
