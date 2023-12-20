@@ -19,6 +19,8 @@ import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {map} from "rxjs/operators";
 import {PermissionService} from "../../helpers/permissions/permission.service";
 import {environment} from "../../../environments/environment";
+import {Device} from "../../models/device";
+import {SelectDropdown} from "../../interfaces";
 
 
 @Component({
@@ -610,7 +612,10 @@ export class QueuesComponent implements OnInit, OnDestroy{
         this.cfpLoadingBar.start();
         this.service.getDevices().subscribe(devices=>{
             this.cfpLoadingBar.complete();
-            this.devices = j4care.mapDevicesToDropdown(devices.filter(dev => dev.hasArcDevExt));
+            this.devices = j4care.mapDevicesToDropdown(
+                devices.filter(dev => dev.hasArcDevExt),
+                (device:Device)=>new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName, device.dicomDescription, device.dicomDescription ? `${device.dicomDescription} ( ${device.dicomDeviceName} )` : device.dicomDeviceName)
+            );
             this.setFilters();
             if(this.urlParam && Object.keys(this.urlParam).length > 0)
                 this.search(0);

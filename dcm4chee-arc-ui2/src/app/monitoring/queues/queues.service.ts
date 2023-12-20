@@ -185,12 +185,7 @@ export class QueuesService{
                 placeholder:$localize `:@@status:Status`
             },{
                 tag:"html-select",
-                options:devices.map(d=>{
-                    return{
-                        text:d.dicomDescription ? `${d.dicomDescription} ( ${d.dicomDeviceName} )` : d.dicomDeviceName,
-                        value:d.dicomDeviceName
-                    }
-                }),
+                options:devices,
                 showStar:true,
                 showSearchField:true,
                 filterKey:"dicomDeviceName",

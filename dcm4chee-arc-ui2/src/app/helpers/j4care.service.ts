@@ -1345,14 +1345,18 @@ export class j4care {
     }
     // getDevices = ()=>this.httpJ4car.get('./rs/devices');
 
-    static mapDevicesToDropdown(devices:Device[]):SelectDropdown<Device>[]|any{
+    static mapDevicesToDropdown(devices:Device[], schema?:Function):SelectDropdown<Device>[]|any{
         try{
             console.log("devices[0] instanceof SelectDropdown)", devices[0] instanceof SelectDropdown);
             if(devices && devices.length && devices.length > 0 && !(devices[0] instanceof SelectDropdown)){
                 if(_.hasIn(devices, "0.value")){
                     return devices.map((device:any)=>new SelectDropdown(device.value, device.text));
                 }else{
-                    return devices.map((device:Device)=>new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription));
+                    if(schema){
+                        return devices.map((device:Device)=>schema.call(this, device));
+                    }else{
+                        return devices.map((device:Device)=>new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription));
+                    }
                 }
             }
             return devices;
