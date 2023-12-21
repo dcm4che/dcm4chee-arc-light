@@ -1,0 +1,6 @@
+version: 1
+
+dn: cn=role,ou=users,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=user,ou=users,dc=dcm4che,dc=org

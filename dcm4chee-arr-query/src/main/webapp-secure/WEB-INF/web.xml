@@ -50,13 +50,13 @@
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
-      <role-name>${auth-user-role:user}</role-name>
+      <role-name>${auth-user-role:auth}</role-name>
     </auth-constraint>
   </security-constraint>
   <login-config>
     <auth-method>OIDC</auth-method>
   </login-config>
   <security-role>
-    <role-name>${auth-user-role:user}</role-name>
+    <role-name>${auth-user-role:auth}</role-name>
   </security-role>
 </web-app>

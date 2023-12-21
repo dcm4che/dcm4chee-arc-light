@@ -1,0 +1,7 @@
+version: 1
+
+dn: cn=role,ou=users,dc=dcm4che,dc=org
+changetype: add
+objectClass: groupOfNames
+cn: role
+member: uid=user,ou=users,dc=dcm4che,dc=org
