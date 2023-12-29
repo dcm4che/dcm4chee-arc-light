@@ -4076,16 +4076,16 @@ export class Globalvar {
                     issuers:[
                         {
                             key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                         }, {
                             key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                         }, {
                             key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`,
+                    description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
                     placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
                 }, {
                     tag:"input",
@@ -4098,16 +4098,16 @@ export class Globalvar {
                     issuers:[
                         {
                             key:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
+                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, this.getInstitutionFilterSchemaElement(institutions), {
                     tag:"input",
@@ -4310,16 +4310,16 @@ export class Globalvar {
                     issuers:[
                         {
                             key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                         }, {
                             key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                         }, {
                             key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`,
+                    description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
                     placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
                 }, {
                     tag:"input",
@@ -4468,7 +4468,7 @@ export class Globalvar {
                             label: $localize `:@@coding_scheme_designator_00080102:Coding scheme designator (0008,0102)`
                         }
                     ],
-                    description:$localize `:@@scheduled_human_performers_sequence_00404034:Scheduled Human Performers Sequence (0040,4034)`,
+                    description:$localize `:@@scheduled_human_performers_sequence_00404034:Scheduled Human Performers Sequence (0040,4034) \n\n- Human Performer Code Sequence (0040,4009)`,
                     placeholder:$localize `:@@human_performers:Human Performers`
                 }, {
                     tag:"range-picker",
@@ -4524,16 +4524,16 @@ export class Globalvar {
                     issuers:[
                         {
                             key:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
+                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
@@ -4713,16 +4713,16 @@ export class Globalvar {
                     issuers:[
                         {
                             key:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
+                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
@@ -4986,16 +4986,16 @@ export class Globalvar {
                 issuers:[
                     {
                         key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                        label:$localize `:@@universal_entity_id:Universal Entity ID`
+                        label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                     }
                 ],
-                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`,
+                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
                 placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
             }, {
                 tag:"input",
@@ -5300,16 +5300,16 @@ export class Globalvar {
                 issuers:[
                     {
                         key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                        label:$localize `:@@universal_entity_id:Universal Entity ID`
+                        label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                     }
                 ],
-                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`,
+                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
                 placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
             }, {
                 tag:"range-picker-limit",
@@ -5449,16 +5449,16 @@ export class Globalvar {
                     issuers:[
                         {
                             key:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`,
+                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
@@ -5742,16 +5742,16 @@ export class Globalvar {
                 issuers:[
                     {
                         key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                        label:$localize `:@@universal_entity_id:Universal Entity ID`
+                        label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                     }
                 ],
-                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`,
+                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
                 placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
             }, {
                 tag:"input",
