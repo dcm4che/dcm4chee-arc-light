@@ -275,7 +275,6 @@ public class StgVerMatchingRS {
 
     Response verifyStorageOf(String aet,
                              String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
-        logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
