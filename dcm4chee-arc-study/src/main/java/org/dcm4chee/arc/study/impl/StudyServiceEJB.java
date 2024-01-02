@@ -158,6 +158,10 @@ public class StudyServiceEJB {
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
                 .setParameter(1, series.getPk())
                 .executeUpdate();
+        if (modified.contains(Tag.Modality))
+            em.createNamedQuery(StudyQueryAttributes.DELETE_FOR_STUDY)
+                    .setParameter(1, series.getStudy())
+                    .executeUpdate();
         LOG.info("{} updated successfully.", series);
     }
 
