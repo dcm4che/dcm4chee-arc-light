@@ -42,6 +42,8 @@
 package org.dcm4chee.arc.qmgt.impl;
 
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -181,6 +183,7 @@ public class TaskManagerEJB {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void scheduleTask(Task task) {
         em.persist(task);
         LOG.info("Create {}", task);
