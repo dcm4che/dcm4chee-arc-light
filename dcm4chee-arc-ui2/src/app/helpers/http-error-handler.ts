@@ -16,7 +16,7 @@ export class HttpErrorHandler {
                 if(warningMessage && warningMessage != ""){
                     this.mainservice.showError(warningMessage);
                 }else{
-                    if(_.hasIn(error,"message") || _.hasIn(error,"error.errorMessage")){
+                    if(_.hasIn(error,"message") || _.hasIn(error,"error.errorMessage") || _.hasIn(error,"error.error")){
                         if(_.hasIn(error,"error.errorMessage")){
                             this.mainservice.setMessage({
                                 'title': $localize `:@@http-error-handler.error:Error ${(error.status || '')}`,
@@ -24,13 +24,22 @@ export class HttpErrorHandler {
                                 'status': 'error'
                             });
                         }else{
-                            if(_.hasIn(error,"error") && error.error.indexOf("java") > -1){
-                                this.mainservice.setMessage({
-                                    'title': $localize `:@@http-error-handler.error:Error ${error.status}`,
-                                    'text': error.statusText + '!',
-                                    'status': 'error',
-                                    'detailError': error.error
-                                });
+                            if(_.hasIn(error,"error.error")){
+                                let errorMsg = _.get(error,"error.error");
+                                // if (errorMsg.indexOf("java") > -1) { //--throws exception
+                                //     this.mainservice.setMessage({
+                                //         'title': $localize `:@@http-error-handler.error:Error ${error.status}`,
+                                //         'text': error.statusText + '!',
+                                //         'status': 'error',
+                                //         'detailError': errorMsg
+                                //     });
+                                // } else {
+                                    this.mainservice.setMessage({
+                                        'title': $localize `:@@http-error-handler.error:Error ${(error.status || '')}`,
+                                        'text': errorMsg,
+                                        'status': 'error'
+                                    });
+                               // }
                             }else{
                                 this.mainservice.setMessage({
                                     'title': $localize `:@@http-error-handler.error:Error ${error.status || ''}`,
