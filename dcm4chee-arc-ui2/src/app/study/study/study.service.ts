@@ -4845,7 +4845,7 @@ export class StudyService {
         )
     }
 
-    exportMatchingSeries(studyWebService:StudyWebService, params:any){
+    exportMatching(mode, studyWebService:StudyWebService, params:any){
         let _webApp;
         const exporterID = params["exporterID"];
         delete params["exporterID"];
@@ -4856,7 +4856,7 @@ export class StudyService {
             "MOVE_MATCHING"
         ).pipe(map(webApp=>{
             _webApp = webApp;
-            return `${this.getDicomURL("series", webApp)}/export/${exporterID}${j4care.param(params)}`;
+            return `${this.getDicomURL(mode, webApp)}/export/${exporterID}${j4care.param(params)}`;
         })).pipe(switchMap(url=>{
             return this.$http.post(
                 url,
@@ -4868,7 +4868,7 @@ export class StudyService {
         }));
     }
     
-    exportMatchingSeriesDialogSchema(exporterIDs){
+    exportMatchingDialogSchema(exporterIDs){
         return [
             [
                 [

@@ -562,13 +562,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.uploadDicom();
                break;
             case "export_multiple_study":
-                this.exportMultipleStudies();
+                this.exportMatching($localize `:@@study.export_all_matching_studies:Export all matching studies`, "study");
                break;
             case "apply_retention_multiple_series":
                 this.applyRetentionPolicyMatchingSeries();
                break;
             case "export_multiple_series":
-                this.exportMatchingSeries();
+                this.exportMatching($localize `:@@study.export_all_matching_series:Export all matching series`, "series");
                break;
             case "reject_multiple_study":
                 this.rejectMatchingStudies();
@@ -5255,11 +5255,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
-    exportMatchingSeries(){
+    exportMatching(title, mode){
         this.confirm({
-            content: $localize `:@@study.export_all_matching_series:Export all matching series`,
+            //content: $localize `:@@study.export_all_matching_series:Export all matching series`,
+            content: title,
             doNotSave:true,
-            form_schema:this.service.exportMatchingSeriesDialogSchema(this.exporters),
+            form_schema:this.service.exportMatchingDialogSchema(this.exporters),
             result: {
                 schema_model: {}
             },
@@ -5267,7 +5268,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }).subscribe(result => {
             if (result) {
                 this.cfpLoadingBar.start();
-                this.service.exportMatchingSeries(
+                this.service.exportMatching(
+                        mode,
                         this.studyWebService,
                         _.merge(result.schema_model, this.createStudyFilterParams(true,true))
                     ).subscribe(res=>{
@@ -5730,15 +5732,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             ""
         );
     }
-    exportMultipleStudies(){
-        this.exporter(
-            '',
-            $localize `:@@study.export_all_matching_studies:Export all matching studies`,
-            'multipleExport',
-            {},
-            "study"
-        );
-    }
+
     retrieveObject(level:DicomLevel, object?, multipleObjects?:SelectionActionElement){
         console.log("object",object);
         let modalText;
