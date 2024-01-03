@@ -611,6 +611,12 @@
       <xsl:with-param name="home" select="field[13]"/>
       <xsl:with-param name="business" select="field[14]"/>
     </xsl:call-template>
+    <!-- Patient Primary Language-->
+    <xsl:call-template name="ce2codeItem">
+      <xsl:with-param name="seqTag" select="'00100101'"/>
+      <xsl:with-param name="codedEntry" select="field[15]"/>
+      <xsl:with-param name="offset" select="0"/>
+    </xsl:call-template>
     <!-- Patient Species Description and Code Sequence -->
     <xsl:call-template name="ce2codeItemWithDesc">
       <xsl:with-param name="descTag" select="'00102201'"/>

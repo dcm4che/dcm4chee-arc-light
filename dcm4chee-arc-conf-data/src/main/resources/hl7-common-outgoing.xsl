@@ -109,7 +109,11 @@
             <field/>
             <field/>
             <field/>
-            <field/>
+            <field>
+                <xsl:call-template name="codeItem">
+                    <xsl:with-param name="item" select="DicomAttribute[@tag='00100101']/Item"/>
+                </xsl:call-template>
+            </field>
             <field/>
             <field/>
             <field/>
