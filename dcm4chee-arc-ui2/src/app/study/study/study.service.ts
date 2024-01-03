@@ -4899,36 +4899,6 @@ export class StudyService {
                         description: $localize`:@@batch_id:Batch ID`,
                         placeholder: $localize`:@@batch_id:Batch ID`
                     }
-                ],[
-                    {
-                        tag:"label",
-                        text:$localize `:@@patient_verification_status:Patient Verification Status`
-                    },
-                    {
-                        tag:"select",
-                        type:"text",
-                        options:[
-                            new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                            new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                            new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                            new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
-                        ],
-                        filterKey:"patientVerificationStatus",
-                        description:$localize `:@@patient_verification_status:Patient Verification Status`,
-                        placeholder:$localize `:@@status:Status`
-                    }
-                ],
-                [
-                    {
-                        tag: "label",
-                        text: $localize`:@@all_modalities_in_study:All of Modalities in Study`
-                    },
-                    {
-                        tag:"checkbox",
-                        type:"text",
-                        filterKey:"allOfModalitiesInStudy",
-                        description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
-                    },
                 ],
                 [
                     {
@@ -4961,24 +4931,6 @@ export class StudyService {
                         description:$localize `:@@rejection_reason:Rejection Reason`,
                         placeholder:$localize `:@@rejection_reason:Rejection Reason`
                     }
-                ],[
-                    {
-                        tag:"label",
-                        text:$localize `:@@patient_verification_status:Patient Verification Status`
-                    },
-                    {
-                        tag:"select",
-                        type:"text",
-                        options:[
-                            new SelectDropdown("UNVERIFIED", $localize `:@@UNVERIFIED:UNVERIFIED`),
-                            new SelectDropdown("VERIFIED", $localize `:@@VERIFIED:VERIFIED`),
-                            new SelectDropdown("NOT_FOUND", $localize `:@@NOT_FOUND:NOT_FOUND`),
-                            new SelectDropdown("VERIFICATION_FAILED", $localize `:@@VERIFICATION_FAILED:VERIFICATION_FAILED`)
-                        ],
-                        filterKey:"patientVerificationStatus",
-                        description:$localize `:@@patient_verification_status:Patient Verification Status`,
-                        placeholder:$localize `:@@status:Status`
-                    }
                 ],
                 [
                     {
@@ -5003,18 +4955,6 @@ export class StudyService {
                         type:"text",
                         filterKey:"scheduledTime",
                         description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
-                    },
-                ],
-                [
-                    {
-                        tag: "label",
-                        text: $localize`:@@all_modalities_in_study:All of Modalities in Study`
-                    },
-                    {
-                        tag:"checkbox",
-                        type:"text",
-                        filterKey:"allOfModalitiesInStudy",
-                        description:$localize `:@@all_modalities_in_study:All of Modalities in Study`
                     },
                 ]
             ]
