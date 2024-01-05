@@ -137,11 +137,24 @@ public class IANEJB {
 
     public void scheduleIANTask(IanTask task, Attributes attrs) {
         for (String remoteAET : task.getIanDestinations())
-            scheduleMessage(task.getCallingAET(), attrs, remoteAET, new Date(), null);
+            scheduleMessage(task.getCallingAET(), attrs, remoteAET, new Date());
         removeIANTask(task);
     }
 
-    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET, Date scheduledTime, String batchID) {
+    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET, Date scheduledTime) {
+        Task task = createTask(callingAET, attrs, remoteAET, scheduledTime, null);
+        taskManager.scheduleTask(task);
+    }
+
+    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET, Date scheduledTime, String batchID,
+                                String studyUID, String seriesUID) {
+        Task task = createTask(callingAET, attrs, remoteAET, scheduledTime, batchID);
+        task.setStudyInstanceUID(studyUID);
+        task.setSeriesInstanceUID(seriesUID);
+        taskManager.scheduleTask(task);
+    }
+
+    private Task createTask(String callingAET, Attributes attrs, String remoteAET, Date scheduledTime, String batchID) {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(IANSCU.QUEUE_NAME);
@@ -153,7 +166,7 @@ public class IANEJB {
         task.setPayload(attrs);
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
-        taskManager.scheduleTask(task);
+        return task;
     }
 
     public void removeIANTask(IanTask task) {

@@ -1032,6 +1032,8 @@ public class Task {
             case IAN:
                 gen.write("LocalAET", localAET);
                 gen.write("RemoteAET", remoteAET);
+                writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+                writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, "*");
                 gen.write("SOPInstanceUID", sopInstanceUID);
                 break;
             case MPPS:
