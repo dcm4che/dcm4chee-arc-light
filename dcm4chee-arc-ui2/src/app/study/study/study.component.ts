@@ -1810,8 +1810,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 console.log("res",res);
                 this.cfpLoadingBar.complete();
                 try{
-                    let count = res["count"] || "";
-                    this.appService.showMsg(`Retention policy applied successfully to <br>Count: ${count}`);
+                    let count = res["count"];
+                    let studyInMsg = count == 1 ? "study" : "studies";
+                    let msg = count == 0
+                        ? $localize `:@@study.apply_retention_policy_all_matching_series_msg_none:Configured Retention policies do not match with matching series <br>Or <br>Expiration State of studies of matching series is set to FROZEN`
+                        : $localize `:@@study.apply_retention_policy_all_matching_series_msg:Configured Retention policies applied successfully to matching series of ${count} ${studyInMsg}`;
+                    this.appService.showMsg(msg);
                 }catch (e) {
                     j4care.log("Could not get count from res=",e);
                 }
