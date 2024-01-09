@@ -212,6 +212,10 @@ export class UploadFilesComponent implements OnInit {
         }else{
             if(file0 && (file0.type === "image/jpeg"
                             || file0.type === "image/jp2"
+                            || file0.type === "image/j2c"
+                            || file0.type === "image/x-jp2-codestream"
+                            || file0.type === "image/jph"
+                            || file0.type === "image/jphc"
                             || file0.type === "image/png"
                             || file0.type === "image/gif"
                             || file0.type === "image/tiff")){
@@ -336,6 +340,10 @@ export class UploadFilesComponent implements OnInit {
                 }
                 if (file0.type === "image/jpeg"
                     || file0.type === "image/jp2"
+                    || file0.type === "image/j2c"
+                    || file0.type === "image/x-jp2-codestream"
+                    || file0.type === "image/jph"
+                    || file0.type === "image/jphc"
                     || file0.type === "image/png"
                     || file0.type === "image/gif"
                     || file0.type === "image/tiff") {
@@ -741,6 +749,13 @@ export class UploadFilesComponent implements OnInit {
         switch (fileTypeOrExt) {
             case "image/jpeg":
             case "image/jp2":
+            case "image/j2c":
+            case "image/x-jp2-codestream":
+            case "j2c":
+            case "image/jph":
+            case "jph":
+            case "image/jphc":
+            case "jhc":
             case "image/png":
             case "image/tiff":
                 $this.modality = $this.selectedSopClass.modality; // set modality from the sequen 0040,0100->Modality

@@ -28,6 +28,13 @@ export class UploadFilesService {
       case "bz2":
       case "application/x-bzip2":
         return "application/x-bzip2";
+      case "jph":
+        return "image/jph";
+      case "jhc":
+        return "image/jphc";
+      case "j2c":
+      case "image/x-jp2-codestream":
+        return "image/j2c";
       default:
         return fileTypeOrExt;
     }

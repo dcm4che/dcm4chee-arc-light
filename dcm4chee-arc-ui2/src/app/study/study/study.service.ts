@@ -4443,7 +4443,10 @@ export class StudyService {
                     "multiFrame"
                 ]
             }
-            if(fileTypeOrExt.indexOf("image") > -1) {
+            if(fileTypeOrExt.indexOf("image") > -1
+                || fileTypeOrExt === "jph"
+                || fileTypeOrExt === "jhc"
+                || fileTypeOrExt === "j2c") {
                 //"patient"
                 iodFileNames = [
                     "study",
