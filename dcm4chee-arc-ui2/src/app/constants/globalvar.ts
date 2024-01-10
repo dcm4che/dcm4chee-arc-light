@@ -5046,10 +5046,15 @@ export class Globalvar {
                 description:$localize `:@@modality_desc:Return studies which have series with ANY of the selected modalities. If 'All of Modalities in Study' filter is checked, returns studies which have series with ALL selected modalities`,
             },
             {
-                tag:"checkbox",
-                filterKey:"allOfModalitiesInStudy",
-                text:$localize `:@@all_modalities_in_study:All of Modalities in Study`,
-                description:$localize `:@@all_modalities_in_study_desc:Return studies which have series with ALL modalities specified by 'Modality' filter. Effectively applicable when 2 or more modalities are set in 'Modality' filter`
+                tag: "select",
+                options: [
+                    new SelectDropdown("false", $localize `:@@any_of_modalities_in_study:Any of specified Modalities`, $localize `:@@any_of_modalities_in_study_desc:Filter for Studies containing Series of ANY of the specified Modalities`),
+                    new SelectDropdown("true", $localize `:@@all_of_modalities_in_study:All of specified Modalities`, $localize `:@@all_of_modalities_in_study_desc:Filter for Studies containing Series of ALL of the specified Modalities`)
+                ],
+                showStar: true,
+                filterKey: "allOfModalitiesInStudy",
+                description:$localize `:@@all_any_modalities_in_study_desc:Filter for Studies containing Series of ANY or ALL of the specified Modalities`,
+                placeholder:$localize `:@@all_any_modalities_in_study:ANY or ALL of specified Modalities`
             },
             this.getInstitutionFilterSchemaElement(institutions),
             {
