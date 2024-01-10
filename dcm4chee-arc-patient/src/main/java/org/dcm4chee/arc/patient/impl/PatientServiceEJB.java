@@ -678,7 +678,10 @@ public class PatientServiceEJB {
             if (pid.matches(newPID, true, true))
                 return false;
         }
-        if (!findPatientIDs(newPID).isEmpty()) return false;
+        if (!findPatientIDs(newPID).isEmpty()) {
+            LOG.info("Ignore Patient ID {} already associated to different Patient", newPID);
+            return false;
+        }
         attrs.ensureSequence(Tag.OtherPatientIDsSequence, 1).add(
                 new Attributes(newAttrs,
                         Tag.PatientID,
