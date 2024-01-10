@@ -430,7 +430,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
-        writer.writeNotDef("dcmFilterByIssuerOfPatientID", arcDev.isFilterByIssuerOfPatientID(), false);
+        writer.writeNotDef("dcmFilterByIssuerOfPatientID", arcDev.isFilterByIssuerOfPatientID(), true);
         writer.writeNotDef("dcmAuditHL7MsgLimit", arcDev.getAuditHL7MsgLimit(), 1000);
         writer.writeNotDef("dcmMatchSOPClassOnInstanceLevel", arcDev.isMatchSOPClassOnInstanceLevel(), false);
         writer.writeNotDef("dcmUPSUpdateWithoutTransactionUID", arcDev.isUPSUpdateWithoutTransactionUID(), false);

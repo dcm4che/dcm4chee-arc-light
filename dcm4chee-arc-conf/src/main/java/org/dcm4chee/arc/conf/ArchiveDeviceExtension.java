@@ -115,7 +115,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int queryMaxNumberOfResults = 0;
     private volatile int qidoMaxNumberOfResults = 0;
     private volatile boolean qidoETag = false;
-    private volatile boolean filterByIssuerOfPatientID = false;
+    private volatile boolean filterByIssuerOfPatientID = true;
     private volatile boolean matchSOPClassOnInstanceLevel = false;
     private volatile boolean wadoMetadataWithoutPrivate = false;
     private volatile boolean wadoIgnorePresentationLUTShape = false;

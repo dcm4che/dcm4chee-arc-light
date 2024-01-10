@@ -533,7 +533,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeRequesterAET",
                 ext.getChangeRequesterAET(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFilterByIssuerOfPatientID",
-                ext.isFilterByIssuerOfPatientID(), false);
+                ext.isFilterByIssuerOfPatientID(), true);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditHL7MsgLimit", ext.getAuditHL7MsgLimit(), 1000);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmMatchSOPClassOnInstanceLevel",
                 ext.isMatchSOPClassOnInstanceLevel(), false);
@@ -907,7 +907,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7OtherPatientIDs(LdapUtils.enumValue(
                 HL7OtherPatientIDs.class, attrs.get("hl7OtherPatientIDs"), HL7OtherPatientIDs.OTHER));
         ext.setChangeRequesterAET(LdapUtils.stringValue(attrs.get("dcmChangeRequesterAET"), null));
-        ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), false));
+        ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), true));
         ext.setAuditHL7MsgLimit(LdapUtils.intValue(attrs.get("dcmAuditHL7MsgLimit"), 1000));
         ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), false));
         ext.setUPSUpdateWithoutTransactionUID(LdapUtils.booleanValue(attrs.get("dcmUPSUpdateWithoutTransactionUID"), false));
@@ -1565,7 +1565,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmFilterByIssuerOfPatientID",
                 aa.isFilterByIssuerOfPatientID(),
                 bb.isFilterByIssuerOfPatientID(),
-                false);
+                true);
         LdapUtils.storeDiff(ldapObj, mods, "dcmAuditHL7MsgLimit",
                 aa.getAuditHL7MsgLimit(),
                 bb.getAuditHL7MsgLimit(),
