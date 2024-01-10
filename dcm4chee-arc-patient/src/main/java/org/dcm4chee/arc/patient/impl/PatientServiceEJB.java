@@ -677,9 +677,8 @@ public class PatientServiceEJB {
         for (IDWithIssuer pid : pids) {
             if (pid.matches(newPID, true, true))
                 return false;
-            if (!findPatientIDs(pid).isEmpty())
-                return false;
         }
+        if (!findPatientIDs(newPID).isEmpty()) return false;
         attrs.ensureSequence(Tag.OtherPatientIDsSequence, 1).add(
                 new Attributes(newAttrs,
                         Tag.PatientID,
