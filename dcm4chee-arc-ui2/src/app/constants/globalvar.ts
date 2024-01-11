@@ -5048,8 +5048,8 @@ export class Globalvar {
             {
                 tag: "select",
                 options: [
-                    new SelectDropdown("false", $localize `:@@any_of_modalities_in_study:Any of specified Modalities`, $localize `:@@any_of_modalities_in_study_desc:Filter for Studies containing Series of ANY of the specified Modalities`),
-                    new SelectDropdown("true", $localize `:@@all_of_modalities_in_study:All of specified Modalities`, $localize `:@@all_of_modalities_in_study_desc:Filter for Studies containing Series of ALL of the specified Modalities`)
+                    new SelectDropdown("false", $localize `:@@any_modalities_in_study:Any of specified Modalities`, $localize `:@@any_modalities_in_study_desc:Filter for Studies containing Series of ANY of the specified Modalities`),
+                    new SelectDropdown("true", $localize `:@@all_modalities_in_study:All of specified Modalities`, $localize `:@@all_modalities_in_study_desc:Filter for Studies containing Series of ALL of the specified Modalities`)
                 ],
                 showStar: true,
                 filterKey: "allOfModalitiesInStudy",
