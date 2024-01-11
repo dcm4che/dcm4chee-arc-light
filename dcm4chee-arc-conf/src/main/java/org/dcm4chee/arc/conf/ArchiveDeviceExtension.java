@@ -305,7 +305,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Integer qStarVerificationMockAccessState;
     private volatile Issuer[] trustedIssuerOfPatientID = {};
     private volatile Pattern[] trustedPatientIDPattern = {};
-    private volatile Pattern trustedIssuerOfPatientIDPattern;
     private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
     private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
@@ -3185,14 +3184,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         for (int i = 0; i < ss.length; i++)
             patterns[i] = Pattern.compile(ss[i]);
         return patterns;
-    }
-
-    public Pattern getTrustedIssuerOfPatientIDPattern() {
-        return trustedIssuerOfPatientIDPattern;
-    }
-
-    public void setTrustedIssuerOfPatientIDPattern(Pattern trustedIssuerOfPatientIDPattern) {
-        this.trustedIssuerOfPatientIDPattern = trustedIssuerOfPatientIDPattern;
     }
 
     private boolean isTrustedPatientID(IDWithIssuer id) {
