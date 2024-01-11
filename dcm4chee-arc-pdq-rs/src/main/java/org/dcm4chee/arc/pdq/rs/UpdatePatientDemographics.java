@@ -114,7 +114,7 @@ public class UpdatePatientDemographics {
         Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
         for (String cx : patientIDs)
             patientIdentifiers.add(new IDWithIssuer(cx));
-        return arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(patientIdentifiers);
+        return arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(patientIdentifiers);
     }
 
     @POST

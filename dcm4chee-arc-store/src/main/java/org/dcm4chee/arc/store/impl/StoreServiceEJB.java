@@ -844,7 +844,7 @@ public class StoreServiceEJB {
                         session.getUnparsedHL7Message());
         patMgtCtx.setAttributes(ctx.getAttributes());
         patMgtCtx.setPatientIDs(
-                session.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(
+                session.getArchiveDeviceExtension().retainTrustedPatientIDs(
                         patMgtCtx.getPatientIDs()));
         if (series == null) {
             Study study = findStudy(ctx);
@@ -986,7 +986,7 @@ public class StoreServiceEJB {
         updateInfo.log(session, pat, attrs);
         pat = em.find(Patient.class, pat.getPk());
         patientService.updatePatientIDs(pat,
-                session.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(
+                session.getArchiveDeviceExtension().retainTrustedPatientIDs(
                         IDWithIssuer.pidsOf(attrs)));
         pat.setAttributes(recordAttributeModification(ctx)
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)

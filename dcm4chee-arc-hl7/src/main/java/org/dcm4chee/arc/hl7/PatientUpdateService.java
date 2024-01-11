@@ -144,7 +144,7 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setUserMessage("Missing patient identifier"));
 
         ArchiveDeviceExtension arcdev = hl7App.getDevice().getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        ctx.setPatientIDs(arcdev.withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+        ctx.setPatientIDs(arcdev.retainTrustedPatientIDs(ctx.getPatientIDs()));
         if (ctx.getPatientIDs().isEmpty()) {
             throw new HL7Exception(
                     new ERRSegment(msg.msh())
@@ -164,7 +164,7 @@ class PatientUpdateService extends DefaultHL7Service {
                             .setErrorLocation(PRIOR_PATIENT_IDENTIFIER)
                             .setUserMessage("Missing prior patient identifier"));
 
-        ctx.setPreviousPatientIDs(arcdev.withTrustedIssuerOfPatientID(ctx.getPreviousPatientIDs()));
+        ctx.setPreviousPatientIDs(arcdev.retainTrustedPatientIDs(ctx.getPreviousPatientIDs()));
         if (ctx.getPreviousPatientIDs().isEmpty()) {
             throw new HL7Exception(
                     new ERRSegment(msg.msh())

@@ -163,7 +163,7 @@ public class PamRS {
         Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
         for (String cx : patientIDs)
             patientIdentifiers.add(new IDWithIssuer(cx));
-        return arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(patientIdentifiers);
+        return arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(patientIdentifiers);
     }
 
     @DELETE
@@ -236,7 +236,7 @@ public class PamRS {
                 ctx.setPatientIDs(IDWithIssuer.pidsOf(ctx.getAttributes()));
             }
             Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
-            ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(patientIDs));
+            ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(patientIDs));
             if (ctx.getPatientIDs().isEmpty())
                 return errResponse(
                         "Missing patient identifier with trusted assigning authority in request payload " + patientIDs,
@@ -301,7 +301,7 @@ public class PamRS {
 
         PatientMgtContext ctx = patientMgtCtx(in);
         ctx.setArchiveAEExtension(arcAE);
-        ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+        ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(ctx.getPatientIDs()));
         if (ctx.getPatientIDs().isEmpty())
             return errResponse(
                     "Missing patient identifier with trusted assigning authority in request payload " + ctx.getPatientIDs(),
@@ -384,7 +384,7 @@ public class PamRS {
             boolean merged = false;
             for (Set<IDWithIssuer> priorPatientIdentifier : priorPatientIdentifiers) {
                 Collection<IDWithIssuer> trustedPriorPatientIDs = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                                                                        .withTrustedIssuerOfPatientID(priorPatientIdentifier);
+                                                                        .retainTrustedPatientIDs(priorPatientIdentifier);
                 if (trustedPriorPatientIDs.isEmpty()) {
                     LOG.warn("Missing prior patient identifier with trusted assigning authority in {}",
                             trustedPriorPatientIDs);

@@ -136,7 +136,7 @@ public class QueryPatientDemographicRS {
         for (String cx : patientIDs)
             patientIdentifiers.add(new IDWithIssuer(cx));
         return device.getDeviceExtension(ArchiveDeviceExtension.class)
-                .withTrustedIssuerOfPatientID(patientIdentifiers);
+                .retainTrustedPatientIDs(patientIdentifiers);
     }
 
     private void logRequest() {

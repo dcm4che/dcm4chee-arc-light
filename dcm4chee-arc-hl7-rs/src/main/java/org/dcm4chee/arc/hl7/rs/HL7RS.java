@@ -198,14 +198,14 @@ public class HL7RS {
         for (String cx : patientIDs)
             patientIdentifiers.add(new IDWithIssuer(cx));
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                     .withTrustedIssuerOfPatientID(patientIdentifiers);
+                     .retainTrustedPatientIDs(patientIdentifiers);
     }
 
     private PatientMgtContext toPatientMgtContext(Attributes attrs) {
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
         ctx.setAttributes(attrs);
         ctx.setPatientIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                            .withTrustedIssuerOfPatientID(ctx.getPatientIDs()));
+                            .retainTrustedPatientIDs(ctx.getPatientIDs()));
         return ctx;
     }
 

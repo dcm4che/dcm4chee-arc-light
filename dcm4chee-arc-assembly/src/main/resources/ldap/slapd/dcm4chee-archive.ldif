@@ -2286,12 +2286,12 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.469 NAME 'dcmCountLocationsByStatus'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.470 NAME 'dcmTrustedIssuerOfPatientID'
-  DESC 'Trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. If both, this field and "Trusted Issuer of Patient ID Pattern" are configured, Patient IDs not qualified by trusted Assigning Authority matching the pattern specified in "Trusted Issuer of Patient ID Pattern", will be checked against one of the specified Assigning Authorities in this field. If Patient IDs are not qualified by either of these fields, they will not be used for identifying the Patient. If neither this field nor "Trusted Issuer of Patient ID Pattern" is configured, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}].'
+  DESC 'Trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. Only Patient IDs qualified by an Assigning Authority matching one of the specified values or Patient IDs matching one of the configured Trusted Patient ID Patterns by attribute dcmTrustedPatientIDPattern will be used for identifying the Patient. If neither this attribute nor dcmTrustedPatientIDPattern is configured, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}].'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.471 NAME 'dcmTrustedIssuerOfPatientIDPattern'
-  DESC 'Regular Expression identifying trusted Assigning Authority of Patient IDs in received DICOM objects and HL7 messages. If both, this field and "Trusted Issuer of Patient ID" are configured, Patient IDs not qualified by trusted Assigning Authority matching the specified pattern, will be checked against one of the specified Assigning Authorities in "Trusted Issuer of Patient ID" field. If Patient IDs are not qualified by either of these fields, they will not be used for identifying the Patient. If neither this field nor "Trusted Issuer of Patient ID" is configured, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
@@ -2315,6 +2315,12 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.475 NAME 'dcmExternalWadoRSRedirectO
   DESC 'Indicates if WADO RS requests are forwarded to configured dcmExternalWadoRSWebAppName even if the requested objects were not found or - if set to false - only if some of the requested objects are no longer accessible on this archive; false if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.476 NAME 'dcmTrustedPatientIDPattern'
+  DESC 'Regular Expression identifying trusted Patient IDs in HL7 v2 CX format: {Patient ID}^^^{Issuer of Patient ID}&{Universal Entity ID}&{Universal Entity ID Type} in received DICOM objects and HL7 messages. Only Patient IDs matching one of the specified patterns or Patient IDs qualified by an Assigning Authority matching one of the configured Trusted Issuers of Patient IDs by attribute dcmTrustedIssuerOfPatientID will be used for identifying the Patient. If neither this attribute nor dcmTrustedIssuerOfPatientID is configured, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -2372,6 +2378,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRejectConflictingPatientAttribute $
     dcmTrustedIssuerOfPatientID $
     dcmTrustedIssuerOfPatientIDPattern $
+    dcmTrustedPatientIDPattern $
     hl7TrackChangedPatientID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
