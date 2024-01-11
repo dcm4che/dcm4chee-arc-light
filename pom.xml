@@ -46,7 +46,7 @@
 
   <groupId>org.dcm4che.dcm4chee-arc</groupId>
   <artifactId>dcm4chee-arc-parent</artifactId>
-  <version>5.31.2</version>
+  <version>5.31.3</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -55,7 +55,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-ee.version>30.0.0.Final</wildfly-ee.version>
+    <wildfly-ee.version>30.0.1.Final</wildfly-ee.version>
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
     <keycloak.version>23.0.3</keycloak.version>
