@@ -4941,12 +4941,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.markAsRequestedOrUnscheduled(this.studyWebService.selectedWebService,studyInstanceUID,toSendObject, level, e).subscribe(res=>{
                         this.cfpLoadingBar.complete();
                         let infoMsg = level === "series"
-                                        ? requested
-                                            ? $localize `:@@mark_series_requested_successfully:Series marked as Requested successfully!`
-                                            : $localize `:@@mark_series_unscheduled_successfully:Series marked as Unscheduled successfully!`
-                                        : requested
-                                            ? $localize `:@@mark_study_requested_successfully:All Series of Study marked as Requested successfully!`
-                                            : $localize `:@@mark_study_unscheduled_successfully:All Series of Study marked as Unscheduled successfully!`;
+                                            ? requested
+                                                ? $localize `:@@mark_series_requested_successfully:Series[uid=${this.service.getSeriesInstanceUID(e.attrs)}] marked as Requested successfully!`
+                                                : $localize `:@@mark_series_unscheduled_successfully:Series[uid=${this.service.getSeriesInstanceUID(e.attrs)}] marked as Unscheduled successfully!`
+                                            : requested
+                                                ? $localize `:@@mark_study_requested_successfully:All Series of Study[uid=${studyInstanceUID}] marked as Requested successfully!`
+                                                : $localize `:@@mark_study_unscheduled_successfully:All Series of Study[uid=${studyInstanceUID}] marked as Unscheduled successfully!`;
                         this.appService.showMsg(infoMsg);
                     },err=>{
                         this.cfpLoadingBar.complete();
