@@ -215,6 +215,9 @@ public class StudyServiceEJB {
                         modified)
                         : attrs,
                 studyAttrFilter, true, ctx.getFuzzyStr());
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                .setParameter(1, study)
+                .executeUpdate();
     }
 
     public void updateSeriesRequest(StudyMgtContext ctx) throws StudyMissingException {
@@ -256,6 +259,9 @@ public class StudyServiceEJB {
                         modified)
                         : seriesAttr,
                 seriesAttrFilter, true, ctx.getFuzzyStr());
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                .setParameter(1, series.getPk())
+                .executeUpdate();
         ctx.setStudy(series.getStudy());
         ctx.setPatient(series.getStudy().getPatient());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
