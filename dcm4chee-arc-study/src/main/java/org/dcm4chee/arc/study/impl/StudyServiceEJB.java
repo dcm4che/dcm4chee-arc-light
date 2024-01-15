@@ -228,7 +228,8 @@ public class StudyServiceEJB {
         Attributes seriesAttr = series.getAttributes();
         List<Attributes> requestAttrs = ctx.getRequestAttributes();
         Sequence origRequestAttributes = seriesAttr.getSequence(Tag.RequestAttributesSequence);
-        if (Objects.equals(origRequestAttributes, requestAttrs))
+        if (Objects.equals(origRequestAttributes, requestAttrs)
+                || (origRequestAttributes == null && requestAttrs.isEmpty()))
             return;
 
         Attributes modified = null;
