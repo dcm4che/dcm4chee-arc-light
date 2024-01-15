@@ -3989,41 +3989,52 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             description:$localize `:@@source_of_previous_values_desc:Source of Previous Values (0400,0561) stored with original Attributes in Original Attributes Sequence (0400,0561)`,
                             placeholder:$localize `:@@source_of_previous_values:Source of Previous Values`
                         }
-                    ],[
+                    ],
+                    [
                         {
                             tag:"label",
                             text:$localize `:@@reason_for_modification:Reason for Modification`
                         },
-                            {
-                                tag:"select",
-                                type:"text",
-                                options:[
-                                    new SelectDropdown("COERCE", $localize `:@@COERCE:COERCE`),
-                                    new SelectDropdown("CORRECT", $localize `:@@CORRECT:CORRECT`)
-                                ],
-                                filterKey:"reasonForModification",
-                                description:$localize `:@@reason_for_modification_desc:Store original values of modified Attributes in Original Attributes Sequence (0400,0561) with given Reason for the Attribute Modification (0400,0565)`,
-                                placeholder:$localize `:@@reason_for_modification:Reason for Modification`
-                            }
-                        ],[
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:[
+                                new SelectDropdown("COERCE", $localize `:@@COERCE:COERCE`),
+                                new SelectDropdown("CORRECT", $localize `:@@CORRECT:CORRECT`)
+                            ],
+                            filterKey:"reasonForModification",
+                            description:$localize `:@@reason_for_modification_desc:Store original values of modified Attributes in Original Attributes Sequence (0400,0561) with given Reason for the Attribute Modification (0400,0565)`,
+                            placeholder:$localize `:@@reason_for_modification:Reason for Modification`
+                        }
+                    ],
+                    [
                         {
                             tag:"label",
                             text:$localize `:@@updatePolicy:Update Policy`
                         },
-                            {
-                                tag:"select",
-                                type:"text",
-                                options:[
-                                    new SelectDropdown("SUPPLEMENT", $localize `:@@SUPPLEMENT:SUPPLEMENT`),
-                                    new SelectDropdown("MERGE", $localize `:@@MERGE:MERGE`),
-                                    new SelectDropdown("OVERWRITE", $localize `:@@OVERWRITE:OVERWRITE`)
-                                ],
-                                filterKey:"updatePolicy",
-                                description:$localize `:@@update_policy_desc:Update Policy for modification of original attributes`,
-                                placeholder:$localize `:@@update_policy:Update Policy`
-                            }
-                        ]
-                    ,
+                        {
+                            tag:"select",
+                            type:"text",
+                            options:[
+                                new SelectDropdown("SUPPLEMENT", $localize `:@@SUPPLEMENT:SUPPLEMENT`),
+                                new SelectDropdown("MERGE", $localize `:@@MERGE:MERGE`),
+                                new SelectDropdown("OVERWRITE", $localize `:@@OVERWRITE:OVERWRITE`)
+                            ],
+                            filterKey:"updatePolicy",
+                            description:$localize `:@@update_policy_desc:Update Policy for modification of original attributes`,
+                            placeholder:$localize `:@@update_policy:Update Policy`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@read_pixel_data_storage:Read Pixel Data from Storage`
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"readPixelData"
+                        }
+                    ],
                     [
                         {
                             tag:"dynamic-attributes",
