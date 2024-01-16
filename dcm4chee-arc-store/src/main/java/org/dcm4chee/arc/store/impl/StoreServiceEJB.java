@@ -693,19 +693,17 @@ public class StoreServiceEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void removeOrMarkLocationAs(Location location, LocationStatus status) {
+    public Location removeOrMarkLocationAs(Location location, LocationStatus status) {
         location = em.merge(location);
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
-        else
-            markLocationAs(location, status);
-    }
-    
-    private void markLocationAs(Location location, LocationStatus status) {
-        location.setMultiReference(null);
-        location.setUidMap(null);
-        location.setInstance(null);
-        location.setStatus(status);
+        else {
+            location.setMultiReference(null);
+            location.setUidMap(null);
+            location.setInstance(null);
+            location.setStatus(status);
+        }
+        return location;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
