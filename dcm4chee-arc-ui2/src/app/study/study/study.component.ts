@@ -220,6 +220,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
             new SelectDropdown("download_series",$localize `:@@study.download_series:Download series as CSV`),
             new SelectDropdown("download_mwl",$localize `:@@study.download_mwl:Download MWL as CSV`),
+            new SelectDropdown("download_uwl",$localize `:@@study.download_uwl:Download UPS Workitems as CSV`),
             new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
             new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
             new SelectDropdown("import_matching_sps_to_archive",$localize `:@@mwl.import_matching_sps_to_archive:Import matching SPS to archive`),
@@ -596,6 +597,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                break;
             case "download_mwl":
                 this.downloadCSV(undefined, "mwl");
+                break;
+            case "download_uwl":
+                this.downloadCSV(undefined, "uwl");
                 break;
             case "update_access_control_id_to_matching":
                 this.updateAccessControlId(e);
@@ -1873,6 +1877,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     if(attr === undefined && mode === "mwl"){
                         url = `${this.service.getDicomURL("mwl",this.studyWebService.selectedWebService)}`;
                     }
+                    if(attr === undefined && mode === "uwl"){
+                        url = `${this.service.getDicomURL("uwl",this.studyWebService.selectedWebService)}`;
+                    }
                 }
                 if(!this.appService.global.notSecure){
                     filterClone["access_token"] = token;
@@ -3062,7 +3069,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                  }else{
                     if(!(studyConfig && studyConfig.tab === "patient")){
                         if(studyConfig && studyConfig.tab === "uwl"){
-                            return option.value === "create_ups" || option.value === "subscribe_uwl" || option.value === "unsubscribe_uwl" || option.value === "suspend_uwl";
+                            return option.value === "download_uwl"
+                                || option.value === "create_ups"
+                                || option.value === "subscribe_uwl"
+                                || option.value === "unsubscribe_uwl"
+                                || option.value === "suspend_uwl";
                         }else{
                             switch (option.value) {
                                 case "retrieve_multiple":
@@ -3096,6 +3107,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "change_sps_status_on_matching":
                                 case "download_mwl":
                                 case "import_matching_sps_to_archive":
+                                case "download_uwl":
                                 case "create_ups":
                                 case "subscribe_uwl":
                                 case "unsubscribe_uwl":
