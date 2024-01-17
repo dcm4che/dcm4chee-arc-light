@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import static org.dcm4che3.net.TransferCapability.Role.SCP;
@@ -121,7 +122,8 @@ public class CStoreSCUImpl implements CStoreSCU {
             String cuid = inst.getSopClassUID();
             TransferCapability localTC = localAE.getTransferCapabilityFor(cuid, SCU);
             TransferCapability destTC = noDestinationRestriction ? null : destAE.getTransferCapabilityFor(cuid, SCP);
-            if (!aarq.containsPresentationContextFor(cuid) && !isVideo(inst)) {
+            List<Location> locations = inst.getLocations();
+            if (!aarq.containsPresentationContextFor(cuid) && !isVideo(locations)) {
                 if (noDestinationRestriction) {
                     addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, localTC);
                     addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, localTC);
@@ -130,7 +132,7 @@ public class CStoreSCUImpl implements CStoreSCU {
                     addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, localTC, destTC);
                 }
             }
-            for (Location location : inst.getLocations()) {
+            for (Location location : locations) {
                 String tsuid = location.getTransferSyntaxUID();
                 if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
                         !tsuid.equals(UID.ExplicitVRLittleEndian))
@@ -144,26 +146,27 @@ public class CStoreSCUImpl implements CStoreSCU {
         return aarq;
     }
 
-    private boolean isVideo(InstanceLocations inst) {
-        switch (inst.getLocations().get(0).getTransferSyntaxUID()) {
-            case UID.MPEG2MPML:
-            case UID.MPEG2MPMLF:
-            case UID.MPEG2MPHL:
-            case UID.MPEG2MPHLF:
-            case UID.MPEG4HP41:
-            case UID.MPEG4HP41F:
-            case UID.MPEG4HP41BD:
-            case UID.MPEG4HP41BDF:
-            case UID.MPEG4HP422D:
-            case UID.MPEG4HP422DF:
-            case UID.MPEG4HP423D:
-            case UID.MPEG4HP423DF:
-            case UID.MPEG4HP42STEREO:
-            case UID.MPEG4HP42STEREOF:
-            case UID.HEVCMP51:
-            case UID.HEVCM10P51:
-                return true;
-        }
+    private static boolean isVideo(List<Location> locations) {
+        if (!locations.isEmpty())
+            switch (locations.get(0).getTransferSyntaxUID()) {
+                case UID.MPEG2MPML:
+                case UID.MPEG2MPMLF:
+                case UID.MPEG2MPHL:
+                case UID.MPEG2MPHLF:
+                case UID.MPEG4HP41:
+                case UID.MPEG4HP41F:
+                case UID.MPEG4HP41BD:
+                case UID.MPEG4HP41BDF:
+                case UID.MPEG4HP422D:
+                case UID.MPEG4HP422DF:
+                case UID.MPEG4HP423D:
+                case UID.MPEG4HP423DF:
+                case UID.MPEG4HP42STEREO:
+                case UID.MPEG4HP42STEREOF:
+                case UID.HEVCMP51:
+                case UID.HEVCM10P51:
+                    return true;
+            }
         return false;
     }
 

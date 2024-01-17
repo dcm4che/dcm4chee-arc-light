@@ -47,8 +47,10 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.SeriesInfo;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -90,6 +92,8 @@ public class DicomExporter extends AbstractExporter {
                             ? Task.Status.WARNING
                             : Task.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext, destAET));
+
+        Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(retrieveContext);
 
         if (descriptor.isExportAsSourceAE()) {
             retrieveContext.getSeriesInfos().stream()

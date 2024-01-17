@@ -2321,8 +2321,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.476 NAME 'dcmTrustedPatientIDPattern
   DESC 'Regular Expression identifying trusted Patient IDs in HL7 v2 CX format: {Patient ID}^^^{Issuer of Patient ID}&{Universal Entity ID}&{Universal Entity ID Type} in received DICOM objects and HL7 messages. Only Patient IDs matching one of the specified patterns or Patient IDs qualified by an Assigning Authority matching one of the configured Trusted Issuers of Patient IDs by attribute dcmTrustedIssuerOfPatientID will be used for identifying the Patient. If neither this attribute nor dcmTrustedIssuerOfPatientID is configured, all Patient IDs in received DICOM Objects and HL7 messages will be used for identifying the Patient.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-  SINGLE-VALUE )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
