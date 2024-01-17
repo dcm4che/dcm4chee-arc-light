@@ -114,6 +114,11 @@ public class StorageExporter extends AbstractExporter {
             if (!retrieveService.calculateMatches(retrieveContext))
                 return new Outcome(Task.Status.WARNING, noMatches(exportContext));
 
+            Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(retrieveContext);
+            if (!notAccessable.isEmpty()) {
+                return new Outcome(Task.Status.WARNING, notAccessable(exportContext, notAccessable));
+            }
+
             try {
                 Storage storage = retrieveService.getStorage(storageID, retrieveContext);
                 StorageDescriptor storageDescriptor = storage.getStorageDescriptor();

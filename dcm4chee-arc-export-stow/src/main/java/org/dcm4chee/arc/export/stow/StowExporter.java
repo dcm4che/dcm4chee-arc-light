@@ -49,9 +49,11 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.stow.client.StowClient;
 import org.dcm4chee.arc.stow.client.StowTask;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -85,6 +87,11 @@ public class StowExporter extends AbstractExporter {
         retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
         if (!retrieveService.calculateMatches(retrieveContext))
             return new Outcome(Task.Status.WARNING, noMatches(exportContext));
+
+        Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(retrieveContext);
+        if (!notAccessable.isEmpty()) {
+            return new Outcome(Task.Status.WARNING, notAccessable(exportContext, notAccessable));
+        }
 
         if (!retrieveContext.getDestinationWebApp().containsServiceClass(WebApplication.ServiceClass.STOW_RS))
             return new Outcome(Task.Status.WARNING,

@@ -2,6 +2,10 @@ package org.dcm4chee.arc.exporter;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.store.InstanceLocations;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -29,6 +33,16 @@ public abstract class AbstractExporter implements Exporter {
         StringBuilder sb = new StringBuilder(256);
         sb.append("Could not find ");
         appendEntity(exportContext, sb);
+        return sb.toString();
+    }
+
+    protected static String notAccessable(ExportContext exportContext, Map<String,
+            Collection<InstanceLocations>> notAccessable) {
+        StringBuilder sb = new StringBuilder(256);
+        int count = notAccessable.values().stream().mapToInt(Collection::size).sum();
+        sb.append("Could not access ").append(count).append(" objects of ");
+        appendEntity(exportContext, sb);
+        sb.append(" locally");
         return sb.toString();
     }
 

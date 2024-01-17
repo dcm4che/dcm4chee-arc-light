@@ -86,14 +86,17 @@ public class DicomExporter extends AbstractExporter {
         if (!retrieveService.calculateMatches(retrieveContext))
             return new Outcome(Task.Status.WARNING, noMatches(exportContext));
 
+        Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(retrieveContext);
+        if (!notAccessable.isEmpty()) {
+            return new Outcome(Task.Status.WARNING, notAccessable(exportContext, notAccessable));
+        }
+
         if (!retrieveService.restrictRetrieveAccordingTransferCapabilities(retrieveContext))
             return new Outcome(
                     retrieveContext.failed() > 0
                             ? Task.Status.WARNING
                             : Task.Status.COMPLETED,
                     outcomeMessage(exportContext, retrieveContext, destAET));
-
-        Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(retrieveContext);
 
         if (descriptor.isExportAsSourceAE()) {
             retrieveContext.getSeriesInfos().stream()
