@@ -65,7 +65,9 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -293,7 +295,7 @@ public class UpsRS {
     public Response rescheduleWorkitem(
             @PathParam("workitem") String iuid,
             @QueryParam("newWorkitem") String newIUID,
-            @QueryParam("upsScheduledTime") String upsScheduledTime) {
+            @QueryParam("upsScheduledTime") @ValidValueOf(type = ParseDateTime.class) String upsScheduledTime) {
         ArchiveAEExtension arcAE = getArchiveAE();
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))

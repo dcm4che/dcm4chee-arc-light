@@ -70,6 +70,7 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
 import org.dcm4chee.arc.ups.UPSUtils;
+import org.dcm4chee.arc.validation.ParseDateTime;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
@@ -127,6 +128,7 @@ public class UpsDimseRS {
     private String upsLabel;
 
     @QueryParam("upsScheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
     private String upsScheduledTime;
 
     @QueryParam("fuzzymatching")
