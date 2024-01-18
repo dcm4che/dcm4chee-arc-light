@@ -4848,6 +4848,14 @@ export class StudyService {
         )
     }
 
+    createUPSMatchingStudies(webApp: DcmWebApp, params:any){
+        return this.$http.post(
+            `${this.getDicomURL("study", webApp)}/workitems${j4care.param(params)}`,
+            {},
+            this.jsonHeader
+        )
+    }
+
     exportMatching(mode, studyWebService:StudyWebService, params:any){
         let _webApp;
         const exporterID = params["exporterID"];

@@ -622,6 +622,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "update_matching_series":
                 this.updateMatchingSeries();
                 break;
+            case "create_ups_matching_studies":
+                this.createUPSMatchingStudies();
+                break;
             case "change_sps_status_on_matching":
                 this.changeSPSStatus(e, "matching");
                break;
@@ -4808,6 +4811,65 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                 }
             });
+        });
+    }
+
+    createUPSMatchingStudies() {
+        this.confirm({
+            content: $localize `:@@create_ups_matching_studies:Create UPS Workitems for matching studies`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@ups_label:UPS Label`
+                    },
+                    {
+                        tag: "input",
+                        type: "text",
+                        filterKey: "upsLabel",
+                        placeholder: $localize`:@@ups_label:UPS Label`,
+                        description: $localize`:@@ups_label_desc:Value of Procedure Step Label (0074,1204) in created UPS.`
+                    }
+                ],
+                [
+                    {
+                        tag: "label",
+                        text: $localize`:@@ups_scheduled_time:UPS Scheduled Time`
+                    },
+                    {
+                        tag:"single-date-time-picker",
+                        type:"text",
+                        filterKey:"upsScheduledTime",
+                        placeholder: $localize`:@@ups_scheduled_time:UPS Scheduled Time`,
+                        description:$localize `:@@ups_scheduled_time_desc:Scheduled Procedure Step Start DateTime (0040,4005) as in created UPS.`
+                    },
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@CREATE:CREATE`
+        }).subscribe(result => {
+            if (result) {
+                this.cfpLoadingBar.start();
+                this.service.createUPSMatchingStudies(this.studyWebService.selectedWebService,
+                    _.merge(result.schema_model, this.createStudyFilterParams(true,true)))
+                    .subscribe(res=>{
+                        console.log("res",res);
+                        let count = "";
+                        try{
+                            count = res["count"];
+                        }catch (e) {
+                            j4care.log("Could not get count from res=",e);
+                        }
+                        this.appService.showMsg($localize `:@@create_ups_success_msg:UPS Workitems created successfully for ${count} studies`);
+                        this.cfpLoadingBar.complete();
+                    },err=>{
+                        this.httpErrorHandler.handleError(err);
+                        this.cfpLoadingBar.complete();
+                    });
+            }
         });
     }
 
