@@ -3928,7 +3928,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     editPatient(patient){
         let config:ModifyConfig = {
             saveLabel:$localize `:@@SAVE:SAVE`,
-            titleLabel:$localize `:@@study.edit_patient:Edit patient`
+            titleLabel:$localize `:@@study.edit_patient:Edit patient `
         };
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100010.Value.0.Alphabetic')) ? '<b>' + patient.attrs['00100010'].Value[0]['Alphabetic'] + '</b>' : ' ');
         config.titleLabel += ((_.hasIn(patient, 'attrs.00100020.Value.0')) ? ' with ID: <b>' + patient.attrs['00100020'].Value[0] + '</b>' : '');
@@ -3943,14 +3943,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.lastPressedCode = 0;
         // this.config.viewContainerRef = this.viewContainerRef;
         this.service.getPatientIod().subscribe((iod) => {
-            this.service.initEmptyValue(patient.attrs);
+            let patientFiltered = _.cloneDeep(patient);
+            patientFiltered.attrs = new ComparewithiodPipe().transform(patient.attrs, iod);
+            this.service.initEmptyValue(patientFiltered.attrs);
             this.dialogRef = this.dialog.open(EditPatientComponent, {
                 height: 'auto',
                 width: '90%'
             });
 
             this.dialogRef.componentInstance.mode = mode;
-            this.dialogRef.componentInstance.patient = patient;
+            this.dialogRef.componentInstance.patient = patientFiltered;
             this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
             this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
             this.dialogRef.componentInstance.saveLabel = config.saveLabel;
