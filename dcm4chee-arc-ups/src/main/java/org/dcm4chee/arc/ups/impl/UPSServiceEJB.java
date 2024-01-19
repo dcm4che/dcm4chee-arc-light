@@ -119,13 +119,13 @@ public class UPSServiceEJB {
         for (GlobalSubscription globalSubscription : globalSubscriptions(attrs)) {
             createSubscription(ctx, ups, globalSubscription.getSubscriberAET(), globalSubscription.isDeletionLock());
         }
-        List<String> subcribers = subscribersOf(ups);
-        if (!subcribers.isEmpty()) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subcribers);
+        List<String> subscribers = subscribersOf(ups);
+        if (!subscribers.isEmpty()) {
+            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
             for (Attributes eventInformation : assigned(attrs,
                     attrs.containsValue(Tag.ScheduledStationNameCodeSequence),
                     attrs.containsValue(Tag.ScheduledHumanPerformersSequence))) {
-                ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subcribers);
+                ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers);
             }
         }
         return ups;
@@ -389,9 +389,9 @@ public class UPSServiceEJB {
                break;
         }
         attrs.setString(Tag.ProcedureStepState, VR.CS, upsState.toString());
-        List<String> subcribers = subscribersOf(ups);
-        if (!subcribers.isEmpty()) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUPSInstanceUID(), stateReportOf(attrs), subcribers);
+        List<String> subscribers = subscribersOf(ups);
+        if (!subscribers.isEmpty()) {
+            ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
         }
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
@@ -417,14 +417,14 @@ public class UPSServiceEJB {
 
     private void addCancelRequestedEvent(UPSContext ctx, UPS ups, UPSServiceImpl upsService)
             throws DicomServiceException {
-        List<String> subcribers = subscribersOf(ups);
+        List<String> subscribers = subscribersOf(ups);
         Predicate<String> isUPSEventSCU = ctx.getArchiveAEExtension()::isUPSEventSCU;
-        subcribers.removeIf(isUPSEventSCU.or(upsService::websocketChannelsExists).negate());
-        if (!subcribers.contains(ups.getPerformerAET())) {
+        subscribers.removeIf(isUPSEventSCU.or(upsService::websocketChannelsExists).negate());
+        if (!subscribers.contains(ups.getPerformerAET())) {
             throw new DicomServiceException(Status.UPSPerformerCannotBeContacted,
                     "The performer cannot be contacted");
         }
-        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, ctx.getUPSInstanceUID(), cancelRequestedBy(ctx), subcribers);
+        ctx.addUPSEvent(UPSEvent.Type.CancelRequested, ctx.getUPSInstanceUID(), cancelRequestedBy(ctx), subscribers);
     }
 
     private void cancelUPS(UPSContext ctx, UPS ups) {
@@ -442,12 +442,12 @@ public class UPSServiceEJB {
         }
         supplementDiscontinuationReasonCode(progressInformation);
         attrs.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
-        List<String> subcribers = subscribersOf(ups);
-        if (!subcribers.isEmpty()) {
+        List<String> subscribers = subscribersOf(ups);
+        if (!subscribers.isEmpty()) {
             ctx.addUPSEvent(UPSEvent.Type.StateReportInProcessAndCanceled,
                     ctx.getUPSInstanceUID(),
                     stateReportOf(attrs),
-                    subcribers);
+                    subscribers);
         }
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
