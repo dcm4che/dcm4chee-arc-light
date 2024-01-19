@@ -224,20 +224,20 @@ public class UPSServiceEJB {
         }
         ups.setAttributes(attrs, filter);
         LOG.info("{}: Update {}", ctx, ups);
-        List<String> subcribers = subscribersOf(ups);
-        if (subcribers.isEmpty()) {
+        List<String> subscribers = subscribersOf(ups);
+        if (subscribers.isEmpty()) {
             return ups;
         }
         if (modified.contains(Tag.InputReadinessState)) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subcribers);
+            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
         }
         boolean progressInformationUpdated = (prevProgressInformation ? modified : attrs)
                 .containsValue(Tag.ProcedureStepProgressInformationSequence);
         if (progressInformationUpdated) {
-            ctx.addUPSEvent(UPSEvent.Type.ProgressReport, ups.getUPSInstanceUID(), progressReportOf(attrs), subcribers);
+            ctx.addUPSEvent(UPSEvent.Type.ProgressReport, ups.getUPSInstanceUID(), progressReportOf(attrs), subscribers);
         }
         for (Attributes eventInformation : assigned(attrs, stationNameUpdated, performerUpdated)) {
-            ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subcribers);
+            ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers);
         }
         return ups;
     }
