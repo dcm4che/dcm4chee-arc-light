@@ -114,8 +114,8 @@ public interface UPSContext {
 
     List<UPSEvent> getUPSEvents();
 
-    void addUPSEvent(UPSEvent.Type cancelRequested, String upsInstanceUID, Attributes eventInformation,
-            List<String> subcribers);
+    void addUPSEvent(UPSEvent.Type type, String upsInstanceUID, Attributes eventInformation,
+            List<String> subscribers);
 
     Connection getConnection();
 
