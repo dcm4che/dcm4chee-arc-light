@@ -89,7 +89,7 @@
     "content": {
       "application/dicom+json": {
         "schema": {
-          "$ref": "schemas.json#/request-ups-cancel-attributes"
+          "$ref": "schemas.json#/requestUPSCancelAttributes"
         }
       },
       "application/dicom+xml": {

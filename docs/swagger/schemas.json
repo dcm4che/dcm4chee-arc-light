@@ -8,7 +8,7 @@
       }
     }
   },
-  "request-ups-cancel-attributes": {
+  "requestUPSCancelAttributes": {
     "type": "object",
     "example": {
       "externalDocs": {
