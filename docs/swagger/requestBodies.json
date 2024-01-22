@@ -54,6 +54,7 @@
   },
   "workitem": {
     "description": "Unified Procedure Step Attributes",
+    "required": true,
     "content": {
       "application/dicom+json": {
         "schema": {
@@ -86,6 +87,7 @@
   },
   "workitemCancelrequest": {
     "description": "Request UPS Cancel Action Information.",
+    "required": false,
     "content": {
       "application/dicom+json": {
         "schema": {
