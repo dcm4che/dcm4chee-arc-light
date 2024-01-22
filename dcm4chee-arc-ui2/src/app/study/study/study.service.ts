@@ -3421,7 +3421,7 @@ export class StudyService {
                                         action: "cancel_uwl"
                                     }, e);
                                 },
-                                title: $localize `:@@title.cancel:Cancel`,
+                                title: $localize `:@@cancel_uwl:Cancel UWL`,
                                 permission: {
                                     id: 'action-studies-uwl',
                                     param: 'edit'
