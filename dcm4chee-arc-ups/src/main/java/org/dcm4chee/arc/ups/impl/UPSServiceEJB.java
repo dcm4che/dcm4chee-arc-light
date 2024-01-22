@@ -116,16 +116,18 @@ public class UPSServiceEJB {
         ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS));
         em.persist(ups);
         LOG.info("{}: Create {}", ctx, ups);
-        for (GlobalSubscription globalSubscription : globalSubscriptions(attrs)) {
-            createSubscription(ctx, ups, globalSubscription.getSubscriberAET(), globalSubscription.isDeletionLock());
-        }
-        List<String> subscribers = subscribersOf(ups);
-        if (!subscribers.isEmpty()) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
-            for (Attributes eventInformation : assigned(attrs,
-                    attrs.containsValue(Tag.ScheduledStationNameCodeSequence),
-                    attrs.containsValue(Tag.ScheduledHumanPerformersSequence))) {
-                ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers);
+        if (!isTemplate(ups)) {
+            globalSubscriptions(attrs).forEach(globalSubscription
+                    -> createSubscription(ctx, ups,
+                                          globalSubscription.getSubscriberAET(), globalSubscription.isDeletionLock()));
+            List<String> subscribers = subscribersOf(ups);
+            if (!subscribers.isEmpty()) {
+                ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
+                for (Attributes eventInformation : assigned(attrs,
+                        attrs.containsValue(Tag.ScheduledStationNameCodeSequence),
+                        attrs.containsValue(Tag.ScheduledHumanPerformersSequence))) {
+                    ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers);
+                }
             }
         }
         return ups;
@@ -224,6 +226,9 @@ public class UPSServiceEJB {
         }
         ups.setAttributes(attrs, filter);
         LOG.info("{}: Update {}", ctx, ups);
+        if (isTemplate(ups))
+            return ups;
+
         List<String> subscribers = subscribersOf(ups);
         if (subscribers.isEmpty()) {
             return ups;
@@ -242,10 +247,14 @@ public class UPSServiceEJB {
         return ups;
     }
 
-    private boolean isTemplateUpdate(UPSContext ctx, UPS ups) throws DicomServiceException {
-        if (!ups.getAttributes()
+    private boolean isTemplate(UPS ups) {
+        return ups.getAttributes()
                 .getString(Tag.ScheduledProcedureStepStartDateTime, "*")
-                .equals("*"))
+                .equals("*");
+    }
+
+    private boolean isTemplateUpdate(UPSContext ctx, UPS ups) throws DicomServiceException {
+        if (!isTemplate(ups))
             return false;
 
         if (!ctx.getAttributes().containsValue(Tag.ScheduledProcedureStepStartDateTime))
@@ -389,9 +398,10 @@ public class UPSServiceEJB {
                break;
         }
         attrs.setString(Tag.ProcedureStepState, VR.CS, upsState.toString());
-        List<String> subscribers = subscribersOf(ups);
-        if (!subscribers.isEmpty()) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
+        if (!isTemplate(ups)) {
+            List<String> subscribers = subscribersOf(ups);
+            if (!subscribers.isEmpty())
+                ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
         }
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
@@ -417,6 +427,9 @@ public class UPSServiceEJB {
 
     private void addCancelRequestedEvent(UPSContext ctx, UPS ups, UPSServiceImpl upsService)
             throws DicomServiceException {
+        if (isTemplate(ups))
+            return;
+
         List<String> subscribers = subscribersOf(ups);
         Predicate<String> isUPSEventSCU = ctx.getArchiveAEExtension()::isUPSEventSCU;
         subscribers.removeIf(isUPSEventSCU.or(upsService::websocketChannelsExists).negate());
@@ -442,12 +455,14 @@ public class UPSServiceEJB {
         }
         supplementDiscontinuationReasonCode(progressInformation);
         attrs.setString(Tag.ProcedureStepState, VR.CS, "CANCELED");
-        List<String> subscribers = subscribersOf(ups);
-        if (!subscribers.isEmpty()) {
-            ctx.addUPSEvent(UPSEvent.Type.StateReportInProcessAndCanceled,
-                    ctx.getUPSInstanceUID(),
-                    stateReportOf(attrs),
-                    subscribers);
+        if (!isTemplate(ups)) {
+            List<String> subscribers = subscribersOf(ups);
+            if (!subscribers.isEmpty()) {
+                ctx.addUPSEvent(UPSEvent.Type.StateReportInProcessAndCanceled,
+                        ctx.getUPSInstanceUID(),
+                        stateReportOf(attrs),
+                        subscribers);
+            }
         }
         ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
         LOG.info("{}: Update {}", ctx, ups);
@@ -538,16 +553,17 @@ public class UPSServiceEJB {
         }
     }
 
-    public Subscription createOrUpdateSubscription(UPSContext ctx) throws DicomServiceException {
+    public void createOrUpdateSubscription(UPSContext ctx) throws DicomServiceException {
         UPS ups = findUPS(ctx);
-        Subscription sub;
+        if (isTemplate(ups))
+            return;
+
         try {
-            sub = updateSubscription(ctx, ups);
+            updateSubscription(ctx, ups);
         } catch (NoResultException e) {
-            sub = createSubscription(ctx, ups, ctx.getSubscriberAET(), ctx.isDeletionLock());
+            createSubscription(ctx, ups, ctx.getSubscriberAET(), ctx.isDeletionLock());
         }
         addInitialEvent(ctx, ups, ctx.getSubscriberAET());
-        return sub;
     }
 
     public int deleteSubscription(UPSContext ctx) {
