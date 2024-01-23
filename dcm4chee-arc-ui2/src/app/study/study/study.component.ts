@@ -3895,9 +3895,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             content: $localize `:@@request_cancellation_of_workitem:Request Cancellation of Workitem`,
             doNotSave:true,
             form_schema:[
+                [
                     [
-                        [
-
                         {
                             tag:"label",
                             text:$localize `:@@aet_of_a_requester:AET of a Requester`
@@ -3910,24 +3909,137 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             description:$localize `:@@aet_of_a_requester:AET of a Requester`,
                             placeholder:$localize `:@@aet_of_a_requester:AET of a Requester`
                         }
-                    ]
-                        /*this.applicationEntities.aets*/
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@reason_for_cancellation:Reason for Cancellation`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"reasonForCancellation",
+                            description:$localize `:@@reason_for_cancellation:Reason for Cancellation`,
+                            placeholder:$localize `:@@reason_for_cancellation:Reason for Cancellation`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@procedure_step_discontinuation_reason_code_seq:Procedure Step Discontinuation Reason Code Sequence`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@code_value:Code Value`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"codeValue",
+                            description:$localize `:@@code_value:Code Value`,
+                            placeholder:$localize `:@@code_value:Code Value`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@coding_scheme_designator:Coding Scheme Designator`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"codingSchemeDesignator",
+                            description:$localize `:@@coding_scheme_designator:Coding Scheme Designator`,
+                            placeholder:$localize `:@@coding_scheme_designator:Coding Scheme Designator`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@code_meaning:Code Meaning`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"codeMeaning",
+                            description:$localize `:@@code_meaning:Code Meaning`,
+                            placeholder:$localize `:@@code_meaning:Code Meaning`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@contact_uri:Contact URI`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"contactURI",
+                            description:$localize `:@@contact_uri:Contact URI`,
+                            placeholder:$localize `:@@contact_uri:Contact URI`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@contact_name:Contact Display Name`
+                        },
+                        {
+                            tag:"input",
+                            type:"text",
+                            filterKey:"contactName",
+                            description:$localize `:@@contact_name:Contact Display Name`,
+                            placeholder:$localize `:@@contact_name:Contact Display Name`
+                        }
+                    ],
                 ]
             ],
             result: {
-                schema_model: {}
+                schema_model: {
+                    codeValue: "110513",
+                    codingSchemeDesignator: "DCM",
+                    codeMeaning: "Discontinued for unspecified reason"
+                }
             },
             saveButton: $localize `:@@CANCEL_UPS:Cancel UPS`
         }).subscribe((ok)=> {
             if(ok){
-                this.service.cancelUPS(this.service.getUpsWorkitemUID(workitem.attrs), this.studyWebService, ok.schema_model.requester).subscribe(warningHeaderText => {
-                    this.appService.showMsg($localize `:@@cancellation_of_the_ups_workitem_was_requested_successfully:Cancellation of the UPS Workitem was requested successfully!`);
-                }, err => {
-                    this.httpErrorHandler.handleError(err);
-                });
+                let requestUPSCancelActionInfoAttrs = '{}';
+                let reasonForCancellation;
+                let contactURI;
+                let contactName;
+                let discontinuationCode;
+                if (ok.schema_model.reasonForCancellation)
+                    reasonForCancellation = '00741238":{"vr":"LT","Value":["' + ok.schema_model.reasonForCancellation + '"]}';
+                if (ok.schema_model.codeValue && ok.schema_model.codingSchemeDesignator && ok.schema_model.codeMeaning)
+                    discontinuationCode = '0074100E":{"vr":"SQ","Value":["' + ok.schema_model.reasonForCancellation + '"]}';
+                if (ok.schema_model.contactURI)
+                    contactURI = '0074100A":{"vr":"UR","Value":["' + ok.schema_model.contactURI + '"]}';
+                if (ok.schema_model.contactName)
+                    contactName = '0074100C":{"vr":"LO","Value":["' + ok.schema_model.contactName + '"]}';
+
+                requestUPSCancelActionInfoAttrs = '{'
+                    + reasonForCancellation
+                    + ','
+                    + contactURI
+                    + ','
+                    + contactName
+                    + '}'
+                console.log("created requestUPSCancelActionInfoAttrs are.........", requestUPSCancelActionInfoAttrs);
+
+                this.service.requestCancellationForUPS(this.service.getUpsWorkitemUID(workitem.attrs),
+                    this.studyWebService,
+                    ok.schema_model.requester,
+                    requestUPSCancelActionInfoAttrs)
+                    .subscribe(res => {
+                        this.appService.showMsg($localize `:@@cancellation_of_the_ups_workitem_was_requested_successfully:Cancellation of the UPS Workitem was requested successfully!`);
+                    });
             }
         });
     }
+
     editPatient(patient){
         let config:ModifyConfig = {
             saveLabel:$localize `:@@SAVE:SAVE`,

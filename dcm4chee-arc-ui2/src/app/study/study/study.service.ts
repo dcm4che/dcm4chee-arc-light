@@ -4590,6 +4590,49 @@ export class StudyService {
         };
     }
 
+    requestCancellationForUPS(workitemUID, deviceWebservice: StudyWebService, requester, requestUPSCancelActionInfoAttrs) {
+        let xmlHttpRequest = new XMLHttpRequest();
+        let url;
+        return this.getModifyUPSUrl(deviceWebservice)
+            .pipe(
+                switchMap((returnedUrl:string)=>{
+                    url = returnedUrl
+                    return this.getTokenService(deviceWebservice);
+                }),
+                map(token=>{
+                    console.log("token1",token);
+                    if(_.hasIn(token,"token")){
+                        return _.get(token,"token");
+                    }
+                    return
+                }),
+                switchMap((token)=>{
+                    console.log("token",token);
+                    if (url) {
+                        xmlHttpRequest.open('POST', `${url}/${workitemUID}/cancelrequest/${requester}`, false);
+                        if(token){
+                            xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+                        }
+                        xmlHttpRequest.setRequestHeader("Content-Type","application/dicom+json");
+                        xmlHttpRequest.setRequestHeader("Accept","application/dicom+json");
+                        xmlHttpRequest.send(requestUPSCancelActionInfoAttrs);
+                        let status = xmlHttpRequest.status;
+                        let warning = xmlHttpRequest.getResponseHeader('Warning');
+                        if (status === 202) {
+                            if (warning) {
+                                this.appService.showWarning(warning);
+                            } else
+                                this.appService.showMsg($localize `:@@cancellation_of_the_ups_workitem_was_requested_successfully:Cancellation of the UPS Workitem was requested successfully!`);
+                        } else {
+                            this.appService.showError($localize `:@@ups_workitem_request_cancellation_failed:Request cancellation of UPS workitem failed with status `
+                                + status
+                                + `\n- ` + warning);
+                        }
+                    } else
+                        return throwError({error: $localize `:@@error_on_getting_needed_webapp_ups:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "UPS_RS")`});
+                }))
+    }
+
     getPrepareParameterForExpiriationDialog(study, exporters, infinit) {
         let expiredDate: Date;
         let title = $localize `:@@set_expired_date_for_the_study:Set expired date for the study.`;
