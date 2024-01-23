@@ -517,7 +517,7 @@ public class UPSServiceEJB {
         if (stationNameUpdated) {
             eventInformation.addSelected(attrs, Tag.ScheduledStationNameCodeSequence);
         }
-        return item;
+        return eventInformation;
     }
 
     private List<String> subscribersOf(UPS ups) {
