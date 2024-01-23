@@ -44,9 +44,7 @@ package org.dcm4chee.arc.pdq.hl7;
 import jakarta.enterprise.event.Event;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Issuer;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
@@ -67,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -166,13 +165,35 @@ public class HL7PDQService extends AbstractPDQService {
         ArchiveHL7ApplicationExtension arcHL7App =
                 sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         try {
-            return SAXTransformer.transform(
-                    rsp,
-                    arcHL7App,
-                    xslStylesheetURI(),
-                    null);
+            Attributes demographics = SAXTransformer.transform(rsp, arcHL7App, xslStylesheetURI(), null);
+            adjustOtherPatientIDs(demographics, arcHL7App);
+            return demographics;
         } catch (Exception e) {
             throw new HL7Exception(new ERRSegment(rsp.msh()).setUserMessage(e.getMessage()), e);
+        }
+    }
+
+    private static void adjustOtherPatientIDs(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App) {
+        IDWithIssuer primaryPatIdentifier = IDWithIssuer.pidOf(attrs);
+        switch (arcHL7App.hl7OtherPatientIDs()) {
+            case ALL:
+                break;
+            case NONE:
+                attrs.remove(Tag.OtherPatientIDsSequence);
+                break;
+            default:
+                Sequence seq = attrs.getSequence(Tag.OtherPatientIDsSequence);
+                if (seq == null) break;
+                Iterator<Attributes> otherPIDs = seq.iterator();
+                while (otherPIDs.hasNext()) {
+                    IDWithIssuer otherPID = IDWithIssuer.pidOf(otherPIDs.next());
+                    if (otherPID == null || !otherPID.equals(primaryPatIdentifier))
+                        continue;
+
+                    otherPIDs.remove();
+                }
+                if (seq.isEmpty())
+                    attrs.remove(Tag.OtherPatientIDsSequence);
         }
     }
 
