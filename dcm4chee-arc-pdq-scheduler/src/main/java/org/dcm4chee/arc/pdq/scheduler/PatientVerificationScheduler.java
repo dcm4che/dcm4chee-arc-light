@@ -46,8 +46,6 @@ import jakarta.inject.Inject;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -66,10 +64,9 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -193,6 +190,10 @@ public class PatientVerificationScheduler extends Scheduler {
         }
         if (attrs == null) {
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.NOT_FOUND);
+            ctx.setPatientIDs(patient.getPatientIDs()
+                                .stream()
+                                .map(PatientID::getIDWithIssuer)
+                                .collect(Collectors.toList()));
             patientService.updatePatientStatus(ctx);
             LOG.info("{} not found at {} - no verification", patient, pdqService.getPDQServiceDescriptor());
             return;
