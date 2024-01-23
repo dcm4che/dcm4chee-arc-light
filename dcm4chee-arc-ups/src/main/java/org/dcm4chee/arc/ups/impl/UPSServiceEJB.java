@@ -123,11 +123,9 @@ public class UPSServiceEJB {
             List<String> subscribers = subscribersOf(ups);
             if (!subscribers.isEmpty()) {
                 ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
-                for (Attributes eventInformation : assigned(attrs,
-                        attrs.containsValue(Tag.ScheduledStationNameCodeSequence),
-                        attrs.containsValue(Tag.ScheduledHumanPerformersSequence))) {
-                    ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers);
-                }
+                assigned(attrs)
+                    .forEach(eventInformation
+                        -> ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers));
             }
         }
         return ups;
@@ -241,9 +239,9 @@ public class UPSServiceEJB {
         if (progressInformationUpdated) {
             ctx.addUPSEvent(UPSEvent.Type.ProgressReport, ups.getUPSInstanceUID(), progressReportOf(attrs), subscribers);
         }
-        for (Attributes eventInformation : assigned(attrs, stationNameUpdated, performerUpdated)) {
-            ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers);
-        }
+        assigned(attrs)
+            .forEach(eventInformation
+                -> ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers));
         return ups;
     }
 
@@ -499,24 +497,23 @@ public class UPSServiceEJB {
         return new Attributes(attrs, Tag.ProcedureStepProgressInformationSequence);
     }
 
-    private static List<Attributes> assigned(Attributes attrs, boolean stationNameUpdated, boolean performerUpdated) {
-        if (!performerUpdated) {
-            return stationNameUpdated
+    private static List<Attributes> assigned(Attributes attrs) {
+        boolean hasScheduledStationNameCode = attrs.containsValue(Tag.ScheduledStationNameCodeSequence);
+        return attrs.containsValue(Tag.ScheduledHumanPerformersSequence)
+                ? attrs.getSequence(Tag.ScheduledHumanPerformersSequence)
+                    .stream()
+                    .map(item -> assignedOf(attrs, hasScheduledStationNameCode, item))
+                    .collect(Collectors.toList())
+                : hasScheduledStationNameCode
                     ? Collections.singletonList(new Attributes(attrs, Tag.ScheduledStationNameCodeSequence))
                     : Collections.emptyList();
         }
-        return attrs.getSequence(Tag.ScheduledHumanPerformersSequence)
-                .stream()
-                .map(item -> assignedOf(attrs, stationNameUpdated, item))
-                .collect(Collectors.toList());
-        }
 
-    private static Attributes assignedOf(Attributes attrs, boolean stationNameUpdated, Attributes item) {
+    private static Attributes assignedOf(Attributes attrs, boolean hasScheduledStationNameCode, Attributes item) {
         Attributes eventInformation = new Attributes(3);
         eventInformation.addSelected(item, Tag.HumanPerformerCodeSequence, Tag.HumanPerformerOrganization);
-        if (stationNameUpdated) {
+        if (hasScheduledStationNameCode)
             eventInformation.addSelected(attrs, Tag.ScheduledStationNameCodeSequence);
-        }
         return eventInformation;
     }
 
