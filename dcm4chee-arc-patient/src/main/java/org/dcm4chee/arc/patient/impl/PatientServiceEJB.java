@@ -323,6 +323,13 @@ public class PatientServiceEJB {
         Patient pat2 = findPatient(patientIDs);
         if (pat2 != null && pat2 != pat)
             throw new PatientAlreadyExistsException("Patient with Patient IDs " + pat2.getPatientIDs() + "already exists");
+
+        if (ctx.getPatientVerificationStatus() != Patient.VerificationStatus.UNVERIFIED) {
+            pat.setVerificationStatus(ctx.getPatientVerificationStatus());
+            pat.setVerificationTime(new Date());
+            pat.resetFailedVerifications();
+        }
+
         updatePatientIDAttrs(ctx, pat);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         return pat;
