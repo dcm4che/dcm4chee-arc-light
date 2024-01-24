@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -190,17 +191,14 @@ public class PatientVerificationScheduler extends Scheduler {
         }
         if (attrs == null) {
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.NOT_FOUND);
-            ctx.setPatientIDs(patient.getPatientIDs()
-                                .stream()
-                                .map(PatientID::getIDWithIssuer)
-                                .collect(Collectors.toList()));
+            ctx.setPatientIDs(patientIDsToIDWithIssuers(patient));
             patientService.updatePatientStatus(ctx);
             LOG.info("{} not found at {} - no verification", patient, pdqService.getPDQServiceDescriptor());
             return;
         }
         ctx.setAttributes(attrs);
         ctx.setPatientVerificationStatus(Patient.VerificationStatus.VERIFIED);
-        if (adjustIssuerOfPatientID && !ctx.getPatientIDs().equals(patient.getPatientIDs())) {
+        if (adjustIssuerOfPatientID && !ctx.getPatientIDs().containsAll(patientIDsToIDWithIssuers(patient))) {
             ctx.setPreviousAttributes(PatientService.exportPatientIDsWithIssuer(patient.getPatientIDs()));
             patientService.changePatientID(ctx);
             LOG.info("Updated and adjusted Issuer for {} to patient identifiers {} on verification against {}",
@@ -213,5 +211,12 @@ public class PatientVerificationScheduler extends Scheduler {
                     patient,
                     pdqService.getPDQServiceDescriptor());
         }
+    }
+
+    private Collection<IDWithIssuer> patientIDsToIDWithIssuers(Patient patient) {
+        return patient.getPatientIDs()
+                .stream()
+                .map(PatientID::getIDWithIssuer)
+                .collect(Collectors.toList());
     }
 }
