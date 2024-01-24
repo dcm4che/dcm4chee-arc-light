@@ -171,7 +171,8 @@ public class UpdatePatientDemographics {
             if (adjustIssuerOfPatientID && !ctx.getPatientIDs().contains(patientID)) {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
-                LOG.info("Updated {} on verification against {}", patientID, descriptor);
+                LOG.info("Updated and adjusted Issuer for {} to patient identifiers {} on verification against {}",
+                        patientID, ctx.getPatientIDs(), descriptor);
             } else {
                 patientService.updatePatient(ctx);
                 LOG.info(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)

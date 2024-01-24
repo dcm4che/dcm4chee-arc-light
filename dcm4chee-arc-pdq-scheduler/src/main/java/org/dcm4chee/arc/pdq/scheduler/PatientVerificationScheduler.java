@@ -203,9 +203,8 @@ public class PatientVerificationScheduler extends Scheduler {
         if (adjustIssuerOfPatientID && !ctx.getPatientIDs().equals(patient.getPatientIDs())) {
             ctx.setPreviousAttributes(PatientService.exportPatientIDsWithIssuer(patient.getPatientIDs()));
             patientService.changePatientID(ctx);
-            LOG.info("Updated {} on verification against {}",
-                    patient,
-                    pdqService.getPDQServiceDescriptor());
+            LOG.info("Updated and adjusted Issuer for {} to patient identifiers {} on verification against {}",
+                    patient, ctx.getPatientIDs(), pdqService.getPDQServiceDescriptor());
         } else {
             patientService.updatePatient(ctx);
             LOG.info(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
