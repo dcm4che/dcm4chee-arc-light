@@ -1015,6 +1015,10 @@ export class StudyService {
                 .every(tag => attrs[tag]);
     }
 
+    updatePatientDemographics(dcmWebApp: DcmWebApp, patient, PDQServiceID, param?) {
+        return this.$http.post(`${this.getDicomURL("patient", dcmWebApp)}/${this.getPatientId(patient.attrs)}/pdq/${PDQServiceID}${j4care.param(param)}`, undefined, true);
+    }
+
     queryPatientDemographics(patientID: string, PDQServiceID: string, url?: string) {
         return this.$http.get(`${url ? j4care.addLastSlash(url) : j4care.addLastSlash(this.appService.baseUrl)}pdq/${PDQServiceID}/patients/${patientID}`);
     }
@@ -1344,6 +1348,26 @@ export class StudyService {
                                 title: $localize `:@@study.query_patient_demographics_service:Query Patient Demographics Service`,
                                 showIf: (e, config) => {
                                     return j4care.is(options, "appService['xRoad']") || (j4care.is(options,"appService.global['PDQs']") && options.appService.global['PDQs'].length > 0);
+                                }
+                            },
+                            {
+                                icon: {
+                                    tag: 'span',
+                                    cssClass: `custom_icon person_check`,
+                                    text: ''
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "patient",
+                                        action: "pdq_patient_update"
+                                    }, e);
+                                },
+                                title: $localize `:@@study.update_patient_demographics:Update Patient Demographics`,
+                                showIf: () => {
+                                    return j4care.is(options,"appService.global['PDQs']")
+                                                        && options.appService.global['PDQs'].length > 0
+                                                        && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET");
                                 }
                             },
                             {

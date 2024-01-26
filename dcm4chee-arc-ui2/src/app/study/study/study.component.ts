@@ -1018,6 +1018,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "pdq_patient"){
                 this.queryNationalPatientRegister(model);
             }
+            if(id.action === "pdq_patient_update"){
+                this.updatePatientDemographics(model);
+            }
             if(id.action === "download"){
                 if(id.level === "instance"){
                     if(id.mode === "uncompressed"){
@@ -6821,6 +6824,64 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     if (retries)
                         this.initExporters(retries - 1);
                 });
+    }
+
+    updatePatientDemographics(patient){
+        console.log("global",this.appService.global);
+        this.confirm({
+            content: $localize `:@@study.update_patient_demographics:Update Patient Demographics`,
+            doNotSave:true,
+            form_schema:[
+                [
+                    [
+
+                        {
+                            tag:"label",
+                            text:$localize `:@@select_PDQ:Select PDQ Service`
+                        },
+                        {
+                            tag:"select",
+                            options:this.appService.global['PDQs'].map(pdq=>{
+                                return new SelectDropdown(pdq.id, (pdq.description || pdq.id))
+                            }),
+                            filterKey:"PDQServiceID",
+                            description:$localize `:@@PDQ_ServiceID:PDQ ServiceID`,
+                            placeholder:$localize `:@@PDQ_ServiceID:PDQ ServiceID`
+                        }
+                    ],
+                    [
+                        {
+                            tag:"label",
+                            text:$localize `:@@adjust_issuer_of_patient_identifier:Adjust Issuer of Patient Identifier`
+                        },
+                        {
+                            tag:"checkbox",
+                            filterKey:"adjustIssuerOfPatientID",
+                            description:$localize `:@@adjust_issuer_of_patient_identifier_desc:Patient identifier issuer changed in archive if it differs with value in patient demographics supplier`
+                        }
+                    ]
+                ]
+            ],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@UPDATE:UPDATE`
+        }).subscribe(ok=>{
+            if (ok){
+                this.cfpLoadingBar.start();
+                this.service.updatePatientDemographics(this.studyWebService.selectedWebService, patient, ok.schema_model.PDQServiceID, ok.schema_model)
+                    .subscribe(
+                        () => {
+                            this.appService.showMsg($localize `:@@patient_demographics_updated_successfully:Patient demographics updated successfully!`);
+                            this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            this.httpErrorHandler.handleError(err);
+                            this.cfpLoadingBar.complete();
+                        }
+                    );
+            }
+        })
     }
 
     queryNationalPatientRegister(patientId){
