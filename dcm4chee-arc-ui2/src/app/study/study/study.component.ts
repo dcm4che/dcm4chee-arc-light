@@ -4009,27 +4009,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             saveButton: $localize `:@@CANCEL_UPS:Cancel UPS`
         }).subscribe((ok)=> {
             if(ok){
-                let requestUPSCancelActionInfoAttrs = '{}';
-                let reasonForCancellation;
-                let contactURI;
-                let contactName;
+                let requestUPSCancelActionInfoAttrs = this.requestUPSCancelActionInfoAttrs(ok.schema_model);
                 let discontinuationCode;
-                if (ok.schema_model.reasonForCancellation)
-                    reasonForCancellation = '00741238":{"vr":"LT","Value":["' + ok.schema_model.reasonForCancellation + '"]}';
                 if (ok.schema_model.codeValue && ok.schema_model.codingSchemeDesignator && ok.schema_model.codeMeaning)
                     discontinuationCode = '0074100E":{"vr":"SQ","Value":["' + ok.schema_model.reasonForCancellation + '"]}';
-                if (ok.schema_model.contactURI)
-                    contactURI = '0074100A":{"vr":"UR","Value":["' + ok.schema_model.contactURI + '"]}';
-                if (ok.schema_model.contactName)
-                    contactName = '0074100C":{"vr":"LO","Value":["' + ok.schema_model.contactName + '"]}';
 
-                requestUPSCancelActionInfoAttrs = '{'
-                    + reasonForCancellation
-                    + ','
-                    + contactURI
-                    + ','
-                    + contactName
-                    + '}'
                 console.log("created requestUPSCancelActionInfoAttrs are.........", requestUPSCancelActionInfoAttrs);
 
                 this.service.requestCancellationForUPS(this.service.getUpsWorkitemUID(workitem.attrs),
@@ -4041,6 +4025,29 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
             }
         });
+    }
+
+    requestUPSCancelActionInfoAttrs(schema_model) {
+        let requestUPSCancelActionInfoAttrs = '{';
+        if (schema_model.reasonForCancellation) {
+            requestUPSCancelActionInfoAttrs += '"00741238":{"vr":"LT","Value":["' + schema_model.reasonForCancellation + '"]}';
+            if (schema_model.contactURI)
+                requestUPSCancelActionInfoAttrs += ',"0074100A":{"vr":"UR","Value":["' + schema_model.contactURI + '"]}';
+            if (schema_model.contactName)
+                requestUPSCancelActionInfoAttrs += ',"0074100C":{"vr":"LO","Value":["' + schema_model.contactName + '"]}';
+        } else {
+            if (schema_model.contactURI) {
+                requestUPSCancelActionInfoAttrs += '"0074100A":{"vr":"UR","Value":["' + schema_model.contactURI + '"]}';
+                if (schema_model.contactName)
+                    requestUPSCancelActionInfoAttrs += ',"0074100C":{"vr":"LO","Value":["' + schema_model.contactName + '"]}';
+            } else {
+                if (schema_model.contactName)
+                    requestUPSCancelActionInfoAttrs += '"0074100C":{"vr":"LO","Value":["' + schema_model.contactName + '"]}';
+            }
+        }
+
+        requestUPSCancelActionInfoAttrs += '}';
+        return requestUPSCancelActionInfoAttrs;
     }
 
     editPatient(patient){
