@@ -96,7 +96,7 @@ public class CStoreSCUImpl implements CStoreSCU {
                         ctx.incrementFailed();
                         ctx.addFailedMatch(inst);
                         LOG.info("{}: failed to send {} to {} - no Presentation Context accepted",
-                                ctx.getRequestAssociation(), inst, ctx.getDestinationAETitle());
+                                storeas, inst, ctx.getDestinationAETitle());
                     }
                 }
                 return storeas;
