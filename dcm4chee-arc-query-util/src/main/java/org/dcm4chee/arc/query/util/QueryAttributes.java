@@ -186,6 +186,7 @@ public class QueryAttributes {
                 case "allmodified":
                 case "irwf":
                 case "strategy":
+                case "retainObj":
                     break;
                 case "SendingApplicationEntityTitleOfSeries":
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
