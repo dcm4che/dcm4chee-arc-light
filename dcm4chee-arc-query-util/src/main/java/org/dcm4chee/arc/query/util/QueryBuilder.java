@@ -677,7 +677,7 @@ public class QueryBuilder {
         return predicates;
     }
 
-    private <T, Z> List<Predicate> studyLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <T, Z> void studyLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
             From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel,
             CodeEntity[] showInstancesRejectedByCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
@@ -777,7 +777,6 @@ public class QueryBuilder {
                         issuer);
             }
         }
-        return predicates;
     }
 
     public static void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
@@ -790,7 +789,7 @@ public class QueryBuilder {
         predicates.add(study.get(Study_.accessControlID).in(a));
     }
 
-    private <T, Z> List<Predicate> seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <T, Z> void seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
              From<Series, Study> study, From<Z, Series> series, Attributes keys, QueryParam queryParam,
              QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes) {
         anyOf(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID), false);
@@ -878,7 +877,6 @@ public class QueryBuilder {
             dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
         if (queryParam.getExpirationState() != null)
             predicates.add(series.get(Series_.expirationState).in(queryParam.getExpirationState()));
-        return predicates;
     }
 
     private <T> void instanceLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,

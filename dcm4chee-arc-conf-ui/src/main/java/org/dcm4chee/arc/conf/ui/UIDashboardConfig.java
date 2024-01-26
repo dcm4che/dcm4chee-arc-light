@@ -56,6 +56,8 @@ public class UIDashboardConfig {
     private String countWebApp;
     private String[] ignoreParams = {};
     private String[] dockerContainers = {};
+    private String[] acceptedUserRoles = {};
+
     private final Map<String,UICompareSide> compareSide = new HashMap<>();
 
 
@@ -140,5 +142,13 @@ public class UIDashboardConfig {
 
     public void setDockerContainers(String[] dockerContainers) {
         this.dockerContainers = dockerContainers;
+    }
+
+    public String[] getAcceptedUserRoles() {
+        return acceptedUserRoles;
+    }
+
+    public void setAcceptedUserRoles(String[] acceptedUserRoles) {
+        this.acceptedUserRoles = acceptedUserRoles;
     }
 }

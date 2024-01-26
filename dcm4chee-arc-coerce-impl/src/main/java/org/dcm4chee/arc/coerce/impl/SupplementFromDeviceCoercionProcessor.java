@@ -233,7 +233,7 @@ public class SupplementFromDeviceCoercionProcessor implements CoercionProcessor 
 
     private void log(int tag, VR vr, Object value) {
         if (LOG.isDebugEnabled())
-            LOG.debug("{}: Supplements {} {} [{}] {}",
+            LOG.debug("Supplements {} {} [{}] {}",
                     TagUtils.toString(tag), vr, value,
                     DICT.keywordOf(tag));
     }

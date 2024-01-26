@@ -95,6 +95,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmuiPageTitle", uiConfig.getPageTitle(),null);
         writer.writeNotNullOrDef("dcmuiPersonNameFormat", uiConfig.getPersonNameFormat(),null);
         writer.writeNotNullOrDef("dcmuiLogoURL", uiConfig.getLogoUrl(),null);
+        writer.writeNotNullOrDef("dcmuiAboutInfo", uiConfig.getAboutInfo(),null);
         writer.writeNotEmpty("dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
         writer.writeNotEmpty("dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
         writer.writeNotNullOrDef("dcmuiInstitutionNameFilterType", uiConfig.getInstitutionNameFilterType(), null);
@@ -111,6 +112,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIAetList(writer, uiConfig.getAetLists());
         writeUICreateDialogTemplate(writer, uiConfig.getCreateDialogTemplates());
         writeUIWebAppList(writer, uiConfig.getWebAppLists());
+        writeUITenantConfigs(writer, uiConfig.getTenantConfigs());
         writer.writeEnd();
     }
 
@@ -173,6 +175,25 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmuiWebApps", uiWebAppList.getWebApps());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiWebAppList.getAcceptedRole());
             writer.writeNotEmpty("dcmAcceptedUserName", uiWebAppList.getAcceptedUserName());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUITenantConfigs(JsonWriter writer, Collection<UITenantConfig> uiTenantConfigs) {
+        if (uiTenantConfigs.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiTenantConfig");
+        for (UITenantConfig uiTenantConfig : uiTenantConfigs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiTenantConfigName", uiTenantConfig.getTenantConfigName(), null);
+            writer.writeNotNullOrDef("dcmuiTenantConfigDescription", uiTenantConfig.getTenantConfigDescription(), null);
+            writer.writeNotEmpty("dcmuiWebAppLabels", uiTenantConfig.getMwlWorklistLabels());
+            writer.writeNotEmpty("dcmuiApplicationEntities", uiTenantConfig.getApplicationEntities());
+            writer.writeNotEmpty("dcmuiExporterDescriptions", uiTenantConfig.getExporterDescriptions());
+            writer.writeNotEmpty("dcmuiStorageDescriptors", uiTenantConfig.getStorageDescriptors());
+            writer.writeNotEmpty("dcmuiQueues", uiTenantConfig.getQueues());
+            writer.writeNotEmpty("dcmAcceptedUserRole", uiTenantConfig.getAcceptedRole());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -376,6 +397,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
             writer.writeNotEmpty("dicomuiDockerContainer", uiDashboardConfig.getDockerContainers());
             writer.writeNotNullOrDef("dcmuiCountWebApp", uiDashboardConfig.getCountWebApp(),null);
+            writer.writeNotEmpty("dcmAcceptedUserRole", uiDashboardConfig.getAcceptedUserRoles());
             writeUICompareSide(writer, uiDashboardConfig.getCompareSides());
             writer.writeEnd();
         }
@@ -448,6 +470,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiLogoURL":
                     uiConfig.setLogoUrl(reader.stringValue());
                     break;
+                case "dcmuiAboutInfo":
+                    uiConfig.setAboutInfo(reader.stringValue());
+                    break;
                 case "dcmuiDefaultWidgetAets":
                     uiConfig.setDefaultWidgetAets(reader.stringArray());
                     break;
@@ -471,6 +496,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiWebAppConfig":
                     loadUIWebAppList(uiConfig, reader);
+                    break;
+                case "dcmuiTenantConfig":
+                    loadUITenantConfigs(uiConfig, reader);
                     break;
                 case "dcmuiDiffConfig":
                     loadUIDiffConfigs(uiConfig, reader);
@@ -625,6 +653,47 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiConfig.addWebAppList(uiWebAppList);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUITenantConfigs(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UITenantConfig uiTenantConfig = new UITenantConfig();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiTenantConfigName":
+                        uiTenantConfig.setTenantConfigName(reader.stringValue());
+                        break;
+                    case "dcmuiTenantConfigDescription":
+                        uiTenantConfig.setTenantConfigDescription(reader.stringValue());
+                        break;
+                    case "dcmuiWebAppLabels":
+                        uiTenantConfig.setMwlWorklistLabels(reader.stringArray());
+                        break;
+                    case "dcmuiApplicationEntities":
+                        uiTenantConfig.setApplicationEntities(reader.stringArray());
+                        break;
+                    case "dcmuiExporterDescriptions":
+                        uiTenantConfig.setExporterDescriptions(reader.stringArray());
+                        break;
+                    case "dcmuiStorageDescriptors":
+                        uiTenantConfig.setStorageDescriptors(reader.stringArray());
+                        break;
+                    case "dcmuiQueues":
+                        uiTenantConfig.setQueues(reader.stringArray());
+                        break;
+                    case "dcmAcceptedUserRole":
+                        uiTenantConfig.setAcceptedRole(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addTenant(uiTenantConfig);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
@@ -1030,6 +1099,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiCompareSideObjects":
                         loadCompareSides(uiDashboardConfig, reader);
+                        break;
+                    case "dcmAcceptedUserRole":
+                        uiDashboardConfig.setAcceptedUserRoles(reader.stringArray());
                         break;
                     default:
                         reader.skipUnknownProperty();

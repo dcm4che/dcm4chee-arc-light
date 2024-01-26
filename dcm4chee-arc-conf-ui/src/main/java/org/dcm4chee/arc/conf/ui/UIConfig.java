@@ -67,6 +67,7 @@ public class UIConfig {
     private String pageTitle;
     private String personNameFormat;
     private String logoUrl;
+    private String aboutInfo;
     private String[] defaultWidgetAets = {};
     private Map<String, UIPermission> permissions = new HashMap<>();
     private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
@@ -78,6 +79,7 @@ public class UIConfig {
     private Map<String, UIAetList> aetList  = new HashMap<>();
     private Map<String, UICreateDialogTemplate> dialogTemplate  = new HashMap<>();
     private Map<String, UIWebAppList> webAppList  = new HashMap<>();
+    private Map<String, UITenantConfig> tenantConfig  = new HashMap<>();
     private Map<String, UILanguageConfig> languageConfig = new HashMap<>();
     private Map<String, UITableConfig> tableConfig = new HashMap<>();
 
@@ -188,6 +190,14 @@ public class UIConfig {
 
     public void setLogoUrl(String logoUrl) {
         this.logoUrl = logoUrl;
+    }
+
+    public String getAboutInfo() {
+        return aboutInfo;
+    }
+
+    public void setAboutInfo(String aboutInfo) {
+        this.aboutInfo = aboutInfo;
     }
 
     public String[] getDefaultWidgetAets() {
@@ -340,6 +350,14 @@ public class UIConfig {
         return this.webAppList.get(name);
     }
 
+    public UITenantConfig getTenantConfig(String name) {
+        return tenantConfig.get(name);
+    }
+
+    public void setTenantConfig(Map<String, UITenantConfig> tenantConfig) {
+        this.tenantConfig = tenantConfig;
+    }
+
     public void addAetList(UIAetList aetList) {
         this.aetList.put(aetList.getAetListName(), aetList);
     }
@@ -348,6 +366,9 @@ public class UIConfig {
     }
     public void addWebAppList(UIWebAppList webAppList) {
         this.webAppList.put(webAppList.getWebAppListName(),webAppList);
+    }
+    public void addTenant(UITenantConfig tenantConfig) {
+        this.tenantConfig.put(tenantConfig.getTenantConfigName(),tenantConfig);
     }
 
     public UIAetList removeAetList(String name){
@@ -367,6 +388,9 @@ public class UIConfig {
 
     public Collection<UIWebAppList> getWebAppLists(){
         return this.webAppList.values();
+    }
+    public Collection<UITenantConfig> getTenantConfigs() {
+        return this.tenantConfig.values();
     }
 
     public UILanguageConfig getLanguageConfig(String name) {
