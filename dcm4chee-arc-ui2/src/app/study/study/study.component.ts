@@ -4010,12 +4010,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }).subscribe((ok)=> {
             if(ok){
                 let requestUPSCancelActionInfoAttrs = this.requestUPSCancelActionInfoAttrs(ok.schema_model);
-                let discontinuationCode;
-                if (ok.schema_model.codeValue && ok.schema_model.codingSchemeDesignator && ok.schema_model.codeMeaning)
-                    discontinuationCode = '0074100E":{"vr":"SQ","Value":["' + ok.schema_model.reasonForCancellation + '"]}';
-
                 console.log("created requestUPSCancelActionInfoAttrs are.........", requestUPSCancelActionInfoAttrs);
-
                 this.service.requestCancellationForUPS(this.service.getUpsWorkitemUID(workitem.attrs),
                     this.studyWebService,
                     ok.schema_model.requester,
@@ -4028,6 +4023,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     requestUPSCancelActionInfoAttrs(schema_model) {
+        let discontinuationCode;
+        if (schema_model.codeValue && schema_model.codingSchemeDesignator && schema_model.codeMeaning) {
+            discontinuationCode = '"0074100E":{"vr":"SQ","Value":[{"00080100":{"vr":"SH","Value":["'
+                                    + schema_model.codeValue
+                                    + '"]},"00080102":{"vr":"SH","Value":["'
+                                    + schema_model.codingSchemeDesignator
+                                    + '"]},"00080104":{"vr":"LO","Value":["'
+                                    + schema_model.codeMeaning
+                                    + '"]}}]}';
+        }
+
         let requestUPSCancelActionInfoAttrs = '{';
         if (schema_model.reasonForCancellation) {
             requestUPSCancelActionInfoAttrs += '"00741238":{"vr":"LT","Value":["' + schema_model.reasonForCancellation + '"]}';
@@ -4035,14 +4041,24 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 requestUPSCancelActionInfoAttrs += ',"0074100A":{"vr":"UR","Value":["' + schema_model.contactURI + '"]}';
             if (schema_model.contactName)
                 requestUPSCancelActionInfoAttrs += ',"0074100C":{"vr":"LO","Value":["' + schema_model.contactName + '"]}';
+            if (discontinuationCode)
+                requestUPSCancelActionInfoAttrs += ',' + discontinuationCode;
         } else {
             if (schema_model.contactURI) {
                 requestUPSCancelActionInfoAttrs += '"0074100A":{"vr":"UR","Value":["' + schema_model.contactURI + '"]}';
                 if (schema_model.contactName)
                     requestUPSCancelActionInfoAttrs += ',"0074100C":{"vr":"LO","Value":["' + schema_model.contactName + '"]}';
+                if (discontinuationCode)
+                    requestUPSCancelActionInfoAttrs += ',' + discontinuationCode;
             } else {
-                if (schema_model.contactName)
+                if (schema_model.contactName) {
                     requestUPSCancelActionInfoAttrs += '"0074100C":{"vr":"LO","Value":["' + schema_model.contactName + '"]}';
+                    if (discontinuationCode)
+                        requestUPSCancelActionInfoAttrs += ',' + discontinuationCode;
+                } else {
+                    if (discontinuationCode)
+                        requestUPSCancelActionInfoAttrs += discontinuationCode;
+                }
             }
         }
 
