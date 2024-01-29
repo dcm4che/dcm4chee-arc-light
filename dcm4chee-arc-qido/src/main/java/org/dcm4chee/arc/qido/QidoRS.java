@@ -776,6 +776,12 @@ public class QidoRS {
             @Override
             public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
             }
+
+            @Override
+            public StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
+                return super.retrieveURL(qidoRS, match)
+                        .append("/workitems/").append(match.getString(Tag.SOPInstanceUID));
+            }
         };
 
         final QueryRetrieveLevel2 qrLevel;
