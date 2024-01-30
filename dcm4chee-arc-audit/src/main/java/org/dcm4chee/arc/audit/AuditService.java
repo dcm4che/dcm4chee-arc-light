@@ -1213,21 +1213,22 @@ public class AuditService {
 
     private void writeSpoolFile(
             AuditInfoBuilder auditInfoBuilder, AuditUtils.EventType eventType, HL7ConnectionEvent hl7ConnEvent) {
+        UnparsedHL7Message unparsedHL7Message = hl7ConnEvent.getHL7Message();
+        HL7Segment msh = unparsedHL7Message.msh();
+        int auditHL7MsgLimit = device.getDeviceExtension(HL7DeviceExtension.class)
+                .getHL7Application(hl7ConnEvent.getType() == HL7ConnectionEvent.Type.MESSAGE_PROCESSED
+                                    ? msh.getReceivingApplicationWithFacility()
+                                    : msh.getSendingApplicationWithFacility(),
+                        true)
+                .getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)
+                .auditHL7MsgLimit();
         writeSpoolFile(auditInfoBuilder,
                 eventType,
-                limitHL7MsgInAudit(hl7ConnEvent.getHL7Message(), hl7ConnEvent.getType()),
-                limitHL7MsgInAudit(hl7ConnEvent.getHL7ResponseMessage(), hl7ConnEvent.getType()));
+                limitHL7MsgInAudit(hl7ConnEvent.getHL7Message(), auditHL7MsgLimit),
+                limitHL7MsgInAudit(hl7ConnEvent.getHL7ResponseMessage(), auditHL7MsgLimit));
     }
 
-    private byte[] limitHL7MsgInAudit(UnparsedHL7Message unparsedHL7Msg, HL7ConnectionEvent.Type type) {
-        HL7Segment msh = unparsedHL7Msg.msh();
-        int auditHL7MsgLimit = device.getDeviceExtension(HL7DeviceExtension.class)
-                                     .getHL7Application(type == HL7ConnectionEvent.Type.MESSAGE_PROCESSED
-                                                                ? msh.getReceivingApplicationWithFacility()
-                                                                : msh.getSendingApplicationWithFacility(),
-                     true)
-                                     .getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)
-                                     .auditHL7MsgLimit();
+    private byte[] limitHL7MsgInAudit(UnparsedHL7Message unparsedHL7Msg, int auditHL7MsgLimit) {
         byte[] data = unparsedHL7Msg.data();
         if (data.length <= auditHL7MsgLimit)
             return data;
