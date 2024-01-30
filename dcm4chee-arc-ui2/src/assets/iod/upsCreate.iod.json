@@ -15,10 +15,7 @@
   ]},
   "00404005": { "vr": "DT", "required": 2 },
   "00741000": { "vr": "CS", "required": 1, "enum": [
-    "SCHEDULED",
-    "IN PROGRESS",
-    "CANCELED",
-    "COMPLETED"
+    "SCHEDULED"
   ]},
   "00741202": { "vr": "LO", "required": 2 },
   "00400400": { "vr": "LT", "required": 2 },

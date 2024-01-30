@@ -1143,6 +1143,11 @@ export class Globalvar {
                 'edit': {
                     action: 'disable'
                 }
+            },
+            '00741000': {
+                'create': {
+                    action: 'disable'
+                }
             }
         };
     };
