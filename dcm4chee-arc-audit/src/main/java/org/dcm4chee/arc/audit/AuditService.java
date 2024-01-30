@@ -514,8 +514,8 @@ public class AuditService {
                         ctx.getHl7Msg().data(),
                         ctx.getRsp().data());
             else
-                writeSpoolFile(PDQAuditService.auditInfoFHIR(ctx, getArchiveDevice()),
-                        AuditUtils.EventType.FHIR___PDQ);
+                writeSpoolFile(AuditUtils.EventType.FHIR___PDQ.name(), false,
+                        PDQAuditService.auditInfoFHIR(ctx, getArchiveDevice()));
         } catch (Exception e) {
             LOG.info("Failed to spool PDQ for {}", ctx);
         }

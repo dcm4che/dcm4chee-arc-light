@@ -73,7 +73,7 @@ class PDQAuditService {
                 : restfulTriggeredPDQ(ctx, arcDev);
     }
 
-    static AuditInfoBuilder auditInfoFHIR(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
+    static AuditInfo auditInfoFHIR(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
         return ctx.getHttpServletRequestInfo() == null
                 ? schedulerTriggeredFHIRPDQ(ctx, arcDev)
                 : restfulTriggeredFHIRPDQ(ctx, arcDev);
@@ -104,7 +104,7 @@ class PDQAuditService {
                 .build();
     }
 
-    private static AuditInfoBuilder schedulerTriggeredFHIRPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
+    private static AuditInfo schedulerTriggeredFHIRPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
         return new AuditInfoBuilder.Builder()
                 .callingUserID(arcDev.getDevice().getDeviceName())
                 .queryString(ctx.getFhirQueryParams())
@@ -112,10 +112,10 @@ class PDQAuditService {
                 .queryPOID(ctx.getSearchMethod())
                 .patID(ctx.getPatientID(), arcDev)
                 .patName(ctx.getPatientAttrs().getString(Tag.PatientName), arcDev)
-                .build();
+                .toAuditInfo();
     }
 
-    private static AuditInfoBuilder restfulTriggeredFHIRPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
+    private static AuditInfo restfulTriggeredFHIRPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
         HttpServletRequestInfo httpRequest = ctx.getHttpServletRequestInfo();
         return new AuditInfoBuilder.Builder()
                 .callingHost(httpRequest.requesterHost)
@@ -126,7 +126,7 @@ class PDQAuditService {
                 .fhirWebAppName(ctx.getFhirWebAppName())
                 .patID(ctx.getPatientID(), arcDev)
                 .patName(ctx.getPatientAttrs().getString(Tag.PatientName), arcDev)
-                .build();
+                .toAuditInfo();
     }
 
     static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
