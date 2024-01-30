@@ -151,11 +151,18 @@ public class PDQServiceContext {
 
     @Override
     public String toString() {
-        return "PDQServiceContext[sender=" + sendingAppFacility
-                + ", receiver=" + receivingAppFacility
-                + ", patientID=" + patientID
-                + ", httpServletRequestInfo=" + httpServletRequestInfo
-                + ", searchMethod=" + searchMethod
-                + "]";
+        StringBuilder sb = new StringBuilder("PDQServiceContext["
+                + "patientID=" + patientID
+                + ", searchMethod='" + searchMethod);
+        if (httpServletRequestInfo != null)
+            sb.append(", httpServletRequestInfo=").append(httpServletRequestInfo);
+        if (sendingAppFacility != null && receivingAppFacility != null) {
+            sb.append(", sender=").append(sendingAppFacility);
+            sb.append(", receiver=").append(receivingAppFacility);
+        }
+        if (fhirWebAppName != null)
+            sb.append(", fhirWebAppName=").append(fhirWebAppName);
+        sb.append("]");
+        return sb.toString();
     }
 }
