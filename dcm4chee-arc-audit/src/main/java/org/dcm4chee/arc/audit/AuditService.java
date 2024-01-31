@@ -628,8 +628,12 @@ public class AuditService {
             return;
         }
 
-        AuditMessage msg = PDQAuditService.auditMsg(auditLogger, path, eventType, hl7AppCache, webAppCache);
-        emitAuditMessage(msg, auditLogger);
+        if (eventType.eventTypeCode == AuditMessages.EventTypeCode.ITI_78_MobilePDQ) {
+            PDQAuditService.auditFHIRPDQMsg(auditLogger, path, eventType, webAppCache);
+            return;
+        }
+
+        PDQAuditService.auditHL7PDQMsg(auditLogger, path, eventType, hl7AppCache, device);
     }
 
     void spoolStoreEvent(StoreContext ctx) {

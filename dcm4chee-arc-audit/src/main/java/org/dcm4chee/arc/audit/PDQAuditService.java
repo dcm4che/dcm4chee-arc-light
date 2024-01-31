@@ -41,21 +41,22 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.pdq.PDQServiceContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,9 +64,7 @@ import java.util.List;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2021
  */
-class PDQAuditService {
-
-    private final static Logger LOG = LoggerFactory.getLogger(PDQAuditService.class);
+class PDQAuditService extends AuditService {
 
     static AuditInfoBuilder auditInfo(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
         return ctx.getHttpServletRequestInfo() == null
@@ -81,6 +80,7 @@ class PDQAuditService {
 
     private static AuditInfoBuilder schedulerTriggeredPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
         return new AuditInfoBuilder.Builder()
+                .callingUserID(arcDev.getDevice().getDeviceName())
                 .outgoingHL7Sender(ctx.getSendingAppFacility())
                 .outgoingHL7Receiver(ctx.getReceivingAppFacility())
                 .queryPOID(ctx.getSearchMethod())
@@ -135,147 +135,223 @@ class PDQAuditService {
                 : ctx.getPatientAttrs().getString(Tag.PatientName);
     }
 
-    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
-                                    IHL7ApplicationCache hl7AppCache, IWebApplicationCache webAppCache)
+    static void auditHL7PDQMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
+                               IHL7ApplicationCache hl7AppCache, Device device)
             throws Exception {
-        if (eventType.eventTypeCode == AuditMessages.EventTypeCode.ITI_78_MobilePDQ)
-            return auditMsg(auditLogger, path, eventType, webAppCache);
-
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentification ei = EventID.toEventIdentification(auditLogger, path, eventType, auditInfo);
-        List<ActiveParticipant> activeParticipants = activeParticipants(auditLogger, auditInfo, hl7AppCache, eventType);
-        List<ParticipantObjectIdentification> participantObjects = participantObjects(auditInfo, reader);
-
-        return AuditMessages.createMessage(ei, activeParticipants.toArray(new ActiveParticipant[0]),
-                participantObjects.toArray(new ParticipantObjectIdentification[0]));
-    }
-
-    private static List<ParticipantObjectIdentification> participantObjects(AuditInfo auditInfo, SpoolFileReader reader) {
-        List<ParticipantObjectIdentification> participantObjects = new ArrayList<>();
-        ParticipantObjectIdentificationBuilder pdq = new ParticipantObjectIdentificationBuilder(
-                auditInfo.getField(AuditInfo.Q_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.ITI_PatientDemographicsQuery,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Query);
-        if (auditInfo.getField(AuditInfo.Q_STRING) != null)
-            pdq.detail(AuditMessages.createParticipantObjectDetail(
-                    "QueryString", auditInfo.getField(AuditInfo.Q_STRING)));
-        pdq.query(reader.getData());
-        participantObjects.add(pdq.build());
-        participantObjects.add(ParticipantObjectID.patientPOI(auditInfo, reader));
-        return participantObjects;
-    }
-
-    private static List<ActiveParticipant> activeParticipants(
-            AuditLogger auditLogger, AuditInfo auditInfo, IHL7ApplicationCache hl7AppCache, AuditUtils.EventType eventType)
-        throws ConfigurationException {
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
-        String hl7ReceivingAppWithFacility = auditInfo.getField(AuditInfo.OUTGOING_HL7_RECEIVER);
-        HL7Application hl7AppReceiver = hl7AppCache.findHL7Application(hl7ReceivingAppWithFacility);
-        activeParticipants.add(new ActiveParticipantBuilder(
-                hl7ReceivingAppWithFacility,
-                hl7AppReceiver.getConnections().get(0).getHostname())
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility)
-                .roleIDCode(eventType.destination)
-                .build());
-        String callingUser = auditInfo.getField(AuditInfo.CALLING_USERID);
-        if (callingUser != null) {
-            activeParticipants.add(new ActiveParticipantBuilder(
-                    callingUser,
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUser))
-                    .isRequester()
-                    .build());
-            activeParticipants.add(new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.CALLED_USERID),
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                    .build());
-            activeParticipants.add(new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.OUTGOING_HL7_SENDER),
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility)
-                    .roleIDCode(eventType.source)
-                    .build());
-        } else {
-            activeParticipants.add(new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.OUTGOING_HL7_SENDER),
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility)
-                    .isRequester()
-                    .roleIDCode(eventType.source)
-                    .build());
+        activeParticipants.add(hl7PDQConsumer(auditInfo, eventType, device));
+        activeParticipants.add(hl7PDQSupplier(auditInfo, eventType, hl7AppCache));
+        String archiveCalledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+        if (archiveCalledUserID == null)
+            activeParticipants.add(archive(
+                    auditInfo.getField(AuditInfo.CALLING_USERID),
+                    AuditMessages.UserIDTypeCode.DeviceName,
+                    eventType,
+                    auditLogger));
+        else {
+            String queryString = auditInfo.getField(AuditInfo.Q_STRING);
+            if (queryString != null)
+                archiveCalledUserID += "?" + queryString;
+            activeParticipants.add(archive(archiveCalledUserID, AuditMessages.UserIDTypeCode.URI, eventType, auditLogger));
+            activeParticipants.add(requestor(auditInfo));
         }
 
-        return activeParticipants;
+        byte[] data = reader.getData();
+        HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
+
+        ParticipantObjectIdentification pdq = hl7PDQQuery(auditInfo, msh, data);
+        ParticipantObjectIdentification patient = hl7PDQPatient(auditInfo, reader);
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants, patient, pdq);
     }
 
-    private static AuditMessage auditMsg(
+    static void auditFHIRPDQMsg(
             AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, IWebApplicationCache webAppCache)
             throws Exception {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentification ei = EventID.toEventIdentification(auditLogger, path, eventType, auditInfo);
-        List<ActiveParticipant> activeParticipants = activeParticipants(auditLogger, auditInfo, eventType, webAppCache);
-        List<ParticipantObjectIdentification> participantObjects = participantObjects(auditInfo);
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        ParticipantObjectIdentification pdq = fhirPDQQuery(auditInfo);
+        ParticipantObjectIdentification patient = fhirPDQPatient(auditInfo);
 
-        return AuditMessages.createMessage(ei, activeParticipants.toArray(new ActiveParticipant[0]),
-                participantObjects.toArray(new ParticipantObjectIdentification[0]));
-    }
-
-    private static List<ActiveParticipant> activeParticipants(
-            AuditLogger auditLogger, AuditInfo auditInfo, AuditUtils.EventType eventType, IWebApplicationCache webAppCache)
-            throws ConfigurationException {
+        String archiveCalledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
-        WebApplication fhirWebApp = webAppCache.findWebApplication(auditInfo.getField(AuditInfo.FHIR_WEB_APP_NAME));
-        activeParticipants.add(new ActiveParticipantBuilder(
-                fhirWebApp.getServiceURL().toString(),
-                fhirWebApp.getConnections().get(0).getHostname())
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                .roleIDCode(eventType.destination)
-                .build());
-        String calledUser = auditInfo.getField(AuditInfo.CALLED_USERID);
-        if (calledUser != null) {
-            activeParticipants.add(new ActiveParticipantBuilder(
+        activeParticipants.add(fhirPDQ(auditInfo, eventType, webAppCache));
+        if (archiveCalledUserID == null)
+            activeParticipants.add(archive(
                     auditInfo.getField(AuditInfo.CALLING_USERID),
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.userIDTypeCode(auditInfo.getField(AuditInfo.CALLING_USERID)))
-                    .isRequester()
-                    .build());
-            activeParticipants.add(new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.CALLED_USERID),
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                    .roleIDCode(eventType.source)
-                    .build());
-        } else {
-            activeParticipants.add(new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.CALLING_USERID),
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                    .roleIDCode(eventType.source)
-                    .isRequester()
-                    .build());
+                    AuditMessages.UserIDTypeCode.DeviceName,
+                    eventType,
+                    auditLogger));
+        else {
+            activeParticipants.add(archive(archiveCalledUserID, AuditMessages.UserIDTypeCode.URI, eventType, auditLogger));
+            activeParticipants.add(requestor(auditInfo));
         }
-        return activeParticipants;
+
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants, patient, pdq);
     }
 
-    private static List<ParticipantObjectIdentification> participantObjects(AuditInfo auditInfo) {
-        List<ParticipantObjectIdentification> participantObjects = new ArrayList<>();
-        participantObjects.add(new ParticipantObjectIdentificationBuilder(
-                                auditInfo.getField(AuditInfo.Q_POID),
-                                AuditMessages.ParticipantObjectIDTypeCode.ITI_MobilePatientDemographicsQuery,
-                                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                                AuditMessages.ParticipantObjectTypeCodeRole.Query)
-                                .detail(AuditMessages.createParticipantObjectDetail("QueryEncoding", StandardCharsets.UTF_8.name()))
-                                .query(auditInfo.getField(AuditInfo.Q_STRING).getBytes(StandardCharsets.UTF_8))
-                                .build());
-        participantObjects.add(ParticipantObjectID.patientPOIBuilder(auditInfo).build());
-        return participantObjects;
+    private static ActiveParticipant fhirPDQ(
+            AuditInfo auditInfo, AuditUtils.EventType eventType, IWebApplicationCache webAppCache) throws Exception {
+        WebApplication fhirWebApp = webAppCache.findWebApplication(auditInfo.getField(AuditInfo.FHIR_WEB_APP_NAME));
+        ActiveParticipant fhirPDQ = new ActiveParticipant();
+        fhirPDQ.setUserID(fhirWebApp.getServiceURL().toString());
+        fhirPDQ.setUserIDTypeCode(AuditMessages.UserIDTypeCode.URI);
+        fhirPDQ.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        fhirPDQ.setNetworkAccessPointID(fhirWebApp.getConnections().get(0).getHostname());
+        fhirPDQ.getRoleIDCode().add(eventType.destination);
+        return fhirPDQ;
     }
 
-    private static String getLocalHostName(AuditLogger auditLogger) {
-        return auditLogger.getConnections().get(0).getHostname();
+    private static ActiveParticipant archive(
+            String archiveUserID, AuditMessages.UserIDTypeCode archiveUserIDTypeCode, AuditUtils.EventType eventType,
+            AuditLogger auditLogger) {
+        ActiveParticipant archive = new ActiveParticipant();
+        archive.setUserID(archiveUserID);
+        archive.setAlternativeUserID(AuditLogger.processID());
+        archive.setUserIsRequestor(archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.DeviceName);
+        archive.setUserIDTypeCode(archiveUserIDTypeCode);
+        archive.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archive.getRoleIDCode().add(eventType.source);
+
+        String auditLoggerHostName = auditLogger.getConnections().get(0).getHostname();
+        archive.setNetworkAccessPointID(auditLoggerHostName);
+        archive.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(auditLoggerHostName)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archive;
+    }
+
+    private static ActiveParticipant requestor(AuditInfo auditInfo) {
+        ActiveParticipant requestor = new ActiveParticipant();
+        String requestorID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        requestor.setUserID(requestorID);
+        requestor.setUserIsRequestor(true);
+        requestor.setUserIDTypeCode(AuditMessages.isIP(requestorID)
+                ? AuditMessages.UserIDTypeCode.NodeID
+                : AuditMessages.UserIDTypeCode.PersonID);
+        requestor.setUserTypeCode(AuditMessages.UserTypeCode.Person);
+
+        String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        requestor.setNetworkAccessPointID(requestorHost);
+        requestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(requestorHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return requestor;
+    }
+
+    private static ActiveParticipant hl7PDQSupplier(
+            AuditInfo auditInfo, AuditUtils.EventType eventType, IHL7ApplicationCache hl7AppCache) throws Exception {
+        String hl7ReceivingAppWithFacility = auditInfo.getField(AuditInfo.OUTGOING_HL7_RECEIVER);
+        HL7Application hl7AppReceiver = hl7AppCache.findHL7Application(hl7ReceivingAppWithFacility);
+        ActiveParticipant hl7PDQSupplier = new ActiveParticipant();
+        hl7PDQSupplier.setUserID(hl7ReceivingAppWithFacility);
+        hl7PDQSupplier.setUserIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility);
+        hl7PDQSupplier.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        hl7PDQSupplier.setNetworkAccessPointID(hl7AppReceiver.getConnections().get(0).getHostname());
+        hl7PDQSupplier.getRoleIDCode().add(eventType.destination);
+        return hl7PDQSupplier;
+    }
+
+    private static ActiveParticipant hl7PDQConsumer(AuditInfo auditInfo, AuditUtils.EventType eventType, Device device) {
+        ActiveParticipant hl7PDQConsumer = new ActiveParticipant();
+        String hl7SendingAppWithFacility = auditInfo.getField(AuditInfo.OUTGOING_HL7_SENDER);
+        HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
+                .getHL7Application(hl7SendingAppWithFacility, true);
+        hl7PDQConsumer.setUserID(hl7SendingAppWithFacility);
+        hl7PDQConsumer.setAlternativeUserID(AuditLogger.processID());
+        hl7PDQConsumer.setUserIDTypeCode(AuditMessages.UserIDTypeCode.ApplicationFacility);
+        hl7PDQConsumer.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        hl7PDQConsumer.getRoleIDCode().add(eventType.source);
+        String senderHostName = sender.getConnections().get(0).getHostname();
+        hl7PDQConsumer.setNetworkAccessPointID(senderHostName);
+        hl7PDQConsumer.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(senderHostName)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return hl7PDQConsumer;
+    }
+
+    private static ParticipantObjectIdentification fhirPDQQuery(AuditInfo auditInfo) {
+        ParticipantObjectIdentification pdq = new ParticipantObjectIdentification();
+        pdq.setParticipantObjectID(auditInfo.getField(AuditInfo.Q_POID));
+        pdq.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.ITI_MobilePatientDemographicsQuery);
+        pdq.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        pdq.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Query);
+        pdq.getParticipantObjectDetail()
+                .add(AuditMessages.createParticipantObjectDetail("QueryEncoding", StandardCharsets.UTF_8.name()));
+        pdq.setParticipantObjectQuery(auditInfo.getField(AuditInfo.Q_STRING).getBytes(StandardCharsets.UTF_8));
+        return pdq;
+    }
+
+    private static ParticipantObjectIdentification fhirPDQPatient(AuditInfo auditInfo) {
+        ParticipantObjectIdentification patient = new ParticipantObjectIdentification();
+        patient.setParticipantObjectID(auditInfo.getField(AuditInfo.P_ID));
+        patient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
+        patient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
+        patient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
+        patient.setParticipantObjectName(auditInfo.getField(AuditInfo.P_NAME));
+        return patient;
+    }
+
+    private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        String patientName = auditInfo.getField(AuditInfo.P_NAME);
+        String outcomeDesc = patientName == null
+                ? "Querying the PDQ Service for patient identifier was unsuccessful"
+                : null;
+
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(eventType.eventID);
+        ei.setEventActionCode(eventType.eventActionCode);
+        ei.setEventOutcomeDescription(outcomeDesc);
+        ei.setEventOutcomeIndicator(outcomeDesc == null
+                ? AuditMessages.EventOutcomeIndicator.Success
+                : AuditMessages.EventOutcomeIndicator.MinorFailure);
+        return ei;
+    }
+
+    private static ParticipantObjectIdentification hl7PDQQuery(AuditInfo auditInfo, HL7Segment msh, byte[] data) {
+        ParticipantObjectIdentification pdq = new ParticipantObjectIdentification();
+        pdq.setParticipantObjectID(auditInfo.getField(AuditInfo.Q_POID));
+        pdq.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.ITI_PatientDemographicsQuery);
+        pdq.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        pdq.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Query);
+        pdq.getParticipantObjectDetail()
+                .add(AuditMessages.createParticipantObjectDetail("MSH-10", msh.getMessageControlID()));
+        pdq.setParticipantObjectQuery(data);
+        return pdq;
+    }
+
+    private static ParticipantObjectIdentification hl7PDQPatient(AuditInfo auditInfo, SpoolFileReader reader) {
+        ParticipantObjectIdentification patient = new ParticipantObjectIdentification();
+        patient.setParticipantObjectID(auditInfo.getField(AuditInfo.P_ID));
+        patient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
+        patient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
+        patient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
+        patient.setParticipantObjectName(auditInfo.getField(AuditInfo.P_NAME));
+        patient.getParticipantObjectDetail().addAll(hl7ParticipantObjectDetails(reader));
+        return patient;
+    }
+
+    static List<ParticipantObjectDetail> hl7ParticipantObjectDetails(SpoolFileReader reader) {
+        List<ParticipantObjectDetail> details = new ArrayList<>();
+        hl7ParticipantObjectDetails(details, reader.getData());
+        hl7ParticipantObjectDetails(details, reader.getAck());
+        return details;
+    }
+
+    private static void hl7ParticipantObjectDetails(List<ParticipantObjectDetail> details, byte[] data) {
+        HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
+        String messageType = msh.getMessageType();
+        String messageControlID = msh.getMessageControlID();
+        details.add(AuditMessages.toParticipantObjectDetail("HL7v2 Message", data));
+        if (messageType != null)
+            details.add(AuditMessages.createParticipantObjectDetail("MSH-9", messageType));
+        if (messageControlID != null)
+            details.add(AuditMessages.createParticipantObjectDetail("MSH-10", messageControlID));
     }
 }
