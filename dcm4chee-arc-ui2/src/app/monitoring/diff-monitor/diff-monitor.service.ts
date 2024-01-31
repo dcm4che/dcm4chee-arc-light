@@ -223,7 +223,7 @@ export class DiffMonitorService {
                             action.call($this,'cancel', e);
                         },
                         title:$localize `:@@cancel_this_task:Cancel this task`,
-                        showIf:(match, config) => {
+                        showIf:(match) => {
                             return (match.status
                                         && (match.status === 'SCHEDULED'
                                             || match.status === 'SCHEDULED FOR RETRY'
