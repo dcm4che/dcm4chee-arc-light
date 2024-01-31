@@ -6892,7 +6892,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }).subscribe(ok=>{
             if (ok){
                 this.cfpLoadingBar.start();
-                this.service.updatePatientDemographics(this.studyWebService.selectedWebService, patient, ok.schema_model.PDQServiceID, ok.schema_model)
+                this.service.updatePatientDemographics(this.studyWebService.selectedWebService, patient, ok.schema_model.PDQServiceID, ok.schema_model.adjustIssuerOfPatientID)
                     .subscribe(
                         () => {
                             this.appService.showMsg($localize `:@@patient_demographics_updated_successfully:Patient demographics updated successfully!`);

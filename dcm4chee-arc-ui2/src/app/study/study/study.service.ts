@@ -1015,8 +1015,11 @@ export class StudyService {
                 .every(tag => attrs[tag]);
     }
 
-    updatePatientDemographics(dcmWebApp: DcmWebApp, patient, PDQServiceID, param?) {
-        return this.$http.post(`${this.getDicomURL("patient", dcmWebApp)}/${this.getPatientId(patient.attrs)}/pdq/${PDQServiceID}${j4care.param(param)}`, undefined, true);
+    updatePatientDemographics(dcmWebApp: DcmWebApp, patient, PDQServiceID, adjustIssuerOfPatientID:boolean) {
+        let url = `${this.getDicomURL("patient", dcmWebApp)}/${this.getPatientId(patient.attrs)}/pdq/${PDQServiceID}`;
+        if (adjustIssuerOfPatientID === true)
+            url += `?adjustIssuerOfPatientID=true`;
+        return this.$http.post(url, undefined, true);
     }
 
     queryPatientDemographics(patientID: string, PDQServiceID: string, url?: string) {
