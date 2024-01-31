@@ -91,10 +91,12 @@ public class FHIRPDQService extends AbstractPDQService {
             requireQueryEntity(Entity.Patient);
             Attributes demographics = query(ctx, webApp());
             ctx.setPatientAttrs(demographics);
-            pdqEvent.fire(ctx);
             return demographics;
         } catch (ConfigurationException e) {
+            ctx.setException(e);
             throw new PDQServiceException(e);
+        } finally {
+            pdqEvent.fire(ctx);
         }
     }
 
@@ -120,6 +122,7 @@ public class FHIRPDQService extends AbstractPDQService {
                                             null);
         } catch (Exception e) {
             LOG.info("Exception caught on querying FHIR Supplier {}", webApp);
+            ctx.setException(e);
             throw new PDQServiceException(e);
         }
     }

@@ -68,6 +68,7 @@ public class PDQServiceContext {
     private Attributes patientAttrs;
     private String fhirWebAppName;
     private String fhirQueryParams;
+    private Exception exception;
 
     public PDQServiceContext(IDWithIssuer patientID) {
         this.patientID = patientID;
@@ -147,6 +148,14 @@ public class PDQServiceContext {
 
     public void setPatientAttrs(Attributes patientAttrs) {
         this.patientAttrs = patientAttrs;
+    }
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public void setException(Exception exception) {
+        this.exception = exception;
     }
 
     @Override

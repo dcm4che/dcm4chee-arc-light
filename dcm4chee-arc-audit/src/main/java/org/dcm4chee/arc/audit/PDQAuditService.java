@@ -86,6 +86,7 @@ class PDQAuditService extends AuditService {
                 .queryPOID(ctx.getSearchMethod())
                 .patID(ctx.getPatientID(), arcDev)
                 .patName(patientName(ctx), arcDev)
+                .outcome(outcome(ctx))
                 .build();
     }
 
@@ -101,6 +102,7 @@ class PDQAuditService extends AuditService {
                 .queryString(httpRequest.queryString)
                 .patID(ctx.getPatientID(), arcDev)
                 .patName(patientName(ctx), arcDev)
+                .outcome(outcome(ctx))
                 .build();
     }
 
@@ -112,6 +114,7 @@ class PDQAuditService extends AuditService {
                 .queryPOID(ctx.getSearchMethod())
                 .patID(ctx.getPatientID(), arcDev)
                 .patName(patientName(ctx), arcDev)
+                .outcome(outcome(ctx))
                 .toAuditInfo();
     }
 
@@ -126,6 +129,7 @@ class PDQAuditService extends AuditService {
                 .fhirWebAppName(ctx.getFhirWebAppName())
                 .patID(ctx.getPatientID(), arcDev)
                 .patName(patientName(ctx), arcDev)
+                .outcome(outcome(ctx))
                 .toAuditInfo();
     }
 
@@ -133,6 +137,12 @@ class PDQAuditService extends AuditService {
         return ctx.getPatientAttrs() == null
                 ? null
                 : ctx.getPatientAttrs().getString(Tag.PatientName);
+    }
+
+    private static String outcome(PDQServiceContext ctx) {
+        return ctx.getException() == null
+                ? null
+                : ctx.getException().getMessage();
     }
 
     static void auditHL7PDQMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
@@ -300,9 +310,12 @@ class PDQAuditService extends AuditService {
 
     private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
         String patientName = auditInfo.getField(AuditInfo.P_NAME);
-        String outcomeDesc = patientName == null
-                ? "Querying the PDQ Service for patient identifier was unsuccessful"
-                : null;
+        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        String outcomeDesc = outcome == null
+                                ? patientName == null
+                                    ? "Querying the PDQ Service for patient identifier was unsuccessful"
+                                    : null
+                                : outcome;
 
         EventIdentification ei = new EventIdentification();
         ei.setEventID(eventType.eventID);
