@@ -95,7 +95,13 @@ export class StorageVerificationService {
                           console.log("e",e);
                           action.call($this,'cancel', e);
                       },
-                      title:$localize `:@@cancel_this_task:Cancel this task`
+                      title:$localize `:@@cancel_this_task:Cancel this task`,
+                      showIf:(match, config) => {
+                          return (match.status
+                                  && (match.status === 'SCHEDULED'
+                                      || match.status === 'SCHEDULED FOR RETRY'
+                                      || match.status === 'IN PROCESS'));
+                      }
                   },
                   {
                       icon:{
