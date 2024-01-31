@@ -85,7 +85,7 @@ class PDQAuditService {
                 .outgoingHL7Receiver(ctx.getReceivingAppFacility())
                 .queryPOID(ctx.getSearchMethod())
                 .patID(ctx.getPatientID(), arcDev)
-                .patName(ctx.getPatientAttrs().getString(Tag.PatientName), arcDev)
+                .patName(patientName(ctx), arcDev)
                 .build();
     }
 
@@ -100,7 +100,7 @@ class PDQAuditService {
                 .queryPOID(ctx.getSearchMethod())
                 .queryString(httpRequest.queryString)
                 .patID(ctx.getPatientID(), arcDev)
-                .patName(ctx.getPatientAttrs().getString(Tag.PatientName), arcDev)
+                .patName(patientName(ctx), arcDev)
                 .build();
     }
 
@@ -111,7 +111,7 @@ class PDQAuditService {
                 .fhirWebAppName(ctx.getFhirWebAppName())
                 .queryPOID(ctx.getSearchMethod())
                 .patID(ctx.getPatientID(), arcDev)
-                .patName(ctx.getPatientAttrs().getString(Tag.PatientName), arcDev)
+                .patName(patientName(ctx), arcDev)
                 .toAuditInfo();
     }
 
@@ -125,8 +125,14 @@ class PDQAuditService {
                 .queryString(ctx.getFhirQueryParams())
                 .fhirWebAppName(ctx.getFhirWebAppName())
                 .patID(ctx.getPatientID(), arcDev)
-                .patName(ctx.getPatientAttrs().getString(Tag.PatientName), arcDev)
+                .patName(patientName(ctx), arcDev)
                 .toAuditInfo();
+    }
+
+    private static String patientName(PDQServiceContext ctx) {
+        return ctx.getPatientAttrs() == null
+                ? null
+                : ctx.getPatientAttrs().getString(Tag.PatientName);
     }
 
     static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
