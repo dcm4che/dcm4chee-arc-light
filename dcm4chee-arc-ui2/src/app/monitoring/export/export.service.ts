@@ -586,8 +586,11 @@ export class ExportService {
                         id: 'action-monitoring->export-single_action',
                         param: 'visible'
                     },
-                    showIf:(match, config) => {
-                        return ((match.status && match.status === 'SCHEDULED') || (match.status && match.status === 'IN PROCESS'));
+                    showIf:(match) => {
+                        return (match.status
+                                && (match.status === 'SCHEDULED'
+                                    || match.status === 'SCHEDULED FOR RETRY'
+                                    || match.status === 'IN PROCESS'));
                     }
                 },
                 {
