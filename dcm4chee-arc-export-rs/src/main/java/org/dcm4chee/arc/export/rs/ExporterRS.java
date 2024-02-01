@@ -199,8 +199,8 @@ public class ExporterRS {
                     device.getDeviceName(),
                     exporter,
                     studyUID,
-                    seriesUID,
-                    objectUID,
+                    seriesUID == null ? "*" : seriesUID,
+                    objectUID == null ? "*" : objectUID,
                     batchID,
                     scheduledTime(),
                     HttpServletRequestInfo.valueOf(request));
