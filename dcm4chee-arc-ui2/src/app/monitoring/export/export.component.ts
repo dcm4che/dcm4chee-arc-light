@@ -280,13 +280,14 @@ export class ExportComponent implements OnInit, OnDestroy {
                 if(!this.mainservice.global.notSecure){
                     token = response.token;
                 }
-                if(!this.mainservice.global.notSecure){
-                    // WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);
-                    j4care.downloadFile(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`, "export.csv")
-                }else{
-                    // WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`);
-                    j4care.downloadFile(`../monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(this.service.paramWithoutLimit(this.filterObject))}`,"export.csv")
-                }
+
+                let filterClone = _.cloneDeep(this.filterObject);
+                delete filterClone.offset;
+                delete filterClone.limit;
+                if(!this.mainservice.global.notSecure)
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,"export.csv")
+                else
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,"export.csv")
             });
         });
     }
