@@ -627,7 +627,7 @@ public class TaskManagerImpl implements TaskManager {
         } else {
             String queueName = newQueueName != null ? newQueueName : task.getQueueName();
             if (targetDevice.getQueueDescriptor(queueName) == null)
-                throw new IllegalStateException("Cannot reschedule Taskid=" + task.getPk()
+                throw new IllegalStateException("Cannot reschedule Task{id=" + task.getPk()
                         + "} on Queue{name=" + queueName
                         + "} not configured at Device{name=" + deviceName + '}');
             task.setQueueName(queueName);
