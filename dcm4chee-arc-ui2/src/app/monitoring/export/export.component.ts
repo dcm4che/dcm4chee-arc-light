@@ -1337,11 +1337,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         this.cfpLoadingBar.start();
                         this.service.deleteAll(filter).subscribe((res)=>{
                             this.cfpLoadingBar.complete();
-                            if(_.hasIn(res,"deleted")){
-                                this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
-                            }else{
-                                this.mainservice.showMsg($localize `:@@tasks_deleted:Tasks deleted successfully!`);
-                            }
+                            this.mainservice.showMsgDeleteTasks(res);
                         }, (err) => {
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);

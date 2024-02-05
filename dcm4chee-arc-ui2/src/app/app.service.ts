@@ -205,6 +205,29 @@ export class AppService implements OnInit, OnDestroy{
         }
     }
 
+    showMsgDeleteTasks(res) {
+        let detail = '';
+        let successful = _.hasIn(res, "count") ? _.get(res, "count") : '';
+        let failures = _.hasIn(res, "failed") ? _.get(res, "failed") : '';
+        if (successful != '') {
+            if (successful == 0)
+                detail += `Deleted ` + successful + ` tasks<br>\n`;
+            else
+                detail += `Deleted ` + successful + ` tasks successfully<br>\n`;
+        }
+        if (failures  != '') {
+            detail += `Failed to delete ` + failures + ` tasks<br>\n`;
+        }
+
+        if (failures  != '') {
+            if (successful != '')
+                this.showWarning(detail);
+            else
+                this.showError(detail);
+        } else
+            this.showMsg(detail);
+    }
+
     showMsgUpdateCharsets(res) {
         let detail = '';
         let successful = _.hasIn(res, "updated") ? _.get(res, "updated") : '';
