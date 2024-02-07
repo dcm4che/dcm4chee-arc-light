@@ -512,7 +512,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     }
     deleteBatchedTask(batchedTask){
         this.confirm({
-            content: $localize `:@@task_delete_question:Are you sure you want to delete all tasks to this batch?`
+            content: $localize `:@@batch_delete_question:Are you sure you want to delete all tasks of this batch?`
         }).subscribe(ok=>{
             if(ok){
                 if(batchedTask.batchID){

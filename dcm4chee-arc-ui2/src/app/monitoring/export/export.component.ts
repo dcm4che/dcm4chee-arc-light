@@ -1460,7 +1460,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     deleteBatchedTask(batchedTask){
         this.confirm({
-            content: $localize `:@@task_delete_question:Are you sure you want to delete all tasks to this batch?`
+            content: $localize `:@@batch_delete_question:Are you sure you want to delete all tasks of this batch?`
         }).subscribe(ok=>{
             if(ok){
                 if(batchedTask.batchID){
@@ -1469,7 +1469,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     delete filter["limit"];
                     delete filter["offset"];
                     this.service.deleteAll(filter).subscribe((res)=>{
-                        this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
+                        this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
                         this.cfpLoadingBar.complete();
                         this.search(0);
                     }, (err) => {
