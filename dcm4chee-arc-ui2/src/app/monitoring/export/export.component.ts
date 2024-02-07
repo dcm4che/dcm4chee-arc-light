@@ -146,10 +146,10 @@ export class ExportComponent implements OnInit, OnDestroy {
                 this.executeAll('delete');
                 break;
             case "delete":
-                this.delete(match, false);
+                this.delete(match);
                 break;
             case "cancel":
-                this.cancel(match, false);
+                this.cancel(match);
                 break;
             case "reschedule":
                 this.reschedule(match);
@@ -1430,9 +1430,13 @@ export class ExportComponent implements OnInit, OnDestroy {
                     this.cfpLoadingBar.start();
                     this.matches.forEach((match)=>{
                         if(match.selected){
-                            this.service[mode](match.taskID, true)
+                            this.service[mode](match.taskID)
                                 .subscribe((res) => {
                                     console.log("Execute result",res);
+                                    if(mode === "cancel")
+                                        this.mainservice.showMsg($localize `:@@task_canceled_param:Task ${match.taskID}:taskid: canceled successfully!`);
+                                    else
+                                        this.mainservice.showMsg($localize `:@@task_deleted_param:Task ${match.taskID}:taskid: deleted successfully!`);
                                 },(err)=>{
                                     this.httpErrorHandler.handleError(err);
                                 });
@@ -1478,7 +1482,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             }
         });
     }
-    delete(match, selected:boolean){
+    delete(match){
         let $this = this;
         let parameters: any = {
             content: $localize `:@@delete_task_question:Are you sure you want to delete this task?`,
@@ -1496,11 +1500,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                             // match.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
                             $this.search(0);
-                            if (selected === true)
-                                this.mainservice.showMsg($localize `:@@task_deleted_param:Task ${match.taskID}:taskid:
- deleted successfully!`);
-                            else
-                                this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
+                            this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
@@ -1509,7 +1509,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 }
         });
     }
-    cancel(match, selected:boolean) {
+    cancel(match) {
         let $this = this;
         let parameters: any = {
             content: $localize `:@@want_to_cancel_this_task:Are you sure you want to cancel this task?`,
@@ -1526,11 +1526,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         () => {
                             match.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
-                            if (selected === true)
-                                this.mainservice.showMsg($localize `:@@task_canceled_param:Task ${match.taskID}:taskid:
- canceled successfully!`);
-                            else
-                                this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
+                            this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
