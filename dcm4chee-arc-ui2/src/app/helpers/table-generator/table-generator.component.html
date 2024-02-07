@@ -59,7 +59,7 @@
                 </ng-container>
                 <ng-container *ngIf="table_element.type === 'actions'">
                     <ng-container  *ngFor="let action of table_element.actions">
-                        <a *ngIf="(!action.showIf || action.showIf(model, config))" class="pointer action-button {{table_element.cssClass || ''}}" (click)="$event.preventDefault();action.click(model)">
+                        <a *ngIf="(!action.showIf || action.showIf(model, config))" class="pointer action-button {{table_element.cssClass || ''}}" (click)="$event.preventDefault();action.click(model)" [title]="action.title">
                             <span *ngIf="action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                             <i *ngIf="action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
                         </a>
