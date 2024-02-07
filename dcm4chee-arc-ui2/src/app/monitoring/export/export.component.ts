@@ -146,10 +146,10 @@ export class ExportComponent implements OnInit, OnDestroy {
                 this.executeAll('delete');
                 break;
             case "delete":
-                this.delete(match);
+                this.delete(match, false);
                 break;
             case "cancel":
-                this.cancel(match);
+                this.cancel(match, false);
                 break;
             case "reschedule":
                 this.reschedule(match);
@@ -1396,7 +1396,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         id = ok.schema_model.selectedExporter;
                     }
                     this.matches.forEach((match, i)=>{
-                        if(match.checked){
+                        if(match.selected){
                             this.service.reschedule(match.taskID, id || match.ExporterID, filter)
                                 .subscribe(
                                     (res) => {
@@ -1429,8 +1429,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                 if (result){
                     this.cfpLoadingBar.start();
                     this.matches.forEach((match)=>{
-                        if(match.checked){
-                            this.service[mode](match.taskID)
+                        if(match.selected){
+                            this.service[mode](match.taskID, true)
                                 .subscribe((res) => {
                                     console.log("Execute result",res);
                                 },(err)=>{
@@ -1465,7 +1465,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     delete filter["limit"];
                     delete filter["offset"];
                     this.service.deleteAll(filter).subscribe((res)=>{
-                        this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
+                        this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
                         this.cfpLoadingBar.complete();
                         this.search(0);
                     }, (err) => {
@@ -1478,7 +1478,7 @@ export class ExportComponent implements OnInit, OnDestroy {
             }
         });
     }
-    delete(match){
+    delete(match, selected:boolean){
         let $this = this;
         let parameters: any = {
             content: $localize `:@@delete_task_question:Are you sure you want to delete this task?`,
@@ -1492,11 +1492,15 @@ export class ExportComponent implements OnInit, OnDestroy {
                 $this.cfpLoadingBar.start();
                 this.service.delete(match.taskID)
                     .subscribe(
-                        (res) => {
+                        () => {
                             // match.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
                             $this.search(0);
-                            this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
+                            if (selected === true)
+                                this.mainservice.showMsg($localize `:@@task_deleted_param:Task ${match.taskID}:taskid:
+ deleted successfully!`);
+                            else
+                                this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
@@ -1505,7 +1509,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 }
         });
     }
-    cancel(match) {
+    cancel(match, selected:boolean) {
         let $this = this;
         let parameters: any = {
             content: $localize `:@@want_to_cancel_this_task:Are you sure you want to cancel this task?`,
@@ -1519,10 +1523,14 @@ export class ExportComponent implements OnInit, OnDestroy {
                 $this.cfpLoadingBar.start();
                 this.service.cancel(match.taskID)
                     .subscribe(
-                        (res) => {
+                        () => {
                             match.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
-                            this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
+                            if (selected === true)
+                                this.mainservice.showMsg($localize `:@@task_canceled_param:Task ${match.taskID}:taskid:
+ canceled successfully!`);
+                            else
+                                this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();

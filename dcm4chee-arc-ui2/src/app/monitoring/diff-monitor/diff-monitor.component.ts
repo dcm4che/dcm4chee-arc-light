@@ -190,7 +190,7 @@ export class DiffMonitorComponent implements OnInit {
                 switch (this.allAction){
                     case "cancel":
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
+                            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
                         }, (err) => {
                             this.cfpLoadingBar.complete();
@@ -296,7 +296,7 @@ export class DiffMonitorComponent implements OnInit {
     }
     deleteAllTasks(filter){
         this.service.deleteAll(filter).subscribe((res)=>{
-            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
+            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
             this.cfpLoadingBar.complete();
             let filters = Object.assign({},this.filterObject);
             this.getDiffTasks(filters);

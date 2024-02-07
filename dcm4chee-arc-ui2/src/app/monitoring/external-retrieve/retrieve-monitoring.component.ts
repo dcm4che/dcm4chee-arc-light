@@ -523,7 +523,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     this.service.deleteAll(filter).subscribe((res)=>{
                         this.cfpLoadingBar.complete();
                         if(_.hasIn(res,"count")){
-                            this.mainservice.showMsg($localize `:@@task_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
+                            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
                         }else{
                             this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`);
                         }
