@@ -1483,7 +1483,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         let parameters: any = {
             content: $localize `:@@delete_task_question:Are you sure you want to delete this task?`,
             result: {
-                select: this.exporters[0].id
+                select: this.exporters
             },
             saveButton: $localize `:@@DELETE:DELETE`
         };
@@ -1510,7 +1510,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         let parameters: any = {
             content: $localize `:@@want_to_cancel_this_task:Are you sure you want to cancel this task?`,
             result: {
-                select: this.exporters[0].id
+                select: this.exporters
             },
             saveButton: $localize `:@@YES:YES`
         };
