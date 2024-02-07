@@ -399,17 +399,17 @@ export class ExportService {
                 }),
                 new TableSchemaElement({
                     type:"value",
-                    title:$localize `:@@remote_aet:Remote AET`,
-                    pathToValue:"RemoteAET",
-                    description: $localize `:@@remote_aet:Remote AET`,
+                    title:$localize `:@@device_name:Device Name`,
+                    pathToValue:"dicomDeviceName",
+                    description: $localize `:@@device_name:Device Name`,
                     widthWeight:1,
                     calculatedWidth:"20%"
                 }),
                 new TableSchemaElement({
                     type:"value",
-                    title:$localize `:@@destination_aet:Destination AET`,
-                    pathToValue:"DestinationAET",
-                    description: $localize `:@@destination_aet:Destination AET`,
+                    title:$localize `:@@exporter_id:Exporter ID`,
+                    pathToValue:"ExporterID",
+                    description: $localize `:@@exporter_id:Exporter ID`,
                     widthWeight:1,
                     calculatedWidth:"20%"
                 }),
