@@ -135,7 +135,7 @@ public class StgCmtEJB {
             List<String> aets = em.createNamedQuery(Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID, String.class)
                     .setParameter(1, seriesInstanceUID)
                     .getResultList();
-            String aet = aets.size() == 1 ? aets.get(0) : null;
+            String aet = aets.size() == 1 ? aets.get(0) : "*";
             if (em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID)
                     .setParameter(1, seriesInstanceUID)
                     .setParameter(2, aet)
@@ -148,7 +148,7 @@ public class StgCmtEJB {
                 List<String> aets = em.createNamedQuery(Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK, String.class)
                         .setParameter(1, seriesPk)
                         .getResultList();
-                String aet = aets.size() == 1 ? aets.get(0) : null;
+                String aet = aets.size() == 1 ? aets.get(0) : "*";
                 if (em.createNamedQuery(Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK)
                         .setParameter(1, seriesPk)
                         .setParameter(2, aet)

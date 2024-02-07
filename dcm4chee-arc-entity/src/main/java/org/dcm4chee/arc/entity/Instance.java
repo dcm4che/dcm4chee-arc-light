@@ -311,6 +311,7 @@ public class Instance {
     @Column(name = "retrieve_aets")
     private String retrieveAETs;
 
+    @Basic(optional = false)
     @Column(name = "ext_retrieve_aet")
     private String externalRetrieveAET;
 
