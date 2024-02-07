@@ -6236,28 +6236,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
                         });
                     }
-                    if(mode === 'multipleExport'){
-                        this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
-                            this.studyWebService,
-                            "DCM4CHEE_ARC_AET",
-                            "MOVE_MATCHING"
-                        ).subscribe(webApp=>{
-                            if(webApp){
-                                urlRest = `${
-                                    this.service.getDicomURL("export",webApp)
-                                }/${
-                                    result.selectedExporter
-                                }?${
-                                    params1
-                                }${
-                                    this.appService.param(this.createStudyFilterParams(true,true))
-                                }`;
-                            }else{
-                                this.appService.showError($localize `:@@webapp_with_MOVE_MATCHING_not_found:Web Application Service with the web service class 'MOVE_MATCHING' not found!`)
-                            }
-                            fireService(result, multipleObjects,singleUrlSuffix, urlRest, url);
-                        });
-                    }else{
+                    else{
                         //SINGLE
                         if(!this.internal){
                             this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
