@@ -14,6 +14,12 @@
         background: linear-gradient(to bottom,  rgba(21, 70, 109, 0.75) 0%,rgba(6, 29, 47, 0.84) 100%);
         filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#165596', endColorstr='#0F2C4A',GradientType=0 );
       }
+      &.scheduled-for-retry{
+        background: -moz-linear-gradient(top,  rgba(61, 148, 136, 0.75) 0%, rgba(12, 58, 61, 0.75) 100%);
+        background: -webkit-linear-gradient(top,  rgba(61, 148, 136, 0.75) 0%,rgba(12, 58, 61, 0.75) 100%);
+        background: linear-gradient(to bottom,  rgba(61, 148, 136, 0.75) 0%,rgba(12, 58, 61, 0.75) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3D9488', endColorstr='#0C3A3D',GradientType=0 );
+      }
       &.in-process{
         background: -moz-linear-gradient(top,  rgba(121, 41, 162, 0.68) 0%, rgba(28, 9, 64, 0.82) 100%);
         background: -webkit-linear-gradient(top,  rgba(121, 41, 162, 0.68) 0%,rgba(28, 9, 64, 0.82) 100%);

@@ -3003,6 +3003,7 @@ export class Globalvar {
             "failed",
             "in-process",
             "scheduled",
+            "scheduled-for-retry",
             "canceled"
         ];
     }
