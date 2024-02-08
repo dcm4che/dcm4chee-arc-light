@@ -126,7 +126,7 @@ import java.util.stream.Stream;
             "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
     name=Series.RESET_SERIES_SIZE_AND_EXTERNAL_RETRIEVE_AET,
-    query="update Series se set se.size = -1L, se.externalRetrieveAET = * where se.pk = ?1"),
+    query="update Series se set se.size = -1L, se.externalRetrieveAET = null where se.pk = ?1"),
 @NamedQuery(
     name=Series.SET_COMPLETENESS,
     query="update Series ser set ser.completeness = ?3 " +
