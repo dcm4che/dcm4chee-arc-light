@@ -116,10 +116,12 @@ import java.util.stream.Stream;
     query="update Series se set se.size = ?2 where se.pk = ?1"),
 @NamedQuery(
     name=Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK,
-    query="update Series se set se.externalRetrieveAET = ?2 where se.pk = ?1"),
+    query="update Series se set se.externalRetrieveAET = ?2 " +
+            "where se.pk = ?1 and se.externalRetrieveAET != ?2"),
 @NamedQuery(
     name=Series.SET_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID,
-    query="update Series se set se.externalRetrieveAET = ?2 where se.seriesInstanceUID = ?1"),
+    query="update Series se set se.externalRetrieveAET = ?2 " +
+            "where se.seriesInstanceUID = ?1 and se.externalRetrieveAET != ?2"),
 @NamedQuery(
     name=Series.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID,
     query = "select distinct se.externalRetrieveAET from Series se " +
@@ -130,12 +132,12 @@ import java.util.stream.Stream;
 @NamedQuery(
     name=Series.SET_COMPLETENESS,
     query="update Series ser set ser.completeness = ?3 " +
-            "where ser.seriesInstanceUID = ?2 and ser.study in (" +
+            "where ser.seriesInstanceUID = ?2 and ser.completeness != ?3 and ser.study in (" +
             "select study from Study study where study.studyInstanceUID = ?1)"),
 @NamedQuery(
     name=Series.SET_COMPLETENESS_OF_STUDY,
     query="update Series ser set ser.completeness = ?2 " +
-            "where ser.study in (" +
+            "where ser.completeness != ?2 and ser.study in (" +
             "select study from Study study where study.studyInstanceUID = ?1)"),
 @NamedQuery(
     name=Series.INCREMENT_FAILED_RETRIEVES,
@@ -168,7 +170,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name=Series.CLAIM_EXPIRED_SERIES,
         query="update Series se set se.expirationState = ?3 " +
-                "where se.pk = ?1 and se.expirationState = ?2"),
+                "where se.pk = ?1 and se.expirationState = ?2 and se.expirationState != ?3"),
 @NamedQuery(
         name=Series.EXPIRE_SERIES,
         query="update Series se set se.expirationState = ?2 , se.expirationDate = ?3 " +
@@ -258,7 +260,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name=Series.UPDATE_INSTANCE_PURGE_STATE,
         query = "update Series se set se.instancePurgeState = ?3 " +
-                "where se.pk = ?1 and se.instancePurgeState = ?2"),
+                "where se.pk = ?1 and se.instancePurgeState = ?2 and se.instancePurgeState != ?3"),
 @NamedQuery(
         name = Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE,
         query = "select se from Series se join fetch se.metadata where se.study.pk=?1 and se.instancePurgeState=?2"),

@@ -62,11 +62,11 @@ import org.dcm4chee.arc.conf.Availability;
 @NamedQuery(
         name = StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_PK,
         query = "update StudyQueryAttributes studyQueryAttrs set studyQueryAttrs.availability = ?2 " +
-                "where studyQueryAttrs.study.pk = ?1"),
+                "where studyQueryAttrs.study.pk = ?1 and studyQueryAttrs.availability != ?2 "),
 @NamedQuery(
         name = StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
         query = "update StudyQueryAttributes studyQueryAttrs set studyQueryAttrs.availability = ?2 " +
-                "where studyQueryAttrs.study = (" +
+                "where studyQueryAttrs.availability != ?2 and studyQueryAttrs.study = (" +
                 "select study from Study study where study.studyInstanceUID = ?1)")
 })
 @Entity

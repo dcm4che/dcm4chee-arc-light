@@ -178,26 +178,26 @@ import java.util.*;
 @NamedQuery(
     name = Instance.UPDATE_AVAILABILITY_BY_STUDY_PK,
     query = "update Instance i set i.availability = ?2 " +
-            "where i.series in (" +
+            "where i.availability != ?2 and i.series in (" +
             "select ser from Series ser where ser.study.pk = ?1)"),
 @NamedQuery(
         name = Instance.UPDATE_AVAILABILITY_BY_STUDY_IUID,
         query = "update Instance i set i.availability = ?2 " +
-                "where i.series in (" +
+                "where i.availability != ?2 and i.series in (" +
                 "select ser from Series ser where ser.study.studyInstanceUID = ?1)"),
 @NamedQuery(
         name = Instance.UPDATE_AVAILABILITY_BY_SERIES_IUID,
         query = "update Instance i set i.availability = ?2 " +
-                "where i.series in (" +
+                "where i.availability != ?2 and i.series in (" +
                 "select ser from Series ser where ser.seriesInstanceUID = ?1)"),
 @NamedQuery(
         name = Instance.UPDATE_AVAILABILITY_BY_SOP_IUID,
         query = "update Instance i set i.availability = ?2 " +
-                "where i.sopInstanceUID = ?1"),
+                "where i.sopInstanceUID = ?1 and i.availability != ?2"),
 @NamedQuery(
         name = Instance.UPDATE_EXTERNAL_RETRIEVE_AET_BY_SOP_IUIDS,
         query = "update Instance i set i.externalRetrieveAET = ?2 " +
-                "where i.sopInstanceUID in ?1"),
+                "where i.sopInstanceUID in ?1 and i.externalRetrieveAET != ?2"),
 @NamedQuery(
         name = Instance.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK,
         query = "select distinct i.externalRetrieveAET from Instance i " +

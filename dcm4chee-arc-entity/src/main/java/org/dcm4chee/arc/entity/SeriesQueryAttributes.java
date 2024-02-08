@@ -67,17 +67,17 @@ import java.util.Set;
 @NamedQuery(
     name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_PK,
     query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
-            "where serQueryAttrs.series in (" +
+            "where serQueryAttrs.availability != ?2 and serQueryAttrs.series in (" +
                 "select ser from Series ser where ser.study.pk = ?1)"),
 @NamedQuery(
         name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
         query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
-                "where serQueryAttrs.series in (" +
+                "where serQueryAttrs.availability != ?2 and serQueryAttrs.series in (" +
                 "select ser from Series ser where ser.study.studyInstanceUID = ?1)"),
 @NamedQuery(
         name = SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
         query = "update SeriesQueryAttributes serQueryAttrs set serQueryAttrs.availability = ?2 " +
-                "where serQueryAttrs.series in (" +
+                "where serQueryAttrs.availability != ?2 and serQueryAttrs.series in (" +
                 "select ser from Series ser where ser.seriesInstanceUID = ?1)")
 })
 @Entity

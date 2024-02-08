@@ -87,7 +87,7 @@ import java.util.*;
 @NamedQuery(
     name=Patient.CLAIM_PATIENT_VERIFICATION,
     query="update Patient p set p.verificationStatus = ?3 " +
-            "where p.pk = ?1 and p.verificationStatus = ?2")
+            "where p.pk = ?1 and p.verificationStatus = ?2 and p.verificationStatus != ?3")
 })
 @Entity
 @Table(name = "patient",

@@ -87,14 +87,16 @@ import java.util.*;
                 query="update Study st set st.size = ?2 where st.pk = ?1"),
         @NamedQuery(
                 name=Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID,
-                query="update Study st set st.externalRetrieveAET = ?2 where st.studyInstanceUID = ?1"),
+                query="update Study st set st.externalRetrieveAET = ?2 " +
+                        "where st.studyInstanceUID = ?1 and st.externalRetrieveAET != ?2 "),
         @NamedQuery(
                 name=Study.RESET_STUDY_SIZE_AND_EXTERNAL_RETRIEVE_AET,
-                query="update Study st set st.size = -1L, st.externalRetrieveAET = null where st.pk = ?1"),
+                query="update Study st set st.size = -1L, st.externalRetrieveAET = ?2 " +
+                        "where st.pk = ?1"),
         @NamedQuery(
                 name=Study.SET_COMPLETENESS,
                 query="update Study st set st.completeness = ?2 " +
-                        "where st.studyInstanceUID = ?1"),
+                        "where st.studyInstanceUID = ?1 and st.completeness != ?2 "),
         @NamedQuery(
                 name=Study.INCREMENT_FAILED_RETRIEVES,
                 query="update Study st set st.failedRetrieves = st.failedRetrieves + 1, st.completeness = ?2 " +
@@ -110,7 +112,7 @@ import java.util.*;
         @NamedQuery(
                 name=Study.CLAIM_EXPIRED_STUDY,
                 query="update Study st set st.expirationState = ?3 " +
-                        "where st.pk = ?1 and st.expirationState = ?2"),
+                        "where st.pk = ?1 and st.expirationState = ?2 and st.expirationState != ?3"),
         @NamedQuery(
                 name=Study.STUDY_IUIDS_BY_ACCESSION_NUMBER,
                 query = "select st.studyInstanceUID from Study st " +
@@ -134,11 +136,11 @@ import java.util.*;
         @NamedQuery(
                 name = Study.SET_STORAGE_IDS,
                 query = "update Study st set st.storageIDs = ?2 " +
-                        "where st.pk = ?1"),
+                        "where st.pk = ?1 and st.storageIDs != ?2"),
         @NamedQuery(
                 name = Study.UPDATE_ACCESS_CONTROL_ID,
                 query = "update Study st set st.accessControlID = ?2 " +
-                        "where st.studyInstanceUID = ?1"),
+                        "where st.studyInstanceUID = ?1 and st.accessControlID != ?2"),
         @NamedQuery(
                 name = Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE,
                 query = "select st from Study st " +
