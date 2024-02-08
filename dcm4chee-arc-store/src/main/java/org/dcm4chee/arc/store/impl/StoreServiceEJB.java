@@ -1107,7 +1107,8 @@ public class StoreServiceEJB {
         boolean resetExternalRetrieveAET = series.resetExternalRetrieveAET();
         if (resetSize || resetExternalRetrieveAET) {
             em.createNamedQuery(Series.RESET_SERIES_SIZE_AND_EXTERNAL_RETRIEVE_AET)
-                    .setParameter(1, series.getPk());
+                    .setParameter(1, series.getPk())
+                    .setParameter(2, "*");
         }
     }
 
