@@ -46,7 +46,7 @@
   <parent>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
     <artifactId>dcm4chee-arc-parent</artifactId>
-    <version>5.31.3</version>
+    <version>5.32.0</version>
   </parent>
 
   <artifactId>dcm4chee-arc-export-jivex-report</artifactId>
