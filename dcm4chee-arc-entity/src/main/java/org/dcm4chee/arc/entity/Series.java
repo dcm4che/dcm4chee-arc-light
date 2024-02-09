@@ -919,8 +919,8 @@ public class Series {
     }
 
     public boolean resetExternalRetrieveAET() {
-        if (externalRetrieveAET == null) return false;
-        this.externalRetrieveAET = null;
+        if (externalRetrieveAET.equals("*")) return false;
+        this.externalRetrieveAET = "*";
         return true;
     }
 
