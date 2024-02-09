@@ -1462,7 +1462,6 @@ public class StoreServiceEJB {
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         series.setExpirationState(ExpirationState.UPDATEABLE);
-        series.setExternalRetrieveAET("*");
         ArchiveCompressionRule compressionRule = ctx.getCompressionRule();
         if (compressionRule != null && compressionRule.getDelay() != null) {
             series.setCompressionTime(
@@ -1596,7 +1595,6 @@ public class StoreServiceEJB {
         setContentItems(session, instance, attrs);
         instance.setRetrieveAETs(retrieveAETs);
         instance.setAvailability(availability);
-        instance.setExternalRetrieveAET("*");
         instance.setSeries(series);
         em.persist(instance);
         LOG.info("{}: Create {}", session, instance);

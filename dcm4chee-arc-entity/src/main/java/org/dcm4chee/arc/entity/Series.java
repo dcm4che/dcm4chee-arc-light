@@ -624,7 +624,7 @@ public class Series {
 
     @Basic(optional = false)
     @Column(name = "ext_retrieve_aet")
-    private String externalRetrieveAET;
+    private String externalRetrieveAET = "*";
 
     @Basic(optional = false)
     @Column(name = "series_size")

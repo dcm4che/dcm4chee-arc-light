@@ -313,7 +313,7 @@ public class Instance {
 
     @Basic(optional = false)
     @Column(name = "ext_retrieve_aet")
-    private String externalRetrieveAET;
+    private String externalRetrieveAET = "*";
 
     @Basic(optional = false)
     @Column(name = "availability")
