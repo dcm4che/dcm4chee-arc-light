@@ -159,9 +159,7 @@ public class StgCmtEJB {
         List<String> aets = em.createNamedQuery(Series.DISTINCT_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID, String.class)
                 .setParameter(1, studyInstanceUID)
                 .getResultList();
-        String aet = aets.size() == 1
-                ? Objects.requireNonNullElse(aets.get(0), "*")
-                : "*";
+        String aet = aets.size() == 1 ? aets.get(0) : "*";
         if (em.createNamedQuery(Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID)
                 .setParameter(1, studyInstanceUID)
                 .setParameter(2, aet)
