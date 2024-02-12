@@ -154,10 +154,10 @@ export class TableService {
             remaining: new TableSchemaElement({
                 type:"value",
                 title:$localize `:@@amount_i:#I`,
-                description: $localize `:@@completed_warning_failed:Completed / Warning / Failed`,
+                description: $localize `:@@completed_remaining_warning_failed:Completed / Remaining / Warning / Failed`,
                 hook:(data)=>{
                     if(data)
-                        return `${data.completed || 0} / ${data.warning || 0} / ${data.failed || 0}`;
+                        return `${data.completed || 0} / ${data.remaining || 0} / ${data.warning || 0} / ${data.failed || 0}`;
                     return "";
                 },
                 widthWeight:1,

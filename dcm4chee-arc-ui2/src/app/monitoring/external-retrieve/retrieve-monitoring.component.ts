@@ -1416,7 +1416,10 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                             if (_.hasIn(properties, 'Modality')){
                                 properties.Modality = properties.Modality.join(', ');
                             }
-                            properties.taskState = (properties.completed ? properties.completed*1:0) + ' / ' + (properties.remaining ? properties.remaining*1:0) + ' / '+ (properties.failed ? properties.failed*1:0);
+                            properties.taskState = (properties.completed ? properties.completed*1:0)
+                                                    + ' / ' + (properties.remaining ? properties.remaining*1:0)
+                                                    + ' / ' + (properties.warning ? properties.warning*1:0)
+                                                    + ' / '+ (properties.failed ? properties.failed*1:0);
                             let endTime:Date =  properties.processingEndTime ? new Date(properties.processingEndTime) :  this.mainservice.serverTime;
                             try{
                                 properties.NumberOfInstances = properties.NumberOfInstances || ((properties.completed ? properties.completed*1:0) + (properties.remaining ? properties.remaining*1:0) + (properties.failed ? properties.failed*1:0));
