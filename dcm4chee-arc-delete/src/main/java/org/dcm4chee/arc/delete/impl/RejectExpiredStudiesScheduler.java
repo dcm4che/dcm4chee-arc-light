@@ -132,7 +132,8 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                 if (getPollingInterval() == null)
                     return;
 
-                if (series.getExpirationExporterID() == null)
+                if (series.getExpirationExporterID() == null
+                        || series.getExpirationState() == ExpirationState.EXPORT_SCHEDULED)
                     rejectExpiredSeries(series, ae, aet, rn);
                 else
                     exportExpiredSeries(series);
@@ -183,7 +184,8 @@ public class RejectExpiredStudiesScheduler extends Scheduler {
                 if (getPollingInterval() == null)
                     return;
 
-                if (study.getExpirationExporterID() == null)
+                if (study.getExpirationExporterID() == null
+                        || study.getExpirationState() == ExpirationState.EXPORT_SCHEDULED)
                     rejectExpiredStudy(study, ae, aet, rn);
                 else
                     exportExpiredStudy(study);

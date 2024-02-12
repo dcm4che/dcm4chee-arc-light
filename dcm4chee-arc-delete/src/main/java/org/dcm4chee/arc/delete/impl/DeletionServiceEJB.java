@@ -737,7 +737,9 @@ public class DeletionServiceEJB {
     public List<Study> findExpiredStudies(int studyFetchSize) {
         return em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
                 .setParameter(1, BASIC_ISO_DATE.format(LocalDate.now()))
-                .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE, ExpirationState.FROZEN))
+                .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE,
+                                                ExpirationState.FROZEN,
+                                                ExpirationState.EXPORT_SCHEDULED))
                 .setMaxResults(studyFetchSize)
                 .getResultList();
     }
@@ -745,7 +747,9 @@ public class DeletionServiceEJB {
     public List<Series> findExpiredSeries(int seriesFetchSize) {
         return em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
                 .setParameter(1, BASIC_ISO_DATE.format(LocalDate.now()))
-                .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE, ExpirationState.FROZEN))
+                .setParameter(2, EnumSet.of(ExpirationState.UPDATEABLE,
+                                                ExpirationState.FROZEN,
+                                                ExpirationState.EXPORT_SCHEDULED))
                 .setMaxResults(seriesFetchSize)
                 .getResultList();
     }
