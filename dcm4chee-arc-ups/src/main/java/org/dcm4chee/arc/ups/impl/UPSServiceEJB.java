@@ -734,7 +734,8 @@ public class UPSServiceEJB {
         }
     }
 
-    public boolean createOrUpdateOnStore(UPSContext upsCtx, StoreContext ctx, Calendar now, UPSOnStore rule) {
+    public boolean createOrUpdateOnStore(UPSContext upsCtx, StoreContext ctx, Calendar now, UPSOnStore rule)
+            throws DicomServiceException {
         LOG.debug("{}: Apply {}", ctx.getStoreSession(), rule);
         String iuid = upsCtx.getUPSInstanceUID();
         try {
@@ -761,6 +762,7 @@ public class UPSServiceEJB {
             updateIncludeInputInformation(attrs.getSequence(Tag.InputInformationSequence), ctx);
             ups.setAttributes(attrs, ctx.getStoreSession().getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
             upsCtx.setAttributes(ups.getAttributes());
+            updateUPS(upsCtx);
         } catch (NoResultException e) {
             upsCtx.setAttributes(createOnStore(ctx, now, rule));
             createUPS(upsCtx);

@@ -454,7 +454,7 @@ public class UPSServiceImpl implements UPSService {
                 if (ejb.createOrUpdateOnStore(upsCtx, ctx, now, upsOnStore))
                     fireUPSEvents(upsCtx);
                 return;
-            } catch (EJBException e) {
+            } catch (DicomServiceException | EJBException e) {
                 if (retries-- > 0) {
                     LOG.info("{}: Failed to create or update UPS triggered by {} caused by {} - retry",
                             ctx.getStoreSession(), upsOnStore, DicomServiceException.initialCauseOf(e));
