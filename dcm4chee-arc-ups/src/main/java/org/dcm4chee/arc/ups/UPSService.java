@@ -44,9 +44,13 @@ package org.dcm4chee.arc.ups;
 import jakarta.websocket.Session;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.UPSOnStore;
 import org.dcm4chee.arc.entity.UPS;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.store.StoreContext;
 
 import java.util.List;
 
@@ -84,4 +88,8 @@ public interface UPSService {
     List<Session> getWebsocketChannels(String subscriberAET);
 
     UPSContext newUPSContext(UPSContext other);
+
+    UPSContext newUPSContext(StoreContext storeContext, UPSOnStore rule);
+
+    UPSContext newUPSContext(HL7ConnectionEvent event, ArchiveHL7ApplicationExtension archiveHL7AppExtension);
 }

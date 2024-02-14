@@ -121,17 +121,38 @@ public class UPSServiceImpl implements UPSService {
 
     @Override
     public UPSContext newUPSContext(Association as) {
-        return new UPSContextImpl(as);
+        return new UPSContextImpl(as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class)).setAssociation(as);
     }
 
     @Override
     public UPSContext newUPSContext(HttpServletRequestInfo httpRequestInfo, ArchiveAEExtension arcAE) {
-        return new UPSContextImpl(httpRequestInfo, arcAE);
+        return new UPSContextImpl(arcAE).setHttpRequestInfo(httpRequestInfo);
     }
 
     @Override
     public UPSContext newUPSContext(UPSContext other) {
         return new UPSContextImpl(other);
+    }
+
+    @Override
+    public UPSContext newUPSContext(StoreContext storeContext, UPSOnStore rule) {
+        StoreSession storeSession = storeContext.getStoreSession();
+        UPSContext upsCtx = new UPSContextImpl(storeSession.getArchiveAEExtension())
+                                .setHttpRequestInfo(storeSession.getHttpRequest())
+                                .setSocket(storeSession.getSocket());
+        if (storeSession.getAssociation() != null)
+            upsCtx = upsCtx.setAssociation(storeSession.getAssociation());
+        if (rule.isIncludePatient())
+            upsCtx = upsCtx.setPatient(storeContext.getStoredInstance().getSeries().getStudy().getPatient());
+        return upsCtx;
+    }
+
+    @Override
+    public UPSContext newUPSContext(HL7ConnectionEvent event, ArchiveHL7ApplicationExtension archiveHL7AppExtension) {
+        return new UPSContextImpl(archiveHL7AppExtension.getArchiveAEExtension())
+                .setArchiveHL7AppExtension(archiveHL7AppExtension)
+                .setSocket(event.getSocket())
+                .setConnection(event.getConnection());
     }
 
     @Override
@@ -428,9 +449,10 @@ public class UPSServiceImpl implements UPSService {
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                UPSContext upsContext = ejb.createOrUpdateOnStore(ctx, now, upsOnStore);
-                if (upsContext != null)
-                    fireUPSEvents(upsContext);
+                UPSContext upsCtx = newUPSContext(ctx, upsOnStore);
+                upsCtx.setUPSInstanceUID(upsOnStore.getInstanceUID(ctx.getAttributes()));
+                if (ejb.createOrUpdateOnStore(upsCtx, ctx, now, upsOnStore))
+                    fireUPSEvents(upsCtx);
                 return;
             } catch (EJBException e) {
                 if (retries-- > 0) {
@@ -466,21 +488,20 @@ public class UPSServiceImpl implements UPSService {
         if (arcHL7App == null || !arcHL7App.hasUPSOnHL7())
             return;
 
-        Connection conn = event.getConnection();
         Socket socket = event.getSocket();
         String host = ReverseDNS.hostNameOf(socket.getInetAddress());
         HL7Fields hl7Fields = new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet());
         Calendar now = Calendar.getInstance();
         arcHL7App.upsOnHL7Stream()
                 .filter(upsOnHL7 -> upsOnHL7.getConditions().match(host, hl7Fields))
-                .forEach(upsOnHL7 -> createOnHL7(socket, conn, arcHL7App, msg, hl7Fields, now, upsOnHL7));
+                .forEach(upsOnHL7 -> createOnHL7(event, arcHL7App, msg, hl7Fields, now, upsOnHL7));
     }
 
     private void createOnHL7(
-            Socket socket, Connection conn, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
+            HL7ConnectionEvent event, ArchiveHL7ApplicationExtension arcHL7App, UnparsedHL7Message msg, HL7Fields hl7Fields,
             Calendar now, UPSOnHL7 upsOnHL7) {
-        LOG.info("{}: Apply {}", socket, upsOnHL7);
-        UPSContext ctx = new UPSContextImpl(socket, conn, arcHL7App);
+        LOG.info("{}: Apply {}", event.getSocket(), upsOnHL7);
+        UPSContext ctx = newUPSContext(event, arcHL7App);
         ctx.setUPSInstanceUID(upsOnHL7.getInstanceUID(hl7Fields));
         try {
             UPS ups = ejb.findUPS(ctx);

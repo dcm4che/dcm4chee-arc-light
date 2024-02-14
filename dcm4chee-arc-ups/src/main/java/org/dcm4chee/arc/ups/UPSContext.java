@@ -56,13 +56,18 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2019
  */
 public interface UPSContext {
 
     HttpServletRequestInfo getHttpRequestInfo();
 
+    UPSContext setHttpRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
+
     Association getAssociation();
+
+    UPSContext setAssociation(Association as);
 
     ArchiveAEExtension getArchiveAEExtension();
 
@@ -81,6 +86,8 @@ public interface UPSContext {
     boolean isGlobalSubscription();
 
     Patient getPatient();
+
+    UPSContext setPatient(Patient patient);
 
     String getRequesterAET();
 
@@ -119,7 +126,13 @@ public interface UPSContext {
 
     Connection getConnection();
 
+    UPSContext setConnection(Connection conn);
+
     Socket getSocket();
 
+    UPSContext setSocket(Socket socket);
+
     ArchiveHL7ApplicationExtension getArchiveHL7AppExtension();
+
+    UPSContext setArchiveHL7AppExtension(ArchiveHL7ApplicationExtension archiveHL7AppExtension);
 }

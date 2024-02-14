@@ -734,9 +734,9 @@ public class UPSServiceEJB {
         }
     }
 
-    public UPSContext createOrUpdateOnStore(StoreContext ctx, Calendar now, UPSOnStore rule) {
+    public boolean createOrUpdateOnStore(UPSContext upsCtx, StoreContext ctx, Calendar now, UPSOnStore rule) {
         LOG.debug("{}: Apply {}", ctx.getStoreSession(), rule);
-        String iuid = rule.getInstanceUID(ctx.getAttributes());
+        String iuid = upsCtx.getUPSInstanceUID();
         try {
             UPS ups = findUPS(iuid);
             UPSOnStore.IncludeInputInformation includeInputInformation = rule.getIncludeInputInformation();
@@ -746,7 +746,7 @@ public class UPSServiceEJB {
                 case SINGLE:
                 case NO:
                     LOG.debug("{}: {} already exists", ctx.getStoreSession(), ups);
-                    return null;
+                    return false;
                 default:
                     while (includeInputInformation == UPSOnStore.IncludeInputInformation.SINGLE_OR_CREATE
                         || ups.getProcedureStepState() != UPSState.SCHEDULED) {
@@ -760,18 +760,12 @@ public class UPSServiceEJB {
                 attrs.setNull(Tag.InputInformationSequence, VR.SQ);
             updateIncludeInputInformation(attrs.getSequence(Tag.InputInformationSequence), ctx);
             ups.setAttributes(attrs, ctx.getStoreSession().getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
-            return null;
+            upsCtx.setAttributes(ups.getAttributes());
         } catch (NoResultException e) {
-            return createOnStore(iuid, ctx, now, rule);
+            upsCtx.setAttributes(createOnStore(ctx, now, rule));
+            createUPS(upsCtx);
         }
-    }
-
-    private UPSContext createOnStore(String iuid, StoreContext storeCtx, Calendar now, UPSOnStore rule) {
-        UPSContext ctx = new UPSContextImpl(storeCtx, rule);
-        ctx.setUPSInstanceUID(iuid);
-        ctx.setAttributes(createOnStore(storeCtx, now, rule));
-        createUPS(ctx);
-        return ctx;
+        return true;
     }
 
     private Attributes createOnStore(StoreContext storeCtx, Calendar now, UPSOnStore rule) {
