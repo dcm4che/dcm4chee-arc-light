@@ -458,7 +458,7 @@ export class StudyService {
                         text: quantityText.count,
                         showRefreshIcon: true,
                         showDynamicLoader: false,
-                        description: $localize `:@@query_only_the_count:QUERY ONLY THE COUNT`
+                        description: $localize `:@@query_only_the_count:Query only the count`
                     });
                 }else{
                     schema.push({
