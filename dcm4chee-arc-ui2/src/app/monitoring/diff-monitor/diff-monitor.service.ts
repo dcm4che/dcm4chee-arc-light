@@ -176,7 +176,7 @@ export class DiffMonitorService {
               tag:"button",
               text:countText,
               id:"count",
-              description:$localize `:@@get_count:Get Count`
+              description:$localize `:@@query_only_the_count:Query only the count`
           },
           {
               tag:"button",
