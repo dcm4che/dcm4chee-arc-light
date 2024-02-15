@@ -35,7 +35,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     isNew = false;
     searchBreadcrum = [];
     emptyExtension = false;
-    currentSavedLanguage:LocalLanguageObject;
+    currentSavedLanguageCode:string;
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -285,7 +285,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         // }
     };
     ngOnInit(){
-        this.currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
+        this.currentSavedLanguageCode = localStorage.getItem('current_language');
         this.initCheck(10);
     }
     initCheck(retries){

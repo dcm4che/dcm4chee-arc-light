@@ -835,4 +835,277 @@ describe('j4care', () => {
             })
         ])
     });
+    it("Should compare the two pair of arrays",()=>{
+        expect(j4care.filterObjectBasedOnUIConfigAndRole(
+            [
+                new SelectDropdown<any>("ELEMENT1","ELEMENT1"),
+                new SelectDropdown<any>("ELEMENT2","ELEMENT2"),
+                new SelectDropdown<any>("ELEMENT3","ELEMENT3"),
+                new SelectDropdown<any>("ELEMENT4","ELEMENT4")
+            ],
+            [
+                "ELEMENT2",
+                "ELEMENT4"
+            ],
+            ["admin","user"],
+            ["admin"]
+        )).toEqual([
+            new SelectDropdown<any>("ELEMENT2","ELEMENT2"),
+            new SelectDropdown<any>("ELEMENT4","ELEMENT4")
+        ])
+        expect(j4care.filterObjectBasedOnUIConfigAndRole(
+            [
+                new SelectDropdown<any>("ELEMENT1","ELEMENT1"),
+                new SelectDropdown<any>("ELEMENT2","ELEMENT2"),
+                new SelectDropdown<any>("ELEMENT3","ELEMENT3"),
+                new SelectDropdown<any>("ELEMENT4","ELEMENT4")
+            ],
+            [
+                "ELEMENT2",
+                "ELEMENT4"
+            ],
+            " admin, user",
+            ["admin"]
+        )).toEqual([
+            new SelectDropdown<any>("ELEMENT2","ELEMENT2"),
+            new SelectDropdown<any>("ELEMENT4","ELEMENT4")
+        ])
+        expect(j4care.filterObjectBasedOnUIConfigAndRole(
+            [
+                new SelectDropdown<any>("ELEMENT1","ELEMENT1"),
+                new SelectDropdown<any>("ELEMENT2","ELEMENT2"),
+                new SelectDropdown<any>("ELEMENT3","ELEMENT3"),
+                new SelectDropdown<any>("ELEMENT4","ELEMENT4")
+            ],
+            [
+                "ELEMENT"
+            ],
+            ["admin","user"],
+            ["admin"]
+        )).toEqual([])
+        expect(j4care.filterObjectBasedOnUIConfigAndRole(
+            [],
+            [
+                "ELEMENT"
+            ],
+            ["admin","user"],
+            ["admin"]
+        )).toEqual([])
+        expect(j4care.filterObjectBasedOnUIConfigAndRole(
+            undefined,
+            [
+                "ELEMENT"
+            ],
+            ["admin","user"],
+            ["admin"]
+        )).toEqual(undefined)
+        expect(j4care.filterObjectBasedOnUIConfigAndRole(
+            undefined,
+            [
+                "ELEMENT"
+            ],
+            ["admin","user"],
+            []
+        )).toEqual([])
+    });
+    fit("Should extract ui config that contains roles, based on current user roles",()=>{
+        expect(
+            j4care.extractUIConfigsByRoles(
+                [
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig1",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ],
+                        "dcmAcceptedUserRole":[
+                            "manager"
+                        ]
+                    },
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig2",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ],
+                        "dcmAcceptedUserRole":[
+                            "admin"
+                        ]
+                    },
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig3",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ],
+                        "dcmAcceptedUserRole":[
+                            "editor"
+                        ]
+                    }
+                ],
+                "dcmAcceptedUserRole",
+            ["admin","user"]
+            )
+        ).toEqual([
+            {
+                "dcmuiTenantConfigName":"Tenantconfig2",
+                "dcmuiWebAppLabels":[
+                    "TEST1",
+                    "TEST2"
+                ],
+                "dcmAcceptedUserRole":[
+                    "admin"
+                ]
+            },
+        ])
+        expect(
+            j4care.extractUIConfigsByRoles(
+                [
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig1",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ]
+                    },
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig2",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ],
+                        "dcmAcceptedUserRole":[
+                            "admin"
+                        ]
+                    },
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig3",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ],
+                        "dcmAcceptedUserRole":[
+                            "editor"
+                        ]
+                    }
+                ],
+                "dcmAcceptedUserRole",
+            ["admin","user"]
+            )
+        ).toEqual([
+            {
+                "dcmuiTenantConfigName":"Tenantconfig1",
+                "dcmuiWebAppLabels":[
+                    "TEST1",
+                    "TEST2"
+                ]
+            },
+            {
+                "dcmuiTenantConfigName":"Tenantconfig2",
+                "dcmuiWebAppLabels":[
+                    "TEST1",
+                    "TEST2"
+                ],
+                "dcmAcceptedUserRole":[
+                    "admin"
+                ]
+            },
+        ])
+        expect(
+            j4care.extractUIConfigsByRoles(
+                [
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig1",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ],
+                        "dcmAcceptedUserRole":[
+                            "manager",
+                            "admin"
+                        ]
+                    },
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig2",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ],
+                        "dcmAcceptedUserRole":[
+                            "admin"
+                        ]
+                    },
+                    {
+                        "dcmuiTenantConfigName":"Tenantconfig3",
+                        "dcmuiWebAppLabels":[
+                            "TEST1",
+                            "TEST2"
+                        ],
+                        "dcmAcceptedUserRole":[
+                            "editor"
+                        ]
+                    }
+                ],
+                "dcmAcceptedUserRole",
+            ["admin","user"]
+            )
+        ).toEqual([
+            {
+                "dcmuiTenantConfigName":"Tenantconfig1",
+                "dcmuiWebAppLabels":[
+                    "TEST1",
+                    "TEST2"
+                ],
+                "dcmAcceptedUserRole":[
+                    "manager",
+                    "admin"
+                ]
+            },
+            {
+                "dcmuiTenantConfigName":"Tenantconfig2",
+                "dcmuiWebAppLabels":[
+                    "TEST1",
+                    "TEST2"
+                ],
+                "dcmAcceptedUserRole":[
+                    "admin"
+                ]
+            }
+        ])
+        expect(
+            j4care.extractUIConfigsByRoles(
+                [
+                    {
+                        "dcmuiLanguageProfileName": "username_profile",
+                        "dcmDefaultLanguage": "de|German|Deutsch|data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAASCAYAAACuLnWgAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVDRIfoSLpjAAAADVJREFUOMtjZGBg+M9AY8DEQAcwasngs4Rlx2hwDbo4YWKkgyX//tPeEsb/FyRGy65RS2gDAGpJBsZkRqwRAAAAAElFTkSuQmCC",
+                        "dcmuiLanguageProfileUsername": "admin"
+                    },
+                    {
+                        "dcmuiLanguageProfileName": "admin",
+                        "dcmDefaultLanguage": "de|German|Deutsch|data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAASCAYAAACuLnWgAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVDRIfoSLpjAAAADVJREFUOMtjZGBg+M9AY8DEQAcwasngs4Rlx2hwDbo4YWKkgyX//tPeEsb/FyRGy65RS2gDAGpJBsZkRqwRAAAAAElFTkSuQmCC",
+                        "dcmuiLanguageProfileRole": [
+                            "admin"
+                        ]
+                    },
+                    {
+                        "dcmuiLanguageProfileName": "user",
+                        "dcmDefaultLanguage": "en|English|English|data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAPCAYAAAARZmTlAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAuJAAALiQE3ycutAAAAB3RJTUUH5AIUEDUJI3G5/gAABAlJREFUOMudkn1MlWUYxn/P+77nPR/JIWx+QJG2GVkMj/QhmjrSNbQ05CMtAQGRUmG0FRM/ScsvLEydnmFOJipamc5kHFYhomszwZxpWIpurtTEqQdBD0fPOe/79Aebhtrmuv577l177vva7xLeGbNleOk8lAHRrNnaSPnmH7nlu82/ZRgmgwdF8Uv6AC5mZhO1cgVT2iLwNJxAt6g9vA6HlVnJL1HcN4C/YhPhixegNA1+xehcvAz/mg18OP4Fmj2fkJGcgE23EAwaPIqCIQNNt5CWFE99tou5Z/ZjNh+lzw81HB8Yhzaj9pw5aViCOr+XzhPzSukdPxT3kkKyUkew0u3B03gSu11/6OdSSjpv+hmT6GJBylDivtqM45oVW8FMjNghzHXXsau2GeVWp48d+39jxLZTfPdmNlYhaR+XzPDeGrsrCqhalYvDpiOlvG8B6BaV9WV57BoZTlxRPs4J4wjbXMH3fgeuiZ+ycUcj3g4fmmGaANzo7GJa6U6qX49n5fuFBCZnEZYxhZz8bMYMi6F86wGkEehmZJoMebY/H4+L4bm9W/BdaqN30yEuCDuLPqrka89R7DYdIboPEkXl+0ICcZfenUCIPv0imP3uKCL2fIsMBnHkZQPgq6qmfXouzqXLcS4q4c46N+ZT0djTJ3E9BBXbG7lwuR2b1dIjtbg+MU0KU4K4NzRNiWFKVKuODAQAiRAKxuU2gmda0QYOQH06GqGqoKoQCnX7FYGiiAfYiUsRURLj0Vr0f6UpsbEIaT7QGinBoqmgCGQwBKaJ2dGB8edfKFGRaJGRIE2kYSCsVkLBEEiJEA8m0VZnzDGEco9JIBAiItxBTtpIInup3DlwEPP309jfy6Frdw3erEzCcksIW1jS7T98hNCpP2hPTmX7z+dpu3AFXdd6LnFX1JiACuD3B0hMiOGz0kz6+2/gzf0Amya4Oi2XjWs9LI8KAgIrks+3NJA6No5B8XEYFy+hvDOV195IoazNwr7aJuw2/S5nxaKpaKqKw65TWZbDwepi4lqO0D50GNroV/HklzB8RT31zWdR1O7AmqrQ9Ot5Et4uo7L2OJb0VPrv+4aYYz+xM9TC3i+mE/G4A01VsGgqit1mISUpnpa6JeS5+tI5q4iblVu5UrWD/L+dTJntpuNmFz3qR/fT5w+Qv3A7E2e6OXbxBuG7qlFefpGx65dxLHMwUxOfxxn+GNqmVXlKsutJfKvK6Wo9y/WRiXz5TCLbltbg9XbiDLNjGOZDWyOEwNnLzqGmVsbnrSMrOYHiwnSiUyagbthEubeVt0a50JJuX1auTSjCMTmNqn4u1tad5MrV00jTxHofwP+SblEJBAy27DlMTcMJCrLGUDx/DsbZc4wuW80/B52SmC5kfUQAAAAASUVORK5CYII=",
+                        "dcmuiLanguageProfileRole": [
+                            "user"
+                        ]
+                    }
+                ],
+                "dcmuiLanguageProfileUsername",
+            ["admin"],
+                true
+            )
+        ).toEqual([
+            {
+                "dcmuiLanguageProfileName": "username_profile",
+                "dcmDefaultLanguage": "de|German|Deutsch|data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAASCAYAAACuLnWgAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AIVDRIfoSLpjAAAADVJREFUOMtjZGBg+M9AY8DEQAcwasngs4Rlx2hwDbo4YWKkgyX//tPeEsb/FyRGy65RS2gDAGpJBsZkRqwRAAAAAElFTkSuQmCC",
+                "dcmuiLanguageProfileUsername": "admin"
+            }
+        ])
+
+    });
 });

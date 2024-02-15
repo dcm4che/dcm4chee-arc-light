@@ -7047,6 +7047,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.studyWebService.selectedWebService = value;
         this.setTrash();
     }*/
+
+/*    testKeycloak(){
+        this.service.testKeycloak();
+    }*/
    ngOnDestroy(){
        if(this.selectedElements){
            this.service.selectedElements = this.selectedElements;

@@ -22,22 +22,23 @@ class StudyServiceDependenc{
 describe('StudyService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-    providers: [
-        StudyService,
-        { provide: KeycloakService, useClass: StudyServiceDependenc },
-        { provide: AppService, useClass: StudyServiceDependenc },
-        { provide: AeListService, useClass: StudyServiceDependenc },
-        { provide: J4careHttpService, useClass: StudyServiceDependenc },
-        { provide: StorageSystemsService, useClass: StudyServiceDependenc },
-        { provide: DevicesService, useClass: StudyServiceDependenc },
-        { provide: WebAppsListService, useClass: StudyServiceDependenc },
-        { provide: RetrieveMonitoringService, useClass: StudyServiceDependenc },
-        { provide: PermissionService, useClass: StudyServiceDependenc },
-        { provide: LargeIntFormatPipe, useClass: StudyServiceDependenc },
-        { provide: j4care, useClass: StudyServiceDependenc }
-    ],
-    teardown: { destroyAfterEach: false }
-});
+      providers: [
+          StudyService,
+          {provide:KeycloakService, useClass:StudyServiceDependenc},
+          {provide:AppService, useClass:StudyServiceDependenc},
+          {provide:AeListService, useClass:StudyServiceDependenc},
+          {provide:J4careHttpService, useClass:StudyServiceDependenc},
+          {provide:StorageSystemsService, useClass:StudyServiceDependenc},
+          {provide:DevicesService, useClass:StudyServiceDependenc},
+          {provide:WebAppsListService, useClass:StudyServiceDependenc},
+          {provide:RetrieveMonitoringService, useClass:StudyServiceDependenc},
+          {provide:PermissionService, useClass:StudyServiceDependenc},
+          {provide:LargeIntFormatPipe, useClass:StudyServiceDependenc},
+          {provide:j4care, useClass:StudyServiceDependenc},
+          {provide:HttpClient, useClass:StudyServiceDependenc}
+      ],
+      teardown: { destroyAfterEach: false }
+     });
   });
 
   it('should be created', inject([StudyService], (service: StudyService) => {
@@ -149,7 +150,7 @@ describe('StudyService', () => {
       expect(service.webAppGroupHasClass(studyWebService, "FICTIVE")).toBe(false);
   }))
 
-    fit("Collect selected objects", inject([StudyService], (service: StudyService) =>{
+    it("Collect selected objects", inject([StudyService], (service: StudyService) =>{
             expect(service.collectSelectedObjects([
                 {
                     "StudyInstanceUID": "1.2.840.113674.1115.261.200",

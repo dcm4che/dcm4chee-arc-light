@@ -18,6 +18,7 @@
     "e2e": "ng e2e",
     "addversion": "node add_version_to_scripts.js",
     "postbuild": "cp src/assets/locale/index.html target/webapp",
+    "extract-translations_new": "ng extract-i18n --output-path src/assets/locale_pro --format=json",
     "extract-translation": "npx locl extract -s=./target/webapp/**/*.js -f=json -o=./src/assets/locale/en2.json"
   },
   "private": true,

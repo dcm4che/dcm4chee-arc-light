@@ -9,7 +9,7 @@ import {DcmWebAppRequestParam, HttpMethod} from "../interfaces";
 import {j4care} from "./j4care.service";
 import {KeycloakService} from "./keycloak-service/keycloak.service";
 import {throwError, of, Observable} from "rxjs";
-import {catchError, flatMap, map} from "rxjs/operators";
+import {catchError, flatMap, map, switchMap} from "rxjs/operators";
 
 @Injectable()
 export class J4careHttpService{
@@ -314,4 +314,5 @@ export class J4careHttpService{
             }
         }
     }
+
 }

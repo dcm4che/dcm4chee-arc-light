@@ -317,7 +317,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -350,7 +350,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     uploadCsv(){
         this.dialogRef = this.dialog.open(CsvUploadComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.aes = this.remoteAET;
         this.dialogRef.componentInstance.params = {

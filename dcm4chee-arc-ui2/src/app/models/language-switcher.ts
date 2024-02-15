@@ -8,26 +8,16 @@ export class LanguageSwitcher {
     private _currentSelectedLanguage:LanguageObject;
     private _languageList:LanguageObject[];
     private _open:boolean = false;
-    constructor(languageConfig:LanguageConfig,user:User){
+    constructor(languageConfig:LanguageConfig){
         try {
             this._languageList = languageConfig.dcmLanguages.map(language=>{
                 return j4care.extractLanguageDataFromString(language);
             });
-            const defaultConfigLanguage = j4care.extractLanguageDataFromString(j4care.getDefaultLanguageFromProfile(languageConfig,user));
-            const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
-            //TODO check if currentSavedLanguage and defaultConfigLanguage the same is
-            if(currentSavedLanguage && currentSavedLanguage.username === user.user){
-                this._currentSelectedLanguage = currentSavedLanguage.language;
+            const currentSavedLanguage = localStorage.getItem('current_language');
+            if(currentSavedLanguage){
+                this._currentSelectedLanguage = this.languageList.filter(language=>language.code === currentSavedLanguage)[0];
             }else{
-                const localLanguage:LocalLanguageObject = {
-                    language:defaultConfigLanguage,
-                    username:user.user || ""
-                };
-                localStorage.setItem('current_language', JSON.stringify(localLanguage));
-                setTimeout(()=>{
-                    location.reload();
-                },1);
-                //this._currentSelectedLanguage =  defaultConfigLanguage;
+                this._currentSelectedLanguage = this.languageList[0]; //TODO should make this more intelligent ( at least to pick en ), must be tested with not secured version
             }
         }catch (e) {
             j4care.log("Error on language-switcher construct",e);

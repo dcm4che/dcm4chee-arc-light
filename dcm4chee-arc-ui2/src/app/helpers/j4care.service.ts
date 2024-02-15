@@ -435,6 +435,54 @@ export class j4care {
             return null;
         }
     }
+
+    static filterObjectBasedOnUIConfigAndRole(arrayObject:SelectDropdown<any>[], uiConfigLimitedArray:string[], currentRoles:string|string[],  validRoles:string|string[]):SelectDropdown<any>[]{
+        try{
+            let newArray:SelectDropdown<any>[] = [];
+            if(typeof currentRoles == "string"){
+                currentRoles = currentRoles.split(",").map(el=>el.trim());
+            }
+            if(typeof validRoles == "string"){
+                validRoles = validRoles.split(",").map(el=>el.trim());
+            }
+            if(currentRoles && validRoles && this.isAtLeastOneElementOfArrayInArray(validRoles,currentRoles)){
+                return arrayObject.filter((element:SelectDropdown<any>)=>{
+                    return (uiConfigLimitedArray && uiConfigLimitedArray.length > 0 && uiConfigLimitedArray.filter((config:string)=>config === element.value).length > 0)
+                });
+            }
+            return newArray;
+        }catch (e) {
+            return arrayObject;
+        }
+    }
+    static extractUIConfigsByRoles(configs:any[], roleKey:string, currentRoles:string|string[], strictMode?:boolean){
+        try{
+            if(typeof currentRoles === "string"){
+                currentRoles = currentRoles.split(",").map(el=>el.trim());
+            }
+            return configs.filter(config=>{
+                let keyValue = config[roleKey];
+                if(keyValue && typeof keyValue  === "string"){
+                    keyValue = [keyValue];
+                }
+                if(strictMode){
+                    return keyValue && this.isAtLeastOneElementOfArrayInArray(keyValue, <string[]>currentRoles);
+                }else{
+                    return (keyValue && this.isAtLeastOneElementOfArrayInArray(keyValue, <string[]>currentRoles)) || !keyValue;
+                }
+            });
+        }catch (e) {
+            return [];
+        }
+    }
+
+    static isAtLeastOneElementOfArrayInArray(firstArray:string[],secondArray:string[]){
+        try{
+            return firstArray.filter((el1:string) => secondArray.filter(el2 => el1===el2).length > 0).length > 0;
+        }catch (e) {
+            return false;
+        }
+    }
     static createDateFromDuration(durationObject){
         let today = new Date();
         let newDate = new Date();
@@ -1831,4 +1879,5 @@ export class j4care {
             return false;
         }
     }
+
 }

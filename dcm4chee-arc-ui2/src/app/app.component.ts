@@ -21,10 +21,11 @@ import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-clien
 import {User} from "./models/user";
 import {LanguageSwitcher} from "./models/language-switcher";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
-import {ConfiguredDateTameFormatObject, LanguageObject, LocalLanguageObject} from "./interfaces";
+import {ConfiguredDateTameFormatObject, LanguageObject, LanguageProfile, LocalLanguageObject} from "./interfaces";
 import {AppRequestsService} from "./app-requests.service";
 import { Title } from '@angular/platform-browser';
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {KeycloakHelperService} from "./helpers/keycloak-service/keycloak-helper.service";
 declare var DCM4CHE: any;
 declare var Keycloak: any;
 const worker = new Worker(new URL('./server-time.worker', import.meta.url), { type: 'module', name: 'server-time'});
@@ -81,6 +82,7 @@ export class AppComponent implements OnInit {
         private permissionService:PermissionService,
         private keycloakHttpClient:KeycloakHttpClient,
         private _keycloakService: KeycloakService,
+        private keycloakHelperService: KeycloakHelperService,
         public httpErrorHandler:HttpErrorHandler,
         private title:Title
     ){
@@ -90,6 +92,7 @@ export class AppComponent implements OnInit {
 
 
     ngOnInit(){
+        console.warn("oniinit in app.component")
 
 /*        this.appRequests.getDcm4cheeArc().subscribe(res=>{
             if(_.hasIn(res, "dcm4chee-arc-urls[0]")){
@@ -134,11 +137,11 @@ export class AppComponent implements OnInit {
     initLanguage(){
         let languageConfig:any = localStorage.getItem('languageConfig');
         if(languageConfig){
-            this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig), this.mainservice.user);
+            this.languageSwitcher = new LanguageSwitcher(JSON.parse(languageConfig));
         }
-        this.compareSavedLanguageWithLanguageInPath();
         this.mainservice.globalSet$.subscribe(global=>{
             if(_.hasIn(global,"uiConfig")){
+                console.warn("initlanguage in app.component after uiConfig")
                 if(_.hasIn(global, "uiConfig.dcmuiInstitutionNameFilterType") && !this.dcmuiInstitutionNameFilterType){
                     this.dcmuiInstitutionNameFilterType = _.get(global, "uiConfig.dcmuiInstitutionNameFilterType");
                     global["dcmuiInstitutionNameFilterType"] = this.dcmuiInstitutionNameFilterType;
@@ -151,14 +154,13 @@ export class AppComponent implements OnInit {
                     this.mainservice.setGlobal(global);
                 }
                 if(_.hasIn(global, "uiConfig.dcmuiLanguageConfig[0]")) {
-                    if (languageConfig != JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) { //TODO comparing with stringify is not a good idea
-                        localStorage.setItem('languageConfig', JSON.stringify(_.get(global, "uiConfig.dcmuiLanguageConfig[0]")));
+                    if (!_.isEqual(languageConfig,_.get(global, "uiConfig.dcmuiLanguageConfig[0]"))) {
                         languageConfig = _.get(global, "uiConfig.dcmuiLanguageConfig[0]");
+                        localStorage.setItem('languageConfig', JSON.stringify(languageConfig));
                         if(languageConfig){
-                            this.languageSwitcher = new LanguageSwitcher(languageConfig, this.mainservice.user);
+                            this.languageSwitcher = new LanguageSwitcher(languageConfig);
                         }
                     }
-                    //TODO check if the current_language is the same with the default language of the uiConfig if not update default language in LDAP and Localstorage
                 }
                 if(_.hasIn(global, "uiConfig.dcmuiDateTimeFormat") && !this.dateTimeFormat){
                     this.dateTimeFormat = j4care.extractDateTimeFormat(_.get(global, "uiConfig.dcmuiDateTimeFormat"));
@@ -193,6 +195,43 @@ export class AppComponent implements OnInit {
 
             }
         });
+    }
+   /* applyLanguageProfile(languageProfile:LanguageProfile|LanguageProfile[]){
+        try{
+            let profile:LanguageProfile;
+            if(languageProfile instanceof Array){
+                profile =<LanguageProfile> languageProfile[0];
+            }else{
+                profile = languageProfile;
+            }
+            const currentLanguageCode = this.getActiveLanguageCodeFromURL();
+            if(profile.dcmDefaultLanguage.indexOf(currentLanguageCode) === -1){
+                //reload
+                const profileDefaultLanguageCode = profile.dcmDefaultLanguage.substring(0,2);
+                console.warn("redirecting in applylanguage",currentLanguageCode, ", defaultlanguageprof",profileDefaultLanguageCode);
+                const localLanguage:any = {
+                    language:profile.dcmDefaultLanguage,
+                    username:this.mainservice.user.user || ""
+                };
+                localStorage.setItem('current_language', JSON.stringify(localLanguage));
+                window.location.href = `/dcm4chee-arc/ui2/${profileDefaultLanguageCode}/`;
+            }
+            console.log("locale")
+        }catch (e) {
+            
+        }
+    }*/
+    getActiveLanguageCodeFromURL(){
+        try{
+            const currentPath = location.pathname;
+            const regex = /dcm4chee-arc\/ui2\/(\w*)\//;
+            let match = regex.exec(currentPath);
+            if (match !== null) {
+                return match[1];
+            }
+        }catch (e) {
+            return "en";
+        }
     }
     init(){
         this.setUserInformation(()=>{
@@ -256,20 +295,23 @@ export class AppComponent implements OnInit {
             });
     }
     switchLanguage(language:LanguageObject){
-/*        if(language.code === "en"){
-            localStorage.removeItem('current_language');
-        }else{*/
-            const localLanguage:LocalLanguageObject = {
-                language:language,
-                username:this.mainservice.user.user
-            };
-            localStorage.setItem('current_language', JSON.stringify(localLanguage));
+        let saveAndRedirect = function () {
+            localStorage.setItem('current_language', language.code);
             window.location.href = `/dcm4chee-arc/ui2/${language.code}/`;
-            //TODO update the uiConfig so that the new choose language to be the default one for this user
-        //}
-/*        setTimeout(()=>{
-            location.reload();
-        },1);*/
+            setTimeout(() => {
+                location.reload();
+            }, 1);
+        }
+        if(!this.mainservice.global.notSecure) {
+            this.keycloakHelperService.changeLanguageToUserProfile(language.code).subscribe(res => {
+                saveAndRedirect();
+            }, err => {
+                saveAndRedirect();
+                console.error("Error on switching language", err)
+            });
+        }else{
+            saveAndRedirect();
+        }
     }
     testUser(){
         KeycloakService.keycloakAuth.loadUserInfo().success(user=>{
@@ -505,7 +547,7 @@ export class AppComponent implements OnInit {
     }
 
 
-    private compareSavedLanguageWithLanguageInPath() {
+/*    private compareSavedLanguageWithLanguageInPath() {
         try{
             const currentLanguage:LocalLanguageObject = JSON.parse(localStorage.getItem('current_language'));
             const regex = /dcm4chee-arc\/ui2\/(\w{2})\//gm;
@@ -516,6 +558,6 @@ export class AppComponent implements OnInit {
                 }
             }
         }catch (e) {}
-    }
+    }*/
 }
 

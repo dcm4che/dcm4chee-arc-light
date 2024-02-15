@@ -1,3 +1,4 @@
+/*
 import './polyfills.ts';
 
 import 'zone.js/dist/long-stack-trace-zone';
@@ -31,3 +32,14 @@ Promise.all([
   .then(context => context.keys().map(context))
   // Finally, start Karma to run the tests.
   .then(__karma__.start, __karma__.error);
+*/
+// This file is required by karma.conf.js and loads recursively all the .spec and framework files
+
+
+import "zone.js/testing";
+
+import { getTestBed } from "@angular/core/testing";
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from "@angular/platform-browser-dynamic/testing";
+
+// First, initialize the Angular testing environment.
+getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());

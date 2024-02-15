@@ -12,7 +12,6 @@ import { AppModule } from './app/app.module';
 import {registerLocaleData} from "@angular/common";
 registerLocaleData(localeDe, 'de-DE', localeDeExtra);
 
-const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
 
 
 if (environment.production) {

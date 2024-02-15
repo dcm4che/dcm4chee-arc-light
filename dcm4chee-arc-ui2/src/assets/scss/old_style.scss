@@ -42,6 +42,8 @@ body{
     	box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     	width: 100%;
 		float: left;
+		position: relative;
+		z-index: 2;
     	&.studies{
 			float:left;
 
@@ -69,7 +71,7 @@ body{
 	    right: 32px;
 	    bottom: 44px;
 	    width: 148px;
-	    z-index: -1;
+	    z-index: 1;
 	    &:hover{
 	    	cursor: pointer;
 	    }

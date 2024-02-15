@@ -35,11 +35,12 @@ export class PermissionService {
                     this.mainservice.global.notSecure = true;
                     // this.mainservice.setSecured(false);
                     return true; //not secured
-                }else
+                }else{
                     if(this.mainservice.user && this.mainservice.user.su)
                         return true;
                     else
                         return this.checkMenuTabAccess(url)
+                }
             });
     }
     checkSuperAdmin(url){

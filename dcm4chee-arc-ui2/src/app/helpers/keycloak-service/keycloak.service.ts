@@ -30,7 +30,9 @@ import {j4care} from "../j4care.service";
 import {User} from "../../models/user";
 import * as _ from 'lodash-es';
 import {promise} from "selenium-webdriver";
-import {flatMap} from "rxjs/operators";
+import {flatMap, map, switchMap} from "rxjs/operators";
+import {LocalLanguageObject} from "../../interfaces";
+import {J4careHttpService} from "../j4care-http.service";
 
 type KeycloakClient = KeycloakModule.KeycloakClient;
 
@@ -61,6 +63,7 @@ export class KeycloakService {
                     .success(() => {
                         this.setTokenSource.next(KeycloakService.keycloakAuth);
                         KeycloakService.keycloakAuth.loadUserProfile().success(user=>{
+                            this.checkLanguageBasedOnKeycloak(user);
                             this.setUserInfo({
                                 userProfile:user,
                                 tokenParsed:KeycloakService.keycloakAuth.tokenParsed,
@@ -74,6 +77,7 @@ export class KeycloakService {
                             this.mainservice.setSecured(false);
                             this.mainservice.updateGlobal("notSecure",true);
                             console.error("err on loadingUserProfile",err);
+                            this.checkLanguageBasedOnKeycloak(undefined);
                             reject(err);
                         });
                     })
@@ -171,4 +175,47 @@ export class KeycloakService {
             }
         }
     }
+
+    checkLanguageBasedOnKeycloak(user){
+        console.log("user",user);
+        if(user && _.hasIn(user,"attributes.language[0]")){
+            const keycloakLanguageCode = _.get(user,"attributes.language[0]");
+            const regex = /dcm4chee-arc\/ui2\/(\w{2})\//gm;
+            let match;
+            if ((match = regex.exec(location.href)) !== null) {
+                if(match[1] != keycloakLanguageCode){
+                    this.setCurrentLanguageBasedOnCode(keycloakLanguageCode);
+                    window.location.href = `/dcm4chee-arc/ui2/${keycloakLanguageCode}/`;
+                }else{
+                    this.setCurrentLanguageBasedOnCode(keycloakLanguageCode);
+                }
+            }
+        }else{
+            const currentSavedLanguageCode = localStorage.getItem('current_language');
+            if(!currentSavedLanguageCode){
+                this.setCurrentLanguageBasedOnCode("en");
+                window.location.href = `/dcm4chee-arc/ui2/en/`;
+            }else{
+                if(!this.mainservice.global.notSecure) {
+                    const regex = /dcm4chee-arc\/ui2\/(\w{2})\//gm;
+                    let match;
+                    if ((match = regex.exec(location.href)) !== null) {
+                        if(match[1] != currentSavedLanguageCode){
+                            window.location.href = `/dcm4chee-arc/ui2/${currentSavedLanguageCode}/`;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    setCurrentLanguageBasedOnCode(languageCode:string){
+        try{
+            localStorage.setItem('current_language', languageCode || "en");
+        }catch (e) {
+        }
+    }
+
+
 }
