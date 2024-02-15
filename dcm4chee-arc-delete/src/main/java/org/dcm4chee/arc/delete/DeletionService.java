@@ -72,5 +72,5 @@ public interface DeletionService {
     List<Location> reimportStudy(String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE)
             throws Exception;
 
-    void deletePatient(PatientMgtContext ctx, ArchiveAEExtension arcAE);
+    void deletePatient(PatientMgtContext ctx, ArchiveAEExtension arcAE) throws Exception;
 }

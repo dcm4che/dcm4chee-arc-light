@@ -184,7 +184,7 @@ public class DeletionServiceImpl implements DeletionService {
     }
 
     @Override
-    public void deletePatient(PatientMgtContext ctx, ArchiveAEExtension arcAE) {
+    public void deletePatient(PatientMgtContext ctx, ArchiveAEExtension arcAE) throws Exception {
         LOG.info("Start deleting {} from database", ctx.getPatient());
         List<Study> resultList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
                 .setParameter(1, ctx.getPatient())
@@ -200,6 +200,7 @@ public class DeletionServiceImpl implements DeletionService {
         } catch (Exception e) {
             LOG.warn("Failed to delete {} from database:\n", ctx.getPatient(), e);
             ctx.setException(e);
+            throw e;
         } finally {
             patientMgtEvent.fire(ctx);
         }
