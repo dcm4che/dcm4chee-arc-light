@@ -15,7 +15,7 @@
       text-align: right;
       padding-right: 10px;
     }
-    .mat-select,input, range-picker{
+    .mat-select,.mat-mdc-select,input, range-picker{
       width: 60%;
       float: right;
     }
@@ -23,7 +23,7 @@
       width: 15px;
       float: left;
     }
-    .mat-select{
+    .mat-select, .mat-mdc-select{
       border:none;
       border-radius: 0px;
       padding:0;
@@ -32,7 +32,7 @@
       border:none;
       border-bottom:1px solid #cccccc;
     }
-    .mat-select-placeholder{
+    .mat-select-placeholder, .mat-mdc-select-placeholder{
       padding-left:7px;
     }
   }
