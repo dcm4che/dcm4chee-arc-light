@@ -105,6 +105,8 @@ dn: cn=manage-users,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: manage-users
 member: uid=root,ou=users,dc=dcm4che,dc=org
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+member: uid=user,ou=users,dc=dcm4che,dc=org
 
 dn: cn=realm-admin,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames

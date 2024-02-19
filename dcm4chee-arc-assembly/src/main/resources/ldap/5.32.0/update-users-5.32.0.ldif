@@ -1,0 +1,12 @@
+version: 1
+
+dn: cn=manage-users,ou=realm-management,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=user,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-users,ou=realm-management,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
