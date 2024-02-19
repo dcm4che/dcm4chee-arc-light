@@ -1436,7 +1436,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                                     if(mode === "cancel")
                                         this.mainservice.showMsg($localize `:@@task_canceled_param:Task ${match.taskID}:taskid: canceled successfully!`);
                                     else
-                                        this.mainservice.showMsg($localize `:@@task_deleted_param:Task ${match.taskID}:tasks: deleted successfully!`);
+                                        this.mainservice.showMsg($localize `:@@task_deleted_param:Task ${match.taskID}:taskid: deleted successfully!`);
                                 },(err)=>{
                                     this.httpErrorHandler.handleError(err);
                                 });
