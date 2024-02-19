@@ -196,7 +196,7 @@ export class KeycloakService {
                 this.setCurrentLanguageBasedOnCode("en");
                 window.location.href = `/dcm4chee-arc/ui2/en/`;
             }else{
-                if(!this.mainservice.global.notSecure) {
+                if(this.mainservice.global && !this.mainservice.global.notSecure) {
                     const regex = /dcm4chee-arc\/ui2\/(\w{2})\//gm;
                     let match;
                     if ((match = regex.exec(location.href)) !== null) {

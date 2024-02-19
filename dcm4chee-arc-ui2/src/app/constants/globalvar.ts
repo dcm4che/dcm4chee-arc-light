@@ -4091,7 +4091,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
+                    description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
                     placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
                 }, {
                     tag:"input",
@@ -4113,7 +4113,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence (0038,0014)`,
+                    description:$localize `:@@issuer_of_admission_id_sequence_00340014:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, this.getInstitutionFilterSchemaElement(institutions), {
                     tag:"input",
@@ -4325,7 +4325,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
+                    description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
                     placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
                 }, {
                     tag:"input",
@@ -4539,7 +4539,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence (0038,0014)`,
+                    description:$localize `:@@issuer_of_admission_id_sequence_00340014:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
@@ -4728,7 +4728,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence (0038,0014)`,
+                    description:$localize `:@@issuer_of_admission_id_sequence_00340014:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
@@ -5001,7 +5001,7 @@ export class Globalvar {
                         label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                     }
                 ],
-                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
+                description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
                 placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
             }, {
                 tag:"input",
@@ -5320,7 +5320,7 @@ export class Globalvar {
                         label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                     }
                 ],
-                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
+                description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
                 placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
             }, {
                 tag:"range-picker-limit",
@@ -5469,7 +5469,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence (0038,0014)`,
+                    description:$localize `:@@issuer_of_admission_id_sequence_00340014:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
@@ -5762,7 +5762,7 @@ export class Globalvar {
                         label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                     }
                 ],
-                description:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence (0008,0051)`,
+                description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
                 placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
             }, {
                 tag:"input",
