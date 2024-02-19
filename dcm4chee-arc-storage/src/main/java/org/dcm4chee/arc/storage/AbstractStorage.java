@@ -43,6 +43,7 @@ package org.dcm4chee.arc.storage;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
@@ -278,7 +279,7 @@ public abstract class AbstractStorage implements Storage {
                 ? openTarEntryInputStreamA(ctx)
                 : openInputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
-            stream = new DigestInputStream(stream, ctx.getMessageDigest());
+            stream = StreamUtils.readSkippedInputStream(new DigestInputStream(stream, ctx.getMessageDigest()));
         }
         return new FilterInputStream(new BufferedInputStream(stream)) {
             private long markSize;
