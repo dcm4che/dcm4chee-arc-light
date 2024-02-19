@@ -20,7 +20,6 @@
 import {Observable, from} from "rxjs";
 
 declare var Keycloak: any;
-
 import {EventEmitter, Injectable} from '@angular/core';
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {AppService} from "../../app.service";
@@ -38,6 +37,7 @@ type KeycloakClient = KeycloakModule.KeycloakClient;
 
 @Injectable()
 export class KeycloakService {
+    static languageProfilePath = 'attributes.locale[0]';
     static keycloakAuth: KeycloakClient;
     static keycloakConfig:any;
     private setTokenSource = new Subject<any>();
@@ -178,8 +178,8 @@ export class KeycloakService {
 
     checkLanguageBasedOnKeycloak(user){
         console.log("user",user);
-        if(user && _.hasIn(user,"attributes.language[0]")){
-            const keycloakLanguageCode = _.get(user,"attributes.language[0]");
+        if(user && _.hasIn(user,KeycloakService.languageProfilePath)){
+            const keycloakLanguageCode = _.get(user,KeycloakService.languageProfilePath);
             const regex = /dcm4chee-arc\/ui2\/(\w{2})\//gm;
             let match;
             if ((match = regex.exec(location.href)) !== null) {

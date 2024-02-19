@@ -23,7 +23,7 @@ export class KeycloakHelperService {
         }),
         switchMap(userInfo=>this.$http.get(`${KeycloakService.keycloakConfig.url}/admin/realms/dcm4che/users/${userInfoTemp.userProfile.id}?userProfileMetadata=true`)),
         map(userProfileMetadata=>{
-          _.set(userProfileMetadata,"attributes.language[0]",languageCode);
+          _.set(userProfileMetadata,KeycloakService.languageProfilePath,languageCode);
           return userProfileMetadata;
         }),
         switchMap(userProfileMetadata=>this.$http.put(`${KeycloakService.keycloakConfig.url}/admin/realms/dcm4che/users/${userInfoTemp.userProfile.id}`,userProfileMetadata))

@@ -3,7 +3,7 @@
 <!--
     <script src="/node_modules/keycloakjs"></script>
 -->
-<!--    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@23.0.6/dist/keycloak.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@23.0.6/dist/keycloak.min.js"></script>
     <script>
         function getConfig(){
             const keycloakConfigName = `keycloak_config_${location.host}`;
@@ -42,11 +42,11 @@
                         if(
                             userProfile &&
                             userProfile["attributes"] &&
-                            userProfile["attributes"]["language"] &&
-                            userProfile["attributes"]["language"].length > 0
+                            userProfile["attributes"]["locale"] &&
+                            userProfile["attributes"]["locale"].length > 0
                         ){
-                            console.log("redirect based on keycloak user profile",userProfile["attributes"]["language"][0]);
-                            window.location.href = `/dcm4chee-arc/ui2/${userProfile["attributes"]["language"][0]}/`;
+                            console.log("redirect based on keycloak user profile",userProfile["attributes"]["locale"][0]);
+                            window.location.href = `/dcm4chee-arc/ui2/${userProfile["attributes"]["locale"][0]}/`;
                         }
                     }
                 } catch (error) {
@@ -59,6 +59,6 @@
         init();
 
 
-    </script>-->
+    </script>
 </head>
 </html>
