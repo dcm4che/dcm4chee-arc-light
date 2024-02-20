@@ -342,7 +342,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     filterKey:"studyUIDField",
                     description:$localize `:@@study_uid_field:Study UID Field`,
                     placeholder:$localize `:@@study_uid_field:Study UID Field`,
-                    validation:Validators.minLength(1),
+                    validation:[Validators.minLength(1),Validators.min(1)],
                     defaultValue:1
                 },
                 {
@@ -351,7 +351,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     filterKey:"seriesUIDField",
                     description:$localize `:@@series_uid_field:Series UID Field`,
                     placeholder:$localize `:@@series_uid_field:Series UID Field`,
-                    validation:Validators.minLength(1),
+                    validation:[Validators.minLength(1),Validators.min(1)],
                     defaultValue:null
                 },
                 {

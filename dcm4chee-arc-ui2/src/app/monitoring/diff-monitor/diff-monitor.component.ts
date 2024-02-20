@@ -508,7 +508,7 @@ export class DiffMonitorComponent implements OnInit {
                     filterKey:"field",
                     description:$localize `:@@field:Field`,
                     placeholder:$localize `:@@field:Field`,
-                    validation:Validators.minLength(1),
+                    validation:[Validators.minLength(1),Validators.min(1)],
                     defaultValue:1
                 },{
                     tag:"input",
