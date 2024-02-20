@@ -4113,7 +4113,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence_00340014:Issuer of Admission ID Sequence (0038,0014)`,
+                    description:$localize `:@@issuer_of_admission_id_sequence_00380014:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, this.getInstitutionFilterSchemaElement(institutions), {
                     tag:"input",
@@ -4539,7 +4539,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence_00340014:Issuer of Admission ID Sequence (0038,0014)`,
+                    description:$localize `:@@issuer_of_admission_id_sequence_00380014:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
@@ -4728,7 +4728,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence_00340014:Issuer of Admission ID Sequence (0038,0014)`,
+                    description:$localize `:@@issuer_of_admission_id_sequence_00380014:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
@@ -5469,7 +5469,7 @@ export class Globalvar {
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence_00340014:Issuer of Admission ID Sequence (0038,0014)`,
+                    description:$localize `:@@issuer_of_admission_id_sequence_00380014:Issuer of Admission ID Sequence (0038,0014)`,
                     placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
                 }, {
                     tag:"input",
