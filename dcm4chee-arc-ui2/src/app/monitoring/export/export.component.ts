@@ -1168,7 +1168,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         }
     }
     moreTasks = false;
-    bachChange(e){
+    batchChange(e){
         this.matches = [];
     }
     getCount(){
