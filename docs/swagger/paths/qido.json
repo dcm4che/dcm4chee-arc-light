@@ -115,10 +115,16 @@
           "description": "The search completed successfully, but there were zero results."
         },
         "400": {
-          "description": "There was a problem with the request."
+          "description": "There was a problem with the request query filters."
+        },
+        "403": {
+          "description": "Secured REST - Application Entity does not list role of accessing user"
         },
         "404": {
           "description": "There is no Archive AE with the specified Title."
+        },
+        "406": {
+          "description": "Accept header type or accept query parameter not acceptable"
         },
         "500": {
           "description": "Internal Server Error."

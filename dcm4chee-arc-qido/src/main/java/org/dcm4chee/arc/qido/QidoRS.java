@@ -632,6 +632,7 @@ public class QidoRS {
             return Output.CSV;
         }
 
+        LOG.info("Response Status : Not Acceptable. Accept in request : {}", acceptableMediaTypes);
         throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
     }
 
