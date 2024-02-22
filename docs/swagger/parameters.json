@@ -1191,7 +1191,7 @@
   "allOfModalitiesInStudy": {
     "name": "allOfModalitiesInStudy",
     "in": "query",
-    "description": "return Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesOfStudy' (proprietary extension).",
+    "description": "return Instances of Studies with have Series of ALL Modalities specified by multiple values of '00080061' or 'ModalitiesInStudy' (proprietary extension).",
     "schema": {
       "type": "boolean",
       "default": false
