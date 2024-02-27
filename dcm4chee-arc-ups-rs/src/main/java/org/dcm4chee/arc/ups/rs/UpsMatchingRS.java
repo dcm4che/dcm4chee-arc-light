@@ -227,7 +227,7 @@ public class UpsMatchingRS {
             String method, QueryRetrieveLevel2 qrlevel, String studyIUID, String seriesIUID, InputStream in) {
         InputType inputType = InputType.valueOf(headers.getMediaType());
         if (inputType == null)
-            return notAcceptable();
+            return unsupportedMediaType();
 
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
@@ -445,12 +445,10 @@ public class UpsMatchingRS {
         return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
-    private Response notAcceptable() {
-        LOG.info("Response Status : Not Acceptable. Content Type in request : \n{}", headers.getMediaType());
-        return Response.notAcceptable(
-                Variant.mediaTypes(
-                        MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaTypes.APPLICATION_DICOM_XML_TYPE)
-                        .build())
+    private Response unsupportedMediaType() {
+        LOG.info("Response Status : Unsupported Media Type. Content Type in request : {}", headers.getMediaType());
+        return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
+                .header("Accept", Arrays.asList(MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaTypes.APPLICATION_DICOM_XML_TYPE))
                 .build();
     }
 
