@@ -491,7 +491,10 @@ public class QidoRS {
         if (aet.equals(ae.getAETitle()))
             validateWebAppServiceClass(serviceClass);
 
-        Output output = selectMediaType();
+        List<MediaType> acceptableMediaTypes = MediaTypeUtils.acceptableMediaTypesOf(headers, accept);
+        Output output = selectMediaType(acceptableMediaTypes);
+        if (output == null)
+            return notAcceptable(acceptableMediaTypes);
         try {
             QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model, ae);
             ctx.setReturnKeys(queryAttrs.isIncludeAll()
@@ -611,8 +614,7 @@ public class QidoRS {
                         Response.Status.NOT_FOUND)));
     }
 
-    private Output selectMediaType() {
-        List<MediaType> acceptableMediaTypes = MediaTypeUtils.acceptableMediaTypesOf(headers, accept);
+    private Output selectMediaType(List<MediaType> acceptableMediaTypes) {
         if (acceptableMediaTypes.stream()
                 .anyMatch(
                         ((Predicate<MediaType>) MediaTypes.APPLICATION_DICOM_JSON_TYPE::isCompatible)
@@ -632,8 +634,19 @@ public class QidoRS {
             return Output.CSV;
         }
 
+        return null;
+    }
+
+    private Response notAcceptable(List<MediaType> acceptableMediaTypes) {
         LOG.info("Response Status : Not Acceptable. Accept in request : {}", acceptableMediaTypes);
-        throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        return Response.notAcceptable(
+                        Variant.mediaTypes(
+                                        MediaType.APPLICATION_JSON_TYPE,
+                                        MediaTypes.APPLICATION_DICOM_JSON_TYPE,
+                                        MediaTypes.TEXT_CSV_UTF8_TYPE,
+                                        MediaTypes.APPLICATION_DICOM_XML_TYPE)
+                                .build())
+                .build();
     }
 
     private String warning(int remaining) {
