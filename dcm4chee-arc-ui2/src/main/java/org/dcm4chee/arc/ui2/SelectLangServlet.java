@@ -94,7 +94,7 @@ public class SelectLangServlet extends HttpServlet {
         out.print(
                 "let lang='en';" +
                 "try{" +
-                    "if(!(lang=JSON.parse(localStorage.getItem('current_language')).language.code))" +
+                    "if(!(lang=localStorage.getItem('current_language')))" +
                         "lang='en';" +
                 "}catch(e){}");
     }
