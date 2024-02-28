@@ -85,18 +85,13 @@ public class SelectLangServlet extends HttpServlet {
                         case "pt":
                         case "ru":
                         case "zh":
-                            out.print("let lang='" + lang + "';");
+                            out.print("const lang='" + lang + "';");
                             return;
                     }
                 }
             }
         }
-        out.print(
-                "let lang='en';" +
-                "try{" +
-                    "if(!(lang=localStorage.getItem('current_language')))" +
-                        "lang='en';" +
-                "}catch(e){}");
+        out.print("const lang=localStorage.getItem('current_language')||'en';");
     }
 
     @Override
