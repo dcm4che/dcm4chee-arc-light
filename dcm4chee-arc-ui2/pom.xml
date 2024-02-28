@@ -67,6 +67,10 @@
       <type>war</type>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.wildfly.security</groupId>
+      <artifactId>wildfly-elytron</artifactId>
+    </dependency>
   </dependencies>
 
   <profiles>

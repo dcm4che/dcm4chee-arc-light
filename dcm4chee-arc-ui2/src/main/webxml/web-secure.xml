@@ -47,6 +47,7 @@
     <url-pattern>/rs/*</url-pattern>
   </servlet-mapping>
   <welcome-file-list>
+    <welcome-file>index</welcome-file>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
   <security-constraint>
