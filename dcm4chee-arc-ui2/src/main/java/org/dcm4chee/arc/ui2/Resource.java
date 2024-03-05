@@ -85,20 +85,27 @@ public class Resource {
         sb.append("\"dicomDeviceName\":\"").append(System.getProperty("dcm4chee-arc.DeviceName", "dcm4chee-arc"));
         sb.append("\",\"super-user-role\":\"").append(System.getProperty("super-user-role", "root"));
         sb.append("\",\"management-http-port\":").append(
-                intSystemProperty("jboss.redirect.management.http.port",
-                        intSystemProperty("jboss.management.http.port", 9990)));
+                parseIntElse(
+                        System.getProperty("jboss.ui.management.http.port",
+                                System.getProperty("jboss.management.http.port")),
+                        9990));
         sb.append(",\"management-https-port\":").append(
-                intSystemProperty("jboss.redirect.management.https.port",
-                        intSystemProperty("jboss.management.https.port", 9993)));
+                parseIntElse(
+                        System.getProperty("jboss.ui.management.https.port",
+                                System.getProperty("jboss.management.https.port")),
+                        9990));
+        String managementHost = System.getProperty("jboss.ui.management.host");
+        if (managementHost != null)
+            sb.append(",\"management-host\":\"").append(managementHost).append('\"');
         sb.append("}");
         return sb.toString();
     }
 
-    private static int intSystemProperty(String key, int defVal) {
-        try {
-            return Integer.parseInt(System.getProperty(key));
-        } catch (Exception e) {
-            return defVal;
-        }
+    private static int parseIntElse(String s, int defVal) {
+        if (s != null)
+            try {
+                return Integer.parseInt(s);
+            } catch (Exception e) {}
+        return defVal;
     }
 }

@@ -1362,6 +1362,9 @@
             "super-user-role": {
               "type": "string"
             },
+            "management-host": {
+              "type": "string"
+            },
             "management-http-port": {
               "type": "integer"
             },
