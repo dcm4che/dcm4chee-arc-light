@@ -1537,7 +1537,7 @@ class ArchiveDeviceFactory {
                         .setConditions(new Conditions("IssuerOfPatientID!=.+"))
                         .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}")
                 },
-                configType, ONLY_ADMIN, USER));
+                configType));
         device.addApplicationEntity(createAE("WORKLIST", WORKLIST_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
                 false, false, false, false, true, true, true, true,
@@ -1551,27 +1551,27 @@ class ArchiveDeviceFactory {
                                 .setConditions(new Conditions("IssuerOfPatientID!=.+"))
                                 .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}")
                 },
-                configType, ONLY_ADMIN, USER));
+                configType));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
                 false, true, true, true, false, false, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
                 dicom, dicomTLS, IOCM_EXPIRED_VIEW,
                 false, false, false, true, false, false, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_QUALITY", IOCM_QUALITY_DESC,
                 dicom, dicomTLS, IOCM_QUALITY_VIEW,
                 false, false, false, true, false, false, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", IOCM_PAT_SAFETY_DESC,
                 dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW,
                 false, false, false, true, false, false, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("IOCM_WRONG_MWL", IOCM_WRONG_MWL_DESC,
                 dicom, dicomTLS, IOCM_WRONG_MWL_VIEW,
                 false, false, false, true, false, false, false, false, null,
-                configType, ONLY_ADMIN));
+                configType));
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
                 false, true, false, true, false, false, false, false,
@@ -1582,7 +1582,7 @@ class ArchiveDeviceFactory {
                         .setRole(SCP)
                         .setURI(ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED + ":")
                 },
-                configType, ONLY_ADMIN));
+                configType));
 
         WebApplication webapp = createWebApp("DCM4CHEE", AE_TITLE_DESC,
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", AE_TITLE, null,
