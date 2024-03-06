@@ -1,0 +1,17 @@
+version: 1
+
+dn: dcmuiPermissionName=Action - Monitoring - Storage Verification All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmuiPermissionName: Action - Monitoring - Storage Verification All Actions
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->storage_verification-all_action
+
+dn: dcmuiPermissionName=Action - Monitoring - Storage Verification Single Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmuiPermissionName: Action - Monitoring - Storage Verification Single Action
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->storage_verification-single_action

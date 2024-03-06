@@ -58,7 +58,6 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     batchGrouped = false;
     dialogRef: MatDialogRef<any>;
     storageVerifications;
-    externalRetrieveEntries;
     tableConfig;
     tableConfigGrouped;
     tableConfigNormal;
@@ -133,17 +132,20 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         this.onFormChange(this.filterObject);
     }
     setTableSchemas(){
-        this.tableConfigGrouped = {
-            table:j4care.calculateWidthOfTable(this.service.getTableBatchGroupedColumens((e)=>{
-                this.showDetails(e)
-            })),
-            filter:this.filterObject
-        };
         this.tableConfigNormal = {
-            table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {filterObject: this.filterObject})),
-            filter:this.filterObject
+            table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:false, filterObject:this.filterObject})),
+            filter:this.filterObject,
+            search:"",
+            showAttributes:false,
+            calculate:false
         };
-
+        this.tableConfigGrouped = {
+            table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:true, filterObject:this.filterObject})),
+            filter:this.filterObject,
+            search:"",
+            showAttributes:false,
+            calculate:false
+        };
     }
     initSchema(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema( this.devices, this.localAET,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:count:`),3);
@@ -529,77 +531,176 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             this.httpErrorHandler.handleError(err);
         });
     }
+
     action(mode, match){
-        console.log("in action",mode,"match",match);
-        if(mode && match && match.taskID){
-            this.confirm({
-                content: $localize `:@@action_selected_entries_question:Are you sure you want to ${Globalvar.getActionText(mode)} selected entries?`
-            }).subscribe(ok => {
-                if (ok){
-                    switch (mode) {
-                        case 'reschedule':
-                            this.deviceService.selectParameters((res)=>{
-                                    if(res){
-                                        this.cfpLoadingBar.start();
-                                        let filter = {}
-                                        if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                                            filter["newDeviceName"] = res.schema_model.newDeviceName;
-                                        }
-                                        if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
-                                            filter["scheduledTime"] = res.schema_model.scheduledTime;
-                                        }
-                                        this.service.reschedule(match.taskID, filter)
-                                            .subscribe(
-                                                (res) => {
-                                                    this.getTasks(this.filterObject['offset'] || 0);
-                                                    this.cfpLoadingBar.complete();
-                                                    this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`)
-                                                },
-                                                (err) => {
-                                                    this.cfpLoadingBar.complete();
-                                                this.httpErrorHandler.handleError(err);
-                                            });
-                                    }
-                                },
-                                this.devices);
-                            break;
-                        case 'delete':
-                            this.cfpLoadingBar.start();
-                            this.service.delete(match.taskID)
-                                .subscribe(
-                                    (res) => {
-                                        // match.properties.status = 'CANCELED';
-                                        this.cfpLoadingBar.complete();
-                                        this.getTasks(this.filterObject['offset'] || 0);
-                                        this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
-                                    },
-                                    (err) => {
-                                        this.cfpLoadingBar.complete();
-                                        this.httpErrorHandler.handleError(err);
-                                    });
-                            break;
-                        case 'cancel':
-                            this.cfpLoadingBar.start();
-                            this.service.cancel(match.taskID)
-                                .subscribe(
-                                    (res) => {
-                                        match.status = 'CANCELED';
-                                        this.cfpLoadingBar.complete();
-                                        this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
-                                    },
-                                    (err) => {
-                                        this.cfpLoadingBar.complete();
-                                        console.log('cancleerr', err);
-                                        this.httpErrorHandler.handleError(err);
-                                    });
-                            break;
-                        default:
-                            console.error("Not knowen mode=",mode);
-                    }
-                }
-            });
+        switch(mode){
+            case "cancel-selected":
+                this.executeAll('cancel');
+                break;
+            case "reschedule-selected":
+                this.executeAll('reschedule');
+                break;
+            case "delete-selected":
+                this.executeAll('delete');
+                break;
+            case "delete":
+                this.delete(match);
+                break;
+            case "cancel":
+                this.cancel(match);
+                break;
+            case "reschedule":
+                this.reschedule(match);
+                break;
+            case "task-detail":
+                this.showTaskDetail(match);
+                break;
+            case "delete-batched":
+                this.deleteBatchedTask(match);
+                break;
         }
     }
+
+    showTaskDetail(batch){
+        let filter = Object.assign({},this.filterObject);
+        filter["batchID"] = batch.batchID;
+        // delete filter["limit"];
+        // delete filter["offset"];
+        this.filterObject.batchID = batch.batchID;
+        this.batchGrouped = false;
+        this.getTasks(filter);
+    }
+
+    deleteBatchedTask(batchedTask){
+        this.confirm({
+            content: $localize `:@@batch_delete_question:Are you sure you want to delete all tasks of this batch?`
+        }).subscribe(ok=>{
+            if(ok){
+                if(batchedTask.batchID){
+                    let filter = Object.assign({},this.filterObject);
+                    filter["batchID"] = batchedTask.batchID;
+                    delete filter["limit"];
+                    delete filter["offset"];
+                    this.service.deleteAll(filter).subscribe((res)=>{
+                        this.cfpLoadingBar.complete();
+                        if(_.hasIn(res,"count")){
+                            this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
+                        }else{
+                            this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`);
+                        }
+                        this.getTasks(filter);
+                    }, (err) => {
+                        this.cfpLoadingBar.complete();
+                        this.httpErrorHandler.handleError(err);
+                    });
+                }else{
+                    this.mainservice.showError($localize `:@@batch_id_not_found:Batch ID not found!`);
+                }
+            }
+        });
+    }
+
+    delete(match){
+        let $this = this;
+        let parameters: any = {
+            content: $localize `:@@delete_task_question:Are you sure you want to delete this task?`
+        };
+        this.confirm(parameters).subscribe(result => {
+            if (result){
+                $this.cfpLoadingBar.start();
+                this.service.delete(match.taskID)
+                    .subscribe(
+                        (res) => {
+                            // match.status = 'CANCELED';
+                            $this.cfpLoadingBar.complete();
+                            $this.getTasks(match.offset||0);
+                            this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
+                        },
+                        (err) => {
+                            $this.cfpLoadingBar.complete();
+                            $this.httpErrorHandler.handleError(err);
+                        });
+            }
+        });
+    }
+    cancel(match) {
+        let $this = this;
+        let parameters: any = {
+            content: $localize `:@@want_to_cancel_this_task:Are you sure you want to cancel this task?`
+        };
+        this.confirm(parameters).subscribe(result => {
+            if (result){
+                $this.cfpLoadingBar.start();
+                this.service.cancel(match.taskID)
+                    .subscribe(
+                        (res) => {
+                            match.status = 'CANCELED';
+                            $this.cfpLoadingBar.complete();
+                            this.mainservice.showMsg($localize `:@@task_canceled:Task canceled successfully!`)
+                        },
+                        (err) => {
+                            $this.cfpLoadingBar.complete();
+                            console.log('cancleerr', err);
+                            $this.httpErrorHandler.handleError(err);
+                        });
+            }
+        });
+    };
+
+    reschedule(match) {
+        let $this = this;
+        this.deviceService.selectParameters((res)=>{
+                if(res){
+                    let filter = {};
+                    if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
+                        filter["newDeviceName"] = res.schema_model.newDeviceName;
+                    }
+                    if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
+                        filter["scheduledTime"] = res.schema_model.scheduledTime;
+                    }
+                    $this.cfpLoadingBar.start();
+                    this.service.reschedule(match.taskID, filter)
+                        .subscribe(
+                            (res) => {
+                                $this.getTasks(match.offset||0);
+                                $this.cfpLoadingBar.complete();
+                                this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`)
+                            },
+                            (err) => {
+                                $this.cfpLoadingBar.complete();
+                                $this.httpErrorHandler.handleError(err);
+                            });
+                }
+            },
+            this.devices,
+            true
+        );
+    };
+
+    executeAll(mode){
+        this.confirm({
+            content: $localize `:@@action_selected_entries_question:Are you sure you want to ${Globalvar.getActionText(mode)} selected entries?`
+        }).subscribe(result => {
+            if (result){
+                this.cfpLoadingBar.start();
+                this.storageVerifications.forEach((match)=>{
+                    if(match.selected){
+                        this.service[mode](match.taskID)
+                            .subscribe((res) => {
+                                console.log("execute result=",res);
+                            },(err)=>{
+                                this.httpErrorHandler.handleError(err);
+                            });
+                    }
+                });
+                setTimeout(()=>{
+                    this.getTasks(this.storageVerifications[0].offset || 0);
+                    this.cfpLoadingBar.complete();
+                },300);
+            }
+        });
+    }
+
     ngOnDestroy(){
         if(this.timer.started){
             this.timer.started = false;

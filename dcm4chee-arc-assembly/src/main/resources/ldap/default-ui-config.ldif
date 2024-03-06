@@ -357,6 +357,20 @@ dcmuiPermissionName: Action - Retrieve - Single Action
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
 
+dn: dcmuiPermissionName=Action - Monitoring - Storage Verification All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: action-monitoring->storage_verification-all_action
+dcmuiPermissionName: Action - Monitoring - Storage Verification All Actions
+dcmAcceptedUserRole: admin
+dcmuiActionParam: visible
+
+dn: dcmuiPermissionName=Action - Storage Verification - Single Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: action-monitoring->storage_verification-single_action
+dcmuiPermissionName: Action - Storage Verification - Single Action
+dcmAcceptedUserRole: admin
+dcmuiActionParam: visible
+
 dn: dcmuiPermissionName=Action - Monitoring - Diff Monitor All Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmuiPermission
 dcmuiAction: action-monitoring->diff_monitor-all_action

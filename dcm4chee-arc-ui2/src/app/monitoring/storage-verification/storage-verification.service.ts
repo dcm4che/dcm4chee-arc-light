@@ -7,6 +7,7 @@ import * as _ from 'lodash-es';
 import {DatePipe} from "@angular/common";
 import {HttpHeaders} from "@angular/common/http";
 import {TableService} from "../../table.service";
+import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 
 @Injectable()
 export class StorageVerificationService {
@@ -63,156 +64,296 @@ export class StorageVerificationService {
       return this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/count?${this.mainservice.param(filterClone)}`);
     };
     getTableSchema($this, action, options){
-      return [
-          {
-              type:"index",
-              title:"#",
-              description: $localize `:@@index:Index`,
-              widthWeight:0.2,
-              calculatedWidth:"4%",
-              pxWidth:30
-          },{
-              type:"buttons",
-              title:"",
-              buttons:[
-                  {
-                      icon:{
-                          tag:'span',
-                          cssClass:'glyphicon glyphicon-th-list',
-                          text:''
-                      },
-                      click:(e)=>{
-                          console.log("e",e);
-                          e.showAttributes = !e.showAttributes;
-                      }
-                  },{
-                      icon:{
-                          tag:'span',
-                          cssClass:'glyphicon glyphicon-ban-circle',
-                          text:''
-                      },
-                      click:(e)=>{
-                          console.log("e",e);
-                          action.call($this,'cancel', e);
-                      },
-                      title:$localize `:@@cancel_this_task:Cancel this task`,
-                      showIf:(match) => {
-                          return (match.status
-                                  && (match.status === 'SCHEDULED'
-                                      || match.status === 'SCHEDULED FOR RETRY'
-                                      || match.status === 'IN PROCESS'));
-                      }
-                  },
-                  {
-                      icon:{
-                          tag:'span',
-                          cssClass:'glyphicon glyphicon-repeat',
-                          text:''
-                      },
-                      click:(e)=>{
-                          console.log("e",e);
-                          action.call($this,'reschedule', e);
-                      },
-                      title:$localize `:@@reschedule_this_task:Reschedule this task`
-                  },
-                  {
-                      icon:{
-                          tag:'span',
-                          cssClass:'glyphicon glyphicon-remove-circle',
-                          text:''
-                      },
-                      click:(e)=>{
-                          console.log("e",e);
-                          action.call($this,'delete', e);
-                      },
-                      title:$localize `:@@delete_this_task:Delete this task`
-                  }
-              ],
-              description:$localize `:@@index:Index`,
-              widthWeight:0.6,
-              calculatedWidth:"6%",
-              pxWidth:105
-          },
-          ...this.tableService.getTableSchema(_.concat(
-              [
-                  "dicomDeviceName",
-                  "queue",
-              ],
-              this.tableService.getTimeColumnBasedOnFilter(options.filterObject),
-              [
-                  "processingStartTime_scheduledTime",
-                  "processingEndTime_processingStartTime",
-                  "LocalAET",
-                  "StorageID",
-                  "StgCmtPolicy",
-                  "completed_failed",
-                  "status",
-                  "failures",
-                  "batchID"
-              ]
-          ))
-      ];
-    }
-    /*{
-              type:"model",
-              title:$localize `:@@localaet:Local AET`,
-              key:"LocalAET",
-              description:$localize `:@@localaet:Local AET`,
-              widthWeight:0.8,
-              calculatedWidth:"20%"
-          },
-          {
-              type:"model",
-              title:$localize `:@@batch_id:Batch ID`,
-              key:"batchID",
-              description:$localize `:@@batch_id:Batch ID`,
-              widthWeight:0.8,
-              calculatedWidth:"20%"
-          },
-          {
-              type:"model",
-              title:$localize `:@@study_instance_uid:Study Instance UID`,
-              key:"StudyInstanceUID",
-              description:$localize `:@@study_instance_uid:Study Instance UID`,
-              widthWeight:2,
-              calculatedWidth:"20%"
-          },
-          {
-              type:"model",
-              title:$localize `:@@status:Status`,
-              key:"status",
-              description:$localize `:@@status:Status`,
-              widthWeight:0.7,
-              calculatedWidth:"20%"
-          },
-          {
-              type:"model",
-              title:$localize `:@@storage-verification.storage_policy:Storage Policy`,
-              key:"StgCmtPolicy",
-              description:$localize `:@@storage-verification.storage_verification_policy:Storage Verification Policy`,
-              widthWeight:1,
-              calculatedWidth:"20%"
-          },
-          {
-              type:"model",
-              title:$localize `:@@storage-verification.outcome_message:Outcome Message`,
-              key:"outcomeMessage",
-              description:$localize `:@@storage-verification.outcome_message:Outcome Message`,
-              widthWeight:4,
-              calculatedWidth:"20%"
-          }*/
-    getTableBatchGroupedColumens(showDetails){
+        if(_.hasIn(options,"grouped") && options.grouped){
+            return [
+                new TableSchemaElement({
+                    type:"index",
+                    title:"#",
+                    description:$localize `:@@index:Index`,
+                    widthWeight:0.2,
+                    calculatedWidth:"4%"
+                }),new TableSchemaElement({
+                    type:"actions",
+                    title:"",
+                    actions:[
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-th-list',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                e.showAttributes = !e.showAttributes;
+                            },
+                            title:$localize `:@@show_details:Show details`
+                        },{
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-list-alt',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                action.call($this,'task-detail', e);
+                            },
+                            title:$localize `:@@title.export.show_tasks_detail:Show Tasks Detail`
+                        },
+                        {
+                            icon:{
+                                tag:'span',
+                                cssClass:'glyphicon glyphicon-remove-circle',
+                                text:''
+                            },
+                            click:(e)=>{
+                                console.log("e",e);
+                                action.call($this,'delete-batched', e);
+                            },
+                            permission: {
+                                id: 'action-monitoring->export-single_action',
+                                param: 'visible'
+                            },
+                            title:$localize `:@@title.delete_task_with_this_batchid:Delete Task with this BatchID`
+                        }
+                    ],
+                    description:$localize `:@@actions:Actions`,
+                    pxWidth:105
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@batch_id:Batch ID`,
+                    pathToValue:"batchID",
+                    description: $localize `:@@batch_id:Batch ID`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@device_name:Device Name`,
+                    pathToValue:"dicomDeviceName",
+                    description: $localize `:@@device_name:Device Name`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@localaet:Local AET`,
+                    pathToValue:"LocalAET",
+                    description: $localize `:@@localaet:Local AET`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@scheduled_time_range:Scheduled Time Range`,
+                    pathToValue:"scheduledTimeRange",
+                    description: $localize `:@@scheduled_time_range:Scheduled Time Range`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@processing_start_time_range:Processing Start Time Range`,
+                    pathToValue:"processingStartTimeRange",
+                    description: $localize `:@@processing_start_time_range:Processing Start Time Range`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"value",
+                    title:$localize `:@@processing_end_time_range:Processing end time range`,
+                    pathToValue:"processingEndTimeRange",
+                    description: $localize `:@@processing_end_time_range:Processing end time range`,
+                    widthWeight:1,
+                    calculatedWidth:"20%"
+                }),
+                new TableSchemaElement({
+                    type:"progress",
+                    title:$localize `:@@tasks:Tasks`,
+                    pathToValue:"tasks",
+                    description: $localize `:@@tasks:Tasks`,
+                    widthWeight:1.5,
+                    cssClass:"no-padding",
+                    calculatedWidth:"20%"
+                })
+            ]
+        }
         return [
-            {
+            new TableSchemaElement({
                 type:"index",
                 title:"#",
                 description:$localize `:@@index:Index`,
                 widthWeight:0.2,
                 calculatedWidth:"4%"
-            },{
-                type:"buttons",
+            }),new TableSchemaElement({
+                type:"actions",
                 title:"",
-                buttons:[
+                headerActions:[
+                    {
+                        icon: {
+                            tag: 'span',
+                            cssClass: 'glyphicon glyphicon-unchecked',
+                            text: ''
+                        },
+                        click: (models, config) => {
+                            models.forEach(m=>{
+                                m.selected = true;
+                            });
+                            config.allSelected = true;
+                        },
+                        title: $localize `:@@select:Select`,
+                        showIf: (e, config) => {
+                            return !config.allSelected;
+                        }
+                    }, {
+                        icon: {
+                            tag: 'span',
+                            cssClass: 'glyphicon glyphicon-check',
+                            text: ''
+                        },
+                        click: (models,config) => {
+                            models.forEach(m=>{
+                                m.selected = false;
+                            });
+                            config.allSelected = false;
+                        },
+                        title: $localize `:@@unselect:Unselect`,
+                        showIf: (e, config) => {
+                            return config.allSelected;
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-ban-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'cancel-selected', e);
+                        },
+                        permission: {
+                            id: 'action-monitoring->storage_verification-single_action',
+                            param: 'visible'
+                        },
+                        title:$localize `:@@title.cancel_selected:Cancel selected`
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-repeat',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'reschedule-selected', e);
+                        },
+                        permission: {
+                            id: 'action-monitoring->storage_verification-single_action',
+                            param: 'visible'
+                        },
+                        title:$localize `:@@title.reschedule_selected:Reschedule selected`
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-remove-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'delete-selected', e);
+                        },
+                        permission: {
+                            id: 'action-monitoring->storage_verification-single_action',
+                            param: 'visible'
+                        },
+                        title:$localize `:@@title.delete_selected:Delete selected`
+                    }
+                ],
+                actions:[
+                    {
+                        icon: {
+                            tag: 'span',
+                            cssClass: 'glyphicon glyphicon-unchecked',
+                            text: ''
+                        },
+                        click: (e) => {
+                            e.selected = !e.selected;
+                        },
+                        title: $localize `:@@select:Select`,
+                        showIf: (e, config) => {
+                            return !e.selected;
+                        }
+                    }, {
+                        icon: {
+                            tag: 'span',
+                            cssClass: 'glyphicon glyphicon-check',
+                            text: ''
+                        },
+                        click: (e) => {
+                            console.log("e", e);
+                            e.selected = !e.selected;
+                        },
+                        title: $localize `:@@unselect:Unselect`,
+                        showIf: (e, config) => {
+                            return e.selected;
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-ban-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'cancel', e);
+                        },
+                        title:$localize `:@@cancel_this_task:Cancel this task`,
+                        permission: {
+                            id: 'action-monitoring->storage_verification-single_action',
+                            param: 'visible'
+                        },
+                        showIf:(match) => {
+                            return (match.status
+                                && (match.status === 'SCHEDULED'
+                                    || match.status === 'SCHEDULED FOR RETRY'
+                                    || match.status === 'IN PROCESS'));
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-repeat',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'reschedule', e);
+                        },
+                        title:$localize `:@@reschedule_this_task:Reschedule this task`,
+                        permission: {
+                            id: 'action-monitoring->storage_verification-single_action',
+                            param: 'visible'
+                        }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-remove-circle',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            action.call($this,'delete', e);
+                        },
+                        permission: {
+                            id: 'action-monitoring->storage_verification-single_action',
+                            param: 'visible'
+                        },
+                        title:$localize `:@@delete_this_task:Delete this task`
+                    },
                     {
                         icon:{
                             tag:'span',
@@ -222,84 +363,35 @@ export class StorageVerificationService {
                         click:(e)=>{
                             console.log("e",e);
                             e.showAttributes = !e.showAttributes;
-                        }
-                    },
-                    {
-                        icon:{
-                            tag:'span',
-                            cssClass:'glyphicon glyphicon-list-alt',
-                            text:''
                         },
-                        click:(e)=>{
-                            showDetails.apply(this,[e]);
-                        }
+                        title:$localize `:@@show_details:Show details`
                     }
                 ],
-                description:$localize `:@@index:Index`,
-                widthWeight:0.3,
-                calculatedWidth:"6%"
-            },{
-                type:"model",
-                title:$localize `:@@batch_id:Batch ID`,
-                key:"batchID",
-                description:$localize `:@@batch_id:Batch ID`,
-                widthWeight:0.4,
-                calculatedWidth:"20%"
-            },{
-                type:"model",
-                title:$localize `:@@primary_aet:Primary AET`,
-                key:"PrimaryAET",
-                description:$localize `:@@aet_primary_c_find_scp:AE Title of the primary C-FIND SCP`,
-                widthWeight:1,
-                calculatedWidth:"20%"
-            },{
-                type:"model",
-                title:$localize `:@@secondary_aet:Secondary AET`,
-                key:"SecondaryAET",
-                description:$localize `:@@ae_title_of_the_secondary_c_find_scp:AE Title of the secondary C-FIND SCP`,
-                widthWeight:1,
-                modifyData:(data)=> data.join(', ') || data,
-                calculatedWidth:"20%",
-                cssClass:"hideOn1100px"
-            },{
-                type:"model",
-                title:$localize `:@@scheduled_time_range:Scheduled Time Range`,
-                key:"scheduledTimeRange",
-                description:$localize `:@@scheduled_time_range:Scheduled Time Range`,
-                modifyData:(data)=> this.stringifyRangeArray(data),
-                widthWeight:1.4,
-                calculatedWidth:"20%",
-                cssClass:"hideOn1100px"
-            },{
-                type:"model",
-                title:$localize `:@@processing_start_time_range:Processing Start Time Range`,
-                key:"processingStartTimeRange",
-                description:$localize `:@@processing_start_time_range:Processing Start Time Range`,
-                widthWeight:1.4,
-                modifyData:(data)=> this.stringifyRangeArray(data),
-                calculatedWidth:"20%",
-                cssClass:"hideOn1100px"
-            },{
-                type:"model",
-                title:$localize `:@@processing_end_time_range:Processing end time range`,
-                key:"processingEndTimeRange",
-                description:$localize `:@@processing_end_time_range:Processing end time range`,
-                modifyData:(data)=> this.stringifyRangeArray(data),
-                widthWeight:1.4,
-                calculatedWidth:"20%",
-                cssClass:"hideOn1100px"
-            },{
-                type:"progress",
-                title:$localize `:@@tasks:Tasks`,
-                description:$localize `:@@tasks:Tasks`,
-                key:"tasks",
-                diffMode:false,
-                widthWeight:2,
-                calculatedWidth:"30%",
-                cssClass:"hideOn800px"
-            }
-        ];
+                description:$localize `:@@actions:Actions`,
+                pxWidth:105
+            }),
+            ...this.tableService.getTableSchema(_.concat(
+                [
+                    "dicomDeviceName",
+                    "queue",
+                ],
+                this.tableService.getTimeColumnBasedOnFilter(options.filterObject),
+                [
+                    "processingStartTime_scheduledTime",
+                    "processingEndTime_processingStartTime",
+                    "LocalAET",
+                    "StorageID",
+                    "StgCmtPolicy",
+                    "completed_failed",
+                    "status",
+                    "failures",
+                    "batchID"
+                ]
+            ))
+        ]
+
     }
+
   getFilterSchema(devices, localAET, countText){
     return [
         {
@@ -437,8 +529,7 @@ export class StorageVerificationService {
     deleteAll(filter){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver${urlParam}`, this.header)
-            ;
+        return this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver${urlParam}`, this.header);
     }
 
     delete = (taskID)=> this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/stgver/${taskID}`);
