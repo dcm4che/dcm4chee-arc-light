@@ -3491,7 +3491,7 @@ export class Globalvar {
                     "accessible":undefined
                 }
             },
-            "tab-dashboard_export":{
+            "tab-monitoring->export":{
                 type:"tab",
                 title:"Tab - Monitoring - Export",
                 params:{
@@ -3499,7 +3499,7 @@ export class Globalvar {
                     "accessible":undefined
                 }
             },
-            "tab-dashboard_external_retrieve":{
+            "tab-monitoring->external_retrieve":{
                 type:"tab",
                 title:"Tab - Monitoring - Retrieve",
                 params:{
@@ -3817,6 +3817,14 @@ export class Globalvar {
                     "accessible":undefined
                 }
             },
+            "tab-monitoring->diff":{
+                type:"tab",
+                title:"Tab - Monitoring diff",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
+                }
+            },
             "action-monitoring->queues-all_action":{
                 type:"action",
                 title:"Action - Monitoring Queues All Actions",
@@ -3882,6 +3890,13 @@ export class Globalvar {
                     "edit":undefined,
                     "delete":undefined,
                     "upload":undefined
+                }
+            },
+            "action-studies-uwl":{
+                type:"action",
+                title:"Action - Studies - UWL",
+                params:{
+                    "edit":undefined
                 }
             },
             "action-studies-study":{
@@ -4181,7 +4196,7 @@ export class Globalvar {
                     showSelectedEmptyValue:true,
                     options:[
                         new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                        new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                        new SelectDropdown("all", $localize `:@@All:All`, $localize `:@@all_available_attributes:all available attributes`)
                     ],
                     description:$localize `:@@include_field:Include field`,
                     placeholder:$localize `:@@include_field:Include field`,
@@ -4364,7 +4379,7 @@ export class Globalvar {
                     showSelectedEmptyValue:true,
                     options:[
                         new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                        new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                        new SelectDropdown("all", $localize `:@@All:All`, $localize `:@@all_available_attributes:all available attributes`)
                     ],
                     description:$localize `:@@include_field:Include field`,
                     placeholder:$localize `:@@include_field:Include field`,
@@ -5087,7 +5102,7 @@ export class Globalvar {
                 showSelectedEmptyValue:true,
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                    new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    new SelectDropdown("all", $localize `:@@All:All`, $localize `:@@all_available_attributes:all available attributes`)
                 ],
                 description:$localize `:@@include_field:Include field`,
                 placeholder:$localize `:@@include_field:Include field`,
@@ -5376,7 +5391,7 @@ export class Globalvar {
                 showSelectedEmptyValue:true,
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                    new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    new SelectDropdown("all", $localize `:@@All:All`, $localize `:@@all_available_attributes:all available attributes`)
                 ],
                 description:$localize `:@@include_field:Include field`,
                 placeholder:$localize `:@@include_field:Include field`,
@@ -5856,7 +5871,7 @@ export class Globalvar {
                 showSelectedEmptyValue:true,
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                    new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    new SelectDropdown("all", $localize `:@@All:All`, $localize `:@@all_available_attributes:all available attributes`)
                 ],
                 description:$localize `:@@include_field:Include field`,
                 placeholder:$localize `:@@include_field:Include field`,
@@ -5975,7 +5990,7 @@ export class Globalvar {
                 showSelectedEmptyValue:true,
                 options:[
                     new SelectDropdown("", $localize `:@@dicom:dicom`,$localize `:@@search_response_payload_according_dicom_ps_3.18:Search Response Payload according DICOM PS 3.18`),
-                    new SelectDropdown("all", $localize `:@@all:all`, $localize `:@@all_available_attributes:all available attributes`)
+                    new SelectDropdown("all", $localize `:@@All:All`, $localize `:@@all_available_attributes:all available attributes`)
                 ],
                 description:$localize `:@@include_field:Include field`,
                 placeholder:$localize `:@@include_field:Include field`,

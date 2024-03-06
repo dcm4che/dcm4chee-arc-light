@@ -452,6 +452,7 @@ describe('j4care', () => {
     });
 
     it("Should return whole URL from DcmWebApp",()=>{
+
         expect(
             j4care.getUrlFromDcmWebApplication(
                 new DcmWebApp(
@@ -612,7 +613,7 @@ describe('j4care', () => {
         },""))
     });
 
-    it("",()=>{
+    it("Should remove keys from object",()=>{
         let obj = {
             "00741204": {
                 "vr": "LO",
@@ -908,7 +909,7 @@ describe('j4care', () => {
             []
         )).toEqual([])
     });
-    fit("Should extract ui config that contains roles, based on current user roles",()=>{
+    it("Should extract ui config that contains roles, based on current user roles",()=>{
         expect(
             j4care.extractUIConfigsByRoles(
                 [

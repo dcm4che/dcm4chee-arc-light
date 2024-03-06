@@ -32,19 +32,19 @@ describe('PatientNamePickerService', () => {
           "Rev. John Adams, B.A. M.Div.",
           `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`
       )).toBe(
-          "Adams^John^^Rev.^B.A. M.Div."
+          "Adams^John^*^Rev.^B.A. M.Div."
       );
       expect(service.convertPNameFromFormattedToDicomForm(
           "Rev. John Adams",
           `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`
       )).toBe(
-          "Adams^John^^Rev.^"
+          "Adams^John^*^Rev."
       );
       expect(service.convertPNameFromFormattedToDicomForm(
           "John Adams M.Div.",
           `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`
       )).toBe(
-          "Adams^John^^M.Div.^"
+          "Adams^John^*^M.Div."
       );
   });
   it("should convert dicom person name to formatted person name",()=>{

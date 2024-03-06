@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CreateWebappComponent } from './create-webapp.component';
-import {MatLegacyDialogRef as MatDialogRef} from "@angular/material/legacy-dialog";
+import {MatDialogRef} from "@angular/material/dialog";
 
 
 class CreateWebappDependenc{
@@ -15,7 +15,7 @@ describe('CreateWebappComponent', () => {
     await TestBed.configureTestingModule({
     declarations: [CreateWebappComponent],
     providers: [
-        { provide: MatDialogRef, useClass: CreateWebappDependenc },
+        { provide: MatDialogRef, useClass: CreateWebappDependenc }
     ],
     teardown: { destroyAfterEach: false }
 })
