@@ -373,9 +373,9 @@ export class AppComponent implements OnInit {
         try{
             let url;
             if(window.location.protocol.toLowerCase() === "https:"){
-                url = `//${window.location.hostname}:${this.mainservice["management-https-port"]}/console`
+                url = `//${this.mainservice["management-host"]}:${this.mainservice["management-https-port"]}/console`
             }else{
-                url = `//${window.location.hostname}:${this.mainservice["management-http-port"]}/console`
+                url = `//${this.mainservice["management-host"]}:${this.mainservice["management-http-port"]}/console`
             }
             e.preventDefault();
             window.open(url, "_blank");
@@ -516,7 +516,8 @@ export class AppComponent implements OnInit {
                     this.dcm4cheeArch = res;
                     $this.mainservice["xRoad"] = res.xRoad || false;
                     $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
-                    $this.mainservice["management-https-port"] = res["management-https-port"] || 9993;
+                    $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
+                    $this.mainservice["management-host"] = res["management-host"] || window.location.hostname;
                     this.appRequests.getDeviceInfo(res.dicomDeviceName)
                         .subscribe(
                             arc => {
