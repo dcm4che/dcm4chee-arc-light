@@ -215,6 +215,14 @@ import { MatFormFieldModule} from "@angular/material/form-field";
                 path: '',
                 redirectTo: '/study/study',
                 pathMatch: 'full'
+            },{
+                path: 'index',
+                redirectTo: '/study/study',
+                pathMatch: 'full'
+            },{
+                path: 'index.html',
+                redirectTo: '/study/study',
+                pathMatch: 'full'
             },
             {
                 path: 'monitoring',
