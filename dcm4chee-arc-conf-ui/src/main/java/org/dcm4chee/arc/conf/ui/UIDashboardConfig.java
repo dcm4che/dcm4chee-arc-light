@@ -54,6 +54,8 @@ public class UIDashboardConfig {
     private String[] exportNames = {};
     private String[] deviceNames = {};
     private String countWebApp;
+    private String grafanaURL;
+    private String prometheusWebApp;
     private String[] ignoreParams = {};
     private String[] dockerContainers = {};
     private String[] acceptedUserRoles = {};
@@ -146,6 +148,22 @@ public class UIDashboardConfig {
 
     public String[] getAcceptedUserRoles() {
         return acceptedUserRoles;
+    }
+
+    public String getGrafanaURL() {
+        return grafanaURL;
+    }
+
+    public void setGrafanaURL(String grafanaURL) {
+        this.grafanaURL = grafanaURL;
+    }
+
+    public String getPrometheusWebApp() {
+        return prometheusWebApp;
+    }
+
+    public void setPrometheusWebApp(String prometheusWebApp) {
+        this.prometheusWebApp = prometheusWebApp;
     }
 
     public void setAcceptedUserRoles(String[] acceptedUserRoles) {

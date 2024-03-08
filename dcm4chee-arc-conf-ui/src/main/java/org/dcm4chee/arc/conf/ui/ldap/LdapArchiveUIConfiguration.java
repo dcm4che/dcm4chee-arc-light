@@ -373,6 +373,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiDockerContainer", uiDashboardConfig.getDockerContainers());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmuiCountWebApp",uiDashboardConfig.getCountWebApp(),null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmuiGrafanaURL",uiDashboardConfig.getGrafanaURL(),null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmuiPrometheusWebApp",uiDashboardConfig.getPrometheusWebApp(),null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiDashboardConfig.getAcceptedUserRoles());
         return attrs;
     }
@@ -802,6 +804,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 UIDashboardConfig uiDashboardConfig = new UIDashboardConfig((String) attrs.get("dcmuiDashboardConfigName").get());
                 uiDashboardConfig.setShowStarBlock(LdapUtils.booleanValue(attrs.get("dcmuiShowStarBlock"), true));
                 uiDashboardConfig.setCountWebApp(LdapUtils.stringValue(attrs.get("dcmuiCountWebApp"),null));
+                uiDashboardConfig.setGrafanaURL(LdapUtils.stringValue(attrs.get("dcmuiGrafanaURL"),null));
+                uiDashboardConfig.setPrometheusWebApp(LdapUtils.stringValue(attrs.get("dcmuiPrometheusWebApp"),null));
                 uiDashboardConfig.setQueueNames(LdapUtils.stringArray(attrs.get("dcmuiQueueName")));
                 uiDashboardConfig.setExportNames(LdapUtils.stringArray(attrs.get("dcmuiExportName")));
                 uiDashboardConfig.setDeviceNames(LdapUtils.stringArray(attrs.get("dicomuiDeviceName")));
@@ -1720,6 +1724,12 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmuiCountWebApp",
                 prev.getCountWebApp(),
                 uiDashboardConfig.getCountWebApp(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmuiGrafanaURL",
+                prev.getGrafanaURL(),
+                uiDashboardConfig.getGrafanaURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmuiPrometheusWebApp",
+                prev.getPrometheusWebApp(),
+                uiDashboardConfig.getPrometheusWebApp(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
                 prev.getAcceptedUserRoles(),
                 uiDashboardConfig.getAcceptedUserRoles());

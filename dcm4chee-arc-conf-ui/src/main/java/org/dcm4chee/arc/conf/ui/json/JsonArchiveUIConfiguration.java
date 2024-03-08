@@ -397,6 +397,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
             writer.writeNotEmpty("dicomuiDockerContainer", uiDashboardConfig.getDockerContainers());
             writer.writeNotNullOrDef("dcmuiCountWebApp", uiDashboardConfig.getCountWebApp(),null);
+            writer.writeNotNullOrDef("dcmuiGrafanaURL", uiDashboardConfig.getGrafanaURL(),null);
+            writer.writeNotNullOrDef("dcmuiPrometheusWebApp", uiDashboardConfig.getPrometheusWebApp(),null);
             writer.writeNotEmpty("dcmAcceptedUserRole", uiDashboardConfig.getAcceptedUserRoles());
             writeUICompareSide(writer, uiDashboardConfig.getCompareSides());
             writer.writeEnd();
@@ -1096,6 +1098,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiCountWebApp":
                         uiDashboardConfig.setCountWebApp(reader.stringValue());
+                        break;
+                    case "dcmuiGrafanaURL":
+                        uiDashboardConfig.setGrafanaURL(reader.stringValue());
+                        break;
+                    case "dcmuiPrometheusWebApp":
+                        uiDashboardConfig.setPrometheusWebApp(reader.stringValue());
                         break;
                     case "dcmuiCompareSideObjects":
                         loadCompareSides(uiDashboardConfig, reader);
