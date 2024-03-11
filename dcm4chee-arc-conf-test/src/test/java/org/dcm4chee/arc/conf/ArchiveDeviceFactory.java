@@ -379,7 +379,8 @@ class ArchiveDeviceFactory {
             Tag.IssuerOfServiceEpisodeIDSequence,
             Tag.PatientSexNeutered,
             Tag.StudyInstanceUID,
-            Tag.StudyID
+            Tag.StudyID,
+            Tag.ReasonForPerformedProcedureCodeSequence
     };
     static final int[] SERIES_ATTRS = {
             Tag.SpecificCharacterSet,

@@ -2820,6 +2820,7 @@ dcmTag: 00380060
 dcmTag: 00380062
 dcmTag: 00380064
 dcmTag: 00380500
+dcmTag: 00401012
 dcmEntity: Study
 objectClass: dcmAttributeFilter
 dcmAttributeUpdatePolicy: SUPPLEMENT
