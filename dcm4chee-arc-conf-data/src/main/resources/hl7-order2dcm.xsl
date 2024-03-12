@@ -68,6 +68,12 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+    <!-- Confidentiality Code -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00401008'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val" select="field[28]/component[1]"/>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="institution">

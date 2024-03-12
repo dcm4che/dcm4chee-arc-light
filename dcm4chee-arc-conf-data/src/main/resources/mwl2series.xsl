@@ -44,6 +44,8 @@
       <xsl:copy-of select="DicomAttribute[@tag='00100040']"/>
       <!-- Patient Address -->
       <xsl:copy-of select="DicomAttribute[@tag='00101040']"/>
+      <!-- Military Rank -->
+      <xsl:copy-of select="DicomAttribute[@tag='00101080']"/>
       <!-- Patient's Size -->
       <xsl:copy-of select="DicomAttribute[@tag='00101020']"/>
       <!-- Patient's Weight -->

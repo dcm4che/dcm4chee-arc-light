@@ -617,6 +617,12 @@
       <xsl:with-param name="codedEntry" select="field[15]"/>
       <xsl:with-param name="offset" select="0"/>
     </xsl:call-template>
+    <!-- Military Rank -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00101080'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val" select="field[27]/component[1]"/>
+    </xsl:call-template>
     <!-- Patient Species Description and Code Sequence -->
     <xsl:call-template name="ce2codeItemWithDesc">
       <xsl:with-param name="descTag" select="'00102201'"/>

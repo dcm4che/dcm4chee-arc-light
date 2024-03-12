@@ -125,7 +125,11 @@
             <field/>
             <field/>
             <field/>
-            <field/>
+            <field>
+                <xsl:call-template name="militaryRank">
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues" />
+                </xsl:call-template>
+            </field>
             <field/>
             <field/>
             <field/>
@@ -146,6 +150,21 @@
                 </xsl:call-template>
             </field>
         </PID>
+    </xsl:template>
+
+    <xsl:template name="militaryRank">
+        <xsl:param name="includeNullValues"/>
+        <xsl:variable name="militaryRankVal" select="DicomAttribute[@tag='00101040']/Value" />
+        <xsl:choose>
+            <xsl:when test="$militaryRankVal">
+                <component>
+                    <xsl:value-of select="$militaryRankVal"/>
+                </component>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$includeNullValues" />
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="nte-pid">
