@@ -66,7 +66,7 @@ export class CsvUploadComponent implements OnInit {
                         let countObject = JSON.parse(end.response);
                         msg = $localize `:@@tasks_created:${countObject.count}:count: tasks created successfully!`
                     }else{
-                        const warning = end.getAllResponseHeaders("warning");
+                        const warning = end.getResponseHeader("warning");
                         if(warning){
                             this.appService.showWarning(warning);
                         }else{
@@ -87,7 +87,7 @@ export class CsvUploadComponent implements OnInit {
                 let msg; //= $localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`;
                 try{
                     if(end.response){
-                        const warning = end.getAllResponseHeaders("warning");
+                        const warning = end.getResponseHeader("warning");
                         if(warning){
                             this.appService.showWarning(warning);
                         }else{
