@@ -60,51 +60,60 @@ export class CsvUploadComponent implements OnInit {
         this.service.uploadCSV(url, this.csvFile, semicolon, (end)=>{
             this.showLoader = false;
             if(end.status >= 199 && end.status < 300){
-                let msg; //= $localize `:@@task_created:Tasks created successfully!`;
+                let msgObject = {
+                    msg:"",
+                    status:"info"
+                }
                 try{
                     if(end.response){
                         let countObject = JSON.parse(end.response);
-                        msg = $localize `:@@tasks_created:${countObject.count}:count: tasks created successfully!`
+                        msgObject.msg = $localize `:@@tasks_created:${countObject.count}:count: tasks created successfully!`
                     }else{
                         const warning = end.getResponseHeader("warning");
+                        msgObject.status = "warning";
                         if(warning){
-                            this.appService.showWarning(warning);
+                            msgObject.msg = warning;
                         }else{
-                            msg = $localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`;
+                            msgObject.msg = $localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`;
                         }
                     }
                 }catch (e){
                     console.log($localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`,e)
                 }
-                if(msg){
-                    this.appService.setMessage({
-                        "text":msg,
-                        "status":"info"
-                    });
+                if(!msgObject.msg){
+                    msgObject.msg = $localize `:@@task_created:Tasks created successfully!`
                 }
+                this.appService.setMessage({
+                    "text":msgObject.msg,
+                    "status":msgObject.status
+                });
                 this.dialogRef.close(this.form.value);
             }else{
-                let msg; //= $localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`;
-                    const warning = end.getResponseHeader("warning");
-                    if(warning){
-                        this.appService.showWarning(warning);
+                let msgObject = {
+                    msg:"",
+                    status:"error"
+                }
+                const warning = end.getResponseHeader("warning");
+                if(warning){
+                        msgObject.msg = warning;
                     }else{
                         if(end.response){
                             try{
                                 let countObject = JSON.parse(end.response);
-                                msg = countObject.errorMessage;
+                                msgObject.msg = countObject.errorMessage;
                             }catch (e){
                                 console.log($localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`,e)
                             }
                         }
                     }
 
-                if(msg){
-                    this.appService.setMessage({
-                        "text":msg,
-                        "status":"error"
-                    });
+                if(!msgObject.msg){
+                    msgObject.msg = $localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`
                 }
+                this.appService.setMessage({
+                    "text":msgObject.msg,
+                    "status":"error"
+                });
                 this.dialogRef.close(null);
             }
         },(err)=>{
