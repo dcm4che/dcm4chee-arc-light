@@ -1060,6 +1060,13 @@ mat-grid-list{
       button{
         border:none;
       }
+      .checkbox_button{
+        display: grid;
+        grid-template-columns: 19px 1fr;
+        column-gap: 7px;
+        align-items: center;
+        border: none;
+      }
     }
     &.auto_reloader{
       padding: 10px 20px;

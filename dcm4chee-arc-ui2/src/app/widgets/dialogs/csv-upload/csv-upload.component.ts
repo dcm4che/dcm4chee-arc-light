@@ -85,19 +85,20 @@ export class CsvUploadComponent implements OnInit {
                 this.dialogRef.close(this.form.value);
             }else{
                 let msg; //= $localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`;
-                try{
-                    if(end.response){
-                        const warning = end.getResponseHeader("warning");
-                        if(warning){
-                            this.appService.showWarning(warning);
-                        }else{
-                            let countObject = JSON.parse(end.response);
-                            msg = countObject.errorMessage;
+                    const warning = end.getResponseHeader("warning");
+                    if(warning){
+                        this.appService.showWarning(warning);
+                    }else{
+                        if(end.response){
+                            try{
+                                let countObject = JSON.parse(end.response);
+                                msg = countObject.errorMessage;
+                            }catch (e){
+                                console.log($localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`,e)
+                            }
                         }
                     }
-                }catch (e){
-                    console.log($localize `:@@csv-upload.count_could_not_be_extracted:Count could not be extracted`,e)
-                }
+
                 if(msg){
                     this.appService.setMessage({
                         "text":msg,
