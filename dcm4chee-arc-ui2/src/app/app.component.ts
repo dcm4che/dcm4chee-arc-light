@@ -515,7 +515,7 @@ export class AppComponent implements OnInit {
                     this.startTime();
                     this.dcm4cheeArch = res;
                     $this.mainservice["xRoad"] = res.xRoad || false;
-                    $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
+                    $this.mainservice["management-https-port"] = res["management-https-port"] || 9990;
                     $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
                     $this.mainservice["management-host"] = res["management-host"] || window.location.hostname;
                     this.appRequests.getDeviceInfo(res.dicomDeviceName)
