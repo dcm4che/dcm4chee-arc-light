@@ -371,12 +371,18 @@ export class AppComponent implements OnInit {
     }
     gotToWildflyConsole(e){
         try{
-            let url;
-            if(window.location.protocol.toLowerCase() === "https:"){
-                url = `//${this.mainservice["management-host"]}:${this.mainservice["management-https-port"]}/console`
+            let url:string;
+            let port:string;
+            if(this.mainservice["management-https-port"] && this.mainservice["management-http-port"]){
+                if(window.location.protocol.toLowerCase() === "https:"){
+                    port = this.mainservice["management-https-port"];
+                }else{
+                    port = this.mainservice["management-http-port"];
+                }
             }else{
-                url = `//${this.mainservice["management-host"]}:${this.mainservice["management-http-port"]}/console`
+                port = this.mainservice["management-https-port"] || this.mainservice["management-http-port"] || "9990";
             }
+            url = `//${this.mainservice["management-host"] || window.location.hostname}:${port}/console`
             e.preventDefault();
             window.open(url, "_blank");
         }catch (e) {
