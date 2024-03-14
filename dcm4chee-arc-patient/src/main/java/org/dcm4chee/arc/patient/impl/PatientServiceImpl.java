@@ -167,7 +167,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
         private boolean deleteDuplicateCreatedPatient(PatientMgtContext ctx, Patient patient) {
-        if (ctx.getEventActionCode() == AuditMessages.EventActionCode.Create) {
+        if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)) {
             if (deleteDuplicateCreatedPatient(ctx.getPatientIDs(), patient, null)) {
                 ctx.setEventActionCode(AuditMessages.EventActionCode.Read);
                 return true;
