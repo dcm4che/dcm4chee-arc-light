@@ -405,16 +405,17 @@
 
     <xsl:template name="IPC">
         <IPC>
+            <xsl:variable name="scheduledStepAttributesSqItem" select="DicomAttribute[@tag='00400270']/Item"/>
             <field>
-                <xsl:call-template name="attr">
-                    <xsl:with-param name="tag" select="'00080050'"/>
+                <xsl:call-template name="attrVal">
+                    <xsl:with-param name="val" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00080050']/Value"/>
                     <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>
             </field>
             <field/>
             <field>
-                <xsl:call-template name="attr">
-                    <xsl:with-param name="tag" select="'0020000D'"/>
+                <xsl:call-template name="attrVal">
+                    <xsl:with-param name="val" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='0020000D']/Value"/>
                     <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
                 </xsl:call-template>
             </field>
