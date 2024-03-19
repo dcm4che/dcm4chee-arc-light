@@ -45,5 +45,5 @@ package org.dcm4chee.arc.conf;
  * @since Jan 2020
  */
 public enum HL7PSUMessageType {
-    OMG_O19, ORU_R01
+    OMG_O19, ORU_R01, OMI_O23
 }

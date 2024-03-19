@@ -48,7 +48,14 @@
             <xsl:call-template name="TQ1">
                 <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
             </xsl:call-template>
-            <xsl:call-template name="OBX"/>
+            <xsl:choose>
+                <xsl:when test="starts-with($msgType, 'OMI')">
+                    <xsl:call-template name="IPC"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:call-template name="OBX"/>
+                </xsl:otherwise>
+            </xsl:choose>
         </hl7>
     </xsl:template>
 
@@ -394,6 +401,40 @@
             <field/>
             <field/>
         </OBX>
+    </xsl:template>
+
+    <xsl:template name="IPC">
+        <IPC>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'00080050'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </field>
+            <field/>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'0020000D'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </field>
+            <field/>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'00080060'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </field>
+            <field/>
+            <field/>
+            <field/>
+            <field>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'00400241'"/>
+                    <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
+                </xsl:call-template>
+            </field>
+        </IPC>
     </xsl:template>
 
     <xsl:template name="idWithIssuer">
