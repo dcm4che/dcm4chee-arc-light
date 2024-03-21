@@ -2992,7 +2992,7 @@ dcmRetentionPeriod: P1D
 dcmProperty: SendingApplicationEntityTitle=STORESCU
 dcmProperty: SliceThickness=0.75
 objectClass: dcmStudyRetentionPolicy
-dcmRulePriority: 1
+dcmRulePriority: 2
 cn: THIN_SLICE
 
 dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3161,9 +3161,8 @@ objectClass: dcmAttributeFilter
 dn: cn=THICK_SLICE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRetentionPeriod: P4D
 dcmProperty: SendingApplicationEntityTitle=STORESCU
-dcmProperty: SliceThickness=1.5
 objectClass: dcmStudyRetentionPolicy
-dcmRulePriority: 2
+dcmRulePriority: 1
 cn: THICK_SLICE
 
 dn: dcmEntity=MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

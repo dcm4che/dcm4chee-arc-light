@@ -1174,18 +1174,17 @@ class ArchiveDeviceFactory {
     static final StudyRetentionPolicy THICK_SLICE = createStudyRetentionPolicy(
             "THICK_SLICE",
             "P4D",
-            2,
+            1,
             false,
             new Conditions(
-                    "SendingApplicationEntityTitle=STORESCU",
-                    "SliceThickness=1.5"
+                    "SendingApplicationEntityTitle=STORESCU"
             )
     );
 
     static final StudyRetentionPolicy THIN_SLICE = createStudyRetentionPolicy(
             "THIN_SLICE",
             "P1D",
-            1,
+            2,
             true,
             new Conditions(
                     "SendingApplicationEntityTitle=STORESCU",
