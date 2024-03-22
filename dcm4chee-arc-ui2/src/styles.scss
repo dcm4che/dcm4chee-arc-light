@@ -1336,13 +1336,13 @@ iod-form-generator{
   .edit-patient, .edit-study, .edit-series, .edit-mwl{
     .mat-dialog-content, .mat-mdc-dialog-content{
       margin:15px -24px;
-      float:left;
+      //float:left;
     }
   }
   .edit-study{
     .mat-dialog-content, .mat-mdc-dialog-content{
       margin: 20px 0;
-      float: left;
+      //float: left;
       padding: 0;
     }
   }
