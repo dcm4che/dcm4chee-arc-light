@@ -77,28 +77,19 @@ public class BulkdataOutput implements StreamingOutput {
     public void write(final OutputStream out) throws IOException {
         RetrieveService service = ctx.getRetrieveService();
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
-            Attributes attrs = null;
+            dis.readFileMetaInformation();
+            dis.setSkipAllDicomInputHandler();
             for (int level = 0; level < attributePath.length; level++) {
                 if ((level & 1) == 0) {
                     int stopTag = attributePath[level];
-                    if (attrs == null)
-                        attrs = dis.readDataset(-1, stopTag);
-                    else
-                        dis.readAttributes(attrs, -1, stopTag);
+                    dis.readDataset(-1, stopTag);
                     if (dis.tag() != stopTag)
                         throw new IOException(missingBulkdata());
                 } else {
                     int index = attributePath[level];
                     int i = 0;
                     while (i < index && dis.readItemHeader()) {
-                        int len = dis.length();
-                        boolean undefLen = len == -1;
-                        if (undefLen) {
-                            Attributes item = new Attributes(attrs.bigEndian());
-                            dis.readAttributes(item, len, Tag.ItemDelimitationItem);
-                        } else {
-                            dis.skipFully(len);
-                        }
+                        dis.skipItem();
                         ++i;
                     }
                     if (i < index || !dis.readItemHeader())
