@@ -51,7 +51,8 @@
               "node_modules/glyphicons-only-bootstrap/css/bootstrap.min.css",
               "src/styles.scss",
               "src/assets/scss/old_style.scss",
-              "src/assets/scss/old_mobile.scss"
+              "src/assets/scss/old_mobile.scss",
+              "src/kapsiki-style-guide/css/style.css"
             ],
             "scripts": [
               "node_modules/keycloak-js/dist/keycloak.js",

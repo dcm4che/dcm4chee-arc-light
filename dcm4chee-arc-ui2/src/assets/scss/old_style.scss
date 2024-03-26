@@ -62,16 +62,8 @@ body{
 	}
 	.logo{
 		background: transparent;
-		background-image: url("/resources/img/logo.png"), url("../img/logo.png");
-		background-repeat: no-repeat;
-	    height: 42px;
-	    margin-left: 10px;
-	    //opacity: 0.7;
-	    position: fixed;
-	    right: 32px;
-	    bottom: 44px;
-	    width: 148px;
-	    z-index: 1;
+		background-image: url("/resources/img/logo.png"), url("../img/kapsiki-logo.png");
+		
 	    &:hover{
 	    	cursor: pointer;
 	    }
