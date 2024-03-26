@@ -8,3 +8,4 @@ node/
 node_modules/
 bower_components/
 .vscode/
+.m2
