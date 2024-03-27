@@ -168,49 +168,49 @@
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-db2</artifactId>
-        <version>11.5.8.0</version>
+        <version>11.5.9.0</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-firebird</artifactId>
-        <version>5.0.2.java11</version>
+        <version>5.0.4.java11</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-h2</artifactId>
-        <version>2.2.220</version>
+        <version>2.2.224</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-mysql</artifactId>
-        <version>8.1.0</version>
+        <version>8.3.0</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-mariadb</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.3</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-oracle</artifactId>
-        <version>23.2.0.0</version>
+        <version>23.3.0.23.09</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-psql</artifactId>
-        <version>42.6.0</version>
+        <version>42.7.3</version>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.dcm4che</groupId>
         <artifactId>jdbc-jboss-modules-sqlserver</artifactId>
-        <version>12.4.0.jre11</version>
+        <version>12.6.1.jre11</version>
         <type>zip</type>
       </dependency>
     </dependencies>
