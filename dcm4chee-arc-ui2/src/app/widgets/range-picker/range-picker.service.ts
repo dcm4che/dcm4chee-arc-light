@@ -76,7 +76,6 @@ export class RangePickerService {
               firstDate.setFullYear(firstDate.getFullYear()-1);
               firstDate.setDate(1);
               firstDate.setMonth(0);
-              firstDate.setDate(firstDate.getDate()-1);
               secondDate.setDate(1);
               secondDate.setMonth(0);
               secondDate.setDate(secondDate.getDate()-1);
