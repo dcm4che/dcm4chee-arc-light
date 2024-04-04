@@ -83,6 +83,13 @@ public class HL7Logger {
                 if (event.getException() != null)
                     log(msg, hl7ErrorLogFilePattern(msg));
                 break;
+            case MESSAGE_SENT:
+                log(msg, hl7OutgoingLogFilePattern(msg));
+                break;
+            case MESSAGE_RESPONSE:
+                if (event.getException() != null)
+                    log(msg, hl7OutgoingErrorLogFilePattern(msg));
+                break;
         }
     }
 
@@ -102,6 +109,16 @@ public class HL7Logger {
     }
 
     private String hl7ErrorLogFilePattern(UnparsedHL7Message msg) {
+        ArchiveHL7ApplicationExtension arcHL7App = arcHL7App(msg);
+        return arcHL7App != null ? arcHL7App.hl7ErrorLogFilePattern() : arcdev().getHL7ErrorLogFilePattern();
+    }
+
+    private String hl7OutgoingLogFilePattern(UnparsedHL7Message msg) {
+        ArchiveHL7ApplicationExtension arcHL7App = arcHL7App(msg);
+        return arcHL7App != null ? arcHL7App.hl7LogFilePattern() : arcdev().getHL7LogFilePattern();
+    }
+
+    private String hl7OutgoingErrorLogFilePattern(UnparsedHL7Message msg) {
         ArchiveHL7ApplicationExtension arcHL7App = arcHL7App(msg);
         return arcHL7App != null ? arcHL7App.hl7ErrorLogFilePattern() : arcdev().getHL7ErrorLogFilePattern();
     }

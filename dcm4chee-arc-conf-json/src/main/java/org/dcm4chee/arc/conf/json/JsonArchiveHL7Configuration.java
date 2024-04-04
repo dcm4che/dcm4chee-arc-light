@@ -69,6 +69,8 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotNullOrDef("hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
         writer.writeNotNullOrDef("hl7LogFilePattern", ext.getHL7LogFilePattern(), null);
         writer.writeNotNullOrDef("hl7ErrorLogFilePattern", ext.getHL7ErrorLogFilePattern(), null);
+        writer.writeNotNullOrDef("hl7OutgoingLogFilePattern", ext.getHL7OutgoingLogFilePattern(), null);
+        writer.writeNotNullOrDef("hl7OutgoingErrorLogFilePattern", ext.getHL7OutgoingErrorLogFilePattern(), null);
         writer.writeNotNullOrDef("dicomAETitle", ext.getAETitle(), null);
         writer.writeNotNull("dcmRecordAttributeModification", ext.getRecordAttributeModification());
         writer.writeNotNullOrDef("hl7ScheduledProtocolCodeInOrder", ext.getHL7ScheduledProtocolCodeInOrder(), null);
@@ -147,6 +149,12 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7ErrorLogFilePattern":
                     ext.setHL7ErrorLogFilePattern(reader.stringValue());
+                    break;
+                case "hl7OutgoingLogFilePattern":
+                    ext.setHL7OutgoingLogFilePattern(reader.stringValue());
+                    break;
+                case "hl7OutgoingErrorLogFilePattern":
+                    ext.setHL7OutgoingErrorLogFilePattern(reader.stringValue());
                     break;
                 case "dicomAETitle":
                     ext.setAETitle(reader.stringValue());

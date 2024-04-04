@@ -198,6 +198,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7OutgoingPatientUpdateTemplateURI", arcDev.getOutgoingPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7LogFilePattern", arcDev.getHL7LogFilePattern(), null);
         writer.writeNotNullOrDef("hl7ErrorLogFilePattern", arcDev.getHL7ErrorLogFilePattern(), null);
+        writer.writeNotNullOrDef("hl7OutgoingLogFilePattern", arcDev.getHL7OutgoingLogFilePattern(), null);
+        writer.writeNotNullOrDef("hl7OutgoingErrorLogFilePattern", arcDev.getHL7OutgoingErrorLogFilePattern(), null);
         writer.writeNotNullOrDef("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI(), null);
         writer.writeNotNullOrDef("dcmPurgeQueueMessagePollingInterval",
                 arcDev.getPurgeTaskPollingInterval(), null);
@@ -1682,6 +1684,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ErrorLogFilePattern":
                     arcDev.setHL7ErrorLogFilePattern(reader.stringValue());
+                    break;
+                case "hl7OutgoingLogFilePattern":
+                    arcDev.setHL7OutgoingLogFilePattern(reader.stringValue());
+                    break;
+                case "hl7OutgoingErrorLogFilePattern":
+                    arcDev.setHL7OutgoingErrorLogFilePattern(reader.stringValue());
                     break;
                 case "dcmUnzipVendorDataToURI":
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());

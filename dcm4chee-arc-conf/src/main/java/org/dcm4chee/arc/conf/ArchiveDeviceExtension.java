@@ -194,6 +194,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String mwlScheduledProcedureStepIDGenerator = MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR;
     private volatile String hl7LogFilePattern;
     private volatile String hl7ErrorLogFilePattern;
+    private volatile String hl7OutgoingLogFilePattern;
+    private volatile String hl7OutgoingErrorLogFilePattern;
     private volatile Duration rejectExpiredStudiesPollingInterval;
     private volatile ScheduleExpression[] rejectExpiredStudiesSchedules = {};
     private volatile int rejectExpiredStudiesFetchSize = 0;
@@ -1293,6 +1295,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHL7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
         this.hl7ErrorLogFilePattern = hl7ErrorLogFilePattern;
+    }
+
+    public String getHL7OutgoingLogFilePattern() {
+        return hl7OutgoingLogFilePattern;
+    }
+
+    public void setHL7OutgoingLogFilePattern(String hl7OutgoingLogFilePattern) {
+        this.hl7OutgoingLogFilePattern = hl7OutgoingLogFilePattern;
+    }
+
+    public String getHL7OutgoingErrorLogFilePattern() {
+        return hl7OutgoingErrorLogFilePattern;
+    }
+
+    public void setHL7OutgoingErrorLogFilePattern(String hl7OutgoingErrorLogFilePattern) {
+        this.hl7OutgoingErrorLogFilePattern = hl7OutgoingErrorLogFilePattern;
     }
 
     public int getRejectExpiredStudiesFetchSize() {

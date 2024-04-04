@@ -61,6 +61,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String scheduleProcedureTemplateURI;
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
+    private String hl7OutgoingLogFilePattern;
+    private String hl7OutgoingErrorLogFilePattern;
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private Boolean hl7UseNullValue;
@@ -112,6 +114,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         scheduleProcedureTemplateURI = arcapp.scheduleProcedureTemplateURI;
         hl7LogFilePattern = arcapp.hl7LogFilePattern;
         hl7ErrorLogFilePattern = arcapp.hl7ErrorLogFilePattern;
+        hl7OutgoingLogFilePattern = arcapp.hl7OutgoingLogFilePattern;
+        hl7OutgoingErrorLogFilePattern = arcapp.hl7OutgoingErrorLogFilePattern;
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7UseNullValue = arcapp.hl7UseNullValue;
@@ -238,6 +242,32 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     public String hl7ErrorLogFilePattern() {
         return hl7ErrorLogFilePattern != null ? hl7ErrorLogFilePattern
                 : getArchiveDeviceExtension().getHL7ErrorLogFilePattern();
+    }
+
+    public String getHL7OutgoingLogFilePattern() {
+        return hl7OutgoingLogFilePattern;
+    }
+
+    public void setHL7OutgoingLogFilePattern(String hl7OutgoingLogFilePattern) {
+        this.hl7OutgoingLogFilePattern = hl7OutgoingLogFilePattern;
+    }
+
+    public String hl7OutgoingLogFilePattern() {
+        return hl7OutgoingLogFilePattern != null ? hl7OutgoingLogFilePattern
+                : getArchiveDeviceExtension().getHL7OutgoingLogFilePattern();
+    }
+
+    public String getHL7OutgoingErrorLogFilePattern() {
+        return hl7OutgoingErrorLogFilePattern;
+    }
+
+    public void setHL7OutgoingErrorLogFilePattern(String hl7OutgoingErrorLogFilePattern) {
+        this.hl7OutgoingErrorLogFilePattern = hl7OutgoingErrorLogFilePattern;
+    }
+
+    public String hl7OutgoingErrorLogFilePattern() {
+        return hl7OutgoingErrorLogFilePattern != null ? hl7OutgoingErrorLogFilePattern
+                : getArchiveDeviceExtension().getHL7OutgoingErrorLogFilePattern();
     }
 
     public String[] getHL7NoPatientCreateMessageTypes() {

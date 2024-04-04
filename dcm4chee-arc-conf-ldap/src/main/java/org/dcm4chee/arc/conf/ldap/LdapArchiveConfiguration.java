@@ -193,6 +193,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7LogFilePattern", ext.getHL7LogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ErrorLogFilePattern",
                 ext.getHL7ErrorLogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OutgoingLogFilePattern",
+                ext.getHL7OutgoingLogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OutgoingErrorLogFilePattern",
+                ext.getHL7OutgoingErrorLogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUnzipVendorDataToURI",
                 ext.getUnzipVendorDataToURI(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueryFetchSize", ext.getQueryFetchSize(), 100);
@@ -638,6 +642,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setOutgoingPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7OutgoingPatientUpdateTemplateURI"), null));
         ext.setHL7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
         ext.setHL7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
+        ext.setHL7OutgoingLogFilePattern(LdapUtils.stringValue(attrs.get("hl7OutgoingLogFilePattern"), null));
+        ext.setHL7OutgoingErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7OutgoingErrorLogFilePattern"), null));
         ext.setUnzipVendorDataToURI(LdapUtils.stringValue(attrs.get("dcmUnzipVendorDataToURI"), null));
         ext.setQueryFetchSize(LdapUtils.intValue(attrs.get("dcmQueryFetchSize"), 100));
         ext.setQueryMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQueryMaxNumberOfResults"), 0));
@@ -1093,8 +1099,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getScheduleProcedureTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OutgoingPatientUpdateTemplateURI", aa.getOutgoingPatientUpdateTemplateURI(),
                 bb.getOutgoingPatientUpdateTemplateURI(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "hl7LogFilePattern", aa.getHL7LogFilePattern(), bb.getHL7LogFilePattern(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern", aa.getHL7ErrorLogFilePattern(), bb.getHL7ErrorLogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7LogFilePattern",
+                aa.getHL7LogFilePattern(), bb.getHL7LogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern",
+                aa.getHL7ErrorLogFilePattern(), bb.getHL7ErrorLogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OutgoingLogFilePattern",
+                aa.getHL7OutgoingLogFilePattern(), bb.getHL7OutgoingLogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OutgoingErrorLogFilePattern",
+                aa.getHL7OutgoingErrorLogFilePattern(), bb.getHL7OutgoingErrorLogFilePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUnzipVendorDataToURI",
                 aa.getUnzipVendorDataToURI(), bb.getUnzipVendorDataToURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmQueryFetchSize",
