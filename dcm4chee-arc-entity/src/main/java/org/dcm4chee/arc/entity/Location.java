@@ -117,6 +117,12 @@ import java.util.Date;
                 query = "update Location l set l.status = ?2 where l.pk = ?1"),
         @NamedQuery(name = Location.SET_STATUS_BY_MULTI_REF,
                 query = "update Location l set l.status = ?2 where l.multiReference = ?1"),
+        @NamedQuery(name = Location.MARK_FOR_DELETION_BY_STUDY,
+                query = "update Location l set l.status = ?2, l.instance = null " +
+                        "where l in (" +
+                        "select l2 from Location l2 where l2.instance.series.study = ?1 " +
+                        "and l2.status != ?2 and l2.objectType = ?3 " +
+                        "and l2.multiReference is null and l2.uidMap.pk is null)"),
         @NamedQuery(name = Location.UPDATE_STATUS_FROM,
                 query = "update Location l set l.status = ?3 where l.pk = ?1 and l.status = ?2"),
         @NamedQuery(name = Location.UPDATE_STATUS_BY_STORAGE_ID_FROM,
@@ -161,6 +167,7 @@ public class Location {
     public static final String SET_DIGEST = "Location.SetDigest";
     public static final String SET_STATUS = "Location.SetStatus";
     public static final String SET_STATUS_BY_MULTI_REF = "Location.SetStatusByMultiRef";
+    public static final String MARK_FOR_DELETION_BY_STUDY = "Location.MarkForDeletionByStudy";
     public static final String UPDATE_STATUS_FROM = "Location.UpdateStatusFrom";
     public static final String UPDATE_STATUS_BY_STORAGE_ID_FROM = "Location.UpdateStatusByStorageIDFrom";
     public static final String DELETE_BY_PK = "Location.DeleteByPk";

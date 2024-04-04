@@ -317,22 +317,40 @@ public class DeletionServiceEJB {
 
     public List<Location> deleteStudy(StudyDeleteContext ctx, int limit, boolean orphaned) {
         Long studyPk = ctx.getStudyPk();
-        LOG.debug("Query for objects of Study[pk={}]", studyPk);
+        LOG.debug("Query for remaining objects of Study[pk={}]", studyPk);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                 .setParameter(1, studyPk)
                 .setMaxResults(limit)
                 .getResultList();
         if (!locations.isEmpty()) {
-            LOG.debug("Found {} objects of Study[pk={}]", locations.size(), studyPk);
+            LOG.debug("Found {} remaining objects of Study[pk={}]", locations.size(), studyPk);
             Collection<Instance> insts = removeOrMarkLocationAs(locations, limit, orphaned);
             LOG.debug("Marked {}/{} objects/instances of Study[pk={} for deletion}",
                     locations.size(), insts.size(), studyPk);
             deleteInstances(insts, ctx);
             LOG.debug("Deleted {} instances of Study[pk={}]", insts.size(), studyPk);
         } else {
-            LOG.debug("No objects of Study[pk={}] found", studyPk);
+            LOG.debug("No remaining objects of Study[pk={}] found", studyPk);
         }
         return locations;
+    }
+
+    public int markForDeletion(Study study, Location.ObjectType objType, LocationStatus status) {
+        return em.createNamedQuery(Location.MARK_FOR_DELETION_BY_STUDY)
+                .setParameter(1, study)
+                .setParameter(2, status)
+                .setParameter(3, objType)
+                .executeUpdate();
+    }
+
+    public int deleteInstancesWithoutLocationsOfStudy(StudyDeleteContext ctx, Study study, int limit) {
+        Collection<Instance> insts = em.createNamedQuery(Instance.FIND_WITHOUT_LOCATIONS_BY_STUDY, Instance.class)
+                .setParameter(1, study)
+                .setMaxResults(limit)
+                .getResultList();
+        deleteInstances(insts, ctx);
+        LOG.debug("Deleted {} instances of Study[pk={}]", insts.size(), study);
+        return insts.size();
     }
 
     public boolean hasObjectsOnStorage(Long studyPk, StorageDescriptor desc) {

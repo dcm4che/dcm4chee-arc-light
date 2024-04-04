@@ -155,6 +155,10 @@ import java.util.*;
             "join fetch i.attributesBlob " +
             "where se.study.studyInstanceUID = ?1 and i.sopClassUID = ?2"),
 @NamedQuery(
+    name = Instance.FIND_WITHOUT_LOCATIONS_BY_STUDY,
+    query = "select i from Instance i " +
+            "where i.series.study = ?1 and i.locations is empty"),
+@NamedQuery(
     name = Instance.IUIDS_OF_STUDY,
     query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID, instance.numberOfFrames " +
             "from Instance instance " +
@@ -231,6 +235,7 @@ public class Instance {
     public static final String COUNT_NOT_REJECTED_INSTANCES_OF_SERIES = "Instance.countNotRejectedInstancesOfSeries";
     public static final String FIND_BY_STUDY_IUID = "Instance.findByStudyIUID";
     public static final String FIND_BY_STUDY_IUID_AND_SOP_CUID = "Instance.findByStudyIUIDAndSOPCUID";
+    public static final String FIND_WITHOUT_LOCATIONS_BY_STUDY = "Instance.findWithoutLocationsByStudy";
     public static final String IUIDS_OF_STUDY = "Instance.iuidsOfStudy";
     public static final String IUIDS_OF_SERIES = "Instance.iuidsOfSeries";
     public static final String IUIDS_OF_SERIES2 = "Instance.iuidsOfSeries2";

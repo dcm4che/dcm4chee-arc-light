@@ -52,14 +52,12 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.AllowDeleteStudyPermanently;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.RejectionState;
-import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -236,6 +234,16 @@ public class DeletionServiceImpl implements DeletionService {
             }
         }
         int limit = arcDev.getDeleteStudyChunkSize();
+        if (!reimport) {
+            LOG.debug("Marking objects of {} for deletion", study);
+            int markForDeletion = ejb.markForDeletion(study, Location.ObjectType.DICOM_FILE,
+                    retainObj ? LocationStatus.ORPHANED : LocationStatus.TO_DELETE);
+            LOG.debug("Marked {} objects of {} for deletion", markForDeletion, study);
+            if (markForDeletion > 0) {
+                ejb.markForDeletion(study, Location.ObjectType.METADATA, LocationStatus.TO_DELETE);
+                while (ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study, limit) == limit);
+            }
+        }
         List<Location> locations1;
         while (!(locations1 = ejb.deleteStudy(ctx, limit, retainObj || reimport)).isEmpty())
             locations.addAll(locations1);
