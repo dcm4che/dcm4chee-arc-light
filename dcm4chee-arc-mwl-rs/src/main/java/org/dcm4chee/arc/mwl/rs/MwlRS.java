@@ -62,6 +62,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Patient;
@@ -162,6 +163,8 @@ public class MwlRS {
                 spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
             if (!spsItem.containsValue(Tag.ScheduledStationAETitle))
                 adjustScheduledStations(spsItem);
+            if (!attrs.containsValue(Tag.WorklistLabel))
+                attrs.setString(Tag.WorklistLabel, VR.LO, StringUtils.maskNull(arcAE.getMWLWorklistLabel(), "*"));
             ProcedureContext ctx = procedureService.createProcedureContext()
                     .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
             ctx.setLocalAET(aet);
