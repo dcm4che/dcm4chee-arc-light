@@ -161,7 +161,10 @@
           "description": "Study is not empty."
         },
         "404": {
-          "description": "No such Application Entity or Study"
+          "description": "No such Application Entity or Study."
+        },
+        "409": {
+          "description": "Study deletion in progress."
         },
         "500": {
           "description": "Internal Server Error."

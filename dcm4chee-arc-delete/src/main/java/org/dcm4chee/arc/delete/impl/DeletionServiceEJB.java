@@ -513,6 +513,13 @@ public class DeletionServiceEJB {
         em.remove(em.contains(study) ? study : em.merge(study));
     }
 
+    public int updateStudyDeleting(Study study, boolean deleting) {
+        return em.createNamedQuery(Study.SET_DELETING)
+                .setParameter(1, study)
+                .setParameter(2, deleting)
+                .executeUpdate();
+    }
+
     private Collection<Instance> removeOrMarkLocationAs(List<Location> locations, int limit, boolean orphaned) {
         int size = locations.size();
         int initialCapacity = size * 4 / 3;

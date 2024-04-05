@@ -86,6 +86,9 @@ import java.util.*;
                 name=Study.SET_STUDY_SIZE,
                 query="update Study st set st.size = ?2 where st.pk = ?1"),
         @NamedQuery(
+                name=Study.SET_DELETING,
+                query="update Study st set st.deleting = ?2 where st = ?1 and st.deleting != ?2"),
+        @NamedQuery(
                 name=Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID,
                 query="update Study st set st.externalRetrieveAET = ?2 " +
                         "where st.studyInstanceUID = ?1 and st.externalRetrieveAET != ?2 "),
@@ -186,6 +189,7 @@ public class Study {
     public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
     public static final String SET_STUDY_SIZE = "Study.setStudySize";
+    public static final String SET_DELETING = "Study.setDeleting";
     public static final String SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID = "Study.setExternalRetrieveAETByStudyIUID";
     public static final String RESET_STUDY_SIZE_AND_EXTERNAL_RETRIEVE_AET = "Study.resetStudySizeAndExternalRetrieve";
     public static final String SET_COMPLETENESS = "Study.setCompleteness";
@@ -347,6 +351,10 @@ public class Study {
     @Basic(optional = false)
     @Column(name = "study_size")
     private long size = -1L;
+
+    @Basic(optional = false)
+    @Column(name = "deleting")
+    private boolean deleting;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -604,6 +612,10 @@ public class Study {
         if (size == -1) return false;
         this.size = -1L;
         return true;
+    }
+
+    public boolean isDeleting() {
+        return deleting;
     }
 
     public Collection<CodeEntity> getProcedureCodes() {

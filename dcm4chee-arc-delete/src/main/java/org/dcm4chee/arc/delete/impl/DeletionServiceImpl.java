@@ -53,10 +53,7 @@ import org.dcm4chee.arc.conf.AllowDeleteStudyPermanently;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.LocationStatus;
-import org.dcm4chee.arc.delete.DeletionService;
-import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.delete.StudyNotEmptyException;
-import org.dcm4chee.arc.delete.StudyNotFoundException;
+import org.dcm4chee.arc.delete.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -217,6 +214,9 @@ public class DeletionServiceImpl implements DeletionService {
                 throw new StudyNotEmptyException(
                         "Deletion of Study with Rejection State: " + rejectionState + " not permitted");
             }
+        }
+        if (ejb.updateStudyDeleting(study, true) == 0) {
+            throw new StudyDeletionInProgressException("Deletion of " + study + " in progress");
         }
         if (rejectionState == RejectionState.EMPTY) {
             ejb.deleteEmptyStudy(ctx);

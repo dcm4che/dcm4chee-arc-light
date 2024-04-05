@@ -63,6 +63,7 @@ import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.StudyDeletionInProgressException;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.Patient;
@@ -163,6 +164,8 @@ public class StudyMgtRS {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (StudyNotEmptyException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (StudyDeletionInProgressException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
