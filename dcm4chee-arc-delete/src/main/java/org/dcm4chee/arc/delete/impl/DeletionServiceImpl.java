@@ -216,7 +216,8 @@ public class DeletionServiceImpl implements DeletionService {
             }
         }
         if (ejb.updateStudyDeleting(study, true) == 0) {
-            throw new StudyDeletionInProgressException("Deletion of " + study + " in progress");
+            throw new StudyDeletionInProgressException(
+                    "Deletion of Study[uid=" + study.getStudyInstanceUID() + "] in progress");
         }
         if (rejectionState == RejectionState.EMPTY) {
             ejb.deleteEmptyStudy(ctx);

@@ -75,6 +75,7 @@ public interface StoreService {
     int PATIENT_ID_MISSING_IN_OBJECT = 0xA777;
     int CONFLICTING_PID_NOT_ACCEPTED = 0xA778;
     int CONFLICTING_PATIENT_ATTRS_REJECTED = 0xA779;
+    int DELETION_OF_STUDY_IN_PROGRESS = 0xA77A;
 
     String DUPLICATE_REJECTION_NOTE_MSG = "Rejection Note [uid={0}] already received.";
     String SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT_MSG = "Subsequent occurrence of rejected Object [uid={0}, rejection={1}]";
@@ -89,6 +90,7 @@ public interface StoreService {
     String FAILED_TO_QUERY_STORE_PERMISSION_SERVICE = "Failed to query Store Permission Service";
     String CONFLICTING_PID_NOT_ACCEPTED_MSG = "Patient ID {0} differs from Patient ID {1} in previous received object of Study[uid={2}].";
     String CONFLICTING_PATIENT_ATTRS_REJECTED_MSG = "Patient with {0} differs from previous received object in attribute {1} {2}";
+    String DELETION_OF_STUDY_IN_PROGRESS_MSG = "Deletion of Study[uid={0}] in progress.";
 
     StoreSession newStoreSession(Association as);
 
