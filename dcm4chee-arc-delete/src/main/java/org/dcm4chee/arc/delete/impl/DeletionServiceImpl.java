@@ -240,10 +240,14 @@ public class DeletionServiceImpl implements DeletionService {
             int markForDeletion = ejb.markForDeletion(study, Location.ObjectType.DICOM_FILE,
                     retainObj ? LocationStatus.ORPHANED : LocationStatus.TO_DELETE);
             LOG.debug("Marked {} objects of {} for deletion", markForDeletion, study);
-            if (markForDeletion > 0) {
-                ejb.markForDeletion(study, Location.ObjectType.METADATA, LocationStatus.TO_DELETE);
-                while (ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study, limit) == limit);
-            }
+            ejb.markForDeletion(study, Location.ObjectType.METADATA, LocationStatus.TO_DELETE);
+            int deleted;
+            do {
+                markForDeletion -= (deleted = ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study, limit));
+            } while (deleted == limit);
+            if (markForDeletion < 0)
+                LOG.info("Successfully delete {} instances of {} without locations from database",
+                        -markForDeletion, study);
         }
         List<Location> locations1;
         while (!(locations1 = ejb.deleteStudy(ctx, limit, retainObj || reimport)).isEmpty())
