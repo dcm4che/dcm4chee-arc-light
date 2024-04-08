@@ -249,6 +249,10 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHL7LogFilePattern(), bb.getHL7LogFilePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern",
                 aa.getHL7ErrorLogFilePattern(), bb.getHL7ErrorLogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OutgoingLogFilePattern",
+                aa.getHL7OutgoingLogFilePattern(), bb.getHL7OutgoingLogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OutgoingErrorLogFilePattern",
+                aa.getHL7OutgoingErrorLogFilePattern(), bb.getHL7OutgoingErrorLogFilePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRecordAttributeModification",
                 aa.getRecordAttributeModification(), bb.getRecordAttributeModification(), null);

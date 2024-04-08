@@ -115,12 +115,12 @@ public class HL7Logger {
 
     private String hl7OutgoingLogFilePattern(UnparsedHL7Message msg) {
         ArchiveHL7ApplicationExtension arcHL7App = arcHL7App(msg);
-        return arcHL7App != null ? arcHL7App.hl7LogFilePattern() : arcdev().getHL7LogFilePattern();
+        return arcHL7App != null ? arcHL7App.hl7OutgoingLogFilePattern() : arcdev().getHL7OutgoingLogFilePattern();
     }
 
     private String hl7OutgoingErrorLogFilePattern(UnparsedHL7Message msg) {
         ArchiveHL7ApplicationExtension arcHL7App = arcHL7App(msg);
-        return arcHL7App != null ? arcHL7App.hl7ErrorLogFilePattern() : arcdev().getHL7ErrorLogFilePattern();
+        return arcHL7App != null ? arcHL7App.hl7OutgoingErrorLogFilePattern() : arcdev().getHL7OutgoingErrorLogFilePattern();
     }
 
     private void log(UnparsedHL7Message msg, String dirpath) {

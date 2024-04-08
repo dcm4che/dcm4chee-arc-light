@@ -2322,6 +2322,16 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.476 NAME 'dcmTrustedPatientIDPattern'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.477 NAME 'hl7OutgoingLogFilePattern'
+  DESC 'Path to HL7 messages which will be captured exactly as sent. If absent, there is no logging.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.478 NAME 'hl7OutgoingErrorLogFilePattern'
+  DESC 'Path to HL7 messages which will be captured exactly as sent, when processing of sent HL7 messages fails. If absent, there is no logging.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2478,6 +2488,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7ScheduledStationAETInOrder $
     hl7LogFilePattern $
     hl7ErrorLogFilePattern $
+    hl7OutgoingLogFilePattern $
+    hl7OutgoingErrorLogFilePattern $
     hl7NoPatientCreateMessageType $
     dcmUnzipVendorDataToURI $
     dcmPurgeQueueMessagePollingInterval $
@@ -2779,6 +2791,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
     hl7ScheduledStationAETInOrder $
     hl7LogFilePattern $
     hl7ErrorLogFilePattern $
+    hl7OutgoingLogFilePattern $
+    hl7OutgoingErrorLogFilePattern $
     hl7NoPatientCreateMessageType $
     hl7UseNullValue $
     hl7ImportReportAdjustIUID $
