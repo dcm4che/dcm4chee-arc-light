@@ -1036,9 +1036,10 @@ public class AuditService {
     private void spoolOutgoingHL7Msg(HL7ConnectionEvent hl7ConnEvent) {
         try {
             PatientRecordAuditService patRecAuditService = new PatientRecordAuditService(hl7ConnEvent, getArchiveDevice());
-            if (patRecAuditService.isArchiveHL7MsgAndNotOrder()) {
+            HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
+            if (pid != null) {
                 writeSpoolFile(
-                        patRecAuditService.getHL7OutgoingPatInfo(),
+                        patRecAuditService.getHL7OutgoingPatInfo(pid),
                         AuditUtils.EventType.forHL7OutgoingPatRec(hl7ConnEvent.getHL7Message().msh().getMessageType()),
                         hl7ConnEvent);
 

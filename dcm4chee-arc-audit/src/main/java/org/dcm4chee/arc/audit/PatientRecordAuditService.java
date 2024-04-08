@@ -155,9 +155,8 @@ class PatientRecordAuditService {
                 .build();
     }
 
-    AuditInfoBuilder getHL7OutgoingPatInfo() {
+    AuditInfoBuilder getHL7OutgoingPatInfo(HL7Segment pid) {
         HL7Segment msh = hl7ConnEvent.getHL7Message().msh();
-        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
         return infoBuilder
                 .patID(pid.getField(3, null), arcDev)
                 .patName(pid.getField(5, null), arcDev)
