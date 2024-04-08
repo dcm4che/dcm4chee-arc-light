@@ -591,7 +591,7 @@ public class QueryBuilder {
         patientLevelPredicates2(predicates, q, patient, pids, issuer, keys, queryParam, queryRetrieveLevel);
     }
 
-    private <T, X, Z> void patientLevelPredicates2(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <T, Z> void patientLevelPredicates2(List<Predicate> predicates, CriteriaQuery<T> q,
                From<Z, Patient> patient, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
                QueryRetrieveLevel2 queryRetrieveLevel) {
         if (queryRetrieveLevel == QueryRetrieveLevel2.PATIENT) {
@@ -600,7 +600,7 @@ public class QueryBuilder {
             else
                 predicates.add(patient.get(Patient_.mergedWith).isNull());
             if (queryParam.isOnlyWithStudies())
-                predicates.add(cb.greaterThan(patient.get(Patient_.numberOfStudies), 0));
+                predicates.add(onlyWithStudiesPredicate(q, patient, queryParam));
         }
         personName(predicates, q, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
@@ -619,6 +619,17 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
         if (queryParam.getPatientVerificationStatus() != null)
             predicates.add(cb.equal(patient.get(Patient_.verificationStatus), queryParam.getPatientVerificationStatus()));
+    }
+
+    private <T, Z> Predicate onlyWithStudiesPredicate(CriteriaQuery<T> q, From<Z, Patient> patient, QueryParam queryParam) {
+        if (queryParam.getAccessControlIDs().length == 0)
+            return cb.greaterThan(patient.get(Patient_.numberOfStudies), 0);
+
+        Subquery<Study> sq = q.subquery(Study.class);
+        Root<Study> study = sq.from(Study.class);
+        return cb.exists(sq.select(study).where(cb.and(
+                accessControlPredicate(study, queryParam.getAccessControlIDs()),
+                cb.equal(study.get(Study_.patient), patient))));
     }
 
     public static boolean hasPatientLevelPredicates(IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
@@ -780,13 +791,15 @@ public class QueryBuilder {
     }
 
     public static void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
-        if (accessControlIDs.length == 0)
-            return;
+        if (accessControlIDs.length > 0)
+            predicates.add(accessControlPredicate(study, accessControlIDs));
+    }
 
+    private static Predicate accessControlPredicate(Path<Study> study, String[] accessControlIDs) {
         String[] a = new String[accessControlIDs.length + 1];
         a[0] = "*";
         System.arraycopy(accessControlIDs, 0, a, 1, accessControlIDs.length);
-        predicates.add(study.get(Study_.accessControlID).in(a));
+        return study.get(Study_.accessControlID).in(a);
     }
 
     private <T, Z> void seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
