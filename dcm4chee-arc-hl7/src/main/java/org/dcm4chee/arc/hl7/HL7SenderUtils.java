@@ -90,7 +90,7 @@ public class HL7SenderUtils {
                 tr.setParameter("ppsStatus", ppsStatus);
             if (arcAE != null) {
                 tr.setParameter("isPIDPV1", arcAE.hl7PSUPIDPV1());
-                arcAE.getHL7PSUTemplateParams().forEach(
+                arcAE.hl7PSUTemplateParams().forEach(
                         (k,v) -> tr.setParameter(k, new AttributesFormat(v).format(attrs)));
             }
         });
