@@ -50,6 +50,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
@@ -163,9 +164,11 @@ public class Dcm2Hl7Exporter extends AbstractExporter {
 
     private ArchiveHL7Message hl7Message(HL7Application sender, String sendingAppWithFacility, HL7Application receiver,
                                          RetrieveContext ctx, String msgType, String uri) throws Exception {
+        ArchiveAEExtension arcAE = device.getApplicationEntity(descriptor.getAETitle(), true)
+                                         .getAEExtensionNotNull(ArchiveAEExtension.class);
         byte[] data = HL7SenderUtils.data(sender, sendingAppWithFacility, receiver,
                                         ctx.getMatches().get(0).getAttributes(), null,
-                                        msgType, uri, null, null);
+                                        msgType, uri, null, arcAE);
         ArchiveHL7Message hl7Msg = new ArchiveHL7Message(data);
         hl7Msg.setHttpServletRequestInfo(ctx.getHttpServletRequestInfo());
         return hl7Msg;
