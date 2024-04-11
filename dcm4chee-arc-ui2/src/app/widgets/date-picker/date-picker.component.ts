@@ -55,7 +55,7 @@ export class DatePickerComponent implements OnInit{
   }
   onOriginalChange(){
     try{
-      const originalInputDate:Date = new Date(this.originalInput);
+      const originalInputDate:Date = new Date(this.originalInput + 'T00:00:00');
       this.inputMask = j4care.formatDate(originalInputDate, this.format);
       if(this.returnAsDateType){
         this.onValueSet.emit(originalInputDate);
