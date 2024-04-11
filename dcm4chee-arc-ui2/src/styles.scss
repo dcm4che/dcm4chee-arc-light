@@ -4419,6 +4419,12 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
   }
 
 }
+.mat-pseudo-checkbox-checked.mat-pseudo-checkbox-minimal::after, .mat-pseudo-checkbox-indeterminate.mat-pseudo-checkbox-minimal::after{
+  color: rgba(28, 36, 43, 0.92) !important;
+}
+.mat-mdc-option{
+  min-height: 30px !important;
+}
 .description .warning{
   color:#e16a3b;
 }
