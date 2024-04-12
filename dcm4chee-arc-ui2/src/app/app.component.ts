@@ -373,16 +373,20 @@ export class AppComponent implements OnInit {
         try{
             let url:string;
             let port:string;
-            if(this.mainservice["management-https-port"] && this.mainservice["management-http-port"]){
-                if(window.location.protocol.toLowerCase() === "https:"){
-                    port = this.mainservice["management-https-port"];
-                }else{
-                    port = this.mainservice["management-http-port"];
-                }
+            if(this.mainservice["management-url"]){
+                url = this.mainservice["management-url"];
             }else{
-                port = this.mainservice["management-https-port"] || this.mainservice["management-http-port"] || "9990";
+                if(this.mainservice["management-https-port"] && this.mainservice["management-http-port"]){
+                    if(window.location.protocol.toLowerCase() === "https:"){
+                        port = this.mainservice["management-https-port"];
+                    }else{
+                        port = this.mainservice["management-http-port"];
+                    }
+                }else{
+                    port = this.mainservice["management-https-port"] || this.mainservice["management-http-port"] || "9990";
+                }
+                url = `//${this.mainservice["management-host"] || window.location.hostname}:${port}/console`
             }
-            url = `//${this.mainservice["management-host"] || window.location.hostname}:${port}/console`
             e.preventDefault();
             window.open(url, "_blank");
         }catch (e) {
@@ -521,9 +525,13 @@ export class AppComponent implements OnInit {
                     this.startTime();
                     this.dcm4cheeArch = res;
                     $this.mainservice["xRoad"] = res.xRoad || false;
-                    $this.mainservice["management-https-port"] = res["management-https-port"] || 9990;
-                    $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
-                    $this.mainservice["management-host"] = res["management-host"] || window.location.hostname;
+                    if(res["management-url"]){
+                        $this.mainservice["management-url"] = res["management-url"];
+                    }else{
+                        $this.mainservice["management-https-port"] = res["management-https-port"] || 9990;
+                        $this.mainservice["management-http-port"] = res["management-http-port"] || 9990;
+                        $this.mainservice["management-host"] = res["management-host"] || window.location.hostname;
+                    }
                     this.appRequests.getDeviceInfo(res.dicomDeviceName)
                         .subscribe(
                             arc => {
