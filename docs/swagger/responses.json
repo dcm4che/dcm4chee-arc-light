@@ -1362,7 +1362,7 @@
             "super-user-role": {
               "type": "string"
             },
-            "management-host": {
+            "management-url": {
               "type": "string"
             },
             "management-http-port": {

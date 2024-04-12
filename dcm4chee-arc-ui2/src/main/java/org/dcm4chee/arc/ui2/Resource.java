@@ -81,27 +81,22 @@ public class Resource {
         StringTokenizer urls = new StringTokenizer(arcURLs, " ");
         sb.append("\"dcm4chee-arc-urls\":[\"").append(urls.nextToken());
         while (urls.hasMoreTokens()) sb.append("\",\"").append(urls.nextToken());
-            sb.append("\"],");
+        sb.append("\"],");
         sb.append("\"dicomDeviceName\":\"").append(System.getProperty("dcm4chee-arc.DeviceName", "dcm4chee-arc"));
         sb.append("\",\"super-user-role\":\"").append(System.getProperty("super-user-role", "root"));
         sb.append("\",\"management-http-port\":").append(
-                parseIntElse(
-                        System.getProperty("jboss.ui.management.http.port",
-                                System.getProperty("jboss.management.http.port")),
-                        9990));
+                intSystemProperty("jboss.management.http.port", 9990));
         sb.append(",\"management-https-port\":").append(
-                parseIntElse(
-                        System.getProperty("jboss.ui.management.https.port",
-                                System.getProperty("jboss.management.https.port")),
-                        9990));
-        String managementHost = System.getProperty("jboss.ui.management.host");
-        if (managementHost != null)
-            sb.append(",\"management-host\":\"").append(managementHost).append('\"');
+                intSystemProperty("jboss.management.https.port", 9993));
+        String managementURL = System.getProperty("jboss.ui.management.url");
+        if (managementURL != null)
+            sb.append(",\"management-url\":\"").append(managementURL).append('\"');
         sb.append("}");
         return sb.toString();
     }
 
-    private static int parseIntElse(String s, int defVal) {
+    private static int intSystemProperty(String key, int defVal) {
+        String s = System.getProperty(key);
         if (s != null)
             try {
                 return Integer.parseInt(s);
