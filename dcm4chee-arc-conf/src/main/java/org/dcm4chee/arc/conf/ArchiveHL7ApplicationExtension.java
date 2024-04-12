@@ -417,7 +417,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         ArrayList<Device> scheduledStations = new ArrayList<>();
         int priority = 0;
         for (Collection<HL7OrderScheduledStation> stations
-                : new Collection[]{scheduledStations, getArchiveDeviceExtension().getHL7OrderScheduledStations() })
+                : new Collection[]{hl7OrderScheduledStations, getArchiveDeviceExtension().getHL7OrderScheduledStations() })
             for (HL7OrderScheduledStation station : stations)
                 if (station.match(hostName, hl7Fields))
                     if (priority <= station.getPriority()) {
