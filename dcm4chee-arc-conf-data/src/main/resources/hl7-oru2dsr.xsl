@@ -394,7 +394,7 @@
         </xsl:call-template>
         <!-- Verifying Observer Name -->
         <xsl:choose>
-          <xsl:when test="field[32]/subcomponent[1] or field[32]/subcomponent[2] or field[32]/subcomponent[3]">
+          <xsl:when test="field[32]/text()">
             <xsl:call-template name="cnn2pnAttr">
               <xsl:with-param name="tag" select="'0040A075'"/>
               <xsl:with-param name="cn" select="field[32]"/>
@@ -489,7 +489,7 @@
     </Item>
   </xsl:template>
   <xsl:template match="OBR" mode="obsctx">
-    <xsl:if test="field[32]/subcomponent[1] or field[32]/subcomponent[2] or field[32]/subcomponent[3]">
+    <xsl:if test="field[32]/text()">
       <Item number="1">
         <!--Relationship Type-->
         <xsl:call-template name="attr">
