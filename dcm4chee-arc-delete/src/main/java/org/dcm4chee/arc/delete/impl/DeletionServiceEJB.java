@@ -514,7 +514,7 @@ public class DeletionServiceEJB {
     }
 
     public int updateStudyDeleting(Study study, boolean deleting) {
-        return em.createNamedQuery(Study.SET_DELETING)
+        return em.createNamedQuery(Study.SET_STUDY_DELETING)
                 .setParameter(1, study)
                 .setParameter(2, deleting)
                 .executeUpdate();

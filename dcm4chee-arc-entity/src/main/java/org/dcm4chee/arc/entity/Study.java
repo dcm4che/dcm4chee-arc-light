@@ -86,7 +86,7 @@ import java.util.*;
                 name=Study.SET_STUDY_SIZE,
                 query="update Study st set st.size = ?2 where st.pk = ?1"),
         @NamedQuery(
-                name=Study.SET_DELETING,
+                name=Study.SET_STUDY_DELETING,
                 query="update Study st set st.deleting = ?2 where st = ?1 and st.deleting != ?2"),
         @NamedQuery(
                 name=Study.SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID,
@@ -189,7 +189,7 @@ public class Study {
     public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
     public static final String SET_STUDY_SIZE = "Study.setStudySize";
-    public static final String SET_DELETING = "Study.setDeleting";
+    public static final String SET_STUDY_DELETING = "Study.setStudyDeleting";
     public static final String SET_EXTERNAL_RETRIEVE_AET_BY_STUDY_IUID = "Study.setExternalRetrieveAETByStudyIUID";
     public static final String RESET_STUDY_SIZE_AND_EXTERNAL_RETRIEVE_AET = "Study.resetStudySizeAndExternalRetrieve";
     public static final String SET_COMPLETENESS = "Study.setCompleteness";
@@ -353,7 +353,7 @@ public class Study {
     private long size = -1L;
 
     @Basic(optional = false)
-    @Column(name = "deleting")
+    @Column(name = "study_deleting")
     private boolean deleting;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
