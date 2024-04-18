@@ -414,6 +414,16 @@
         <DicomAttribute tag="0040A088" vr="SQ"/>
       </Item>
     </DicomAttribute>
+    <!-- Operator Name -->
+    <xsl:choose>
+      <xsl:when test="field[34]">
+        <xsl:call-template name="cnn2pnAttr">
+          <xsl:with-param name="tag" select="'00081070'"/>
+          <xsl:with-param name="cn" select="field[34]"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise/>
+    </xsl:choose>
     <xsl:variable name="resultStatus" select="normalize-space(field[25])"/>
     <!--Completion Flag-->
     <xsl:variable name="completionFlag">
