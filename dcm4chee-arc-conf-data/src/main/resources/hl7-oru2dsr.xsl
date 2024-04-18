@@ -416,7 +416,7 @@
     </DicomAttribute>
     <!-- Operator Name -->
     <xsl:choose>
-      <xsl:when test="field[34]">
+      <xsl:when test="field[34]/subcomponent[1] or field[34]/subcomponent[2] or field[34]/subcomponent[3]">
         <xsl:call-template name="cnn2pnAttr">
           <xsl:with-param name="tag" select="'00081070'"/>
           <xsl:with-param name="cn" select="field[34]"/>
