@@ -239,6 +239,17 @@ public class StoreServiceEJB {
                             deleteQueryAttributes(prevInstance);
                             Series prevSeries = prevInstance.getSeries();
                             Study prevStudy = prevSeries.getStudy();
+                            prevSeries.setRejectionState(
+                                    hasRejectedInstances(prevSeries) ? RejectionState.PARTIAL : RejectionState.NONE);
+                            deleteSeriesQueryAttributes(prevSeries);
+                            if (prevStudy.getRejectionState() == RejectionState.COMPLETE)
+                                prevStudy.getPatient().incrementNumberOfStudies();
+                            prevStudy.setRejectionState(
+                                    hasSeriesWithOtherRejectionState(prevStudy, RejectionState.NONE)
+                                            ? RejectionState.PARTIAL
+                                            : RejectionState.NONE);
+                            prevStudy.setModifiedTime(new Date());
+                            deleteStudyQueryAttributes(prevStudy);
                             prevSeries.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
                             prevStudy.setExternalRetrieveAET("*");
                             prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
