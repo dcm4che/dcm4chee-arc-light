@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -168,7 +169,9 @@ class AuditInfoBuilder {
             pID = arcDev.auditUnknownPatientID();
             if (attr != null) {
                 pName = toPatName(attr.getString(Tag.PatientName), arcDev);
-                pID = toPID(IDWithIssuer.pidsOf(attr).stream()
+                Set<IDWithIssuer> idWithIssuers = IDWithIssuer.pidsOf(attr);
+                if (!idWithIssuers.isEmpty())
+                    pID = toPID(idWithIssuers.stream()
                                 .map(IDWithIssuer::toString)
                                 .collect(Collectors.joining("~")),
                             arcDev);
