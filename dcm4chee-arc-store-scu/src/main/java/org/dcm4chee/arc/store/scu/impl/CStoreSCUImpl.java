@@ -51,6 +51,7 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
@@ -116,11 +117,12 @@ public class CStoreSCUImpl implements CStoreSCU {
         ApplicationEntity destAE = ctx.getDestinationAE();
         if (!localAE.isMasqueradeCallingAETitle(ctx.getDestinationAETitle()))
             aarq.setCallingAET(ctx.getCallingAET());
+        ApplicationEntity transferCapabilitiesAE = StringUtils.maskNull(localAE.transferCapabilitiesAE(), localAE);
         boolean noDestinationRestriction = destAE.getTransferCapabilitiesWithRole(SCP).isEmpty();
         for (Iterator<InstanceLocations> iter = ctx.getMatches().iterator(); iter.hasNext();) {
             InstanceLocations inst = iter.next();
             String cuid = inst.getSopClassUID();
-            TransferCapability localTC = localAE.getTransferCapabilityFor(cuid, SCU);
+            TransferCapability localTC = transferCapabilitiesAE.getTransferCapabilityFor(cuid, SCU);
             TransferCapability destTC = noDestinationRestriction ? null : destAE.getTransferCapabilityFor(cuid, SCP);
             List<Location> locations = inst.getLocations();
             if (!aarq.containsPresentationContextFor(cuid) && !isVideo(locations)) {

@@ -650,9 +650,11 @@ public class RetrieveServiceImpl implements RetrieveService {
         Collection<InstanceLocations> matches = ctx.getMatches();
         Iterator<InstanceLocations> iter = matches.iterator();
         boolean restrictRetrieveSilently = arcAE.restrictRetrieveSilently();
+        ApplicationEntity transferCapabilitiesAE = StringUtils.maskNull(
+                ctx.getLocalApplicationEntity().transferCapabilitiesAE(), ctx.getLocalApplicationEntity());
         while (iter.hasNext()) {
             InstanceLocations match = iter.next();
-            if (!(ctx.getLocalApplicationEntity().hasTransferCapabilityFor(match.getSopClassUID(), SCU)
+            if (!(transferCapabilitiesAE.hasTransferCapabilityFor(match.getSopClassUID(), SCU)
                     && (noDestinationRestriction
                     || destAE.hasTransferCapabilityFor(match.getSopClassUID(), SCP)))) {
                 iter.remove();
