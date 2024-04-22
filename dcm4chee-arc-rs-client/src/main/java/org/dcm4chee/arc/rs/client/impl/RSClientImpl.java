@@ -158,7 +158,7 @@ public class RSClientImpl implements RSClient {
                             + (serviceURL.endsWith("rs/") ? "" : "/")
                             + requestURI.substring(requestURI.indexOf("/rs/") + 4);
                 if (rsOp == RSOperation.CreatePatient)
-                    targetURI += patientID;
+                    targetURI += "/" + patientID;
             }
         } catch (Exception e) {
             LOG.warn("Failed to construct Target URL. \n", e);
