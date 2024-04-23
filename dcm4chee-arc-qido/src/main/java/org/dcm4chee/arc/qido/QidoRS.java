@@ -535,6 +535,12 @@ public class QidoRS {
                         .build();
             }
             try (Query query = model.createQuery(service, ctx)) {
+                int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
+                if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                        && query.fetchCount() > queryMaxNumberOfResults)
+                    return errResponse("Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters.",
+                            Response.Status.REQUEST_ENTITY_TOO_LARGE);
+
                 int maxResults = arcAE.qidoMaxNumberOfResults();
                 int offsetInt = parseInt(offset);
                 int limitInt = parseInt(limit);

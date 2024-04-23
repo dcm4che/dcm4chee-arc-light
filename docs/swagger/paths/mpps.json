@@ -51,6 +51,9 @@
         "404": {
           "description": "There is no Archive AE with the specified Title."
         },
+        "413": {
+          "description": "Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters."
+        },
         "500": {
           "description": "Internal Server Error."
         }
