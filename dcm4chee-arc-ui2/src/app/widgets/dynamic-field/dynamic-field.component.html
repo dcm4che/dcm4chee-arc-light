@@ -16,13 +16,13 @@
       </div>
   </div>
   <div class="dropdown_parent" *ngIf="type === 'string'">
-<!--    <select (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
+    <select (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
       <option value="">-</option>
       <option value="{{element[key]}}" *ngFor="let element of elements">{{element[key]}}</option>
-    </select>-->
-      <mat-select  (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
+    </select>
+<!--      <mat-select  (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
           <mat-option value="">-</mat-option>
           <mat-option *ngFor="let element of elements" [value]="element[key]">{{element[key]}}</mat-option>
-      </mat-select>
+      </mat-select>-->
   </div>
 </div>
