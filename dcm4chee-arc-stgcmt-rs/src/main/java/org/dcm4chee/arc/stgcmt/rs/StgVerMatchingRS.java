@@ -293,7 +293,8 @@ public class StgVerMatchingRS {
                 int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
                 if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
                         && query.fetchCount() > queryMaxNumberOfResults)
-                    return errResponse(Response.Status.BAD_REQUEST, "Request entity too large");
+                    return errResponse(Response.Status.REQUEST_ENTITY_TOO_LARGE,
+                            "Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters.");
 
                 StgVerMatchingObjects stgVerMatchingObjects = new StgVerMatchingObjects(aet, qrlevel, query, status);
                 runInTx.execute(stgVerMatchingObjects);

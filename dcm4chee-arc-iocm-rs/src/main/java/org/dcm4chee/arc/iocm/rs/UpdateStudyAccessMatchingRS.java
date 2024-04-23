@@ -202,7 +202,8 @@ public class UpdateStudyAccessMatchingRS {
                 int queryMaxNumberOfResults = qCtx.getArchiveAEExtension().queryMaxNumberOfResults();
                 if (queryMaxNumberOfResults > 0 && !qCtx.containsUniqueKey()
                         && query.fetchCount() > queryMaxNumberOfResults)
-                    return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
+                    return errResponse("Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters.",
+                            Response.Status.REQUEST_ENTITY_TOO_LARGE);
 
                 UpdateStudyAccess updateStudyAccess = new UpdateStudyAccess(ae, query, accessControlID1);
                 runInTx.execute(updateStudyAccess);

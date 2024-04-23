@@ -192,7 +192,8 @@ public class DiffPatientDemographicsRS {
             int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
             if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
                     && query.fetchCount() > queryMaxNumberOfResults)
-                return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
+                return errResponse("Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters.",
+                        Response.Status.REQUEST_ENTITY_TOO_LARGE);
 
             DiffPatientDemographics diffPatientDemographics = new DiffPatientDemographics(query, descriptor);
             runInTx.execute(diffPatientDemographics);

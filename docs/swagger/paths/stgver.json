@@ -296,6 +296,9 @@
         "404": {
           "description": "No such Archive AE Title"
         },
+        "413": {
+          "description": "Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters."
+        },
         "500": {
           "description": "Internal Server Error"
         }
@@ -504,6 +507,9 @@
         },
         "404": {
           "description": "No such Archive AE Title"
+        },
+        "413": {
+          "description": "Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters."
         },
         "500": {
           "description": "Internal Server Error"
@@ -822,6 +828,9 @@
         },
         "404": {
           "description": "No such Archive AE Title"
+        },
+        "413": {
+          "description": "Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters."
         },
         "500": {
           "description": "Internal Server Error"

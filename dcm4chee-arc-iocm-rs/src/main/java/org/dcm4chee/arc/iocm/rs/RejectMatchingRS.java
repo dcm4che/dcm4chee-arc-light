@@ -52,7 +52,6 @@ import jakarta.ws.rs.core.UriInfo;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -340,7 +339,8 @@ public class RejectMatchingRS {
                 int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
                 if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
                         && query.fetchCount() > queryMaxNumberOfResults)
-                    return errResponse("Request entity too large", Response.Status.BAD_REQUEST);
+                    return errResponse("Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters.",
+                            Response.Status.REQUEST_ENTITY_TOO_LARGE);
 
                 RejectMatchingObjects rejectMatchingObjects = new RejectMatchingObjects(
                                                                     aet, rjNoteCode, qrlevel, query, status);
