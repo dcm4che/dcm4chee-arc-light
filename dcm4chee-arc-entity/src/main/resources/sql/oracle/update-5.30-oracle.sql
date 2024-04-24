@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.29
+-- part 1: can be applied on archive running archive 5.29
 alter table mwl_item
     add worklist_label varchar2(255);
 

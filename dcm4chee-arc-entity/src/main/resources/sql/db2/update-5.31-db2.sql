@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.30
+-- part 1: can be applied on archive running archive 5.30
 alter table patient_id
     add patient_fk bigint;
 

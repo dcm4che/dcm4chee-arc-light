@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.26
+-- part 1: can be applied on archive running archive 5.26
 alter table hl7psu_task
     add accession_no varchar(255);
 create table instance_req (

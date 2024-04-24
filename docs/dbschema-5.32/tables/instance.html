@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>instance - pacsdb Database</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="../bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="../bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="../bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="../bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="../bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='../fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='../fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="../bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="../schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="../bower/html5shiv/html5shiv.min.js"></script>
+        <script src="../bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="../index.html" class="navbar-brand"><b>pacsdb</b> Database</a>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="../index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="../columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="../constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="../relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="../orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="../anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="../routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>instance</h1><p><span id="recordNumber">0</span> rows</p><br />
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            <h3 id="Columns" class="box-title">Columns</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="standard_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th title='Are nulls allowed?'>Nulls</th>
+                                    <th title='Is column automatically updated?'>Auto</th>
+                                    <th title='Default value'>Default</th>
+                                    <th title='Columns in tables that reference this column'>Children</th>
+                                    <th title='Columns in tables that are referenced by this column'>Parents</th>
+                                    <th title='Comments' class="toggle"><span>Comments</span></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pk">pk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="content_item.instance_fk references instance.pk via fkei15n1lk1h1e8f89e9ubalm7q"><a href='content_item.html'>content_item</a><span class='relatedKey'>.instance_fk</span></td>
+                                                <td class="constraint detail">fkei15n1lk1h1e8f89e9ubalm7q<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="instance_req.instance_fk references instance.pk via fkmbg8j00cvubj76doba8funq8j"><a href='instance_req.html'>instance_req</a><span class='relatedKey'>.instance_fk</span></td>
+                                                <td class="constraint detail">fkmbg8j00cvubj76doba8funq8j<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="location.instance_fk references instance.pk via fkpp9xjy946uspo3piayc6ofels"><a href='location.html'>location</a><span class='relatedKey'>.instance_fk</span></td>
+                                                <td class="constraint detail">fkpp9xjy946uspo3piayc6ofels<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="verify_observer.instance_fk references instance.pk via fkkpcwkrsipamdg81mao7nkmdc2"><a href='verify_observer.html'>verify_observer</a><span class='relatedKey'>.instance_fk</span></td>
+                                                <td class="constraint detail">fkkpcwkrsipamdg81mao7nkmdc2<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="availability">availability</span></td>
+                                    <td>int2</td>
+                                    <td>5</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="sr_complete">sr_complete</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="content_date">content_date</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="content_time">content_time</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="created_time">created_time</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="ext_retrieve_aet">ext_retrieve_aet</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="inst_custom1">inst_custom1</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="inst_custom2">inst_custom2</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="inst_custom3">inst_custom3</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="inst_no">inst_no</span></td>
+                                    <td>int4</td>
+                                    <td>10</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="num_frames">num_frames</span></td>
+                                    <td>int4</td>
+                                    <td>10</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="retrieve_aets">retrieve_aets</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="sop_cuid">sop_cuid</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="sop_iuid">sop_iuid</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="updated_time">updated_time</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="sr_verified">sr_verified</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="version">version</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="dicomattrs_fk">dicomattrs_fk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="instance.dicomattrs_fk references dicomattrs.pk via fkokrgkyvch35m6iwr309mawsna"><a href='dicomattrs.html'>dicomattrs</a><span class='relatedKey'>.pk</span></td>
+                                                <td class="constraint detail">fkokrgkyvch35m6iwr309mawsna<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="srcode_fk">srcode_fk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="instance.srcode_fk references code.pk via fkqmk050ojwer9ujsbl74d4kf6e"><a href='code.html'>code</a><span class='relatedKey'>.pk</span></td>
+                                                <td class="constraint detail">fkqmk050ojwer9ujsbl74d4kf6e<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="series_fk">series_fk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="instance.series_fk references series.pk via fke92yganh695k2y4hxfqxtesg1"><a href='series.html'>series</a><span class='relatedKey'>.pk</span></td>
+                                                <td class="constraint detail">fke92yganh695k2y4hxfqxtesg1<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 id="Indexes" class="box-title">Indexes</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="indexes_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Type</th>
+                                    <th>Sort</th>
+                                    <th>Column(s)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> instance_pkey</td>
+                                    <td>Primary key</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pk</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>fke92yganh695k2y4hxfqxtesg1</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>series_fk</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>fkqmk050ojwer9ujsbl74d4kf6e</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>srcode_fk</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx5ikkfk17vijvsvtyied2xa225</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>content_date</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxdglm8ndp9y9i0uo6fgaa5rhbb</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>sop_cuid</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxeg0khesxr81gdimwhjiyrylw7</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>sop_iuid</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxfncb1s641rrnoek7j47k0j06n</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>inst_custom1</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxgisd09x31lphi4437hwgh7ihg</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>sr_complete</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxouh6caecancvsa05lknojy30j</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>inst_no</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxpck1ovyd4t96mjkbbw6f8jiam</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>content_time</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxq5i0hxt1iyahxjiroux2h8imm</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>inst_custom3</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxqh8jqpe8ulsb5t7iv24scho00</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>sr_verified</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxrr1ro1oxv6s4riib9hjkcuvuo</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>inst_custom2</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> instance_dicomattrs_fk_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>dicomattrs_fk</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> instance_series_fk_sop_iuid_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>series_fk + sop_iuid</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div><!-- /.box-body -->
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 class="box-title">Check Constraints</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="check_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Constraint</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>instance_availability_check</td>
+                                    <td>(((availability &gt;= 0) AND (availability &lt;= 3)))</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-code-fork"></i>
+                            <h3 id="Relationships" class="box-title">Relationships</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="nav-tabs-custom"><!-- Tabs within a box -->
+                                <h5>Close relationships within degrees of separation</h5>
+                                <ul class="nav nav-tabs pull-left ui-sortable-handle">
+                                    <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
+                                    <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
+                                </ul>
+                                <div class="tab-content no-padding">
+                                    <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="974,5,1171,245">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="5,165,203,371">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="573,465,905,1151">
+<area shape="rect" id="node4" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="15,1477,193,1595">
+<area shape="rect" id="node5" href="series.html" target="_top" title="series" alt="" coords="247,241,529,1620">
+<area shape="rect" id="node6" href="instance_req.html" target="_top" title="instance_req" alt="" coords="949,263,1196,585">
+<area shape="rect" id="node7" href="location.html" target="_top" title="location" alt="" coords="989,603,1156,867">
+<area shape="rect" id="node8" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="963,884,1182,1065">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/instance.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="1598,5,1795,245">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="275,531,472,736">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="1197,199,1529,884">
+<area shape="rect" id="node5" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="15,899,194,1016">
+<area shape="rect" id="node6" href="series.html" target="_top" title="series" alt="" coords="846,692,1129,2071">
+<area shape="rect" id="node4" href="global_subscription.html" target="_top" title="global_subscription" alt="" coords="249,425,497,513">
+<area shape="rect" id="node8" href="person_name.html" target="_top" title="person_name" alt="" coords="5,1919,204,2007">
+<area shape="rect" id="node16" href="study.html" target="_top" title="study" alt="" coords="586,1956,734,2044">
+<area shape="rect" id="node23" href="metadata.html" target="_top" title="metadata" alt="" coords="575,764,745,852">
+<area shape="rect" id="node7" href="instance_req.html" target="_top" title="instance_req" alt="" coords="1573,979,1820,1301">
+<area shape="rect" id="node9" href="location.html" target="_top" title="location" alt="" coords="1613,2008,1780,2272">
+<area shape="rect" id="node10" href="uidmap.html" target="_top" title="uidmap" alt="" coords="1288,2301,1439,2389">
+<area shape="rect" id="node11" href="mpps.html" target="_top" title="mpps" alt="" coords="586,905,734,993">
+<area shape="rect" id="node12" href="patient.html" target="_top" title="patient" alt="" coords="299,1011,448,1099">
+<area shape="rect" id="node13" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="576,1011,744,1099">
+<area shape="rect" id="node14" href="rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="543,443,777,531">
+<area shape="rect" id="node15" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="877,2088,1098,2176">
+<area shape="rect" id="node17" href="rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="248,753,499,841">
+<area shape="rect" id="node18" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="870,199,1105,287">
+<area shape="rect" id="node19" href="ups.html" target="_top" title="ups" alt="" coords="586,337,734,425">
+<area shape="rect" id="node20" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="833,304,1141,392">
+<area shape="rect" id="node21" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="821,409,1153,497">
+<area shape="rect" id="node22" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="832,515,1143,603">
+<area shape="rect" id="node24" href="series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1243,901,1484,989">
+<area shape="rect" id="node25" href="series_req.html" target="_top" title="series_req" alt="" coords="1276,1548,1451,1636">
+<area shape="rect" id="node26" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="1587,435,1806,616">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/instance.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="974,5,1171,245">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="5,165,203,371">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="573,465,905,1151">
+<area shape="rect" id="node4" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="15,1477,193,1595">
+<area shape="rect" id="node5" href="series.html" target="_top" title="series" alt="" coords="247,241,529,1620">
+<area shape="rect" id="node6" href="instance_req.html" target="_top" title="instance_req" alt="" coords="949,263,1196,585">
+<area shape="rect" id="node7" href="location.html" target="_top" title="location" alt="" coords="989,603,1156,867">
+<area shape="rect" id="node8" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="963,884,1182,1065">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/instance.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="1833,5,2030,245">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="509,440,707,645">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="1432,204,1764,889">
+<area shape="rect" id="node5" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="250,869,429,987">
+<area shape="rect" id="node6" href="series.html" target="_top" title="series" alt="" coords="1081,797,1363,2176">
+<area shape="rect" id="node4" href="global_subscription.html" target="_top" title="global_subscription" alt="" coords="484,804,732,892">
+<area shape="rect" id="node8" href="person_name.html" target="_top" title="person_name" alt="" coords="240,1900,439,1988">
+<area shape="rect" id="node14" href="id_sequence.html" target="_top" title="id_sequence" alt="" coords="5,1900,196,1988">
+<area shape="rect" id="node17" href="study.html" target="_top" title="study" alt="" coords="821,981,969,1069">
+<area shape="rect" id="node24" href="metadata.html" target="_top" title="metadata" alt="" coords="810,1964,979,2052">
+<area shape="rect" id="node7" href="instance_req.html" target="_top" title="instance_req" alt="" coords="1808,435,2055,757">
+<area shape="rect" id="node9" href="location.html" target="_top" title="location" alt="" coords="1848,2008,2015,2272">
+<area shape="rect" id="node10" href="uidmap.html" target="_top" title="uidmap" alt="" coords="1523,2301,1673,2389">
+<area shape="rect" id="node11" href="mpps.html" target="_top" title="mpps" alt="" coords="821,771,969,859">
+<area shape="rect" id="node12" href="patient.html" target="_top" title="patient" alt="" coords="533,981,683,1069">
+<area shape="rect" id="node13" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="811,876,979,964">
+<area shape="rect" id="node15" href="rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="777,443,1012,531">
+<area shape="rect" id="node16" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1111,656,1333,744">
+<area shape="rect" id="node18" href="rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="483,699,733,787">
+<area shape="rect" id="node19" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1105,199,1339,287">
+<area shape="rect" id="node20" href="ups.html" target="_top" title="ups" alt="" coords="821,337,969,425">
+<area shape="rect" id="node21" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="1068,304,1376,392">
+<area shape="rect" id="node22" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="1056,409,1388,497">
+<area shape="rect" id="node23" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="1067,515,1377,603">
+<area shape="rect" id="node25" href="series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1477,907,1719,995">
+<area shape="rect" id="node26" href="series_req.html" target="_top" title="series_req" alt="" coords="1511,1571,1685,1659">
+<area shape="rect" id="node27" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="1822,1120,2041,1301">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/instance.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: true
+                    }
+                </script>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.1.0</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="../bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="../bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="../bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="../bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="../bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="../bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="../bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="../bower/pdfmake/pdfmake.min.js"></script>
+        <script src="../bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="../bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="../bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="../bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="../bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="../bower/codemirror/codemirror.js"></script>
+        <script src="../bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="../bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="table.js"></script>
+        <script src="../schemaSpy.js"></script>
+    </body>
+</html>

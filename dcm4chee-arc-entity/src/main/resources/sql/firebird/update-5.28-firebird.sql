@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.27
+-- part 1: can be applied on archive running archive 5.27
 create table key_value
 (
     pk numeric(18,0) not null,

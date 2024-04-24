@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.24
+-- part 1: can be applied on archive running archive 5.24
 create table patient_demographics
 (
     pat_id        varchar(255) not null,

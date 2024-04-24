@@ -1,4 +1,4 @@
--- can be applied on archive running archive 5.28
+-- part 1: can be applied on archive running archive 5.28
 create table key_value2
 (
     pk bigint not null auto_increment,

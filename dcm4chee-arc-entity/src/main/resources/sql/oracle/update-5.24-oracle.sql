@@ -1,3 +1,4 @@
+-- part 1: can be applied on archive running archive 5.23
 create table task (
     pk number(19,0) not null,
     batch_id varchar2(255 char),
