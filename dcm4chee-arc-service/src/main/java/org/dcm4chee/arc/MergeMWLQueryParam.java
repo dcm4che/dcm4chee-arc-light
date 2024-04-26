@@ -41,6 +41,7 @@
 package org.dcm4chee.arc;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.conf.AttributesBuilder;
@@ -58,18 +59,19 @@ public class MergeMWLQueryParam {
     public final String mwlSCP;
     public final String[] localMwlWorklistLabels;
     public final SPSStatus[] localMwlStatus;
-    public final String patientID;
+    public final IDWithIssuer patientIDWithIssuer;
     public final String accessionNumber;
     public final String studyIUID;
     public final String spsID;
     private final String tplURI;
 
-    public MergeMWLQueryParam(String mwlSCP, String[] localMwlWorklistLabels, SPSStatus[] localMwlStatus, String patientID,
-                              String accessionNumber, String studyIUID, String spsID, String tplURI) {
+    public MergeMWLQueryParam(String mwlSCP, String[] localMwlWorklistLabels, SPSStatus[] localMwlStatus,
+                              IDWithIssuer patientIDWithIssuer, String accessionNumber, String studyIUID, String spsID,
+                              String tplURI) {
         this.mwlSCP = mwlSCP;
         this.localMwlWorklistLabels = localMwlWorklistLabels;
         this.localMwlStatus = localMwlStatus;
-        this.patientID = patientID;
+        this.patientIDWithIssuer = patientIDWithIssuer;
         this.accessionNumber = accessionNumber;
         this.studyIUID = studyIUID;
         this.spsID = spsID;
@@ -78,20 +80,20 @@ public class MergeMWLQueryParam {
 
     public static MergeMWLQueryParam valueOf(String mwlSCP, String[] localMwlWorklistLabels, SPSStatus[] localMwlStatus,
                                              MergeMWLMatchingKey matchingKey, Attributes attrs, String tplURI) {
-        String patientID = null;
+        IDWithIssuer patientIDWithIssuer = null;
         String accessionNumber = null;
         String studyIUID = null;
         String spsID = null;
         switch (matchingKey == MergeMWLMatchingKey.PatientID
                 ? attrs.containsValue(Tag.AccessionNumber)
-                ? MergeMWLMatchingKey.PatientIDAccessionNumber
-                : MergeMWLMatchingKey.PatientIDOnly
+                    ? MergeMWLMatchingKey.PatientIDAccessionNumber
+                    : MergeMWLMatchingKey.PatientIDOnly
                 : matchingKey) {
             case PatientIDOnly:
-                patientID = attrs.getString(Tag.PatientID);
+                patientIDWithIssuer = IDWithIssuer.pidOf(attrs);
                 break;
             case PatientIDAccessionNumber:
-                patientID = attrs.getString(Tag.PatientID);
+                patientIDWithIssuer = IDWithIssuer.pidOf(attrs);
             case AccessionNumber:
                 accessionNumber = attrs.getString(Tag.AccessionNumber);
                 if (accessionNumber == null)
@@ -105,11 +107,11 @@ public class MergeMWLQueryParam {
                 break;
         }
         return new MergeMWLQueryParam(
-                mwlSCP, localMwlWorklistLabels, localMwlStatus, patientID, accessionNumber, studyIUID, spsID, tplURI);
+                mwlSCP, localMwlWorklistLabels, localMwlStatus, patientIDWithIssuer, accessionNumber, studyIUID, spsID, tplURI);
     }
 
     public Attributes setMatchingKeys(Attributes keys) {
-        if (patientID != null) keys.setString(Tag.PatientID, VR.LO, patientID);
+        if (patientIDWithIssuer != null) patientIDWithIssuer.exportPatientIDWithIssuer(keys);
         if (accessionNumber != null) keys.setString(Tag.AccessionNumber, VR.SH, accessionNumber);
         if (studyIUID != null) keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
         if (spsID != null) {
@@ -130,7 +132,7 @@ public class MergeMWLQueryParam {
         MergeMWLQueryParam that = (MergeMWLQueryParam) o;
         return Objects.equals(mwlSCP, that.mwlSCP) &&
                 Arrays.equals(localMwlWorklistLabels, that.localMwlWorklistLabels) &&
-                Objects.equals(patientID, that.patientID) &&
+                Objects.equals(patientIDWithIssuer, that.patientIDWithIssuer) &&
                 Objects.equals(accessionNumber, that.accessionNumber) &&
                 Objects.equals(studyIUID, that.studyIUID) &&
                 Objects.equals(spsID, that.spsID) &&
@@ -139,7 +141,7 @@ public class MergeMWLQueryParam {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(mwlSCP, patientID, accessionNumber, studyIUID, spsID, tplURI);
+        int result = Objects.hash(mwlSCP, patientIDWithIssuer, accessionNumber, studyIUID, spsID, tplURI);
         result = 31 * result + Arrays.hashCode(localMwlWorklistLabels);
         result = 31 * result + Arrays.hashCode(localMwlStatus);
         return result;
@@ -151,7 +153,7 @@ public class MergeMWLQueryParam {
                 "mwlSCP='" + mwlSCP +
                 "', localMwlWorklistLabels='" + Arrays.toString(localMwlWorklistLabels) +
                 "', localMwlStatus='" + Arrays.toString(localMwlStatus) +
-                "', patientID='" + patientID +
+                "', patientIDWithIssuer='" + (patientIDWithIssuer == null ? null : patientIDWithIssuer.toString()) +
                 "', accessionNumber='" + accessionNumber +
                 "', studyIUID='" + studyIUID +
                 "', spsID='" + spsID +

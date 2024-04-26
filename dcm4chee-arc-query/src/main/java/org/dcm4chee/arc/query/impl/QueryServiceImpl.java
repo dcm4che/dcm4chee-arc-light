@@ -993,8 +993,20 @@ class QueryServiceImpl implements QueryService {
                     cb.equal(mwlItem.get(MWLItem_.worklistLabel), "*")));
         if (queryParam.localMwlStatus.length > 0)
             predicates.add(mwlItem.get(MWLItem_.status).in(queryParam.localMwlStatus));
-        if (queryParam.patientID != null)
-            predicates.add(cb.equal(patientID.get(PatientID_.id), queryParam.patientID));
+        if (queryParam.patientIDWithIssuer != null) {
+            List<Predicate> idPredicate = new ArrayList<>(3);
+            idPredicate.add(cb.equal(patientID.get(PatientID_.id), queryParam.patientIDWithIssuer.getID()));
+            if (queryParam.patientIDWithIssuer.getIssuer() != null) {
+                idPredicate.add(cb.or(
+                        patientID.get(PatientID_.localNamespaceEntityID).isNull(),
+                        cb.equal(patientID.get(PatientID_.universalEntityID), queryParam.patientIDWithIssuer.getIssuer().getLocalNamespaceEntityID())));
+                idPredicate.add(cb.or(
+                        patientID.get(PatientID_.universalEntityID).isNull(),
+                        cb.and(cb.equal(patientID.get(PatientID_.universalEntityID), queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityID()),
+                                cb.equal(patientID.get(PatientID_.universalEntityIDType), queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityID()))));
+            }
+            predicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
+        }
         if (queryParam.accessionNumber != null)
             predicates.add(cb.equal(mwlItem.get(MWLItem_.accessionNumber), queryParam.accessionNumber));
         if (queryParam.studyIUID != null)
