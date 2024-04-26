@@ -239,8 +239,10 @@ class QueryContextImpl implements QueryContext {
     public boolean containsUniqueKey() {
         return patientIDs.length > 0
                 || queryKeys.containsValue(Tag.StudyInstanceUID)
-                || qrLevel.compareTo(QueryRetrieveLevel2.SERIES) >= 0 && (queryKeys.containsValue(Tag.SeriesInstanceUID)
-                || qrLevel == QueryRetrieveLevel2.IMAGE && queryKeys.containsValue(Tag.SOPInstanceUID));
+                || qrLevel != null
+                    && qrLevel.compareTo(QueryRetrieveLevel2.SERIES) >= 0
+                    && (queryKeys.containsValue(Tag.SeriesInstanceUID)
+                        || qrLevel == QueryRetrieveLevel2.IMAGE && queryKeys.containsValue(Tag.SOPInstanceUID));
     }
 
     @Override
