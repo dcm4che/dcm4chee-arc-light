@@ -999,11 +999,14 @@ class QueryServiceImpl implements QueryService {
             if (queryParam.patientIDWithIssuer.getIssuer() != null) {
                 idPredicate.add(cb.or(
                         patientID.get(PatientID_.localNamespaceEntityID).isNull(),
-                        cb.equal(patientID.get(PatientID_.universalEntityID), queryParam.patientIDWithIssuer.getIssuer().getLocalNamespaceEntityID())));
+                        cb.equal(patientID.get(PatientID_.localNamespaceEntityID),
+                                queryParam.patientIDWithIssuer.getIssuer().getLocalNamespaceEntityID())));
                 idPredicate.add(cb.or(
                         patientID.get(PatientID_.universalEntityID).isNull(),
-                        cb.and(cb.equal(patientID.get(PatientID_.universalEntityID), queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityID()),
-                                cb.equal(patientID.get(PatientID_.universalEntityIDType), queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityID()))));
+                        cb.and(cb.equal(patientID.get(PatientID_.universalEntityID),
+                                        queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityID()),
+                                cb.equal(patientID.get(PatientID_.universalEntityIDType),
+                                        queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityID()))));
             }
             predicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
         }
