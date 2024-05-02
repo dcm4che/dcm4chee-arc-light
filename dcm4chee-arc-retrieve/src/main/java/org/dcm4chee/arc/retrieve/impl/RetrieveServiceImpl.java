@@ -762,6 +762,11 @@ public class RetrieveServiceImpl implements RetrieveService {
                 }
                 for (ArchiveAttributeCoercion2 coercion : coercions) {
                      try {
+                        String scheme = coercion.getScheme();
+                        if (scheme.equals(ArchiveAttributeCoercion2.NULLIFY_PIXEL_DATA)
+                                || scheme.equals(ArchiveAttributeCoercion2.RETRIEVE_AS_RECEIVED))
+                            LOG.info("Coercion {} applied.", coercion);
+
                         if (coercionFactory.getCoercionProcessor(coercion).coerce(coercion,
                                 inst.getSopClassUID(),
                                 ctx.getLocalHostName(),
