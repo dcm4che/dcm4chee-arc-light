@@ -4076,8 +4076,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.modifyPatient(patient, 'edit', config);
     };
 
-    modifyPatient(patient, mode:("edit"|"create") , config?:{saveLabel:string,titleLabel:string}){
-        let originalPatientObject;
+    modifyPatient(patient:PatientDicom, mode:("edit"|"create") , config?:{saveLabel:string,titleLabel:string}){
+        let originalPatientObject:any;
         if(mode === "edit"){
             originalPatientObject = _.cloneDeep(patient);
         }
@@ -4085,7 +4085,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         // this.config.viewContainerRef = this.viewContainerRef;
         this.service.getPatientIod().subscribe((iod) => {
             let patientFiltered = _.cloneDeep(patient);
-            patientFiltered.attrs = new ComparewithiodPipe().transform(patient.attrs, iod);
+            let onlyPrivateAttrs:any;
+            [patientFiltered.attrs, onlyPrivateAttrs] = new ComparewithiodPipe().transform(patient.attrs, [iod, "both"]);
+
             this.service.initEmptyValue(patientFiltered.attrs);
             this.dialogRef = this.dialog.open(EditPatientComponent, {
                 height: 'auto',
@@ -4100,21 +4102,23 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.titleLabel = config.titleLabel;
             this.dialogRef.afterClosed().subscribe(result => {
                 if (result){
-                    j4care.removeKeyFromObject(patient.attrs, ["required","enum", "multi"]);
+                    const tempAttrs = {...result.attrs, ...onlyPrivateAttrs};
+                    j4care.removeKeyFromObject(tempAttrs, ["required","enum", "multi"]);
                     if(mode === "create"){
-                        this.service.modifyPatient(undefined,patient.attrs,this.studyWebService).subscribe(res=>{
+                        this.service.modifyPatient(undefined,tempAttrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.patient_created_successfully:Patient created successfully`);
                         },err=>{
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
-                        this.service.modifyPatient(this.service.getPatientId(originalPatientObject.attrs),patient.attrs,this.studyWebService).subscribe(res=>{
+                        this.service.modifyPatient(this.service.getPatientId(originalPatientObject.attrs),tempAttrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.patient_updated_successfully:Patient updated successfully`);
                         },err=>{
                             _.assign(patient, originalPatientObject);
                             this.httpErrorHandler.handleError(err);
                         });
                     }
+                    patient.attrs = tempAttrs;
                 }else{
                     _.assign(patient, originalPatientObject);
                 }
