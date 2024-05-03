@@ -1552,11 +1552,15 @@ public class StoreServiceEJB {
             freezeStudyAndItsSeries(series, study, expirationDate, "Freeze");
         }
         else {
-            if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
+            if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0) {
+                LOG.info("Set Expiration Date {} to {} using {}", expirationDate, study, retentionPolicy);
                 study.setExpirationDate(expirationDate);
+            }
 
-            if (retentionPolicy.isExpireSeriesIndividually())
+            if (retentionPolicy.isExpireSeriesIndividually()) {
+                LOG.info("Set Expiration Date {} to {} using {}", expirationDate, series, retentionPolicy);
                 series.setExpirationDate(expirationDate);
+            }
         }
     }
 
