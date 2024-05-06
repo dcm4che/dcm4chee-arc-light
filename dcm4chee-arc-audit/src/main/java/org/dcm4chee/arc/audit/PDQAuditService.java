@@ -324,6 +324,8 @@ class PDQAuditService extends AuditService {
         ei.setEventOutcomeIndicator(outcomeDesc == null
                 ? AuditMessages.EventOutcomeIndicator.Success
                 : AuditMessages.EventOutcomeIndicator.MinorFailure);
+
+        ei.getEventTypeCode().add(eventType.eventTypeCode);
         return ei;
     }
 
