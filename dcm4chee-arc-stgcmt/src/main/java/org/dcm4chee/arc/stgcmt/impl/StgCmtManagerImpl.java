@@ -349,11 +349,13 @@ public class StgCmtManagerImpl implements StgCmtManager {
                     ? seriesResultMap.computeIfAbsent(
                             attr.getString(Tag.SeriesInstanceUID), key -> new SeriesResult())
                     : null;
-            if (seriesResult != null) {
+            boolean noLocations = inst.getLocations().isEmpty();
+            if (!noLocations && seriesResult != null) {
                 seriesResult.size += inst.getLocations().stream().mapToLong(Location::getSize).max().getAsLong();
             }
-            if (ctx.getStorageVerificationPolicy() == StorageVerificationPolicy.DB_RECORD_EXISTS
-                    || checkLocationsOfInstance(ctx, retrCtx, inst)) {
+            if (noLocations ? inst.getExternalRetrieveAET() != null
+                    : (ctx.getStorageVerificationPolicy() == StorageVerificationPolicy.DB_RECORD_EXISTS
+                    || checkLocationsOfInstance(ctx, retrCtx, inst))) {
                 eventInfo.ensureSequence(Tag.ReferencedSOPSequence, retrCtx.getNumberOfMatches())
                         .add(refSOP(cuid, iuid, commonRetrieveAET == null ? inst.getRetrieveAETs() : null));
             } else {
