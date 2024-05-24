@@ -14,7 +14,6 @@ describe('Pipe: PersonName', () => {
         Alphabetic: "COTTA^ANNA"
     },"{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME} {NAME-SUFFIX} ( {P_FAMILY-NAME} {I_FAMILY-NAME} )"))
         .toBe("ANNA COTTA");
-
     expect(pipe.transform({
         Alphabetic: "Buc^Jérôme"
     },"{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME} {NAME-SUFFIX} ( {P_FAMILY-NAME} {I_FAMILY-NAME} )"))
@@ -55,7 +54,15 @@ describe('Pipe: PersonName', () => {
     expect(pipe.transform("Esadi^Shefki^Xhevair^Dr.^PhD","{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME} {NAME-SUFFIX}"))
         .toBe("Dr. Shefki Xhevair Esadi PhD");
 
+    expect(pipe.transform("=Esadi^Shefki^Xhevair^Dr.^PhD","{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME} {NAME-SUFFIX}"))
+        .toBe("Dr. Shefki Xhevair Esadi PhD");
+
     expect(pipe.transform("Esadi^Shefki^Xhevair^Dr.^PhD",))
         .toBe("Dr. Shefki Xhevair Esadi, PhD");
+
+    expect(pipe.transform("=SB1^SB2^SB3^SB4^SB5","{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME} {NAME-SUFFIX} ( {P_FAMILY-NAME} {I_FAMILY-NAME} )"))
+        .toBe("( SB1 )");
+    expect(pipe.transform("==SB1^SB2^SB3^SB4^SB5","{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME} {NAME-SUFFIX} ( {P_FAMILY-NAME} {I_FAMILY-NAME} )"))
+        .toBe("( SB1 )");
   });
 });

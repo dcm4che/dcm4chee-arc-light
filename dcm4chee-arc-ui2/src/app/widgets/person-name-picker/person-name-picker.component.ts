@@ -18,9 +18,20 @@ export class PersonNamePickerComponent implements OnInit {
   @Input() middleName;
   @Input() namePrefix;
   @Input() nameSuffix;
+  @Input() i_familyName;
+  @Input() i_givenName;
+  @Input() i_middleName;
+  @Input() i_namePrefix;
+  @Input() i_nameSuffix;
+  @Input() p_familyName;
+  @Input() p_givenName;
+  @Input() p_middleName;
+  @Input() p_namePrefix;
+  @Input() p_nameSuffix;
   dialogOpen:boolean = false;
   private _internModel:string;
   private _asFilterModel = "";
+  inputMode:("alphabetic"|"ideographic"|"phonetic") = "alphabetic";
   format:string = `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`;
   private _model:string;
 
@@ -89,15 +100,38 @@ export class PersonNamePickerComponent implements OnInit {
     this._internModel = value;
   }
   onComponentChange(){
-    let collected = [
-      this.familyName,
-      this.givenName,
-      this.middleName,
-      this.namePrefix,
-      this.nameSuffix
-    ];
+
+    let collected:string[];
+    let filterPrefix = "";
+    if(this.inputMode === "ideographic"){
+      collected = [
+        this.i_familyName,
+        this.i_givenName,
+        this.i_middleName,
+        this.i_namePrefix,
+        this.i_nameSuffix
+      ];
+      filterPrefix = "=";
+    } else if(this.inputMode === "phonetic"){
+      collected = [
+        this.p_familyName,
+        this.p_givenName,
+        this.p_middleName,
+        this.p_namePrefix,
+        this.p_nameSuffix
+      ];
+      filterPrefix = "==";
+    }else{
+      collected = [
+        this.familyName,
+        this.givenName,
+        this.middleName,
+        this.namePrefix,
+        this.nameSuffix
+      ];
+    }
     if(collected.join("") != ""){
-      this.asFilterModel = this.personNameService.addCarets(this.familyName, this.givenName, this.middleName, this.namePrefix, this.nameSuffix);
+      this.asFilterModel = filterPrefix + this.personNameService.addCarets(collected[0], collected[1], collected[2], collected[3], collected[4]);
       this._internModel = this.personNameService.convertPNameFromDicomFormToFormatted(this._asFilterModel, this.format)
     }else{
       this.asFilterModel = "";
@@ -119,5 +153,10 @@ export class PersonNamePickerComponent implements OnInit {
   clear(){
     this._internModel = "";
     this.onInternModelChange(undefined);
+  }
+
+  mode(mode: ("alphabetic"|"ideographic"|"phonetic")) {
+      this.inputMode = mode;
+      this.onComponentChange();
   }
 }

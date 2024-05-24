@@ -10,7 +10,7 @@
     <div class="dialog" [hidden]="!dialogOpen">
         <div class="dialog_block">
             <h5>Person Name Components:</h5>
-            <div class="dicom_components" (keyup)="onComponentChange()">
+<!--            <div class="dicom_components" (keyup)="onComponentChange()">
                 <input type="text" [(ngModel)]="familyName" placeholder="Family Name" title="Family Name">
                 <span>^</span>
                 <input type="text" [(ngModel)]="givenName" placeholder="Given Name" title="Given Name">
@@ -20,6 +20,40 @@
                 <input type="text" [(ngModel)]="namePrefix" placeholder="Prefix" title="Name Prefix">
                 <span>^</span>
                 <input type="text" [(ngModel)]="nameSuffix" placeholder="Suffix" title="Name Suffix">
+            </div>-->
+            <div class="table" (keyup)="onComponentChange()">
+                <div class="tr">
+                    <div class="th"></div>
+                    <div class="th">Family Name</div>
+                    <div class="th">Given Name</div>
+                    <div class="th">Middle Name</div>
+                    <div class="th">Prefix</div>
+                    <div class="th">Suffix</div>
+                </div>
+                <div class="tr" (click)="mode('alphabetic')" [ngClass]="{'active':inputMode ==='alphabetic'}">
+                    <div class="td"><span>Alphabetic</span></div>
+                    <div class="td"><input type="text" [(ngModel)]="familyName" placeholder="Family Name" title="Family Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="givenName" placeholder="Given Name" title="Given Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="middleName" placeholder="Middle Name" title="Middle Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="namePrefix" placeholder="Prefix" title="Name Prefix"></div>
+                    <div class="td"><input type="text" [(ngModel)]="nameSuffix" placeholder="Suffix" title="Name Suffix"></div>
+                </div>
+                <div class="tr"  (click)="mode('ideographic')"  [ngClass]="{'active':inputMode ==='ideographic'}">
+                    <div class="td"><span>Ideographic</span></div>
+                    <div class="td"><input type="text" [(ngModel)]="i_familyName" placeholder="Family Name" title="Family Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="i_givenName" placeholder="Given Name" title="Given Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="i_middleName" placeholder="Middle Name" title="Middle Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="i_namePrefix" placeholder="Prefix" title="Name Prefix"></div>
+                    <div class="td"><input type="text" [(ngModel)]="i_nameSuffix" placeholder="Suffix" title="Name Suffix"></div>
+                </div>
+                <div class="tr"  (click)="mode('phonetic')"  [ngClass]="{'active':inputMode ==='phonetic'}">
+                    <div class="td"><span>Phonetic</span></div>
+                    <div class="td"><input type="text" [(ngModel)]="p_familyName" placeholder="Family Name" title="Family Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="p_givenName" placeholder="Given Name" title="Given Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="p_middleName" placeholder="Middle Name" title="Middle Name"></div>
+                    <div class="td"><input type="text" [(ngModel)]="p_namePrefix" placeholder="Prefix" title="Name Prefix"></div>
+                    <div class="td"><input type="text" [(ngModel)]="p_nameSuffix" placeholder="Suffix" title="Name Suffix"></div>
+                </div>
             </div>
         </div>
         <div class="dialog_block"  *ngIf=" namePrefix || givenName || middleName || familyName || nameSuffix || asFilterModel">
