@@ -63,6 +63,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -219,40 +220,48 @@ public class DeletionServiceImpl implements DeletionService {
             throw new StudyDeletionInProgressException(
                     "Deletion of Study[uid=" + study.getStudyInstanceUID() + "] in progress");
         }
-        if (rejectionState == RejectionState.EMPTY) {
-            ejb.deleteEmptyStudy(ctx);
-            return locations;
-        }
-        List<Series> seriesWithPurgedInstances = ejb.findSeriesWithPurgedInstances(study.getPk());
-        if (!seriesWithPurgedInstances.isEmpty()) {
-            StoreSession session = storeService.newStoreSession(arcAE.getApplicationEntity());
-            for (Series series : seriesWithPurgedInstances) {
-                storeService.restoreInstances(
-                        session,
-                        study.getStudyInstanceUID(),
-                        series.getSeriesInstanceUID(),
-                        arcDev.getPurgeInstanceRecordsDelay(), null);
+        try {
+            if (rejectionState == RejectionState.EMPTY) {
+                ejb.deleteEmptyStudy(ctx);
+                return locations;
             }
+            List<Series> seriesWithPurgedInstances = ejb.findSeriesWithPurgedInstances(study.getPk());
+            if (!seriesWithPurgedInstances.isEmpty()) {
+                StoreSession session = storeService.newStoreSession(arcAE.getApplicationEntity());
+                for (Series series : seriesWithPurgedInstances) {
+                    storeService.restoreInstances(
+                            session,
+                            study.getStudyInstanceUID(),
+                            series.getSeriesInstanceUID(),
+                            arcDev.getPurgeInstanceRecordsDelay(), null);
+                }
+            }
+            int limit = arcDev.getDeleteStudyChunkSize();
+            if (!reimport) {
+                LOG.debug("Marking objects of {} for deletion", study);
+                int markForDeletion = ejb.markForDeletion(study, Location.ObjectType.DICOM_FILE,
+                        retainObj ? LocationStatus.ORPHANED : LocationStatus.TO_DELETE);
+                LOG.debug("Marked {} objects of {} for deletion", markForDeletion, study);
+                ejb.markForDeletion(study, Location.ObjectType.METADATA, LocationStatus.TO_DELETE);
+                int deleted;
+                do {
+                    markForDeletion -= (deleted = ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study, limit));
+                } while (deleted == limit);
+                if (markForDeletion < 0)
+                    LOG.info("Successfully delete {} instances of {} without locations from database",
+                            -markForDeletion, study);
+            }
+            List<Location> locations1;
+            while (!(locations1 = ejb.deleteStudy(ctx, limit, retainObj || reimport)).isEmpty())
+                locations.addAll(locations1);
+            LOG.info("Successfully delete {} from database", study);
+        } catch (Exception e) {
+            if (ejb.updateStudyDeleting(study, false) == 0) {
+                LOG.warn("Failed to reset deletion in process flag on failed deletion of Study[uid="
+                        + study.getStudyInstanceUID() + ']');
+            }
+            throw e;
         }
-        int limit = arcDev.getDeleteStudyChunkSize();
-        if (!reimport) {
-            LOG.debug("Marking objects of {} for deletion", study);
-            int markForDeletion = ejb.markForDeletion(study, Location.ObjectType.DICOM_FILE,
-                    retainObj ? LocationStatus.ORPHANED : LocationStatus.TO_DELETE);
-            LOG.debug("Marked {} objects of {} for deletion", markForDeletion, study);
-            ejb.markForDeletion(study, Location.ObjectType.METADATA, LocationStatus.TO_DELETE);
-            int deleted;
-            do {
-                markForDeletion -= (deleted = ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study, limit));
-            } while (deleted == limit);
-            if (markForDeletion < 0)
-                LOG.info("Successfully delete {} instances of {} without locations from database",
-                        -markForDeletion, study);
-        }
-        List<Location> locations1;
-        while (!(locations1 = ejb.deleteStudy(ctx, limit, retainObj || reimport)).isEmpty())
-            locations.addAll(locations1);
-        LOG.info("Successfully delete {} from database", study);
         return locations;
     }
 }
