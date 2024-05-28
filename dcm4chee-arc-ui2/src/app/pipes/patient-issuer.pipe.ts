@@ -24,14 +24,14 @@ export class PatientIssuerPipe implements PipeTransform {
               return false;
           }
       }
-
       function patientIdentifiersOf(attrs) {
           let pid = valueOf(attrs, '00100020');
           let issuerOfPID = valueOf(attrs, '00100021');
           let typeOfPID = valueOf(attrs, '00100022');
           let issuerOfPIDQualifiersUniversalEntityID = valueOfItem(attrs, '00100024', '00400032');
           let issuerOfPIDQualifiersUniversalEntityIDType = valueOfItem(attrs, '00100024', '00400033');
-          let issuerOfPIDQualifiers = issuerOfPIDQualifiersUniversalEntityID === false
+          //pie^^^issuerOfPID&universalentitiid&universalentitiidtype^typeOfPID
+          let issuerOfPIDQualifiers:string|boolean = issuerOfPIDQualifiersUniversalEntityID === false
                                         ? issuerOfPIDQualifiersUniversalEntityIDType == false
                                             ? false
                                             : '&' + issuerOfPIDQualifiersUniversalEntityIDType
@@ -45,15 +45,31 @@ export class PatientIssuerPipe implements PipeTransform {
                           : issuerOfPIDQualifiers === false
                               ? issuerOfPID
                               : issuerOfPID + '&' + issuerOfPIDQualifiers;
-          return pid === false
+          const tooltipVersion = pid === false
+              ? ''
+              : issuer == ''
+                  ? typeOfPID === false
+                      ? `${pid}`
+                      : `${pid}` + '^^^^' + typeOfPID
+                  : typeOfPID === false
+                      ? `${pid}` + '^^^' + issuer
+                      : `${pid}` + '^^^' + issuer + '^' + typeOfPID;
+          const htmlVersion = pid === false
                     ? ''
                     : issuer == ''
                         ? typeOfPID === false
-                            ? pid
-                            : pid + '^^^^' + typeOfPID
+                            ? `<b>${pid}</b>`
+                            : `<b>${pid}</b><span>${typeOfPID}</span>`
                         : typeOfPID === false
-                            ? pid + '^^^' + issuer
-                            : pid + '^^^' + issuer + '^' + typeOfPID;
+                            ? `<b>${pid}</b><span>${issuer}</span>`
+                            : `<b>${pid}</b><span>${issuer}^${typeOfPID}</span>`;
+          if(tooltipVersion != ""){
+              return {
+                  tooltip:tooltipVersion,
+                  html:`<span class="mixed_size">${htmlVersion}</span>`
+              }
+          }
+          return "";
       }
 
       if(j4care.is(args,"dcmuiHideOtherPatientIDs", true)){
@@ -65,7 +81,22 @@ export class PatientIssuerPipe implements PipeTransform {
                   allParts.push(patientIdentifiersOf(subAttrs));
               })
           }
-          return allParts.join(", ");
+          if(allParts && allParts[0] && typeof allParts[0] === "string"){
+            return allParts.join(", ");
+          }else{
+              let tooltipPart  = [];
+              let htmlPart = "";
+              allParts.forEach((part:any)=>{
+                  if(part && part.tooltip){
+                    tooltipPart.push(part.tooltip);
+                  }
+                  htmlPart += part.html || "";
+              });
+              return {
+                  tooltip:tooltipPart.join(", "),
+                  html:htmlPart
+              }
+          }
       }
   }
 

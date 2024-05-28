@@ -54,12 +54,11 @@
                     </mat-menu>
                 </ng-container>
                 <ng-container *ngSwitchCase="'pipe'">
-                    <span *ngIf="patient_table.pathToValue">
-                        {{_.get(patient.attrs,patient_table.pathToValue) | dynamicPipe:patient_table.pipe}}
+                    <span [innerHTML]="getDynamicPipeValue(patient,patient_table)"></span>
+<!--                    <span *ngIf="patient_table.pathToValue" [innerHTML]="_.get(patient.attrs,patient_table.pathToValue) | dynamicPipe:patient_table.pipe">
                     </span>
-                    <span *ngIf="!patient_table.pathToValue">
-                        {{patient.attrs | dynamicPipe:patient_table.pipe}}
-                    </span>
+                    <span *ngIf="!patient_table.pathToValue" [innerHTML]="patient.attrs | dynamicPipe:patient_table.pipe">
+                    </span>-->
                 </ng-container>
                 <ng-container *ngSwitchCase="'value'">
                     <ng-container *ngIf="!patient_table.hook">
@@ -124,12 +123,14 @@
                             </mat-menu>
                         </ng-container>
                         <ng-container *ngSwitchCase="'pipe'">
+                            <span [innerHTML]="getDynamicPipeValue(study,studies_table)"></span>
+<!--
                             <ng-container *ngIf="studies_table.pathToValue">
                                 {{_.get(study.attrs,studies_table.pathToValue) | dynamicPipe:studies_table.pipe}}
                             </ng-container>
                             <ng-container *ngIf="!studies_table.pathToValue">
                                 {{study.attrs | dynamicPipe:studies_table.pipe}}
-                            </ng-container>
+                            </ng-container>-->
                         </ng-container>
                         <ng-container *ngSwitchCase="'value'">
                             <ng-container *ngIf="!studies_table.hook">
@@ -184,12 +185,14 @@
                                     </mat-menu>
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'pipe'">
+                                    <span [innerHTML]="getDynamicPipeValue(serie,serie_table)"></span>
+<!--
                                     <ng-container *ngIf="serie_table.pathToValue">
                                         {{_.get(serie.attrs,serie_table.pathToValue) | dynamicPipe:serie_table.pipe}}
                                     </ng-container>
                                     <ng-container *ngIf="!serie_table.pathToValue">
                                         {{serie.attrs | dynamicPipe:serie_table.pipe}}
-                                    </ng-container>
+                                    </ng-container>-->
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'value'">
                                     <ng-container *ngIf="!serie_table.hook">
@@ -247,12 +250,14 @@
                                             </mat-menu>
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'pipe'">
+                                            <span [innerHTML]="getDynamicPipeValue(instance,instance_table)"></span>
+                                            <!--
                                             <ng-container *ngIf="instance_table.pathToValue">
-                                                {{_.get(instance.attrs,instance_table.pathToValue) | dynamicPipe:instance_table.pipe}}
-                                            </ng-container>
-                                            <ng-container *ngIf="!instance_table.pathToValue">
-                                                {{instance.attrs | dynamicPipe:instance_table.pipe}}
-                                            </ng-container>
+                                                  {{_.get(instance.attrs,instance_table.pathToValue) | dynamicPipe:instance_table.pipe}}
+                                              </ng-container>
+                                              <ng-container *ngIf="!instance_table.pathToValue">
+                                                  {{instance.attrs | dynamicPipe:instance_table.pipe}}
+                                              </ng-container>-->
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'value'">
                                             <ng-container *ngIf="!instance_table.hook">
@@ -377,12 +382,14 @@
                             </mat-menu>
                         </ng-container>
                         <ng-container *ngSwitchCase="'pipe'">
-                            <ng-container *ngIf="mwl_table.pathToValue">
+                            <span [innerHTML]="getDynamicPipeValue(mwl,mwl_table)"></span>
+
+<!--                            <ng-container *ngIf="mwl_table.pathToValue">
                                 {{_.get(mwl.attrs,mwl_table.pathToValue) | dynamicPipe:mwl_table.pipe}}
                             </ng-container>
                             <ng-container *ngIf="!mwl_table.pathToValue">
                                 {{mwl.attrs | dynamicPipe:mwl_table.pipe}}
-                            </ng-container>
+                            </ng-container>-->
                         </ng-container>
                         <ng-container *ngSwitchCase="'value'">{{_.get(mwl.attrs, mwl_table.pathToValue) || '&nbsp;'}}</ng-container>
                     </div>
@@ -428,12 +435,14 @@
                             </mat-menu>
                         </ng-container>
                         <ng-container *ngSwitchCase="'pipe'">
-                            <ng-container *ngIf="uwl_table.pathToValue">
+                            <span [innerHTML]="getDynamicPipeValue(uwl,uwl_table)"></span>
+
+<!--                            <ng-container *ngIf="uwl_table.pathToValue">
                                 {{_.get(uwl.attrs,uwl_table.pathToValue) | dynamicPipe:uwl_table.pipe}}
                             </ng-container>
                             <ng-container *ngIf="!uwl_table.pathToValue">
                                 {{uwl.attrs | dynamicPipe:uwl_table.pipe}}
-                            </ng-container>
+                            </ng-container>-->
                         </ng-container>
                         <ng-container *ngSwitchCase="'value'">{{_.get(uwl.attrs, uwl_table.pathToValue) || '&nbsp;'}}</ng-container>
                     </div>
@@ -475,12 +484,14 @@
                             </mat-menu>
                         </ng-container>
                         <ng-container *ngSwitchCase="'pipe'">
-                            <ng-container *ngIf="mpps_table.pathToValue">
+                            <span [innerHTML]="getDynamicPipeValue(mpps,mpps_table)"></span>
+
+<!--                            <ng-container *ngIf="mpps_table.pathToValue">
                                 {{_.get(mpps.attrs,mpps_table.pathToValue) | dynamicPipe:mpps_table.pipe}}
                             </ng-container>
                             <ng-container *ngIf="!mpps_table.pathToValue">
                                 {{mpps.attrs | dynamicPipe:mpps_table.pipe}}
-                            </ng-container>
+                            </ng-container>-->
                         </ng-container>
                         <ng-container *ngSwitchCase="'value'">{{_.get(mpps.attrs, mpps_table.pathToValue) || '&nbsp;'}}</ng-container>
                     </div>
@@ -522,12 +533,14 @@
                             </mat-menu>
                         </ng-container>
                         <ng-container *ngSwitchCase="'pipe'">
-                            <ng-container *ngIf="diff_table.pathToValue">
+                            <span [innerHTML]="getDynamicPipeValue(diff,diff_table)"></span>
+
+<!--                            <ng-container *ngIf="diff_table.pathToValue">
                                 {{_.get(diff.attrs,diff_table.pathToValue) | dynamicPipe:diff_table.pipe}}
                             </ng-container>
                             <ng-container *ngIf="!diff_table.pathToValue">
                                 {{diff.attrs | dynamicPipe:diff_table.pipe}}
-                            </ng-container>
+                            </ng-container>-->
                         </ng-container>
                         <ng-container *ngSwitchCase="'value'">
                             <ng-container *ngIf="_.get(diff.diffHeaders, diff_table.showBorderPath)">
@@ -626,12 +639,14 @@
                                     </mat-menu>
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'pipe'">
-                                    <ng-container *ngIf="serie_table.pathToValue">
+                                    <span [innerHTML]="getDynamicPipeValue(serie,serie_table)"></span>
+
+<!--                                    <ng-container *ngIf="serie_table.pathToValue">
                                         {{_.get(serie.attrs,serie_table.pathToValue) | dynamicPipe:serie_table.pipe}}
                                     </ng-container>
                                     <ng-container *ngIf="!serie_table.pathToValue">
                                         {{serie.attrs | dynamicPipe:serie_table.pipe}}
-                                    </ng-container>
+                                    </ng-container>-->
                                 </ng-container>
                                 <ng-container *ngSwitchCase="'value'">
                                     <ng-container *ngIf="!serie_table.hook">
@@ -688,12 +703,14 @@
                                             </mat-menu>
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'pipe'">
-                                            <ng-container *ngIf="instance_table.pathToValue">
+                                            <span [innerHTML]="getDynamicPipeValue(instance,instance_table)"></span>
+
+   <!--                                         <ng-container *ngIf="instance_table.pathToValue">
                                                 {{_.get(instance.attrs,instance_table.pathToValue) | dynamicPipe:instance_table.pipe}}
                                             </ng-container>
                                             <ng-container *ngIf="!instance_table.pathToValue">
                                                 {{instance.attrs | dynamicPipe:instance_table.pipe}}
-                                            </ng-container>
+                                            </ng-container>-->
                                         </ng-container>
                                         <ng-container *ngSwitchCase="'value'">
                                             <ng-container *ngIf="!instance_table.hook">

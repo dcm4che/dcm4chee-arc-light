@@ -7,6 +7,7 @@ import {j4care} from "../j4care.service";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 import {DicomLevel, PaginationDirection} from "../../interfaces";
 import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
+import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 
 @Component({
   selector: 'dicom-studies-table',
@@ -127,11 +128,30 @@ export class DicomStudiesTableComponent implements OnInit {
                             transformed:this.dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe)
                         })
                     }else{
-                        return this.dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe);
+                        return this.getDynamicPipeValue(object,table, true);
                     }
                 }
-                return this.dynamicPipe.transform(object.attrs,table.pipe);
+                return this.getDynamicPipeValue(object,table, true);
             }
         }
+    }
+
+
+    getDynamicPipeValue(object: any, table: TableSchemaElement, tooltipMode?:boolean) {
+        let value:any;
+        if(table.pathToValue){
+            value = this.dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe);
+        }else{
+            value = this.dynamicPipe.transform(object.attrs,table.pipe);
+        }
+        if(typeof value === "string"){
+            return value;
+        }else if(_.hasIn(value,"html")){
+            if(tooltipMode && _.hasIn(value,"tooltip")){
+                return value.tooltip;
+            }
+            return value.html;
+        }
+        return "";
     }
 }

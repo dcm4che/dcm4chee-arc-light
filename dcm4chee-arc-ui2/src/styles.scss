@@ -3168,6 +3168,19 @@ mat-form-field, mat-mdc-form-field{
   }
 
 }
+.j4care_dynamic_table{
+  .mixed_size{
+    float: left;
+    b{
+      font-size: 14px;
+      margin-right: 5px;
+      font-weight: 600;
+    }
+    span{
+      font-size: 11px;
+    }
+  }
+}
 
 .vex.vex-theme-os.diff,.tripal_compare{
   width:100%;
