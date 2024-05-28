@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.delete.impl;
 
 
+import jakarta.ejb.EJBException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -49,6 +50,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.AllowDeleteStudyPermanently;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -63,7 +65,6 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -245,14 +246,14 @@ public class DeletionServiceImpl implements DeletionService {
                 ejb.markForDeletion(study, Location.ObjectType.METADATA, LocationStatus.TO_DELETE);
                 int deleted;
                 do {
-                    markForDeletion -= (deleted = ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study, limit));
+                    markForDeletion -= (deleted = deleteInstancesWithoutLocationsOfStudy(ctx, study, limit));
                 } while (deleted == limit);
                 if (markForDeletion < 0)
                     LOG.info("Successfully delete {} instances of {} without locations from database",
                             -markForDeletion, study);
             }
             List<Location> locations1;
-            while (!(locations1 = ejb.deleteStudy(ctx, limit, retainObj || reimport)).isEmpty())
+            while (!(locations1 = deleteStudy(ctx, limit, retainObj || reimport)).isEmpty())
                 locations.addAll(locations1);
             LOG.info("Successfully delete {} from database", study);
         } catch (Exception e) {
@@ -263,5 +264,53 @@ public class DeletionServiceImpl implements DeletionService {
             throw e;
         }
         return locations;
+    }
+
+    private List<Location> deleteStudy(StudyDeleteContext ctx, int limit, boolean orphaned) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                return ejb.deleteStudy(ctx, limit, orphaned);
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failure on deleting {} from database caused by {} - retry",
+                            ctx.getStudy(),
+                            DicomServiceException.initialCauseOf(e));
+                } else {
+                    LOG.warn("Failure on deleting {} from database:\n", ctx.getStudy(), e);
+                    throw e;
+                }
+            }
+            try {
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("Failed to delay retry of deleting study from database:\n", e);
+            }
+        }
+    }
+
+    private int deleteInstancesWithoutLocationsOfStudy(StudyDeleteContext ctx, Study study, int limit) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                return ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study, limit);
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failure on deleting {} from database caused by {} - retry",
+                            ctx.getStudy(),
+                            DicomServiceException.initialCauseOf(e));
+                } else {
+                    LOG.warn("Failure on deleting {} from database:\n", ctx.getStudy(), e);
+                    throw e;
+                }
+            }
+            try {
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("Failed to delay retry of deleting study from database:\n", e);
+            }
+        }
     }
 }
