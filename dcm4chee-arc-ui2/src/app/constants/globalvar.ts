@@ -4074,6 +4074,10 @@ export class Globalvar {
                     tag:"issuer-selector",
                     issuers:[
                         {
+                            key:"PatientID",
+                            label:$localize `:@@patient_id:Patient ID`
+                        },
+                        {
                             key:"IssuerOfPatientID",
                             label:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
                         }, {
@@ -4084,8 +4088,8 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@issuer_of_patient:Issuer of Patient`,
-                    placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                    description:$localize `:@@patient_identifiers:Patient Identifiers`,
+                    placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
                 }, {
                     tag:"input",
                     type:"text",
@@ -4308,6 +4312,10 @@ export class Globalvar {
                     tag:"issuer-selector",
                     issuers:[
                         {
+                            key:"PatientID",
+                            label:$localize `:@@patient_id:Patient ID`
+                        },
+                        {
                             key:"IssuerOfPatientID",
                             label:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
                         }, {
@@ -4318,8 +4326,8 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@issuer_of_patient:Issuer of Patient`,
-                    placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                    description:$localize `:@@patient_identifiers:Patient Identifiers`,
+                    placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
                 }, {
                     tag:"input",
                     type:"text",
@@ -4522,6 +4530,10 @@ export class Globalvar {
                     tag:"issuer-selector",
                     issuers:[
                         {
+                            key:"PatientID",
+                            label:$localize `:@@patient_id:Patient ID`
+                        },
+                        {
                             key:"IssuerOfPatientID",
                             label:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
                         }, {
@@ -4532,8 +4544,8 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@issuer_of_patient:Issuer of Patient`,
-                    placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                    description:$localize `:@@patient_identifiers:Patient Identifiers`,
+                    placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
                 }, {
                     tag:"input",
                     type:"text",
@@ -4975,15 +4987,12 @@ export class Globalvar {
                 text:$localize `:@@fuzzy_matching:Fuzzy Matching`,
                 description:$localize `:@@fuzzy_matching_desc:Fuzzy semantic matching of person names`
             }, {
-                tag:"input",
-                type:"text",
-                filterKey:"PatientID",
-                description:$localize `:@@patient_id:Patient ID`,
-                placeholder:$localize `:@@patient_id:Patient ID`
-            }, {
                 tag:"issuer-selector",
                 issuers:[
                     {
+                        key:"PatientID",
+                        label:$localize `:@@patient_id:Patient ID`
+                    },{
                         key:"IssuerOfPatientID",
                         label:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
                     }, {
@@ -4994,8 +5003,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@issuer_of_patient:Issuer of Patient`,
-                placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                description:$localize `:@@patient_identifiers:Patient Identifiers`,
+                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
             }, {
                 tag:"input",
                 type:"text",
@@ -5294,15 +5303,12 @@ export class Globalvar {
                 text:$localize `:@@fuzzy_matching:Fuzzy Matching`,
                 description:$localize `:@@fuzzy_matching_desc:Fuzzy semantic matching of person names`
             }, {
-                tag:"input",
-                type:"text",
-                filterKey:"PatientID",
-                description:$localize `:@@patient_id:Patient ID`,
-                placeholder:$localize `:@@patient_id:Patient ID`
-            }, {
                 tag:"issuer-selector",
                 issuers:[
                     {
+                        key:"PatientID",
+                        label:$localize `:@@patient_id:Patient ID`
+                    },{
                         key:"IssuerOfPatientID",
                         label:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
                     }, {
@@ -5313,8 +5319,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@issuer_of_patient:Issuer of Patient`,
-                placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                description:$localize `:@@patient_identifiers:Patient Identifiers`,
+                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
             }, {
                 tag:"input",
                 type:"text",
@@ -5736,15 +5742,12 @@ export class Globalvar {
                 text:$localize `:@@fuzzy_matching:Fuzzy Matching`,
                 description:$localize `:@@fuzzy_matching_desc:Fuzzy semantic matching of person names`
             }, {
-                tag:"input",
-                type:"text",
-                filterKey:"PatientID",
-                description:$localize `:@@patient_id:Patient ID`,
-                placeholder:$localize `:@@patient_id:Patient ID`
-            }, {
                 tag:"issuer-selector",
                 issuers:[
                     {
+                        key:"PatientID",
+                        label:$localize `:@@patient_id:Patient ID`
+                    },{
                         key:"IssuerOfPatientID",
                         label:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
                     }, {
@@ -5755,8 +5758,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@issuer_of_patient:Issuer of Patient`,
-                placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                description:$localize `:@@patient_identifiers:Patient Identifiers`,
+                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
             }, {
                 tag:"input",
                 type:"text",
@@ -5922,15 +5925,12 @@ export class Globalvar {
                 text:$localize `:@@fuzzy_matching:Fuzzy Matching`,
                 description:$localize `:@@fuzzy_matching_desc:Fuzzy semantic matching of person names`
             }, {
-                tag:"input",
-                type:"text",
-                filterKey:"PatientID",
-                description:$localize `:@@patient_id:Patient ID`,
-                placeholder:$localize `:@@patient_id:Patient ID`
-            }, {
                 tag:"issuer-selector",
                 issuers:[
                     {
+                        key:"PatientID",
+                        label:$localize `:@@patient_id:Patient ID`
+                    },{
                         key:"IssuerOfPatientID",
                         label:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
                     }, {
@@ -5941,8 +5941,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@issuer_of_patient:Issuer of Patient`,
-                placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                description:$localize `:@@patient_identifiers:Patient Identifiers`,
+                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
             }, {
                 tag:"p-calendar",
                 filterKey:"PatientBirthDate",
@@ -6079,6 +6079,10 @@ export class Globalvar {
                 tag:"issuer-selector",
                 issuers:[
                     {
+                        key:"PatientID",
+                        label:$localize `:@@patient_id:Patient ID`
+                    },
+                    {
                         key:"IssuerOfPatientID",
                         label:$localize `:@@issuer_of_patient_id:Issuer of Patient ID`
                     }, {
@@ -6089,8 +6093,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@issuer_of_patient:Issuer of Patient`,
-                placeholder:$localize `:@@issuer_of_patient:Issuer of Patient`
+                description:$localize `:@@patient_identifiers:Patient Identifiers`,
+                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
             }, {
                 tag:"person-name-picker",
                 filterKey:"ReferringPhysicianName",

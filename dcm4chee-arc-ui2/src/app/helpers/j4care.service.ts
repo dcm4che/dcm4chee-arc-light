@@ -139,9 +139,18 @@ export class j4care {
         return true;
     }
     static hasSet(obj, path){
-        if(_.hasIn(obj,path) && j4care.isSet(_.get(obj,path)))
-            return true;
-        return false;
+        return (_.hasIn(obj,path) && j4care.isSet(_.get(obj,path)))
+    }
+
+    static appendStringIfExist(txt:string, suffix:string){
+        try {
+            if(txt && txt != ""){
+                return txt + suffix
+            }
+        }catch (e){
+            return  ""
+        }
+        return "";
     }
     static getOrNone(obj,path,defaultReturn?){
         if(this.hasSet(obj,path)){

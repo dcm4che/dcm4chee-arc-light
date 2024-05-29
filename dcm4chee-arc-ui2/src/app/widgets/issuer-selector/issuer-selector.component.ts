@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as _ from "lodash-es";
+import {j4care} from "../../helpers/j4care.service";
 @Component({
   selector: 'issuer-selector',
   templateUrl: './issuer-selector.component.html',
@@ -30,7 +31,12 @@ export class IssuerSelectorComponent implements OnInit {
     }
 
     set(){
-        this.model = `${_.values(this.filterModel).join('&')}`
+        const issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "PatientID")).join('&');
+        if(issuerPart){
+            this.model = `${j4care.appendStringIfExist(this.filterModel["PatientID"], "^^^")}${issuerPart}`;
+        }else{
+            this.model = `${this.filterModel?.["PatientID"] || ''}`;
+        }
         this.modelChange.emit(this.filterModel);
         this.selectorOpen = false;
     }
