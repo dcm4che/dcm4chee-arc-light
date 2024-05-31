@@ -73,11 +73,13 @@ export class MessagingComponent implements OnDestroy{
         }
         if (isInArray) { //If the same message is already in the array, then just put the class pulse (To simulate a pulse) and remove it again
             let element = WindowRefService.nativeWindow.document.getElementsByClassName('msg_' + presentId)[0];
-            element.classList.remove("slideInRight");
-            element.classList.add("pulse");
-            setTimeout(function() {
-                element.classList.remove('pulse')
-            }, 500);
+            if(element){
+                element.classList.remove("slideInRight");
+                element.classList.add("pulse");
+                setTimeout(function() {
+                    element.classList.remove('pulse')
+                }, 500);
+            }
         } else {
             let id = this.getUniqueRandomId();
             msg.id = id;

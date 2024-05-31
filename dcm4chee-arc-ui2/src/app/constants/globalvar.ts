@@ -4065,12 +4065,6 @@ export class Globalvar {
                     text:$localize `:@@fuzzy_matching:Fuzzy Matching`,
                     description:$localize `:@@fuzzy_matching_desc:Fuzzy semantic matching of person names`
                 }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"PatientID",
-                    description:$localize `:@@patient_id:Patient ID`,
-                    placeholder:$localize `:@@patient_id:Patient ID`
-                }, {
                     tag:"issuer-selector",
                     issuers:[
                         {
@@ -4303,12 +4297,6 @@ export class Globalvar {
                     text:$localize `:@@fuzzy_matching:Fuzzy Matching`,
                     description:$localize `:@@fuzzy_matching_desc:Fuzzy semantic matching of person names`
                 }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"PatientID",
-                    description:$localize `:@@patient_id:Patient ID`,
-                    placeholder:$localize `:@@patient_id:Patient ID`
-                }, {
                     tag:"issuer-selector",
                     issuers:[
                         {
@@ -4520,12 +4508,6 @@ export class Globalvar {
                     filterKey:"fuzzymatching",
                     text:$localize `:@@fuzzy_matching:Fuzzy Matching`,
                     description:$localize `:@@fuzzy_matching_desc:Fuzzy semantic matching of person names`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"PatientID",
-                    description:$localize `:@@patient_id:Patient ID`,
-                    placeholder:$localize `:@@patient_id:Patient ID`
                 }, {
                     tag:"issuer-selector",
                     issuers:[
@@ -6040,12 +6022,6 @@ export class Globalvar {
                 filterKey:"InstitutionalDepartmentName",
                 description:"Institutional Department Name",
                 placeholder:"Institutional Department Name"
-            }, {
-                tag:"input",
-                type:"text",
-                filterKey:"PatientID",
-                description:"Patient ID",
-                placeholder:"Patient ID"
             }, {
                 tag:"input",
                 type:"text",
