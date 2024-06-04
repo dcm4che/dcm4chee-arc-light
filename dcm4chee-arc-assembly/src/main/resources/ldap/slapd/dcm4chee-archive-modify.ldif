@@ -1,7 +1,8 @@
-# DICOM Application Configuration Data Model Hierarchy LDAP Schema
-dn: cn=dcm4chee-archive,cn=schema,cn=config
-objectClass: olcSchemaConfig
-cn: dcm4chee-archive
+version: 1
+
+dn: cn={6}dcm4chee-archive,cn=schema,cn=config
+changetype: modify
+replace: olcAttributeTypes
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.1 NAME 'dcmFuzzyAlgorithmClass'
   DESC 'Specifies Fuzzy Algorithm Implementation Class: "org.dcm4che3.soundex.Soundex", "org.dcm4che3.soundex.ESoundex", "org.dcm4che3.soundex.ESoundex9", "org.dcm4che3.soundex.Metaphone", "org.dcm4che3.soundex.KPhonetik", "org.dcm4che3.soundex.Phonem"'
   EQUALITY caseExactIA5Match
@@ -2336,6 +2337,8 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.479 NAME 'dcmDBReadOnly'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+-
+replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
