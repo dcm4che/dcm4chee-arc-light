@@ -10,12 +10,26 @@
             </div>
             <div class="content_block">
                 <h5 class="title" *ngIf="title">{{title}}</h5>
-                <div class="issuers" *ngFor="let issuer of issuers">
-                    <div class="issuer" title="{{issuer.key}}">
-                        <label class="issuer_label">{{issuer.label}}</label>
-                        <input type="text" class="issuer_model" [(ngModel)]="filterModel[issuer.key]">
+                <ng-container *ngIf="issuers && issuers.length <= viewLimit">
+                    <div class="table widget_table">
+                        <div class="tr">
+                            <div class="th" *ngFor="let issuer of issuers">{{issuer.label}}</div>
+                        </div>
+                        <div class="tr">
+                            <div class="td" *ngFor="let issuer of issuers">
+                                <input type="text" class="issuer_model" [placeholder]="issuer.label" [(ngModel)]="filterModel[issuer.key]">
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </ng-container>
+                <ng-container *ngIf="issuers && issuers.length > viewLimit">
+                    <div class="issuers" *ngFor="let issuer of issuers">
+                        <div class="issuer" title="{{issuer.key}}">
+                            <label class="issuer_label">{{issuer.label}}</label>
+                            <input type="text" class="issuer_model" [(ngModel)]="filterModel[issuer.key]">
+                        </div>
+                    </div>
+                </ng-container>
                 <button class="set_button" (click)="set()" i18n="@@SET">SET</button>
             </div>
         </ng-container>

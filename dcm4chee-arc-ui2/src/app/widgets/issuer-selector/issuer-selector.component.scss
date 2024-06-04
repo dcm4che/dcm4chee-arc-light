@@ -51,14 +51,69 @@ $height:27px;
   border-top-right-radius: 5px;
   border-top-left-radius: 5px;
   h5{
-    font-size: 18px;
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
   }
   .set_button{
     background: rgba(6, 29, 47, 0.84);
     color: white;
     border: 0;
-    width: 24%;
+    width: 150px;
     float: right;
+  }
+  .table{
+    min-width: 600px;
+/*    grid-template-rows: 1fr 1fr 1fr 1fr;
+    display: grid;*/
+    box-shadow: none;
+    margin: 20px 0;
+    .tr{
+      display: flex;
+      align-items: center;
+      //grid-template-columns: 100px 1fr 1fr 1fr 70px 70px;
+      &.active{
+        .td,.th{
+          color:black;
+          border: 1px solid #000000c4;
+          box-shadow: 0px 0px 6px 0px #000000c4;
+          input{
+            width: 100%;
+            min-width: 50px;
+            color: black;
+            &::placeholder{
+              color: #666666;
+            }
+          }
+        }
+      }
+      .td,.th{
+        color:#3333338f;
+        width: 200px;
+        input{
+          width: 100%;
+          height: 30px;
+          min-width: 50px;
+          //color: #3333338f;
+          &::placeholder{
+            color: #3333338f;
+          }
+        }
+        span{
+          padding: 3px 7px;
+          height: 30px;
+          line-height: 30px;
+        }
+      }
+      .th{
+        color: black;
+      }
+      .td{
+        border: 1px solid #000000c4;
+        box-shadow: 0px 0px 6px 0px #000000c4;
+      }
+    }
   }
 }
 .overlay{

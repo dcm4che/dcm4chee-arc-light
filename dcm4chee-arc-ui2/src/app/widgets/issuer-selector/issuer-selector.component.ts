@@ -25,6 +25,7 @@ export class IssuerSelectorComponent implements OnInit {
     selectorOpen:boolean = false;
     filterModel = {};
     maiInputValid:boolean = true;
+    viewLimit = 3;
     constructor() { }
 
     ngOnInit() {
