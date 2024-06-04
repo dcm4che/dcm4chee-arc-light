@@ -170,20 +170,21 @@ public class Dcm2UpsExporter extends AbstractExporter {
         }
 
         String url = destWebApp.getServiceURL().append("/workitems").toString();
-        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, destWebApp).build();
-        WebTarget target = client.target(url);
-        Invocation.Builder request = target.request();
-        String token = authorization(destWebApp);
-        if (token != null)
-            request.header("Authorization", token);
+        try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, destWebApp).build()) {
+            WebTarget target = client.target(url);
+            Invocation.Builder request = target.request();
+            String token = authorization(destWebApp);
+            if (token != null)
+                request.header("Authorization", token);
 
-        ApplicationEntity ae = device.getApplicationEntity(descriptor.getAETitle(), true);
+            ApplicationEntity ae = device.getApplicationEntity(descriptor.getAETitle(), true);
 
-        Attributes upsInfo = queryService.createUPSInfo(
-                ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), descriptor);
+            Attributes upsInfo = queryService.createUPSInfo(
+                    ae, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), descriptor);
 
-        return outcome(request.post(EntityType.valueOf(mediaType(destWebApp.getProperties().get("content-type")))
-                .entity(upsAttrs(upsInfo))));
+            return outcome(request.post(EntityType.valueOf(mediaType(destWebApp.getProperties().get("content-type")))
+                    .entity(upsAttrs(upsInfo))));
+        }
     }
 
     public String getInputReadinessState() {

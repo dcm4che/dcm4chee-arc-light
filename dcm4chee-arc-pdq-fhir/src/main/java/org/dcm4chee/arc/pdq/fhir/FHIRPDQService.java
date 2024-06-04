@@ -105,21 +105,22 @@ public class FHIRPDQService extends AbstractPDQService {
         String authorization;
         try {
             String url = webApp.getServiceURL().toString();
-            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build();
-            ResteasyWebTarget target = client.target(url);
-            target = setQueryParameters(target, ctx);
-            Invocation.Builder request = target.request();
-            setHeaders(request);
-            if ((authorization = authorization(webApp)) != null)
-                request.header("Authorization", authorization);
-            LOG.info("Request invoked is : {}", target.getUri());
-            Response response = request.get();
-            if (response.getStatus() != Response.Status.OK.getStatusCode())
-                return null;
+            try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build()) {
+                ResteasyWebTarget target = client.target(url);
+                target = setQueryParameters(target, ctx);
+                Invocation.Builder request = target.request();
+                setHeaders(request);
+                if ((authorization = authorization(webApp)) != null)
+                    request.header("Authorization", authorization);
+                LOG.info("Request invoked is : {}", target.getUri());
+                Response response = request.get();
+                if (response.getStatus() != Response.Status.OK.getStatusCode())
+                    return null;
 
-            return SAXTransformer.transform(response,
-                                            descriptor.getProperties().getOrDefault("XSLStylesheetURI", FHIR_PAT_2_DCM_XSL),
-                                            null);
+                return SAXTransformer.transform(response,
+                        descriptor.getProperties().getOrDefault("XSLStylesheetURI", FHIR_PAT_2_DCM_XSL),
+                        null);
+            }
         } catch (Exception e) {
             LOG.info("Exception caught on querying FHIR Supplier {}", webApp);
             ctx.setException(e);

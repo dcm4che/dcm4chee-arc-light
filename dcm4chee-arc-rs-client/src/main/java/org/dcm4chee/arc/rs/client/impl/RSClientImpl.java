@@ -169,21 +169,22 @@ public class RSClientImpl implements RSClient {
 
     private Response toResponse(
             String method, String uri, WebApplication webApp, byte[] content, String authorization) throws Exception {
-        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, webApp).build();
-        WebTarget target = client.target(uri);
-        Invocation.Builder request = target.request();
-        if (authorization != null)
-            request.header("Authorization", authorization);
+        try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, webApp).build()) {
+            WebTarget target = client.target(uri);
+            Invocation.Builder request = target.request();
+            if (authorization != null)
+                request.header("Authorization", authorization);
 
-        LOG.info("Restful Service Forward : {} {}", method, uri);
+            LOG.info("Restful Service Forward : {} {}", method, uri);
 
-        return method.equals("POST")
-                ? content != null
-                    ? request.post(Entity.json(content))
-                    : request.post(Entity.json(""))
-                : method.equals("PUT")
-                    ? request.put(Entity.json(content))
-                    : request.delete();
+            return method.equals("POST")
+                    ? content != null
+                        ? request.post(Entity.json(content))
+                        : request.post(Entity.json(""))
+                    : method.equals("PUT")
+                        ? request.put(Entity.json(content))
+                        : request.delete();
+        }
     }
 
     @Override

@@ -91,21 +91,22 @@ public class StowClientImpl implements StowClient {
             WebApplication webApp = ctx.getDestinationWebApp();
             Map<String, String> props = webApp.getProperties();
             String url = webApp.getServiceURL().append("/studies").toString();
-            ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build();
-            ResteasyWebTarget target = client.target(url)
-                    .setChunked(Boolean.parseBoolean(props.get("chunked")));
-            String authorization = webApp.getKeycloakClientID() != null
-                    ? "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken()
-                    : props.containsKey("bearer-token")
-                    ? "Bearer " + props.get("bearer-token")
-                    : props.containsKey("basic-auth")
-                    ? "Basic " + encodeBase64(props.get("basic-auth").getBytes(StandardCharsets.UTF_8))
-                    : null;
-            return new StowTaskImpl(ctx, retrieveStart, retrieveEnd,
-                    target,
-                    authorization,
-                    uidsOf(props.get("transfer-syntax")),
-                    props.containsKey("concurrency") ? Integer.parseInt(props.get("concurrency")) : 1);
+            try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build()) {
+                ResteasyWebTarget target = client.target(url)
+                        .setChunked(Boolean.parseBoolean(props.get("chunked")));
+                String authorization = webApp.getKeycloakClientID() != null
+                        ? "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken()
+                        : props.containsKey("bearer-token")
+                            ? "Bearer " + props.get("bearer-token")
+                            : props.containsKey("basic-auth")
+                                ? "Basic " + encodeBase64(props.get("basic-auth").getBytes(StandardCharsets.UTF_8))
+                                : null;
+                return new StowTaskImpl(ctx, retrieveStart, retrieveEnd,
+                        target,
+                        authorization,
+                        uidsOf(props.get("transfer-syntax")),
+                        props.containsKey("concurrency") ? Integer.parseInt(props.get("concurrency")) : 1);
+            }
         } catch (Exception e) {
             LOG.info("Failed to build STOW request: ", e);
             DicomServiceException dse = new DicomServiceException(Status.UnableToPerformSubOperations, e);
