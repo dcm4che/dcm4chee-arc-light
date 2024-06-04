@@ -110,7 +110,7 @@ import java.util.stream.Stream;
             "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(name = Series.SIZE_OF_STUDY,
     query = "select sum(se.size) from Series se " +
-            "where se.study.pk = ?1"),
+            "where se.study.pk = ?1 and se.size != -1"),
 @NamedQuery(
     name=Series.SET_SERIES_SIZE,
     query="update Series se set se.size = ?2 where se.pk = ?1"),

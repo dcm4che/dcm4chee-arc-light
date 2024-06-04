@@ -2800,6 +2800,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.478 NAME 'hl7OutgoingErrorLogFilePattern'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.479 NAME 'dcmDBReadOnly'
+  DESC 'Indicates read-only access to the database, preventing DB updates on query/retrieve; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2932,6 +2938,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDeletePatientOnDeleteLastStudy $
     dcmDeleteRejectedPollingInterval $
     dcmDeleteRejectedFetchSize $
+    dcmDBReadOnly $
     dcmMaxAccessTimeStaleness $
     dcmAECacheStaleTimeout $
     dcmLeadingCFindSCPQueryCacheStaleTimeout $

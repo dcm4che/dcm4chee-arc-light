@@ -561,7 +561,11 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (ctx.isUpdateSeriesMetadata())
             return;
 
-        Duration maxAccessTimeStaleness = getArchiveDeviceExtension().getMaxAccessTimeStaleness();
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
+        if (arcdev.isDBReadOnly())
+            return;
+
+        Duration maxAccessTimeStaleness = arcdev.getMaxAccessTimeStaleness();
         if (maxAccessTimeStaleness == null)
             return;
 

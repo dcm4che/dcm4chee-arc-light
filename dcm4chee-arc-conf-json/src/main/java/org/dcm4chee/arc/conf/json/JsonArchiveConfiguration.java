@@ -180,6 +180,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmDeletePatientOnDeleteLastStudy", arcDev.isDeletePatientOnDeleteLastStudy(), false);
         writer.writeNotNullOrDef("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval(), null);
         writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
+        writer.writeNotDef("dcmDBReadOnly", arcDev.isDBReadOnly(), false);
         writer.writeNotNullOrDef("dcmMaxAccessTimeStaleness", arcDev.getMaxAccessTimeStaleness(), null);
         writer.writeNotNullOrDef("dcmAECacheStaleTimeout", arcDev.getAECacheStaleTimeout(), null);
         writer.writeNotNullOrDef("dcmLeadingCFindSCPQueryCacheStaleTimeout",
@@ -1639,6 +1640,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmDeleteRejectedFetchSize":
                     arcDev.setDeleteRejectedFetchSize(reader.intValue());
+                    break;
+                case "dcmDBReadOnly":
+                    arcDev.setDBReadOnly(reader.booleanValue());
                     break;
                 case "dcmMaxAccessTimeStaleness":
                     arcDev.setMaxAccessTimeStaleness(Duration.valueOf(reader.stringValue()));

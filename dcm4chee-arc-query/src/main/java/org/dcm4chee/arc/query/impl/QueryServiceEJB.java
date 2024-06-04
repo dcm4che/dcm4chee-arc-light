@@ -53,7 +53,6 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.LocationStatus;
@@ -86,7 +85,7 @@ public class QueryServiceEJB {
     @Inject
     QueryService queryService;
 
-    public Attributes getSeriesAttributes(Long seriesPk, QueryContext context) {
+    public Attributes getSeriesAttributes(Long seriesPk, QueryContext context, boolean updateDB) {
         QueryRetrieveView qrView = context.getQueryParam().getQueryRetrieveView();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
@@ -175,7 +174,7 @@ public class QueryServiceEJB {
 
         Long studySize = result.get(study.get(Study_.size));
         if (studySize < 0)
-            studySize = querySizeEJB.calculateStudySize(result.get(study.get(Study_.pk)), Study.SET_STUDY_SIZE);
+            studySize = querySizeEJB.calculateStudySize(result.get(study.get(Study_.pk)), Study.SET_STUDY_SIZE, updateDB);
         Integer numberOfSeriesRelatedInstances =
                 result.get(seriesQueryAttributesPath.get(SeriesQueryAttributes_.numberOfInstances));
         if (numberOfSeriesRelatedInstances == null) {

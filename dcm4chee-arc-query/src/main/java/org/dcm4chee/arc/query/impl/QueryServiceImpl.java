@@ -323,7 +323,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Attributes getSeriesAttributes(QueryContext context, Long seriesPk) {
-        return ejb.getSeriesAttributes(seriesPk, context);
+        return ejb.getSeriesAttributes(seriesPk, context, !arcDev().isDBReadOnly());
     }
 
     @Override
@@ -333,7 +333,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public long calculateStudySize(Long studyPk) {
-        return querySizeEJB.calculateStudySize(studyPk, Study.SET_STUDY_SIZE);
+        return querySizeEJB.calculateStudySize(studyPk, Study.SET_STUDY_SIZE, !arcDev().isDBReadOnly());
     }
 
     @Override
@@ -408,7 +408,7 @@ class QueryServiceImpl implements QueryService {
             queryAttrs.setRetrieveAETs(StringUtils.concat(retrieveAETs, '\\'));
             queryAttrs.setAvailability(availability);
         }
-        queryAttributesEJB.persist(queryAttrs);
+        if (!arcDev().isDBReadOnly()) queryAttributesEJB.persist(queryAttrs);
         return queryAttrs;
     }
 

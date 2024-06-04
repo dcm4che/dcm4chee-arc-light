@@ -234,6 +234,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isDeleteStudyLeastRecentlyAccessedFirst(), true);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeletePatientOnDeleteLastStudy",
                 ext.isDeletePatientOnDeleteLastStudy(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDBReadOnly", ext.isDBReadOnly(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxAccessTimeStaleness",
                 ext.getMaxAccessTimeStaleness(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAECacheStaleTimeout",
@@ -669,6 +670,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteStudyLeastRecentlyAccessedFirst(LdapUtils.booleanValue(attrs.get("dcmDeleteStudyLeastRecentlyAccessedFirst"), true));
         ext.setDeletePatientOnDeleteLastStudy(
                 LdapUtils.booleanValue(attrs.get("dcmDeletePatientOnDeleteLastStudy"), false));
+        ext.setDBReadOnly(LdapUtils.booleanValue(attrs.get("dcmDBReadOnly"), false));
         ext.setMaxAccessTimeStaleness(toDuration(attrs.get("dcmMaxAccessTimeStaleness"), null));
         ext.setAECacheStaleTimeout(toDuration(attrs.get("dcmAECacheStaleTimeout"), null));
         ext.setLeadingCFindSCPQueryCacheStaleTimeout(toDuration(attrs.get("dcmLeadingCFindSCPQueryCacheStaleTimeout"), null));
@@ -1147,6 +1149,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isDeleteStudyLeastRecentlyAccessedFirst(), bb.isDeleteStudyLeastRecentlyAccessedFirst(), true);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeletePatientOnDeleteLastStudy",
                 aa.isDeletePatientOnDeleteLastStudy(), bb.isDeletePatientOnDeleteLastStudy(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDBReadOnly",
+                aa.isDBReadOnly(), bb.isDBReadOnly(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMaxAccessTimeStaleness",
                 aa.getMaxAccessTimeStaleness(), bb.getMaxAccessTimeStaleness(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAECacheStaleTimeout",

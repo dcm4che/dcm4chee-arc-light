@@ -78,6 +78,10 @@ public class QueryAttributesEJB {
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
 
+    private ArchiveDeviceExtension arcDev() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class);
+    }
+
     public StudyQueryAttributes findOrCalculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
         try {
             return em.createNamedQuery(
@@ -124,7 +128,7 @@ public class QueryAttributesEJB {
         StudyQueryAttributes queryAttrs = builder.build();
         queryAttrs.setViewID(qrView.getViewID());
         queryAttrs.setStudy(em.getReference(Study.class, studyPk));
-        em.persist(queryAttrs);
+        if (!arcDev().isDBReadOnly()) em.persist(queryAttrs);
         return queryAttrs;
     }
 
@@ -162,12 +166,12 @@ public class QueryAttributesEJB {
         SeriesQueryAttributes queryAttrs = builder.build();
         queryAttrs.setViewID(qrView.getViewID());
         queryAttrs.setSeries(em.getReference(Series.class, seriesPk));
-        em.persist(queryAttrs);
+        if (!arcDev().isDBReadOnly()) em.persist(queryAttrs);
         return queryAttrs;
     }
 
     public boolean calculateStudyQueryAttributes(Long studyPk) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = arcDev();
         Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
         viewIDs.removeAll(em.createNamedQuery(StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK, String.class)
                 .setParameter(1, studyPk)

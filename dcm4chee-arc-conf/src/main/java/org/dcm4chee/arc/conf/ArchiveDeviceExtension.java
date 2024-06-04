@@ -167,6 +167,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean deletePatientOnDeleteLastStudy = false;
     private volatile Duration failedToDeletePollingInterval;
     private volatile int failedToDeleteFetchSize = 100;
+    private volatile boolean dbReadOnly;
     private volatile Duration maxAccessTimeStaleness;
     private volatile Duration aeCacheStaleTimeout;
     private volatile Duration leadingCFindSCPQueryCacheStaleTimeout;
@@ -1190,6 +1191,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFailedToDeleteFetchSize(int failedToDeleteFetchSize) {
         this.failedToDeleteFetchSize = failedToDeleteFetchSize;
+    }
+
+    public boolean isDBReadOnly() {
+        return dbReadOnly;
+    }
+
+    public void setDBReadOnly(boolean dbReadOnly) {
+        this.dbReadOnly = dbReadOnly;
     }
 
     public Duration getMaxAccessTimeStaleness() {
@@ -3656,6 +3665,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deletePatientOnDeleteLastStudy = arcdev.deletePatientOnDeleteLastStudy;
         failedToDeletePollingInterval = arcdev.failedToDeletePollingInterval;
         failedToDeleteFetchSize = arcdev.failedToDeleteFetchSize;
+        dbReadOnly = arcdev.dbReadOnly;
         maxAccessTimeStaleness = arcdev.maxAccessTimeStaleness;
         aeCacheStaleTimeout = arcdev.aeCacheStaleTimeout;
         leadingCFindSCPQueryCacheStaleTimeout = arcdev.leadingCFindSCPQueryCacheStaleTimeout;
