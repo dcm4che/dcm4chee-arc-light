@@ -80,7 +80,7 @@ class ArchiveDeviceFactory {
     static final String IOCM_EXPIRED_DESC = "Only show instances rejected for Data Retention Expired";
     static final String IOCM_PAT_SAFETY_DESC = "Only show instances rejected for Patient Safety Reasons";
     static final String IOCM_WRONG_MWL_DESC = "Only show instances rejected for Incorrect Modality Worklist Entry";
-    static final String AS_RECEIVED_DESC = "Retrieve instances as received";
+    static final String AS_RECEIVED_DESC = "Retrieve instances as received without hiding rejected instances";
 
     enum ConfigType {
         DEFAULT,
@@ -1111,6 +1111,11 @@ class ArchiveDeviceFactory {
                     new Code[]{INCORRECT_MODALITY_WORKLIST_ENTRY},
                     new Code[0],
                     true);
+   static final QueryRetrieveView IOCM_DISABLED_VIEW =
+            createQueryRetrieveView("iocmDisabled",
+                    REJECTION_CODES,
+                    new Code[0],
+                    false);
 
     static final String USER = "user";
     static final String ONLY_ADMIN = "admin";
@@ -1576,7 +1581,7 @@ class ArchiveDeviceFactory {
                 false, false, false, true, false, false, false, false, null,
                 configType));
         device.addApplicationEntity(createAE("AS_RECEIVED", AS_RECEIVED_DESC,
-                dicom, dicomTLS, REGULAR_USE_VIEW,
+                dicom, dicomTLS, IOCM_DISABLED_VIEW,
                 false, true, false, true, false, false, false, false,
                 new ArchiveAttributeCoercion2[] {
                     new ArchiveAttributeCoercion2()
@@ -1833,6 +1838,7 @@ class ArchiveDeviceFactory {
         ext.addQueryRetrieveView(IOCM_PAT_SAFETY_VIEW);
         ext.addQueryRetrieveView(IOCM_QUALITY_VIEW);
         ext.addQueryRetrieveView(IOCM_WRONG_MWL_VIEW);
+        ext.addQueryRetrieveView(IOCM_DISABLED_VIEW);
 
         BasicBulkDataDescriptor bulkDataDescriptor = new BasicBulkDataDescriptor(BULK_DATA_DESCRIPTOR_ID);
         bulkDataDescriptor.setLengthsThresholdsFromStrings(BULK_DATA_LENGTH_THRESHOLD);

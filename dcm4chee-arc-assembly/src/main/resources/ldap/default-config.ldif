@@ -3086,17 +3086,17 @@ hl7OrderControlStatus: CA_CA
 objectClass: hl7OrderSPSStatus
 
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmQueryRetrieveViewID: hideRejected
-dicomDescription: Hide instances rejected for Quality Reasons
 dicomAssociationInitiator: TRUE
+dicomDescription: Hide instances rejected for Quality Reasons
 dcmObjectStorageID: fs1
-dicomAssociationAcceptor: TRUE
-dicomAETitle: DCM4CHEE
+dcmQueryRetrieveViewID: hideRejected
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE
+dicomAssociationAcceptor: TRUE
 
 dn: dicomAETitle=WORKLIST,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
@@ -3209,8 +3209,8 @@ dcmMaxRetryDelay: PT10M
 
 dn: dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
-dicomDescription: Retrieve instances as received
-dcmQueryRetrieveViewID: regularUse
+dicomDescription: Retrieve instances as received without hiding rejected instances
+dcmQueryRetrieveViewID: iocmDisabled
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
@@ -3225,7 +3225,7 @@ hl7OrderControlStatus: DC_CA
 objectClass: hl7OrderSPSStatus
 
 dn: dcmWebAppName=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomDescription: Retrieve instances as received
+dicomDescription: Retrieve instances as received without hiding rejected instances
 dcmWebServiceClass: WADO_RS
 dcmWebServiceClass: QIDO_RS
 dcmWebServiceClass: QIDO_COUNT
@@ -3395,7 +3395,7 @@ objectClass: dcmMetrics
 dcmUnit: ms
 
 dn: dcmWebAppName=AS_RECEIVED-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomDescription: Retrieve instances as received
+dicomDescription: Retrieve instances as received without hiding rejected instances
 dcmWebServiceClass: WADO_URI
 dcmProperty: roles=admin
 objectClass: dcmWebApp
@@ -3501,6 +3501,14 @@ dn: dcmQueryRetrieveViewID=hideRejected,dicomDeviceName=dcm4chee-arc,cn=Devices,
 dcmHideRejectionNoteWithCode: (113039, DCM, "Data Retention Policy Expired")
 dcmQueryRetrieveViewID: hideRejected
 objectClass: dcmQueryRetrieveView
+
+dn: dcmQueryRetrieveViewID=iocmDisabled,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmQueryRetrieveViewID: iocmDisabled
+objectClass: dcmQueryRetrieveView
+dcmShowInstancesRejectedByCode: (113001, DCM, "Rejected for Quality Reasons")
+dcmShowInstancesRejectedByCode: (113037, DCM, "Rejected for Patient Safety Reasons")
+dcmShowInstancesRejectedByCode: (113038, DCM, "Incorrect Modality Worklist Entry")
+dcmShowInstancesRejectedByCode: (113039, DCM, "Data Retention Policy Expired")
 
 dn: dcmUPSProcessingRuleID=DICOM_EXPORT,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmUPSProcessingRule
@@ -3769,6 +3777,8 @@ dcmTag: 00081040
 dcmTag: 00081041
 dcmTag: 00081048
 dcmTag: 00081050
+dcmTag: 00081070
+dcmTag: 00081072
 dcmTag: 00081080
 dcmTag: 00081084
 dcmTag: 00081090
@@ -3886,11 +3896,13 @@ dcmTag: 00400515
 dcmTag: 00400551
 dcmTag: 00400554
 dcmTag: 00400562
+dcmTag: 00401012
 dcmTag: 00403001
 dcmTag: 00409220
 dcmTag: 0040A032
 dcmTag: 0040A043
 dcmTag: 0040A073
+dcmTag: 0040A078
 dcmTag: 0040A360
 dcmTag: 0040A370
 dcmTag: 0040A375
