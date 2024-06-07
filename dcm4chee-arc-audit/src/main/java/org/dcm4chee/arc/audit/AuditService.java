@@ -56,6 +56,7 @@ import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
+import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.StringUtils;
@@ -1220,13 +1221,18 @@ public class AuditService {
             AuditInfoBuilder auditInfoBuilder, AuditUtils.EventType eventType, HL7ConnectionEvent hl7ConnEvent) {
         UnparsedHL7Message unparsedHL7Message = hl7ConnEvent.getHL7Message();
         HL7Segment msh = unparsedHL7Message.msh();
-        int auditHL7MsgLimit = device.getDeviceExtension(HL7DeviceExtension.class)
-                .getHL7Application(hl7ConnEvent.getType() == HL7ConnectionEvent.Type.MESSAGE_PROCESSED
-                                    ? msh.getReceivingApplicationWithFacility()
-                                    : msh.getSendingApplicationWithFacility(),
-                        true)
-                .getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)
-                .auditHL7MsgLimit();
+        int auditHL7MsgLimit;
+        HL7Application hl7Application = device.getDeviceExtension(HL7DeviceExtension.class)
+                                        .getHL7Application(hl7ConnEvent.getType() == HL7ConnectionEvent.Type.MESSAGE_PROCESSED
+                                                        ? msh.getReceivingApplicationWithFacility()
+                                                        : msh.getSendingApplicationWithFacility(),
+                                                true);
+         if (hl7Application == null) {
+             LOG.info("No HL7 Application found for HL7ConnectionEvent.Type [name={}] - {}. Use auditHL7MsgLimit value from device.",
+                     hl7ConnEvent.getType().name(), msh);
+             auditHL7MsgLimit = device.getDeviceExtension(ArchiveDeviceExtension.class).getAuditHL7MsgLimit();
+         } else auditHL7MsgLimit = hl7Application.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class).auditHL7MsgLimit();
+
         writeSpoolFile(auditInfoBuilder,
                 eventType,
                 limitHL7MsgInAudit(hl7ConnEvent.getHL7Message(), auditHL7MsgLimit),
