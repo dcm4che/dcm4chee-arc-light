@@ -80,6 +80,7 @@ public class QStarVerificationScheduler extends Scheduler {
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         return arcDev != null
+                && arcDev.getQStarVerificationStorageID() != null
                 && (arcDev.getQStarVerificationURL() != null || arcDev.getQStarVerificationMockAccessState() != null)
                 ? arcDev.getQStarVerificationPollingInterval()
                 : null;
@@ -95,6 +96,7 @@ public class QStarVerificationScheduler extends Scheduler {
             do {
                 LOG.debug("Query for objects to verify QStar Access State");
                 locations = ejb.findByLocationsWithStatusCreatedBefore(
+                        arcDev.getQStarVerificationStorageID(),
                         LocationStatus.VERIFY_QSTAR_ACCESS_STATE,
                         new Date(System.currentTimeMillis() - arcDev.getQStarVerificationDelay().getSeconds() * 1000L),
                         fetchSize);
@@ -128,7 +130,9 @@ public class QStarVerificationScheduler extends Scheduler {
                             .add(new QStarVerification.SOPRef(l.sopClassUID, l.sopInstanceUID));
                 }
                 qStarVerifications.logAndFireEvents();
-            } while (locations.size() != fetchSize && arcDev.getQStarVerificationPollingInterval() != null);
+            } while (locations.size() != fetchSize
+                    && arcDev.getQStarVerificationPollingInterval() != null
+                    && arcDev.getQStarVerificationStorageID() != null);
         }
     }
 

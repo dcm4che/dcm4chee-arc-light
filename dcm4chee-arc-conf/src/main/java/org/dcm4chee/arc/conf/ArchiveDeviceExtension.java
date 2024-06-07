@@ -298,6 +298,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration patientVerificationRetryInterval;
     private volatile int patientVerificationMaxRetries;
     private volatile boolean patientVerificationAdjustIssuerOfPatientID;
+    private volatile String qStarVerificationStorageID;
     private volatile Duration qStarVerificationPollingInterval;
     private volatile int qStarVerificationFetchSize = 100;
     private volatile Duration qStarVerificationDelay;
@@ -2975,6 +2976,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.patientVerificationMaxStaleness = patientVerificationMaxStaleness;
     }
 
+    public String getQStarVerificationStorageID() {
+        return qStarVerificationStorageID;
+    }
+
+    public void setQStarVerificationStorageID(String qStarVerificationStorageID) {
+        this.qStarVerificationStorageID = qStarVerificationStorageID;
+    }
+
     public Duration getQStarVerificationPollingInterval() {
         return qStarVerificationPollingInterval;
     }
@@ -3785,6 +3794,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientVerificationPeriodOnNotFound = arcdev.patientVerificationPeriodOnNotFound;
         patientVerificationMaxRetries = arcdev.patientVerificationMaxRetries;
         patientVerificationAdjustIssuerOfPatientID = arcdev.patientVerificationAdjustIssuerOfPatientID;
+        qStarVerificationStorageID = arcdev.qStarVerificationStorageID;
         qStarVerificationPollingInterval = arcdev.qStarVerificationPollingInterval;
         qStarVerificationFetchSize = arcdev.qStarVerificationFetchSize;
         qStarVerificationDelay = arcdev.qStarVerificationDelay;

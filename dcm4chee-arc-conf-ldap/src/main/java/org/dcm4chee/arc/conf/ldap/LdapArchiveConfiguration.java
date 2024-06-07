@@ -554,6 +554,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OtherPatientIDs", 
                 ext.getHL7OtherPatientIDs(), HL7OtherPatientIDs.OTHER);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQStarVerificationStorageID",
+                ext.getQStarVerificationStorageID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQStarVerificationPollingInterval",
                 ext.getQStarVerificationPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQStarVerificationFetchSize",
@@ -922,6 +924,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setKeyValueRetentionPollingInterval(toDuration(attrs.get("dcmKeyValueRetentionPollingInterval"), null));
         ext.setKeyValueRetentionFetchSize(LdapUtils.intValue(attrs.get("dcmKeyValueRetentionFetchSize"), 100));
         ext.setKeyValueRetentionPeriod(toDuration(attrs.get("dcmKeyValueRetentionPeriod"), null));
+        ext.setQStarVerificationStorageID(LdapUtils.stringValue(attrs.get("setQStarVerificationStorageID"), null));
         ext.setQStarVerificationPollingInterval(toDuration(attrs.get("dcmQStarVerificationPollingInterval"), null));
         ext.setQStarVerificationFetchSize(LdapUtils.intValue(attrs.get("dcmQStarVerificationFetchSize"), 100));
         ext.setQStarVerificationDelay(toDuration(attrs.get("dcmQStarVerificationDelay"), null));
@@ -1602,6 +1605,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeyValueRetentionPeriod",
                 aa.getKeyValueRetentionPeriod(), bb.getKeyValueRetentionPeriod(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQStarVerificationStorageID",
+                aa.getQStarVerificationStorageID(),
+                bb.getQStarVerificationStorageID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQStarVerificationPollingInterval",
                 aa.getQStarVerificationPollingInterval(),
                 bb.getQStarVerificationPollingInterval(), null);

@@ -441,6 +441,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getKeyValueRetentionPollingInterval(), null);
         writer.writeNotDef("dcmKeyValueRetentionFetchSize", arcDev.getKeyValueRetentionFetchSize(), 100);
         writer.writeNotNullOrDef("dcmKeyValueRetentionPeriod", arcDev.getKeyValueRetentionPeriod(), null);
+        writer.writeNotNullOrDef("dcmQStarVerificationStorageID",
+                arcDev.getQStarVerificationStorageID(), null);
         writer.writeNotNullOrDef("dcmQStarVerificationPollingInterval",
                 arcDev.getQStarVerificationPollingInterval(), null);
         writer.writeNotDef("dcmQStarVerificationFetchSize", arcDev.getQStarVerificationFetchSize(), 100);
@@ -2195,6 +2197,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmKeyValueRetentionPeriod":
                     arcDev.setKeyValueRetentionPeriod(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmQStarVerificationStorageID":
+                    arcDev.setQStarVerificationStorageID(reader.stringValue());
                     break;
                 case "dcmQStarVerificationPollingInterval":
                     arcDev.setQStarVerificationPollingInterval(Duration.valueOf(reader.stringValue()));

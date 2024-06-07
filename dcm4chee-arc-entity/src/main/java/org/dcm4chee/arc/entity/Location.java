@@ -63,7 +63,7 @@ import java.util.Date;
         @NamedQuery(name = Location.FIND_BY_STATUS_CREATED_BEFORE,
                 query = "select new org.dcm4chee.arc.entity.Location$LocationWithUIDs(" +
                         "l, l.instance.sopClassUID, l.instance.sopInstanceUID, l.instance.series.pk, l.instance.series.seriesInstanceUID, l.instance.series.study.studyInstanceUID) " +
-                        "from Location l where l.status=?1 and l.createdTime<?2"),
+                        "from Location l where l.storageID=?1 and l.status=?2 and l.createdTime<?3"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK,
                 query = "select l from Location l join fetch l.instance inst " +
                         "where inst.series.study.pk=?1"),

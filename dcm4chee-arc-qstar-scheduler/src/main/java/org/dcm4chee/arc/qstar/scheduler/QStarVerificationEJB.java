@@ -58,10 +58,12 @@ public class QStarVerificationEJB {
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
-    public List<Location.LocationWithUIDs> findByLocationsWithStatusCreatedBefore(LocationStatus status, Date before, int limit) {
+    public List<Location.LocationWithUIDs> findByLocationsWithStatusCreatedBefore(
+            String storageID, LocationStatus status, Date before, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STATUS_CREATED_BEFORE, Location.LocationWithUIDs.class)
-                .setParameter(1, status)
-                .setParameter(2, before)
+                .setParameter(1, storageID)
+                .setParameter(2, status)
+                .setParameter(3, before)
                 .setMaxResults(limit)
                 .getResultList();
     }
