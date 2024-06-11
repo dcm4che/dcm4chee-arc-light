@@ -45,26 +45,23 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.BasicMPPSSCP;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 @Stateless
@@ -77,9 +74,12 @@ public class MPPSServiceEJB {
     private PatientService patientService;
 
     @Inject
+    private IDService idService;
+
+    @Inject
     private CodeCache codeCache;
 
-    public MPPS createMPPS(MPPSContext ctx) {
+    public MPPS createMPPS(MPPSContext ctx) throws DicomServiceException {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.MPPS);
@@ -88,6 +88,10 @@ public class MPPSServiceEJB {
         mpps.setSopInstanceUID(ctx.getSopInstanceUID());
         PatientMgtContext patMgtCtx = patientService.createPatientMgtContextDIMSE(ctx.getAssociation());
         patMgtCtx.setAttributes(attrs);
+        patMgtCtx.setPatientIDs(arcDev.retainTrustedPatientIDs(patMgtCtx.getPatientIDs()));
+        if (!checkMissingPatientID(arcAE.acceptMissingPatientID(), patMgtCtx))
+            throw new DicomServiceException(0xA777, "No Patient ID (from trusted Assigning Authority) in object.");
+
         Patient pat = patientService.findPatient(patMgtCtx);
         if (pat == null) {
             pat = patientService.createPatient(patMgtCtx);
@@ -97,6 +101,24 @@ public class MPPSServiceEJB {
         mpps.setAttributes(attrs, filter);
         em.persist(mpps);
         return mpps;
+    }
+
+    private boolean checkMissingPatientID(AcceptMissingPatientID acceptMissingPatientID, PatientMgtContext patMgtCtx) {
+        if (acceptMissingPatientID == AcceptMissingPatientID.YES
+                || !patMgtCtx.getPatientIDs().isEmpty())
+            return true;
+
+        if (acceptMissingPatientID == AcceptMissingPatientID.NO)
+            return false;
+
+        Attributes pidAttrs = patMgtCtx.getAttributes();
+        if (pidAttrs.containsValue(Tag.PatientID)) {
+            Sequence seq = pidAttrs.ensureSequence(Tag.OtherPatientIDsSequence, 1);
+            seq.add(pidAttrs = new Attributes());
+        }
+        idService.newPatientID(pidAttrs);
+        patMgtCtx.setPatientIDs(IDWithIssuer.pidsOf(pidAttrs));
+        return true;
     }
 
     public MPPS updateMPPS(MPPSContext ctx) throws DicomServiceException {
