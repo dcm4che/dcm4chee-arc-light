@@ -124,6 +124,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getDeleteUPSCanceledDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy",
                 ext.getOverwritePolicy(), OverwritePolicy.NEVER);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRelationalMismatchPolicy",
+                ext.getRelationalMismatchPolicy(), RelationalMismatchPolicy.IGNORE);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRecordAttributeModification",
                 ext.isRecordAttributeModification(), true);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmIdentifyPatientByAllAttributes",
@@ -599,6 +601,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteUPSCanceledDelay(toDuration(attrs.get("dcmDeleteUPSCanceledDelay"), null));
         ext.setOverwritePolicy(
                 LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), OverwritePolicy.NEVER));
+        ext.setRelationalMismatchPolicy(LdapUtils.enumValue(
+                RelationalMismatchPolicy.class, attrs.get("dcmRelationalMismatchPolicy"), RelationalMismatchPolicy.IGNORE));
         ext.setRecordAttributeModification(
                 LdapUtils.booleanValue(attrs.get("dcmRecordAttributeModification"), true));
         ext.setIdentifyPatientByAllAttributes(
@@ -1009,6 +1013,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy",
                 aa.getOverwritePolicy(),
                 bb.getOverwritePolicy(), OverwritePolicy.NEVER);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRelationalMismatchPolicy",
+                aa.getRelationalMismatchPolicy(),
+                bb.getRelationalMismatchPolicy(), RelationalMismatchPolicy.IGNORE);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRecordAttributeModification",
                 aa.isRecordAttributeModification(),
                 bb.isRecordAttributeModification(),
@@ -1785,6 +1792,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getStoreAccessControlID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAccessControlID", ext.getAccessControlIDs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRelationalMismatchPolicy",
+                ext.getRelationalMismatchPolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRecordAttributeModification",
                 ext.getRecordAttributeModification(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory",
@@ -1987,6 +1996,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
         ext.setAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmAccessControlID")));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
+        ext.setRelationalMismatchPolicy(LdapUtils.enumValue(
+                RelationalMismatchPolicy.class, attrs.get("dcmRelationalMismatchPolicy"), null));
         ext.setRecordAttributeModification(LdapUtils.booleanValue(attrs.get("dcmRecordAttributeModification"), null));
         ext.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
         ext.setQueryRetrieveViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
@@ -2182,6 +2193,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getAccessControlIDs(), bb.getAccessControlIDs());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy",
                 aa.getOverwritePolicy(), bb.getOverwritePolicy(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRelationalMismatchPolicy",
+                aa.getRelationalMismatchPolicy(), bb.getRelationalMismatchPolicy(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRecordAttributeModification",
                 aa.getRecordAttributeModification(), bb.getRecordAttributeModification(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataSpoolDirectory",

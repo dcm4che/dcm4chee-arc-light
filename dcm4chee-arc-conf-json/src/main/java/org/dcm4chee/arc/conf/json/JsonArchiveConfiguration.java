@@ -105,6 +105,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmDeleteUPSCompletedDelay", arcDev.getDeleteUPSCompletedDelay(), null);
         writer.writeNotNullOrDef("dcmDeleteUPSCanceledDelay", arcDev.getDeleteUPSCanceledDelay(), null);
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcDev.getOverwritePolicy(), OverwritePolicy.NEVER);
+        writer.writeNotNullOrDef("dcmRelationalMismatchPolicy",
+                arcDev.getRelationalMismatchPolicy(), RelationalMismatchPolicy.IGNORE);
         writer.writeNotDef("dcmRecordAttributeModification", arcDev.isRecordAttributeModification(), true);
         writer.writeNotDef("dcmIdentifyPatientByAllAttributes", arcDev.isIdentifyPatientByAllAttributes(), false);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
@@ -1253,6 +1255,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmStoreAccessControlID", arcAE.getStoreAccessControlID(), null);
         writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcAE.getOverwritePolicy(), null);
+        writer.writeNotNullOrDef("dcmRelationalMismatchPolicy", arcAE.getRelationalMismatchPolicy(), null);
         writer.writeNotNull("dcmRecordAttributeModification", arcAE.getRecordAttributeModification());
         writer.writeNotNullOrDef("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID(), null);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory(), null);
@@ -1462,6 +1465,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmOverwritePolicy":
                     arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmRelationalMismatchPolicy":
+                    arcDev.setRelationalMismatchPolicy(RelationalMismatchPolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmRecordAttributeModification":
                     arcDev.setRecordAttributeModification(reader.booleanValue());
@@ -4068,6 +4074,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmOverwritePolicy":
                     arcAE.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmRelationalMismatchPolicy":
+                    arcAE.setRelationalMismatchPolicy(RelationalMismatchPolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmRecordAttributeModification":
                     arcAE.setRecordAttributeModification(reader.booleanValue());

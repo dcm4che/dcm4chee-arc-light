@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013-2021
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,9 +41,9 @@
 package org.dcm4chee.arc.conf;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @since Jun 2024
  */
-public enum OverwritePolicy {
-    NEVER, ALWAYS, SAME_SOURCE, EVEN_WITH_EQUAL_DIGEST
+public enum RelationalMismatchPolicy {
+    IGNORE, OVERWRITE, STORE_ADDITIONALLY
 }

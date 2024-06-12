@@ -103,6 +103,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Duration taskPollingInterval;
     private volatile int taskFetchSize = 100;
     private volatile OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
+    private volatile RelationalMismatchPolicy relationalMismatchPolicy = RelationalMismatchPolicy.IGNORE;
     private volatile boolean recordAttributeModification = true;
     private volatile ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
     private volatile ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
@@ -468,6 +469,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setOverwritePolicy(OverwritePolicy overwritePolicy) {
         this.overwritePolicy = overwritePolicy;
+    }
+
+    public RelationalMismatchPolicy getRelationalMismatchPolicy() {
+        return relationalMismatchPolicy;
+    }
+
+    public void setRelationalMismatchPolicy(RelationalMismatchPolicy relationalMismatchPolicy) {
+        this.relationalMismatchPolicy = relationalMismatchPolicy;
     }
 
     public boolean isRecordAttributeModification() {
@@ -3604,6 +3613,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         taskPollingInterval = arcdev.taskPollingInterval;
         taskFetchSize = arcdev.taskFetchSize;
         overwritePolicy = arcdev.overwritePolicy;
+        relationalMismatchPolicy = arcdev.relationalMismatchPolicy;
         recordAttributeModification = arcdev.recordAttributeModification;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
         showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;

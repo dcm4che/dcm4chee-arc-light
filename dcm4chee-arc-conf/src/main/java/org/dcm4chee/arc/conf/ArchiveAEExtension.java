@@ -77,6 +77,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String storeAccessControlID;
     private String[] accessControlIDs = {};
     private OverwritePolicy overwritePolicy;
+    private RelationalMismatchPolicy relationalMismatchPolicy;
     private Boolean recordAttributeModification;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
@@ -372,6 +373,20 @@ public class ArchiveAEExtension extends AEExtension {
         return overwritePolicy != null
                 ? overwritePolicy
                 : getArchiveDeviceExtension().getOverwritePolicy();
+    }
+
+    public RelationalMismatchPolicy getRelationalMismatchPolicy() {
+        return relationalMismatchPolicy;
+    }
+
+    public void setRelationalMismatchPolicy(RelationalMismatchPolicy relationalMismatchPolicy) {
+        this.relationalMismatchPolicy = relationalMismatchPolicy;
+    }
+
+    public RelationalMismatchPolicy relationalMismatchPolicy() {
+        return relationalMismatchPolicy != null
+                ? relationalMismatchPolicy
+                : getArchiveDeviceExtension().getRelationalMismatchPolicy();
     }
 
     public Boolean getRecordAttributeModification() {
@@ -2044,6 +2059,7 @@ public class ArchiveAEExtension extends AEExtension {
         storeAccessControlID = aeExt.storeAccessControlID;
         accessControlIDs = aeExt.accessControlIDs;
         overwritePolicy = aeExt.overwritePolicy;
+        relationalMismatchPolicy = aeExt.relationalMismatchPolicy;
         recordAttributeModification = aeExt.recordAttributeModification;
         bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;
         queryRetrieveViewID = aeExt.queryRetrieveViewID;

@@ -212,7 +212,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.42 NAME 'dcmPurgeStorageFetchSize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.43 NAME 'dcmOverwritePolicy'
-  DESC 'Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.'
+  DESC 'Specifies behavior on receive of objects, which SOP Instance UID matches a previous received object. Enumerated values: NEVER, ALWAYS, SAME_SOURCE, EVEN_WITH_EQUAL_DIGEST. NEVER if absent.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -2341,6 +2341,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.480 NAME 'dcmQStarVerificationStorag
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.481 NAME 'dcmRelationalMismatchPolicy'
+  DESC 'Specifies behavior on receive of objects, which SOP Instance UID matches a previous received object belonging to a different Series. Enumerated values: IGNORE, OVERWRITE, STORE_ADDITIONALLY; IGNORE if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2392,6 +2397,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmKeyValueRetentionFetchSize $
     dcmKeyValueRetentionPeriod $
     dcmOverwritePolicy $
+    dcmRelationalMismatchPolicy $
     dcmAcceptMissingPatientID $
     dcmAcceptConflictingPatientID $
     dcmRejectConflictingPatientAttribute $
@@ -2662,6 +2668,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmAccessControlID $
     dcmAcceptedMoveDestination $
     dcmOverwritePolicy $
+    dcmRelationalMismatchPolicy $
     dcmAcceptMissingPatientID $
     dcmAcceptConflictingPatientID $
     dcmRejectConflictingPatientAttribute $

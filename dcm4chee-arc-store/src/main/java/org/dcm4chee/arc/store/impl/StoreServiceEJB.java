@@ -107,6 +107,7 @@ public class StoreServiceEJB {
     private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source";
     private static final String IGNORE_PREVIOUS_REJECTED = IGNORE + " previous rejected by {}";
     private static final String IGNORE_WITH_EQUAL_DIGEST = IGNORE + " with equal digest";
+    private static final String IGNORE_RELATIONAL_MISMATCH = IGNORE + " of different Series";
     private static final String IGNORE_DUPLICATE_IMPORT =
             "{}: Ignore duplicate imported Instance[studyUID={},seriesUID={},objectUID={}]";
     private static final String REVOKE_REJECTION =
@@ -205,17 +206,20 @@ public class StoreServiceEJB {
                         logInfo(IGNORE, ctx);
                         return result;
                     case SAME_SOURCE:
-                    case SAME_SOURCE_AND_SERIES:
                         if (!isSameSource(ctx, prevInstance)) {
                             logInfo(IGNORE_FROM_DIFFERENT_SOURCE, ctx);
                             return result;
                         }
                     case ALWAYS:
-                    case SAME_SERIES:
                         if (hasLocationWithEqualDigest(ctx, prevInstance)) {
                             logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
                             return result;
                         }
+                }
+                if (arcAE.relationalMismatchPolicy() == RelationalMismatchPolicy.IGNORE
+                   && isRelationalMismatch(ctx, prevInstance)) {
+                    logInfo(IGNORE_RELATIONAL_MISMATCH, ctx);
+                    return result;
                 }
             }
         }
@@ -337,6 +341,13 @@ public class StoreServiceEJB {
             }
         }
         return result;
+    }
+
+    private boolean isRelationalMismatch(StoreContext ctx, Instance prevInstance) {
+        Series prevSeries = prevInstance.getSeries();
+        Study prevStudy = prevSeries.getStudy();
+        return !ctx.getStudyInstanceUID().equals(prevStudy.getStudyInstanceUID())
+                || !ctx.getSeriesInstanceUID().equals(prevSeries.getSeriesInstanceUID());
     }
 
     private boolean isDuplicateImport(StoreContext ctx, Instance prevInstance) {
@@ -1248,17 +1259,14 @@ public class StoreServiceEJB {
     }
 
     private Instance findPreviousInstance(StoreContext ctx) {
-        switch (ctx.getStoreSession().getArchiveAEExtension().overwritePolicy()) {
-            case ALWAYS:
-            case SAME_SOURCE:
-            case EVEN_WITH_EQUAL_DIGEST:
-                return findInstance(ctx.getSopInstanceUID());
-            default:
-                return findInstance(
+        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
+        return arcAE.relationalMismatchPolicy() == RelationalMismatchPolicy.STORE_ADDITIONALLY
+                && arcAE.overwritePolicy() != OverwritePolicy.NEVER
+                ? findInstance(
                         ctx.getStudyInstanceUID(),
                         ctx.getSeriesInstanceUID(),
-                        ctx.getSopInstanceUID());
-        }
+                        ctx.getSopInstanceUID())
+                : findInstance(ctx.getSopInstanceUID());
     }
 
     private Instance findInstance(String objectUID) {
