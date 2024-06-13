@@ -45,5 +45,5 @@ package org.dcm4chee.arc.conf;
  * @since Jun 2024
  */
 public enum RelationalMismatchPolicy {
-    IGNORE, OVERWRITE, STORE_ADDITIONALLY
+    IGNORE, REJECT, OVERWRITE, STORE_ADDITIONALLY
 }

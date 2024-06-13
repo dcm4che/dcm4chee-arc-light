@@ -216,10 +216,14 @@ public class StoreServiceEJB {
                             return result;
                         }
                 }
-                if (arcAE.relationalMismatchPolicy() == RelationalMismatchPolicy.IGNORE
-                   && isRelationalMismatch(ctx, prevInstance)) {
-                    logInfo(IGNORE_RELATIONAL_MISMATCH, ctx);
-                    return result;
+                if (isRelationalMismatch(ctx, prevInstance)) {
+                    switch (arcAE.relationalMismatchPolicy()) {
+                        case IGNORE:
+                            logInfo(IGNORE_RELATIONAL_MISMATCH, ctx);
+                            return result;
+                        case REJECT:
+                            throw relationalMismatch(ctx, prevInstance);
+                    }
                 }
             }
         }
@@ -364,6 +368,17 @@ public class StoreServiceEJB {
                 return true;
         }
         return false;
+    }
+
+    private DicomServiceException relationalMismatch(StoreContext ctx, Instance prevInstance) {
+        Series prevSeries = prevInstance.getSeries();
+        Study prevStudy = prevSeries.getStudy();
+        return new DicomServiceException(StoreService.RELATIONAL_MISMATCH,
+                !ctx.getStudyInstanceUID().equals(prevStudy.getStudyInstanceUID())
+                        ? MessageFormat.format(StoreService.RELATIONAL_MISMATCH_MSG, "Study",
+                        ctx.getStudyInstanceUID(), prevStudy.getStudyInstanceUID(), ctx.getSopInstanceUID())
+                        : MessageFormat.format(StoreService.RELATIONAL_MISMATCH_MSG, "Series",
+                        ctx.getSeriesInstanceUID(), prevSeries.getSeriesInstanceUID(), ctx.getSopInstanceUID()));
     }
 
     private DicomServiceException subsequentOccurrenceOfRejectedObject(RejectedInstance rejectedInstance) {

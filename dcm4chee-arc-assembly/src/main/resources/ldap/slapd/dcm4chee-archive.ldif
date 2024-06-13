@@ -2342,7 +2342,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.480 NAME 'dcmQStarVerificationStorag
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.481 NAME 'dcmRelationalMismatchPolicy'
-  DESC 'Specifies behavior on receive of objects, which SOP Instance UID matches a previous received object belonging to a different Series. Enumerated values: IGNORE, OVERWRITE, STORE_ADDITIONALLY; IGNORE if absent.'
+  DESC 'Specifies behavior on receive of objects, which SOP Instance UID matches a previous received object belonging to a different Series. Enumerated values: IGNORE, REJECT, OVERWRITE, STORE_ADDITIONALLY; IGNORE if absent.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
