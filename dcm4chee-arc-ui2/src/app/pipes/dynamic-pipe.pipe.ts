@@ -11,16 +11,20 @@ export class DynamicPipePipe implements PipeTransform {
     }
 
     transform(value: any, dynamicPipe:DynamicPipe, func?:Function, ...args:any[]): any {
-        if (!value) {
-            return value;
-        }
-        else {
-            if(dynamicPipe && _.hasIn(dynamicPipe, "pipeToken")){
-                let pipe = this.injector.get(dynamicPipe.pipeToken);
-                return pipe.transform(value, ...dynamicPipe.pipeArgs || []);
-            }else{
-                return func.call(this, value, args);
+        try{
+            if (!value) {
+                return value;
             }
+            else {
+                if(dynamicPipe && _.hasIn(dynamicPipe, "pipeToken")){
+                    let pipe = this.injector.get(dynamicPipe.pipeToken);
+                    return pipe.transform(value, ...dynamicPipe.pipeArgs || []);
+                }else{
+                    return func.call(this, value, args);
+                }
+            }
+        }catch (e) {
+            return value;
         }
     }
 }
