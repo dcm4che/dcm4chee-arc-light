@@ -10,8 +10,8 @@
 <ng-container [ngSwitch]="target.dicomLevel">
     <div *ngSwitchCase="'patient'">
         <h3 i18n="@@selected_target_patient">Selected target patient</h3>
-        <span *ngIf="target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic;else noname"><b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs|patientIssuer}}</b></span><br>
-        <ng-template #noname>Patient ID <b>{{target.object.attrs|patientIssuer}}</b></ng-template>
+        <span *ngIf="target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic;else noname"><b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b></span><br>
+        <ng-template #noname>Patient ID <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b></ng-template>
         <div *ngIf="selectedElements.action != 'merge'">
             ( <ng-container i18n="@@study-transferring_overview.an_empty_study_will_be_automatically_created">An empty study will be automatically created, so it can be used as target study!</ng-container> )
         </div>
@@ -19,14 +19,14 @@
     <div class="targetobject" *ngSwitchCase="'mwl'">
         <h3 i18n="@@selected_target_mwl">Selected target MWL</h3>
         <span *ngIf="target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic;else noname">Patient Name:<b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b></span><br>
-        <ng-template #noname>Patient ID: <b>{{target.object.attrs|patientIssuer}}</b></ng-template>
+        <ng-template #noname>Patient ID: <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b></ng-template>
         <span *ngIf="target && target.object.attrs && target.object.attrs['00400100'] && target.object.attrs['00400100'].Value && target.object.attrs['00400100'].Value[0] && target.object.attrs['00400100'].Value[0]['00400001'] && target.object.attrs['00400100'].Value[0]['00400001'].Value && target.object.attrs['00400100'].Value[0]['00400001'].Value[0]"><ng-container i18n="@@scheduled_station_ae_title">Scheduled Station AE Title</ng-container>: {{target.object.attrs['00400100'].Value[0]['00400001'].Value[0]}}</span>
         <br>
     </div>
     <div *ngSwitchDefault>
         <h3 i18n="@@selected_target_study">Selected target study</h3>
         <ng-container i18n="@@study-transferring-overview.studuid_from_patient_report">
-            Study instance UID: <b>{{target.object.attrs['0020000D'].Value[0]}}</b> from the patient  <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.object.attrs|patientIssuer}}</b></ng-container><br>
+            Study instance UID: <b>{{target.object.attrs['0020000D'].Value[0]}}</b> from the patient  <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b></ng-container><br>
     </div>
 </ng-container>
 

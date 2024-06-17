@@ -3181,6 +3181,18 @@ mat-form-field, mat-mdc-form-field{
     }
   }
 }
+mat-dialog-container{
+  .mixed_size{
+    b{
+      font-size: 14px;
+      margin-right: 5px;
+      font-weight: 600;
+    }
+    span{
+      font-size: 11px;
+    }
+  }
+}
 
 .vex.vex-theme-os.diff,.tripal_compare{
   width:100%;
