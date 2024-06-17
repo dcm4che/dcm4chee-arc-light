@@ -110,6 +110,38 @@ public class MergeMWLQueryParam {
                 mwlSCP, localMwlWorklistLabels, localMwlStatus, patientIDWithIssuer, accessionNumber, studyIUID, spsID, tplURI);
     }
 
+    public static MergeMWLQueryParam valueOfMPPS(String mwlSCP, String[] localMwlWorklistLabels, SPSStatus[] localMwlStatus,
+                                             MergeMWLMatchingKey matchingKey, Attributes attrs, String tplURI) {
+        IDWithIssuer patientIDWithIssuer = null;
+        String accessionNumber = null;
+        String studyIUID = null;
+        String spsID = null;
+        Attributes ssa = attrs.getNestedDataset(Tag.ScheduledStepAttributesSequence);
+        switch (matchingKey == MergeMWLMatchingKey.PatientID
+                ? attrs.containsValue(Tag.AccessionNumber)
+                ? MergeMWLMatchingKey.PatientIDAccessionNumber
+                : MergeMWLMatchingKey.PatientIDOnly
+                : matchingKey) {
+            case PatientIDOnly:
+                patientIDWithIssuer = IDWithIssuer.pidOf(attrs);
+                break;
+            case PatientIDAccessionNumber:
+                patientIDWithIssuer = IDWithIssuer.pidOf(attrs);
+            case AccessionNumber:
+                accessionNumber = ssa.getString(Tag.AccessionNumber);
+                if (accessionNumber == null)
+                    studyIUID = ssa.getString(Tag.StudyInstanceUID);
+                break;
+            case ScheduledProcedureStepID:
+                spsID = ssa.getString(Tag.ScheduledProcedureStepID);
+            case StudyInstanceUID:
+                studyIUID = ssa.getString(Tag.StudyInstanceUID);
+                break;
+        }
+        return new MergeMWLQueryParam(
+                mwlSCP, localMwlWorklistLabels, localMwlStatus, patientIDWithIssuer, accessionNumber, studyIUID, spsID, tplURI);
+    }
+
     public Attributes setMatchingKeys(Attributes keys) {
         if (patientIDWithIssuer != null) patientIDWithIssuer.exportPatientIDWithIssuer(keys);
         if (accessionNumber != null) keys.setString(Tag.AccessionNumber, VR.SH, accessionNumber);

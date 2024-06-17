@@ -98,12 +98,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
                           String receivingHost, String receivingAET,
                           Attributes attrs, Attributes modified)
             throws Exception {
-        Attributes newAttrs = queryMWL(
-                coercion.getRole() == TransferCapability.Role.SCU ? receivingAET : sendingAET,
-                mergeMWLQueryParam(coercion, attrs),
-                coercion.parseBooleanCoercionParam("filter-by-scu"),
-                coercion.getSchemeSpecificPart(),
-                coercion.parseBooleanCoercionParam("xsl-no-keyword"));
+        Attributes newAttrs = queryMWL(sendingAET, receivingAET, coercion, attrs);
         if (newAttrs == null) {
             return false;
         }
@@ -123,19 +118,28 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
         String mwlSCP = coercion.getCoercionParam("mwl-scp", null);
         String localMwlWorklistLabels = coercion.getCoercionParam("local-mwl-worklist-label", null);
         String localMwlStatus = coercion.getCoercionParam("local-mwl-status", null);
+        String mwlEntityToMerge = coercion.getCoercionParam("mwl-entity-to-merge", "study");
+        if (mwlEntityToMerge.equals("mpps"))
+            return MergeMWLQueryParam.valueOfMPPS(mwlSCP,
+                    StringUtils.split(localMwlWorklistLabels, '|'),
+                    SPSStatus.valuesOf(StringUtils.split(localMwlStatus, '|')),
+                    mergeMWLMatchingKey, attrs, coercion.getSchemeSpecificPart());
+
         return MergeMWLQueryParam.valueOf(mwlSCP,
                 StringUtils.split(localMwlWorklistLabels, '|'),
                 SPSStatus.valuesOf(StringUtils.split(localMwlStatus, '|')),
                 mergeMWLMatchingKey, attrs, coercion.getSchemeSpecificPart());
     }
 
-    private Attributes queryMWL(String localAET, MergeMWLQueryParam queryParam, boolean filterbyscu,
-                                String tplURI, boolean xslnokeyword)
+    private Attributes queryMWL(
+            String sendingAET, String receivingAET, ArchiveAttributeCoercion2 coercion, Attributes attrs)
             throws Exception {
+        MergeMWLQueryParam queryParam = mergeMWLQueryParam(coercion, attrs);
         Cache.Entry<Attributes> entry = mergeMWLCache.getEntry(queryParam);
         if (entry != null)
             return entry.value();
 
+        String localAET = coercion.getRole() == TransferCapability.Role.SCU ? receivingAET : sendingAET;
         List<Attributes> mwlItems;
         LOG.info("Query for MWL Items with {}", queryParam);
         if (queryParam.mwlSCP == null) {
@@ -144,7 +148,7 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
         } else {
             mwlItems = cfindscu.findMWLItems(
                     device.getApplicationEntity(localAET, true), queryParam, Priority.NORMAL);
-            if (filterbyscu) {
+            if (coercion.parseBooleanCoercionParam("filter-by-scu")) {
                 mwlItems.removeIf(item -> !item.matches(
                         queryParam.setMatchingKeys(new Attributes()), false, false));
             }
@@ -154,17 +158,51 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
             mergeMWLCache.put(queryParam, null);
             return null;
         }
+
+        return coercion.getCoercionParam("mwl-entity-to-merge", "study").equals("mpps")
+                ? coerceMPPSFromMWL(coercion, mwlItems, queryParam, attrs)
+                : coerceCompositeFromMWL(coercion, mwlItems, queryParam);
+    }
+
+    private Attributes coerceCompositeFromMWL(
+            ArchiveAttributeCoercion2 coercion, List<Attributes> mwlItems, MergeMWLQueryParam queryParam)
+            throws Exception {
         Attributes result = null;
         Sequence reqAttrsSeq = null;
-        Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(tplURI));
+        Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getSchemeSpecificPart()));
         Collections.sort(mwlItems, Comparator.comparing(MergeMWLCoercionProcessor::startDateTime).reversed());
         for (Attributes mwlItem : mwlItems) {
-            Attributes attrs = SAXTransformer.transform(mwlItem, tpls, false, !xslnokeyword);
+            Attributes coercedAttrs = SAXTransformer.transform(
+                    mwlItem, tpls, false,
+                    !coercion.parseBooleanCoercionParam("xsl-no-keyword"));
             if (reqAttrsSeq == null) {
-                result = attrs;
-                reqAttrsSeq = attrs.getSequence(Tag.RequestAttributesSequence);
+                result = coercedAttrs;
+                reqAttrsSeq = coercedAttrs.getSequence(Tag.RequestAttributesSequence);
             } else {
-                reqAttrsSeq.add(new Attributes(attrs.getNestedDataset(Tag.RequestAttributesSequence)));
+                reqAttrsSeq.add(new Attributes(coercedAttrs.getNestedDataset(Tag.RequestAttributesSequence)));
+            }
+        }
+        mergeMWLCache.put(queryParam, result);
+        return result;
+    }
+
+    private Attributes coerceMPPSFromMWL(
+            ArchiveAttributeCoercion2 coercion, List<Attributes> mwlItems, MergeMWLQueryParam queryParam, Attributes mppsAttrs)
+            throws Exception {
+        Attributes result = null;
+        Sequence ssAttrsSeq = null;
+        Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getSchemeSpecificPart()));
+        Collections.sort(mwlItems, Comparator.comparing(MergeMWLCoercionProcessor::startDateTime).reversed());
+        for (Attributes mwlItem : mwlItems) {
+            Attributes coercedAttrs = SAXTransformer.transform(
+                    mwlItem, tpls, false,
+                    !coercion.parseBooleanCoercionParam("xsl-no-keyword"),
+                    tr -> tr.setParameter("mppsAttrs", mppsAttrs));
+            if (ssAttrsSeq == null) {
+                result = coercedAttrs;
+                ssAttrsSeq = coercedAttrs.getSequence(Tag.ScheduledStepAttributesSequence);
+            } else {
+                ssAttrsSeq.add(new Attributes(coercedAttrs.getNestedDataset(Tag.ScheduledStepAttributesSequence)));
             }
         }
         mergeMWLCache.put(queryParam, result);
