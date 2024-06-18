@@ -197,7 +197,11 @@ public class MergeMWLCoercionProcessor implements CoercionProcessor {
             Attributes coercedAttrs = SAXTransformer.transform(
                     mwlItem, tpls, false,
                     !coercion.parseBooleanCoercionParam("xsl-no-keyword"),
-                    tr -> tr.setParameter("mppsAttrs", mppsAttrs));
+                    tr -> {
+                        Attributes mppsSSAttrs = mppsAttrs.getNestedDataset(Tag.ScheduledStepAttributesSequence);
+                        tr.setParameter("mppsRefStudySeq", mppsSSAttrs.getSequence(Tag.ReferencedStudySequence));
+                        tr.setParameter("mppsStudyUID", mppsSSAttrs.getString(Tag.StudyInstanceUID));
+                    });
             if (ssAttrsSeq == null) {
                 result = coercedAttrs;
                 ssAttrsSeq = coercedAttrs.getSequence(Tag.ScheduledStepAttributesSequence);

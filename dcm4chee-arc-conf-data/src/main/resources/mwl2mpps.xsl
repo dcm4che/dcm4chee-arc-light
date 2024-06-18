@@ -1,6 +1,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="xml"/>
-  <xsl:param name="mppsAttrs"/>
+  <xsl:param name="mppsRefStudySeq"/>
+  <xsl:param name="mppsStudyUID"/>
   <xsl:template match="/NativeDicomModel">
     <NativeDicomModel>
       <!-- Patient Name -->
@@ -45,9 +46,6 @@
           <xsl:copy-of select="DicomAttribute[@tag='00401001']/Value"/>
         </DicomAttribute>
       </xsl:if>
-      <xsl:variable name="ssa" select="$mppsAttrs/DicomAttribute[@tag='00400270']/Item"/>
-      <xsl:variable name="refStudySeq" select="$ssa/DicomAttribute[@tag='00081110']"/>
-      <xsl:variable name="studyUID" select="$ssa/DicomAttribute[@tag='0020000D']"/>
       <DicomAttribute tag="00400270" vr="SQ">
         <Item number="1">
           <!-- Accession Number -->
@@ -55,9 +53,17 @@
           <!-- Issuer of Accession Number Sequence -->
           <xsl:copy-of select="DicomAttribute[@tag='00080051']"/>
           <!-- Referenced Study Sequence -->
-          <xsl:copy-of select="$refStudySeq"/>
+          <DicomAttribute tag="00081110" vr="SQ">
+            <Item number="1">
+              <xsl:value-of select="$mppsRefStudySeq"/>
+            </Item>
+          </DicomAttribute>
           <!-- Study Instance UID -->
-          <xsl:copy-of select="$studyUID"/>
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'0020000D'"/>
+            <xsl:with-param name="vr" select="'UI'"/>
+            <xsl:with-param name="val" select="$mppsStudyUID"/>
+          </xsl:call-template>
           <!-- Placer Order Number/Imaging Service Request -->
           <xsl:copy-of select="DicomAttribute[@tag='00402016']"/>
           <!-- Order Placer Identifier Sequence -->
@@ -82,4 +88,20 @@
       </DicomAttribute>
     </NativeDicomModel>
   </xsl:template>
+
+  <xsl:template name="attr">
+    <xsl:param name="tag"/>
+    <xsl:param name="vr"/>
+    <xsl:param name="val"/>
+    <xsl:if test="$val">
+      <DicomAttribute tag="{$tag}" vr="{$vr}">
+        <xsl:if test="$val != '&quot;&quot;'">
+          <Value number="1">
+            <xsl:value-of select="$val"/>
+          </Value>
+        </xsl:if>
+      </DicomAttribute>
+    </xsl:if>
+  </xsl:template>
+
 </xsl:stylesheet>
