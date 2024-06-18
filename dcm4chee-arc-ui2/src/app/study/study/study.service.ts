@@ -106,20 +106,24 @@ export class StudyService {
     * return patientid - combination of patient id, issuer
     * */
     getPatientId(patient) {
-        console.log('patient', patient);
-        let obj;
-        if (_.hasIn(patient, '[0]')) {
-            obj = patient[0];
-        } else {
-            obj = patient;
+        try{
+            console.log('patient', patient);
+            let obj;
+            if (_.hasIn(patient, '[0]')) {
+                obj = patient[0];
+            } else {
+                obj = patient;
+            }
+            const allParts = [this.getPatientIdentifierOf(obj)]
+            if(_.hasIn(obj,'["00101002"].Value')){
+                _.get(obj,'["00101002"].Value').forEach(subAttrs=>{
+                    allParts.push(this.getPatientIdentifierOf(subAttrs));
+                })
+            }
+            return allParts.join("~");
+        }catch (e) {
+            return "";
         }
-        const allParts = [this.getPatientIdentifierOf(obj)]
-        if(_.hasIn(obj,'["00101002"].Value')){
-            _.get(obj,'["00101002"].Value').forEach(subAttrs=>{
-                allParts.push(this.getPatientIdentifierOf(subAttrs));
-            })
-        }
-        return allParts.join("~");
     }
     getPatientIdentifierOf(attrs){
         let patientId = '';
@@ -4122,11 +4126,16 @@ export class StudyService {
             return this.getModifyPatientUrl(deviceWebservice).pipe(
                 switchMap((url:string)=>{
                     console.log("url",url);
-                    return this.$http.put(
-                        `${url}/${this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0])}?merge=true`,
-                        selectedElements.postActionElements.getAttrs("patient"),
-                        this.jsonHeader
-                    )
+                    const prePatientId = this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0]);
+                    if(prePatientId){
+                        return this.$http.put(
+                            `${url}/${prePatientId}?merge=true`,
+                            selectedElements.postActionElements.getAttrs("patient"),
+                            this.jsonHeader
+                        )
+                    }else {
+                        return throwError({error:$localize `:@@patient_id_not_found:Patient id not found!`});
+                    }
                 })
             )
         }
