@@ -1,6 +1,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="xml"/>
-  <xsl:param name="mppsAttrs"/>
+  <xsl:param name="mppsRefStudySeq"/>
+  <xsl:param name="mppsStudyUID"/>
   <xsl:template match="/NativeDicomModel">
     <NativeDicomModel>
       <!-- Patient Name -->
@@ -45,7 +46,6 @@
           <xsl:copy-of select="DicomAttribute[@tag='00401001']/Value"/>
         </DicomAttribute>
       </xsl:if>
-      <xsl:variable name="refStudySeq" select="$mppsAttrs/DicomAttribute[@tag='00400270']/Item/DicomAttribute[@tag='00081110']"/>
       <DicomAttribute tag="00400270" vr="SQ">
         <Item number="1">
           <!-- Accession Number -->
@@ -53,7 +53,11 @@
           <!-- Issuer of Accession Number Sequence -->
           <xsl:copy-of select="DicomAttribute[@tag='00080051']"/>
           <!-- Referenced Study Sequence -->
-          <xsl:copy-of select="$refStudySeq"/>
+          <DicomAttribute tag="00081110" vr="SQ">
+            <Item number="1">
+              <xsl:value-of select="$mppsRefStudySeq"/>
+            </Item>
+          </DicomAttribute>
           <!-- Study Instance UID -->
           <xsl:copy-of select="DicomAttribute[@tag='0020000D']"/>
           <!-- Placer Order Number/Imaging Service Request -->
@@ -80,4 +84,5 @@
       </DicomAttribute>
     </NativeDicomModel>
   </xsl:template>
+
 </xsl:stylesheet>
