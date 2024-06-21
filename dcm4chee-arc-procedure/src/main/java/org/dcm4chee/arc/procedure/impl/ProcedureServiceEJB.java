@@ -261,9 +261,14 @@ public class ProcedureServiceEJB {
     }
 
     public boolean deleteMWL(long pk) {
-        em.remove(em.createNamedQuery(MWLItem.FIND_BY_PK, MWLItem.class)
-                .setParameter(1, pk)
-                .getSingleResult());
+        try {
+            em.remove(em.createNamedQuery(MWLItem.FIND_BY_PK, MWLItem.class)
+                    .setParameter(1, pk)
+                    .getSingleResult());
+        } catch (NoResultException e) {
+            LOG.warn("Failed to delete MWL[pk={}]:{}", pk, System.lineSeparator(), e);
+            return false;
+        }
         return true;
     }
 
