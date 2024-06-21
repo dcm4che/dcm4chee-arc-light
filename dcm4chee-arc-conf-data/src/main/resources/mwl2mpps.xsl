@@ -1,7 +1,5 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="xml"/>
-  <xsl:param name="mppsRefStudySeq"/>
-  <xsl:param name="mppsStudyUID"/>
   <xsl:template match="/NativeDicomModel">
     <NativeDicomModel>
       <!-- Patient Name -->
@@ -52,18 +50,8 @@
           <xsl:copy-of select="DicomAttribute[@tag='00080050']"/>
           <!-- Issuer of Accession Number Sequence -->
           <xsl:copy-of select="DicomAttribute[@tag='00080051']"/>
-          <!-- Referenced Study Sequence -->
-          <DicomAttribute tag="00081110" vr="SQ">
-            <Item number="1">
-              <xsl:value-of select="$mppsRefStudySeq"/>
-            </Item>
-          </DicomAttribute>
           <!-- Study Instance UID -->
-          <xsl:call-template name="attr">
-            <xsl:with-param name="tag" select="'0020000D'"/>
-            <xsl:with-param name="vr" select="'UI'"/>
-            <xsl:with-param name="val" select="$mppsStudyUID"/>
-          </xsl:call-template>
+          <xsl:copy-of select="DicomAttribute[@tag='0020000D']"/>
           <!-- Placer Order Number/Imaging Service Request -->
           <xsl:copy-of select="DicomAttribute[@tag='00402016']"/>
           <!-- Order Placer Identifier Sequence -->
@@ -87,21 +75,6 @@
         </Item>
       </DicomAttribute>
     </NativeDicomModel>
-  </xsl:template>
-
-  <xsl:template name="attr">
-    <xsl:param name="tag"/>
-    <xsl:param name="vr"/>
-    <xsl:param name="val"/>
-    <xsl:if test="$val">
-      <DicomAttribute tag="{$tag}" vr="{$vr}">
-        <xsl:if test="$val != '&quot;&quot;'">
-          <Value number="1">
-            <xsl:value-of select="$val"/>
-          </Value>
-        </xsl:if>
-      </DicomAttribute>
-    </xsl:if>
   </xsl:template>
 
 </xsl:stylesheet>

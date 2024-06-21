@@ -3416,6 +3416,17 @@ objectClass: dcmArchiveAttributeCoercion2
 dcmURI: merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl
 cn: Merge MWL Study
 
+dn: cn=Merge MWL MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmDIMSE: N_CREATE_RQ
+dicomTransferRole: SCU
+dcmCoercionParam: xsl-no-keyword=true
+dcmCoercionParam: match-by=AccessionNumber
+dcmCoercionParam: mwl-entity-to-merge=mpps
+dcmProperty: SendingApplicationEntityTitle=MERGE_MWL_MPPS
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2mpps.xsl
+cn: Merge MWL MPPS
+
 dn: cn=Supplement MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSOPClass: 1.2.840.10008.3.1.2.3.3
 dcmDIMSE: N_CREATE_RQ

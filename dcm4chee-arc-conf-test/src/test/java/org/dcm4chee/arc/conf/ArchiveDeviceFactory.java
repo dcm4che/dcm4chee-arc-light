@@ -1248,6 +1248,7 @@ class ArchiveDeviceFactory {
     static final String ENSURE_PID = "xslt:${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
     static final String MERGE_MWL = "merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
     static final String MERGE_MWL_STUDY = "merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2study.xsl";
+    static final String MERGE_MWL_MPPS = "merge-mwl:${jboss.server.temp.url}/dcm4chee-arc/mwl2mpps.xsl";
     static final String COERCE_MWL_AGFA2ARC = "xslt:${jboss.server.temp.url}/dcm4chee-arc/mwl-agfa2arc.xsl";
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
@@ -2202,6 +2203,16 @@ class ArchiveDeviceFactory {
                     .setRole(SCU)
                     .setSendingAETitle("MERGE_MWL_STUDY")
                     .setCoercionParam("match-by", MergeMWLMatchingKey.AccessionNumber.name())
+                    .setCoercionParam("xsl-no-keyword", "true"));
+
+            ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
+                    .setCommonName("Merge MWL MPPS")
+                    .setURI(MERGE_MWL_STUDY)
+                    .setDIMSE(Dimse.N_CREATE_RQ)
+                    .setRole(SCU)
+                    .setSendingAETitle("MERGE_MWL_MPPS")
+                    .setCoercionParam("match-by", MergeMWLMatchingKey.AccessionNumber.name())
+                    .setCoercionParam("mwl-entity-to-merge", "mpps")
                     .setCoercionParam("xsl-no-keyword", "true"));
 
             ext.addAttributeCoercion2(new ArchiveAttributeCoercion2()
