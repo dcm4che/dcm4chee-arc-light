@@ -1,0 +1,121 @@
+
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+    <ng-container *ngFor="let element of schema">
+        <ng-container *ngIf="showLabels">
+            <label>{{element.label || element.placeholder || element.description}}</label>
+        </ng-container>
+        <ng-container [ngSwitch]="element.type">
+            <ng-container *ngSwitchCase="'multi-checkbox'">
+                <!--options:{{line[index]?.options|json}}-->
+                <label *ngFor="let item of element.options">
+                    <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="modelChange(element, $event)" [(ngModel)]="model[item.key]"  title="{{item?.description}}" />
+                    <span [ngStyle]="item?.style" >{{item.text}}</span>
+                </label>
+            </ng-container>
+            <ng-container  *ngSwitchCase="'input'">
+                <input
+                        [disabled]="element.disabled"
+                        (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [ngModel]="_.get(model,element.modelPath)"
+                        [ngModelOptions]="{standalone: true}"
+                        type="text"
+                        [ngStyle]="element.style"
+                        title="{{element?.description}}"
+                        placeholder="{{element?.placeholder}}"
+                >
+            </ng-container>
+            <ng-container  *ngSwitchCase="'input-number'">
+                <input
+                        [disabled]="element.disabled"
+                        (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [ngModel]="_.get(model,element.modelPath)"
+                        [ngModelOptions]="{standalone: true}"
+                        type="number"
+                        [ngStyle]="element.style"
+                        title="{{element?.description}}"
+                        placeholder="{{element?.placeholder}}"
+                >
+            </ng-container>
+            <dcm-drop-down
+                    [ngStyle]="element.style"
+                    *ngSwitchCase="'editable-select'"
+                    [placeholder]="element?.placeholder"
+                    [title]="element?.description || ''"
+                    [ngClass]="element.cssClass"
+                    [options]="element.options"
+                    [optionsTree]="element.optionsTree"
+                    [editable]="true"
+                    [showSearchField]="true"
+                    (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                    [ngModel]="_.get(model,element.modelPath)"
+                    [multiSelectMode]="false"
+                    [showStar]="element.showStar"
+            ></dcm-drop-down>
+            <dcm-drop-down
+                    [ngStyle]="element.style"
+                    *ngSwitchCase="'editable-multi-select'"
+                    [placeholder]="element?.placeholder || ''"
+                    [title]="element?.description || ''"
+                    [ngClass]="element.cssClass"
+                    [options]="element.options"
+                    [optionsTree]="element.optionsTree"
+                    [editable]="true"
+                    [showSearchField]="true"
+                    (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                    [ngModel]="_.get(model,element.modelPath)"
+                    [multiSelectMode]="true"
+                    [showStar]="element.showStar"
+            ></dcm-drop-down>
+            <dcm-drop-down
+                    [multiSelectMode]="true"
+                    [ngStyle]="element.style"
+                    *ngSwitchCase="'multi-select'"
+                    [placeholder]="element?.placeholder"
+                    [title]="element?.description || ''"
+                    [ngClass]="element.cssClass"
+                    [optionsTree]="element.optionsTree"
+                    [options]="element.options"
+                    (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                    [ngModel]="_.get(model,element.modelPath)"
+                    [showSearchField]="element.showSearchField"
+                    [showStar]="element.showStar"
+            ></dcm-drop-down>
+            <dcm-drop-down
+                    [ngStyle]="element.style"
+                    *ngSwitchCase="'html-select'"
+                    [placeholder]="element?.placeholder"
+                    [title]="element?.description || ''"
+                    [ngClass]="element.cssClass"
+                    [options]="element.options"
+                    (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                    [ngModel]="_.get(model,element.modelPath)"
+                    [optionsTree]="element.optionsTree"
+                    [showSearchField]="element.showSearchField"
+                    [multiSelectMode]="false"
+                    [showStar]="element.showStar"
+            ></dcm-drop-down>
+            <dcm-drop-down
+                    [ngStyle]="element.style"
+                    *ngSwitchCase="'select'"
+                    [placeholder]="element?.placeholder"
+                    [title]="element?.description || ''"
+                    [ngClass]="element.cssClass"
+                    [options]="element.options"
+                    (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                    [ngModel]="_.get(model,element.modelPath)"
+                    [optionsTree]="element.optionsTree"
+                    [showSearchField]="element.showSearchField"
+                    [showSelectedEmptyValue]="element.showSelectedEmptyValue"
+                    [multiSelectMode]="false"
+                    [showStar]="element.showStar"
+            ></dcm-drop-down>
+            <issuer-selector *ngSwitchCase="'issuer-selector'"
+                     [title]="element?.description"
+                     [issuers]="element?.issuers"
+                     placeholder="{{element?.placeholder || element?.description}}"
+                     (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                     [ngModel]="_.get(model,element.modelPath)"
+                     ></issuer-selector>
+        </ng-container>
+    </ng-container>
+</form>

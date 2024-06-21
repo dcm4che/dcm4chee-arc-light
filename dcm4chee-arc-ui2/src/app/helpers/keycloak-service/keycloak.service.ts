@@ -33,7 +33,7 @@ import {flatMap, map, switchMap} from "rxjs/operators";
 import {LocalLanguageObject} from "../../interfaces";
 import {J4careHttpService} from "../j4care-http.service";
 
-type KeycloakClient = KeycloakModule.KeycloakClient;
+type KeycloakClient = KeycloakModule.KeycloakClient|any;
 
 @Injectable()
 export class KeycloakService {
@@ -59,8 +59,40 @@ export class KeycloakService {
             // this.mainservice.updateGlobal("notSecure",false);
             KeycloakService.keycloakAuth = new Keycloak(KeycloakService.keycloakConfig);
             return j4care.promiseToObservable(new Promise((resolve, reject) => {
-                KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
-                    .success(() => {
+                // @ts-ignore
+                KeycloakService.keycloakAuth.init({ onLoad: 'login-required' })
+                    .then(authenticated => {
+                        if (authenticated) {
+                            this.setTokenSource.next(KeycloakService.keycloakAuth);
+                            console.log('User is authenticated');
+                            KeycloakService.keycloakAuth.loadUserProfile().then(user=>{
+                                this.checkLanguageBasedOnKeycloak(user);
+                                this.setUserInfo({
+                                    userProfile:user,
+                                    tokenParsed:KeycloakService.keycloakAuth.tokenParsed,
+                                    authServerUrl:KeycloakService.keycloakAuth.authServerUrl,
+                                    realm:KeycloakService.keycloakAuth.realm
+                                });
+                                this.mainservice.setSecured(true);
+                                this.mainservice.updateGlobal("notSecure",false);
+                                resolve(null);
+                            }).error(err=>{
+                                this.mainservice.setSecured(false);
+                                this.mainservice.updateGlobal("notSecure",true);
+                                console.error("err on loadingUserProfile",err);
+                                this.checkLanguageBasedOnKeycloak(undefined);
+                                reject(err);
+                            });
+                            // Your application logic here
+                        } else {
+                            console.warn('User is not authenticated');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Failed to initialize Keycloak', err);
+                    });
+      /*          KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
+                    .then((authenticated) => {
                         this.setTokenSource.next(KeycloakService.keycloakAuth);
                         KeycloakService.keycloakAuth.loadUserProfile().success(user=>{
                             this.checkLanguageBasedOnKeycloak(user);
@@ -85,7 +117,7 @@ export class KeycloakService {
                         this.mainservice.setSecured(false);
                         this.mainservice.updateGlobal("notSecure",true);
                         reject(errorData);
-                    });
+                    });*/
             }))
         }else{
             return this.mainservice.getKeycloakJson().pipe(flatMap((keycloakJson:any)=>{

@@ -1,0 +1,48 @@
+.hide_layer{
+  overflow-x: hidden;
+  float: left;
+  box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+  margin-top:10px;
+  padding: 15px 20px;
+}
+.form_content{
+  display: grid;
+  position: relative;
+  grid-template-columns: 100% 100%;
+  -webkit-transition: left 500ms ease-in-out;
+  -moz-transition: left 500ms ease-in-out;
+  -o-transition: left 500ms ease-in-out;
+  transition: left 500ms ease-in-out;
+  margin: 0 25px;
+  grid-gap: 50px;
+  left: 0;
+  &.complex{
+    left: -100%
+  }
+
+  & > div{
+    display: block;
+    width: 100%;
+  }
+}
+.cdk-overlay-container .edit-patient .mat-mdc-dialog-content{
+  margin: 0;
+}
+.modal_vertical_nav{
+  padding: 0;
+  width: 100%;
+  li{
+    float: left;
+    min-width: 120px;
+    margin-right: 5px;
+    list-style: none;
+    padding: 7px 10px;
+    &.active{
+      box-shadow: 5px 3px 13px 0 rgba(68, 68, 68, 0.93);
+      font-weight: bold;
+    }
+    &:hover{
+      cursor: pointer;
+    }
+  }
+}
