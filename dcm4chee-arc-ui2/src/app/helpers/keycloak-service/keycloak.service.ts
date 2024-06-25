@@ -60,7 +60,7 @@ export class KeycloakService {
             KeycloakService.keycloakAuth = new Keycloak(KeycloakService.keycloakConfig);
             return j4care.promiseToObservable(new Promise((resolve, reject) => {
                 // @ts-ignore
-                KeycloakService.keycloakAuth.init({ onLoad: 'login-required' })
+                KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
                     .then(authenticated => {
                         if (authenticated) {
                             this.setTokenSource.next(KeycloakService.keycloakAuth);
