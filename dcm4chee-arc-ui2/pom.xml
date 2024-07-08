@@ -53,8 +53,8 @@
   <packaging>war</packaging>
 
   <properties>
-    <node.version>v16.17.1</node.version>
-    <yarn.version>v1.22.19</yarn.version>
+    <node.version>v20.11.0</node.version>
+    <yarn.version>v1.22.21</yarn.version>
     <yarn.run>prod</yarn.run>
     <secure-classifier>secure</secure-classifier>
   </properties>
