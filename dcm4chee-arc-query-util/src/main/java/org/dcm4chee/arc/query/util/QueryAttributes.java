@@ -231,6 +231,10 @@ public class QueryAttributes {
                 case "modified":
                     addModified(entry.getValue());
                     break;
+                case "PatientCreateDateTime":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.PatientCreateDateTime, VR.DT,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
                 default:
                     addQueryKey(key, entry.getValue());
                     break;

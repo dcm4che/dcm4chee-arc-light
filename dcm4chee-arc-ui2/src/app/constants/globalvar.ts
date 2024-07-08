@@ -5992,7 +5992,12 @@ export class Globalvar {
                 filterKey:"limit",
                 description:$localize `:@@limit:Limit`,
                 placeholder:$localize `:@@limit_of_patients:Limit of patients`
-            }
+            }, {
+                tag:"range-picker",
+                type:"text",
+                filterKey:"PatientCreateDateTime",
+                description:$localize `:@@patient_created_datetime:Patient Created DateTime`
+            },
         ]
     }
     static FOR_GROUP_STUDY_FILTER_SCHEMA(aets:SelectDropdown<any>[], modalities:any[], applicationCluster:any[]):FilterSchema{

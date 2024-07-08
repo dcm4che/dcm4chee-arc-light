@@ -610,6 +610,8 @@ public class QueryBuilder {
                 keys.getDateRange(Tag.PatientBirthDate), FormatDate.DA);
         personName(predicates, q, patient, Patient_.responsiblePerson,
                 keys.getString(Tag.ResponsiblePerson, "*"), queryParam);
+        dateRange(predicates, patient.get(Patient_.createdTime),
+                keys.getDateRange(PrivateTag.PrivateCreator, PrivateTag.PatientCreateDateTime, VR.DT));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
         wildCard(predicates, patient.get(Patient_.patientCustomAttribute1),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true);
