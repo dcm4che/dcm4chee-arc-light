@@ -455,15 +455,25 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.94 NAME 'dcmuiQueues'
     SUBSTR caseExactSubstringsMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.95 NAME 'dcmuiGrafanaURL'
-  DESC 'Grafan URL'
+    DESC 'Grafan URL'
     EQUALITY caseExactMatch
     SUBSTR caseExactSubstringsMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15)
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.96 NAME 'dcmuiPrometheusWebApp'
-  DESC 'Promehteus Web App'
+    DESC 'Promehteus Web App'
     EQUALITY caseExactMatch
     SUBSTR caseExactSubstringsMatch
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15)
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.97 NAME 'dcmuiStoreAccessControlID'
+    DESC 'Store Access Control ID'
+    EQUALITY caseExactMatch
+    SUBSTR caseExactSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.98 NAME 'dcmuiUWLWebAppLabels'
+    DESC 'UWL Web App labels'
+    EQUALITY caseExactMatch
+    SUBSTR caseExactSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
@@ -488,6 +498,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
     dcmuiWidgetAets $
     dcmuiInstitutionNameFilterType $
     dcmuiInstitutionName $
+    dcmuiStoreAccessControlID $
     dcmuiMWLWorklistLabel ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.2 NAME 'dcmuiPermission'
   DESC 'Permission for UI Action'
@@ -536,9 +547,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.5 NAME 'dcmuiDashboardConfig'
     dcmAcceptedUserRole $
     dicomuiDeviceName $
     dicomuiIgnoreParams $
-    dicomuiDockerContainer $
     dcmuiGrafanaURL $
     dcmuiPrometheusWebApp $
+    dicomuiDockerContainer $
     dcmuiCompareSideName ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.6 NAME 'dcmuiElasticsearchConfig'
   DESC 'UI Configuration for Elasticsearch'
@@ -655,7 +666,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.17 NAME 'dcmuiTenantConfig'
   MAY (
     dcmuiTenantConfigDescription $
     dcmuiWebAppLabels $
+    dcmuiUWLWebAppLabels $
     dcmuiApplicationEntities $
     dcmuiExporterDescriptions $
     dcmuiStorageDescriptors $
+    dcmuiStoreAccessControlID $
     dcmuiQueues ) )

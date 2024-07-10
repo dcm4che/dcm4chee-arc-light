@@ -97,6 +97,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         writer.writeNotNullOrDef("dcmuiAboutInfo", uiConfig.getAboutInfo(),null);
         writer.writeNotEmpty("dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
+        writer.writeNotEmpty("dcmuiStoreAccessControlID", uiConfig.getStoreAccessControlIDs());
         writer.writeNotEmpty("dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
         writer.writeNotNullOrDef("dcmuiInstitutionNameFilterType", uiConfig.getInstitutionNameFilterType(), null);
         writer.writeNotEmpty("dcmuiInstitutionName", uiConfig.getInstitutionNames());
@@ -189,8 +190,10 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiTenantConfigName", uiTenantConfig.getTenantConfigName(), null);
             writer.writeNotNullOrDef("dcmuiTenantConfigDescription", uiTenantConfig.getTenantConfigDescription(), null);
             writer.writeNotEmpty("dcmuiWebAppLabels", uiTenantConfig.getMwlWorklistLabels());
+            writer.writeNotEmpty("dcmuiUWLWebAppLabels", uiTenantConfig.getMwlUWLWorklistLabels());
             writer.writeNotEmpty("dcmuiApplicationEntities", uiTenantConfig.getApplicationEntities());
             writer.writeNotEmpty("dcmuiExporterDescriptions", uiTenantConfig.getExporterDescriptions());
+            writer.writeNotEmpty("dcmuiStoreAccessControlID", uiTenantConfig.getStoreAccessControlIDs());
             writer.writeNotEmpty("dcmuiStorageDescriptors", uiTenantConfig.getStorageDescriptors());
             writer.writeNotEmpty("dcmuiQueues", uiTenantConfig.getQueues());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiTenantConfig.getAcceptedRole());
@@ -481,6 +484,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiMWLWorklistLabel":
                     uiConfig.setMWLWorklistLabels(reader.stringArray());
                     break;
+                case "dcmuiStoreAccessControlID":
+                    uiConfig.setStoreAccessControlIDs(reader.stringArray());
+                    break;
                 case "dcmuiInstitutionNameFilterType":
                     uiConfig.setInstitutionNameFilterType(reader.stringValue());
                     break;
@@ -675,6 +681,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiWebAppLabels":
                         uiTenantConfig.setMwlWorklistLabels(reader.stringArray());
                         break;
+                    case "dcmuiUWLWebAppLabels":
+                        uiTenantConfig.setMwlUWLWorklistLabels(reader.stringArray());
+                        break;
                     case "dcmuiApplicationEntities":
                         uiTenantConfig.setApplicationEntities(reader.stringArray());
                         break;
@@ -683,6 +692,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiStorageDescriptors":
                         uiTenantConfig.setStorageDescriptors(reader.stringArray());
+                        break;
+                    case "dcmuiStoreAccessControlID":
+                        uiTenantConfig.setStoreAccessControlIDs(reader.stringArray());
                         break;
                     case "dcmuiQueues":
                         uiTenantConfig.setQueues(reader.stringArray());

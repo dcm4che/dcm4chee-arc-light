@@ -54,6 +54,8 @@ public class UIConfig {
     private String[] modalities = {};
     private String[] widgetAets = {};
     private String[] mwlWorklistLabels = {};
+    private String[] storeAccessControlIDs  =  {};
+
     private String xdsUrl;
     private String backgroundUrl;
     private String dateTimeFormat;
@@ -389,6 +391,15 @@ public class UIConfig {
     public Collection<UIWebAppList> getWebAppLists(){
         return this.webAppList.values();
     }
+
+    public String[] getStoreAccessControlIDs() {
+        return storeAccessControlIDs;
+    }
+
+    public void setStoreAccessControlIDs(String[] storeAccessControlIDs) {
+        this.storeAccessControlIDs = storeAccessControlIDs;
+    }
+
     public Collection<UITenantConfig> getTenantConfigs() {
         return this.tenantConfig.values();
     }
@@ -424,4 +435,6 @@ public class UIConfig {
     public Collection<UITableConfig> getTableConfigs() {
         return tableConfig.values();
     }
+
+
 }

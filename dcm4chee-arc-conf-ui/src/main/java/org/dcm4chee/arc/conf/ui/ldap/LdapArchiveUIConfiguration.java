@@ -125,6 +125,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiLogoURL", uiConfig.getLogoUrl(),null);
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiAboutInfo", uiConfig.getAboutInfo(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiDefaultWidgetAets", uiConfig.getDefaultWidgetAets());
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiStoreAccessControlID", uiConfig.getStoreAccessControlIDs());
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiInstitutionNameFilterType", uiConfig.getInstitutionNameFilterType(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiInstitutionName", uiConfig.getInstitutionNames());
@@ -270,9 +271,11 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("dcmuiTenantConfigName", uiTenantConfig.getTenantConfigName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiTenantConfigDescription", uiTenantConfig.getTenantConfigDescription(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiWebAppLabels", uiTenantConfig.getMwlWorklistLabels());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiUWLWebAppLabels", uiTenantConfig.getMwlUWLWorklistLabels());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiApplicationEntities", uiTenantConfig.getApplicationEntities());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiExporterDescriptions", uiTenantConfig.getExporterDescriptions());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiStorageDescriptors", uiTenantConfig.getStorageDescriptors());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiStoreAccessControlID", uiTenantConfig.getStoreAccessControlIDs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiQueues", uiTenantConfig.getQueues());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiTenantConfig.getAcceptedRole());
         return attrs;
@@ -569,6 +572,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setLogoUrl(LdapUtils.stringValue(attrs.get("dcmuiLogoURL"),null));
         uiConfig.setAboutInfo(LdapUtils.stringValue(attrs.get("dcmuiAboutInfo"),null));
         uiConfig.setDefaultWidgetAets(LdapUtils.stringArray(attrs.get("dcmuiDefaultWidgetAets")));
+        uiConfig.setStoreAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmuiStoreAccessControlID")));
         uiConfig.setMWLWorklistLabels(LdapUtils.stringArray(attrs.get("dcmuiMWLWorklistLabel")));
         uiConfig.setInstitutionNameFilterType(LdapUtils.stringValue(attrs.get("dcmuiInstitutionNameFilterType"), null));
         uiConfig.setInstitutionNames(LdapUtils.stringArray(attrs.get("dcmuiInstitutionName")));
@@ -681,9 +685,11 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 UITenantConfig uiTenantConfig = new UITenantConfig((String) attrs.get("dcmuiTenantConfigName").get());
                 uiTenantConfig.setTenantConfigDescription(LdapUtils.stringValue(attrs.get("dcmuiTenantConfigDescription"), null));
                 uiTenantConfig.setMwlWorklistLabels(LdapUtils.stringArray(attrs.get("dcmuiWebAppLabels")));
+                uiTenantConfig.setMwlUWLWorklistLabels(LdapUtils.stringArray(attrs.get("dcmuiUWLWebAppLabels")));
                 uiTenantConfig.setApplicationEntities(LdapUtils.stringArray(attrs.get("dcmuiApplicationEntities")));
                 uiTenantConfig.setExporterDescriptions(LdapUtils.stringArray(attrs.get("dcmuiExporterDescriptions")));
                 uiTenantConfig.setStorageDescriptors(LdapUtils.stringArray(attrs.get("dcmuiStorageDescriptors")));
+                uiTenantConfig.setStoreAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmuiStoreAccessControlID")));
                 uiTenantConfig.setQueues(LdapUtils.stringArray(attrs.get("dcmuiQueues")));
                 uiTenantConfig.setAcceptedRole(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
                 uiConfig.addTenant(uiTenantConfig);
@@ -1028,6 +1034,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 prevUIConfig.getAboutInfo(),uiConfig.getAboutInfo(),null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDefaultWidgetAets",
                 prevUIConfig.getDefaultWidgetAets(), uiConfig.getDefaultWidgetAets());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiStoreAccessControlID",
+                prevUIConfig.getStoreAccessControlIDs(), uiConfig.getStoreAccessControlIDs());
         return mods;
     }
 
@@ -1339,6 +1347,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiWebAppLabels",
                 prev.getMwlWorklistLabels(),
                 uiTenantConfig.getMwlWorklistLabels());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiUWLWebAppLabels",
+                prev.getMwlUWLWorklistLabels(),
+                uiTenantConfig.getMwlUWLWorklistLabels());
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiApplicationEntities",
                 prev.getApplicationEntities(),
                 uiTenantConfig.getApplicationEntities());
@@ -1348,6 +1359,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiStorageDescriptors",
                 prev.getStorageDescriptors(),
                 uiTenantConfig.getStorageDescriptors());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiStoreAccessControlID",
+                prev.getStoreAccessControlIDs(),
+                uiTenantConfig.getStoreAccessControlIDs());
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiQueues",
                 prev.getQueues(),
                 uiTenantConfig.getQueues());

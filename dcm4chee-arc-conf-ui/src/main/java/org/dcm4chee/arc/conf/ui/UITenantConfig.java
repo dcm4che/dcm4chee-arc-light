@@ -9,9 +9,11 @@ public class UITenantConfig {
     private String tenantConfigName;
     private String tenantConfigDescription;
     private String[] mwlWorklistLabels = {};
+    private String[] mwlUWLWorklistLabels = {};
     private String[] applicationEntities = {};
     private String[] exporterDescriptions = {};
     private String[] storageDescriptors = {};
+    private String[] storeAccessControlIDs = {};
     private String[] queues = {};
     private String[] acceptedRole = {};
 
@@ -41,6 +43,14 @@ public class UITenantConfig {
 
     public String[] getExporterDescriptions() {
         return exporterDescriptions;
+    }
+
+    public String[] getMwlUWLWorklistLabels() {
+        return mwlUWLWorklistLabels;
+    }
+
+    public void setMwlUWLWorklistLabels(String[] mwlUWLWorklistLabels) {
+        this.mwlUWLWorklistLabels = mwlUWLWorklistLabels;
     }
 
     public void setExporterDescriptions(String[] exporterDescriptions) {
@@ -77,5 +87,13 @@ public class UITenantConfig {
 
     public void setAcceptedRole(String[] acceptedRole) {
         this.acceptedRole = acceptedRole;
+    }
+
+    public String[] getStoreAccessControlIDs() {
+        return storeAccessControlIDs;
+    }
+
+    public void setStoreAccessControlIDs(String[] storeAccessControlIDs) {
+        this.storeAccessControlIDs = storeAccessControlIDs;
     }
 }
