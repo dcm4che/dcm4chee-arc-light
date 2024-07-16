@@ -92,6 +92,7 @@ import java.util.*;
 @Entity
 @Table(name = "patient",
     indexes = {
+        @Index(columnList = "created_time"),
         @Index(columnList = "verification_status"),
         @Index(columnList = "verification_time"),
         @Index(columnList = "num_studies"),
