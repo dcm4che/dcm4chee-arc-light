@@ -53,6 +53,7 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.MPPSForwardRule;
 import org.dcm4chee.arc.entity.Task;
@@ -204,8 +205,9 @@ class MPPSSCUImpl implements MPPSSCU {
 
     private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE) {
         AAssociateRQ aarq = new AAssociateRQ();
-        TransferCapability tc = localAE.getTransferCapabilityFor(UID.ModalityPerformedProcedureStep,
-                TransferCapability.Role.SCU);
+        ApplicationEntity transferCapabilitiesAE = StringUtils.maskNull(localAE.transferCapabilitiesAE(), localAE);
+        TransferCapability tc = transferCapabilitiesAE.getTransferCapabilityFor(UID.ModalityPerformedProcedureStep,
+                                                                                TransferCapability.Role.SCU);
         aarq.addPresentationContext(new PresentationContext(1, UID.ModalityPerformedProcedureStep,
                 tc.getTransferSyntaxes()));
         return aarq;
