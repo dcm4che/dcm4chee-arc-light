@@ -406,6 +406,7 @@ public class StudyMgtRS {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPatientIDs(pids);
+            ctx.setArchiveAEExtension(arcAE);
             ctx.setAttributes(queryKeys);
             if (updatePolicy != null)
                 ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(updatePolicy));

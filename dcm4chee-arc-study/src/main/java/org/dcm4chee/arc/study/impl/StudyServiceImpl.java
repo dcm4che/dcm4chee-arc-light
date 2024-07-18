@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.study.impl;
 
+import jakarta.ejb.EJBException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -47,6 +48,8 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
 import org.dcm4chee.arc.patient.PatientMergedException;
@@ -55,6 +58,8 @@ import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyMissingException;
 import org.dcm4chee.arc.study.StudyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.Socket;
 
@@ -65,6 +70,8 @@ import java.net.Socket;
  */
 @ApplicationScoped
 public class StudyServiceImpl implements StudyService {
+    static final Logger LOG = LoggerFactory.getLogger(StudyServiceImpl.class);
+
     @Inject
     private Device device;
 
@@ -168,11 +175,28 @@ public class StudyServiceImpl implements StudyService {
     @Override
     public void moveStudyToPatient(String studyUID, PatientMgtContext ctx)
             throws StudyMissingException, NonUniquePatientException, PatientMergedException {
-        try {
-            ejb.moveStudyToPatient(studyUID, ctx);
-        } catch (RuntimeException e) {
-            ctx.setException(e);
-            throw e;
+        ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                ejb.moveStudyToPatient(studyUID, ctx);
+                return;
+            } catch (EJBException e) {
+                ctx.setException(e);
+                if (retries-- > 0) {
+                    LOG.info("{}: Failed to update DB caused by {} - retry", ctx.getHttpServletRequestInfo(),
+                            DicomServiceException.initialCauseOf(e).toString());
+                    LOG.debug("{}: Failed to update DB - retry:\n", ctx.getHttpServletRequestInfo(), e);
+                } else {
+                    LOG.warn("{}: Failed to update DB:\n", ctx.getHttpServletRequestInfo(), e);
+                    throw e;
+                }
+            }
+            try {
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("{}: Failed to delay retry to update DB:\n", ctx.getHttpServletRequestInfo(), e);
+            }
         }
     }
 
