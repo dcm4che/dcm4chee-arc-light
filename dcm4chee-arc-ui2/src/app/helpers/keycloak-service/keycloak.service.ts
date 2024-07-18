@@ -76,7 +76,7 @@ export class KeycloakService {
                                 this.mainservice.setSecured(true);
                                 this.mainservice.updateGlobal("notSecure",false);
                                 resolve(null);
-                            }).error(err=>{
+                            }).catch(err=>{
                                 this.mainservice.setSecured(false);
                                 this.mainservice.updateGlobal("notSecure",true);
                                 console.error("err on loadingUserProfile",err);
@@ -126,11 +126,11 @@ export class KeycloakService {
                     KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
                     return j4care.promiseToObservable(new Promise((resolve, reject) => {
                         KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
-                            .success(() => {
+                            .then(() => {
                                 this.setTokenSource.next(KeycloakService.keycloakAuth.token);
                                 resolve(null);
                             })
-                            .error((errorData: any) => {
+                            .catch((errorData: any) => {
                                 reject(errorData);
                             });
                     }))
@@ -189,10 +189,10 @@ export class KeycloakService {
                         if (KeycloakService.keycloakAuth.token) {
                             KeycloakService.keycloakAuth
                                 .updateToken(5)
-                                .success(() => {
+                                .then(() => {
                                     resolve(<any>KeycloakService.keycloakAuth);
                                 })
-                                .error(() => {
+                                .catch(() => {
                                     reject($localize `:@@keycloak.failed_to_refresh_token:Failed to refresh token`);
                                 });
                         } else {
