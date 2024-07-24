@@ -193,6 +193,7 @@ public class RestoreFromMetadataEJB implements RestoreFromMetadata {
                 SeriesRequestAttributes request = new SeriesRequestAttributes(item, arcDev.getFuzzyStr());
                 requestAttributes.add(request);
             }
+        series.setAccessControlID(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.SeriesAccessControlID));
         series.setSendingAET(
                 attrs.getString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries));
         series.setReceivingAET(

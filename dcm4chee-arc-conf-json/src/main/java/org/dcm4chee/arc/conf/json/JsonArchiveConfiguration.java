@@ -784,6 +784,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("cn", acr.getCommonName(), null);
             writer.writeNotNullOrDef("dcmStoreAccessControlID", acr.getStoreAccessControlID(), null);
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
+            writer.writeNotDef("dcmAccessControlSeriesIndividually", acr.isAccessControlSeriesIndividually(), false);
             writer.writeNotEmpty("dcmProperty", acr.getConditions().getMap());
             writer.writeEnd();
         }
@@ -3014,6 +3015,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmProperty":
                         acr.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    case "dcmAccessControlSeriesIndividually":
+                        acr.setAccessControlSeriesIndividually(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

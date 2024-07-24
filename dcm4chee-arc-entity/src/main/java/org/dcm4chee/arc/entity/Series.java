@@ -323,6 +323,7 @@ import java.util.stream.Stream;
     uniqueConstraints = @UniqueConstraint(columnNames = { "study_fk", "series_iuid" }),
     indexes = {
         @Index(columnList = "series_iuid"),
+        @Index(columnList = "access_control_id"),
         @Index(columnList = "rejection_state"),
         @Index(columnList = "series_no"),
         @Index(columnList = "modality"),
@@ -598,6 +599,10 @@ public class Series {
     @Column(name = "series_custom3")
     private String seriesCustomAttribute3;
 
+    @Basic(optional = false)
+    @Column(name = "access_control_id")
+    private String accessControlID = "*";
+
     @Column(name = "sending_aet")
     private String sendingAET;
 
@@ -844,6 +849,14 @@ public class Series {
 
     public String getSeriesCustomAttribute3() {
         return seriesCustomAttribute3;
+    }
+
+    public String getAccessControlID() {
+        return StringUtils.nullify(accessControlID, "*");
+    }
+
+    public void setAccessControlID(String accessControlID) {
+        this.accessControlID = StringUtils.maskNull(accessControlID, "*");
     }
 
     public String getSendingAET() {

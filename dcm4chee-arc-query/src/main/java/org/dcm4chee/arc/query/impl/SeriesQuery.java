@@ -125,6 +125,7 @@ class SeriesQuery extends AbstractQuery {
                 series.get(Series_.rejectionState),
                 series.get(Series_.completeness),
                 series.get(Series_.failedRetrieves),
+                series.get(Series_.accessControlID),
                 series.get(Series_.sendingAET),
                 series.get(Series_.receivingAET),
                 series.get(Series_.sendingPresentationAddress),
@@ -270,6 +271,9 @@ class SeriesQuery extends AbstractQuery {
         if (results.get(series.get(Series_.failedRetrieves)) != 0)
             attrs.setInt(PrivateTag.PrivateCreator, PrivateTag.FailedRetrievesOfSeries, VR.US,
                     results.get(series.get(Series_.failedRetrieves)));
+        if (!results.get(series.get(Series_.accessControlID)).equals("*"))
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesAccessControlID, VR.LO,
+                    results.get(series.get(Series_.accessControlID)));
         setStringNotNull(attrs, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                 results.get(series.get(Series_.sendingAET)));
         setStringNotNull(attrs, PrivateTag.ReceivingApplicationEntityTitleOfSeries, VR.AE,

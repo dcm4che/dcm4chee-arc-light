@@ -408,6 +408,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
         }
         builder.accessControl(predicates, study, ctx.getAccessControlIDs());
+        builder.seriesAccessControl(predicates, series, ctx.getAccessControlIDs());
         builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
         builder.uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), ctx.getSeriesInstanceUIDs());
         predicates.add(cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED));

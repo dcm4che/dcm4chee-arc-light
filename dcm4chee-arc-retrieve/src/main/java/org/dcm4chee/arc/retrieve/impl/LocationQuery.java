@@ -104,6 +104,7 @@ class LocationQuery {
                 builder.patientIDPredicate(predicates, study.join(Study_.patient), ctx.getPatientIDs());
             }
             builder.accessControl(predicates, study, ctx.getAccessControlIDs());
+            builder.seriesAccessControl(predicates, series, ctx.getAccessControlIDs());
             builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
             builder.uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), ctx.getSeriesInstanceUIDs());
             QueryRetrieveView qrView = ctx.getQueryRetrieveView();

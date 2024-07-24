@@ -1317,7 +1317,7 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
         study.addStorageID(objectStorageID(ctx));
-        study.setAccessControlID(arcAE.storeAccessControlIDRules()
+        study.setAccessControlID(arcAE.storeAccessControlIDRules(false)
                 .filter(rule -> rule.match(
                                 session.getRemoteHostName(),
                                 session.getCallingAET(),
@@ -1501,6 +1501,8 @@ public class StoreServiceEJB {
     }
 
     private Series createSeries(StoreContext ctx, Study study, UpdateDBResult result) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Series series = new Series();
         setSeriesAttributes(ctx, series);
         series.setSopClassUID(ctx.getSopClassUID());
@@ -1508,6 +1510,16 @@ public class StoreServiceEJB {
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         series.setExpirationState(ExpirationState.UPDATEABLE);
+        arcAE.storeAccessControlIDRules(true)
+                .filter(rule -> rule.match(
+                        session.getRemoteHostName(),
+                        session.getCallingAET(),
+                        session.getLocalHostName(),
+                        session.getCalledAET(),
+                        ctx.getAttributes()))
+                .map(StoreAccessControlIDRule::getStoreAccessControlID)
+                .findFirst()
+                .ifPresent(series::setAccessControlID);
         ArchiveCompressionRule compressionRule = ctx.getCompressionRule();
         if (compressionRule != null && compressionRule.getDelay() != null) {
             series.setCompressionTime(

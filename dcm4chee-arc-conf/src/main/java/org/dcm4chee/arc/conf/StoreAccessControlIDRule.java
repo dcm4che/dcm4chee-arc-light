@@ -52,6 +52,8 @@ public class StoreAccessControlIDRule {
     public static final StoreAccessControlIDRule[] EMPTY = {};
     private String commonName;
 
+    private boolean accessControlSeriesIndividually;
+
     private int priority;
 
     private Conditions conditions = new Conditions();
@@ -71,6 +73,14 @@ public class StoreAccessControlIDRule {
 
     public void setCommonName(String commonName) {
         this.commonName = commonName;
+    }
+
+    public boolean isAccessControlSeriesIndividually() {
+        return accessControlSeriesIndividually;
+    }
+
+    public void setAccessControlSeriesIndividually(boolean accessControlSeriesIndividually) {
+        this.accessControlSeriesIndividually = accessControlSeriesIndividually;
     }
 
     public int getPriority() {
@@ -98,7 +108,7 @@ public class StoreAccessControlIDRule {
     }
 
     public boolean match(String sendingHost, String sendingAET, String receivingHost, String receivingAET,
-            Attributes attrs) {
+                         Attributes attrs) {
         return conditions.match(sendingHost, sendingAET, receivingHost, receivingAET, attrs);
     }
 
@@ -106,7 +116,8 @@ public class StoreAccessControlIDRule {
     public String toString() {
         return "StoreAccessControlIDRule{" +
                 "cn='" + commonName +
-                "', priority=" + priority +
+                "', accessControlSeriesIndividually=" + accessControlSeriesIndividually +
+                ", priority=" + priority +
                 ", conditions=" + conditions +
                 ", storeAccessControlID='" + storeAccessControlID +
                 "'}";

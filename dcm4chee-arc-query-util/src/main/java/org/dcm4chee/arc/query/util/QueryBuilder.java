@@ -804,9 +804,22 @@ public class QueryBuilder {
         return study.get(Study_.accessControlID).in(a);
     }
 
+    public static void seriesAccessControl(List<Predicate> predicates, Path<Series> series, String[] accessControlIDs) {
+        if (accessControlIDs.length > 0)
+            predicates.add(seriesAccessControlPredicate(series, accessControlIDs));
+    }
+
+    private static Predicate seriesAccessControlPredicate(Path<Series> series, String[] accessControlIDs) {
+        String[] a = new String[accessControlIDs.length + 1];
+        a[0] = "*";
+        System.arraycopy(accessControlIDs, 0, a, 1, accessControlIDs.length);
+        return series.get(Series_.accessControlID).in(a);
+    }
+
     private <T, Z> void seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
              From<Series, Study> study, From<Z, Series> series, Attributes keys, QueryParam queryParam,
              QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes) {
+        seriesAccessControl(predicates, series, queryParam.getAccessControlIDs());
         anyOf(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID), false);
         numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
         anyOf(predicates, series.get(Series_.modality),
