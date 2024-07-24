@@ -18,7 +18,6 @@ public class TaskEvent {
     public TaskEvent(HttpServletRequest request, TaskOperation operation) {
         this.request = request;
         this.operation = operation;
-        this.task = task;
     }
 
     public HttpServletRequest getRequest() {
@@ -43,5 +42,12 @@ public class TaskEvent {
 
     public void setException(Exception exception) {
         this.exception = exception;
+    }
+
+    @Override
+    public String toString() {
+        return "TaskEvent[" + request.getRemoteUser() + '@' + request.getRemoteHost()
+                + ", operation=" + operation
+                + ']';
     }
 }

@@ -69,6 +69,7 @@ import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.*;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -172,7 +173,7 @@ public class AuditService {
                 auditSoftwareConfiguration(auditLogger, path, eventType);
                 break;
             case QUEUE_EVENT:
-                auditQueueMessageEvent(auditLogger, path, eventType);
+                TaskAuditService.audit(auditLogger, path, eventType);
                 break;
             case IMPAX:
                 auditPatientMismatch(auditLogger, path, eventType);
@@ -203,7 +204,7 @@ public class AuditService {
                                         .callingHost(request.getRemoteAddr())
                                         .toAuditInfo());
         } catch (Exception e) {
-            LOG.info("Failed to spool {}\n", event, e);
+            LOG.info("Failed to spool Application Activity {}\n", event, e);
         }
     }
 
@@ -351,7 +352,7 @@ public class AuditService {
             studyRejectionNoteSent.addAll(sopInstancesRejectionNote(rejectionNoteSent.getRejectionNote()));
             writeSpoolFile(fileName, false, studyRejectionNoteSent.toArray(new AuditInfo[0]));
         } catch (Exception e) {
-            LOG.info("Failed to spool {}\n", rejectionNoteSent, e);
+            LOG.info("Failed to spool External Rejection {}\n", rejectionNoteSent, e);
         }
     }
 
@@ -375,38 +376,55 @@ public class AuditService {
         if (taskEvent.getTask() == null)
             return;
 
-        String callingUser = KeycloakContext.valueOf(taskEvent.getRequest()).getUserName();
+        Task task = taskEvent.getTask();
         try {
-            writeSpoolFile(
-                    AuditUtils.EventType.forQueueEvent(taskEvent.getOperation()),
-                    null,
-                    TaskAuditService.queueMsgAuditInfo(taskEvent));
+            String fileName = AuditUtils.EventType.forTaskEvent(taskEvent.getOperation()).name();
+            HttpServletRequest req = taskEvent.getRequest();
+            AuditInfo taskAuditInfo = new AuditInfoBuilder.Builder()
+                    .callingUserID(KeycloakContext.valueOf(req).getUserName())
+                    .callingHost(req.getRemoteHost())
+                    .calledUserID(req.getRequestURI())
+                    .outcome(taskEvent.getException() == null ? null : taskEvent.getException().getMessage())
+                    .task(TaskAuditService.toString(task))
+                    .taskPOID(Long.toString(task.getPk()))
+                    .toAuditInfo();
+            writeSpoolFile(fileName, false, taskAuditInfo);
         } catch (Exception e) {
-            LOG.info("Failed to spool Task Event for [Operation={}] of [TaskID={}] "
-                            + "triggered by [User={}]\n",
-                    taskEvent.getOperation(), taskEvent.getTask().getPk(), callingUser, e);
+            LOG.info("Failed to spool {} for {} \n", taskEvent, task, e);
         }
     }
 
-    void spoolBulkQueueMessageEvent(BulkTaskEvent bulkQueueMsgEvent) {
-        HttpServletRequest request = bulkQueueMsgEvent.getRequest();
-        String callingUser = request != null ? KeycloakContext.valueOf(request).getUserName() : device.getDeviceName();
+    void spoolBulkTasksEvent(BulkTaskEvent bulkTasksEvent) {
+        HttpServletRequest req = bulkTasksEvent.getRequest();
         try {
-            writeSpoolFile(
-                    AuditUtils.EventType.forQueueEvent(bulkQueueMsgEvent.getOperation()),
-                    null,
-                    TaskAuditService.bulkQueueMsgAuditInfo(bulkQueueMsgEvent, callingUser));
-        } catch (Exception e) {
-            LOG.info("Failed to spool Bulk Queue Message Event for [QueueOperation={}] triggered by [User={}]\n",
-                    bulkQueueMsgEvent.getOperation(), callingUser, e);
-        }
-    }
+            String fileName = AuditUtils.EventType.forTaskEvent(bulkTasksEvent.getOperation()).name();
+            if (req == null) {
+                writeSpoolFile(fileName, false,
+                        new AuditInfoBuilder.Builder()
+                            .callingUserID(device.getDeviceName())
+                            .outcome(bulkTasksEvent.getException() == null ? null : bulkTasksEvent.getException().getMessage())
+                            .count(bulkTasksEvent.getCount())
+                            .failed(bulkTasksEvent.getFailed())
+                            .taskPOID(bulkTasksEvent.getOperation().name())
+                            .queueName(bulkTasksEvent.getQueueName())
+                            .toAuditInfo());
+                return;
+            }
 
-    private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        emitAuditMessage(
-                TaskAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
+            writeSpoolFile(fileName, false,
+                    new AuditInfoBuilder.Builder()
+                            .callingUserID(KeycloakContext.valueOf(req).getUserName())
+                            .callingHost(req.getRemoteHost())
+                            .calledUserID(req.getRequestURI())
+                            .outcome(bulkTasksEvent.getException() == null ? null : bulkTasksEvent.getException().getMessage())
+                            .count(bulkTasksEvent.getCount())
+                            .failed(bulkTasksEvent.getFailed())
+                            .taskPOID(bulkTasksEvent.getOperation().name())
+                            .filters(req.getQueryString())
+                            .toAuditInfo());
+        } catch (Exception e) {
+            LOG.info("Failed to spool {} \n", bulkTasksEvent, e);
+        }
     }
 
     void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {

@@ -145,9 +145,9 @@ class DeletionAuditService extends AuditService {
             String archiveUserID, AuditMessages.UserIDTypeCode archiveUserIDTypeCode, AuditLogger auditLogger) {
         ActiveParticipant archive = new ActiveParticipant();
         archive.setUserID(archiveUserID);
+        archive.setUserIDTypeCode(archiveUserIDTypeCode);
         archive.setAlternativeUserID(AuditLogger.processID());
         archive.setUserIsRequestor(archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.DeviceName);
-        archive.setUserIDTypeCode(archiveUserIDTypeCode);
         archive.setUserTypeCode(AuditMessages.UserTypeCode.Application);
 
         String auditLoggerHostName = auditLogger.getConnections().get(0).getHostname();

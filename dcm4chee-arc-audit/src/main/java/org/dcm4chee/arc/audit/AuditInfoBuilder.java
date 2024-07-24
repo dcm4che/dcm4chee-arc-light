@@ -88,7 +88,7 @@ class AuditInfoBuilder {
     final String outgoingHL7Receiver;
     final String filters;
     final int count;
-    final String queueMsg;
+    final String task;
     final String taskPOID;
     final String errorCode;
     final String patMismatchCode;
@@ -131,7 +131,7 @@ class AuditInfoBuilder {
         private String outgoingHL7Receiver;
         private String filters;
         private int count;
-        private String queueMsg;
+        private String task;
         private String taskPOID;
         private String errorCode;
         private String patMismatchCode;
@@ -283,8 +283,8 @@ class AuditInfoBuilder {
             count = val;
             return this;
         }
-        Builder queueMsg(String val) {
-            queueMsg = val;
+        Builder task(String val) {
+            task = val;
             return this;
         }
         Builder taskPOID(String val) {
@@ -375,7 +375,7 @@ class AuditInfoBuilder {
         outgoingHL7Receiver = builder.outgoingHL7Receiver;
         filters = builder.filters;
         count = builder.count;
-        queueMsg = builder.queueMsg;
+        task = builder.task;
         taskPOID = builder.taskPOID;
         errorCode = builder.errorCode;
         patMismatchCode = builder.patMismatchCode;

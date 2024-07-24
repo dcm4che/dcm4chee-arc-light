@@ -227,32 +227,6 @@ class ParticipantObjectID {
                 .mpps(instanceInfo.getMppsArray());
     }
 
-    static ParticipantObjectIdentification taskParticipant(AuditInfo auditInfo) {
-        if (auditInfo.getField(AuditInfo.QUEUE_MSG) == null)
-            return tasksParticipant(auditInfo);
-
-        return new ParticipantObjectIdentificationBuilder(
-                auditInfo.getField(AuditInfo.TASK_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.TASK,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                null)
-                .detail(AuditMessages.createParticipantObjectDetail("Task", auditInfo.getField(AuditInfo.QUEUE_MSG)))
-                .build();
-    }
-
-    private static ParticipantObjectIdentification tasksParticipant(AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder(
-                auditInfo.getField(AuditInfo.TASK_POID),
-                AuditMessages.ParticipantObjectIDTypeCode.TASKS,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                null)
-                .detail(AuditMessages.createParticipantObjectDetail("Filters", auditInfo.getField(AuditInfo.FILTERS)),
-                        AuditMessages.createParticipantObjectDetail("QueueName", auditInfo.getField(AuditInfo.QUEUE_NAME)),
-                        AuditMessages.createParticipantObjectDetail("Count", auditInfo.getField(AuditInfo.COUNT)),
-                        AuditMessages.createParticipantObjectDetail("Failed", auditInfo.getField(AuditInfo.FAILED)))
-                .build();
-    }
-
     static ParticipantObjectIdentification softwareConfParticipant(SpoolFileReader reader, AuditInfo auditInfo) {
         return new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.CALLED_USERID),

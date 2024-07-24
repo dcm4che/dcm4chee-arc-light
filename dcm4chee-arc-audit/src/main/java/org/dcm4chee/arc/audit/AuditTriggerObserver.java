@@ -179,9 +179,9 @@ public class AuditTriggerObserver {
             auditService.spoolTaskEvent(queueMsgEvent);
     }
 
-    public void onBulkQueueMessageEvent(@Observes BulkTaskEvent bulkQueueMsgEvent) {
+    public void onBulkQueueMessageEvent(@Observes BulkTaskEvent bulkTasksEvent) {
         if (deviceHasAuditLoggers())
-            auditService.spoolBulkQueueMessageEvent(bulkQueueMsgEvent);
+            auditService.spoolBulkTasksEvent(bulkTasksEvent);
     }
 
     public void onHL7Message(@Observes HL7ConnectionEvent hl7ConnectionEvent) {

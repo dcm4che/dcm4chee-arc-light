@@ -340,7 +340,7 @@ class AuditUtils {
             return eventType;
         }
 
-        static EventType forQueueEvent(TaskOperation operation) {
+        static EventType forTaskEvent(TaskOperation operation) {
             return operation == TaskOperation.CancelTasks
                     ? CANCEL_TSK
                     : operation == TaskOperation.RescheduleTasks

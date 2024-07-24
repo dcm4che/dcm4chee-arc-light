@@ -84,7 +84,7 @@ class AuditInfo {
     static final int OUTGOING_HL7_RECEIVER = 24;
     static final int FILTERS = 25;
     static final int COUNT = 26;
-    static final int QUEUE_MSG = 27;
+    static final int TASK = 27;
     static final int TASK_POID = 28;
     static final int ERROR_CODE = 29;
     static final int PAT_MISMATCH_CODE = 30;
@@ -130,7 +130,7 @@ class AuditInfo {
                 encode(i.outgoingHL7Receiver),
                 encode(i.filters),
                 encode(String.valueOf(i.count)),
-                encode(i.queueMsg),
+                encode(i.task),
                 encode(i.taskPOID),
                 encode(i.errorCode),
                 encode(i.patMismatchCode),

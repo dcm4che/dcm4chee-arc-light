@@ -39,105 +39,129 @@
  */
 package org.dcm4chee.arc.audit;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.dcm4che3.audit.ActiveParticipant;
-import org.dcm4che3.audit.ActiveParticipantBuilder;
-import org.dcm4che3.audit.AuditMessage;
-import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4chee.arc.entity.Task;
-import org.dcm4chee.arc.event.BulkTaskEvent;
-import org.dcm4chee.arc.event.TaskEvent;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
+import org.dcm4che3.audit.ActiveParticipant;
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.EventIdentification;
+import org.dcm4che3.audit.ParticipantObjectIdentification;
+import org.dcm4che3.net.audit.AuditLogger;
+import org.dcm4chee.arc.entity.Task;
+
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
-class TaskAuditService {
+class TaskAuditService extends AuditService {
 
-    private final static Logger LOG = LoggerFactory.getLogger(TaskAuditService.class);
-
-    static AuditInfoBuilder queueMsgAuditInfo(TaskEvent queueMsgEvent) {
-        HttpServletRequest req = queueMsgEvent.getRequest();
-        Task queueMsg = queueMsgEvent.getTask();
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                .callingHost(req.getRemoteHost())
-                .calledUserID(req.getRequestURI())
-                .outcome(outcome(queueMsgEvent.getException()))
-                .queueMsg(toString(queueMsg))
-                .taskPOID(Long.toString(queueMsg.getPk()))
-                .build();
-    }
-
-    static AuditInfoBuilder bulkQueueMsgAuditInfo(BulkTaskEvent bulkQueueMsgEvent, String callingUser) {
-        HttpServletRequest req = bulkQueueMsgEvent.getRequest();
-        AuditInfoBuilder.Builder builder = new AuditInfoBuilder.Builder()
-                .callingUserID(callingUser)
-                .outcome(outcome(bulkQueueMsgEvent.getException()))
-                .count(bulkQueueMsgEvent.getCount())
-                .failed(bulkQueueMsgEvent.getFailed())
-                .taskPOID(bulkQueueMsgEvent.getOperation().name());
-        return req != null
-                ? builder.callingHost(req.getRemoteHost())
-                        .calledUserID(req.getRequestURI())
-                        .filters(req.getQueryString())
-                        .build()
-                : builder
-                    .queueName(bulkQueueMsgEvent.getQueueName())
-                    .build();
-    }
-
-    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        return AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipants(auditInfo, auditLogger),
-                ParticipantObjectID.taskParticipant(auditInfo));
-    }
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
+        ParticipantObjectIdentification task = task(auditInfo);
 
-    private static ActiveParticipant[] activeParticipants(AuditInfo auditInfo, AuditLogger auditLogger) {
-        ActiveParticipant[] activeParticipants;
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        if (calledUserID == null) {
-            activeParticipants = new ActiveParticipant[1];
-            activeParticipants[0] = new ActiveParticipantBuilder(
-                    callingUserID,
-                    auditLogger.getConnections().get(0).getHostname())
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                    .isRequester().build();
-        } else {
-            activeParticipants = new ActiveParticipant[2];
-            activeParticipants[0] = new ActiveParticipantBuilder(
-                    callingUserID,
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                    .isRequester().build();
-            activeParticipants[1] = new ActiveParticipantBuilder(
-                    calledUserID,
-                    auditLogger.getConnections().get(0).getHostname())
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                    .build();
+        if (auditInfo.getField(AuditInfo.TASK) != null) {
+            ActiveParticipant archive = archive(auditInfo.getField(AuditInfo.CALLING_USERID),
+                    AuditMessages.UserIDTypeCode.DeviceName,
+                    auditLogger);
+            emitAuditMessage(auditLogger, eventIdentification, Collections.singletonList(archive), task);
+            return;
         }
-        return activeParticipants;
+
+        List<ActiveParticipant> activeParticipants = new ArrayList<>();
+        activeParticipants.add(archive(auditInfo.getField(AuditInfo.CALLED_USERID),
+                                        AuditMessages.UserIDTypeCode.URI,
+                                        auditLogger));
+        activeParticipants.add(requestor(auditInfo));
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants, task);
     }
 
-    private static String outcome(Exception e) {
-        return e != null ? e.getMessage() : null;
+    private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(eventType.eventID);
+        ei.setEventActionCode(eventType.eventActionCode);
+        ei.setEventOutcomeDescription(outcome);
+        ei.setEventOutcomeIndicator(outcome == null
+                ? AuditMessages.EventOutcomeIndicator.Success
+                : AuditMessages.EventOutcomeIndicator.MinorFailure);
+        ei.getEventTypeCode().add(eventType.eventTypeCode);
+        return ei;
     }
 
-    private static String toString(Task task) {
+    private static ParticipantObjectIdentification task(AuditInfo auditInfo) {
+        if (auditInfo.getField(AuditInfo.TASK) == null)
+            return bulkTasks(auditInfo);
+
+        ParticipantObjectIdentification task = new ParticipantObjectIdentification();
+        task.setParticipantObjectID(auditInfo.getField(AuditInfo.TASK_POID));
+        task.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.TASKS);
+        task.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        task.getParticipantObjectDetail()
+            .add(AuditMessages.createParticipantObjectDetail("Task", auditInfo.getField(AuditInfo.TASK)));
+        return task;
+    }
+
+    private static ParticipantObjectIdentification bulkTasks(AuditInfo auditInfo) {
+        ParticipantObjectIdentification bulkTasks = new ParticipantObjectIdentification();
+        bulkTasks.setParticipantObjectID(auditInfo.getField(AuditInfo.TASK_POID));
+        bulkTasks.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.TASKS);
+        bulkTasks.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        bulkTasks.getParticipantObjectDetail()
+                 .add(AuditMessages.createParticipantObjectDetail("Filters", auditInfo.getField(AuditInfo.FILTERS)));
+        bulkTasks.getParticipantObjectDetail()
+                 .add(AuditMessages.createParticipantObjectDetail("QueueName", auditInfo.getField(AuditInfo.QUEUE_NAME)));
+        bulkTasks.getParticipantObjectDetail()
+                 .add(AuditMessages.createParticipantObjectDetail("Count", auditInfo.getField(AuditInfo.COUNT)));
+        bulkTasks.getParticipantObjectDetail()
+                 .add(AuditMessages.createParticipantObjectDetail("Failed", auditInfo.getField(AuditInfo.FAILED)));
+        return bulkTasks;
+    }
+
+    private static ActiveParticipant archive(
+            String archiveUserID, AuditMessages.UserIDTypeCode archiveUserIDTypeCode, AuditLogger auditLogger) {
+        ActiveParticipant archive = new ActiveParticipant();
+        archive.setUserID(archiveUserID);
+        archive.setUserIDTypeCode(archiveUserIDTypeCode);
+        archive.setAlternativeUserID(AuditLogger.processID());
+        archive.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archive.setUserIsRequestor(archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.DeviceName);
+        String auditLoggerHostName = auditLogger.getConnections().get(0).getHostname();
+        archive.setNetworkAccessPointID(auditLoggerHostName);
+        archive.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(auditLoggerHostName)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archive;
+    }
+
+    private static ActiveParticipant requestor(AuditInfo auditInfo) {
+        String requestorID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        ActiveParticipant requestor = new ActiveParticipant();
+        requestor.setUserID(requestorID);
+        requestor.setUserIDTypeCode(
+                AuditMessages.isIP(requestorID)
+                    ? AuditMessages.UserIDTypeCode.NodeID
+                    : AuditMessages.UserIDTypeCode.PersonID);
+        requestor.setUserIsRequestor(true);
+        requestor.setNetworkAccessPointID(requestorHost);
+        requestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(requestorHost)
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return requestor;
+    }
+
+    static String toString(Task task) {
         StringWriter w = new StringWriter(256);
         try (JsonGenerator gen = Json.createGenerator(w)){
             task.writeAsJSON(gen);

@@ -61,4 +61,15 @@ public class BulkTaskEvent {
     public String getQueueName() {
         return queueName;
     }
+
+    @Override
+    public String toString() {
+        return request == null
+                ? "TaskEvent[queueName=" + queueName
+                    + ", operation=" + operation
+                    + ']'
+                : "TaskEvent[" + request.getRemoteUser() + '@' + request.getRemoteHost()
+                    + ", operation=" + operation
+                    + ']';
+    }
 }
