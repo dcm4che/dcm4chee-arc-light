@@ -379,11 +379,11 @@ public class AuditService {
         Task task = taskEvent.getTask();
         try {
             String fileName = AuditUtils.EventType.forTaskEvent(taskEvent.getOperation()).name();
-            HttpServletRequest req = taskEvent.getRequest();
+            HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(taskEvent.getRequest());
             AuditInfo taskAuditInfo = new AuditInfoBuilder.Builder()
-                    .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                    .callingHost(req.getRemoteHost())
-                    .calledUserID(req.getRequestURI())
+                    .callingUserID(httpServletRequestInfo.requesterUserID)
+                    .callingHost(httpServletRequestInfo.requesterHost)
+                    .calledUserID(httpServletRequestInfo.requestURI)
                     .outcome(taskEvent.getException() == null ? null : taskEvent.getException().getMessage())
                     .task(TaskAuditService.toString(task))
                     .taskPOID(Long.toString(task.getPk()))
@@ -411,16 +411,17 @@ public class AuditService {
                 return;
             }
 
+            HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(req);
             writeSpoolFile(fileName, false,
                     new AuditInfoBuilder.Builder()
-                            .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                            .callingHost(req.getRemoteHost())
-                            .calledUserID(req.getRequestURI())
+                            .callingUserID(httpServletRequestInfo.requesterUserID)
+                            .callingHost(httpServletRequestInfo.requesterHost)
+                            .calledUserID(httpServletRequestInfo.requestURI)
                             .outcome(bulkTasksEvent.getException() == null ? null : bulkTasksEvent.getException().getMessage())
                             .count(bulkTasksEvent.getCount())
                             .failed(bulkTasksEvent.getFailed())
                             .taskPOID(bulkTasksEvent.getOperation().name())
-                            .filters(req.getQueryString())
+                            .filters(httpServletRequestInfo.queryString)
                             .toAuditInfo());
         } catch (Exception e) {
             LOG.info("Failed to spool {} \n", bulkTasksEvent, e);
