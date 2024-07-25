@@ -12,4 +12,4 @@ update study set study_deleting = false where study_deleting is null;
 -- part 3: can be applied on already running archive 5.32
 alter table instance alter column ext_retrieve_aet set not null;
 alter table series alter column ext_retrieve_aet set not null;
-alter table study alter study_deleting set not null;
+alter table study alter column study_deleting set not null;
