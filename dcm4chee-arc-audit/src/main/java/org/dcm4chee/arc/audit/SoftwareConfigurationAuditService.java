@@ -60,7 +60,7 @@ class SoftwareConfigurationAuditService extends AuditService {
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
         eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
         String archiveUserID = auditInfo.getField(AuditInfo.ARCHIVE_USER_ID);
-        ParticipantObjectIdentification archivePOI = archive(archiveUserID);
+        ParticipantObjectIdentification archivePOI = archive(archiveUserID, reader);
         if (auditInfo.getField(AuditInfo.CALLING_USERID) == null) {
             ActiveParticipant archive = archive(archiveUserID, AuditMessages.UserIDTypeCode.DeviceName, auditLogger);
             emitAuditMessage(auditLogger, eventIdentification, Collections.singletonList(archive), archivePOI);
@@ -88,11 +88,15 @@ class SoftwareConfigurationAuditService extends AuditService {
         return ei;
     }
 
-    private static ParticipantObjectIdentification archive(String archiveUserID) {
+    private static ParticipantObjectIdentification archive(String archiveUserID, SpoolFileReader reader) {
         ParticipantObjectIdentification archive = new ParticipantObjectIdentification();
         archive.setParticipantObjectID(archiveUserID);
         archive.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.DeviceName);
         archive.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        archive.getParticipantObjectDetail().add((AuditMessages.createParticipantObjectDetail("Alert Description",
+                !reader.getInstanceLines().isEmpty()
+                    ? String.join("\n", reader.getInstanceLines())
+                    : null)));
         return archive;
     }
 
