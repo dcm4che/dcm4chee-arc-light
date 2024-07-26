@@ -151,7 +151,7 @@ public class WadoExporter extends AbstractExporter {
             MessageFormat format = new MessageFormat(targetURI.replace('[', '{').replace(']', '}'));
             Entity entity = Entity.values()[format.getFormats().length];
             List<QueryRetrieveRequest> list = queryRetrieveRequests.computeIfAbsent(entity, k -> new ArrayList<>(2));
-            list.add(new QueryRetrieveRequest(format, token(), device, descriptor));
+            list.add(new QueryRetrieveRequest(format, device, descriptor));
         } catch (ConfigurationException e) {
             LOG.info("Failed to find Web Application for request invocation for {} : {}",
                     uriSchemeSpecificPart, e.getMessage());
@@ -204,8 +204,9 @@ public class WadoExporter extends AbstractExporter {
             WebTarget target = client.target(targetURL);
             Invocation.Builder request = target.request();
             queryRetrieveRequest.getHeaderFields().forEach((k,v) -> request.header(k.toString(), v));
-            if (queryRetrieveRequest.getToken() != null)
-                request.header("Authorization", "Bearer " + queryRetrieveRequest.getToken());
+            String token = token();
+            if (token != null)
+                request.header("Authorization", "Bearer " + token);
             try (Response response = request.get()) {
                 Response.StatusType statusInfo = response.getStatusInfo();
                 if (statusInfo.getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -316,17 +317,15 @@ public class WadoExporter extends AbstractExporter {
         final MessageFormat format;
         final EnumMap<HeaderField,String> headerFields;
         final StorageDescriptor storageDescriptor;
-        final String token;
         final ExporterDescriptor exporterDescriptor;
         final Device device;
 
-        QueryRetrieveRequest(MessageFormat format, String token, Device device, ExporterDescriptor exporterDescriptor) {
+        QueryRetrieveRequest(MessageFormat format, Device device, ExporterDescriptor exporterDescriptor) {
             this.format = format;
             this.exporterDescriptor = exporterDescriptor;
             this.device = device;
             this.storageDescriptor = toStorageDescriptor();
             this.headerFields = toHeaderFields();
-            this.token = token;
         }
 
         private enum HeaderField {
@@ -363,10 +362,6 @@ public class WadoExporter extends AbstractExporter {
 
         EnumMap<HeaderField, String> getHeaderFields() {
             return headerFields;
-        }
-
-        String getToken() {
-            return token;
         }
 
         String getFormattedParams(Object[] params) {
