@@ -226,17 +226,4 @@ class ParticipantObjectID {
                 .acc(instanceInfo.getAcc())
                 .mpps(instanceInfo.getMppsArray());
     }
-
-    static ParticipantObjectIdentification softwareConfParticipant(SpoolFileReader reader, AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder(
-                auditInfo.getField(AuditInfo.CALLED_USERID),
-                AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                null)
-                .detail(AuditMessages.createParticipantObjectDetail("Alert Description",
-                        !reader.getInstanceLines().isEmpty()
-                                ? String.join("\n", reader.getInstanceLines())
-                                : null))
-                .build();
-    }
 }

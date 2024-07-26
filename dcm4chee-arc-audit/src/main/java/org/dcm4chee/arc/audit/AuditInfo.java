@@ -98,6 +98,7 @@ class AuditInfo {
     static final int QUEUE_NAME = 38;
     static final int STATUS = 39;
     static final int FHIR_WEB_APP_NAME = 40;
+    static final int ARCHIVE_USER_ID = 41;
 
     private final String[] fields;
 
@@ -143,7 +144,8 @@ class AuditInfo {
                 encode(i.findSCP),
                 encode(i.queueName),
                 encode(i.status),
-                encode(i.fhirWebAppName)
+                encode(i.fhirWebAppName),
+                encode(i.archiveUserID)
         };
     }
 

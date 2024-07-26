@@ -170,7 +170,7 @@ public class AuditService {
                 auditExternalRetrieve(auditLogger, path, eventType);
                 break;
             case LDAP_CHANGES:
-                auditSoftwareConfiguration(auditLogger, path, eventType);
+                SoftwareConfigurationAuditService.audit(auditLogger, path, eventType);
                 break;
             case QUEUE_EVENT:
                 TaskAuditService.audit(auditLogger, path, eventType);
@@ -429,25 +429,29 @@ public class AuditService {
     }
 
     void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {
-        String callingUser = softwareConfiguration.getRequest() != null
-                ? KeycloakContext.valueOf(softwareConfiguration.getRequest()).getUserName()
-                : softwareConfiguration.getDeviceName();
         try {
-            writeSpoolFile(
-                    SoftwareConfigurationAuditService.auditInfo(softwareConfiguration, callingUser),
-                    AuditUtils.EventType.LDAP_CHNGS,
+            if (softwareConfiguration.getRequest() == null) {
+                writeSpoolFile(AuditUtils.EventType.LDAP_CHNGS.name(),
+                        new AuditInfoBuilder.Builder()
+                                .archiveUserID(softwareConfiguration.getDeviceName())
+                                .toAuditInfo(),
+                        softwareConfiguration.getLdapDiff().toString().getBytes());
+                return;
+            }
+
+            HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(softwareConfiguration.getRequest());
+            writeSpoolFile(AuditUtils.EventType.LDAP_CHNGS.name(),
+                    new AuditInfoBuilder.Builder()
+                            .callingUserID(httpServletRequestInfo.requesterUserID)
+                            .callingHost(httpServletRequestInfo.requesterHost)
+                            .calledUserID(httpServletRequestInfo.requestURI)
+                            .archiveUserID(softwareConfiguration.getDeviceName())
+                            .toAuditInfo(),
                     softwareConfiguration.getLdapDiff().toString().getBytes());
         } catch (Exception e) {
-            LOG.info("Failed to spool Software Configuration Changes for [Device={}] done by [CallingUser={}]\n",
-                    softwareConfiguration.getDeviceName(), callingUser, e);
+            LOG.info("Failed to spool Software Configuration Changes for [Device={}] \n",
+                    softwareConfiguration.getDeviceName(), e);
         }
-    }
-
-    private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        emitAuditMessage(
-                SoftwareConfigurationAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
     }
 
     void spoolExternalRetrieve(ExternalRetrieveContext ctx) {
@@ -1444,6 +1448,48 @@ public class AuditService {
             writeSpoolFile(fileName, true, auditInfos.toArray(new AuditInfo[0]));
         } catch (Exception e) {
             LOG.info("Failed to spool {}", qStarVerification);
+        }
+    }
+
+    //, byte[]... data
+    void writeSpoolFile(String fileName, AuditInfo auditInfo, byte[]... data) {
+        if (auditInfo == null) {
+            LOG.info("Attempt to write empty file : " + fileName);
+            return;
+        }
+
+        FileTime eventTime = null;
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (!auditLogger.isInstalled())
+                continue;
+
+            try {
+                Path dir = toDirPath(auditLogger);
+                Files.createDirectories(dir);
+                Path filePath = Files.createTempFile(dir, fileName, null);
+                try (BufferedOutputStream out = new BufferedOutputStream(
+                        Files.newOutputStream(filePath, StandardOpenOption.APPEND))) {
+                    try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(
+                            filePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND))) {
+                        writer.writeLine(auditInfo);
+                    }
+                    out.write(data[0]);
+                    if (data.length > 1 && data[1].length > 0)
+                        out.write(data[1]);
+                }
+
+                if (eventTime == null)
+                    eventTime = Files.getLastModifiedTime(filePath);
+                else
+                    Files.setLastModifiedTime(filePath, eventTime);
+
+                if (!getArchiveDevice().isAuditAggregate())
+                    auditAndProcessFile(auditLogger, filePath);
+            } catch (Exception e) {
+                LOG.info("Failed to write [AuditSpoolFile={}] at [AuditLogger={}]\n",
+                        fileName, auditLogger.getCommonName(), e);
+            }
         }
     }
 
