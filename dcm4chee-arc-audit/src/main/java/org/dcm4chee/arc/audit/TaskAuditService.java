@@ -66,13 +66,9 @@ class TaskAuditService extends AuditService {
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
         eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
-        ParticipantObjectIdentification task = task(auditInfo);
 
-        if (auditInfo.getField(AuditInfo.TASK) != null) {
-            ActiveParticipant archive = archive(auditInfo.getField(AuditInfo.CALLING_USERID),
-                    AuditMessages.UserIDTypeCode.DeviceName,
-                    auditLogger);
-            emitAuditMessage(auditLogger, eventIdentification, Collections.singletonList(archive), task);
+        if (auditInfo.getField(AuditInfo.TASK) == null) {
+            emitBulkTasksAudit(auditInfo, auditLogger, eventIdentification);
             return;
         }
 
@@ -81,7 +77,26 @@ class TaskAuditService extends AuditService {
                                         AuditMessages.UserIDTypeCode.URI,
                                         auditLogger));
         activeParticipants.add(requestor(auditInfo));
-        emitAuditMessage(auditLogger, eventIdentification, activeParticipants, task);
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants, task(auditInfo));
+    }
+
+    private static void emitBulkTasksAudit(
+            AuditInfo auditInfo, AuditLogger auditLogger, EventIdentification eventIdentification) {
+        ParticipantObjectIdentification bulkTasks = bulkTasks(auditInfo);
+        if (auditInfo.getField(AuditInfo.CALLED_USERID) == null) {
+            ActiveParticipant archive = archive(auditInfo.getField(AuditInfo.CALLING_USERID),
+                                                AuditMessages.UserIDTypeCode.DeviceName,
+                                                auditLogger);
+            emitAuditMessage(auditLogger, eventIdentification, Collections.singletonList(archive), bulkTasks);
+            return;
+        }
+
+        List<ActiveParticipant> activeParticipants = new ArrayList<>();
+        activeParticipants.add(archive(auditInfo.getField(AuditInfo.CALLED_USERID),
+                                AuditMessages.UserIDTypeCode.URI,
+                                auditLogger));
+        activeParticipants.add(requestor(auditInfo));
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants, bulkTasks);
     }
 
     private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
@@ -98,9 +113,6 @@ class TaskAuditService extends AuditService {
     }
 
     private static ParticipantObjectIdentification task(AuditInfo auditInfo) {
-        if (auditInfo.getField(AuditInfo.TASK) == null)
-            return bulkTasks(auditInfo);
-
         ParticipantObjectIdentification task = new ParticipantObjectIdentification();
         task.setParticipantObjectID(auditInfo.getField(AuditInfo.TASK_POID));
         task.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.TASKS);

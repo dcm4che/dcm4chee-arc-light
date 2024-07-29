@@ -54,6 +54,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,8 +66,7 @@ class QueryAuditService extends AuditService {
 
     private final static Logger LOG = LoggerFactory.getLogger(QueryAuditService.class);
 
-    static void auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws IOException {
+    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         try (InputStream in = new BufferedInputStream(Files.newInputStream(path))) {
             AuditInfo auditInfo = new AuditInfo(new DataInputStream(in).readUTF());
             EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
@@ -90,7 +90,7 @@ class QueryAuditService extends AuditService {
                                                     : cFindQuery(auditInfo, cFindQueryData(path, in));
             emitAuditMessage(auditLogger, eventIdentification, activeParticipants, query);
         } catch (Exception e) {
-            LOG.info("", e);
+            LOG.info("Failed to audit query event {} for {} \n", eventType, path, e);
         }
     }
 
@@ -150,17 +150,17 @@ class QueryAuditService extends AuditService {
         ActiveParticipant archive = new ActiveParticipant();
         archive.setUserID(archiveUserID);
         archive.setAlternativeUserID(AuditLogger.processID());
-        archive.setUserIsRequestor(false);
+        archive.setUserIsRequestor(archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.DeviceName);
         archive.setUserIDTypeCode(archiveUserIDTypeCode);
         archive.setUserTypeCode(AuditMessages.UserTypeCode.Application);
-        archive.getRoleIDCode().add(eventType.destination);
-
         String auditLoggerHostName = auditLogger.getConnections().get(0).getHostname();
         archive.setNetworkAccessPointID(auditLoggerHostName);
         archive.setNetworkAccessPointTypeCode(
                 AuditMessages.isIP(auditLoggerHostName)
                         ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
                         : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        if (archiveUserIDTypeCode != AuditMessages.UserIDTypeCode.DeviceName)
+            archive.getRoleIDCode().add(eventType.destination);
         return archive;
     }
 
@@ -201,4 +201,39 @@ class QueryAuditService extends AuditService {
                         : AuditMessages.NetworkAccessPointTypeCode.MachineName);
         return requestorAE;
     }
+
+    static void auditStudySize(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path.toFile());
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
+        ParticipantObjectIdentification study = study(auditInfo);
+        ParticipantObjectIdentification patient = patient(auditInfo);
+        ActiveParticipant archive = archive(auditInfo.getField(AuditInfo.CALLING_USERID),
+                                            AuditMessages.UserIDTypeCode.DeviceName,
+                                            eventType,
+                                            auditLogger);
+        emitAuditMessage(auditLogger, eventIdentification, Collections.singletonList(archive), study, patient);
+    }
+
+    private static ParticipantObjectIdentification study(AuditInfo auditInfo) {
+        ParticipantObjectIdentification study = new ParticipantObjectIdentification();
+        study.setParticipantObjectID(auditInfo.getField(AuditInfo.STUDY_UID));
+        study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+        study.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        study.setParticipantObjectDataLifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.AggregationSummarizationDerivation);
+        return study;
+    }
+
+    private static ParticipantObjectIdentification patient(AuditInfo auditInfo) {
+        ParticipantObjectIdentification patient = new ParticipantObjectIdentification();
+        patient.setParticipantObjectID(auditInfo.getField(AuditInfo.P_ID));
+        patient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
+        patient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
+        patient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
+        patient.setParticipantObjectName(auditInfo.getField(AuditInfo.P_NAME));
+        return patient;
+    }
+
 }

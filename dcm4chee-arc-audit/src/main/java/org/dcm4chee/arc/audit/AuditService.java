@@ -158,7 +158,9 @@ public class AuditService {
                 auditProcedureRecord(auditLogger, path, eventType);
                 break;
             case STUDY:
-                auditStudyRecord(auditLogger, path, eventType);
+                if (eventType.eventActionCode.equals(AuditMessages.EventActionCode.Read))
+                    QueryAuditService.auditStudySize(auditLogger, path, eventType);
+                else auditStudyRecord(auditLogger, path, eventType);
                 break;
             case PROV_REGISTER:
                 auditProvideAndRegister(auditLogger, path, eventType);
@@ -497,48 +499,27 @@ public class AuditService {
 
     void spoolStudySizeEvent(StudySizeEvent event) {
         try {
-            AuditInfoBuilder auditInfoBuilder = new AuditInfoBuilder.Builder()
-                                                    .callingUserID(device.getDeviceName())
-                                                    .studyUIDAccNumDate(event.getStudy().getAttributes(), getArchiveDevice())
-                                                    .pIDAndName(event.getStudy().getPatient().getAttributes(), getArchiveDevice())
-                                                    .build();
-            writeSpoolFile(AuditUtils.EventType.STUDY_READ, null, auditInfoBuilder);
+            AuditInfo auditInfo = new AuditInfoBuilder.Builder()
+                                        .callingUserID(device.getDeviceName())
+                                        .studyUIDAccNumDate(event.getStudy().getAttributes(), getArchiveDevice())
+                                        .pIDAndName(event.getStudy().getPatient().getAttributes(), getArchiveDevice())
+                                        .toAuditInfo();
+            writeSpoolFile(AuditUtils.EventType.STUDY_READ.name(), false, auditInfo);
         } catch (Exception e) {
             LOG.info("Failed to spool study size info for {}\n", event, e);
         }
     }
 
-    private void auditStudySize(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        SpoolFileReader reader = new SpoolFileReader(path.toFile());
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentification ei = EventID.toEventIdentification(auditLogger, path, eventType, auditInfo);
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[1];
-        activeParticipants[0] = new ActiveParticipantBuilder(auditInfo.getField(AuditInfo.CALLING_USERID),
-                                        getLocalHostName(auditLogger))
-                                        .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                                        .altUserID(AuditLogger.processID())
-                                        .isRequester()
-                                        .build();
-        ParticipantObjectIdentificationBuilder studyPOI = ParticipantObjectID.studyPOI(
-                                                                    auditInfo.getField(AuditInfo.STUDY_UID));
-        studyPOI.lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.AggregationSummarizationDerivation);
-        ParticipantObjectIdentificationBuilder patientPOI = ParticipantObjectID.patientPOIBuilder(auditInfo);
-        AuditMessage auditMsg = AuditMessages.createMessage(
-                                                ei,
-                                                activeParticipants,
-                                                studyPOI.build(), patientPOI.build());
-        emitAuditMessage(auditMsg, auditLogger);
-    }
-
     void spoolPDQ(PDQServiceContext ctx) {
         try {
             if (ctx.getFhirWebAppName() == null)
-                writeSpoolFile(PDQAuditService.auditInfo(ctx, getArchiveDevice()),
-                        AuditUtils.EventType.PAT_DEMO_Q,
-                        ctx.getHl7Msg().data(),
-                        ctx.getRsp().data());
+                writeSpoolFile(AuditUtils.EventType.PAT_DEMO_Q.name(),
+                                PDQAuditService.auditInfo(ctx, getArchiveDevice()),
+                                ctx.getHl7Msg().data(),
+                                ctx.getRsp().data());
             else
-                writeSpoolFile(AuditUtils.EventType.FHIR___PDQ.name(), false,
+                writeSpoolFile(AuditUtils.EventType.FHIR___PDQ.name(),
+                        false,
                         PDQAuditService.auditInfoFHIR(ctx, getArchiveDevice()));
         } catch (Exception e) {
             LOG.info("Failed to spool PDQ for {}", ctx);
@@ -648,16 +629,16 @@ public class AuditService {
 
     private void auditQuery(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         if (eventType.eventTypeCode == null) {
-            QueryAuditService.auditMsg(auditLogger, path, eventType);
+            QueryAuditService.audit(auditLogger, path, eventType);
             return;
         }
 
         if (eventType.eventTypeCode == AuditMessages.EventTypeCode.ITI_78_MobilePDQ) {
-            PDQAuditService.auditFHIRPDQMsg(auditLogger, path, eventType, webAppCache);
+            PDQAuditService.auditFHIRPDQ(auditLogger, path, eventType, webAppCache);
             return;
         }
 
-        PDQAuditService.auditHL7PDQMsg(auditLogger, path, eventType, hl7AppCache, device);
+        PDQAuditService.auditHL7PDQ(auditLogger, path, eventType, hl7AppCache, device);
     }
 
     void spoolStoreEvent(StoreContext ctx) {
@@ -1148,11 +1129,6 @@ public class AuditService {
     }
 
     private void auditStudyRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        if (eventType.eventActionCode.equals(AuditMessages.EventActionCode.Read)) {
-            auditStudySize(auditLogger, path, eventType);
-            return;
-        }
-
         emitAuditMessage(
                 StudyRecordAuditService.auditMsg(auditLogger, path, eventType),
                 auditLogger);
@@ -1451,8 +1427,7 @@ public class AuditService {
         }
     }
 
-    //, byte[]... data
-    void writeSpoolFile(String fileName, AuditInfo auditInfo, byte[]... data) {
+    void writeSpoolFile(String fileName, AuditInfo auditInfo, byte[]... datas) {
         if (auditInfo == null) {
             LOG.info("Attempt to write empty file : " + fileName);
             return;
@@ -1474,9 +1449,8 @@ public class AuditService {
                             filePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND))) {
                         writer.writeLine(auditInfo);
                     }
-                    out.write(data[0]);
-                    if (data.length > 1 && data[1].length > 0)
-                        out.write(data[1]);
+                    for (byte[] data : datas)
+                        out.write(data);
                 }
 
                 if (eventTime == null)

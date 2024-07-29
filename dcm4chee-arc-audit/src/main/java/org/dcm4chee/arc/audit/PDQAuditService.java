@@ -66,7 +66,7 @@ import java.util.List;
  */
 class PDQAuditService extends AuditService {
 
-    static AuditInfoBuilder auditInfo(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
+    static AuditInfo auditInfo(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
         return ctx.getHttpServletRequestInfo() == null
                 ? schedulerTriggeredPDQ(ctx, arcDev)
                 : restfulTriggeredPDQ(ctx, arcDev);
@@ -78,7 +78,7 @@ class PDQAuditService extends AuditService {
                 : restfulTriggeredFHIRPDQ(ctx, arcDev);
     }
 
-    private static AuditInfoBuilder schedulerTriggeredPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
+    private static AuditInfo schedulerTriggeredPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
         return new AuditInfoBuilder.Builder()
                 .callingUserID(arcDev.getDevice().getDeviceName())
                 .outgoingHL7Sender(ctx.getSendingAppFacility())
@@ -87,10 +87,10 @@ class PDQAuditService extends AuditService {
                 .patID(ctx.getPatientID(), arcDev)
                 .patName(patientName(ctx), arcDev)
                 .outcome(outcome(ctx))
-                .build();
+                .toAuditInfo();
     }
 
-    private static AuditInfoBuilder restfulTriggeredPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
+    private static AuditInfo restfulTriggeredPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
         HttpServletRequestInfo httpRequest = ctx.getHttpServletRequestInfo();
         return new AuditInfoBuilder.Builder()
                 .outgoingHL7Sender(ctx.getSendingAppFacility())
@@ -103,7 +103,7 @@ class PDQAuditService extends AuditService {
                 .patID(ctx.getPatientID(), arcDev)
                 .patName(patientName(ctx), arcDev)
                 .outcome(outcome(ctx))
-                .build();
+                .toAuditInfo();
     }
 
     private static AuditInfo schedulerTriggeredFHIRPDQ(PDQServiceContext ctx, ArchiveDeviceExtension arcDev) {
@@ -145,7 +145,7 @@ class PDQAuditService extends AuditService {
                 : ctx.getException().getMessage();
     }
 
-    static void auditHL7PDQMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
+    static void auditHL7PDQ(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
                                IHL7ApplicationCache hl7AppCache, Device device)
             throws Exception {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
@@ -177,7 +177,7 @@ class PDQAuditService extends AuditService {
         emitAuditMessage(auditLogger, eventIdentification, activeParticipants, patient, pdq);
     }
 
-    static void auditFHIRPDQMsg(
+    static void auditFHIRPDQ(
             AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, IWebApplicationCache webAppCache)
             throws Exception {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
