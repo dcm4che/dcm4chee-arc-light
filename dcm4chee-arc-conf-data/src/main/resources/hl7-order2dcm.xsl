@@ -44,6 +44,7 @@
         <xsl:with-param name="spsStatus" select="$spsStatus"/>
         <xsl:with-param name="spsStartDateTime" select="$spsStartDateTime"/>
         <xsl:with-param name="spsScheduledPhysician" select="$spsScheduledPhysician"/>
+        <xsl:with-param name="obr" select="OBR[1]"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="OBX"/>
       <!-- Admission ID, Issuer -->
@@ -385,6 +386,7 @@
     <xsl:param name="spsStatus"/>
     <xsl:param name="spsStartDateTime"/>
     <xsl:param name="spsScheduledPhysician"/>
+    <xsl:param name="obr"/>
     <!-- Study Instance UID -->
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'0020000D'"/>
@@ -427,13 +429,13 @@
         <xsl:call-template name="attr">
           <xsl:with-param name="tag" select="'00080060'"/>
           <xsl:with-param name="vr" select="'CS'"/>
-          <xsl:with-param name="val" select="OBR/field[24]/text()"/>
+          <xsl:with-param name="val" select="$obr/field[24]"/>
         </xsl:call-template>
         <!-- Scheduled Procedure Step ID -->
         <xsl:call-template name="attr">
           <xsl:with-param name="tag" select="'00400009'"/>
           <xsl:with-param name="vr" select="'SH'"/>
-          <xsl:with-param name="val" select="OBR/field[20]/text()"/>
+          <xsl:with-param name="val" select="$obr/field[20]"/>
         </xsl:call-template>
         <!-- Scheduled Station AE Title -->
         <xsl:call-template name="attr">
