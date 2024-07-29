@@ -587,7 +587,8 @@ public class TaskManagerImpl implements TaskManager {
         } finally {
             taskEvent.setCount(count);
             taskEvent.setFailed(failed);
-            bulkTaskEventEvent.fire(taskEvent);
+            if (count > 0 || failed > 0 || taskEvent.getException() != null)
+                bulkTaskEventEvent.fire(taskEvent);
             if (count > 0)
                 LOG.info("Deleted {} tasks matching {}", count, taskQueryParam);
         }
