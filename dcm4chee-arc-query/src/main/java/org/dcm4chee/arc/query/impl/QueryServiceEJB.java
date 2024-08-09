@@ -134,6 +134,7 @@ public class QueryServiceEJB {
                     series.get(Series_.rejectionState),
                     series.get(Series_.completeness),
                     series.get(Series_.failedRetrieves),
+                    series.get(Series_.accessControlID),
                     series.get(Series_.sendingAET),
                     series.get(Series_.receivingAET),
                     series.get(Series_.sendingPresentationAddress),
