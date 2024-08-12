@@ -93,7 +93,6 @@
 
                         >
                       </ng-container>
-
                     <div class="filter_checkbox" *ngSwitchCase="'checkbox'" title="{{line[index]?.description}}" [ngClass]="{'active':model[line[index].filterKey]}">
                       <input [disabled]="line[index].disabled" type="checkbox" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]"  title="{{line[index]?.description}}" > <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
                     </div>
@@ -127,7 +126,7 @@
                       <dcm-drop-down
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'editable-multi-select'"
-                              [placeholder]="line[index]?.placeholder || ''"
+                              [placeholder]="line[index]?.placeholder"
                               [title]="line[index]?.description || ''"
                               [ngClass]="line[index].cssClass"
                               [options]="line[index].options"

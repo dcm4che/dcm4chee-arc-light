@@ -1,16 +1,45 @@
 <div class="vex vex-theme-os edit-patient" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form" (click)="checkClick($event)">
         <h3 [innerHtml]="titleLabel"></h3>
-        <input autocomplete="off" id="addPatientAttribut" class="addPatientAttribut" [(ngModel)]="addPatientAttribut" i18n-placeholder="@@placeholder.add_new_attribute" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
-        <div id="dropdown" class="dropdown" *ngIf="opendropdown">
-            <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut"  (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
-        </div>
-        <div mat-dialog-content>
-            <iod-form-generator [externalInternalAetMode]="externalInternalAetMode" [object]="patient.attrs" [prefix]="" [mode]="mode" [iod]="iod" (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
+        <ul class="modal_vertical_nav">
+            <li (click)="formMode='simple'" [ngClass]="{'active':formMode==='simple'}">
+                Simple
+            </li>
+            <li (click)="formMode='complex'" [ngClass]="{'active':formMode==='complex'}">
+                Technical
+            </li>
+        </ul>
+        <div class="tabs_hide_layer">
+            <div class="form_content" [ngClass]="formMode">
+                <div class="simple">
+<!--                    <filter-generator
+                            [schema]="simpleForm.schema"
+                            [filterTreeHeight]="1"
+                            [model]="simpleForm.model"
+                            [hideClearButtons]="true"
+                            [doNotSave]="true"
+                            [onFilterChangeHook]="onSimpleFormChange"
+                    ></filter-generator>-->
+                    <form-generator
+                            [schema]="simpleForm.schema"
+                            [showLabels]="true"
+                            [model]="patient.attrs"
+                    ></form-generator>
+                </div>
+                <div class="complex">
+                    <input autocomplete="off" id="addPatientAttribut" class="addPatientAttribut" [(ngModel)]="addPatientAttribut" i18n-placeholder="@@placeholder.add_new_attribute" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
+                    <div id="dropdown" class="dropdown" *ngIf="opendropdown">
+                        <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut"  (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
+                    </div>
+                    <div mat-dialog-content>
+                        <iod-form-generator [externalInternalAetMode]="externalInternalAetMode" [object]="patient.attrs" [prefix]="" [mode]="mode" [iod]="iod" (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="dialogbuttons">
             <button class="save" type="button" (click)="dialogRef.close(patient)">{{saveLabel}}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
         </div>
-    </div>
+        </div>
 </div>

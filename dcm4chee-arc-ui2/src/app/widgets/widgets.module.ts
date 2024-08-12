@@ -49,6 +49,7 @@ import { ModifiedWidgetComponent } from './modified-widget/modified-widget.compo
 import { PersonNamePickerComponent } from './person-name-picker/person-name-picker.component';
 import { MatDialogModule} from "@angular/material/dialog";
 import { DatePickerComponent } from './date-picker/date-picker.component';
+import { ComposedInputComponent } from './composed-input/composed-input.component';
 
 
 @Injectable()
@@ -109,5 +110,6 @@ export const WidgetsComponents = [
     LanguagePickerComponent,
     DeviceCloneComponent,
     ModifiedWidgetComponent,
-    PersonNamePickerComponent
+    PersonNamePickerComponent,
+    ComposedInputComponent
 ];

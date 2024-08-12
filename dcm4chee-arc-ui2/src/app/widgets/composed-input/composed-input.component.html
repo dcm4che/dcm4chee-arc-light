@@ -1,0 +1,7 @@
+<div class="composed_input_content">
+    <ng-container *ngFor="let el of Array(inputSize); let i = index">
+        <input  [ngStyle]="{width: 'calc( 100% /' + inputSize +')'}" *ngIf="placeholderElements" type="text" [(ngModel)]="modelArray[i]" [placeholder]="placeholderElements[i]" (ngModelChange)="onchange($event)">
+        <input  [ngStyle]="{width: 'calc( 100% /' + inputSize +')'}" *ngIf="!placeholderElements" type="text" [(ngModel)]="modelArray[i]"  (ngModelChange)="onchange($event)">
+        <span class="join_string" *ngIf="i+1 < inputSize && (joins[i] || joins)">{{joins[i] || joins}}</span>
+    </ng-container>
+</div>

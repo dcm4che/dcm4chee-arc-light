@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, ViewEncapsulation} from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;
@@ -8,17 +8,18 @@ import {SearchPipe} from '../../../pipes/search.pipe';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {MatDialogRef} from "@angular/material/dialog";
+import {EditPatientService} from "./edit-patient.service";
 
 @Component({
-  selector: 'app-edit-patient',
-  templateUrl: './edit-patient.component.html',
-  styles: [`
-
-    `]
+    selector: 'app-edit-patient',
+    templateUrl: './edit-patient.component.html',
+    styleUrls: ['./edit-patient.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
 export class EditPatientComponent {
 
 
+    formMode="complex"
     opendropdown = false;
     addPatientAttribut = '';
     lastPressedCode;
@@ -31,12 +32,33 @@ export class EditPatientComponent {
     private _patient: any;
     private _patientkey: any;
     private _externalInternalAetMode;
-    iod: any;
+    private _iod: any;
 
-    constructor(public dialogRef: MatDialogRef<EditPatientComponent>, public mainservice: AppService) {
+    simpleForm = {
+        schema:undefined,
+        model:{}
+    }
+    constructor(
+        public dialogRef: MatDialogRef<EditPatientComponent>,
+        public mainservice: AppService,
+        private service:EditPatientService
+    ) {
+        setTimeout(()=>{
+            this.simpleForm.schema = this.service.getSimpleFormSchema();
+            this.formMode = "simple";
+        },10)
     }
     onChange(newValue, model) {
         _.set(this, model, newValue);
+    }
+
+    get iod(): any {
+        return this._iod;
+    }
+
+    set iod(value: any) {
+        this._iod = value;
+        this.service.iod = value;
     }
     get mode() {
         return this._mode;
@@ -149,7 +171,7 @@ export class EditPatientComponent {
             }
             console.log('patient_attrs not undefined', this._patient.attrs[attrcode]);
             if (this._patient.attrs[attrcode] != undefined){
-                if (this.iod[attrcode].multi){
+                if (this._iod[attrcode].multi){
                     this._patient.attrs[attrcode]['Value'].push('');
                     this.addPatientAttribut           = '';
                     this.opendropdown                 = false;
@@ -157,7 +179,7 @@ export class EditPatientComponent {
                     this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
                 }
             }else{
-                this.patient.attrs[attrcode]  = this.iod[attrcode];
+                this.patient.attrs[attrcode]  = this._iod[attrcode];
                 this.opendropdown = false;
             }
             setTimeout(function(){
@@ -242,14 +264,14 @@ export class EditPatientComponent {
     }
     addAttribute(attrcode, patient){
         if (patient.attrs[attrcode]){
-            if (this.iod[attrcode].multi){
+            if (this._iod[attrcode].multi){
                         // this.patien.attrs[attrcode]  = this.iod.data[attrcode];
-                console.log('multi', this.iod[attrcode]);
+                console.log('multi', this._iod[attrcode]);
                 if (patient.attrs[attrcode].vr === 'PN'){
                     patient.attrs[attrcode]['Value'].push({Alphabetic: ''});
                 }else{
                     if (patient.attrs[attrcode].vr === 'SQ'){
-                        patient.attrs[attrcode]['Value'].push(_.cloneDeep(this.iod[attrcode].Value[0]));
+                        patient.attrs[attrcode]['Value'].push(_.cloneDeep(this._iod[attrcode].Value[0]));
                     }else{
                         patient.attrs[attrcode]['Value'].push('');
                     }
@@ -262,8 +284,8 @@ export class EditPatientComponent {
             }
         }else{
             // console.log("in else", this.dialogRef.componentInstance.patient);
-            console.log('this.iodattrcod', this.iod[attrcode]);
-             patient.attrs[attrcode]  = _.cloneDeep(this.iod[attrcode]);
+            console.log('this.iodattrcod', this._iod[attrcode]);
+             patient.attrs[attrcode]  = _.cloneDeep(this._iod[attrcode]);
              j4care.removeKeyFromObject(patient.attrs[attrcode],"multi");
              j4care.removeKeyFromObject(patient.attrs[attrcode],"required");
 
@@ -290,4 +312,12 @@ export class EditPatientComponent {
                 break;
         }
     };
+
+    onSimpleFormChange(event: any) {
+        console.log("event",event);
+        console.log("mo",this.simpleForm.model)
+        return undefined;
+    }
+
+
 }

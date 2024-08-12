@@ -120,6 +120,7 @@ import {MatMenuModule} from "@angular/material/menu";
 //import {MatDialogModule} from '@angular/material/dialog';
 import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
 import { MatFormFieldModule} from "@angular/material/form-field";
+import { FormGeneratorComponent } from './helpers/form-generator/form-generator.component';
 //import {MatLegacyDialogModule} from "@angular/material/legacy-dialog";
 
 
@@ -187,7 +188,8 @@ import { MatFormFieldModule} from "@angular/material/form-field";
         WebAppsListComponent,
         SelectionsDicomViewComponent,
         CustomAttributeListComponent,
-        CustomDatePipe
+        CustomDatePipe,
+        FormGeneratorComponent
     ],
     imports: [
         BrowserModule,
