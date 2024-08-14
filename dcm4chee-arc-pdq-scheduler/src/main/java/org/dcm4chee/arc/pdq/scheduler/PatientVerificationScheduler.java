@@ -175,6 +175,7 @@ public class PatientVerificationScheduler extends Scheduler {
         PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
         ctx.setPatient(patient);
         ctx.setPDQServiceURI(pdqService.getPDQServiceDescriptor().getPDQServiceURI().toString());
+        ctx.setPatientIDs(patientIDsToIDWithIssuers(patient));
         Attributes attrs;
         IDWithIssuer idWithIssuer = patient.getPatientIDs().iterator().next().getIDWithIssuer();
         try {
@@ -191,7 +192,6 @@ public class PatientVerificationScheduler extends Scheduler {
         }
         if (attrs == null) {
             ctx.setPatientVerificationStatus(Patient.VerificationStatus.NOT_FOUND);
-            ctx.setPatientIDs(patientIDsToIDWithIssuers(patient));
             patientService.updatePatientStatus(ctx);
             LOG.info("{} not found at {} - no verification", patient, pdqService.getPDQServiceDescriptor());
             return;
