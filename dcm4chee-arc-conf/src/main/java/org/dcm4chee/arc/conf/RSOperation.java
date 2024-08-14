@@ -60,6 +60,7 @@ public enum RSOperation {
     UpdateStudyRequest,
     UpdateSeries,
     UpdateSeriesRequest,
+    UpdateInstance,
     DeleteStudy,
     RejectStudy,
     RejectSeries,

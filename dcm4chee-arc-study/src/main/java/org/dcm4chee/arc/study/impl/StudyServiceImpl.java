@@ -121,6 +121,19 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
+    public void updateInstance(StudyMgtContext ctx) throws StudyMissingException, PatientMismatchException {
+        try {
+            ejb.updateInstance(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                updateStudyEvent.fire(ctx);
+        }
+    }
+
+    @Override
     public void updateStudyRequest(StudyMgtContext ctx) throws StudyMissingException {
         try {
             ejb.updateStudyRequest(ctx);

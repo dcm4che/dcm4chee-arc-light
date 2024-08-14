@@ -145,6 +145,21 @@
       }
     }
   },
+  "instanceAttributes": {
+    "description": "Instance Attributes",
+    "content": {
+      "application/dicom+json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      },
+      "application/json": {
+        "schema": {
+          "$ref": "schemas.json#/attributes"
+        }
+      }
+    }
+  },
   "requestAttributes": {
     "description": "Request Attributes",
     "content": {

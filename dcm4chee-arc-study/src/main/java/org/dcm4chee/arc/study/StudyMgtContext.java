@@ -107,6 +107,10 @@ public interface StudyMgtContext {
 
     void setSeriesInstanceUID(String seriesUID);
 
+    String getSOPInstanceUID();
+
+    void setSOPInstanceUID(String sopUID);
+
     String getExpirationExporterID();
 
     void setExpirationExporterID(String expirationExporterID);
@@ -124,6 +128,8 @@ public interface StudyMgtContext {
     void setAccessControlID(String accessControlID);
 
     AttributeFilter getSeriesAttributeFilter();
+
+    AttributeFilter getInstanceAttributeFilter();
 
     List<Attributes> getRequestAttributes();
 

@@ -286,6 +286,68 @@ public class StudyMgtRS {
     }
 
     @PUT
+    @Path("/studies/{study}/series/{series}/instances/{instance}")
+    @Consumes("application/dicom+json,application/json")
+    @Produces("application/json")
+    public Response updateInstance(
+            @PathParam("study") String studyUID,
+            @PathParam("series") String seriesUID,
+            @PathParam("instance") String sopUID,
+            InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        final Attributes attrs = toAttributes(in);
+        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        if (patientIDs.isEmpty() || !attrs.containsValue(Tag.SOPInstanceUID))
+            return errResponse("Missing patient identifier or SOP Instance UID in request payload",
+                    Response.Status.BAD_REQUEST);
+
+        if (!sopUID.equals(attrs.getString(Tag.SOPInstanceUID)))
+            return errResponse("SOP Instance UID in request does not match SOP Instance UID in request payload",
+                    Response.Status.BAD_REQUEST);
+
+        try {
+            Patient patient = patientService.findPatient(patientIDs);
+            if (patient == null)
+                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
+
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+            ctx.setPatient(patient);
+            ctx.setAttributes(attrs);
+            ctx.setStudyInstanceUID(studyUID);
+            ctx.setSeriesInstanceUID(seriesUID);
+            ctx.setSOPInstanceUID(sopUID);
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
+            studyService.updateInstance(ctx);
+            rsForward.forward(RSOperation.UpdateInstance, arcAE, attrs, request);
+            return Response.ok((StreamingOutput)out -> {
+                        try (JsonGenerator gen = Json.createGenerator(out)) {
+                            arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs);
+                        }
+                    })
+                    .build();
+        } catch (StudyMissingException e) {
+            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (NonUniquePatientException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (Exception e) {
+            return e.getCause() instanceof PatientMismatchException
+                    ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)
+                    : errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
     @Path("/studies/{study}/request")
     @Consumes("application/dicom+json,application/json")
     @Produces("application/json")

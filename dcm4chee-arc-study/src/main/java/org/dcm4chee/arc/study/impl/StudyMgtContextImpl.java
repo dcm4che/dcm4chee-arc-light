@@ -69,6 +69,7 @@ import java.util.List;
 public class StudyMgtContextImpl implements StudyMgtContext {
     private final AttributeFilter studyAttributeFilter;
     private final AttributeFilter seriesAttributeFilter;
+    private final AttributeFilter instanceAttributeFilter;
     private final FuzzyStr fuzzyStr;
     private HttpServletRequestInfo httpRequest;
     private ArchiveAEExtension arcAE;
@@ -84,6 +85,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private Exception exception;
     private LocalDate expirationDate;
     private String seriesInstanceUID;
+    private String sopInstanceUID;
     private String expirationExporterID;
     private boolean freezeExpirationDate;
     private boolean unfreezeExpirationDate;
@@ -97,6 +99,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         this.studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
         this.seriesAttributeFilter = arcDev.getAttributeFilter(Entity.Series);
+        this.instanceAttributeFilter = arcDev.getAttributeFilter(Entity.Instance);
         this.fuzzyStr = arcDev.getFuzzyStr();
     }
 
@@ -180,6 +183,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
         this.attributes = attrs;
         this.studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
         this.seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
+        this.sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
     }
 
     @Override
@@ -253,6 +257,16 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     }
 
     @Override
+    public String getSOPInstanceUID() {
+        return sopInstanceUID;
+    }
+
+    @Override
+    public void setSOPInstanceUID(String sopInstanceUID) {
+        this.sopInstanceUID = sopInstanceUID;
+    }
+
+    @Override
     public String getExpirationExporterID() {
         return expirationExporterID;
     }
@@ -295,6 +309,11 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     @Override
     public AttributeFilter getSeriesAttributeFilter() {
         return seriesAttributeFilter;
+    }
+
+    @Override
+    public AttributeFilter getInstanceAttributeFilter() {
+        return instanceAttributeFilter;
     }
 
     @Override

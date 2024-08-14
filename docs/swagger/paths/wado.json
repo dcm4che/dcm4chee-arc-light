@@ -446,6 +446,63 @@
           "description": "Internal Server Error."
         }
       }
+    },
+    "put": {
+      "tags": [
+        "IOCM-RS"
+      ],
+      "summary": "Update Instance",
+      "operationId": "UpdateInstance",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/seriesPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/instancePathParam"
+        },
+        {
+          "$ref": "../parameters.json#/reasonForModification"
+        },
+        {
+          "$ref": "../parameters.json#/sourceOfPreviousValues"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/instanceAttributes"
+      },
+      "responses": {
+        "200": {
+          "description": "Updated Instance",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas.json#/attributes"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "JSON request body not well formed or Missing Patient ID or SOP IUID in request body or SOP IUID in request does not match SOP IUID in request payload or Patient found using patient identifiers sent in request payload does not match with patient of instance"
+        },
+        "403": {
+          "description": "Update instance forbidden for already merged patients"
+        },
+        "404": {
+          "description": "No such Application Entity or Instance"
+        },
+        "409": {
+          "description": "Non Unique Patients found for patient identifiers in request payload"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
     }
   },
   "instances.bulkdata": {
