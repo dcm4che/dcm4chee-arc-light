@@ -169,7 +169,7 @@ public class AuditService {
                 auditStorageCommit(auditLogger, path, eventType);
                 break;
             case INST_RETRIEVED:
-                auditExternalRetrieve(auditLogger, path, eventType);
+                ExternalRetrieveAuditService.audit(auditLogger, path, eventType, aeCache);
                 break;
             case LDAP_CHANGES:
                 SoftwareConfigurationAuditService.audit(auditLogger, path, eventType);
@@ -457,20 +457,51 @@ public class AuditService {
     }
 
     void spoolExternalRetrieve(ExternalRetrieveContext ctx) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        String warning = ctx.warning() > 0
+                            ? "Number Of Warning Sub operations : " + ctx.warning()
+                            : null;
+        int failed = ctx.failed();
+        String outcome = failed > 0
+                            ? ctx.getResponse().getString(Tag.ErrorComment) != null
+                                ? ctx.getResponse().getString(Tag.ErrorComment) + " : " + failed
+                                : "Number Of Failed Sub operations : " + failed
+                            : ctx.getResponse().getString(Tag.ErrorComment) != null
+                                ? ctx.getResponse().getString(Tag.ErrorComment)
+                                : null;
         try {
-            writeSpoolFile(AuditUtils.EventType.INST_RETRV, null,
-                    ExternalRetrieveAuditService.auditInfo(ctx, getArchiveDevice()));
-        } catch (Exception e) {
-            LOG.info("Failed to spool External Retrieve for [StudyIUID={}] triggered by [Requester={}]\n",
-                    ctx.getStudyInstanceUID(), ctx.getRequesterUserID(), e);
-        }
-    }
+            if (httpServletRequestInfo == null) {
+                AuditInfo auditInfo = new AuditInfoBuilder.Builder()
+                                            .callingUserID(ctx.getLocalAET())
+                                            .cMoveOriginator(ctx.getRemoteAET())
+                                            .calledHost(ctx.getRemoteHostName())
+                                            .destUserID(ctx.getDestinationAET())
+                                            .studyUIDAccNumDate(ctx.getKeys(), getArchiveDevice())
+                                            .warning(warning)
+                                            .outcome(outcome)
+                                            .errorCode(Integer.parseInt(ctx.getResponse().getString(Tag.Status)))
+                                            .toAuditInfo();
+                writeSpoolFile(AuditUtils.EventType.INST_RETRV.name(), false, auditInfo);
+                return;
+            }
 
-    private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        emitAuditMessage(
-                ExternalRetrieveAuditService.auditMsg(auditLogger, path, eventType, aeCache),
-                auditLogger);
+            AuditInfo auditInfoREST = new AuditInfoBuilder.Builder()
+                                            .callingUserID(httpServletRequestInfo.requesterUserID)
+                                            .callingHost(httpServletRequestInfo.requesterHost)
+                                            .cMoveOriginator(ctx.getRemoteAET())
+                                            .calledHost(ctx.getRemoteHostName())
+                                            .calledUserID(httpServletRequestInfo.requestURI)
+                                            .queryString(httpServletRequestInfo.queryString)
+                                            .destUserID(ctx.getDestinationAET())
+                                            .studyUIDAccNumDate(ctx.getKeys(), getArchiveDevice())
+                                            .warning(warning)
+                                            .outcome(outcome)
+                                            .errorCode(Integer.parseInt(ctx.getResponse().getString(Tag.Status)))
+                                            .toAuditInfo();
+            writeSpoolFile(AuditUtils.EventType.INST_RETRV.name(), false, auditInfoREST);
+        } catch (Exception e) {
+            LOG.info("Failed to spool External Retrieve {}\n", ctx, e);
+        }
     }
 
     void spoolConnectionFailure(ConnectionEvent event) {
@@ -512,13 +543,15 @@ public class AuditService {
 
     void spoolPDQ(PDQServiceContext ctx) {
         try {
-            if (ctx.getFhirWebAppName() == null)
+            if (ctx.getFhirWebAppName() == null) {
                 writeSpoolFile(AuditUtils.EventType.PAT_DEMO_Q.name(),
-                                PDQAuditService.auditInfo(ctx, getArchiveDevice()),
-                                ctx.getHl7Msg().data(),
-                                ctx.getRsp().data());
-            else
-                writeSpoolFile(AuditUtils.EventType.FHIR___PDQ.name(),
+                        PDQAuditService.auditInfo(ctx, getArchiveDevice()),
+                        ctx.getHl7Msg().data(),
+                        ctx.getRsp().data());
+                return;
+            }
+
+            writeSpoolFile(AuditUtils.EventType.FHIR___PDQ.name(),
                         false,
                         PDQAuditService.auditInfoFHIR(ctx, getArchiveDevice()));
         } catch (Exception e) {

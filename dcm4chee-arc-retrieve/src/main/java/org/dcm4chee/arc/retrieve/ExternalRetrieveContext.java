@@ -110,10 +110,6 @@ public class ExternalRetrieveContext {
         return localAET;
     }
 
-    public String getRequestURI() {
-        return httpServletRequestInfo != null ? httpServletRequestInfo.requestURI : null;
-    }
-
     public String getRemoteAET() {
         return remoteAET;
     }

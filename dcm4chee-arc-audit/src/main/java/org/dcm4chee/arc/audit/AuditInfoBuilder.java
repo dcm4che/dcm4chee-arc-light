@@ -77,7 +77,7 @@ class AuditInfoBuilder {
     final String queryString;
     final String destUserID;
     final String destNapID;
-    final String moveUserID;
+    final String cMoveOriginator;
     final String findSCP;
     final String warning;
     final boolean failedIUIDShow;
@@ -121,7 +121,7 @@ class AuditInfoBuilder {
         private String queryString;
         private String destUserID;
         private String destNapID;
-        private String moveUserID;
+        private String cMoveOriginator;
         private String findSCP;
         private String warning;
         private boolean failedIUIDShow;
@@ -241,8 +241,8 @@ class AuditInfoBuilder {
             destNapID = val;
             return this;
         }
-        Builder moveUserID(String val) {
-            moveUserID = val;
+        Builder cMoveOriginator(String val) {
+            cMoveOriginator = val;
             return this;
         }
         Builder findSCP(String val) {
@@ -297,6 +297,10 @@ class AuditInfoBuilder {
             errorCode = e instanceof DicomServiceException
                             ? errorCodeAsString(((DicomServiceException) e).getStatus())
                             : "0";
+            return this;
+        }
+        Builder errorCode(int status) {
+            errorCode = status == 0 ? "0" : errorCodeAsString(status);
             return this;
         }
         Builder patMismatchCode(String val) {
@@ -370,7 +374,7 @@ class AuditInfoBuilder {
         queryString = builder.queryString;
         destUserID = builder.destUserID;
         destNapID = builder.destNapID;
-        moveUserID = builder.moveUserID;
+        cMoveOriginator = builder.cMoveOriginator;
         findSCP = builder.findSCP;
         warning = builder.warning;
         failedIUIDShow = builder.failedIUIDShow;

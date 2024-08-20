@@ -71,7 +71,7 @@ class AuditInfo {
     static final int Q_STRING = 11;
     static final int DEST_USER_ID = 12;
     static final int DEST_NAP_ID = 13;
-    static final int MOVE_USER_ID = 14;
+    static final int C_MOVE_ORIGINATOR = 14;
     static final int WARNING = 15;
     static final int FAILED_IUID_SHOW = 16;
     static final int SOP_CUID = 17;
@@ -118,7 +118,7 @@ class AuditInfo {
                 encode(i.queryString),
                 encode(i.destUserID),
                 encode(i.destNapID),
-                encode(i.moveUserID),
+                encode(i.cMoveOriginator),
                 encode(i.warning),
                 encode(i.failedIUIDShow ? String.valueOf(true) : null),
                 encode(i.sopCUID),

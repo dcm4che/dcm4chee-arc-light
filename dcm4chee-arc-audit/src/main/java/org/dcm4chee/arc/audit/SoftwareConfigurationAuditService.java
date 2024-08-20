@@ -122,10 +122,13 @@ class SoftwareConfigurationAuditService extends AuditService {
         String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
         ActiveParticipant requestor = new ActiveParticipant();
         requestor.setUserID(requestorID);
-        requestor.setUserIDTypeCode(
-                AuditMessages.isIP(requestorID)
+        boolean requestorIsIP = AuditMessages.isIP(requestorID);
+        requestor.setUserIDTypeCode(requestorIsIP
                         ? AuditMessages.UserIDTypeCode.NodeID
                         : AuditMessages.UserIDTypeCode.PersonID);
+        requestor.setUserTypeCode(requestorIsIP
+                        ? AuditMessages.UserTypeCode.Application
+                        : AuditMessages.UserTypeCode.Person);
         requestor.setUserIsRequestor(true);
         requestor.setNetworkAccessPointID(requestorHost);
         requestor.setNetworkAccessPointTypeCode(

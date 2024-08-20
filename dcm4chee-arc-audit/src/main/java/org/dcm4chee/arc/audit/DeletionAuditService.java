@@ -146,9 +146,9 @@ class DeletionAuditService extends AuditService {
         ActiveParticipant archive = new ActiveParticipant();
         archive.setUserID(archiveUserID);
         archive.setUserIDTypeCode(archiveUserIDTypeCode);
+        archive.setUserTypeCode(AuditMessages.UserTypeCode.Application);
         archive.setAlternativeUserID(AuditLogger.processID());
         archive.setUserIsRequestor(archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.DeviceName);
-        archive.setUserTypeCode(AuditMessages.UserTypeCode.Application);
 
         String auditLoggerHostName = auditLogger.getConnections().get(0).getHostname();
         archive.setNetworkAccessPointID(auditLoggerHostName);
@@ -164,10 +164,13 @@ class DeletionAuditService extends AuditService {
         String requestorID = auditInfo.getField(AuditInfo.CALLING_USERID);
         requestor.setUserID(requestorID);
         requestor.setUserIsRequestor(true);
-        requestor.setUserIDTypeCode(AuditMessages.isIP(requestorID)
-                ? AuditMessages.UserIDTypeCode.NodeID
-                : AuditMessages.UserIDTypeCode.PersonID);
-        requestor.setUserTypeCode(AuditMessages.UserTypeCode.Person);
+        boolean requestorIsIP = AuditMessages.isIP(requestorID);
+        requestor.setUserIDTypeCode(requestorIsIP
+                    ? AuditMessages.UserIDTypeCode.NodeID
+                    : AuditMessages.UserIDTypeCode.PersonID);
+        requestor.setUserTypeCode(requestorIsIP
+                    ? AuditMessages.UserTypeCode.Application
+                    : AuditMessages.UserTypeCode.Person);
 
         String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
         requestor.setNetworkAccessPointID(requestorHost);

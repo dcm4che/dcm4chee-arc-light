@@ -40,146 +40,151 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.ActiveParticipant;
-import org.dcm4che3.audit.ActiveParticipantBuilder;
-import org.dcm4che3.audit.AuditMessage;
-import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.*;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Feb 2019
  */
-class ExternalRetrieveAuditService {
+class ExternalRetrieveAuditService extends AuditService {
     private final static Logger LOG = LoggerFactory.getLogger(ExternalRetrieveAuditService.class);
 
-    static AuditInfoBuilder auditInfo(ExternalRetrieveContext ctx, ArchiveDeviceExtension arcDev) {
-        AuditInfoBuilder.Builder auditInfo = ctx.getHttpServletRequestInfo() == null
-                                                ? auditInfoForScheduler(ctx)
-                                                : auditInfoForRESTful(ctx);
-        return auditInfo.callingHost(ctx.getRequesterHostName())
-                .calledHost(ctx.getRemoteHostName())
-                .destUserID(ctx.getDestinationAET())
-                .studyUIDAccNumDate(ctx.getKeys(), arcDev)
-                .warning(ctx.warning() > 0
-                        ? "Number Of Warning Sub operations" + ctx.warning()
-                        : null)
-                .outcome(ctx.getResponse().getString(Tag.ErrorComment) != null
-                        ? ctx.getResponse().getString(Tag.ErrorComment) + ctx.failed()
-                        : null)
-                .build();
-    }
-
-    private static AuditInfoBuilder.Builder auditInfoForRESTful(ExternalRetrieveContext ctx) {
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(ctx.getRequesterUserID())
-                .calledUserID(ctx.getRemoteAET())
-                .moveUserID(ctx.getRequestURI());
-    }
-
-    private static AuditInfoBuilder.Builder auditInfoForScheduler(ExternalRetrieveContext ctx) {
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(ctx.getLocalAET())
-                .findSCP(ctx.getFindSCP())
-                .moveUserID(ctx.getRemoteAET());
-    }
-    
-    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType,
-                                 IApplicationEntityCache aeCache) {
+    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, IApplicationEntityCache aeCache) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        return AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipants(auditLogger, eventType, auditInfo, aeCache),
-                ParticipantObjectID.studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
-                        .detail(AuditMessages.createParticipantObjectDetail(
-                                "StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
-                        .build());
-    }
-    
-    private static ActiveParticipant[] activeParticipants(AuditLogger auditLogger, AuditUtils.EventType eventType,
-                                                                 AuditInfo auditInfo, IApplicationEntityCache aeCache) {
-        return auditInfo.getField(AuditInfo.CALLING_HOST) == null
-                ? schedulerTriggeredAPs(auditLogger, eventType, auditInfo, aeCache)
-                : restfulTriggeredAPs(auditLogger, eventType, auditInfo);
-    }
-
-    private static ActiveParticipant[] restfulTriggeredAPs(AuditLogger auditLogger, AuditUtils.EventType eventType,
-                                                                 AuditInfo auditInfo) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[4];
-        String userID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        activeParticipants[0] = new ActiveParticipantBuilder(userID, auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(AuditMessages.userIDTypeCode(userID))
-                .isRequester()
-                .build();
-        activeParticipants[1] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.MOVE_USER_ID),
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
-                .altUserID(AuditLogger.processID())
-                .build();
-        activeParticipants[2] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.CALLED_USERID),
-                auditInfo.getField(AuditInfo.CALLED_HOST))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .roleIDCode(eventType.source)
-                .build();
-        activeParticipants[3] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.DEST_USER_ID),
-                auditInfo.getField(AuditInfo.DEST_NAP_ID))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .roleIDCode(eventType.destination)
-                .build();
-        return activeParticipants;
-    }
-
-    private static ActiveParticipant[] schedulerTriggeredAPs(
-            AuditLogger auditLogger, AuditUtils.EventType eventType, AuditInfo auditInfo, IApplicationEntityCache aeCache) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[4];
-        String userID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        String findSCP = auditInfo.getField(AuditInfo.FIND_SCP);
-        activeParticipants[0] = new ActiveParticipantBuilder(
-                userID,
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .altUserID(AuditLogger.processID())
-                .isRequester()
-                .build();
-        activeParticipants[1] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.MOVE_USER_ID),
-                auditInfo.getField(AuditInfo.CALLED_HOST))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .roleIDCode(eventType.source)
-                .build();
-        activeParticipants[2] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.DEST_USER_ID),
-                auditInfo.getField(AuditInfo.DEST_NAP_ID))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .roleIDCode(eventType.destination)
-                .build();
-        try {
-            activeParticipants[3] = new ActiveParticipantBuilder(
-                    findSCP,
-                    aeCache.findApplicationEntity(findSCP).getConnections().get(0).getHostname())
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                    .build();
-        } catch (ConfigurationException e) {
-            LOG.info("Exception caught on getting hostname for C-FINDSCP : {}", e.getMessage());
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
+        List<ActiveParticipant> activeParticipants = new ArrayList<>();
+        if (auditInfo.getField(AuditInfo.CALLING_HOST) == null) {
+            activeParticipants.add(requestorAE(auditInfo, auditLogger));
+            activeParticipants.add(moveOriginator(auditInfo, aeCache, eventType));
+            activeParticipants.add(destination(auditInfo, eventType));
+        } else {
+            activeParticipants.add(requestor(auditInfo));
+            activeParticipants.add(archiveURI(auditInfo, auditLogger));
+            activeParticipants.add(moveOriginator(auditInfo, aeCache, eventType));
+            activeParticipants.add(destination(auditInfo, eventType));
         }
-        return activeParticipants;
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants, study(auditInfo));
     }
 
-    private static String getLocalHostName(AuditLogger auditLogger) {
-        return auditLogger.getConnections().get(0).getHostname();
+    private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        String warning = auditInfo.getField(AuditInfo.WARNING);
+        String errorCode = auditInfo.getField(AuditInfo.ERROR_CODE);
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(eventType.eventID);
+        ei.setEventActionCode(eventType.eventActionCode);
+        ei.setEventOutcomeDescription(warning == null ? outcome : outcome + "\n" + warning);
+        ei.setEventOutcomeIndicator(outcome == null || errorCode.equals("0")
+                ? AuditMessages.EventOutcomeIndicator.Success
+                : AuditMessages.EventOutcomeIndicator.MinorFailure);
+        if (!errorCode.equals("0"))
+            ei.getEventTypeCode().add(AuditUtils.errorEventTypeCode(errorCode));
+        return ei;
+    }
+
+    private static ParticipantObjectIdentification study(AuditInfo auditInfo) {
+        ParticipantObjectIdentification study = new ParticipantObjectIdentification();
+        study.setParticipantObjectID(auditInfo.getField(AuditInfo.STUDY_UID));
+        study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+        study.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        study.getParticipantObjectDetail()
+                .add(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
+        return study;
+    }
+
+    private static ActiveParticipant requestor(AuditInfo auditInfo) {
+        ActiveParticipant requestor = new ActiveParticipant();
+        String requestorUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        requestor.setUserID(requestorUserID);
+        boolean requestorUserIDIsIP = AuditMessages.isIP(requestorUserID);
+        requestor.setUserIDTypeCode(requestorUserIDIsIP
+                                    ? AuditMessages.UserIDTypeCode.NodeID
+                                    : AuditMessages.UserIDTypeCode.PersonID);
+        requestor.setUserTypeCode(requestorUserIDIsIP
+                                    ? AuditMessages.UserTypeCode.Application
+                                    : AuditMessages.UserTypeCode.Person);
+        String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        requestor.setNetworkAccessPointID(requestorHost);
+        requestor.setNetworkAccessPointTypeCode(AuditMessages.isIP(requestorHost)
+                                                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                                                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        requestor.setUserIsRequestor(true);
+        return requestor;
+    }
+
+    private static ActiveParticipant archiveURI(AuditInfo auditInfo, AuditLogger auditLogger) {
+        ActiveParticipant archiveURI = new ActiveParticipant();
+        archiveURI.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
+        archiveURI.setUserIDTypeCode(AuditMessages.UserIDTypeCode.URI);
+        archiveURI.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveURI.setAlternativeUserID(AuditLogger.processID());
+        String archiveHost = auditLogger.getConnections().get(0).getHostname();
+        archiveURI.setNetworkAccessPointID(archiveHost);
+        archiveURI.setNetworkAccessPointTypeCode(AuditMessages.isIP(archiveHost)
+                ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archiveURI;
+    }
+
+    private static ActiveParticipant requestorAE(AuditInfo auditInfo, AuditLogger auditLogger) {
+        ActiveParticipant requestorAE = new ActiveParticipant();
+        requestorAE.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
+        requestorAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        requestorAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        requestorAE.setAlternativeUserID(AuditLogger.processID());
+        String requestorHost = auditLogger.getConnections().get(0).getHostname();
+        requestorAE.setNetworkAccessPointID(requestorHost);
+        requestorAE.setNetworkAccessPointTypeCode(AuditMessages.isIP(requestorHost)
+                ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        requestorAE.setUserIsRequestor(true);
+        return requestorAE;
+    }
+
+    private static ActiveParticipant moveOriginator(
+            AuditInfo auditInfo, IApplicationEntityCache aeCache, AuditUtils.EventType eventType) {
+        ActiveParticipant moveOriginator = new ActiveParticipant();
+        moveOriginator.setUserID(auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR));
+        moveOriginator.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        moveOriginator.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        try {
+            String moveOriginatorHost = auditInfo.getField(AuditInfo.CALLED_HOST) == null
+                    ? aeCache.findApplicationEntity(auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR))
+                        .getConnections()
+                        .get(0)
+                        .getHostname()
+                    : auditInfo.getField(AuditInfo.CALLED_HOST);
+            moveOriginator.setNetworkAccessPointID(moveOriginatorHost);
+            moveOriginator.setNetworkAccessPointTypeCode(AuditMessages.isIP(moveOriginatorHost)
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        } catch (ConfigurationException e) {
+            LOG.info("Exception caught on getting hostname for C-MOVESCP : {}\n",
+                    auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR), e);
+        }
+        moveOriginator.getRoleIDCode().add(eventType.source);
+        return moveOriginator;
+    }
+
+    private static ActiveParticipant destination(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        ActiveParticipant destination = new ActiveParticipant();
+        destination.setUserID(auditInfo.getField(AuditInfo.DEST_USER_ID));
+        destination.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        destination.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        destination.getRoleIDCode().add(eventType.destination);
+        return destination;
     }
 }

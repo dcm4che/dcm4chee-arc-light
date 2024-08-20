@@ -156,7 +156,7 @@ class RetrieveAuditService {
             .destUserID(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
             .callingHost(ctx.getRequestorHostName())
-            .moveUserID(ctx.getMoveOriginatorAETitle())
+            .cMoveOriginator(ctx.getMoveOriginatorAETitle())
             .build();
     }
 
@@ -257,7 +257,7 @@ class RetrieveAuditService {
 
     private static ActiveParticipant[] activeParticipants(
             AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
-        return auditInfo.getField(AuditInfo.MOVE_USER_ID) != null
+        return auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR) != null
                 ? cMoveActiveParticipants(eventType, auditInfo, auditLogger)
                 : auditInfo.getField(AuditInfo.IS_EXPORT) != null
                     ? exportActiveParticipants(eventType, auditInfo, auditLogger)
@@ -281,7 +281,7 @@ class RetrieveAuditService {
                 .roleIDCode(eventType.destination)
                 .build();
         activeParticipants[2] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.MOVE_USER_ID),
+                auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR),
                 auditInfo.getField(AuditInfo.CALLING_HOST))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                 .isRequester()
