@@ -387,6 +387,10 @@ class AuditUtils {
                 return AuditMessages.EventTypeCode.x0212;
             case "A700":
                 return AuditMessages.EventTypeCode.A700;
+            case "A701":
+                return AuditMessages.EventTypeCode.A701;
+            case "A702":
+                return AuditMessages.EventTypeCode.A702;
             case "A770":
                 return AuditMessages.EventTypeCode.A770;
             case "A771":
@@ -407,8 +411,12 @@ class AuditUtils {
                 return AuditMessages.EventTypeCode.A778;
             case "A779":
                 return AuditMessages.EventTypeCode.A779;
+            case "A801":
+                return AuditMessages.EventTypeCode.A801;
             case "A900":
                 return AuditMessages.EventTypeCode.A900;
+            case "B000":
+                return AuditMessages.EventTypeCode.B000;
             case "C409":
                 return AuditMessages.EventTypeCode.C409;
             default:
