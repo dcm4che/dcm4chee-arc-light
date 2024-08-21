@@ -96,6 +96,7 @@ import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -169,7 +170,7 @@ public class AuditService {
                 else auditStudyRecord(auditLogger, path, eventType);
                 break;
             case PROV_REGISTER:
-                auditProvideAndRegister(auditLogger, path, eventType);
+                ProvideAndRegisterAuditService.audit(auditLogger, path, eventType);
                 break;
             case STGCMT:
                 auditStorageCommit(auditLogger, path, eventType);
@@ -585,7 +586,7 @@ public class AuditService {
                                         .toAuditInfo();
             writeSpoolFile(AuditUtils.EventType.STUDY_READ.name(), false, auditInfo);
         } catch (Exception e) {
-            LOG.info("Failed to spool study size info for {}\n", event, e);
+            LOG.info("Failed to spool {}\n", event, e);
         }
     }
 
@@ -1223,22 +1224,40 @@ public class AuditService {
     }
 
     void spoolProvideAndRegister(ExportContext ctx) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        URI destination = ctx.getExporter().getExporterDescriptor().getExportURI();
+        String schemeSpecificPart = destination.getSchemeSpecificPart();
+        String destinationHost = schemeSpecificPart.substring(schemeSpecificPart.indexOf("://") + 3, schemeSpecificPart.lastIndexOf(":"));
+        ArchiveDeviceExtension arcDev = getArchiveDevice();
         try {
-            writeSpoolFile(
-                    AuditUtils.EventType.PROV_REGIS,
-                    null,
-                    ProvideAndRegisterAuditService.provideRegisterAuditInfo(ctx, getArchiveDevice()));
+            if (httpServletRequestInfo == null) {
+                writeSpoolFile(AuditUtils.EventType.PROV_REGIS.name(), false,
+                        new AuditInfoBuilder.Builder()
+                                .callingUserID(arcDev.getDevice().getDeviceName())
+                                .destUserID(destination.toString())
+                                .destNapID(destinationHost)
+                                .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                .pIDAndName(ctx.getXDSiManifest(), arcDev)
+                                .submissionSetUID(ctx.getSubmissionSetUID())
+                                .toAuditInfo());
+                return;
+            }
+
+            writeSpoolFile(AuditUtils.EventType.PROV_REGIS.name(), false,
+                    new AuditInfoBuilder.Builder()
+                            .callingUserID(httpServletRequestInfo.requesterUserID)
+                            .callingHost(httpServletRequestInfo.requesterHost)
+                            .calledUserID(httpServletRequestInfo.requestURI)
+                            .queryString(httpServletRequestInfo.queryString)
+                            .destUserID(destination.toString())
+                            .destNapID(destinationHost)
+                            .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                            .pIDAndName(ctx.getXDSiManifest(), arcDev)
+                            .submissionSetUID(ctx.getSubmissionSetUID()).toAuditInfo());
         } catch (Exception e) {
             LOG.info("Failed to spool Provide and Register for [SubmissionSetUID={}, XDSiManifest={}]\n",
                     ctx.getSubmissionSetUID(), ctx.getXDSiManifest(), e);
         }
-    }
-
-    private void auditProvideAndRegister(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        emitAuditMessage(
-                ProvideAndRegisterAuditService.provideRegisterAuditMsg(auditLogger, path, eventType),
-                auditLogger);
     }
 
     void spoolStgCmt(StgCmtContext ctx) {

@@ -109,21 +109,6 @@ class ParticipantObjectID {
         return detail;
     }
 
-    private static ParticipantObjectIdentificationBuilder submissionSetPOI(AuditInfo auditInfo) {
-        return new ParticipantObjectIdentificationBuilder(
-                auditInfo.getField(AuditInfo.SUBMISSION_SET_UID),
-                AuditMessages.ParticipantObjectIDTypeCode.IHE_XDS_METADATA,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Job);
-    }
-
-    static ParticipantObjectIdentification[] submissionSetParticipants(AuditInfo auditInfo) {
-        ParticipantObjectIdentification[] submissionSetParticipants = new ParticipantObjectIdentification[2];
-        submissionSetParticipants[0] = submissionSetPOI(auditInfo).build();
-        submissionSetParticipants[1] = patientPOIBuilder(auditInfo).build();
-        return submissionSetParticipants;
-    }
-
     static ParticipantObjectIdentification[] studyPatParticipants(
             AuditInfo auditInfo, List<String> instanceInfoLines, AuditUtils.EventType eventType, AuditLogger auditLogger) {
         ParticipantObjectIdentification[] studyPatParticipants = new ParticipantObjectIdentification[2];

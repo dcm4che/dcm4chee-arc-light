@@ -151,29 +151,30 @@ class PDQAuditService extends AuditService {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        byte[] data = reader.getData();
+        HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
+        ParticipantObjectIdentification pdq = hl7PDQQuery(auditInfo, msh, data);
+        ParticipantObjectIdentification patient = hl7PDQPatient(auditInfo, reader);
+
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
         activeParticipants.add(hl7PDQConsumer(auditInfo, eventType, device));
         activeParticipants.add(hl7PDQSupplier(auditInfo, eventType, hl7AppCache));
         String archiveCalledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        if (archiveCalledUserID == null)
+        if (archiveCalledUserID == null) {
             activeParticipants.add(archive(
                     auditInfo.getField(AuditInfo.CALLING_USERID),
                     AuditMessages.UserIDTypeCode.DeviceName,
                     eventType,
                     auditLogger));
-        else {
-            String queryString = auditInfo.getField(AuditInfo.Q_STRING);
-            if (queryString != null)
-                archiveCalledUserID += "?" + queryString;
-            activeParticipants.add(archive(archiveCalledUserID, AuditMessages.UserIDTypeCode.URI, eventType, auditLogger));
-            activeParticipants.add(requestor(auditInfo));
+            emitAuditMessage(auditLogger, eventIdentification, activeParticipants, patient, pdq);
+            return;
         }
 
-        byte[] data = reader.getData();
-        HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
-
-        ParticipantObjectIdentification pdq = hl7PDQQuery(auditInfo, msh, data);
-        ParticipantObjectIdentification patient = hl7PDQPatient(auditInfo, reader);
+        String queryString = auditInfo.getField(AuditInfo.Q_STRING);
+        if (queryString != null)
+            archiveCalledUserID += "?" + queryString;
+        activeParticipants.add(archive(archiveCalledUserID, AuditMessages.UserIDTypeCode.URI, eventType, auditLogger));
+        activeParticipants.add(requestor(auditInfo));
         emitAuditMessage(auditLogger, eventIdentification, activeParticipants, patient, pdq);
     }
 
