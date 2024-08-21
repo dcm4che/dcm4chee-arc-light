@@ -42,7 +42,6 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
 import org.dcm4chee.arc.entity.Patient;
@@ -92,7 +91,7 @@ class AuditInfoBuilder {
     final String taskPOID;
     final String errorCode;
     final String patMismatchCode;
-    final ConnectionEvent.Type connType;
+    final String serviceEventType;
     final Patient.VerificationStatus patVerificationStatus;
     final String pdqServiceURI;
     final String impaxEndpoint;
@@ -136,7 +135,7 @@ class AuditInfoBuilder {
         private String taskPOID;
         private String errorCode;
         private String patMismatchCode;
-        private ConnectionEvent.Type connType;
+        private String serviceEventType;
         private Patient.VerificationStatus patVerificationStatus;
         private String pdqServiceURI;
         private String impaxEndpoint;
@@ -307,8 +306,8 @@ class AuditInfoBuilder {
             patMismatchCode = val;
             return this;
         }
-        Builder connType(ConnectionEvent.Type val) {
-            connType = val;
+        Builder serviceEventType(String val) {
+            serviceEventType = val;
             return this;
         }
         Builder patVerificationStatus(Patient.VerificationStatus val) {
@@ -389,7 +388,7 @@ class AuditInfoBuilder {
         taskPOID = builder.taskPOID;
         errorCode = builder.errorCode;
         patMismatchCode = builder.patMismatchCode;
-        connType = builder.connType;
+        serviceEventType = builder.serviceEventType;
         patVerificationStatus = builder.patVerificationStatus;
         pdqServiceURI = builder.pdqServiceURI;
         impaxEndpoint = builder.impaxEndpoint;

@@ -88,7 +88,7 @@ class AuditInfo {
     static final int TASK_POID = 28;
     static final int ERROR_CODE = 29;
     static final int PAT_MISMATCH_CODE = 30;
-    static final int CONN_TYPE = 31;
+    static final int SERVICE_EVENT_TYPE = 31;
     static final int PAT_VERIFICATION_STATUS = 32;
     static final int PDQ_SERVICE_URI = 33;
     static final int IMPAX_ENDPOINT = 34;
@@ -135,7 +135,7 @@ class AuditInfo {
                 encode(i.taskPOID),
                 encode(i.errorCode),
                 encode(i.patMismatchCode),
-                encode(i.connType != null ? i.connType.name() : null),
+                encode(i.serviceEventType),
                 encode(i.patVerificationStatus != null ? i.patVerificationStatus.name() : null),
                 encode(i.pdqServiceURI),
                 encode(i.impaxEndpoint),

@@ -77,6 +77,7 @@ class AuditUtils {
         SCHEDULER_DELETED,
         STORE_WADOR,
         CONN_FAILURE,
+        ASSOCIATION_FAILURE,
         RETRIEVE,
         APPLN_ACTIVITY,
         PATIENT,
@@ -88,7 +89,6 @@ class AuditUtils {
         LDAP_CHANGES,
         QUEUE_EVENT,
         IMPAX,
-        ASSOCIATION_FAILURE,
         QSTAR
     }
     enum EventType {
@@ -135,6 +135,8 @@ class AuditUtils {
 
         CONN_FAILR(EventClass.CONN_FAILURE, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, AuditMessages.EventTypeCode.NodeAuthentication),
+        ASSOC_FAIL(EventClass.ASSOCIATION_FAILURE, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+                null, null, AuditMessages.EventTypeCode.AssociationFailure),
 
         PAT_CREATE(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
@@ -174,9 +176,6 @@ class AuditUtils {
 
         IMPAX_MISM(EventClass.IMPAX, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, null),
-
-        ASSOC_FAIL(EventClass.ASSOCIATION_FAILURE, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
-                null, null, AuditMessages.EventTypeCode.AssociationFailure),
 
         CANCEL_TSK(EventClass.QUEUE_EVENT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, AuditMessages.EventTypeCode.CancelTask),

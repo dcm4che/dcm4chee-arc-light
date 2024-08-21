@@ -39,8 +39,11 @@
  */
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.ActiveParticipant;
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.EventIdentification;
 import org.dcm4che3.net.audit.AuditLogger;
+import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 
 import java.nio.file.Path;
@@ -52,15 +55,15 @@ import java.util.List;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
-class ConnectionEventsAuditService extends AuditService {
+class ServiceEventsAuditService extends AuditService {
 
-    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    static void auditConnectionEvent(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
         eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
-        if (ConnectionEvent.Type.valueOf(auditInfo.getField(AuditInfo.CONN_TYPE)) == ConnectionEvent.Type.FAILED) {
+        if (auditInfo.getField(AuditInfo.SERVICE_EVENT_TYPE).equals(ConnectionEvent.Type.FAILED.name())) {
             activeParticipants.add(archiveRequestor(auditInfo));
             activeParticipants.add(remote(auditInfo));
             emitAuditMessage(auditLogger, eventIdentification, activeParticipants);
@@ -145,4 +148,83 @@ class ConnectionEventsAuditService extends AuditService {
         remoteRequestor.setUserIsRequestor(true);
         return remoteRequestor;
     }
+
+    static void auditAssociationEvent(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
+        List<ActiveParticipant> activeParticipants = new ArrayList<>();
+        if (auditInfo.getField(AuditInfo.SERVICE_EVENT_TYPE).equals(AssociationEvent.Type.FAILED.name())) {
+            activeParticipants.add(archiveAERequestor(auditInfo));
+            activeParticipants.add(remoteAE(auditInfo));
+            emitAuditMessage(auditLogger, eventIdentification, activeParticipants);
+            return;
+        }
+
+        activeParticipants.add(archiveAE(auditInfo));
+        activeParticipants.add(remoteAERequestor(auditInfo));
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants);
+    }
+
+    private static ActiveParticipant archiveAERequestor(AuditInfo auditInfo) {
+        ActiveParticipant archiveAERequestor = new ActiveParticipant();
+        archiveAERequestor.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
+        archiveAERequestor.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        archiveAERequestor.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveAERequestor.setAlternativeUserID(AuditLogger.processID());
+        String archiveAERequestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        archiveAERequestor.setNetworkAccessPointID(archiveAERequestorHost);
+        archiveAERequestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(archiveAERequestorHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        archiveAERequestor.setUserIsRequestor(true);
+        return archiveAERequestor;
+    }
+
+    private static ActiveParticipant remoteAE(AuditInfo auditInfo) {
+        ActiveParticipant remoteAE = new ActiveParticipant();
+        remoteAE.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
+        remoteAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        remoteAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        String remoteAEHost = auditInfo.getField(AuditInfo.CALLED_HOST);
+        remoteAE.setNetworkAccessPointID(remoteAEHost);
+        remoteAE.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(remoteAEHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return remoteAE;
+    }
+
+    private static ActiveParticipant archiveAE(AuditInfo auditInfo) {
+        ActiveParticipant archiveAE = new ActiveParticipant();
+        archiveAE.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
+        archiveAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        archiveAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveAE.setAlternativeUserID(AuditLogger.processID());
+        String archiveAEHost = auditInfo.getField(AuditInfo.CALLED_HOST);
+        archiveAE.setNetworkAccessPointID(archiveAEHost);
+        archiveAE.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(archiveAEHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archiveAE;
+    }
+
+    private static ActiveParticipant remoteAERequestor(AuditInfo auditInfo) {
+        ActiveParticipant remoteAERequestor = new ActiveParticipant();
+        remoteAERequestor.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
+        remoteAERequestor.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        remoteAERequestor.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        String remoteAERequestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        remoteAERequestor.setNetworkAccessPointID(remoteAERequestorHost);
+        remoteAERequestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(remoteAERequestorHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        remoteAERequestor.setUserIsRequestor(true);
+        return remoteAERequestor;
+    }
+
 }

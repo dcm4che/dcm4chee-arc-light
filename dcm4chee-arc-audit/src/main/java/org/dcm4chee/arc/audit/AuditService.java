@@ -53,6 +53,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.DicomOutputStream;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
@@ -60,6 +61,7 @@ import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.AssociationEvent;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -136,7 +138,10 @@ public class AuditService {
                 ApplicationActivityAuditService.audit(auditLogger, path, eventType);
                 break;
             case CONN_FAILURE:
-                ConnectionEventsAuditService.audit(auditLogger, path, eventType);
+                ServiceEventsAuditService.auditConnectionEvent(auditLogger, path, eventType);
+                break;
+            case ASSOCIATION_FAILURE:
+                ServiceEventsAuditService.auditAssociationEvent(auditLogger, path, eventType);
                 break;
             case STORE_WADOR:
                 if (eventType.name().startsWith("WADO")) auditWADORetrieve(auditLogger, path, eventType);
@@ -180,9 +185,6 @@ public class AuditService {
                 break;
             case IMPAX:
                 auditPatientMismatch(auditLogger, path, eventType);
-                break;
-            case ASSOCIATION_FAILURE:
-                auditAssociationFailure(auditLogger, path, eventType);
                 break;
             case QSTAR:
                 QStarVerificationAuditService.audit(auditLogger, path, eventType, getArchiveDevice());
@@ -523,7 +525,7 @@ public class AuditService {
                                 .calledUserID(remoteConnection.getDevice().getDeviceName())
                                 .calledHost(remoteConnection.getHostname())
                                 .outcome(event.getException().getMessage())
-                                .connType(event.getType())
+                                .serviceEventType(event.getType().name())
                                 .toAuditInfo());
                 return;
             }
@@ -535,11 +537,42 @@ public class AuditService {
                                 .calledUserID(connection.getDevice().getDeviceName())
                                 .calledHost(connection.getHostname())
                                 .outcome(event.getException().getMessage())
-                                .connType(event.getType())
+                                .serviceEventType(event.getType().name())
                                 .toAuditInfo());
         } catch (Exception e) {
             LOG.info("Failed to spool ConnectionEvent[type={}, connection={}, remoteConnection={}]\n",
                     event.getType(), connection, remoteConnection, e);
+        }
+    }
+
+    void spoolAssociationFailure(AssociationEvent event) {
+        Association association = event.getAssociation();
+        try {
+            if (event.getType() == AssociationEvent.Type.FAILED) {
+                writeSpoolFile(AuditUtils.EventType.ASSOC_FAIL.name(), false,
+                        new AuditInfoBuilder.Builder()
+                                .callingUserID(association.getLocalAET())
+                                .callingHost(association.getConnection().getHostname())
+                                .calledUserID(association.getRemoteAET())
+                                .calledHost(ReverseDNS.hostNameOf(association.getSocket().getInetAddress()))
+                                .outcome(event.getException().getMessage())
+                                .serviceEventType(event.getType().name())
+                                .toAuditInfo());
+                return;
+            }
+
+            writeSpoolFile(AuditUtils.EventType.ASSOC_FAIL.name(), false,
+                    new AuditInfoBuilder.Builder()
+                            .callingUserID(association.getRemoteAET())
+                            .callingHost(ReverseDNS.hostNameOf(association.getSocket().getInetAddress()))
+                            .calledUserID(association.getLocalAET())
+                            .calledHost(association.getConnection().getHostname())
+                            .outcome(event.getException().getMessage())
+                            .serviceEventType(event.getType().name())
+                            .toAuditInfo());
+        } catch (Exception e) {
+            LOG.info("Failed to spool AssociationEvent[type={}, association={}]\n",
+                    event.getType(), association, e);
         }
     }
 
@@ -1232,25 +1265,6 @@ public class AuditService {
     private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
         emitAuditMessage(
                 StorageCommitAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
-    }
-
-    void spoolAssociationFailure(AssociationEvent associationEvent) {
-        try {
-            writeSpoolFile(
-                    AuditUtils.EventType.ASSOC_FAIL,
-                    null,
-                    AssociationEventsAuditService.associationFailureAuditInfo(associationEvent));
-        } catch (Exception e) {
-            LOG.info("Failed to spool association event failure for [AssociationEventType={}]\n",
-                    associationEvent.getType(), e);
-        }
-    }
-
-    private void auditAssociationFailure(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        emitAuditMessage(
-                AssociationEventsAuditService.associationFailureAuditMsg(auditLogger, path, eventType),
                 auditLogger);
     }
 
