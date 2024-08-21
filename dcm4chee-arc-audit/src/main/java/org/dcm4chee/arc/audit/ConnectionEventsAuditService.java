@@ -40,82 +40,109 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.ConnectionEvent;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
-class ConnectionEventsAuditService {
+class ConnectionEventsAuditService extends AuditService {
 
-    static AuditInfoBuilder connFailureAuditInfo(ConnectionEvent event) {
-        return event.getType() == ConnectionEvent.Type.FAILED
-                ? connFailedAuditInfo(event) : connRejectedAuditInfo(event);
-    }
-
-    private static AuditInfoBuilder connRejectedAuditInfo(ConnectionEvent event) {
-        String callingUser = event.getSocket().getRemoteSocketAddress().toString();
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(callingUser)
-                .callingHost(callingUser)
-                .calledUserID(event.getConnection().getDevice().getDeviceName())
-                .calledHost(event.getConnection().getHostname())
-                .outcome(event.getException().getMessage())
-                .connType(event.getType())
-                .build();
-    }
-
-    private static AuditInfoBuilder connFailedAuditInfo(ConnectionEvent event) {
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(event.getConnection().getDevice().getDeviceName())
-                .callingHost(event.getConnection().getHostname())
-                .calledUserID(event.getRemoteConnection().getHostname())
-                .calledHost(event.getRemoteConnection().getHostname())
-                .outcome(event.getException().getMessage())
-                .connType(event.getType())
-                .build();
-    }
-
-    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        return AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipants(auditInfo));
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
+        List<ActiveParticipant> activeParticipants = new ArrayList<>();
+        if (ConnectionEvent.Type.valueOf(auditInfo.getField(AuditInfo.CONN_TYPE)) == ConnectionEvent.Type.FAILED) {
+            activeParticipants.add(archiveRequestor(auditInfo));
+            activeParticipants.add(remote(auditInfo));
+            emitAuditMessage(auditLogger, eventIdentification, activeParticipants);
+            return;
+        }
+
+        activeParticipants.add(remoteRequestor(auditInfo));
+        activeParticipants.add(archive(auditInfo));
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants);
     }
 
-    private static ActiveParticipant[] activeParticipants(AuditInfo auditInfo) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
-        if (ConnectionEvent.Type.valueOf(auditInfo.getField(AuditInfo.CONN_TYPE)) == ConnectionEvent.Type.REJECTED) {
-            activeParticipants[0] = new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.CALLED_USERID),
-                    auditInfo.getField(AuditInfo.CALLED_HOST))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                    .altUserID(AuditLogger.processID())
-                    .build();
-            activeParticipants[1] = new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.CALLING_USERID),
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.NodeID)
-                    .isRequester().build();
-        } else {
-            activeParticipants[0] = new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.CALLED_USERID),
-                    auditInfo.getField(AuditInfo.CALLED_HOST))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.NodeID)
-                    .build();
-            activeParticipants[1] = new ActiveParticipantBuilder(
-                    auditInfo.getField(AuditInfo.CALLING_USERID),
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                    .altUserID(AuditLogger.processID())
-                    .isRequester().build();
-        }
-        return activeParticipants;
+    private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(eventType.eventID);
+        ei.setEventActionCode(eventType.eventActionCode);
+        ei.setEventOutcomeDescription(outcome);
+        ei.setEventOutcomeIndicator(outcome == null
+                ? AuditMessages.EventOutcomeIndicator.Success
+                : AuditMessages.EventOutcomeIndicator.MinorFailure);
+        ei.getEventTypeCode().add(eventType.eventTypeCode);
+        return ei;
+    }
+
+    private static ActiveParticipant remote(AuditInfo auditInfo) {
+        ActiveParticipant remote = new ActiveParticipant();
+        remote.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
+        remote.setUserIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName);
+        remote.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        String remoteHost = auditInfo.getField(AuditInfo.CALLED_HOST);
+        remote.setNetworkAccessPointID(remoteHost);
+        remote.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(remoteHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return remote;
+    }
+
+    private static ActiveParticipant archiveRequestor(AuditInfo auditInfo) {
+        ActiveParticipant archiveRequestor = new ActiveParticipant();
+        archiveRequestor.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
+        archiveRequestor.setUserIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName);
+        archiveRequestor.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveRequestor.setAlternativeUserID(AuditLogger.processID());
+        String archiveRequestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        archiveRequestor.setNetworkAccessPointID(archiveRequestorHost);
+        archiveRequestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(archiveRequestorHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        archiveRequestor.setUserIsRequestor(true);
+        return archiveRequestor;
+    }
+
+    private static ActiveParticipant archive(AuditInfo auditInfo) {
+        ActiveParticipant archive = new ActiveParticipant();
+        archive.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
+        archive.setUserIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName);
+        archive.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archive.setAlternativeUserID(AuditLogger.processID());
+        String archiveHost = auditInfo.getField(AuditInfo.CALLED_HOST);
+        archive.setNetworkAccessPointID(archiveHost);
+        archive.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(archiveHost)
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archive;
+    }
+
+    private static ActiveParticipant remoteRequestor(AuditInfo auditInfo) {
+        ActiveParticipant remoteRequestor = new ActiveParticipant();
+        remoteRequestor.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
+        remoteRequestor.setUserIDTypeCode(AuditMessages.UserIDTypeCode.NodeID);
+        remoteRequestor.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        remoteRequestor.setAlternativeUserID(AuditLogger.processID());
+        String remoteRequestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        remoteRequestor.setNetworkAccessPointID(remoteRequestorHost);
+        remoteRequestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(remoteRequestorHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        remoteRequestor.setUserIsRequestor(true);
+        return remoteRequestor;
     }
 }

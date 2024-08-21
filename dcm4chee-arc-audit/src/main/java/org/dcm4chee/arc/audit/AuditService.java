@@ -53,6 +53,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.DicomOutputStream;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
@@ -135,7 +136,7 @@ public class AuditService {
                 ApplicationActivityAuditService.audit(auditLogger, path, eventType);
                 break;
             case CONN_FAILURE:
-                auditConnectionFailure(auditLogger, path, eventType);
+                ConnectionEventsAuditService.audit(auditLogger, path, eventType);
                 break;
             case STORE_WADOR:
                 if (eventType.name().startsWith("WADO")) auditWADORetrieve(auditLogger, path, eventType);
@@ -505,27 +506,41 @@ public class AuditService {
     }
 
     void spoolConnectionFailure(ConnectionEvent event) {
-        if (event.getRemoteConnection().getProtocol().name().startsWith("SYSLOG")) {
+        Connection remoteConnection = event.getRemoteConnection();
+        Connection connection = event.getConnection();
+        if (remoteConnection.getProtocol().name().startsWith("SYSLOG")) {
             LOG.info("Suppress audits of connection failures to audit record repository : {}",
-                    event.getRemoteConnection().getDevice());
+                    remoteConnection.getDevice());
             return;
         }
 
         try {
-            writeSpoolFile(
-                    AuditUtils.EventType.CONN_FAILR,
-                    null,
-                    ConnectionEventsAuditService.connFailureAuditInfo(event));
+            if (event.getType() == ConnectionEvent.Type.FAILED) {
+                writeSpoolFile(AuditUtils.EventType.CONN_FAILR.name(), false,
+                        new AuditInfoBuilder.Builder()
+                                .callingUserID(connection.getDevice().getDeviceName())
+                                .callingHost(connection.getHostname())
+                                .calledUserID(remoteConnection.getDevice().getDeviceName())
+                                .calledHost(remoteConnection.getHostname())
+                                .outcome(event.getException().getMessage())
+                                .connType(event.getType())
+                                .toAuditInfo());
+                return;
+            }
+            String callingUser = event.getSocket().getRemoteSocketAddress().toString();
+            writeSpoolFile(AuditUtils.EventType.CONN_FAILR.name(), false,
+                        new AuditInfoBuilder.Builder()
+                                .callingUserID(callingUser)
+                                .callingHost(callingUser)
+                                .calledUserID(connection.getDevice().getDeviceName())
+                                .calledHost(connection.getHostname())
+                                .outcome(event.getException().getMessage())
+                                .connType(event.getType())
+                                .toAuditInfo());
         } catch (Exception e) {
-            LOG.info("Failed to spool Connection Failure for [EventType={}]\n", event.getType(), e);
+            LOG.info("Failed to spool ConnectionEvent[type={}, connection={}, remoteConnection={}]\n",
+                    event.getType(), connection, remoteConnection, e);
         }
-    }
-
-    private void auditConnectionFailure(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        emitAuditMessage(
-                ConnectionEventsAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
     }
 
     void spoolStudySizeEvent(StudySizeEvent event) {
