@@ -43,7 +43,6 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Patient;
 
 import java.text.ParsePosition;
@@ -150,22 +149,6 @@ class ParticipantObjectID {
                 .build();
         if (hasPatient)
             studyPatParticipants[1] = patientPOIBuilder(auditInfo).build();
-        return studyPatParticipants;
-    }
-
-    static ParticipantObjectIdentification[] studyPatParticipants(
-            SpoolFileReader reader, AuditInfo auditInfo, AuditLogger auditLogger) {
-        ParticipantObjectIdentification[] studyPatParticipants = new ParticipantObjectIdentification[2];
-        String[] studyUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
-        studyPatParticipants[0] = studyPOI(studyUIDs[0])
-                                    .desc(participantObjDesc(auditInfo, reader.getInstanceLines(),
-                                            studyUIDs.length > 1 || auditInfo.getField(AuditInfo.OUTCOME) != null
-                                                    || auditLogger.isIncludeInstanceUID())
-                                            .pocsStudyUIDs(studyUIDs)
-                                            .build())
-                                    .lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification)
-                                    .build();
-        studyPatParticipants[1] = patientPOIBuilder(auditInfo).build();
         return studyPatParticipants;
     }
 

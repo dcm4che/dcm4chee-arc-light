@@ -94,7 +94,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -1288,10 +1287,10 @@ public class AuditService {
         return log.getConnections().get(0).getHostname();
     }
 
-    private Path toDirPath(AuditLogger auditLogger) throws UnsupportedEncodingException {
+    private Path toDirPath(AuditLogger auditLogger) {
         return Paths.get(
                 StringUtils.replaceSystemProperties(getArchiveDevice().getAuditSpoolDirectory()),
-                URLEncoder.encode(auditLogger.getCommonName(), "UTF-8"));
+                URLEncoder.encode(auditLogger.getCommonName(), StandardCharsets.UTF_8));
     }
 
     private void writeSpoolFile(
