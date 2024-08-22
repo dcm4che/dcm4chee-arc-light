@@ -48,7 +48,6 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Segment;
@@ -173,7 +172,7 @@ public class AuditService {
                 ProvideAndRegisterAuditService.audit(auditLogger, path, eventType);
                 break;
             case STGCMT:
-                auditStorageCommit(auditLogger, path, eventType);
+                StorageCommitAuditService.audit(auditLogger, path, eventType);
                 break;
             case INST_RETRIEVED:
                 ExternalRetrieveAuditService.audit(auditLogger, path, eventType, aeCache);
@@ -1262,29 +1261,20 @@ public class AuditService {
 
     void spoolStgCmt(StgCmtContext ctx) {
         try {
-            Sequence success = ctx.getEventInfo().getSequence(Tag.ReferencedSOPSequence);
-            Sequence failed = ctx.getEventInfo().getSequence(Tag.FailedSOPSequence);
-
-            if (success != null && !success.isEmpty())
+            List<AuditInfo> successAuditInfos = StorageCommitAuditService.successAuditInfos(ctx, getArchiveDevice());
+            if (!successAuditInfos.isEmpty())
                 writeSpoolFile(
-                        AuditUtils.EventType.STG_COMMIT,
-                        null,
-                        StorageCommitAuditService.getSuccessAuditInfo(ctx, getArchiveDevice()));
+                        AuditUtils.EventType.STG_COMMIT.name(), false,
+                        successAuditInfos.toArray(AuditInfo[]::new));
 
-            if (failed != null && !failed.isEmpty())
+            List<AuditInfo> failedAuditInfos = StorageCommitAuditService.failedAuditInfos(ctx, getArchiveDevice());
+            if (!failedAuditInfos.isEmpty())
                 writeSpoolFile(
-                        AuditUtils.EventType.STG_COMMIT,
-                        null,
-                        StorageCommitAuditService.getFailedAuditInfo(ctx, getArchiveDevice()));
+                        AuditUtils.EventType.STG_COMMIT.name(), false,
+                        failedAuditInfos.toArray(AuditInfo[]::new));
         } catch (Exception e) {
             LOG.info("Failed to spool storage commitment.\n", e);
         }
-    }
-
-    private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        emitAuditMessage(
-                StorageCommitAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
     }
 
     private String getLocalHostName(AuditLogger log) {

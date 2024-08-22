@@ -40,146 +40,340 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.audit.AuditLogger;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2018
  */
-class StorageCommitAuditService {
+class StorageCommitAuditService extends AuditService {
 
-    private static String studyIUID(Attributes eventInfo, ArchiveDeviceExtension arcDev) {
-        return eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                ? String.join(";", eventInfo.getStrings(Tag.StudyInstanceUID))
-                : arcDev.auditUnknownStudyInstanceUID();
+    static List<AuditInfo> successAuditInfos(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
+        Attributes eventInfo = ctx.getEventInfo();
+        Sequence successSOPSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
+        if (successSOPSeq == null || successSOPSeq.isEmpty())
+            return Collections.emptyList();
+
+        List<AuditInfo> auditInfos = new ArrayList<>();
+        auditInfos.add(successAuditInfo(ctx, arcDev));
+        auditInfos.addAll(successSOPSeq.stream()
+                                       .map(StorageCommitAuditService::refSopAuditInfo)
+                                       .collect(Collectors.toList()));
+        return auditInfos;
     }
 
-    static AuditInfoBuilder[] getSuccessAuditInfo(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
+    static List<AuditInfo> failedAuditInfos(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
         Attributes eventInfo = ctx.getEventInfo();
-        Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
-        AuditInfoBuilder[] successAuditInfo = new AuditInfoBuilder[success.size()+1];
-        successAuditInfo[0] = new AuditInfoBuilder.Builder()
-                .callingUserID(storageCmtCallingAET(ctx))
-                .callingHost(storageCmtCallingHost(ctx))
-                .calledUserID(storageCmtCalledAET(ctx))
+        Sequence failedSOPSeq = eventInfo.getSequence(Tag.FailedSOPSequence);
+        if (failedSOPSeq == null || failedSOPSeq.isEmpty())
+            return Collections.emptyList();
+
+        List<AuditInfo> failedSOPAuditInfos = new ArrayList<>();
+        Set<String> failureReasons = new HashSet<>();
+        for (Attributes failedSOP : failedSOPSeq) {
+            failureReasons.add(failedSOP.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
+                    ? "NoSuchObjectInstance"
+                    : failedSOP.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
+                    ? "ClassInstanceConflict" : "ProcessingFailure");
+            failedSOPAuditInfos.add(refSopAuditInfo(failedSOP));
+        }
+
+        List<AuditInfo> auditInfos = new ArrayList<>();
+        auditInfos.add(failureAuditInfo(ctx, arcDev, failureReasons));
+        auditInfos.addAll(failedSOPAuditInfos);
+        return auditInfos;
+    }
+
+    private static AuditInfo refSopAuditInfo(Attributes item) {
+        return new AuditInfoBuilder.Builder()
+                .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
+                .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID))
+                .toAuditInfo();
+    }
+
+    private static AuditInfo successAuditInfo(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getRequest();
+        if (httpServletRequestInfo == null)
+            return successAuditInfoDICOM(ctx, arcDev);
+
+        Attributes eventInfo = ctx.getEventInfo();
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(httpServletRequestInfo.requesterUserID)
+                .callingHost(httpServletRequestInfo.requesterHost)
+                .calledUserID(httpServletRequestInfo.requestURI)
+                .queryString(httpServletRequestInfo.queryString)
                 .pIDAndName(eventInfo, arcDev)
                 .studyIUID(studyIUID(eventInfo, arcDev))
-                .build();
-        for (int i = 1; i <= success.size(); i++)
-            successAuditInfo[i] = buildRefSopAuditInfo(success.get(i-1));
-
-        return successAuditInfo;
+                .toAuditInfo();
     }
 
-    static AuditInfoBuilder[] getFailedAuditInfo(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
+    private static AuditInfo successAuditInfoDICOM(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
+        ApplicationEntity remoteAE = ctx.getRemoteAE();
+        if (remoteAE == null)
+            return successAuditInfoScheduler(ctx, arcDev);
+
         Attributes eventInfo = ctx.getEventInfo();
-        Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
-        AuditInfoBuilder[] failedAuditInfo = new AuditInfoBuilder[failed.size()+1];
-        Set<String> failureReasons = new HashSet<>();
-        for (int i = 1; i <= failed.size(); i++) {
-            Attributes item = failed.get(i-1);
-            failedAuditInfo[i] = buildRefSopAuditInfo(item);
-            failureReasons.add(
-                    item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
-                            ? "NoSuchObjectInstance"
-                            : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
-                                ? "ClassInstanceConflict" : "ProcessingFailure");
-        }
-        failedAuditInfo[0] = new AuditInfoBuilder.Builder()
-                .callingUserID(storageCmtCallingAET(ctx))
-                .callingHost(storageCmtCallingHost(ctx))
-                .calledUserID(storageCmtCalledAET(ctx))
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(remoteAE.getAETitle())
+                .callingHost(remoteAE.getConnections().get(0).getHostname())
+                .calledUserID(ctx.getLocalAET())
+                .pIDAndName(eventInfo, arcDev)
+                .studyIUID(studyIUID(eventInfo, arcDev))
+                .toAuditInfo();
+    }
+
+    private static AuditInfo successAuditInfoScheduler(StgCmtContext ctx, ArchiveDeviceExtension arcDev) {
+        Attributes eventInfo = ctx.getEventInfo();
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(arcDev.getDevice().getDeviceName())
+                .pIDAndName(eventInfo, arcDev)
+                .studyIUID(studyIUID(eventInfo, arcDev))
+                .toAuditInfo();
+    }
+
+    private static AuditInfo failureAuditInfo(
+            StgCmtContext ctx, ArchiveDeviceExtension arcDev, Set<String> failureReasons) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getRequest();
+        if (httpServletRequestInfo == null)
+            return failureAuditInfoDICOM(ctx, arcDev, failureReasons);
+
+        Attributes eventInfo = ctx.getEventInfo();
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(httpServletRequestInfo.requesterUserID)
+                .callingHost(httpServletRequestInfo.requesterHost)
+                .calledUserID(httpServletRequestInfo.requestURI)
+                .queryString(httpServletRequestInfo.queryString)
                 .pIDAndName(eventInfo, arcDev)
                 .studyIUID(studyIUID(eventInfo, arcDev))
                 .outcome(String.join(";", failureReasons))
-                .build();
-
-        return failedAuditInfo;
+                .toAuditInfo();
     }
 
-    private static AuditInfoBuilder buildRefSopAuditInfo(Attributes item) {
+    private static AuditInfo failureAuditInfoDICOM(
+            StgCmtContext ctx, ArchiveDeviceExtension arcDev, Set<String> failureReasons) {
+        ApplicationEntity remoteAE = ctx.getRemoteAE();
+        if (remoteAE == null)
+            return failureAuditInfoScheduler(ctx, arcDev, failureReasons);
+
+        Attributes eventInfo = ctx.getEventInfo();
         return new AuditInfoBuilder.Builder()
-                .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
-                .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
+                .callingUserID(remoteAE.getAETitle())
+                .callingHost(remoteAE.getConnections().get(0).getHostname())
+                .calledUserID(ctx.getLocalAET())
+                .pIDAndName(eventInfo, arcDev)
+                .studyIUID(studyIUID(eventInfo, arcDev))
+                .outcome(String.join(";", failureReasons))
+                .toAuditInfo();
     }
 
-    private static String storageCmtCallingHost(StgCmtContext ctx) {
-        return ctx.getRequest() != null
-                ? ctx.getRequest().requesterHost
-                : ctx.getRemoteAE() != null
-                    ? ctx.getRemoteAE().getConnections().get(0).getHostname() : null;
+    private static AuditInfo failureAuditInfoScheduler(
+            StgCmtContext ctx, ArchiveDeviceExtension arcDev, Set<String> failureReasons) {
+        Attributes eventInfo = ctx.getEventInfo();
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(arcDev.getDevice().getDeviceName())
+                .pIDAndName(eventInfo, arcDev)
+                .studyIUID(studyIUID(eventInfo, arcDev))
+                .outcome(String.join(";", failureReasons))
+                .toAuditInfo();
     }
 
-    private static String storageCmtCalledAET(StgCmtContext ctx) {
-        return ctx.getRequest() != null
-                ? requestURLWithQueryParams(ctx.getRequest())
-                : ctx.getLocalAET();
+    private static String studyIUID(Attributes eventInfo, ArchiveDeviceExtension arcDev) {
+        return eventInfo.getStrings(Tag.StudyInstanceUID) == null
+                ? arcDev.auditUnknownStudyInstanceUID()
+                : String.join(";", eventInfo.getStrings(Tag.StudyInstanceUID));
     }
 
-    private static String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
-        return httpServletRequestInfo.queryString == null
-                ? httpServletRequestInfo.requestURI
-                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
-    }
-
-    private static String storageCmtCallingAET(StgCmtContext ctx) {
-        return ctx.getRequest() != null
-                ? ctx.getRequest().requesterUserID
-                : ctx.getRemoteAE() != null
-                    ? ctx.getRemoteAE().getAETitle() : null;
-    }
-
-    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
+        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+        if (calledUserID == null) {
+            emitAuditMessage(auditLogger, eventIdentification,
+                    Collections.singletonList(archiveRequestor(auditInfo, auditLogger)),
+                    study(auditInfo, reader, auditLogger),
+                    patient(auditInfo));
+            return;
+        }
 
-        return AuditMessages.createMessage(
-            EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-            activeParticipants(eventType, auditLogger, auditInfo),
-            ParticipantObjectID.studyPatParticipants(reader, auditInfo, auditLogger));
+        List<ActiveParticipant> activeParticipants = new ArrayList<>();
+        if (calledUserID.startsWith("http")) {
+            activeParticipants.add(requestor(auditInfo));
+            activeParticipants.add(archiveURI(auditInfo, auditLogger));
+        } else {
+            activeParticipants.add(remoteAE(auditInfo));
+            activeParticipants.add(archiveAE(auditInfo, auditLogger));
+        }
+
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants,
+                study(auditInfo, reader, auditLogger),
+                patient(auditInfo));
     }
 
-    private static ActiveParticipant[] activeParticipants(
-            AuditUtils.EventType eventType, AuditLogger auditLogger, AuditInfo auditInfo) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
-        String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
-        ActiveParticipantBuilder archive = new ActiveParticipantBuilder(
-                archiveUserID,
-                auditLogger.getConnections().get(0).getHostname())
-                .userIDTypeCode(archiveUserIDTypeCode)
-                .altUserID(AuditLogger.processID())
-                .roleIDCode(eventType.destination);
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        if (callingUserID != null)
-            activeParticipants[1] = new ActiveParticipantBuilder(
-                    callingUserID,
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                    .isRequester()
-                    .roleIDCode(eventType.source).build();
-        else
-            archive.isRequester();
-        activeParticipants[0] = archive.build();
-        return activeParticipants;
+    private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(eventType.eventID);
+        ei.setEventActionCode(eventType.eventActionCode);
+        ei.setEventOutcomeDescription(outcome);
+        ei.setEventOutcomeIndicator(outcome == null
+                ? AuditMessages.EventOutcomeIndicator.Success
+                : AuditMessages.EventOutcomeIndicator.MinorFailure);
+        return ei;
     }
 
-    private static AuditMessages.UserIDTypeCode archiveUserIDTypeCode(String userID) {
-        return  userID.indexOf('/') != -1
-                ? AuditMessages.UserIDTypeCode.URI
-                : AuditMessages.UserIDTypeCode.StationAETitle;
+    private static ParticipantObjectIdentification patient(AuditInfo auditInfo) {
+        ParticipantObjectIdentification patient = new ParticipantObjectIdentification();
+        patient.setParticipantObjectID(auditInfo.getField(AuditInfo.P_ID));
+        patient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
+        patient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
+        patient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
+        patient.setParticipantObjectName(auditInfo.getField(AuditInfo.P_NAME));
+        return patient;
     }
+
+    private static ParticipantObjectIdentification study(AuditInfo auditInfo, SpoolFileReader reader, AuditLogger auditLogger) {
+        ParticipantObjectIdentification study = new ParticipantObjectIdentification();
+        String[] studyIUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
+        study.setParticipantObjectID(studyIUIDs[0]);
+        study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+        study.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        study.setParticipantObjectDataLifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification);
+        study.setParticipantObjectDescription(participantObjDesc(auditInfo, reader, auditLogger));
+        return study;
+    }
+
+    private static ParticipantObjectDescription participantObjDesc(
+            AuditInfo auditInfo, SpoolFileReader reader, AuditLogger auditLogger) {
+        String[] studyIUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
+        boolean showIUID = studyIUIDs.length > 1
+                            || auditInfo.getField(AuditInfo.OUTCOME) != null
+                            || auditLogger.isIncludeInstanceUID();
+        ParticipantObjectDescription participantObjDesc = new ParticipantObjectDescription();
+
+        if (studyIUIDs.length > 1) {
+            ParticipantObjectContainsStudy participantObjectContainsStudy = new ParticipantObjectContainsStudy();
+            for (String studyIUID : studyIUIDs) {
+                StudyIDs studyIDs = new StudyIDs();
+                studyIDs.setUID(studyIUID);
+                participantObjectContainsStudy.getStudyIDs().add(studyIDs);
+            }
+            participantObjDesc.setParticipantObjectContainsStudy(participantObjectContainsStudy);
+        }
+
+        InstanceInfo instanceInfo = new InstanceInfo();
+        instanceInfo.addAcc(auditInfo);
+        reader.getInstanceLines().forEach(line -> {
+            AuditInfo info = new AuditInfo(line);
+            instanceInfo.addSOPInstance(info);
+        });
+        instanceInfo.getSopClassMap().forEach((key, value) -> {
+            SOPClass sopClass = AuditMessages.createSOPClass(showIUID ? value : null, key, value.size());
+            participantObjDesc.getSOPClass().add(sopClass);
+        });
+        return participantObjDesc;
+    }
+
+    private static ActiveParticipant requestor(AuditInfo auditInfo) {
+        ActiveParticipant requestor = new ActiveParticipant();
+        String requestorUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        requestor.setUserID(requestorUserID);
+        boolean requestorUserIsIP = AuditMessages.isIP(requestorUserID);
+        requestor.setUserIDTypeCode(
+                requestorUserIsIP
+                    ? AuditMessages.UserIDTypeCode.NodeID
+                    : AuditMessages.UserIDTypeCode.PersonID);
+        requestor.setUserTypeCode(
+                requestorUserIsIP
+                    ? AuditMessages.UserTypeCode.Application
+                    : AuditMessages.UserTypeCode.Person);
+        String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        requestor.setNetworkAccessPointID(requestorHost);
+        requestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(requestorHost)
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        requestor.setUserIsRequestor(true);
+        return requestor;
+    }
+
+    private static ActiveParticipant archiveURI(AuditInfo auditInfo, AuditLogger auditLogger) {
+        ActiveParticipant archiveURI = new ActiveParticipant();
+        String archiveReqURI = auditInfo.getField(AuditInfo.CALLED_USERID);
+        String queryStr = auditInfo.getField(AuditInfo.Q_STRING);
+        archiveURI.setUserID(queryStr == null ? archiveReqURI : archiveReqURI + "?" + queryStr);
+        archiveURI.setUserIDTypeCode(AuditMessages.UserIDTypeCode.URI);
+        archiveURI.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveURI.setAlternativeUserID(AuditLogger.processID());
+        String archiveURIHost = auditLogger.getConnections().get(0).getHostname();
+        archiveURI.setNetworkAccessPointID(archiveURIHost);
+        archiveURI.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(archiveURIHost)
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archiveURI;
+    }
+
+    private static ActiveParticipant remoteAE(AuditInfo auditInfo) {
+        ActiveParticipant remoteAE = new ActiveParticipant();
+        remoteAE.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
+        remoteAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        remoteAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        String remoteAEHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        remoteAE.setNetworkAccessPointID(remoteAEHost);
+        remoteAE.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(remoteAEHost)
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        remoteAE.setUserIsRequestor(true);
+        return remoteAE;
+    }
+
+    private static ActiveParticipant archiveAE(AuditInfo auditInfo, AuditLogger auditLogger) {
+        ActiveParticipant archiveAE = new ActiveParticipant();
+        archiveAE.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
+        archiveAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        archiveAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveAE.setAlternativeUserID(AuditLogger.processID());
+        String archiveAEHost = auditLogger.getConnections().get(0).getHostname();
+        archiveAE.setNetworkAccessPointID(archiveAEHost);
+        archiveAE.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(archiveAEHost)
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archiveAE;
+    }
+
+    private static ActiveParticipant archiveRequestor(AuditInfo auditInfo, AuditLogger auditLogger) {
+        ActiveParticipant archiveRequestor = new ActiveParticipant();
+        archiveRequestor.setUserID(auditInfo.getField(AuditInfo.CALLING_USERID));
+        archiveRequestor.setUserIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName);
+        archiveRequestor.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveRequestor.setAlternativeUserID(AuditLogger.processID());
+        String archiveRequestorHost = auditLogger.getConnections().get(0).getHostname();
+        archiveRequestor.setNetworkAccessPointID(archiveRequestorHost);
+        archiveRequestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(archiveRequestorHost)
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        archiveRequestor.setUserIsRequestor(true);
+        return archiveRequestor;
+    }
+
 }

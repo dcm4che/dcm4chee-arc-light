@@ -32,6 +32,7 @@ class ProvideAndRegisterAuditService extends AuditService {
         }
         emitAuditMessage(auditLogger, eventIdentification, activeParticipants, submissionSet(auditInfo), patient(auditInfo));
     }
+
     private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
         String outcome = auditInfo.getField(AuditInfo.OUTCOME);
         EventIdentification ei = new EventIdentification();
