@@ -885,27 +885,34 @@ public class AuditService {
             fileName += "_ERROR";
 
         writeSpoolFile(fileName, true, auditInfoStore, instanceInfo);
-        if (ctx.getImpaxReportPatientMismatch() != null) {
-            AuditInfo auditInfoPatientMismatch = httpServletRequestInfo == null
-                                                    ? new AuditInfoBuilder.Builder()
-                                                        .callingUserID(device.getDeviceName())
-                                                        .calledUserID(storeSession.getCalledAET())
-                                                        .studyUIDAccNumDate(attrs, arcDev)
-                                                        .pIDAndName(attrs, arcDev)
-                                                        .impaxEndpoint(storeSession.getImpaxReportEndpoint())
-                                                        .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
-                                                        .toAuditInfo()
-                                                    : new AuditInfoBuilder.Builder()
-                                                        .callingHost(storeSession.getRemoteHostName())
-                                                        .callingUserID(httpServletRequestInfo.requesterUserID)
-                                                        .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
-                                                        .studyUIDAccNumDate(attrs, arcDev)
-                                                        .pIDAndName(attrs, arcDev)
-                                                        .impaxEndpoint(storeSession.getImpaxReportEndpoint())
-                                                        .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
-                                                        .toAuditInfo();
-            writeSpoolFile(AuditUtils.EventType.IMPAX_MISM.name(), false, auditInfoPatientMismatch, instanceInfo);
-        }
+        if (ctx.getImpaxReportPatientMismatch() != null)
+            spoolImpaxReportPatientMismatch(ctx, instanceInfo);
+    }
+
+    private void spoolImpaxReportPatientMismatch(StoreContext ctx, AuditInfo instanceInfo) {
+        StoreSession storeSession = ctx.getStoreSession();
+        Attributes attrs = ctx.getAttributes();
+        ArchiveDeviceExtension arcDev = getArchiveDevice();
+        HttpServletRequestInfo httpServletRequestInfo = storeSession.getHttpRequest();
+        AuditInfo auditInfoPatientMismatch = httpServletRequestInfo == null
+                                                ? new AuditInfoBuilder.Builder()
+                                                    .callingUserID(device.getDeviceName())
+                                                    .calledUserID(storeSession.getCalledAET())
+                                                    .studyUIDAccNumDate(attrs, arcDev)
+                                                    .pIDAndName(attrs, arcDev)
+                                                    .impaxEndpoint(storeSession.getImpaxReportEndpoint())
+                                                    .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
+                                                    .toAuditInfo()
+                                                : new AuditInfoBuilder.Builder()
+                                                    .callingUserID(httpServletRequestInfo.requesterUserID)
+                                                    .callingHost(storeSession.getRemoteHostName())
+                                                    .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                                                    .studyUIDAccNumDate(attrs, arcDev)
+                                                    .pIDAndName(attrs, arcDev)
+                                                    .impaxEndpoint(storeSession.getImpaxReportEndpoint())
+                                                    .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
+                                                    .toAuditInfo();
+        writeSpoolFile(AuditUtils.EventType.IMPAX_MISM.name(), false, auditInfoPatientMismatch, instanceInfo);
     }
 
     private void auditPatientMismatch(AuditLogger logger, Path path, AuditUtils.EventType eventType) throws Exception {

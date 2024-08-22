@@ -121,8 +121,7 @@ public class HttpServletRequestInfo {
         return "HttpServletRequestInfo[requesterUserID=" + requesterUserID
                 + ", requesterHost=" + requesterHost
                 + ", requesterPort=" + requesterPort
-                + ", requesterURI=" + requestURI
-                + ", queryString=" + queryString
+                + ", requesterURI=" + requestURIWithQueryStr()
                 + ", localHost=" + localHost
                 + "]";
     }
