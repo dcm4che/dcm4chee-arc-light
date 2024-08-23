@@ -108,26 +108,6 @@ class ParticipantObjectID {
         return detail;
     }
 
-    static ParticipantObjectIdentification[] studyPatParticipants(
-            AuditInfo auditInfo, List<String> instanceInfoLines, AuditUtils.EventType eventType, AuditLogger auditLogger) {
-        ParticipantObjectIdentification[] studyPatParticipants = new ParticipantObjectIdentification[2];
-        ParticipantObjectIdentificationBuilder studyPOIBuilder = studyPOI(auditInfo.getField(AuditInfo.STUDY_UID))
-                .detail(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)))
-                .desc(participantObjDesc(
-                        auditInfo,
-                        instanceInfoLines,
-                        auditInfo.getField(AuditInfo.OUTCOME) != null || auditLogger.isIncludeInstanceUID())
-                .build());
-
-        if ((eventType.eventClass == AuditUtils.EventClass.STORE_WADOR
-                && !eventType.eventActionCode.equals(AuditMessages.EventActionCode.Read)
-                || eventType.eventClass == AuditUtils.EventClass.IMPAX))
-            studyPOIBuilder.lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation);
-
-        studyPatParticipants[0] = studyPOIBuilder.build();
-        studyPatParticipants[1] = patientPOIBuilder(auditInfo).build();
-        return studyPatParticipants;
-    }
 
     static ParticipantObjectIdentification[] studyPatParticipants(
             AuditInfo auditInfo, SpoolFileReader reader, AuditLogger auditLogger) {
@@ -168,19 +148,6 @@ class ParticipantObjectID {
                         .map(studyDate -> AuditMessages.createParticipantObjectDetail("StudyDate", studyDate))
                         .toArray(ParticipantObjectDetail[]::new))
                 .build();
-    }
-
-    private static ParticipantObjectDescriptionBuilder participantObjDesc(
-            AuditInfo auditInfo, List<String> instanceInfoLines, boolean showIUID) {
-        InstanceInfo instanceInfo = new InstanceInfo();
-        instanceInfo.addAcc(auditInfo);
-        instanceInfoLines.forEach(line -> {
-            AuditInfo info = new AuditInfo(line);
-            instanceInfo.addMpps(info);
-            instanceInfo.addSOPInstance(info);
-        });
-
-        return participantObjDesc(instanceInfo, showIUID);
     }
 
     private static ParticipantObjectDescriptionBuilder participantObjDesc(InstanceInfo instanceInfo, boolean showIUID) {

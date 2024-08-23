@@ -144,7 +144,7 @@ public class AuditService {
                 ServiceEventsAuditService.auditAssociationEvent(auditLogger, path, eventType);
                 break;
             case STORE_WADOR:
-                if (eventType.name().startsWith("WADO")) auditWADORetrieve(auditLogger, path, eventType);
+                if (eventType.name().startsWith("WADO")) RetrieveAuditService.auditWADOURI(auditLogger, path, eventType);
                 else StoreAuditService.audit(auditLogger, path, eventType);
                 break;
             case RETRIEVE:
@@ -312,7 +312,7 @@ public class AuditService {
             studyDeleted.add(new AuditInfoBuilder.Builder()
                     .callingUserID(httpServletRequestInfo.requesterUserID)
                     .callingHost(httpServletRequestInfo.requesterHost)
-                    .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
+                    .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
                     .studyUIDAccNumDate(study.getAttributes(), arcDev)
                     .pIDAndName(study.getPatient().getAttributes(), arcDev)
                     .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
@@ -915,26 +915,6 @@ public class AuditService {
         writeSpoolFile(AuditUtils.EventType.IMPAX_MISM.name(), false, auditInfoPatientMismatch, instanceInfo);
     }
 
-    private ActiveParticipant[] patientMismatchActiveParticipants(AuditLogger logger, AuditInfo auditInfo) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        String callingHost = auditInfo.getField(AuditInfo.CALLING_HOST);
-        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        activeParticipants[0] = new ActiveParticipantBuilder(calledUserID, getLocalHostName(logger))
-                .userIDTypeCode(userIDTypeCode(calledUserID)).build();
-        activeParticipants[1] = new ActiveParticipantBuilder(
-                callingUserID, callingHost != null ? callingHost : getLocalHostName(logger))
-                .userIDTypeCode(callingHost != null
-                        ? AuditMessages.userIDTypeCode(callingUserID) : AuditMessages.UserIDTypeCode.DeviceName)
-                .isRequester().build();
-        String impaxEndpoint = auditInfo.getField(AuditInfo.IMPAX_ENDPOINT);
-        activeParticipants[2] = new ActiveParticipantBuilder(
-                impaxEndpoint, impaxEndpointHost(impaxEndpoint))
-                .userIDTypeCode(userIDTypeCode(impaxEndpoint))
-                .build();
-        return activeParticipants;
-    }
-
     private String impaxEndpointHost(String impaxEndpoint) {
         String impaxEndpointRelative = impaxEndpoint.substring(impaxEndpoint.indexOf("//") + 2);
         return impaxEndpointRelative.substring(0, impaxEndpointRelative.indexOf('/'));
@@ -944,85 +924,36 @@ public class AuditService {
         return ctx.getLocations().isEmpty() && ctx.getStoredInstance() == null && ctx.getException() == null;
     }
 
-    void spoolRetrieveWADO(RetrieveContext ctx) {
+    void spoolWADOURI(RetrieveContext ctx) {
         if (ctx.getSopInstanceUIDs().length == 0) {
-            LOG.info("SOP Instance for Retrieve object by WADO URI audit not available in retrieve context, exit spooling");
+            LOG.info("SOP Instance for auditing Retrieve object by WADO URI not available in retrieve context, exit spooling");
             return;
         }
 
         HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
         try {
             Attributes attrs = ctx.getMatches().get(0).getAttributes();
-            String suffix = '-' + httpServletRequestInfo.requesterHost
-                    + '-' + ctx.getLocalAETitle()
-                    + '-' + ctx.getStudyInstanceUIDs()[0];
-            AuditInfoBuilder info = new AuditInfoBuilder.Builder()
-                    .callingHost(httpServletRequestInfo.requesterHost)
-                    .callingUserID(httpServletRequestInfo.requesterUserID)
-                    .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
-                    .studyUIDAccNumDate(attrs, getArchiveDevice())
-                    .pIDAndName(attrs, getArchiveDevice())
-                    .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
-                    .build();
-            AuditInfoBuilder instanceInfo = new AuditInfoBuilder.Builder()
-                    .sopCUID(attrs.getString(Tag.SOPClassUID))
-                    .sopIUID(ctx.getSopInstanceUIDs()[0])
-                    .build();
-            writeSpoolFile(AuditUtils.EventType.WADO___URI, suffix, info, instanceInfo);
+            String fileName = AuditUtils.EventType.WADO___URI.name()
+                                + '-' + httpServletRequestInfo.requesterHost
+                                + '-' + ctx.getLocalAETitle()
+                                + '-' + ctx.getStudyInstanceUIDs()[0];
+            AuditInfo info = new AuditInfoBuilder.Builder()
+                                .callingUserID(httpServletRequestInfo.requesterUserID)
+                                .callingHost(httpServletRequestInfo.requesterHost)
+                                .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                                .studyUIDAccNumDate(attrs, getArchiveDevice())
+                                .pIDAndName(attrs, getArchiveDevice())
+                                .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                .toAuditInfo();
+            AuditInfo instanceInfo = new AuditInfoBuilder.Builder()
+                                        .sopCUID(attrs.getString(Tag.SOPClassUID))
+                                        .sopIUID(ctx.getSopInstanceUIDs()[0])
+                                        .toAuditInfo();
+            writeSpoolFile(fileName, true, info, instanceInfo);
         } catch (Exception e) {
-            LOG.info("Failed to spool Wado Retrieve for [StudyIUID={}] triggered by [User={}]\n",
+            LOG.info("Failed to spool Wado URI for [StudyIUID={}] triggered by [User={}]\n",
                     ctx.getStudyInstanceUID(), httpServletRequestInfo.requesterUserID, e);
         }
-    }
-
-    private String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
-        return httpServletRequestInfo.queryString == null
-                ? httpServletRequestInfo.requestURI
-                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
-    }
-
-    private void auditWADORetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-
-        AuditMessage auditMsg = AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType, auditLogger));
-        emitAuditMessage(auditMsg, auditLogger);
-    }
-
-    private ActiveParticipant[] storeWadoURIActiveParticipants(
-            AuditLogger auditLogger, AuditInfo auditInfo, AuditUtils.EventType eventType) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = userIDTypeCode(archiveUserID);
-        activeParticipants[0] = new ActiveParticipantBuilder(
-                archiveUserID,
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(archiveUserIDTypeCode)
-                .altUserID(AuditLogger.processID())
-                .roleIDCode(eventType.destination)
-                .build();
-        String impaxEndpoint = auditInfo.getField(AuditInfo.IMPAX_ENDPOINT);
-        String callingHost = auditInfo.getField(AuditInfo.CALLING_HOST);
-        ActiveParticipantBuilder requester = new ActiveParticipantBuilder(
-                callingUserID, callingHost != null ? callingHost : getLocalHostName(auditLogger))
-                .userIDTypeCode(callingHost != null
-                        ? remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID)
-                        : AuditMessages.UserIDTypeCode.DeviceName)
-                .isRequester();
-        if (impaxEndpoint != null) {
-            activeParticipants[1] = requester.build();
-            activeParticipants[2] = new ActiveParticipantBuilder(
-                    impaxEndpoint, impaxEndpointHost(impaxEndpoint))
-                    .userIDTypeCode(userIDTypeCode(impaxEndpoint))
-                    .roleIDCode(eventType.source)
-                    .build();
-        } else
-            activeParticipants[1] = requester.roleIDCode(eventType.source).build();
-        return activeParticipants;
     }
 
     void spoolRetrieve(AuditUtils.EventType eventType, RetrieveContext ctx) {

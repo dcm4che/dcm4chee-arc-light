@@ -106,7 +106,7 @@ public class AuditTriggerObserver {
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolRetrieveWADO(ctx);
+            auditService.spoolWADOURI(ctx);
     }
 
     public void onStudyDeleted(@Observes StudyDeleteContext ctx) {

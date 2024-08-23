@@ -95,7 +95,7 @@ class AuditUtils {
         QSTAR_VERI(EventClass.QSTAR, AuditMessages.EventID.Export, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.DestinationMedia, null),
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
-                AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, null),
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
         STORE_CREA(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
         STORE_UPDT(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update,

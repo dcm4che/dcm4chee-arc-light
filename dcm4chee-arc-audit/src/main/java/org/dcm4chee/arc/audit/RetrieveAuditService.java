@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
  * @since Aug 2017
  */
 
-class RetrieveAuditService {
+class RetrieveAuditService extends AuditService {
     private final static Logger LOG = LoggerFactory.getLogger(RetrieveAuditService.class);
     private final RetrieveContext ctx;
     private final ArchiveDeviceExtension arcDev;
@@ -360,4 +360,132 @@ class RetrieveAuditService {
     private static String getLocalHostName(AuditLogger auditLogger) {
         return auditLogger.getConnections().get(0).getHostname();
     }
+
+    static void auditWADOURI(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
+        List<ActiveParticipant> activeParticipants = new ArrayList<>();
+        activeParticipants.add(requestor(auditInfo, eventType));
+        activeParticipants.add(archiveURI(auditInfo, eventType, auditLogger));
+        InstanceInfo instanceInfo = instanceInfo(auditInfo, reader);
+        boolean showIUIDs = auditInfo.getField(AuditInfo.OUTCOME) != null || auditLogger.isIncludeInstanceUID();
+        emitAuditMessage(auditLogger, eventIdentification, activeParticipants,
+                study(auditInfo, instanceInfo, showIUIDs),
+                patient(auditInfo));
+    }
+
+    private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(eventType.eventID);
+        ei.setEventActionCode(eventType.eventActionCode);
+        ei.setEventOutcomeDescription(outcome);
+        ei.setEventOutcomeIndicator(outcome == null
+                ? AuditMessages.EventOutcomeIndicator.Success
+                : AuditMessages.EventOutcomeIndicator.MinorFailure);
+        return ei;
+    }
+
+    private static ParticipantObjectIdentification patient(AuditInfo auditInfo) {
+        ParticipantObjectIdentification patient = new ParticipantObjectIdentification();
+        patient.setParticipantObjectID(auditInfo.getField(AuditInfo.P_ID));
+        patient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
+        patient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
+        patient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
+        patient.setParticipantObjectName(auditInfo.getField(AuditInfo.P_NAME));
+        return patient;
+    }
+
+    private static InstanceInfo instanceInfo(AuditInfo auditInfo, SpoolFileReader reader) {
+        InstanceInfo instanceInfo = new InstanceInfo();
+        instanceInfo.setAccessionNo(auditInfo.getField(AuditInfo.ACC_NUM));
+        reader.getInstanceLines().forEach(instanceLine -> {
+            AuditInfo info = new AuditInfo(instanceLine);
+            instanceInfo.addMpps(info);
+            instanceInfo.addSOPInstance(info);
+        });
+        return instanceInfo;
+    }
+
+    private static ParticipantObjectIdentification study(
+            AuditInfo auditInfo, InstanceInfo instanceInfo, boolean showSOPIUIDs) {
+        ParticipantObjectIdentification study = new ParticipantObjectIdentification();
+        study.setParticipantObjectID(auditInfo.getField(AuditInfo.STUDY_UID));
+        study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+        study.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        study.getParticipantObjectDetail()
+                .add(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
+        study.setParticipantObjectDescription(studyParticipantObjDesc(instanceInfo, showSOPIUIDs));
+        return study;
+    }
+
+    private static ParticipantObjectDescription studyParticipantObjDesc(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
+        ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
+        studyParticipantObjDesc.getAccession().add(accession(instanceInfo));
+        studyParticipantObjDesc.getSOPClass().addAll(sopClasses(instanceInfo, showSOPIUIDs));
+        return studyParticipantObjDesc;
+    }
+
+    private static Accession accession(InstanceInfo instanceInfo) {
+        Accession accession = new Accession();
+        accession.setNumber(instanceInfo.getAccessionNo());
+        return accession;
+    }
+
+    private static List<SOPClass> sopClasses(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
+        return instanceInfo.getSopClassMap()
+                .entrySet()
+                .stream()
+                .map(entry ->
+                        AuditMessages.createSOPClass(
+                                showSOPIUIDs ? entry.getValue() : null,
+                                entry.getKey(),
+                                entry.getValue().size()))
+                .collect(Collectors.toList());
+    }
+
+    private static ActiveParticipant archiveURI(
+            AuditInfo auditInfo, AuditUtils.EventType eventType, AuditLogger auditLogger) {
+        ActiveParticipant archiveURI = new ActiveParticipant();
+        archiveURI.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
+        archiveURI.setUserIDTypeCode(AuditMessages.UserIDTypeCode.URI);
+        archiveURI.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveURI.setAlternativeUserID(AuditLogger.processID());
+        archiveURI.getRoleIDCode().add(eventType.source);   //The process that sent the data. - DICOM PS3.15
+        String archiveURIHost = auditLogger.getConnections().get(0).getHostname();
+        archiveURI.setNetworkAccessPointID(archiveURIHost);
+        archiveURI.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(archiveURIHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return archiveURI;
+    }
+
+    private static ActiveParticipant requestor(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        ActiveParticipant requestor = new ActiveParticipant();
+        String requestorUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        requestor.setUserID(requestorUserID);
+        boolean requestorIsIP = AuditMessages.isIP(requestorUserID);
+        requestor.setUserIDTypeCode(
+                requestorIsIP
+                        ? AuditMessages.UserIDTypeCode.NodeID
+                        : AuditMessages.UserIDTypeCode.PersonID);
+        requestor.setUserTypeCode(
+                requestorIsIP
+                        ? AuditMessages.UserTypeCode.Application
+                        : AuditMessages.UserTypeCode.Person);
+        requestor.getRoleIDCode().add(eventType.destination);   //The process that received the data. - DICOM PS3.15
+        requestor.setUserIsRequestor(true);
+        String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        requestor.setNetworkAccessPointID(requestorHost);
+        requestor.setNetworkAccessPointTypeCode(
+                AuditMessages.isIP(requestorHost)
+                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        return requestor;
+    }
+
 }
