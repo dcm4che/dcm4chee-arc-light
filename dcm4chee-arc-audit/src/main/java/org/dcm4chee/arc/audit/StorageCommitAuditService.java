@@ -212,7 +212,7 @@ class StorageCommitAuditService extends AuditService {
         }
 
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
-        if (calledUserID.startsWith("http")) {
+        if (calledUserID.contains("/")) {
             activeParticipants.add(requestor(auditInfo));
             activeParticipants.add(archiveURI(auditInfo, auditLogger));
         } else {

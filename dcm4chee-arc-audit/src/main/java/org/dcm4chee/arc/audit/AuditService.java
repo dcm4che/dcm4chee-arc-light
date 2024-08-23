@@ -48,6 +48,7 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Segment;
@@ -183,7 +184,7 @@ public class AuditService {
                 TaskAuditService.audit(auditLogger, path, eventType);
                 break;
             case IMPAX:
-                auditPatientMismatch(auditLogger, path, eventType);
+                StoreAuditService.auditImpaxReportPatientMismatch(auditLogger, path, eventType);
                 break;
             case QSTAR:
                 QStarVerificationAuditService.audit(auditLogger, path, eventType, getArchiveDevice());
@@ -893,10 +894,10 @@ public class AuditService {
         Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = getArchiveDevice();
         HttpServletRequestInfo httpServletRequestInfo = storeSession.getHttpRequest();
+        ctx.setImpaxReportPatientMismatch(new Code("(IMPAXREP_PATDIFF, 99DCM4CHEE, \"Patient in IMPAX Report does not match Patient of Study in VNA\")"));
         AuditInfo auditInfoPatientMismatch = httpServletRequestInfo == null
                                                 ? new AuditInfoBuilder.Builder()
                                                     .callingUserID(device.getDeviceName())
-                                                    .calledUserID(storeSession.getCalledAET())
                                                     .studyUIDAccNumDate(attrs, arcDev)
                                                     .pIDAndName(attrs, arcDev)
                                                     .impaxEndpoint(storeSession.getImpaxReportEndpoint())
@@ -913,17 +914,6 @@ public class AuditService {
                                                     .toAuditInfo();
         writeSpoolFile(AuditUtils.EventType.IMPAX_MISM.name(), false, auditInfoPatientMismatch, instanceInfo);
     }
-
-    private void auditPatientMismatch(AuditLogger logger, Path path, AuditUtils.EventType eventType) throws Exception {
-        SpoolFileReader reader = new SpoolFileReader(path);
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        AuditMessage auditMsg = AuditMessages.createMessage(
-                EventID.toEventIdentification(logger, path, eventType, auditInfo),
-                patientMismatchActiveParticipants(logger, auditInfo),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader.getInstanceLines(), eventType, logger));
-        emitAuditMessage(auditMsg, logger);
-    }
-
 
     private ActiveParticipant[] patientMismatchActiveParticipants(AuditLogger logger, AuditInfo auditInfo) {
         ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
