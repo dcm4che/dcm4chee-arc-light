@@ -915,11 +915,6 @@ public class AuditService {
         writeSpoolFile(AuditUtils.EventType.IMPAX_MISM.name(), false, auditInfoPatientMismatch, instanceInfo);
     }
 
-    private String impaxEndpointHost(String impaxEndpoint) {
-        String impaxEndpointRelative = impaxEndpoint.substring(impaxEndpoint.indexOf("//") + 2);
-        return impaxEndpointRelative.substring(0, impaxEndpointRelative.indexOf('/'));
-    }
-
     private boolean isDuplicateReceivedInstance(StoreContext ctx) {
         return ctx.getLocations().isEmpty() && ctx.getStoredInstance() == null && ctx.getException() == null;
     }
@@ -1204,10 +1199,6 @@ public class AuditService {
         }
     }
 
-    private String getLocalHostName(AuditLogger log) {
-        return log.getConnections().get(0).getHostname();
-    }
-
     private Path toDirPath(AuditLogger auditLogger) {
         return Paths.get(
                 StringUtils.replaceSystemProperties(getArchiveDevice().getAuditSpoolDirectory()),
@@ -1364,16 +1355,6 @@ public class AuditService {
         }
     }
 
-    private AuditMessages.UserIDTypeCode userIDTypeCode(String userID) {
-        return userID.indexOf('/') != -1
-                ? AuditMessages.UserIDTypeCode.URI
-                : userID.indexOf('|') != -1
-                ? AuditMessages.UserIDTypeCode.ApplicationFacility
-                : userID.equals(device.getDeviceName())
-                ? AuditMessages.UserIDTypeCode.DeviceName
-                : AuditMessages.UserIDTypeCode.StationAETitle;
-    }
-
     static AuditMessages.UserIDTypeCode remoteUserIDTypeCode(
             AuditMessages.UserIDTypeCode archiveUserIDTypeCode, String remoteUserID) {
         if (remoteUserID != null)
@@ -1506,5 +1487,4 @@ public class AuditService {
             }
         }
     }
-
 }
