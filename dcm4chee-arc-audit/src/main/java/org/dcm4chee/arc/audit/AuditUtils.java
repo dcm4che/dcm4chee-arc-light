@@ -301,10 +301,6 @@ class AuditUtils {
                             : PROC_STD_D;
         }
 
-        static EventType forStudy(String eventActionCode) {
-            return eventActionCode == null ? STUDY_READ : STUDY_UPDT;
-        }
-
         static EventType forHL7IncomingOrderMsg(UnparsedHL7Message hl7ResponseMessage) {
             if (hl7ResponseMessage instanceof ArchiveHL7Message) {
                 ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;

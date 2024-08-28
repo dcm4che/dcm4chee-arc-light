@@ -198,9 +198,9 @@ public class StudyServiceEJB {
         if (seriesList.isEmpty())
             throw new StudyMissingException("Study to be updated does not exist: " + ctx.getStudyInstanceUID());
 
-        for (Series series : seriesList) {
+        for (Series series : seriesList)
             updateSeriesRequest(ctx, series);
-        }
+
         if (ctx.getEventActionCode() == null)
             return;
 
@@ -464,6 +464,7 @@ public class StudyServiceEJB {
         }
 
         Study study = findStudy(ctx.getStudyInstanceUID());
+        ctx.setStudy(study);
         ctx.setAttributes(study.getAttributes());
         ctx.setPatient(study.getPatient());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);

@@ -402,7 +402,6 @@ public class UpdateMatchingRS {
                     Attributes.unifyCharacterSets(match, attrs);
                     if (match.update(updatePolicy, attrs, null)) {
                         try {
-                            studyMgtCtx.setPatient(null);
                             studyMgtCtx.setAttributes(match);
                             if (qrLevel == QueryRetrieveLevel2.STUDY) {
                                 studyService.updateStudy(studyMgtCtx);

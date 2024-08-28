@@ -71,6 +71,7 @@ import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.event.*;
@@ -164,9 +165,7 @@ public class AuditService {
                 auditProcedureRecord(auditLogger, path, eventType);
                 break;
             case STUDY:
-                if (eventType.eventActionCode.equals(AuditMessages.EventActionCode.Read))
-                    QueryAuditService.auditStudySize(auditLogger, path, eventType);
-                else auditStudyRecord(auditLogger, path, eventType);
+                StudyRecordAuditService.audit(auditLogger, path, eventType);
                 break;
             case PROV_REGISTER:
                 ProvideAndRegisterAuditService.audit(auditLogger, path, eventType);
@@ -1120,21 +1119,71 @@ public class AuditService {
     }
 
     void spoolStudyRecord(StudyMgtContext ctx) {
+        if (ctx.getEventActionCode() == null) {
+            LOG.info("{} not updated, exit spooling", ctx.getStudy());
+            return;
+        }
+
         try {
-            writeSpoolFile(
-                    AuditUtils.EventType.forStudy(ctx.getEventActionCode()),
-                    null,
-                    new StudyRecordAuditService(ctx, getArchiveDevice()).getStudyUpdateAuditInfo());
+            if (ctx.getExpirationDate() == null) {
+                spoolStudyUpdateRecord(ctx);
+                return;
+            }
+            spoolStudyExpired(ctx);
         } catch (Exception e) {
-            LOG.info("Failed to spool Study Update procedure record for [StudyIUID={}, EventActionCode={}]\n",
-                    ctx.getStudy(), ctx.getEventActionCode(), e);
+            LOG.info("Failed to spool Study Update procedure record for {}\n", ctx.getStudy(),  e);
         }
     }
 
-    private void auditStudyRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        emitAuditMessage(
-                StudyRecordAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
+    private void spoolStudyUpdateRecord(StudyMgtContext ctx) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpRequest();
+        ArchiveDeviceExtension arcDev = getArchiveDevice();
+        Study study = ctx.getStudy();
+        Patient patient = ctx.getPatient();
+        AuditInfo auditInfo = new AuditInfoBuilder.Builder()
+                                    .callingUserID(httpServletRequestInfo.requesterUserID)
+                                    .callingHost(ctx.getRemoteHostName())
+                                    .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                                    .studyUIDAccNumDate((study == null ? ctx.getAttributes() : study.getAttributes()), arcDev)
+                                    .pIDAndName((patient == null ? ctx.getAttributes() : patient.getAttributes()), arcDev)
+                                    .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                    .toAuditInfo();
+        writeSpoolFile(AuditUtils.EventType.STUDY_UPDT.name(), false, auditInfo);
+    }
+
+    private void spoolStudyExpired(StudyMgtContext ctx) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpRequest();
+        if (httpServletRequestInfo == null) {
+            spoolStudyExpiredByHL7(ctx);
+            return;
+        }
+
+        ArchiveDeviceExtension arcDev = getArchiveDevice();
+        AuditInfo auditInfo = new AuditInfoBuilder.Builder()
+                                    .callingUserID(httpServletRequestInfo.requesterUserID)
+                                    .callingHost(ctx.getRemoteHostName())
+                                    .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                                    .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
+                                    .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
+                                    .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                    .expirationDate(ctx.getExpirationDate().toString())
+                                    .toAuditInfo();
+        writeSpoolFile(AuditUtils.EventType.STUDY_UPDT.name(), false, auditInfo);
+    }
+
+    private void spoolStudyExpiredByHL7(StudyMgtContext ctx) {
+        HL7Segment msh = ctx.getUnparsedHL7Message().msh();
+        ArchiveDeviceExtension arcDev = getArchiveDevice();
+        AuditInfo auditInfo = new AuditInfoBuilder.Builder()
+                                    .callingUserID(msh.getSendingApplicationWithFacility())
+                                    .callingHost(ctx.getRemoteHostName())
+                                    .calledUserID(msh.getReceivingApplicationWithFacility())
+                                    .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
+                                    .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
+                                    .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
+                                    .expirationDate(ctx.getExpirationDate().toString())
+                                    .toAuditInfo();
+        writeSpoolFile(AuditUtils.EventType.STUDY_UPDT.name(), false, auditInfo);
     }
 
     private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
