@@ -68,10 +68,6 @@ class ParticipantObjectID {
         return patientPOIBuilder.build();
     }
 
-    static ParticipantObjectIdentification patientPOI(SpoolFileReader reader) {
-        return patientPOIBuilder(new AuditInfo(reader.getInstanceLines().get(0))).build();
-    }
-
     static ParticipantObjectIdentificationBuilder patientPOIBuilder(AuditInfo auditInfo) {
         return new ParticipantObjectIdentificationBuilder(
                 auditInfo.getField(AuditInfo.P_ID),
@@ -138,16 +134,6 @@ class ParticipantObjectID {
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
                 AuditMessages.ParticipantObjectTypeCodeRole.Report);
-    }
-
-    static ParticipantObjectIdentification studyPOI(
-            String studyUID, InstanceInfo instanceInfo, boolean showIUID) {
-        return studyPOI(studyUID)
-                .desc(participantObjDesc(instanceInfo, showIUID).build())
-                .detail(instanceInfo.getStudyDate().stream()
-                        .map(studyDate -> AuditMessages.createParticipantObjectDetail("StudyDate", studyDate))
-                        .toArray(ParticipantObjectDetail[]::new))
-                .build();
     }
 
     private static ParticipantObjectDescriptionBuilder participantObjDesc(InstanceInfo instanceInfo, boolean showIUID) {

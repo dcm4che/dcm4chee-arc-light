@@ -53,11 +53,12 @@ class InstanceInfo {
     private HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
     private HashSet<String> mpps = new HashSet<>();
     private HashSet<String> acc = new HashSet<>();
-    private HashSet<String> studyDate = new HashSet<>();
+    private HashSet<String> studyDates= new HashSet<>();
     HashSet<String> outcomes = new HashSet<>();
     HashSet<AuditMessages.EventTypeCode> errorCodes = new HashSet<>();
 
     private String accessionNo;
+    private String studyDate;
 
     InstanceInfo() {}
 
@@ -91,14 +92,14 @@ class InstanceInfo {
             acc.add(accNum);
     }
 
-    HashSet<String> getStudyDate() {
-        return studyDate;
+    HashSet<String> getStudyDates() {
+        return studyDates;
     }
 
     void addStudyDate(AuditInfo info) {
         String studyDt = info.getField(AuditInfo.STUDY_DATE);
         if (studyDt != null)
-            studyDate.add(studyDt);
+            studyDates.add(studyDt);
     }
 
     public HashSet<String> getMpps() {
@@ -111,6 +112,14 @@ class InstanceInfo {
 
     void setAccessionNo(String accessionNo) {
         this.accessionNo = accessionNo;
+    }
+
+    String getStudyDate() {
+        return studyDate;
+    }
+
+    void setStudyDate(String studyDate) {
+        this.studyDate = studyDate;
     }
 
     HashSet<String> getOutcomes() {

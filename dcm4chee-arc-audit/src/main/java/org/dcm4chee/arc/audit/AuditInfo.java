@@ -99,6 +99,7 @@ class AuditInfo {
     static final int STATUS = 39;
     static final int FHIR_WEB_APP_NAME = 40;
     static final int ARCHIVE_USER_ID = 41;
+    static final int QR_LEVEL = 42;
 
     private final String[] fields;
 
@@ -145,7 +146,8 @@ class AuditInfo {
                 encode(i.queueName),
                 encode(i.status),
                 encode(i.fhirWebAppName),
-                encode(i.archiveUserID)
+                encode(i.archiveUserID),
+                encode(i.qrLevel)
         };
     }
 

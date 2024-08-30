@@ -101,6 +101,7 @@ class AuditInfoBuilder {
     final String status;
     final String fhirWebAppName;
     final String archiveUserID;
+    final String qrLevel;
 
     static class Builder {
         private String callingHost;
@@ -145,6 +146,7 @@ class AuditInfoBuilder {
         private String status;
         private String fhirWebAppName;
         private String archiveUserID;
+        private String qrLevel;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -346,6 +348,10 @@ class AuditInfoBuilder {
             archiveUserID = val;
             return this;
         }
+        Builder qrLevel(String val) {
+            qrLevel = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -398,6 +404,7 @@ class AuditInfoBuilder {
         status = builder.status;
         fhirWebAppName = builder.fhirWebAppName;
         archiveUserID = builder.archiveUserID;
+        qrLevel = builder.qrLevel;
     }
 
     private static String idWithIssuer(ArchiveDeviceExtension arcDev, String cx) {

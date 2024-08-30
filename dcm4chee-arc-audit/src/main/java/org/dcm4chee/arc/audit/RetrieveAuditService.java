@@ -41,14 +41,14 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.audit.AuditLogger;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
-import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,301 +64,310 @@ import java.util.stream.Collectors;
 
 class RetrieveAuditService extends AuditService {
     private final static Logger LOG = LoggerFactory.getLogger(RetrieveAuditService.class);
-    private final RetrieveContext ctx;
-    private final ArchiveDeviceExtension arcDev;
-    private final HttpServletRequestInfo httpServletRequestInfo;
-    private final String warningMsg;
-    private final String failureMsg;
 
-    RetrieveAuditService(RetrieveContext ctx, ArchiveDeviceExtension arcDev) {
-        this.ctx = ctx;
-        this.arcDev = arcDev;
-        this.httpServletRequestInfo = ctx.getHttpServletRequestInfo();
-        this.warningMsg = warningMsg();
-        this.failureMsg = failureMsg();
+    static List<AuditInfo> successAuditInfos(RetrieveContext ctx, ArchiveDeviceExtension arcDev) {
+        Collection<InstanceLocations> completedMatches = completedMatches(ctx);
+        List<AuditInfo> auditInfos = new ArrayList<>();
+        auditInfos.add(retrieveAuditInfo(ctx, 0));
+        auditInfos.addAll(cStoreForwardAuditInfos(ctx, arcDev));
+        ctx.getCStoreForwards().forEach(cStoreFwd -> auditInfos.add(instanceAuditInfo(cStoreFwd, arcDev)));
+        completedMatches.forEach(completedMatch -> auditInfos.add(instanceAuditInfo(completedMatch, arcDev)));
+        return auditInfos;
     }
 
-    Collection<InstanceLocations> failedMatches() {
-        if (ctx.getFailedMatches().isEmpty()) {
-            List<String> failedSOPIUIDs = Arrays.asList(ctx.failedSOPInstanceUIDs());
-            List<InstanceLocations> failedMatches = ctx.getMatches().stream()
-                                                        .filter(il -> failedSOPIUIDs.contains(il.getSopInstanceUID()))
-                                                        .collect(Collectors.toList());
-            if (failedMatches.isEmpty())
-                LOG.info("Instance information not available for instances failed to be retrieved {}. Exit spooling of retrieve failures",
-                        failedSOPIUIDs);
-
-            return failedMatches;
+    static List<AuditInfo> failedAuditInfos(RetrieveContext ctx, ArchiveDeviceExtension arcDev) {
+        Collection<InstanceLocations> failedMatches = failedMatches(ctx);
+        if (failedMatches.isEmpty()) {
+            if (ctx.failedSOPInstanceUIDs().length > 0)
+                LOG.info("InstanceLocations not available for instances failed to be retrieved {}. Exit spooling of retrieve failures",
+                    Arrays.asList(ctx.failedSOPInstanceUIDs()));
+            return Collections.emptyList();
         }
-        return ctx.getFailedMatches();
+
+        List<AuditInfo> failedAuditInfos = new ArrayList<>();
+        failedAuditInfos.add(retrieveAuditInfo(ctx, failedMatches.size()));
+        failedAuditInfos.addAll(cStoreForwardAuditInfos(ctx, arcDev));
+        ctx.getCStoreForwards().forEach(cStoreFwd -> failedAuditInfos.add(instanceAuditInfo(cStoreFwd, arcDev)));
+        failedMatches.forEach(failedMatch -> failedAuditInfos.add(instanceAuditInfo(failedMatch, arcDev)));
+        return failedAuditInfos;
     }
 
-    Collection<InstanceLocations> completedMatches() {
+    private static AuditInfo retrieveAuditInfo(RetrieveContext ctx, int failedMatches) {
+        return isExportTriggered(ctx) ? export(ctx, failedMatches) : retrieve(ctx, failedMatches);
+    }
+
+    private static AuditInfo export(RetrieveContext ctx, int failedMatches) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        if (httpServletRequestInfo == null)
+            return exportByScheduler(ctx, failedMatches);
+
+        return exportByREST(ctx, failedMatches);
+    }
+
+    private static AuditInfo exportByREST(RetrieveContext ctx, int failedMatches) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(httpServletRequestInfo.requesterUserID)
+                .callingHost(httpServletRequestInfo.requesterHost)
+                .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                .archiveUserID(ctx.getLocalAETitle())
+                .destUserID(ctx.getDestinationAETitle())
+                .destNapID(ctx.getDestinationHostName())
+                .warning(ctx.warning() == 0 ? null : "Warnings on retrieve of " + ctx.warning() + " instances")
+                .outcome(outcomeDesc(ctx, failedMatches))
+                .toAuditInfo();
+    }
+
+    private static AuditInfo exportByScheduler(RetrieveContext ctx, int failedMatches) {
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(ctx.getLocalAETitle())
+                .callingHost(ctx.getRequestorHostName())
+                .destUserID(ctx.getDestinationAETitle())
+                .destNapID(ctx.getDestinationHostName())
+                .warning(ctx.warning() == 0 ? null : "Warnings on retrieve of " + ctx.warning() + " instances")
+                .outcome(outcomeDesc(ctx, failedMatches))
+                .toAuditInfo();
+    }
+
+    private static AuditInfo retrieve(RetrieveContext ctx, int failedMatches) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        if (httpServletRequestInfo == null)
+            return retrieveByCMoveOrCGet(ctx, failedMatches);
+
+        return retrieveByWADORSOrRAD69(ctx, failedMatches);
+    }
+
+    private static AuditInfo retrieveByWADORSOrRAD69(RetrieveContext ctx, int failedMatches) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(httpServletRequestInfo.requesterUserID)
+                .callingHost(httpServletRequestInfo.requesterHost)
+                .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
+                .warning(ctx.warning() == 0 ? null : "Warnings on retrieve of " + ctx.warning() + " instances")
+                .outcome(outcomeDesc(ctx, failedMatches))
+                .qrLevel(ctx.getQueryRetrieveLevel().name())
+                .toAuditInfo();
+    }
+
+    private static AuditInfo retrieveByCMoveOrCGet(RetrieveContext ctx, int failedMatches) {
+        return new AuditInfoBuilder.Builder()
+                .callingHost(ctx.getRequestorHostName())
+                .calledUserID(ctx.getLocalAETitle())
+                .cMoveOriginator(ctx.getMoveOriginatorAETitle())
+                .destUserID(ctx.getDestinationAETitle())
+                .destNapID(ctx.getDestinationHostName())
+                .warning(ctx.warning() == 0 ? null : "Warnings on retrieve of " + ctx.warning() + " instances")
+                .outcome(outcomeDesc(ctx, failedMatches))
+                .qrLevel(ctx.getQueryRetrieveLevel().name())
+                .toAuditInfo();
+    }
+
+    private static List<AuditInfo> cStoreForwardAuditInfos(RetrieveContext ctx, ArchiveDeviceExtension arcDev) {
+        List<AuditInfo> cStoreForwardAuditInfos = new ArrayList<>();
+        ctx.getCStoreForwards().forEach(cStoreFwd -> cStoreForwardAuditInfos.add(instanceAuditInfo(cStoreFwd, arcDev)));
+        return cStoreForwardAuditInfos;
+    }
+
+    private static Collection<InstanceLocations> failedMatches(RetrieveContext ctx) {
+        Collection<InstanceLocations> failedMatches = ctx.getFailedMatches();
+        if (failedMatches.isEmpty()) {
+            List<String> failedSOPIUIDs = Arrays.asList(ctx.failedSOPInstanceUIDs());
+            return ctx.getMatches().stream()
+                       .filter(il -> failedSOPIUIDs.contains(il.getSopInstanceUID()))
+                       .collect(Collectors.toList());
+        }
+        return failedMatches;
+    }
+
+    private static Collection<InstanceLocations> completedMatches(RetrieveContext ctx) {
         List<String> failedSOPIUIDs = Arrays.asList(ctx.failedSOPInstanceUIDs());
         return ctx.getMatches().stream()
-                .filter(il -> !failedSOPIUIDs.contains(il.getSopInstanceUID()))
-                .collect(Collectors.toList());
+                    .filter(il -> !failedSOPIUIDs.contains(il.getSopInstanceUID()))
+                    .collect(Collectors.toList());
     }
 
-    List<AuditInfoBuilder> createRetrieveSuccessAuditInfo(Collection<InstanceLocations> completedRetrieves) {
-        List<AuditInfoBuilder> retrieveSuccess = new ArrayList<>();
-        retrieveSuccess.add(createCompletedRetrieveInfo());
-        ctx.getCStoreForwards().forEach(cStoreFwd -> retrieveSuccess.add(createInstanceAuditInfo(cStoreFwd)));
-        completedRetrieves.forEach(completedRetrieve -> retrieveSuccess.add(createInstanceAuditInfo(completedRetrieve)));
-        return retrieveSuccess;
-    }
-
-    private AuditInfoBuilder createCompletedRetrieveInfo() {
-        AuditInfoBuilder.Builder retrieveInfo = new AuditInfoBuilder.Builder();
-        retrieveInfo.warning(warningMsg);
-        retrieveInfo.outcome(outcomeDesc());
-        return addUserParticipantDetails(retrieveInfo);
-    }
-
-    List<AuditInfoBuilder> createRetrieveFailureAuditInfo(Collection<InstanceLocations> failedRetrieves) {
-        List<AuditInfoBuilder> retrieveFailure = new ArrayList<>();
-        retrieveFailure.add(createFailedRetrieveInfo());
-        ctx.getCStoreForwards().forEach(cStoreFwd -> retrieveFailure.add(createInstanceAuditInfo(cStoreFwd)));
-        failedRetrieves.forEach(failedRetrieve -> retrieveFailure.add(createInstanceAuditInfo(failedRetrieve)));
-        return retrieveFailure;
-    }
-
-    private AuditInfoBuilder createFailedRetrieveInfo() {
-        AuditInfoBuilder.Builder retrieveInfo = new AuditInfoBuilder.Builder();
-        retrieveInfo.outcome(outcomeDesc());
-        retrieveInfo.failedIUIDShow(true);
-        return addUserParticipantDetails(retrieveInfo);
-    }
-
-    private AuditInfoBuilder addUserParticipantDetails(AuditInfoBuilder.Builder retrieveInfo) {
-        return isExportTriggered(ctx)
-                ? httpServletRequestInfo != null
-                    ? restfulTriggeredExport(retrieveInfo)
-                    : schedulerTriggeredExport(retrieveInfo)
-                : httpServletRequestInfo != null
-                    ? rad69OrWadoRS(retrieveInfo)
-                    : cMoveCGet(retrieveInfo);
-    }
-
-    private AuditInfoBuilder createInstanceAuditInfo(InstanceLocations il) {
+    private static AuditInfo instanceAuditInfo(InstanceLocations il, ArchiveDeviceExtension arcDev) {
         Attributes attrs = il.getAttributes();
         return new AuditInfoBuilder.Builder()
                 .studyUIDAccNumDate(attrs, arcDev)
                 .sopCUID(attrs.getString(Tag.SOPClassUID))
                 .sopIUID(attrs.getString(Tag.SOPInstanceUID))
                 .pIDAndName(attrs, arcDev)
-                .build();
+                .toAuditInfo();
     }
 
-    private AuditInfoBuilder cMoveCGet(AuditInfoBuilder.Builder infoBuilder) {
-        return infoBuilder
-            .calledUserID(ctx.getLocalAETitle())
-            .destUserID(ctx.getDestinationAETitle())
-            .destNapID(ctx.getDestinationHostName())
-            .callingHost(ctx.getRequestorHostName())
-            .cMoveOriginator(ctx.getMoveOriginatorAETitle())
-            .build();
-    }
-
-    private AuditInfoBuilder rad69OrWadoRS(AuditInfoBuilder.Builder infoBuilder) {
-        return infoBuilder
-            .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
-            .destUserID(httpServletRequestInfo.requesterUserID)
-            .destNapID(ctx.getDestinationHostName())
-            .build();
-    }
-
-    private AuditInfoBuilder schedulerTriggeredExport(AuditInfoBuilder.Builder infoBuilder) {
-        return infoBuilder
-            .calledUserID(ctx.getLocalAETitle())
-            .destUserID(ctx.getDestinationAETitle())
-            .destNapID(ctx.getDestinationHostName())
-            .callingHost(ctx.getRequestorHostName())
-            .isExport()
-            .build();
-    }
-
-    private AuditInfoBuilder restfulTriggeredExport(AuditInfoBuilder.Builder infoBuilder) {
-        return infoBuilder
-            .callingUserID(httpServletRequestInfo.requesterUserID)
-            .callingHost(ctx.getRequestorHostName())
-            .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
-            .destUserID(ctx.getDestinationAETitle())
-            .destNapID(ctx.getDestinationHostName())
-            .isExport()
-            .build();
-    }
-
-    private static String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
-        return httpServletRequestInfo.queryString == null
-                ? httpServletRequestInfo.requestURI
-                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
-    }
-
-    private boolean isExportTriggered(RetrieveContext ctx) {
+    private static boolean isExportTriggered(RetrieveContext ctx) {
         return (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() != null)
                 || (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() == null && ctx.getException() != null);
     }
 
-    private String warningMsg() {
-        return ctx.warning() > 0
-                ? "Warnings on retrieve of " + ctx.warning() + " instances"
-                : null;
-    }
-
-    private String failureMsg() {
-        return ctx.failed() > 0 || !ctx.getFailedMatches().isEmpty()
-                ? "Retrieve of " + ctx.failed() + " objects failed"
-                : null;
-    }
-
-    private String outcomeDesc() {
-        if (warningMsg == null && failureMsg == null && ctx.getException() == null)
+    private static String outcomeDesc(RetrieveContext ctx, int failedMatches) {
+        String failureMsg = failedMatches > 0
+                                ? "Retrieve of " + failedMatches + " objects failed."
+                                : null;
+        if (failureMsg == null && ctx.getException() == null)
             return null;
 
         StringBuilder sb = new StringBuilder();
-        if (warningMsg != null)
-            sb.append(warningMsg).append("\n");
         if (failureMsg != null)
             sb.append(failureMsg).append("\n");
         if (ctx.getException() != null)
-            sb.append(ctx.getException().toString()).append("\n");
+            sb.append(ctx.getException().toString());
         return sb.toString();
     }
 
-    static AuditMessage auditMsg(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
+    static void audit(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        HashMap<String, InstanceInfo> study_instanceInfo = new HashMap<>();
+        boolean showIUIDs = auditInfo.getField(AuditInfo.OUTCOME) != null || auditLogger.isIncludeInstanceUID();
+
+        EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
+        eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
+
+        List<ParticipantObjectIdentification> participantObjectIdentifications = new ArrayList<>();
+        String qrLevel = auditInfo.getField(AuditInfo.QR_LEVEL);
+        AuditInfo auditInfoInstance = new AuditInfo(reader.getInstanceLines().get(0));
+        participantObjectIdentifications.add(patient(auditInfoInstance));
+        if (qrLevel == null || !qrLevel.equals(QueryRetrieveLevel2.PATIENT.name())) {
+            InstanceInfo instanceInfo = instanceInfo(auditInfoInstance, reader);
+            participantObjectIdentifications.add(study(auditInfoInstance, instanceInfo, showIUIDs));
+        } else {
+            HashMap<String, InstanceInfo> studyInstanceInfo = studyInstanceInfo(reader);
+            studyInstanceInfo.forEach((studyUID, instanceInfo) ->
+                    participantObjectIdentifications.add(study(studyUID, instanceInfo, showIUIDs)));
+        }
+
+        emitAuditMessage(auditLogger, eventIdentification,
+                activeParticipants(auditInfo, auditLogger, eventType),
+                participantObjectIdentifications.toArray(new ParticipantObjectIdentification[0]));
+    }
+
+    private static List<ActiveParticipant> activeParticipants(
+            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType) {
+        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+        String cMoveOriginator = auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR);
+        String destination = auditInfo.getField(AuditInfo.DEST_USER_ID);
+        return calledUserID == null
+                ? exportBySchedulerActiveParticipants(auditInfo, auditLogger, eventType)
+                : calledUserID.contains("/")
+                    ? destination == null
+                        ? retrieveByWADORSOrRAD69ActiveParticipants(auditInfo, auditLogger, eventType)
+                        : exportByRESTActiveParticipants(auditInfo, auditLogger, eventType)
+                    : cMoveOriginator == null
+                        ? cGetActiveParticipants(auditInfo, auditLogger, eventType)
+                        : cMoveActiveParticipants(auditInfo, auditLogger, eventType);
+    }
+
+    private static List<ActiveParticipant> cMoveActiveParticipants(
+            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType) {
+        String archiveAET = auditInfo.getField(AuditInfo.CALLED_USERID);
+        List<ActiveParticipant> cMoveActiveParticipants = new ArrayList<>();
+        cMoveActiveParticipants.add(cMoveOriginator(auditInfo));
+        cMoveActiveParticipants.add(archiveAE(archiveAET, auditLogger, eventType, false));
+        cMoveActiveParticipants.add(destinationAE(auditInfo, eventType, false));
+        return cMoveActiveParticipants;
+    }
+
+    private static List<ActiveParticipant> cGetActiveParticipants(
+            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType) {
+        String archiveAET = auditInfo.getField(AuditInfo.CALLED_USERID);
+        List<ActiveParticipant> cGetActiveParticipants = new ArrayList<>();
+        cGetActiveParticipants.add(archiveAE(archiveAET, auditLogger, eventType, false));
+        cGetActiveParticipants.add(destinationAE(auditInfo, eventType, true));
+        return cGetActiveParticipants;
+    }
+
+    private static List<ActiveParticipant> exportBySchedulerActiveParticipants(
+            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType) {
+        String archiveAET = auditInfo.getField(AuditInfo.CALLING_USERID);
+        List<ActiveParticipant> exportBySchedulerActiveParticipants = new ArrayList<>();
+        exportBySchedulerActiveParticipants.add(archiveAE(archiveAET, auditLogger, eventType, true));
+        exportBySchedulerActiveParticipants.add(destinationAE(auditInfo, eventType, false));
+        return exportBySchedulerActiveParticipants;
+    }
+
+    private static List<ActiveParticipant> exportByRESTActiveParticipants(
+            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType) {
+        String archiveAET = auditInfo.getField(AuditInfo.ARCHIVE_USER_ID);
+        List<ActiveParticipant> exportByRESTActiveParticipants = new ArrayList<>();
+        exportByRESTActiveParticipants.add(requestor(auditInfo, eventType, false));
+        exportByRESTActiveParticipants.add(archiveURI(auditInfo, auditLogger, eventType, false));
+        exportByRESTActiveParticipants.add(archiveAE(archiveAET, auditLogger, eventType, false));
+        exportByRESTActiveParticipants.add(destinationAE(auditInfo, eventType, false));
+        return exportByRESTActiveParticipants;
+    }
+
+    private static List<ActiveParticipant> retrieveByWADORSOrRAD69ActiveParticipants(
+            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType) {
+        List<ActiveParticipant> retrieveByWADORSOrRAD69ActiveParticipants = new ArrayList<>();
+        retrieveByWADORSOrRAD69ActiveParticipants.add(requestor(auditInfo, eventType, true));
+        retrieveByWADORSOrRAD69ActiveParticipants.add(archiveURI(auditInfo, auditLogger, eventType, true));
+        return retrieveByWADORSOrRAD69ActiveParticipants;
+    }
+
+    private static HashMap<String, InstanceInfo> studyInstanceInfo(SpoolFileReader reader) {
+        HashMap<String, InstanceInfo> studyInstanceInfo = new HashMap<>();
         for (String line : reader.getInstanceLines()) {
             AuditInfo rInfo = new AuditInfo(line);
             String studyInstanceUID = rInfo.getField(AuditInfo.STUDY_UID);
-            InstanceInfo instanceInfo = study_instanceInfo.get(studyInstanceUID);
+            InstanceInfo instanceInfo = studyInstanceInfo.get(studyInstanceUID);
             if (instanceInfo == null) {
                 instanceInfo = new InstanceInfo();
-                instanceInfo.addAcc(rInfo);
-                study_instanceInfo.put(studyInstanceUID, instanceInfo);
+                instanceInfo.setAccessionNo(rInfo.getField(AuditInfo.ACC_NUM));
+                studyInstanceInfo.put(studyInstanceUID, instanceInfo);
             }
             instanceInfo.addSOPInstance(rInfo);
             instanceInfo.addStudyDate(rInfo);
-            study_instanceInfo.put(studyInstanceUID, instanceInfo);
+            studyInstanceInfo.put(studyInstanceUID, instanceInfo);
         }
-        List<ParticipantObjectIdentification> pois = new ArrayList<>();
-        boolean showIUID = auditInfo.getField(AuditInfo.FAILED_IUID_SHOW) != null || auditLogger.isIncludeInstanceUID();
-        study_instanceInfo.forEach(
-                (studyUID, instanceInfo) -> pois.add(ParticipantObjectID.studyPOI(studyUID, instanceInfo, showIUID)));
-        pois.add(ParticipantObjectID.patientPOI(reader));
-
-        return AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipants(eventType, auditInfo, auditLogger),
-                pois.toArray(new ParticipantObjectIdentification[0]));
+        return studyInstanceInfo;
     }
 
-    private static ActiveParticipant[] activeParticipants(
-            AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
-        return auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR) != null
-                ? cMoveActiveParticipants(eventType, auditInfo, auditLogger)
-                : auditInfo.getField(AuditInfo.IS_EXPORT) != null
-                    ? exportActiveParticipants(eventType, auditInfo, auditLogger)
-                    : cGetOrWadoRSOrRAD69ActiveParticipants(eventType, auditInfo, auditLogger);
+    private static ActiveParticipant cMoveOriginator(AuditInfo auditInfo) {
+        ActiveParticipant cMoveOriginator = new ActiveParticipant();
+        String cMoveOriginatorUserID = auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR);
+        cMoveOriginator.setUserID(cMoveOriginatorUserID);
+        cMoveOriginator.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        cMoveOriginator.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        String cMoveOriginatorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
+        cMoveOriginator.setNetworkAccessPointID(cMoveOriginatorHost);
+        cMoveOriginator.setNetworkAccessPointTypeCode(AuditMessages.isIP(cMoveOriginatorHost)
+                                                        ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                                                        : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        cMoveOriginator.setUserIsRequestor(true);
+        return cMoveOriginator;
     }
 
-    private static ActiveParticipant[] cMoveActiveParticipants(
-            AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
-        activeParticipants[0] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.CALLED_USERID),
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .altUserID(AuditLogger.processID())
-                .roleIDCode(eventType.source)
-                .build();
-        activeParticipants[1] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.DEST_USER_ID),
-                auditInfo.getField(AuditInfo.DEST_NAP_ID))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .roleIDCode(eventType.destination)
-                .build();
-        activeParticipants[2] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.C_MOVE_ORIGINATOR),
-                auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .isRequester()
-                .build();
-        return activeParticipants;
+    private static ActiveParticipant destinationAE(AuditInfo auditInfo, AuditUtils.EventType eventType, boolean requestor) {
+        ActiveParticipant destinationAE = new ActiveParticipant();
+        destinationAE.setUserID(auditInfo.getField(AuditInfo.DEST_USER_ID));
+        destinationAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        destinationAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        String destinationAEHost = auditInfo.getField(AuditInfo.DEST_NAP_ID);
+        destinationAE.setNetworkAccessPointID(destinationAEHost);
+        destinationAE.setNetworkAccessPointTypeCode(AuditMessages.isIP(destinationAEHost)
+                                                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                                                    : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        destinationAE.getRoleIDCode().add(eventType.destination);
+        destinationAE.setUserIsRequestor(requestor);
+        return destinationAE;
     }
 
-    private static ActiveParticipant[] exportActiveParticipants(
-            AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
-        activeParticipants[0] = new ActiveParticipantBuilder(
-                auditInfo.getField(AuditInfo.DEST_USER_ID),
-                auditInfo.getField(AuditInfo.DEST_NAP_ID))
-                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                .roleIDCode(eventType.destination).build();
-        String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
-        if (auditInfo.getField(AuditInfo.CALLING_USERID) == null)
-            activeParticipants[1] = new ActiveParticipantBuilder(
-                    archiveUserID,
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(archiveUserIDTypeCode)
-                    .altUserID(AuditLogger.processID())
-                    .isRequester()
-                    .roleIDCode(eventType.source)
-                    .build();
-
-        else {
-            activeParticipants[1] = new ActiveParticipantBuilder(
-                    archiveUserID,
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(archiveUserIDTypeCode)
-                    .altUserID(AuditLogger.processID())
-                    .roleIDCode(eventType.source)
-                    .build();
-            String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-            activeParticipants[2] = new ActiveParticipantBuilder(
-                    callingUserID,
-                    auditInfo.getField(AuditInfo.CALLING_HOST))
-                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                    .isRequester()
-                    .build();
-        }
-        return activeParticipants;
-    }
-
-    private static ActiveParticipant[] cGetOrWadoRSOrRAD69ActiveParticipants(
-            AuditUtils.EventType eventType, AuditInfo auditInfo, AuditLogger auditLogger) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[2];
-        String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
-        activeParticipants[0] = new ActiveParticipantBuilder(
-                archiveUserID,
-                getLocalHostName(auditLogger))
-                .userIDTypeCode(archiveUserIDTypeCode)
-                .altUserID(AuditLogger.processID())
-                .roleIDCode(eventType.source)
-                .build();
-        String callingUserID = auditInfo.getField(AuditInfo.DEST_USER_ID);
-        activeParticipants[1] = new ActiveParticipantBuilder(
-                callingUserID,
-                auditInfo.getField(AuditInfo.DEST_NAP_ID))
-                .userIDTypeCode(AuditService.remoteUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                .isRequester()
-                .roleIDCode(eventType.destination)
-                .build();
-        return activeParticipants;
-    }
-
-    private static AuditMessages.UserIDTypeCode archiveUserIDTypeCode(String userID) {
-        return  userID.indexOf('/') != -1
-                ? AuditMessages.UserIDTypeCode.URI
-                : AuditMessages.UserIDTypeCode.StationAETitle;
-    }
-
-    private static String getLocalHostName(AuditLogger auditLogger) {
-        return auditLogger.getConnections().get(0).getHostname();
+    private static ActiveParticipant archiveAE(
+            String archiveAET, AuditLogger auditLogger, AuditUtils.EventType eventType, boolean requestor) {
+        ActiveParticipant archiveAE = new ActiveParticipant();
+        archiveAE.setUserID(archiveAET);
+        archiveAE.setUserIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle);
+        archiveAE.setUserTypeCode(AuditMessages.UserTypeCode.Application);
+        archiveAE.setAlternativeUserID(AuditLogger.processID());
+        String archiveAEHost = auditLogger.getConnections().get(0).getHostname();
+        archiveAE.setNetworkAccessPointID(archiveAEHost);
+        archiveAE.setNetworkAccessPointTypeCode(AuditMessages.isIP(archiveAEHost)
+                ? AuditMessages.NetworkAccessPointTypeCode.IPAddress
+                : AuditMessages.NetworkAccessPointTypeCode.MachineName);
+        archiveAE.getRoleIDCode().add(eventType.source);
+        archiveAE.setUserIsRequestor(requestor);
+        return archiveAE;
     }
 
     static void auditWADOURI(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) {
@@ -367,8 +376,8 @@ class RetrieveAuditService extends AuditService {
         EventIdentification eventIdentification = getEventIdentification(auditInfo, eventType);
         eventIdentification.setEventDateTime(getEventTime(path, auditLogger));
         List<ActiveParticipant> activeParticipants = new ArrayList<>();
-        activeParticipants.add(requestor(auditInfo, eventType));
-        activeParticipants.add(archiveURI(auditInfo, eventType, auditLogger));
+        activeParticipants.add(requestor(auditInfo, eventType, true));
+        activeParticipants.add(archiveURI(auditInfo, auditLogger, eventType, true));
         InstanceInfo instanceInfo = instanceInfo(auditInfo, reader);
         boolean showIUIDs = auditInfo.getField(AuditInfo.OUTCOME) != null || auditLogger.isIncludeInstanceUID();
         emitAuditMessage(auditLogger, eventIdentification, activeParticipants,
@@ -377,11 +386,12 @@ class RetrieveAuditService extends AuditService {
     }
 
     private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+        String warning = auditInfo.getField(AuditInfo.WARNING);
         String outcome = auditInfo.getField(AuditInfo.OUTCOME);
         EventIdentification ei = new EventIdentification();
         ei.setEventID(eventType.eventID);
         ei.setEventActionCode(eventType.eventActionCode);
-        ei.setEventOutcomeDescription(outcome);
+        ei.setEventOutcomeDescription(warning == null ? outcome : warning + "\n" + outcome);
         ei.setEventOutcomeIndicator(outcome == null
                 ? AuditMessages.EventOutcomeIndicator.Success
                 : AuditMessages.EventOutcomeIndicator.MinorFailure);
@@ -403,7 +413,6 @@ class RetrieveAuditService extends AuditService {
         instanceInfo.setAccessionNo(auditInfo.getField(AuditInfo.ACC_NUM));
         reader.getInstanceLines().forEach(instanceLine -> {
             AuditInfo info = new AuditInfo(instanceLine);
-            instanceInfo.addMpps(info);
             instanceInfo.addSOPInstance(info);
         });
         return instanceInfo;
@@ -418,6 +427,19 @@ class RetrieveAuditService extends AuditService {
         study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
         study.getParticipantObjectDetail()
                 .add(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
+        study.setParticipantObjectDescription(studyParticipantObjDesc(instanceInfo, showSOPIUIDs));
+        return study;
+    }
+
+    private static ParticipantObjectIdentification study(
+            String studyIUID, InstanceInfo instanceInfo, boolean showSOPIUIDs) {
+        ParticipantObjectIdentification study = new ParticipantObjectIdentification();
+        study.setParticipantObjectID(studyIUID);
+        study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+        study.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        study.getParticipantObjectDetail()
+                .add(AuditMessages.createParticipantObjectDetail("StudyDate", instanceInfo.getStudyDate()));
         study.setParticipantObjectDescription(studyParticipantObjDesc(instanceInfo, showSOPIUIDs));
         return study;
     }
@@ -448,13 +470,14 @@ class RetrieveAuditService extends AuditService {
     }
 
     private static ActiveParticipant archiveURI(
-            AuditInfo auditInfo, AuditUtils.EventType eventType, AuditLogger auditLogger) {
+            AuditInfo auditInfo, AuditLogger auditLogger, AuditUtils.EventType eventType, boolean isSource) {
         ActiveParticipant archiveURI = new ActiveParticipant();
         archiveURI.setUserID(auditInfo.getField(AuditInfo.CALLED_USERID));
         archiveURI.setUserIDTypeCode(AuditMessages.UserIDTypeCode.URI);
         archiveURI.setUserTypeCode(AuditMessages.UserTypeCode.Application);
         archiveURI.setAlternativeUserID(AuditLogger.processID());
-        archiveURI.getRoleIDCode().add(eventType.source);   //The process that sent the data. - DICOM PS3.15
+        if (isSource)
+            archiveURI.getRoleIDCode().add(eventType.source);   //The process that sent the data. - DICOM PS3.15
         String archiveURIHost = auditLogger.getConnections().get(0).getHostname();
         archiveURI.setNetworkAccessPointID(archiveURIHost);
         archiveURI.setNetworkAccessPointTypeCode(
@@ -464,7 +487,7 @@ class RetrieveAuditService extends AuditService {
         return archiveURI;
     }
 
-    private static ActiveParticipant requestor(AuditInfo auditInfo, AuditUtils.EventType eventType) {
+    private static ActiveParticipant requestor(AuditInfo auditInfo, AuditUtils.EventType eventType, boolean isDestination) {
         ActiveParticipant requestor = new ActiveParticipant();
         String requestorUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         requestor.setUserID(requestorUserID);
@@ -477,7 +500,8 @@ class RetrieveAuditService extends AuditService {
                 requestorIsIP
                         ? AuditMessages.UserTypeCode.Application
                         : AuditMessages.UserTypeCode.Person);
-        requestor.getRoleIDCode().add(eventType.destination);   //The process that received the data. - DICOM PS3.15
+        if (isDestination)
+            requestor.getRoleIDCode().add(eventType.destination);   //The process that received the data. - DICOM PS3.15
         requestor.setUserIsRequestor(true);
         String requestorHost = auditInfo.getField(AuditInfo.CALLING_HOST);
         requestor.setNetworkAccessPointID(requestorHost);

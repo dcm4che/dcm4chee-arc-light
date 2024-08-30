@@ -48,7 +48,6 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Segment;
@@ -86,7 +85,6 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
-import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -149,7 +147,7 @@ public class AuditService {
                 else StoreAuditService.audit(auditLogger, path, eventType);
                 break;
             case RETRIEVE:
-                auditRetrieve(auditLogger, path, eventType);
+                RetrieveAuditService.audit(auditLogger, path, eventType);
                 break;
             case USER_DELETED:
             case SCHEDULER_DELETED:
@@ -893,7 +891,6 @@ public class AuditService {
         Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = getArchiveDevice();
         HttpServletRequestInfo httpServletRequestInfo = storeSession.getHttpRequest();
-        ctx.setImpaxReportPatientMismatch(new Code("(IMPAXREP_PATDIFF, 99DCM4CHEE, \"Patient in IMPAX Report does not match Patient of Study in VNA\")"));
         AuditInfo auditInfoPatientMismatch = httpServletRequestInfo == null
                                                 ? new AuditInfoBuilder.Builder()
                                                     .callingUserID(device.getDeviceName())
@@ -951,7 +948,8 @@ public class AuditService {
     }
 
     void spoolRetrieve(AuditUtils.EventType eventType, RetrieveContext ctx) {
-        if (ctx.getMatches().isEmpty() && ctx.getCStoreForwards().isEmpty()
+        if (ctx.getMatches().isEmpty()
+                && ctx.getCStoreForwards().isEmpty()
                 && (ctx.failed() == 0 || ctx.getFailedMatches().isEmpty())) {
             LOG.info("Neither matches nor C-Store Forwards nor failed matches present. Exit spooling retrieve event {}",
                     eventType);
@@ -959,19 +957,13 @@ public class AuditService {
         }
 
         try {
-            RetrieveAuditService retrieveAuditService = new RetrieveAuditService(ctx, getArchiveDevice());
-            if (ctx.failed() > 0) {
-                Collection<InstanceLocations> failedRetrieves = retrieveAuditService.failedMatches();
-                if (!failedRetrieves.isEmpty())
-                    writeSpoolFile(eventType, null,
-                            retrieveAuditService.createRetrieveFailureAuditInfo(failedRetrieves)
-                                    .toArray(new AuditInfoBuilder[0]));
-            }
-            Collection<InstanceLocations> completedMatches = retrieveAuditService.completedMatches();
-            if (!completedMatches.isEmpty())
-                writeSpoolFile(eventType, null,
-                        retrieveAuditService.createRetrieveSuccessAuditInfo(completedMatches)
-                                .toArray(new AuditInfoBuilder[0]));
+            List<AuditInfo> successAuditInfos = RetrieveAuditService.successAuditInfos(ctx, getArchiveDevice());
+            if (!successAuditInfos.isEmpty())
+                writeSpoolFile(eventType.name(), false, successAuditInfos.toArray(new AuditInfo[0]));
+
+            List<AuditInfo> failedAuditInfos = RetrieveAuditService.failedAuditInfos(ctx, getArchiveDevice());
+            if (!failedAuditInfos.isEmpty())
+                writeSpoolFile(eventType.name(), false, failedAuditInfos.toArray(new AuditInfo[0]));
         } catch (Exception e) {
             LOG.info("Failed to spool Retrieve of [StudyIUID={}]\n", ctx.getStudyInstanceUID(), e);
         }
@@ -979,12 +971,6 @@ public class AuditService {
 
     private ArchiveDeviceExtension getArchiveDevice() {
         return device.getDeviceExtension(ArchiveDeviceExtension.class);
-    }
-
-    private void auditRetrieve(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType) throws Exception {
-        emitAuditMessage(
-                RetrieveAuditService.auditMsg(auditLogger, path, eventType),
-                auditLogger);
     }
 
     void spoolHL7Message(HL7ConnectionEvent hl7ConnEvent) {
