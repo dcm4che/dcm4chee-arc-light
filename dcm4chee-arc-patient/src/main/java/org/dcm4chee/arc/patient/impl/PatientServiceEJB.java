@@ -320,6 +320,8 @@ public class PatientServiceEJB {
             suppressMergedPatientDeletionAudit(ctx);
             return createPatient(ctx);
         }
+        if (ctx.getPreviousAttributes() == null)
+            ctx.setPreviousAttributes(pat.getAttributes());
 
         Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
         Patient pat2 = findPatient(patientIDs);
