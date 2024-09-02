@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.patient.impl;
 
+import jakarta.ejb.EJBException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -52,6 +53,7 @@ import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
@@ -76,6 +78,7 @@ import java.util.Set;
  */
 @ApplicationScoped
 public class PatientServiceImpl implements PatientService {
+    private static final Logger LOG = LoggerFactory.getLogger(PatientServiceImpl.class);
 
     private static final Logger LOG = LoggerFactory.getLogger(PatientServiceImpl.class);
 
@@ -148,7 +151,7 @@ public class PatientServiceImpl implements PatientService {
         try {
             Patient patient;
             do {
-                patient = ejb.updatePatient(ctx);
+                patient = updatePatient0(ctx);
             } while (deleteDuplicateCreatedPatient(ctx, patient));
             return patient;
         } catch (RuntimeException e) {
@@ -158,6 +161,30 @@ public class PatientServiceImpl implements PatientService {
         } finally {
             if (ctx.getEventActionCode() != null)
                 patientMgtEvent.fire(ctx);
+        }
+    }
+
+    private Patient updatePatient0(PatientMgtContext ctx) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                return ejb.updatePatient(ctx);
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failure on update {} by {} - retry",
+                            ctx.getPatient(),
+                            DicomServiceException.initialCauseOf(e));
+                } else {
+                    LOG.warn("Failure on deleting {} from database:\n", ctx.getPatient(), e);
+                    throw e;
+                }
+            }
+            try {
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("Failed to delay retry of updating patient:\n", e);
+            }
         }
     }
 
