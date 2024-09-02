@@ -43,6 +43,7 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -53,6 +54,7 @@ import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.event.TaskOperation;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -70,6 +72,15 @@ import java.util.Collection;
 
 class AuditUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditUtils.class);
+    final static String APPOINTMENTS = "SIU";
+    final static String OBSERVATION_REPORTING = "ORU^R01";
+    final static String IMAGING_ORDER = "OMI^O19";
+    final static String CREATE_PATIENT = "ADT^A28";
+    final static String MERGE_PATIENTS = "ADT^A40";
+    final static String CHANGE_PATIENT_ID = "ADT^A47";
+    final static String PDQ_DICOM = "pdq-dicom";
+    final static String PDQ_HL7 = "pdq-hl7";
+    final static String PDQ_FHIR = "pdq-fhir";
 
     enum EventClass {
         QUERY,
@@ -149,7 +160,7 @@ class AuditUtils {
         PAT___READ(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
         PAT_UPD_SC(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
-                null, null, null),
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
         PAT_RD__SC(EventClass.PATIENT, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Read,
                 null, null, null),
 
@@ -250,45 +261,55 @@ class AuditUtils {
             return rejectionNoteSent.isStudyDeleted() ? RJ_COMPLET : RJ_PARTIAL;
         }
 
-        static EventType forPatRec(PatientMgtContext ctx) {
+        static EventType forPatientRecord(PatientMgtContext ctx) {
             if (!ctx.getPatientVerificationStatus().equals(Patient.VerificationStatus.UNVERIFIED))
-                return forPatVer(ctx);
+                return forPatientRecordVerification(ctx);
 
-            return ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+            String eventActionCode = ctx.getEventActionCode();
+            HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+            switch (eventActionCode) {
+                case "C":
+                    return PAT_CREATE;
+                case "U":
+                    return PAT_UPDATE;
+                case "D":
+                    return httpServletRequestInfo == null ? PAT_DLT_SC : PAT_DELETE;
+                default:
+                    return null;
+            }
+        }
+
+        private static EventType forPatientRecordVerification(PatientMgtContext ctx) {
+            String eventActionCode = ctx.getEventActionCode();
+            HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+            return eventActionCode.equals(AuditMessages.EventActionCode.Create)
                     ? PAT_CREATE
-                    : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
-                        ? PAT_UPDATE
-                        : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
-                            ? ctx.getHttpServletRequestInfo() != null ? PAT_DELETE : PAT_DLT_SC
-                            : PAT___READ;
+                    : httpServletRequestInfo == null
+                        ? PAT_UPD_SC : PAT_UPDATE;
         }
 
-        private static EventType forPatVer(PatientMgtContext ctx) {
-            String eac = ctx.getEventActionCode();
-            return ctx.getHttpServletRequestInfo() == null
-                    ? eac.equals(AuditMessages.EventActionCode.Update)
-                        ? PAT_UPD_SC : PAT_RD__SC
-                    : eac.equals(AuditMessages.EventActionCode.Update)
-                        ? PAT_UPDATE
-                        : eac.equals(AuditMessages.EventActionCode.Create)
-                            ? PAT_CREATE
-                            : PAT___READ;
-        }
-
-        static EventType forHL7OutgoingPatRec(String messageType) {
-            return messageType.equals("ADT^A28") || messageType.equals("ORU^R01")
-                    ? PAT_CREATE
-                    : PAT_UPDATE;
-        }
-
-        static EventType forHL7IncomingPatRec(UnparsedHL7Message hl7ResponseMessage) {
-            if (hl7ResponseMessage instanceof ArchiveHL7Message) {
-                ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
-                return archiveHL7Message.getPatRecEventActionCode().equals(AuditMessages.EventActionCode.Create)
+        static EventType forHL7OutgoingPatientRecord(HL7ConnectionEvent hl7ConnEvent) {
+            String messageType = hl7ConnEvent.getHL7Message().msh().getMessageType();
+            return messageType.equals(CREATE_PATIENT)
+                    || messageType.equals(OBSERVATION_REPORTING)
+                    || messageType.equals(IMAGING_ORDER)
                         ? PAT_CREATE
                         : PAT_UPDATE;
-            }
-            return PAT___READ;
+        }
+
+        static EventType forHL7IncomingPatientRecord(HL7ConnectionEvent hl7ConnEvent) {
+            String messageType = hl7ConnEvent.getHL7Message().msh().getMessageType();
+            if (messageType.startsWith(APPOINTMENTS))
+                return PAT___READ;
+
+            UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
+            if (hl7ResponseMessage instanceof ArchiveHL7Message)
+                return ((ArchiveHL7Message) hl7ResponseMessage).getPatRecEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? PAT_CREATE
+                        : PAT_UPDATE;
+
+            //HL7 Exception in HL7 Connection Event != null
+            return PAT_UPDATE;
         }
 
         static EventType forProcedure(String eventActionCode) {

@@ -372,7 +372,7 @@ public class ProcedureServiceEJB {
         mwl.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
     }
 
-    private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx) {
+    void updateStudySeriesAttributesFromMWL(ProcedureContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
@@ -381,7 +381,7 @@ public class ProcedureServiceEJB {
                                                                 : ctx.getStudyInstanceUIDInstRefs())
                                     .getResultList();
         if (seriesList.isEmpty())
-            return false;
+            return;
 
         Date now = new Date();
         Study study = seriesList.get(0).getStudy();
@@ -423,7 +423,8 @@ public class ProcedureServiceEJB {
                 + (ctx.getStudyInstanceUIDInstRefs() == null
                     ? ctx.getStudyInstanceUID()
                     : ctx.getStudyInstanceUIDInstRefs()));
-        return true;
+        if (ctx.getEventActionCode() == null)
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
     }
 
     private void updateSeriesAttributes(Series series, Attributes mwlAttr,
@@ -451,18 +452,6 @@ public class ProcedureServiceEJB {
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
                 .setParameter(1, series.getPk())
                 .executeUpdate();
-    }
-
-    public void updateStudySeriesAttributes(ProcedureContext ctx) {
-        boolean result = false;
-        try {
-            result = updateStudySeriesAttributesFromMWL(ctx);
-        } catch (Exception e) {
-            ctx.setException(e);
-        } finally {
-            if (result || ctx.getException() != null)
-                ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        }
     }
 
     private boolean recordAttributeModification(ProcedureContext ctx) {

@@ -130,6 +130,7 @@ public class PatientServiceImpl implements PatientService {
             return ejb.createPatient(ctx);
         } catch (RuntimeException e) {
             ctx.setException(e);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
             throw e;
         } finally {
             if (ctx.getEventActionCode() != null)
@@ -148,6 +149,7 @@ public class PatientServiceImpl implements PatientService {
             return patient;
         } catch (RuntimeException e) {
             ctx.setException(e);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             throw e;
         } finally {
             if (ctx.getEventActionCode() != null)
@@ -193,6 +195,7 @@ public class PatientServiceImpl implements PatientService {
             return ejb.mergePatient(ctx);
         } catch (RuntimeException e) {
             ctx.setException(e);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             throw e;
         } finally {
             if (ctx.getEventActionCode() != null)
@@ -206,6 +209,7 @@ public class PatientServiceImpl implements PatientService {
             return ejb.unmergePatient(ctx);
         } catch (RuntimeException e) {
             ctx.setException(e);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
             throw e;
         } finally {
             if (ctx.getEventActionCode() != null)
@@ -224,6 +228,7 @@ public class PatientServiceImpl implements PatientService {
             return ejb.changePatientID(ctx);
         } catch (RuntimeException e) {
             ctx.setException(e);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             throw e;
         } finally {
             if (ctx.getEventActionCode() != null)

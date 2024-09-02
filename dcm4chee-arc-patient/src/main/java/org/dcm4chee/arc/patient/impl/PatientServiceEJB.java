@@ -284,8 +284,10 @@ public class PatientServiceEJB {
         }
         if (pat == null)
             pat = createPatient(ctx);
-        else
+        else {
             updatePatient(pat, ctx);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        }
         if (prev == null) {
             prev = createPatient(ctx, ctx.getPreviousPatientIDs(), ctx.getPreviousAttributes());
             suppressMergedPatientDeletionAudit(ctx);
@@ -501,6 +503,7 @@ public class PatientServiceEJB {
                 pat.incrementFailedVerifications();
             else
                 pat.resetFailedVerifications();
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         }
         return pat;
     }
