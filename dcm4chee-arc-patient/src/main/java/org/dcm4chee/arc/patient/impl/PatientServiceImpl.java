@@ -60,6 +60,8 @@ import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.Socket;
 import java.util.Collection;
@@ -74,6 +76,8 @@ import java.util.Set;
  */
 @ApplicationScoped
 public class PatientServiceImpl implements PatientService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PatientServiceImpl.class);
 
     @Inject
     private PatientServiceEJB ejb;
@@ -262,8 +266,15 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public void deletePatient(PatientMgtContext ctx) {
-        ejb.deletePatient(ctx.getPatient());
-        patientMgtEvent.fire(ctx);
+        try {
+            ejb.deletePatient(ctx.getPatient());
+        } catch (Exception e) {
+            LOG.warn("Failed to delete {} from database:\n", ctx.getPatient(), e);
+            ctx.setException(e);
+            throw e;
+        } finally {
+            patientMgtEvent.fire(ctx);
+        }
     }
 
     @Override

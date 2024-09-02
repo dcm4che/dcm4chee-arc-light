@@ -186,21 +186,12 @@ public class DeletionServiceImpl implements DeletionService {
         List<Study> resultList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
                 .setParameter(1, ctx.getPatient())
                 .getResultList();
-        try {
-            for (Study study : resultList) {
-                StudyDeleteContext studyDeleteCtx = createStudyDeleteContext(study, ctx.getHttpServletRequestInfo());
-                studyDeleteCtx.setPatientDeletionTriggered(true);
-                deleteStudy(studyDeleteCtx, arcAE, false, false);
-            }
-            patientService.deletePatient(ctx);
-            LOG.info("Successfully delete {} from database", ctx.getPatient());
-        } catch (Exception e) {
-            LOG.warn("Failed to delete {} from database:\n", ctx.getPatient(), e);
-            ctx.setException(e);
-            throw e;
-        } finally {
-            patientMgtEvent.fire(ctx);
+        for (Study study : resultList) {
+            StudyDeleteContext studyDeleteCtx = createStudyDeleteContext(study, ctx.getHttpServletRequestInfo());
+            studyDeleteCtx.setPatientDeletionTriggered(true);
+            deleteStudy(studyDeleteCtx, arcAE, false, false);
         }
+        patientService.deletePatient(ctx);
     }
 
     private List<Location> deleteStudy(
