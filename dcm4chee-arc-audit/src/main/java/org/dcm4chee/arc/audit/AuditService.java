@@ -997,11 +997,6 @@ public class AuditService {
 
         String messageType = msh.getMessageType();
         try {
-//            writeSpoolFile(AuditUtils.EventType.forHL7IncomingPatientRecord(hl7ConnEvent).name(),
-//                    PatientRecordAuditService.patientAuditInfoHL7(hl7ConnEvent, getArchiveDevice()),
-//                    hl7ConnEvent.getHL7Message().data(),
-//                    hl7ConnEvent.getHL7ResponseMessage().data());
-
             byte[][] hl7MsgAndResponse = hl7MsgAndResponse(hl7ConnEvent).toArray(new byte[0][]);
             writeSpoolFile(AuditUtils.EventType.forHL7IncomingPatientRecord(hl7ConnEvent).name(),
                     PatientRecordAuditService.patientAuditInfoHL7(hl7ConnEvent, getArchiveDevice()),
@@ -1011,10 +1006,6 @@ public class AuditService {
                 writeSpoolFile(AuditUtils.EventType.PAT_DELETE.name(),
                         PatientRecordAuditService.prevPatientAuditInfoHL7(hl7ConnEvent, getArchiveDevice()),
                         hl7MsgAndResponse);
-//                writeSpoolFile(AuditUtils.EventType.PAT_DELETE.name(),
-//                        PatientRecordAuditService.prevPatientAuditInfoHL7(hl7ConnEvent, getArchiveDevice()),
-//                        hl7ConnEvent.getHL7Message().data(),
-//                        hl7ConnEvent.getHL7ResponseMessage().data());
         } catch (Exception e) {
             LOG.info("Failed to spool patient record for incoming HL7 message {}\n", hl7Message, e);
         }
@@ -1028,25 +1019,9 @@ public class AuditService {
                         procedureRecordAuditService.getHL7IncomingOrderInfo(),
                         AuditUtils.EventType.forHL7IncomingOrderMsg(hl7ResponseMessage),
                         hl7ConnEvent);
-                if (!procedureRecordAuditService.hasPIDSegment()) {
+                if (!procedureRecordAuditService.hasPIDSegment())
                     LOG.info("Missing PID segment. Abort patient audit of incoming HL7 order message.");
-                    return;
-                }
             }
-
-//            PatientRecordAuditService patRecAuditService = new PatientRecordAuditService(hl7ConnEvent, getArchiveDevice());
-//            AuditUtils.EventType eventType = AuditUtils.EventType.forHL7IncomingPatientRecord(hl7ConnEvent);
-//            writeSpoolFile(
-//                    patRecAuditService.getHL7IncomingPatInfo(),
-//                    eventType,
-//                    hl7ConnEvent);
-//
-//            HL7Segment mrg = HL7AuditUtils.getHL7Segment(hl7Message, "MRG");
-//            if (mrg != null && eventType != AuditUtils.EventType.PAT___READ) //spool below only for successful changePID or merge
-//                writeSpoolFile(
-//                        patRecAuditService.getHL7IncomingPrevPatInfo(mrg),
-//                        AuditUtils.EventType.PAT_DELETE,
-//                        hl7ConnEvent);
         } catch (Exception e) {
             LOG.info("Failed to spool HL7 Incoming for [Message={}]\n", hl7Message, e);
         }
@@ -1063,38 +1038,21 @@ public class AuditService {
         String messageType = msh.getMessageType();
         try {
             if (pid != null) {
+                byte[][] hl7MsgAndResponse = hl7MsgAndResponse(hl7ConnEvent).toArray(new byte[0][]);
                 writeSpoolFile(AuditUtils.EventType.forHL7OutgoingPatientRecord(hl7ConnEvent).name(),
                         PatientRecordAuditService.patientAuditInfoHL7Outgoing(hl7ConnEvent, getArchiveDevice()),
-                        hl7ConnEvent.getHL7Message().data(),
-                        hl7ConnEvent.getHL7ResponseMessage().data());
+                        hl7MsgAndResponse);
 
                 if (messageType.equals(AuditUtils.MERGE_PATIENTS) || messageType.equals(AuditUtils.CHANGE_PATIENT_ID))
                     writeSpoolFile(AuditUtils.EventType.PAT_DELETE.name(),
                             PatientRecordAuditService.prevPatientAuditInfoHL7Outgoing(hl7ConnEvent, getArchiveDevice()),
-                            hl7ConnEvent.getHL7Message().data(),
-                            hl7ConnEvent.getHL7ResponseMessage().data());
+                            hl7MsgAndResponse);
             }
         } catch (Exception e) {
             LOG.info("Failed to spool patient record for outgoing HL7 message {}\n", hl7Message, e);
         }
 
         try {
-//            PatientRecordAuditService patRecAuditService = new PatientRecordAuditService(hl7ConnEvent, getArchiveDevice());
-//            HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
-//            if (pid != null) {
-//                writeSpoolFile(
-//                        patRecAuditService.getHL7OutgoingPatInfo(pid),
-//                        AuditUtils.EventType.forHL7OutgoingPatientRecord(hl7ConnEvent),
-//                        hl7ConnEvent);
-//
-//                HL7Segment mrg = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "MRG");
-//                if (mrg != null)
-//                    writeSpoolFile(
-//                            patRecAuditService.getHL7OutgoingPrevPatInfo(mrg),
-//                            AuditUtils.EventType.PAT_DELETE,
-//                            hl7ConnEvent);
-//            }
-
             if (HL7AuditUtils.isOrderMessage(hl7ConnEvent))
                 spoolOutgoingHL7OrderMsg(hl7ConnEvent);
 
@@ -1145,6 +1103,7 @@ public class AuditService {
             LOG.info("Failed to spool previous Patient Record for [PatientID={}]\n", ctx.getPreviousPatientIDs(), e);
         }
     }
+
 
     void spoolProcedureRecord(ProcedureContext ctx) {
         if (ctx.getUnparsedHL7Message() != null && !ctx.getUnparsedHL7Message().msh().getMessageType().equals("ADT^A10"))

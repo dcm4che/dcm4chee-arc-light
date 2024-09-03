@@ -80,8 +80,6 @@ import java.util.Set;
 public class PatientServiceImpl implements PatientService {
     private static final Logger LOG = LoggerFactory.getLogger(PatientServiceImpl.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(PatientServiceImpl.class);
-
     @Inject
     private PatientServiceEJB ejb;
 

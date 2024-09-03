@@ -43,7 +43,6 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4chee.arc.entity.Patient;
 
 import java.text.ParsePosition;
 import java.util.ArrayList;
@@ -56,17 +55,6 @@ import java.util.List;
  */
 class ParticipantObjectID {
 
-    static ParticipantObjectIdentification patientPOI(AuditInfo auditInfo, SpoolFileReader reader) {
-        ParticipantObjectIdentificationBuilder patientPOIBuilder = patientPOIBuilder(auditInfo)
-                .detail(hl7ParticipantObjectDetail(reader).toArray(new ParticipantObjectDetail[0]));
-
-        String patVerStatus = auditInfo.getField(AuditInfo.PAT_VERIFICATION_STATUS);
-        if (patVerStatus != null
-                && Patient.VerificationStatus.valueOf(patVerStatus) != Patient.VerificationStatus.UNVERIFIED)
-            patientPOIBuilder.lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification);
-
-        return patientPOIBuilder.build();
-    }
 
     static ParticipantObjectIdentificationBuilder patientPOIBuilder(AuditInfo auditInfo) {
         return new ParticipantObjectIdentificationBuilder(
