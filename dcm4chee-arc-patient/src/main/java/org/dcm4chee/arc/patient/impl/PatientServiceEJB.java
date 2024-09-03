@@ -321,7 +321,7 @@ public class PatientServiceEJB {
             return createPatient(ctx);
         }
         if (ctx.getPreviousAttributes() == null)
-            ctx.setPreviousAttributes(pat.getAttributes());
+            ctx.setPreviousAttributes(new Attributes(pat.getAttributes()));
 
         Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
         Patient pat2 = findPatient(patientIDs);
