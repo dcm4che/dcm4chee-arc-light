@@ -23,4 +23,8 @@ describe('IssuerSelectorComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  it("Should extract the model parts from string",()=>{
+    component.model = "test^^^selam";
+
+  })
 });

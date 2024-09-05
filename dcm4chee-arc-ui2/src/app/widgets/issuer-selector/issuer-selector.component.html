@@ -1,37 +1,41 @@
-<div class="issuer_selector">
-    <div class="main_input_block" title="{{title}}">
-        <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}"  (ngModelChange)="filterChanged()" (click)="selectorOpen = true">
-        <span *ngIf="model" class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
+<div class="patient_name_picker" [ngClass]="{'open':selectorOpen}">
+    <div class="input_field">
+        <div class="input_block">
+            <input type="text" [(ngModel)]="model" placeholder="{{placeholder}}" title="{{title}}" (ngModelChange)="filterChanged()">
+            <span class="glyphicon glyphicon-remove" *ngIf="model" (click)="hardClear()"></span>
+        </div>
         <i class="material-icons filter_button" (click)="togglePicker()">
             subdirectory_arrow_right
         </i>
-        <ng-container *ngIf="selectorOpen">
-            <div class="overlay" (click)="selectorOpen = false">
-            </div>
-            <div class="content_block">
-                <h5 class="title" *ngIf="title">{{title}}</h5>
-                <ng-container *ngIf="issuers && issuers.length <= viewLimit">
-                    <div class="table widget_table">
-                        <div class="tr">
-                            <div class="th" *ngFor="let issuer of issuers">{{issuer.label}}</div>
-                        </div>
-                        <div class="tr">
-                            <div class="td" *ngFor="let issuer of issuers">
-                                <input type="text" class="issuer_model" [placeholder]="issuer.label" [(ngModel)]="filterModel[issuer.key]">
+    </div>
+    <div class="overlay" *ngIf="selectorOpen" (click)="selectorOpen = false"></div>
+    <div class="dialog" [hidden]="!selectorOpen">
+        <div class="dialog_block">
+            <ng-container *ngIf="selectorOpen">
+                <div class="content_block">
+                    <h5 class="title" *ngIf="title">{{title}}</h5>
+                    <ng-container *ngIf="issuers && issuers.length <= viewLimit">
+                        <div class="table widget_table">
+                            <div class="tr">
+                                <div class="th" *ngFor="let issuer of issuers">{{issuer.label}}</div>
+                            </div>
+                            <div class="tr">
+                                <div class="td" *ngFor="let issuer of issuers">
+                                    <input type="text" class="issuer_model" [placeholder]="issuer.label" [(ngModel)]="filterModel[issuer.key]" (ngModelChange)="set()">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </ng-container>
-                <ng-container *ngIf="issuers && issuers.length > viewLimit">
-                    <div class="issuers" *ngFor="let issuer of issuers">
-                        <div class="issuer" title="{{issuer.key}}">
-                            <label class="issuer_label">{{issuer.label}}</label>
-                            <input type="text" class="issuer_model" [(ngModel)]="filterModel[issuer.key]">
+                    </ng-container>
+                    <ng-container *ngIf="issuers && issuers.length > viewLimit">
+                        <div class="issuers" *ngFor="let issuer of issuers">
+                            <div class="issuer" title="{{issuer.key}}">
+                                <label class="issuer_label">{{issuer.label}}</label>
+                                <input type="text" class="issuer_model" [(ngModel)]="filterModel[issuer.key]" (ngModelChange)="set()">
+                            </div>
                         </div>
-                    </div>
-                </ng-container>
-                <button class="set_button" (click)="set()" i18n="@@SET">SET</button>
-            </div>
-        </ng-container>
+                    </ng-container>
+                </div>
+            </ng-container>
+        </div>
     </div>
 </div>

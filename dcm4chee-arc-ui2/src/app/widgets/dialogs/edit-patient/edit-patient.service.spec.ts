@@ -45,7 +45,7 @@ describe('EditPatientService', () => {
         firstLevelCode:"00100024"
       },
       TypeofPatientID:{
-        text:"typeOfPID",
+        text:"TEXT",
         modelPath:"00100022.Value[0]",
         firstLevelCode:"00100022"
       }

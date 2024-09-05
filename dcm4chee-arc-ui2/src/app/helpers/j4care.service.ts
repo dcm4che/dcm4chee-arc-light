@@ -485,6 +485,29 @@ export class j4care {
         }
     }
 
+    /*
+    *Removes the last empty elements until it finds one that is not empty
+    *Example:
+    * input: ['test', 'selam', '', 'hb', '', '']
+    * output:["test", "selam", "", "hb"]
+    * */
+    static removeLastEmptyStringsFromArray(arr:string[]) {
+        try{
+            let emergencyBrake = arr.length;
+            while (arr.length > 0 && emergencyBrake > 0) {
+                if (!arr[arr.length - 1] || arr[arr.length - 1] === '') {
+                    arr.splice(arr.length - 1, 1);
+                } else {
+                    break;
+                }
+                emergencyBrake--;
+            }
+            return arr;
+        }catch (e) {
+            return arr;
+        }
+    };
+
     static isAtLeastOneElementOfArrayInArray(firstArray:string[],secondArray:string[]){
         try{
             return firstArray.filter((el1:string) => secondArray.filter(el2 => el1===el2).length > 0).length > 0;
