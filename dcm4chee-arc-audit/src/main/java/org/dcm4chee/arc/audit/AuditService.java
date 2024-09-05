@@ -222,7 +222,7 @@ public class AuditService {
             if (schedulerDeletedExpiredStudies) {
                 studyRejected.add(new AuditInfoBuilder.Builder()
                                         .callingUserID(device.getDeviceName())
-                                        .studyUIDAccNumDate(ctx.getAttributes(), arcDev)
+                                        .addAttrs(ctx.getAttributes(), arcDev)
                                         .pIDAndName(ctx.getAttributes(), arcDev)
                                         .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
                                         .warning(ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning())
@@ -246,7 +246,7 @@ public class AuditService {
                                     .callingUserID(callingUserID)
                                     .callingHost(storeSession.getRemoteHostName())
                                     .calledUserID(calledUserID)
-                                    .studyUIDAccNumDate(ctx.getAttributes(), arcDev)
+                                    .addAttrs(ctx.getAttributes(), arcDev)
                                     .pIDAndName(ctx.getAttributes(), arcDev)
                                     .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
                                     .warning(ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning())
@@ -273,7 +273,7 @@ public class AuditService {
                                             .callingUserID(storeSession.getCallingAET())
                                             .calledUserID(storeSession.getCalledAET())
                                             .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
-                                            .studyUIDAccNumDate(prevStudy.getAttributes(), arcDev)
+                                            .addAttrs(prevStudy.getAttributes(), arcDev)
                                             .pIDAndName(prevStudy.getPatient().getAttributes(), arcDev)
                                             .toAuditInfo());
             prevInstancesDeleted.add(new AuditInfoBuilder.Builder()
@@ -297,7 +297,7 @@ public class AuditService {
             if (httpServletRequestInfo == null) {
                 studyDeleted.add(new AuditInfoBuilder.Builder()
                                                 .callingUserID(device.getDeviceName())
-                                                .studyUIDAccNumDate(study.getAttributes(), arcDev)
+                                                .addAttrs(study.getAttributes(), arcDev)
                                                 .pIDAndName(study.getPatient().getAttributes(), arcDev)
                                                 .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
                                                 .toAuditInfo());
@@ -310,7 +310,7 @@ public class AuditService {
                     .callingUserID(httpServletRequestInfo.requesterUserID)
                     .callingHost(httpServletRequestInfo.requesterHost)
                     .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
-                    .studyUIDAccNumDate(study.getAttributes(), arcDev)
+                    .addAttrs(study.getAttributes(), arcDev)
                     .pIDAndName(study.getPatient().getAttributes(), arcDev)
                     .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
                     .toAuditInfo());
@@ -348,7 +348,7 @@ public class AuditService {
                                         .destNapID(rejectionNoteSent.getRemoteAE().getConnections().get(0).getHostname())
                                         .outcome(rejectionNoteSent.getErrorComment())
                                         .warning(codeItem.getString(Tag.CodeMeaning))
-                                        .studyUIDAccNumDate(attrs, arcDev)
+                                        .addAttrs(attrs, arcDev)
                                         .pIDAndName(attrs, arcDev)
                                         .toAuditInfo());
             studyRejectionNoteSent.addAll(sopInstancesRejectionNote(rejectionNoteSent.getRejectionNote()));
@@ -476,7 +476,7 @@ public class AuditService {
                                             .cMoveOriginator(ctx.getRemoteAET())
                                             .calledHost(ctx.getRemoteHostName())
                                             .destUserID(ctx.getDestinationAET())
-                                            .studyUIDAccNumDate(ctx.getKeys(), getArchiveDevice())
+                                            .addAttrs(ctx.getKeys(), getArchiveDevice())
                                             .warning(warning)
                                             .outcome(outcome)
                                             .errorCode(Integer.parseInt(ctx.getResponse().getString(Tag.Status)))
@@ -493,7 +493,7 @@ public class AuditService {
                                             .calledUserID(httpServletRequestInfo.requestURI)
                                             .queryString(httpServletRequestInfo.queryString)
                                             .destUserID(ctx.getDestinationAET())
-                                            .studyUIDAccNumDate(ctx.getKeys(), getArchiveDevice())
+                                            .addAttrs(ctx.getKeys(), getArchiveDevice())
                                             .warning(warning)
                                             .outcome(outcome)
                                             .errorCode(Integer.parseInt(ctx.getResponse().getString(Tag.Status)))
@@ -577,7 +577,7 @@ public class AuditService {
         try {
             AuditInfo auditInfo = new AuditInfoBuilder.Builder()
                                         .callingUserID(device.getDeviceName())
-                                        .studyUIDAccNumDate(event.getStudy().getAttributes(), getArchiveDevice())
+                                        .addAttrs(event.getStudy().getAttributes(), getArchiveDevice())
                                         .pIDAndName(event.getStudy().getPatient().getAttributes(), getArchiveDevice())
                                         .toAuditInfo();
             writeSpoolFile(AuditUtils.EventType.STUDY_READ.name(), false, auditInfo);
@@ -792,7 +792,7 @@ public class AuditService {
                                     .callingHost(storeSession.getRemoteHostName())
                                     .callingUserID(storeSession.getCallingAET())
                                     .calledUserID(storeSession.getCalledAET())
-                                    .studyUIDAccNumDate(attrs, arcDev)
+                                    .addAttrs(attrs, arcDev)
                                     .pIDAndName(attrs, arcDev)
                                     .toAuditInfo();
         String fileName = eventType.name()
@@ -814,7 +814,7 @@ public class AuditService {
                                     .callingHost(storeSession.getRemoteHostName())
                                     .callingUserID(httpServletRequestInfo.requesterUserID)
                                     .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
-                                    .studyUIDAccNumDate(attrs, arcDev)
+                                    .addAttrs(attrs, arcDev)
                                     .pIDAndName(attrs, arcDev)
                                     .toAuditInfo();
         String fileName = eventType.name()
@@ -836,7 +836,7 @@ public class AuditService {
                                     .callingHost(storeSession.getRemoteHostName())
                                     .callingUserID(msh.getSendingApplicationWithFacility())
                                     .calledUserID(msh.getReceivingApplicationWithFacility())
-                                    .studyUIDAccNumDate(attrs, arcDev)
+                                    .addAttrs(attrs, arcDev)
                                     .pIDAndName(attrs, arcDev)
                                     .toAuditInfo();
         String fileName = eventType.name()
@@ -859,7 +859,7 @@ public class AuditService {
                                     ? new AuditInfoBuilder.Builder()
                                         .callingUserID(device.getDeviceName())
                                         .calledUserID(storeSession.getCalledAET())
-                                        .studyUIDAccNumDate(attrs, arcDev)
+                                        .addAttrs(attrs, arcDev)
                                         .pIDAndName(attrs, arcDev)
                                         .impaxEndpoint(storeSession.getImpaxReportEndpoint())
                                         .toAuditInfo()
@@ -867,7 +867,7 @@ public class AuditService {
                                         .callingHost(storeSession.getRemoteHostName())
                                         .callingUserID(httpServletRequestInfo.requesterUserID)
                                         .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
-                                        .studyUIDAccNumDate(attrs, arcDev)
+                                        .addAttrs(attrs, arcDev)
                                         .pIDAndName(attrs, arcDev)
                                         .impaxEndpoint(storeSession.getImpaxReportEndpoint())
                                         .toAuditInfo();
@@ -894,7 +894,7 @@ public class AuditService {
         AuditInfo auditInfoPatientMismatch = httpServletRequestInfo == null
                                                 ? new AuditInfoBuilder.Builder()
                                                     .callingUserID(device.getDeviceName())
-                                                    .studyUIDAccNumDate(attrs, arcDev)
+                                                    .addAttrs(attrs, arcDev)
                                                     .pIDAndName(attrs, arcDev)
                                                     .impaxEndpoint(storeSession.getImpaxReportEndpoint())
                                                     .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
@@ -903,7 +903,7 @@ public class AuditService {
                                                     .callingUserID(httpServletRequestInfo.requesterUserID)
                                                     .callingHost(storeSession.getRemoteHostName())
                                                     .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
-                                                    .studyUIDAccNumDate(attrs, arcDev)
+                                                    .addAttrs(attrs, arcDev)
                                                     .pIDAndName(attrs, arcDev)
                                                     .impaxEndpoint(storeSession.getImpaxReportEndpoint())
                                                     .patMismatchCode(ctx.getImpaxReportPatientMismatch().toString())
@@ -932,7 +932,7 @@ public class AuditService {
                                 .callingUserID(httpServletRequestInfo.requesterUserID)
                                 .callingHost(httpServletRequestInfo.requesterHost)
                                 .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
-                                .studyUIDAccNumDate(attrs, getArchiveDevice())
+                                .addAttrs(attrs, getArchiveDevice())
                                 .pIDAndName(attrs, getArchiveDevice())
                                 .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
                                 .toAuditInfo();
@@ -1146,7 +1146,7 @@ public class AuditService {
                                     .callingUserID(httpServletRequestInfo.requesterUserID)
                                     .callingHost(ctx.getRemoteHostName())
                                     .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
-                                    .studyUIDAccNumDate((study == null ? ctx.getAttributes() : study.getAttributes()), arcDev)
+                                    .addAttrs((study == null ? ctx.getAttributes() : study.getAttributes()), arcDev)
                                     .pIDAndName((patient == null ? ctx.getAttributes() : patient.getAttributes()), arcDev)
                                     .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
                                     .toAuditInfo();
@@ -1165,7 +1165,7 @@ public class AuditService {
                                     .callingUserID(httpServletRequestInfo.requesterUserID)
                                     .callingHost(ctx.getRemoteHostName())
                                     .calledUserID(httpServletRequestInfo.requestURIWithQueryStr())
-                                    .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
+                                    .addAttrs(ctx.getStudy().getAttributes(), arcDev)
                                     .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
                                     .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
                                     .expirationDate(ctx.getExpirationDate().toString())
@@ -1180,7 +1180,7 @@ public class AuditService {
                                     .callingUserID(msh.getSendingApplicationWithFacility())
                                     .callingHost(ctx.getRemoteHostName())
                                     .calledUserID(msh.getReceivingApplicationWithFacility())
-                                    .studyUIDAccNumDate(ctx.getStudy().getAttributes(), arcDev)
+                                    .addAttrs(ctx.getStudy().getAttributes(), arcDev)
                                     .pIDAndName(ctx.getPatient().getAttributes(), arcDev)
                                     .outcome(ctx.getException() == null ? null : ctx.getException().getMessage())
                                     .expirationDate(ctx.getExpirationDate().toString())

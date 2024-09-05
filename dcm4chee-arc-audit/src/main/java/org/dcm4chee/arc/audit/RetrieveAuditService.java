@@ -189,7 +189,7 @@ class RetrieveAuditService extends AuditService {
     private static AuditInfo instanceAuditInfo(InstanceLocations il, ArchiveDeviceExtension arcDev) {
         Attributes attrs = il.getAttributes();
         return new AuditInfoBuilder.Builder()
-                .studyUIDAccNumDate(attrs, arcDev)
+                .addAttrs(attrs, arcDev)
                 .sopCUID(attrs.getString(Tag.SOPClassUID))
                 .sopIUID(attrs.getString(Tag.SOPInstanceUID))
                 .pIDAndName(attrs, arcDev)
@@ -317,7 +317,7 @@ class RetrieveAuditService extends AuditService {
                 studyInstanceInfo.put(studyInstanceUID, instanceInfo);
             }
             instanceInfo.addSOPInstance(rInfo);
-            instanceInfo.addStudyDate(rInfo);
+            instanceInfo.addAttrs(rInfo);
             studyInstanceInfo.put(studyInstanceUID, instanceInfo);
         }
         return studyInstanceInfo;
@@ -425,8 +425,14 @@ class RetrieveAuditService extends AuditService {
         study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
         study.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
         study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
-        study.getParticipantObjectDetail()
-                .add(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
+        study.getParticipantObjectDetail().add(
+                AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
+        study.getParticipantObjectDetail().add(
+                AuditMessages.createParticipantObjectDetail("StudyDescription", auditInfo.getField(AuditInfo.STUDY_DESC)));
+        study.getParticipantObjectDetail().add(
+                AuditMessages.createParticipantObjectDetail("SeriesDescription", auditInfo.getField(AuditInfo.SERIES_DESC)));
+        study.getParticipantObjectDetail().add(
+                AuditMessages.createParticipantObjectDetail("Modality", auditInfo.getField(AuditInfo.MODALITY)));
         study.setParticipantObjectDescription(studyParticipantObjDesc(instanceInfo, showSOPIUIDs));
         return study;
     }

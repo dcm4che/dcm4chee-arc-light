@@ -53,7 +53,10 @@ class InstanceInfo {
     private HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
     private HashSet<String> mpps = new HashSet<>();
     private HashSet<String> acc = new HashSet<>();
-    private HashSet<String> studyDates= new HashSet<>();
+    private HashSet<String> studyDates = new HashSet<>();
+    private HashSet<String> studyDesc = new HashSet<>();
+    private HashSet<String> modality = new HashSet<>();
+    private HashSet<String> seriesDesc = new HashSet<>();
     HashSet<String> outcomes = new HashSet<>();
     HashSet<AuditMessages.EventTypeCode> errorCodes = new HashSet<>();
 
@@ -100,6 +103,21 @@ class InstanceInfo {
         String studyDt = info.getField(AuditInfo.STUDY_DATE);
         if (studyDt != null)
             studyDates.add(studyDt);
+    }
+
+    void addAttrs(AuditInfo info) {
+        addFieldVal(info, AuditInfo.STUDY_DATE, studyDates);
+        addFieldVal(info, AuditInfo.STUDY_DESC, studyDesc);
+        addFieldVal(info, AuditInfo.SERIES_DESC, seriesDesc);
+        addFieldVal(info, AuditInfo.MODALITY, modality);
+    }
+
+    private void addFieldVal(AuditInfo info, int field, HashSet<String> values) {
+        String fieldVal = info.getField(field);
+        if (fieldVal == null)
+            return;
+
+        values.add(fieldVal);
     }
 
     public HashSet<String> getMpps() {

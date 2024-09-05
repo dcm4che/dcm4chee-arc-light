@@ -104,8 +104,14 @@ class DeletionAuditService extends AuditService {
         study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
         study.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
         study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
-        study.getParticipantObjectDetail()
-                .add(AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
+        study.getParticipantObjectDetail().add(
+                AuditMessages.createParticipantObjectDetail("StudyDate", auditInfo.getField(AuditInfo.STUDY_DATE)));
+        study.getParticipantObjectDetail().add(
+                AuditMessages.createParticipantObjectDetail("StudyDescription", auditInfo.getField(AuditInfo.STUDY_DESC)));
+        study.getParticipantObjectDetail().add(
+                AuditMessages.createParticipantObjectDetail("SeriesDescription", auditInfo.getField(AuditInfo.SERIES_DESC)));
+        study.getParticipantObjectDetail().add(
+                AuditMessages.createParticipantObjectDetail("Modality", auditInfo.getField(AuditInfo.MODALITY)));
         InstanceInfo instanceInfo = instanceInfo(auditInfo, reader);
         boolean showSOPIUIDs = auditInfo.getField(AuditInfo.OUTCOME) != null || auditLogger.isIncludeInstanceUID();
         study.setParticipantObjectDescription(studyParticipantObjDesc(instanceInfo, showSOPIUIDs));

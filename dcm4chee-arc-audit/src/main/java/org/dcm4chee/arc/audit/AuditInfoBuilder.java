@@ -102,6 +102,9 @@ class AuditInfoBuilder {
     final String fhirWebAppName;
     final String archiveUserID;
     final String qrLevel;
+    final String studyDesc;
+    final String seriesDesc;
+    final String modality;
 
     static class Builder {
         private String callingHost;
@@ -147,6 +150,9 @@ class AuditInfoBuilder {
         private String fhirWebAppName;
         private String archiveUserID;
         private String qrLevel;
+        private String studyDesc;
+        private String seriesDesc;
+        private String modality;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -199,6 +205,18 @@ class AuditInfoBuilder {
                 studyUID = attrs.getString(Tag.StudyInstanceUID);
                 accNum = attrs.getString(Tag.AccessionNumber);
                 studyDate = attrs.getString(Tag.StudyDate);
+            }
+            return this;
+        }
+        Builder addAttrs(Attributes attrs, ArchiveDeviceExtension arcDev) {
+            studyUID = arcDev.auditUnknownStudyInstanceUID();
+            if (attrs != null) {
+                studyUID = attrs.getString(Tag.StudyInstanceUID);
+                accNum = attrs.getString(Tag.AccessionNumber);
+                studyDate = attrs.getString(Tag.StudyDate);
+                studyDesc = attrs.getString(Tag.StudyDescription);
+                seriesDesc = attrs.getString(Tag.SeriesDescription);
+                modality = attrs.getString(Tag.Modality);
             }
             return this;
         }
@@ -405,6 +423,9 @@ class AuditInfoBuilder {
         fhirWebAppName = builder.fhirWebAppName;
         archiveUserID = builder.archiveUserID;
         qrLevel = builder.qrLevel;
+        studyDesc = builder.studyDesc;
+        modality = builder.modality;
+        seriesDesc = builder.seriesDesc;
     }
 
     private static String idWithIssuer(ArchiveDeviceExtension arcDev, String cx) {

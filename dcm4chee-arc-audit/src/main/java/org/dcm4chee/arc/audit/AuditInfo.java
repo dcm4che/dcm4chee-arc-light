@@ -44,9 +44,9 @@ import org.dcm4che3.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -100,6 +100,9 @@ class AuditInfo {
     static final int FHIR_WEB_APP_NAME = 40;
     static final int ARCHIVE_USER_ID = 41;
     static final int QR_LEVEL = 42;
+    static final int STUDY_DESC = 43;
+    static final int SERIES_DESC = 44;
+    static final int MODALITY = 45;
 
     private final String[] fields;
 
@@ -147,7 +150,10 @@ class AuditInfo {
                 encode(i.status),
                 encode(i.fhirWebAppName),
                 encode(i.archiveUserID),
-                encode(i.qrLevel)
+                encode(i.qrLevel),
+                encode(i.studyDesc),
+                encode(i.seriesDesc),
+                encode(i.modality)
         };
     }
 
@@ -163,24 +169,14 @@ class AuditInfo {
         if (val == null)
             return null;
 
-        try {
-            return URLDecoder.decode(val, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOG.info("URL decoding of value {} failed", val);
-            return val;
-        }
+        return URLDecoder.decode(val, StandardCharsets.UTF_8);
     }
 
     private static String encode(String val) {
         if (val == null)
             return null;
 
-        try {
-            return URLEncoder.encode(val, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOG.info("URL encoding of value {} failed", val);
-            return val;
-        }
+        return URLEncoder.encode(val, StandardCharsets.UTF_8);
     }
 
     @Override
