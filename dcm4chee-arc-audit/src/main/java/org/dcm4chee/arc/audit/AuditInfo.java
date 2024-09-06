@@ -41,8 +41,6 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -54,9 +52,6 @@ import java.nio.charset.StandardCharsets;
  */
 
 class AuditInfo {
-
-    private final static Logger LOG = LoggerFactory.getLogger(AuditInfo.class);
-
     static final int CALLING_HOST = 0;
     static final int CALLING_USERID = 1;
     static final int CALLED_USERID = 2;

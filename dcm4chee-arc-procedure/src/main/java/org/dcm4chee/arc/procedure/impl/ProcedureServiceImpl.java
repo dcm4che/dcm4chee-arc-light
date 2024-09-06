@@ -303,8 +303,6 @@ public class ProcedureServiceImpl implements ProcedureService {
         for (MWLItem.IDs spsID : spsIDs) {
             ctx.setSpsID(spsID.scheduledProcedureStepID);
             ctx.setStudyInstanceUID(spsID.studyInstanceUID);
-            ctx.setEventActionCode(null);
-            ctx.setException(null);
             updateMWLStatus(ctx);
         }
     }

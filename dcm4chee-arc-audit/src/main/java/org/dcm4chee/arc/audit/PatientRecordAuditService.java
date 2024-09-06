@@ -44,6 +44,7 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.audit.AuditLogger;
@@ -75,13 +76,6 @@ import java.util.List;
 class PatientRecordAuditService extends AuditService {
 
     private final static Logger LOG = LoggerFactory.getLogger(PatientRecordAuditService.class);
-
-    private final static String PID_SEGMENT = "PID";
-    private final static int PID_SEGMENT_PATIENT_ID = 3;
-    private final static int PID_SEGMENT_PATIENT_NAME = 5;
-    private final static String MRG_SEGMENT = "MRG";
-    private final static int MRG_SEGMENT_PATIENT_ID = 1;
-    private final static int MRG_SEGMENT_PATIENT_NAME = 7;
 
     private static String callingUserID(PatientMgtContext ctx, ArchiveDeviceExtension arcDev) {
         HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
@@ -143,11 +137,12 @@ class PatientRecordAuditService extends AuditService {
                     .toAuditInfo();
     }
 
-    static AuditInfo patientAuditInfoHL7(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+    static AuditInfo patientAuditInfoHL7ForHL7Incoming(
+            HL7ConnectionEvent hl7ConnEvent, HL7Message hl7Message, ArchiveDeviceExtension arcDev) {
+        UnparsedHL7Message unparsedHL7Message = hl7ConnEvent.getHL7Message();
         Connection connection = hl7ConnEvent.getConnection();
-        HL7Segment msh = hl7Message.msh();
-        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), PID_SEGMENT);
+        HL7Segment msh = unparsedHL7Message.msh();
+        HL7Segment pid = hl7Message.getSegment(AuditUtils.PID_SEGMENT);
         return new AuditInfoBuilder.Builder()
                 .callingUserID(msh.getSendingApplicationWithFacility())
                 .callingHost(connection == null
@@ -155,16 +150,17 @@ class PatientRecordAuditService extends AuditService {
                                 : connection.getHostname())
                 .calledUserID(msh.getReceivingApplicationWithFacility())
                 .outcome(hl7ConnEvent.getException() == null ? null : hl7ConnEvent.getException().getMessage())
-                .patID(pid.getField(PID_SEGMENT_PATIENT_ID, null), arcDev)
-                .patName(pid.getField(PID_SEGMENT_PATIENT_NAME, null), arcDev)
+                .patID(pid.getField(AuditUtils.PID_SEGMENT_PATIENT_ID, null), arcDev)
+                .patName(pid.getField(AuditUtils.PID_SEGMENT_PATIENT_NAME, null), arcDev)
                 .toAuditInfo();
     }
 
-    static AuditInfo prevPatientAuditInfoHL7(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+    static AuditInfo prevPatientAuditInfoHL7ForHL7Incoming(
+            HL7ConnectionEvent hl7ConnEvent, HL7Message hl7Message, ArchiveDeviceExtension arcDev) {
+        UnparsedHL7Message unparsedHL7Message = hl7ConnEvent.getHL7Message();
         Connection connection = hl7ConnEvent.getConnection();
-        HL7Segment msh = hl7Message.msh();
-        HL7Segment mrg = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), MRG_SEGMENT);
+        HL7Segment msh = unparsedHL7Message.msh();
+        HL7Segment mrg = hl7Message.getSegment(AuditUtils.MRG_SEGMENT);
         return new AuditInfoBuilder.Builder()
                 .callingUserID(msh.getSendingApplicationWithFacility())
                 .callingHost(connection == null
@@ -172,12 +168,12 @@ class PatientRecordAuditService extends AuditService {
                                 : connection.getHostname())
                 .calledUserID(msh.getReceivingApplicationWithFacility())
                 .outcome(hl7ConnEvent.getException() == null ? null : hl7ConnEvent.getException().getMessage())
-                .patID(mrg.getField(MRG_SEGMENT_PATIENT_ID, null), arcDev)
-                .patName(mrg.getField(MRG_SEGMENT_PATIENT_NAME, null), arcDev)
+                .patID(mrg.getField(AuditUtils.MRG_SEGMENT_PATIENT_ID, null), arcDev)
+                .patName(mrg.getField(AuditUtils.MRG_SEGMENT_PATIENT_NAME, null), arcDev)
                 .toAuditInfo();
     }
 
-    //patient ADTs outgoing on : forwarding / notify HL7 receivers on PAM RS / HL7 RS
+    //patient ADTs outgoing on : HL7 forwarding / notify HL7 receivers on PAM RS / HL7 RS / notify HL7 receivers on Study or MPPS trigger / DCM2HL7Exporter
 
     private static String callingUserIDOutgoingHL7(HL7ConnectionEvent hl7ConnEvent) {
         UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
@@ -228,33 +224,35 @@ class PatientRecordAuditService extends AuditService {
         return msh.getReceivingApplicationWithFacility();
     }
 
-    static AuditInfo patientAuditInfoHL7Outgoing(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = hl7Message.msh();
-        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), PID_SEGMENT);
+    static AuditInfo patientAuditInfoForHL7Outgoing(
+            HL7ConnectionEvent hl7ConnEvent, HL7Message hl7Message, ArchiveDeviceExtension arcDev) {
+        UnparsedHL7Message unparsedHL7Message = hl7ConnEvent.getHL7Message();
+        HL7Segment msh = unparsedHL7Message.msh();
+        HL7Segment pid = hl7Message.getSegment(AuditUtils.PID_SEGMENT);
         return new AuditInfoBuilder.Builder()
                 .callingUserID(callingUserIDOutgoingHL7(hl7ConnEvent))
                 .callingHost(callingHostOutgoingHL7(hl7ConnEvent))
                 .calledUserID(calledUserIDOutgoingHL7(hl7ConnEvent))
                 .outcome(hl7ConnEvent.getException() == null ? null : hl7ConnEvent.getException().getMessage())
-                .patID(pid.getField(PID_SEGMENT_PATIENT_ID, null), arcDev)
-                .patName(pid.getField(PID_SEGMENT_PATIENT_NAME, null), arcDev)
+                .patID(pid.getField(AuditUtils.PID_SEGMENT_PATIENT_ID, null), arcDev)
+                .patName(pid.getField(AuditUtils.PID_SEGMENT_PATIENT_NAME, null), arcDev)
                 .outgoingHL7Sender(msh.getSendingApplicationWithFacility())
                 .outgoingHL7Receiver(msh.getReceivingApplicationWithFacility())
                 .toAuditInfo();
     }
 
-    static AuditInfo prevPatientAuditInfoHL7Outgoing(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = hl7Message.msh();
-        HL7Segment mrg = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), MRG_SEGMENT);
+    static AuditInfo prevPatientAuditInfoForHL7Outgoing(
+            HL7ConnectionEvent hl7ConnEvent, HL7Message hl7Message, ArchiveDeviceExtension arcDev) {
+        UnparsedHL7Message unparsedHL7Message = hl7ConnEvent.getHL7Message();
+        HL7Segment msh = unparsedHL7Message.msh();
+        HL7Segment mrg = hl7Message.getSegment(AuditUtils.MRG_SEGMENT);
         return new AuditInfoBuilder.Builder()
                 .callingUserID(callingUserIDOutgoingHL7(hl7ConnEvent))
                 .callingHost(callingHostOutgoingHL7(hl7ConnEvent))
                 .calledUserID(calledUserIDOutgoingHL7(hl7ConnEvent))
                 .outcome(hl7ConnEvent.getException() == null ? null : hl7ConnEvent.getException().getMessage())
-                .patID(mrg.getField(MRG_SEGMENT_PATIENT_ID, null), arcDev)
-                .patName(mrg.getField(MRG_SEGMENT_PATIENT_NAME, null), arcDev)
+                .patID(mrg.getField(AuditUtils.MRG_SEGMENT_PATIENT_ID, null), arcDev)
+                .patName(mrg.getField(AuditUtils.MRG_SEGMENT_PATIENT_NAME, null), arcDev)
                 .outgoingHL7Sender(msh.getSendingApplicationWithFacility())
                 .outgoingHL7Receiver(msh.getReceivingApplicationWithFacility())
                 .toAuditInfo();
@@ -360,16 +358,17 @@ class PatientRecordAuditService extends AuditService {
     }
 
     private static void hl7ParticipantObjectDetail(List<ParticipantObjectDetail> detail, byte[] data) {
-        if (data.length > 0) {
-            HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
-            String messageType = msh.getMessageType();
-            String messageControlID = msh.getMessageControlID();
-            detail.add(hl7ParticipantObjectDetail("HL7v2 Message", data));
-            if (messageType != null)
-                detail.add(hl7ParticipantObjectDetail("MSH-9", messageType.getBytes()));
-            if (messageControlID != null)
-                detail.add(hl7ParticipantObjectDetail("MSH-10", messageControlID.getBytes()));
-        }
+        if (data.length <= 0)
+            return;
+
+        HL7Segment msh = HL7Segment.parseMSH(data, data.length, new ParsePosition(0));
+        String messageType = msh.getMessageType();
+        String messageControlID = msh.getMessageControlID();
+        detail.add(hl7ParticipantObjectDetail("HL7v2 Message", data));
+        if (messageType != null)
+            detail.add(hl7ParticipantObjectDetail("MSH-9", messageType.getBytes()));
+        if (messageControlID != null)
+            detail.add(hl7ParticipantObjectDetail("MSH-10", messageControlID.getBytes()));
     }
 
     private static ParticipantObjectDetail hl7ParticipantObjectDetail(String key, byte[] val) {

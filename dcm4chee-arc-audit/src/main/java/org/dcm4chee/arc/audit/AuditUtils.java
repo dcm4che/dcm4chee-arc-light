@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
@@ -56,6 +57,7 @@ import org.dcm4chee.arc.event.TaskOperation;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -78,9 +80,29 @@ class AuditUtils {
     final static String CREATE_PATIENT = "ADT^A28";
     final static String MERGE_PATIENTS = "ADT^A40";
     final static String CHANGE_PATIENT_ID = "ADT^A47";
+    final static String PID_SEGMENT = "PID";
+    final static int PID_SEGMENT_PATIENT_ID = 3;
+    final static int PID_SEGMENT_PATIENT_NAME = 5;
+    final static String ORC_SEGMENT = "ORC";
+    final static int ORC_SEGMENT_ORDER_CONTROL = 1;
+    final static int ORC_SEGMENT_ORDER_STATUS = 5;
+    final static String OBR_SEGMENT = "OBR";
+    final static int OBR_SEGMENT_ACCESSION_NO = 18;
+    final static int OBR_SEGMENT_REQ_PROC_ID = 19;
+    final static String ZDS_SEGMENT = "ZDS";
+    final static int ZDS_SEGMENT_STUDY_IUID = 1;
+    final static String IPC_SEGMENT = "IPC";
+    final static int IPC_SEGMENT_ACCESSION_NO = 1;
+    final static int IPC_SEGMENT_REQ_PROC_ID = 2;
+    final static int IPC_SEGMENT_STUDY_IUID = 3;
+    final static String MRG_SEGMENT = "MRG";
+    final static int MRG_SEGMENT_PATIENT_ID = 1;
+    final static int MRG_SEGMENT_PATIENT_NAME = 7;
     final static String PDQ_DICOM = "pdq-dicom";
     final static String PDQ_HL7 = "pdq-hl7";
     final static String PDQ_FHIR = "pdq-fhir";
+    final static String[] ORDER_MESSAGES = new String[]{"ORM^O01", "OMG^O19", "OMI^O23"};
+    final static String[] SPS_SCHEDULED = new String[]{"NW_SC", "NW_IP", "XO_SC"};
 
     enum EventClass {
         QUERY,
@@ -165,9 +187,9 @@ class AuditUtils {
                 null, null, null),
 
         PROC_STD_C(EventClass.PROCEDURE, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
-                null, null, null),
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
         PROC_STD_U(EventClass.PROCEDURE, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
-                 null, null, null),
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
         PROC_STD_R(EventClass.PROCEDURE, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
                 null, null, null),
         PROC_STD_D(EventClass.PROCEDURE, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
@@ -312,6 +334,20 @@ class AuditUtils {
             return PAT_UPDATE;
         }
 
+        static EventType forProcedure(ProcedureContext ctx) {
+            String eventActionCode = ctx.getEventActionCode();
+            HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpRequest();
+            return eventActionCode == null
+                    ? httpServletRequestInfo == null
+                        ? null
+                        : PROC_STD_U
+                    : eventActionCode.equals(AuditMessages.EventActionCode.Create)
+                        ? PROC_STD_C
+                        : eventActionCode.equals(AuditMessages.EventActionCode.Update)
+                            ? PROC_STD_U
+                            : PROC_STD_D;
+        }
+
         static EventType forProcedure(String eventActionCode) {
             return eventActionCode == null
                     ? PROC_STD_R
@@ -322,17 +358,37 @@ class AuditUtils {
                             : PROC_STD_D;
         }
 
-        static EventType forHL7IncomingOrderMsg(UnparsedHL7Message hl7ResponseMessage) {
-            if (hl7ResponseMessage instanceof ArchiveHL7Message) {
-                ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
-                String procRecEventActionCode = archiveHL7Message.getProcRecEventActionCode();
-                return procRecEventActionCode == null
-                        ? PROC_STD_R
-                        : procRecEventActionCode.equals(AuditMessages.EventActionCode.Create)
-                            ? PROC_STD_C
-                            : PROC_STD_U;
-            }
-            return PROC_STD_R;
+        static EventType forHL7IncomingOrderMsg(HL7ConnectionEvent hl7ConnEvent) {
+            UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
+            if (hl7ResponseMessage instanceof ArchiveHL7Message)
+                return ((ArchiveHL7Message) hl7ResponseMessage).getProcRecEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? PROC_STD_C
+                        : PROC_STD_U;
+
+            //HL7 Exception in HL7 Connection Event != null
+            return PROC_STD_U;
+
+//            if (hl7ResponseMessage instanceof ArchiveHL7Message) {
+//                ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
+//                String procRecEventActionCode = archiveHL7Message.getProcRecEventActionCode();
+//                return procRecEventActionCode == null
+//                        ? PROC_STD_R
+//                        : procRecEventActionCode.equals(AuditMessages.EventActionCode.Create)
+//                            ? PROC_STD_C
+//                            : PROC_STD_U;
+//            }
+//            return PROC_STD_R;
+        }
+
+        static EventType forHL7OutgoingOrderMsg(HL7ConnectionEvent hl7ConnEvent) {
+            UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
+            HL7Segment orc = HL7AuditUtils.getHL7Segment(hl7Message, AuditUtils.ORC_SEGMENT);
+            String orderCtrlStatus = orc.getField(AuditUtils.ORC_SEGMENT_ORDER_CONTROL, null)
+                                        + "_"
+                                        + orc.getField(AuditUtils.ORC_SEGMENT_ORDER_STATUS, null);
+            return Arrays.asList(AuditUtils.SPS_SCHEDULED).contains(orderCtrlStatus)
+                    ? PROC_STD_C
+                    : PROC_STD_U;
         }
 
         static EventType forHL7OutgoingOrderMsg(String orderCtrlStatus,
