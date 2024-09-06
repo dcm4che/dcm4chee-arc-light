@@ -132,11 +132,11 @@
                 <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
                 <date-picker
                         *ngIf="mode === 'single'"
-                        [model]="toModel"
+                        [model]="singleDateModel"
                         [format]="'yyyyMMdd'"
                         i18n-placeholder="@@placeholder.date_formated" placeholder="Date (yyyymmdd)"
                         [returnAsDateType]="true"
-                        (onValueSet)="addEvent('toModel', $event)"
+                        (onValueSet)="addEvent('singleDateModel', $event)"
                 ></date-picker>
 <!--                <mat-form-field class="material_calendar single_datepicker"  *ngIf="mode === 'single'"  [floatLabel]="'auto'">
                     <input matInput

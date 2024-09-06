@@ -302,14 +302,14 @@ export class RangePickerComponent implements OnInit {
         this.showPicker = false;
     }
     today(){
-        this.model = j4care.convertDateToString(new Date());
+        //this.model = j4care.convertDateToString(new Date());
 /*        this.modelChange.emit(this.model);
         if(this.dateRange && this.splitDateRangeChanged){
             this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
         }
         this.showPicker = false;*/
         // this.filterChanged();
-        // this.singleDateModel =
+        this.singleDateModel = j4care.convertDateToString(new Date());
         this.mode = "single";
         this.setRange();
     }
