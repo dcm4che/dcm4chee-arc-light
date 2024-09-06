@@ -48,7 +48,6 @@ import {MatDialogRef} from "@angular/material/dialog";
         }
         .mat-mdc-dialog-content.mdc-dialog__content{
             float: left;
-            max-height: 20vh;
         }
         .edit_attribute_block{
             max-height: 32vh;
