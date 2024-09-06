@@ -29,6 +29,9 @@ import {MatDialogRef} from "@angular/material/dialog";
             width: 96%;
             min-height: 30px;
         }
+        .mdc-dialog__content{
+            float: left;
+        }
     `]
 })
 export class EditStudyComponent{

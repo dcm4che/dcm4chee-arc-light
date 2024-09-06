@@ -31,6 +31,8 @@ import {MatDialogRef} from "@angular/material/dialog";
         }
         .edit_attribute_button{
             margin-top: 15px;
+            overflow: auto;
+            max-height: 32vh;
         }
         input[type=checkbox]{
             clear: both;
@@ -43,6 +45,13 @@ import {MatDialogRef} from "@angular/material/dialog";
             vertical-align: middle;
             height: 26px;
             margin-top: 35px;
+        }
+        .mat-mdc-dialog-content.mdc-dialog__content{
+            float: left;
+            max-height: 20vh;
+        }
+        .edit_attribute_block{
+            max-height: 32vh;
         }
     `]
 })
