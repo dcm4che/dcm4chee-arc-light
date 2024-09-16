@@ -84,6 +84,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -100,6 +101,9 @@ import java.util.*;
 public class StudyMgtRS {
     private static final Logger LOG = LoggerFactory.getLogger(StudyMgtRS.class);
     private static final String SUPER_USER_ROLE = "super-user-role";
+    private static final String UPDATE_STUDY_CONFLICTING_UIDS_MSG = "[StudyUID={}] in request URL does not match [StudyUID={}] in request payload";
+    private static final String UPDATE_SERIES_CONFLICTING_UIDS_MSG = "[StudyUID={}, SeriesUID={}] in request URL do not match [StudyUID={}, SeriesUID={}] in request payload";
+    private static final String UPDATE_INSTANCE_CONFLICTING_UIDS_MSG = "[StudyUID={}, SeriesUID={}, SOPUID={}] in request URL do not match [StudyUID={}, SeriesUID={}, SOPUID={}] in request payload";
 
     @Inject
     private Device device;
@@ -192,16 +196,21 @@ public class StudyMgtRS {
             validateWebAppServiceClass();
 
         final Attributes attrs = toAttributes(in);
-        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
-        if (patientIDs.isEmpty() || !attrs.containsValue(Tag.StudyInstanceUID)
-                || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
-            return errResponse("Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload",
-                            Response.Status.BAD_REQUEST);
+        Set<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        Collection<IDWithIssuer> trustedPatientIDs = arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(patientIDs);
+        if (trustedPatientIDs.isEmpty())
+            return errResponse("Missing patient identifiers with trusted assigning authority in " + patientIDs,
+                    Response.Status.BAD_REQUEST);
+
+        if (!studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
+            return errResponse(MessageFormat.format(UPDATE_STUDY_CONFLICTING_UIDS_MSG, studyUID, attrs.getString(Tag.StudyInstanceUID)),
+                    Response.Status.BAD_REQUEST);
 
         try {
-            Patient patient = patientService.findPatient(patientIDs);
+            Patient patient = patientService.findPatient(trustedPatientIDs);
             if (patient == null)
-                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
+                return errResponse("Patient with patient identifiers " + trustedPatientIDs + " not found.",
+                        Response.Status.NOT_FOUND);
 
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
@@ -247,19 +256,25 @@ public class StudyMgtRS {
             validateWebAppServiceClass();
 
         final Attributes attrs = toAttributes(in);
-        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
-        if (patientIDs.isEmpty() || !attrs.containsValue(Tag.SeriesInstanceUID))
-            return errResponse("Missing patient identifier or Series Instance UID in request payload",
-                            Response.Status.BAD_REQUEST);
+        Set<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        Collection<IDWithIssuer> trustedPatientIDs = arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(patientIDs);
+        if (trustedPatientIDs.isEmpty())
+            return errResponse("Missing patient identifiers with trusted assigning authority in " + patientIDs,
+                    Response.Status.BAD_REQUEST);
 
-        if (!seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID)))
-            return errResponse("Series UID in request does not match Series UID in request payload",
-                            Response.Status.BAD_REQUEST);
+        if (!seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID))
+                || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
+            return errResponse(MessageFormat.format(UPDATE_SERIES_CONFLICTING_UIDS_MSG,
+                                                    studyUID, seriesUID,
+                                                    attrs.getString(Tag.StudyInstanceUID),
+                                                    attrs.getString(Tag.SeriesInstanceUID)),
+                    Response.Status.BAD_REQUEST);
 
         try {
-            Patient patient = patientService.findPatient(patientIDs);
+            Patient patient = patientService.findPatient(trustedPatientIDs);
             if (patient == null)
-                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
+                return errResponse("Patient with patient identifiers " + trustedPatientIDs + " not found.",
+                        Response.Status.NOT_FOUND);
 
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
@@ -308,19 +323,27 @@ public class StudyMgtRS {
             validateWebAppServiceClass();
 
         final Attributes attrs = toAttributes(in);
-        Collection<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
-        if (patientIDs.isEmpty() || !attrs.containsValue(Tag.SOPInstanceUID))
-            return errResponse("Missing patient identifier or SOP Instance UID in request payload",
+        Set<IDWithIssuer> patientIDs = IDWithIssuer.pidsOf(attrs);
+        Collection<IDWithIssuer> trustedPatientIDs = arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(patientIDs);
+        if (trustedPatientIDs.isEmpty())
+            return errResponse("Missing patient identifiers with trusted assigning authority in " + patientIDs,
                     Response.Status.BAD_REQUEST);
 
-        if (!sopUID.equals(attrs.getString(Tag.SOPInstanceUID)))
-            return errResponse("SOP Instance UID in request does not match SOP Instance UID in request payload",
+        if (!sopUID.equals(attrs.getString(Tag.SOPInstanceUID))
+                || !seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID))
+                || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
+            return errResponse(MessageFormat.format(UPDATE_INSTANCE_CONFLICTING_UIDS_MSG,
+                                                    studyUID, seriesUID, sopUID,
+                                                    attrs.getString(Tag.StudyInstanceUID),
+                                                    attrs.getString(Tag.SeriesInstanceUID),
+                                                    attrs.getString(Tag.SOPInstanceUID)),
                     Response.Status.BAD_REQUEST);
 
         try {
-            Patient patient = patientService.findPatient(patientIDs);
+            Patient patient = patientService.findPatient(trustedPatientIDs);
             if (patient == null)
-                return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
+                return errResponse("Patient with patient identifiers " + trustedPatientIDs + " not found.",
+                        Response.Status.NOT_FOUND);
 
             restoreInstances(studyUID, seriesUID, arcAE);
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(

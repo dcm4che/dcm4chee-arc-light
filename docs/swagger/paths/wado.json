@@ -120,7 +120,7 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Patient ID or Study Instance UID in request payload or Study UID in request does not match Study UID in request payload or Patient found using patient identifiers sent in request payload does not match with patient of study"
+          "description": "JSON request body not well formed or Missing patient identifiers with trusted assigning authority in patient identifiers in request payload or Study UID in request URL does not match Study UID in request payload or Patient found using identifiers in request payload does not match with patient associated with study"
         },
         "403": {
           "description": "Update study forbidden for already merged patients"
@@ -314,7 +314,7 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Patient ID or Series Instance UID in request body or Series UID in request does not match Series UID in request payload or Patient found using patient identifiers sent in request payload does not match with patient of series"
+          "description": "JSON request body not well formed or Missing patient identifiers with trusted assigning authority in patient identifiers in request payload or Study / Series UIDs in request URL does not match Study / Series UIDs in request payload or Patient found using identifiers in request payload does not match with patient associated with series of study"
         },
         "403": {
           "description": "Update series forbidden for already merged patients"
@@ -488,7 +488,7 @@
           }
         },
         "400": {
-          "description": "JSON request body not well formed or Missing Patient ID or SOP IUID in request body or SOP IUID in request does not match SOP IUID in request payload or Patient found using patient identifiers sent in request payload does not match with patient of instance"
+          "description": "JSON request body not well formed or Missing patient identifiers with trusted assigning authority in patient identifiers in request payload or Study / Series / SOP UIDs in request URL does not match Study / Series / SOP UIDs in request payload or Patient found using identifiers in request payload does not match with patient associated with instance of series of study"
         },
         "403": {
           "description": "Update instance forbidden for already merged patients"
