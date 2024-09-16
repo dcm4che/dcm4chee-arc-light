@@ -72,6 +72,8 @@ import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.rs.client.RSForward;
+import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyMissingException;
 import org.dcm4chee.arc.study.StudyService;
@@ -113,6 +115,9 @@ public class StudyMgtRS {
 
     @Inject
     private PatientService patientService;
+
+    @Inject
+    private StoreService storeService;
 
     @PathParam("AETitle")
     private String aet;
@@ -317,6 +322,7 @@ public class StudyMgtRS {
             if (patient == null)
                 return errResponse("Patient[id=" + patientIDs + "] does not exist.", Response.Status.NOT_FOUND);
 
+            restoreInstances(studyUID, seriesUID, arcAE);
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setPatient(patient);
@@ -344,6 +350,20 @@ public class StudyMgtRS {
             return e.getCause() instanceof PatientMismatchException
                     ? errResponse(e.getCause().getMessage(), Response.Status.BAD_REQUEST)
                     : errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void restoreInstances(String studyUID, String seriesUID, ArchiveAEExtension arcAE) {
+        try {
+            StoreSession session = storeService.newStoreSession(
+                    HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity(), aet, null);
+            int count = storeService.restoreInstances(
+                    session, studyUID, seriesUID, arcAE.purgeInstanceRecordsDelay(), null);
+            if (count > 0)
+                LOG.info("Restored {} Series[UID={}] of Study[UID={}]", count, seriesUID, studyUID);
+        } catch (IOException e) {
+            LOG.info("Failed to restore Instance records of Series[UID={}] of Study[UID={}]\n",
+                    studyUID, seriesUID, e);
         }
     }
 
