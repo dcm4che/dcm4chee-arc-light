@@ -185,6 +185,19 @@ public class UpdateStudyAccessMatchingRS {
     @Path("/studies/access/{accessControlID}")
     public Response updateStudyAccessControlID(
             @PathParam("accessControlID") String accessControlID) {
+        return updateMatchingAccessControlID(
+                "updateMatchingStudiesAccessControlID", QueryRetrieveLevel2.STUDY, accessControlID);
+    }
+
+    @POST
+    @Path("/series/access/{accessControlID}")
+    public Response updateSeriesAccessControlID(
+            @PathParam("accessControlID") String accessControlID) {
+        return updateMatchingAccessControlID(
+                "updateMatchingSeriesAccessControlID", QueryRetrieveLevel2.SERIES, accessControlID);
+    }
+
+    private Response updateMatchingAccessControlID(String method, QueryRetrieveLevel2 qrlevel, String accessControlID) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -195,7 +208,7 @@ public class UpdateStudyAccessMatchingRS {
             validateWebAppServiceClass();
 
         try {
-            QueryContext qCtx = queryContext(ae);
+            QueryContext qCtx = queryContext(method, qrlevel, ae);
             int count;
             String accessControlID1 = "null".equals(accessControlID) ? "*" : accessControlID;
             try (Query query = queryService.createQuery(qCtx)) {
@@ -205,11 +218,13 @@ public class UpdateStudyAccessMatchingRS {
                     return errResponse("Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters.",
                             Response.Status.REQUEST_ENTITY_TOO_LARGE);
 
-                UpdateStudyAccess updateStudyAccess = new UpdateStudyAccess(ae, query, accessControlID1);
+                UpdateStudyAccess updateStudyAccess = new UpdateStudyAccess(ae, query, accessControlID1, qrlevel);
                 runInTx.execute(updateStudyAccess);
                 count = updateStudyAccess.getCount();
             }
-            LOG.info("Access Control ID : {} successfully applied to {} studies.", accessControlID1, count);
+            LOG.info("Access Control ID : {} successfully applied to {} {}.",
+                    accessControlID1, count,
+                    qrlevel == QueryRetrieveLevel2.STUDY ? "studies" : "series");
             return Response.ok("{\"count\":" + count + '}').build();
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -225,10 +240,12 @@ public class UpdateStudyAccessMatchingRS {
         private final ApplicationEntity ae;
         private final Query query;
         private final String accessControlID;
+        private final QueryRetrieveLevel2 qrLevel;
 
-        UpdateStudyAccess(ApplicationEntity ae, Query query, String accessControlID) {
+        UpdateStudyAccess(ApplicationEntity ae, Query query, String accessControlID, QueryRetrieveLevel2 qrLevel) {
             this.ae = ae;
             this.query = query;
+            this.qrLevel = qrLevel;
             this.accessControlID = accessControlID;
         }
 
@@ -248,6 +265,8 @@ public class UpdateStudyAccessMatchingRS {
                     StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                             HttpServletRequestInfo.valueOf(request), ae);
                     ctx.setStudyInstanceUID(match.getString(Tag.StudyInstanceUID));
+                    if (qrLevel == QueryRetrieveLevel2.SERIES)
+                        ctx.setSeriesInstanceUID(match.getString(Tag.SeriesInstanceUID));
                     ctx.setAccessControlID(accessControlID);
                     ctx.setAttributes(match);
                     ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
@@ -264,10 +283,10 @@ public class UpdateStudyAccessMatchingRS {
         }
     }
 
-    private QueryContext queryContext(ApplicationEntity ae) {
+    private QueryContext queryContext(String method, QueryRetrieveLevel2 qrlevel, ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(
-                HttpServletRequestInfo.valueOf(request), "matchingStudyUpdateAccessControl", aet, ae, queryParam(ae));
-        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
+                HttpServletRequestInfo.valueOf(request), method, aet, ae, queryParam(ae));
+        ctx.setQueryRetrieveLevel(qrlevel);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
@@ -276,9 +295,6 @@ public class UpdateStudyAccessMatchingRS {
         else if (ctx.getArchiveAEExtension().filterByIssuerOfPatientID())
             ctx.setIssuerOfPatientID(Issuer.fromIssuerOfPatientID(keys));
         ctx.setQueryKeys(keys);
-        Attributes returnKeys = new Attributes(3);
-        returnKeys.setNull(Tag.StudyInstanceUID, VR.UI);
-        ctx.setReturnKeys(returnKeys);
         return ctx;
     }
 

@@ -70,6 +70,7 @@ public enum RSOperation {
     UpdateStudyExpirationDate,
     UpdateSeriesExpirationDate,
     UpdateStudyAccessControlID,
+    UpdateSeriesAccessControlID,
     MoveStudyToPatient,
     LinkStudyToMWLMerge,
     CreateMWL,

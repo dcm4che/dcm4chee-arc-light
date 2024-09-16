@@ -464,6 +464,15 @@ public class StudyServiceEJB {
     }
 
     public void updateAccessControlID(StudyMgtContext ctx) throws StudyMissingException {
+        if (ctx.getSeriesInstanceUID() == null) {
+            updateStudyAccessControlID(ctx);
+            return;
+        }
+
+        updateSeriesAccessControlID(ctx);
+    }
+
+    private void updateStudyAccessControlID(StudyMgtContext ctx) throws StudyMissingException {
         if (ctx.getAttributes() != null) {
             em.createNamedQuery(Study.UPDATE_ACCESS_CONTROL_ID)
                     .setParameter(1, ctx.getStudyInstanceUID())
@@ -478,8 +487,29 @@ public class StudyServiceEJB {
         ctx.setPatient(study.getPatient());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         study.setAccessControlID(ctx.getAccessControlID());
-        LOG.info("Access Control ID : {} successfully applied to study : {}",
+        LOG.info("Access Control ID : {} successfully applied to Study[UID={}]",
                 ctx.getAccessControlID(), ctx.getStudyInstanceUID());
+    }
+
+    private void updateSeriesAccessControlID(StudyMgtContext ctx) throws StudyMissingException {
+        if (ctx.getAttributes() != null) {
+            em.createNamedQuery(Series.UPDATE_ACCESS_CONTROL_ID)
+                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .setParameter(2, ctx.getSeriesInstanceUID())
+                    .setParameter(3, ctx.getAccessControlID())
+                    .executeUpdate();
+            return;
+        }
+
+        Series series = findSeries(ctx);
+        Study study = series.getStudy();
+        ctx.setStudy(study);
+        ctx.setAttributes(study.getAttributes());
+        ctx.setPatient(study.getPatient());
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        series.setAccessControlID(ctx.getAccessControlID());
+        LOG.info("Access Control ID : {} successfully applied to Series[UID={}] of Study[UID={}]",
+                ctx.getAccessControlID(), ctx.getSeriesInstanceUID(), ctx.getStudyInstanceUID());
     }
 
     public void moveStudyToPatient(String studyUID, PatientMgtContext ctx)

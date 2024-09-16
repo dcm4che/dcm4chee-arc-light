@@ -463,6 +463,19 @@ public class StudyMgtRS {
     public Response updateStudyAccessControlID(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("accessControlID") String accessControlID) {
+        return updateAccessControlID(RSOperation.UpdateStudyAccessControlID, studyUID, null, accessControlID);
+    }
+
+    @PUT
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/access/{accessControlID}")
+    public Response updateSeriesAccessControlID(
+            @PathParam("StudyInstanceUID") String studyUID,
+            @PathParam("SeriesInstanceUID") String seriesUID,
+            @PathParam("accessControlID") String accessControlID) {
+        return updateAccessControlID(RSOperation.UpdateSeriesAccessControlID, studyUID, seriesUID, accessControlID);
+    }
+
+    private Response updateAccessControlID(RSOperation rsOp, String studyUID, String seriesUID, String accessControlID) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
@@ -475,9 +488,10 @@ public class StudyMgtRS {
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(
                     HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             ctx.setStudyInstanceUID(studyUID);
+            ctx.setSeriesInstanceUID(seriesUID);
             ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
             studyService.updateAccessControlID(ctx);
-            rsForward.forward(RSOperation.UpdateStudyAccessControlID, arcAE, null, request);
+            rsForward.forward(rsOp, arcAE, null, request);
             return Response.noContent().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
