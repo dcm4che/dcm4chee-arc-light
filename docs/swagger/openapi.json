@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.32.0"
+    "version": "5.33.0"
   },
   "servers": [
     {
@@ -280,6 +280,9 @@
     "/aets/{aet}/rs/series/count": {
       "$ref": "paths/qido.json#/series.count"
     },
+    "/aets/{aet}/rs/series/access/{accessControlID}": {
+      "$ref": "paths/misc.json#/series.access"
+    },
     "/aets/{aet}/rs/series/ian/{ianscp}": {
       "$ref": "paths/ian.json#/series"
     },
@@ -309,6 +312,9 @@
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/stgcmt/dicom:{stgCmtSCP}": {
       "$ref": "paths/stgcmt.json#/series1"
+    },
+    "/aets/{aet}/rs/studies/{study}/series/{series}/access/{accessControlID}": {
+      "$ref": "paths/misc.json#/series1.access"
     },
     "/aets/{aet}/rs/studies/{study}/series/{series}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/series1.reject"
