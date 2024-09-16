@@ -174,16 +174,25 @@ public class StudyServiceEJB {
         if (attrs.diff(newAttrs, filter.getSelection(false), modified, true) == 0)
             return;
 
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        ctx.setStudy(instance.getSeries().getStudy());
+        if (ctx.getPatient() == null)
+            ctx.setPatient(instance.getSeries().getStudy().getPatient());
+        else if (instance.getSeries().getStudy().getPatient().getPk() != ctx.getPatient().getPk())
+            throw new PatientMismatchException(ctx.getPatient()
+                    + " found using patient identifiers sent in request payload does not match with "
+                    + instance.getSeries().getStudy().getPatient() + " of " + instance);
+
         Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
         instance.setAttributes(ctx.getReasonForModification() != null
                         ? attrs.addOriginalAttributes(
-                        ctx.getSourceOfPreviousValues(),
-                        new Date(),
-                        ctx.getReasonForModification(),
-                        device.getDeviceName(),
-                        modified)
+                            ctx.getSourceOfPreviousValues(),
+                            new Date(),
+                            ctx.getReasonForModification(),
+                            device.getDeviceName(),
+                            modified)
                         : attrs,
                 filter, true, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
