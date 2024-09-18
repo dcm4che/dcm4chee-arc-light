@@ -64,6 +64,9 @@
             <xsl:when test="starts-with($msgType, 'OMG')">
                 <xsl:value-of select="'OMG^O19^OMG_O19'"/>
             </xsl:when>
+            <xsl:when test="starts-with($msgType, 'OMI')">
+                <xsl:value-of select="'OMI^O23^OMI_O23'"/>
+            </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="'ORU^R01^ORU_R01'"/>
             </xsl:otherwise>
