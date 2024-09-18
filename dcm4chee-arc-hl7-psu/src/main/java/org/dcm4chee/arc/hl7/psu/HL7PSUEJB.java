@@ -96,22 +96,33 @@ public class HL7PSUEJB {
     private ProcedureService procedureService;
 
     public void createHL7PSUTaskForMPPS(ArchiveAEExtension arcAE, MPPSContext ctx) {
-        HL7PSUTask task = new HL7PSUTask();
-        task.setDeviceName(device.getDeviceName());
-        task.setAETitle(arcAE.getApplicationEntity().getAETitle());
-        task.setScheduledTime(scheduledTime(arcAE.hl7PSUTimeout()));
-        task.setStudyInstanceUID(ctx.getMPPS().getStudyInstanceUID());
-        task.setAccessionNumber(ctx.getMPPS().getAccessionNumber());
-        task.setMpps(ctx.getMPPS());
-        em.persist(task);
-        LOG.info("{}: Created {}", ctx, task);
+        try {
+            HL7PSUTask task = em.createNamedQuery(HL7PSUTask.FIND_BY_MPPS, HL7PSUTask.class)
+                                .setParameter(1, ctx.getMPPS().getPk())
+                                .getSingleResult();
+            task.setScheduledTime(scheduledTime(arcAE.hl7PSUTimeout()));
+            task.setStudyInstanceUID(ctx.getMPPS().getStudyInstanceUID());
+            task.setAccessionNumber(ctx.getMPPS().getAccessionNumber());
+            task.setMpps(ctx.getMPPS());
+            LOG.info("{}: Updated {}", ctx.getAssociation(), task);
+        } catch (NoResultException e) {
+            HL7PSUTask task = new HL7PSUTask();
+            task.setDeviceName(device.getDeviceName());
+            task.setAETitle(arcAE.getApplicationEntity().getAETitle());
+            task.setScheduledTime(scheduledTime(arcAE.hl7PSUTimeout()));
+            task.setStudyInstanceUID(ctx.getMPPS().getStudyInstanceUID());
+            task.setAccessionNumber(ctx.getMPPS().getAccessionNumber());
+            task.setMpps(ctx.getMPPS());
+            em.persist(task);
+            LOG.info("{}: Created {}", ctx, task);
+        }
     }
 
     public void createOrUpdateHL7PSUTaskForStudy(ArchiveAEExtension arcAE, StoreContext ctx) {
         try {
             HL7PSUTask task = em.createNamedQuery(HL7PSUTask.FIND_BY_STUDY_IUID, HL7PSUTask.class)
-                    .setParameter(1, ctx.getStudyInstanceUID())
-                    .getSingleResult();
+                                .setParameter(1, ctx.getStudyInstanceUID())
+                                .getSingleResult();
             task.setScheduledTime(scheduledTime(arcAE.hl7PSUDelay()));
             task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
             LOG.info("{}: Updated {}", ctx.getStoreSession(), task);

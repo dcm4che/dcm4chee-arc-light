@@ -63,6 +63,8 @@ import java.util.Date;
                         "order by o.scheduledTime"),
         @NamedQuery(name = HL7PSUTask.FIND_BY_STUDY_IUID,
                 query = "select o from HL7PSUTask o where o.studyInstanceUID=?1"),
+        @NamedQuery(name = HL7PSUTask.FIND_BY_MPPS,
+                query = "select o from HL7PSUTask o where o.mpps.pk =?1"),
 
 })
 @Entity
@@ -74,6 +76,7 @@ public class HL7PSUTask {
     public static final String FIND_WITH_MPPS_BY_DEVICE_NAME = "HL7PSUTask.findWithMppsByDeviceName";
     public static final String FIND_SCHEDULED_BY_DEVICE_NAME = "HL7PSUTask.findScheduledByDeviceName";
     public static final String FIND_BY_STUDY_IUID = "HL7PSUTask.findByStudyIUID";
+    public static final String FIND_BY_MPPS = "HL7PSUTask.findByMPPS";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
