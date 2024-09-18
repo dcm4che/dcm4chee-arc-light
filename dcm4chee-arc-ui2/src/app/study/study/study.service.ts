@@ -3928,6 +3928,12 @@ export class StudyService {
             this.jsonHeader
         );
     }
+    updateAccessControlIdMatching(studyWebService: StudyWebService, level: DicomLevel, accessControlID:string, filters?:any){
+        let url = level === "matching_studies"
+                    ? `${this.getDicomURL("study", studyWebService.selectedWebService)}/access/${accessControlID}${j4care.param(filters)}`
+                    : `${this.getDicomURL("series", studyWebService.selectedWebService)}/access/${accessControlID}${j4care.param(filters)}`;
+        return this.$http.post(url, {}, this.jsonHeader);
+    }
     updateAccessControlId(matchingMode:AccessControlIDMode, selectedWebService:DcmWebApp, accessControlID:string, studyInstanceUID?:string, filters?:any){
         if(matchingMode === "update_access_control_id_to_matching"){
             return this.$http.post(

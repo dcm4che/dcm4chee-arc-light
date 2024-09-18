@@ -213,7 +213,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("reject_multiple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
             new SelectDropdown("reject_multiple_series",$localize `:@@study.reject_multiple_series:Reject matching series`),
             new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
-            new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID`),
+            new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID to matching studies`),
+            new SelectDropdown("update_access_control_id_to_matching_series",$localize `:@@study.update_access_control_id_to_matching_series:Update access Control ID to matching series`),
             new SelectDropdown("storage_verification_studies",$localize `:@@storage_verification_studies:Storage Verification Studies`),
             new SelectDropdown("storage_verification_series",$localize `:@@storage_verification_series:Storage Verification Series`),
             new SelectDropdown("download_patients",$localize `:@@study.download_patients:Download patients as CSV`),
@@ -602,8 +603,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.downloadCSV(undefined, "uwl");
                 break;
             case "update_access_control_id_to_matching":
-                this.updateAccessControlId(e);
+                this.updateAccessControlId("matching_studies", e);
                break;
+            case "update_access_control_id_to_matching_series":
+                this.updateAccessControlId("matching_series", e);
+                break;
             case "schedule_storage_commit_for_matching_studies":
                 this.sendStorageCommitmentRequestMatchingStudies();
                break;
@@ -3104,6 +3108,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 case "export_multiple_series":
                                 case "reject_multiple_series":
                                 case "download_series":
+                                case "update_access_control_id_to_matching_series":
                                 case "storage_verification_series":
                                 case "schedule_storage_commit_for_matching_series":
                                 case "instance_availability_notification_for_matching_series":
@@ -4224,11 +4229,24 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         });
     }
+
     updateAccessControlId(dicomLevel?:DicomLevel, mode?:AccessControlIDMode, model?:any){
-        const matching = mode === "update_access_control_id_to_matching";
-        let innerText = matching ? $localize `:@@inner_text.of_matching_studies:of matching studies`: $localize `:@@inner_text.of_the_study: of the study`;
-        if (dicomLevel === "series")
-            innerText = matching ? $localize `:@@inner_text.of_matching_series:of matching series`: $localize `:@@inner_text.of_the_series: of the series`;
+        let matching = dicomLevel === "matching_studies" || dicomLevel === "matching_series";
+        let innerText;
+        switch (dicomLevel) {
+            case "matching_studies":
+                innerText = $localize `:@@inner_text.of_matching_studies:of matching studies`;
+                break;
+            case "matching_series":
+                innerText = $localize `:@@inner_text.of_matching_series:of matching series`
+                break;
+            case "study":
+                innerText = $localize `:@@inner_text.of_the_study: of the study`;
+                break;
+            case "series":
+                innerText = $localize `:@@inner_text.of_the_series: of the series`;
+                break;
+        }
         this.confirm({
             content: $localize `:@@study.update_access_control_id_param:Update Access Control ID ${innerText}:innerText:`,
             doNotSave:true,
@@ -4258,8 +4276,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 let service;
                 let msg;
                 if(matching){
-                    service = this.service.updateAccessControlId(mode, this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null',undefined,this.createStudyFilterParams(true,true))
-                    msg = $localize `:@@access_control_id_updated_matching:Access Control ID updated successfully to matching studies`;
+                    service = this.service.updateAccessControlIdMatching(
+                                            this.studyWebService,
+                                            dicomLevel,
+                              ok.schema_model.accessControlID || 'null',
+                                            this.createStudyFilterParams(true,true));
+                    msg = dicomLevel === "matching_studies"
+                            ? $localize `:@@access_control_id_updated_matching:Access Control ID updated successfully to matching studies`
+                            : $localize `:@@access_control_id_updated_matching_series:Access Control ID updated successfully to matching series`;
                 }else{
                     if(mode === "update_access_control_id_to_selections"){
                         service = this.service.updateAccessControlIdOfSelections(this.selectedElements,this.studyWebService,ok.schema_model.accessControlID || 'null')
