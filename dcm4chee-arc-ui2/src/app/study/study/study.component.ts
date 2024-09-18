@@ -661,7 +661,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.rejectRestoreMultipleObjects();
         }
         if(e === "update_access_control_id_to_selections"){
-            this.updateAccessControlId(e);
+            this.updateAccessControlId("update_access_control_id_to_selections", e);
         }
         if(e === "change_sps_status_on_selections"){
             this.changeSPSStatus(e,"selected");
@@ -4246,6 +4246,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             case "series":
                 innerText = $localize `:@@inner_text.of_the_series: of the series`;
                 break;
+            case "update_access_control_id_to_selections":
+                innerText = $localize `:@@inner_text.of_the_selected_entities: of the selected entities`;
+                break;
         }
         this.confirm({
             content: $localize `:@@study.update_access_control_id_param:Update Access Control ID ${innerText}:innerText:`,
@@ -4285,9 +4288,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             ? $localize `:@@access_control_id_updated_matching:Access Control ID updated successfully to matching studies`
                             : $localize `:@@access_control_id_updated_matching_series:Access Control ID updated successfully to matching series`;
                 }else{
-                    if(mode === "update_access_control_id_to_selections"){
+                    if(dicomLevel === "update_access_control_id_to_selections"){
                         service = this.service.updateAccessControlIdOfSelections(this.selectedElements,this.studyWebService,ok.schema_model.accessControlID || 'null')
-                        msg = $localize `:@@access_control_id_updated_selected:Access Control ID updated successfully to selected studies!`
+                        msg = $localize `:@@access_control_id_updated_selected:Access Control ID updated successfully to selected entities!`
                     }else{
                         service = this.service.updateAccessControlIdSingle(model.attrs, this.studyWebService, dicomLevel, ok.schema_model.accessControlID || 'null');
                         msg = dicomLevel === "study"

@@ -3904,22 +3904,9 @@ export class StudyService {
         return forkJoin((<any[]> multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) =>
             (element.dicomLevel === "study" || element.dicomLevel === "series"))
             .map((element: SelectedDetailObject) => {
-                return this.$http.post(
-                    `${this.getURL(element.object.attrs, studyWebService.selectedWebService, element.dicomLevel)}/access/${accessControlID}`,
-                    {}
-                );
+                return this.$http.put(`${this.getURL(element.object.attrs, studyWebService.selectedWebService, element.dicomLevel)}/access/${accessControlID}`, {});
             })));
     }
-
-    // updateAccessControlIdOfSelections(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, accessControlID:string){
-    //     return forkJoin((<any[]>multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study")).map((element: SelectedDetailObject) => {
-    //         return this.$http.put(
-    //             `${this.getURL(element.object.attrs, selectedWebService, "study")}/access/${accessControlID}`,
-    //             {},
-    //             this.jsonHeader
-    //         );
-    //     })));
-    // }
 
     updateAccessControlIdSingle(attrs, studyWebService: StudyWebService, level: DicomLevel, accessControlID:string){
         return this.$http.put(
@@ -3933,21 +3920,6 @@ export class StudyService {
                     ? `${this.getDicomURL("study", studyWebService.selectedWebService)}/access/${accessControlID}${j4care.param(filters)}`
                     : `${this.getDicomURL("series", studyWebService.selectedWebService)}/access/${accessControlID}${j4care.param(filters)}`;
         return this.$http.post(url, {}, this.jsonHeader);
-    }
-    updateAccessControlId(matchingMode:AccessControlIDMode, selectedWebService:DcmWebApp, accessControlID:string, studyInstanceUID?:string, filters?:any){
-        if(matchingMode === "update_access_control_id_to_matching"){
-            return this.$http.post(
-                `${this.getDicomURL("study", selectedWebService)}/access/${accessControlID}${j4care.param(filters)}`,
-                {},
-                this.jsonHeader
-            );
-        }else{
-            return this.$http.put(
-                `${this.getDicomURL("study", selectedWebService)}/${studyInstanceUID}/access/${accessControlID}`,
-                {},
-                this.jsonHeader
-            );
-        }
     }
 
     modifySeries(series, deviceWebservice: StudyWebService, header: HttpHeaders, params:any,
