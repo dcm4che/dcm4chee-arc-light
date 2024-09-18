@@ -189,6 +189,7 @@ DCM4CHE.SOPClass = (function (dictionary) {
 "1.2.840.10008.5.1.4.1.1.88.74":"Planned Imaging Agent Administration SR Storage",
 "1.2.840.10008.5.1.4.1.1.88.75":"Performed Imaging Agent Administration SR Storage",
 "1.2.840.10008.5.1.4.1.1.88.76":"Enhanced X-Ray Radiation Dose SR Storage",
+"1.2.840.10008.5.1.4.1.1.88.77":"Waveform Annotation SR Storage",
 "1.2.840.10008.5.1.4.1.1.90.1":"Content Assessment Results Storage",
 "1.2.840.10008.5.1.4.1.1.91.1":"Microscopy Bulk Simple Annotations Storage",
 "1.2.840.10008.5.1.4.1.1.104.1":"Encapsulated PDF Storage",
