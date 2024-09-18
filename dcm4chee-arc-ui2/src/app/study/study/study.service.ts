@@ -2523,6 +2523,28 @@ export class StudyService {
                                 }
                             },{
                                 icon: {
+                                    tag: 'i',
+                                    cssClass: 'material-icons',
+                                    text: 'vpn_key'
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "update_access_control_id"
+                                    }, e);
+                                },
+                                id: "series_update_access_control_id",
+                                title: $localize `:@@study.update_series_access_control_id:Update Series Access Control ID`,
+                                showIf:(e,config)=>{
+                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                },
+                                permission: {
+                                    id: 'action-studies-study',
+                                    param: 'edit'
+                                }
+                            },{
+                                icon: {
                                     tag: 'span',
                                     cssClass: `custom_icon hand_shake_black`,
                                     text: ''
@@ -3877,14 +3899,34 @@ export class StudyService {
 
             return schema;
     }
-    updateAccessControlIdOfSelections(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, accessControlID:string){
-        return forkJoin((<any[]>multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study")).map((element: SelectedDetailObject) => {
-            return this.$http.put(
-                `${this.getURL(element.object.attrs, selectedWebService, "study")}/access/${accessControlID}`,
-                {},
-                this.jsonHeader
-            );
-        })));
+
+    updateAccessControlIdOfSelections(multipleObjects: SelectionActionElement, studyWebService: StudyWebService, accessControlID:string){
+        return forkJoin((<any[]> multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) =>
+            (element.dicomLevel === "study" || element.dicomLevel === "series"))
+            .map((element: SelectedDetailObject) => {
+                return this.$http.post(
+                    `${this.getURL(element.object.attrs, studyWebService.selectedWebService, element.dicomLevel)}/access/${accessControlID}`,
+                    {}
+                );
+            })));
+    }
+
+    // updateAccessControlIdOfSelections(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, accessControlID:string){
+    //     return forkJoin((<any[]>multipleObjects.getAllAsArray().filter((element: SelectedDetailObject) => (element.dicomLevel === "study")).map((element: SelectedDetailObject) => {
+    //         return this.$http.put(
+    //             `${this.getURL(element.object.attrs, selectedWebService, "study")}/access/${accessControlID}`,
+    //             {},
+    //             this.jsonHeader
+    //         );
+    //     })));
+    // }
+
+    updateAccessControlIdSingle(attrs, studyWebService: StudyWebService, level: DicomLevel, accessControlID:string){
+        return this.$http.put(
+            `${this.getURL(attrs, studyWebService.selectedWebService, level)}/access/${accessControlID}`,
+            {},
+            this.jsonHeader
+        );
     }
     updateAccessControlId(matchingMode:AccessControlIDMode, selectedWebService:DcmWebApp, accessControlID:string, studyInstanceUID?:string, filters?:any){
         if(matchingMode === "update_access_control_id_to_matching"){

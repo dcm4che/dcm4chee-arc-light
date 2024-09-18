@@ -1124,7 +1124,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.viewInstance(model);
             }
             if(id.action === "update_access_control_id"){
-                this.updateAccessControlId(id.action, model);
+                this.updateAccessControlId(id.level, id.action, model);
             }
             if(id.action === "change_sps_status"){
                 this.changeSPSStatus(model, "single");
@@ -4224,12 +4224,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         });
     }
-    updateAccessControlId(mode?:AccessControlIDMode, model?:any){
+    updateAccessControlId(dicomLevel?:DicomLevel, mode?:AccessControlIDMode, model?:any){
         const matching = mode === "update_access_control_id_to_matching";
-        const innerText = matching ? $localize `:@@inner_text.of_matching_studies:of matching studies`: $localize `:@@inner_text.of_the_study: of the study`;
+        let innerText = matching ? $localize `:@@inner_text.of_matching_studies:of matching studies`: $localize `:@@inner_text.of_the_study: of the study`;
+        if (dicomLevel === "series")
+            innerText = matching ? $localize `:@@inner_text.of_matching_series:of matching series`: $localize `:@@inner_text.of_the_series: of the series`;
         this.confirm({
-            content: $localize `:@@study.update_study_access_control_id_param:Update Study Access Control ID ${innerText}:innerText:
-`,
+            content: $localize `:@@study.update_access_control_id_param:Update Access Control ID ${innerText}:innerText:`,
             doNotSave:true,
             form_schema:[
                 [
@@ -4261,11 +4262,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     msg = $localize `:@@access_control_id_updated_matching:Access Control ID updated successfully to matching studies`;
                 }else{
                     if(mode === "update_access_control_id_to_selections"){
-                        service = this.service.updateAccessControlIdOfSelections(this.selectedElements,this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null')
+                        service = this.service.updateAccessControlIdOfSelections(this.selectedElements,this.studyWebService,ok.schema_model.accessControlID || 'null')
                         msg = $localize `:@@access_control_id_updated_selected:Access Control ID updated successfully to selected studies!`
                     }else{
-                        service = this.service.updateAccessControlId(mode, this.studyWebService.selectedWebService,ok.schema_model.accessControlID || 'null',this.service.getStudyInstanceUID(model.attrs))
-                        msg = $localize `:@@access_control_id_updated_the_study:Access Control ID updated successfully to the study!`
+                        service = this.service.updateAccessControlIdSingle(model.attrs, this.studyWebService, dicomLevel, ok.schema_model.accessControlID || 'null');
+                        msg = dicomLevel === "study"
+                                ? $localize `:@@access_control_id_updated_the_study:Access Control ID updated successfully to the study!`
+                                : $localize `:@@access_control_id_updated_the_series:Access Control ID updated successfully to the series!`;
                     }
                 }
                 this.cfpLoadingBar.start();
