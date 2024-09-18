@@ -5687,8 +5687,8 @@ karma@^6.4.2:
 
 keycloak-js@~25.0.5:
   version "25.0.5"
-  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-25.0.5.tgz#10de8352ae7bb0d46396e4f083b40b959285791b"
-  integrity sha512-ACLf5O5PqzfDJwGqvLpqM0kflYWmyl3+T7M2C23gztJYccDxdfNP54+B9OkXz2GnDpLUId0ceoA+lbHw9t4Wng==
+  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-25.0.5.tgz#d969f345caff99c132fc194d459d0853f95346ac"
+  integrity sha512-/lrUWHpDoqt4XrY07Wtfo4S2/KPJ3pvE4y1xtus65pAlgqtiEONtlYOdAdJv6iAWl7RE4Jx7eaN5P1A5yO/NLg==
   dependencies:
     js-sha256 "^0.11.0"
     jwt-decode "^4.0.0"
