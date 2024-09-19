@@ -1,0 +1,5 @@
+date=2024-09-19 12:28:10+0200
+os=Linux 6.8.0-107044-tuxedo
+schemaspy-version=6.2.4
+schemaspy-build=6.2.4.41 2023-07-21 11:15:12
+renderer=Graphviz dot 2.43.0 

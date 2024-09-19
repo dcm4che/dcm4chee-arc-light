@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>code - pacsdb.public</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="../bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="../bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="../bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="../bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="../bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='../fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='../fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="../bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="../schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="../bower/html5shiv/html5shiv.min.js"></script>
+        <script src="../bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="../index.html" class="navbar-brand"><b>pacsdb</b></a><span class="navbar-brand" style="padding-left: 0">.public</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="../index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="../columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="../constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="../relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="../orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="../anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="../routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>code</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            <h3 id="Columns" class="box-title">Columns</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="standard_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th title='Are nulls allowed?'>Nulls</th>
+                                    <th title='Is column automatically updated?'>Auto</th>
+                                    <th title='Default value'>Default</th>
+                                    <th title='Columns in tables that reference this column'>Children</th>
+                                    <th title='Columns in tables that are referenced by this column'>Parents</th>
+                                    <th title='Comments' class="toggle"><span>Comments</span></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pk">pk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="content_item.code_fk references code.pk via fkfra6ee5jtybfp94ldpvva623o"><a href='content_item.html'>content_item</a><span class='relatedKey'>.code_fk</span></td>
+                                                <td class="constraint detail">fkfra6ee5jtybfp94ldpvva623o</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="content_item.name_fk references code.pk via fk7rpy6unnb5b18b8ieuqr9w9i9"><a href='content_item.html'>content_item</a><span class='relatedKey'>.name_fk</span></td>
+                                                <td class="constraint detail">fk7rpy6unnb5b18b8ieuqr9w9i9</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="instance.srcode_fk references code.pk via fkqmk050ojwer9ujsbl74d4kf6e"><a href='instance.html'>instance</a><span class='relatedKey'>.srcode_fk</span></td>
+                                                <td class="constraint detail">fkqmk050ojwer9ujsbl74d4kf6e</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="mpps.discreason_code_fk references code.pk via fk2m3l9bh173bmq88ukf81yd9ow"><a href='mpps.html'>mpps</a><span class='relatedKey'>.discreason_code_fk</span></td>
+                                                <td class="constraint detail">fk2m3l9bh173bmq88ukf81yd9ow</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="mwl_item.dept_code_fk references code.pk via fkpl6u7oyyp6o3ca8r9jbxv5oge"><a href='mwl_item.html'>mwl_item</a><span class='relatedKey'>.dept_code_fk</span></td>
+                                                <td class="constraint detail">fkpl6u7oyyp6o3ca8r9jbxv5oge</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="mwl_item.inst_code_fk references code.pk via fkqui6rvqyg1qfujae4mw3o0nbm"><a href='mwl_item.html'>mwl_item</a><span class='relatedKey'>.inst_code_fk</span></td>
+                                                <td class="constraint detail">fkqui6rvqyg1qfujae4mw3o0nbm</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="rejected_instance.reject_code_fk references code.pk via fk27xpx6okj63sunyo76tf0s913"><a href='rejected_instance.html'>rejected_instance</a><span class='relatedKey'>.reject_code_fk</span></td>
+                                                <td class="constraint detail">fk27xpx6okj63sunyo76tf0s913</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="rel_study_pcode.pcode_fk references code.pk via fklia0q74j0xhj2u0avy1wbbx7q"><a href='rel_study_pcode.html'>rel_study_pcode</a><span class='relatedKey'>.pcode_fk</span></td>
+                                                <td class="constraint detail">fklia0q74j0xhj2u0avy1wbbx7q</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="rel_ups_perf_code.perf_code_fk references code.pk via fk6om2durembdfk2rmd29dlcm2t"><a href='rel_ups_perf_code.html'>rel_ups_perf_code</a><span class='relatedKey'>.perf_code_fk</span></td>
+                                                <td class="constraint detail">fk6om2durembdfk2rmd29dlcm2t</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="rel_ups_station_class_code.station_class_code_fk references code.pk via fk62f8dua3p8bxv3vilctc7pd42"><a href='rel_ups_station_class_code.html'>rel_ups_station_class_code</a><span class='relatedKey'>.station_class_code_fk</span></td>
+                                                <td class="constraint detail">fk62f8dua3p8bxv3vilctc7pd42</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="rel_ups_station_location_code.station_location_code_fk references code.pk via fkp5d05caciw2cqik5uqt7r8w6p"><a href='rel_ups_station_location_code.html'>rel_ups_station_location_code</a><span class='relatedKey'>.station_location_code_fk</span></td>
+                                                <td class="constraint detail">fkp5d05caciw2cqik5uqt7r8w6p</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="rel_ups_station_name_code.station_name_code_fk references code.pk via fk308ga4grefjjwmrwtsirjmbhh"><a href='rel_ups_station_name_code.html'>rel_ups_station_name_code</a><span class='relatedKey'>.station_name_code_fk</span></td>
+                                                <td class="constraint detail">fk308ga4grefjjwmrwtsirjmbhh</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="series.dept_code_fk references code.pk via fknpdeeclrflvuxajeqjmk6utf"><a href='series.html'>series</a><span class='relatedKey'>.dept_code_fk</span></td>
+                                                <td class="constraint detail">fknpdeeclrflvuxajeqjmk6utf</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="series.inst_code_fk references code.pk via fk6nn55bx7pqlmimgfnhfpjra94"><a href='series.html'>series</a><span class='relatedKey'>.inst_code_fk</span></td>
+                                                <td class="constraint detail">fk6nn55bx7pqlmimgfnhfpjra94</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ups.ups_code_fk references code.pk via fkr3t1gbo2e42oleaqeastvv5ej"><a href='ups.html'>ups</a><span class='relatedKey'>.ups_code_fk</span></td>
+                                                <td class="constraint detail">fkr3t1gbo2e42oleaqeastvv5ej</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="code_meaning">code_meaning</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="code_value">code_value</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="code_designator">code_designator</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="code_version">code_version</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 id="Indexes" class="box-title">Indexes</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="indexes_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Type</th>
+                                    <th>Sort</th>
+                                    <th>Column(s)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> code_pkey</td>
+                                    <td>Primary key</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pk</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> code_code_value_code_designator_code_version_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>code_value + code_designator + code_version</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div><!-- /.box-body -->
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-code-fork"></i>
+                            <h3 id="Relationships" class="box-title">Relationships</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="nav-tabs-custom"><!-- Tabs within a box -->
+                                <h5>Close relationships within degrees of separation</h5>
+                                <ul class="nav nav-tabs pull-left ui-sortable-handle">
+                                    <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
+                                    <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
+                                </ul>
+                                <div class="tab-content no-padding">
+                                    <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="1003,5,1192,245">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="5,2551,295,2767">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="711,199,888,697">
+<area shape="rect" id="node4" href="series.html" target="_top" title="series" alt="" coords="339,407,596,1815">
+<area shape="rect" id="node5" href="mpps.html" target="_top" title="mpps" alt="" coords="355,1832,579,2067">
+<area shape="rect" id="node6" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="353,2084,581,2729">
+<area shape="rect" id="node7" href="rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="355,2747,579,3011">
+<area shape="rect" id="node8" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="362,3028,573,3151">
+<area shape="rect" id="node9" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="687,3099,911,3221">
+<area shape="rect" id="node10" href="ups.html" target="_top" title="ups" alt="" coords="345,3240,590,3797">
+<area shape="rect" id="node11" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="653,3239,946,3361">
+<area shape="rect" id="node12" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="640,3444,959,3567">
+<area shape="rect" id="node13" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="649,3715,949,3837">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/code.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="1490,82,1679,170">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="240,759,529,975">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="1247,1801,1399,1889">
+<area shape="rect" id="node7" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="15,1622,186,1710">
+<area shape="rect" id="node8" href="series.html" target="_top" title="series" alt="" coords="939,1873,1070,1961">
+<area shape="rect" id="node4" href="hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="916,395,1093,483">
+<area shape="rect" id="node5" href="mpps.html" target="_top" title="mpps" alt="" coords="575,478,799,713">
+<area shape="rect" id="node12" href="patient.html" target="_top" title="patient" alt="" coords="314,1622,455,1710">
+<area shape="rect" id="node6" href="ian_task.html" target="_top" title="ian_task" alt="" coords="930,501,1079,589">
+<area shape="rect" id="node10" href="person_name.html" target="_top" title="person_name" alt="" coords="5,1942,196,2030">
+<area shape="rect" id="node16" href="study.html" target="_top" title="study" alt="" coords="623,1730,751,1818">
+<area shape="rect" id="node22" href="metadata.html" target="_top" title="metadata" alt="" coords="607,1943,768,2031">
+<area shape="rect" id="node9" href="instance_req.html" target="_top" title="instance_req" alt="" coords="1492,1958,1677,2046">
+<area shape="rect" id="node11" href="location.html" target="_top" title="location" alt="" coords="1511,1798,1659,1886">
+<area shape="rect" id="node13" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="573,1067,801,1713">
+<area shape="rect" id="node14" href="rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="575,197,799,461">
+<area shape="rect" id="node15" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="899,1142,1110,1265">
+<area shape="rect" id="node17" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="893,615,1117,703">
+<area shape="rect" id="node18" href="ups.html" target="_top" title="ups" alt="" coords="631,838,743,926">
+<area shape="rect" id="node19" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="858,721,1151,809">
+<area shape="rect" id="node20" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="845,826,1164,914">
+<area shape="rect" id="node21" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="855,1037,1155,1125">
+<area shape="rect" id="node23" href="series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1208,1906,1437,1994">
+<area shape="rect" id="node24" href="series_req.html" target="_top" title="series_req" alt="" coords="1241,2013,1405,2101">
+<area shape="rect" id="node25" href="sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="902,1387,1107,1475">
+<area shape="rect" id="node26" href="subscription.html" target="_top" title="subscription" alt="" coords="913,931,1096,1019">
+<area shape="rect" id="node27" href="ups_req.html" target="_top" title="ups_req" alt="" coords="932,1282,1077,1370">
+<area shape="rect" id="node28" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="1481,2091,1688,2179">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/code.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="1003,5,1192,245">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="5,2551,295,2767">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="711,199,888,697">
+<area shape="rect" id="node4" href="series.html" target="_top" title="series" alt="" coords="339,407,596,1815">
+<area shape="rect" id="node5" href="mpps.html" target="_top" title="mpps" alt="" coords="355,1832,579,2067">
+<area shape="rect" id="node6" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="353,2084,581,2729">
+<area shape="rect" id="node7" href="rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="355,2747,579,3011">
+<area shape="rect" id="node8" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="362,3028,573,3151">
+<area shape="rect" id="node9" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="687,3099,911,3221">
+<area shape="rect" id="node10" href="ups.html" target="_top" title="ups" alt="" coords="345,3240,590,3797">
+<area shape="rect" id="node11" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="653,3239,946,3361">
+<area shape="rect" id="node12" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="640,3444,959,3567">
+<area shape="rect" id="node13" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="649,3715,949,3837">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="content_item.html" target="_top" title="content_item" alt="" coords="1714,1792,1903,1880">
+<area shape="rect" id="node2" href="code.html" target="_top" title="code" alt="" coords="464,1351,753,1567">
+<area shape="rect" id="node3" href="instance.html" target="_top" title="instance" alt="" coords="1471,1059,1623,1147">
+<area shape="rect" id="node8" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="239,1014,410,1102">
+<area shape="rect" id="node9" href="series.html" target="_top" title="series" alt="" coords="1163,307,1294,395">
+<area shape="rect" id="node4" href="hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="1140,1892,1317,1980">
+<area shape="rect" id="node5" href="id_sequence.html" target="_top" title="id_sequence" alt="" coords="5,306,185,394">
+<area shape="rect" id="node6" href="mpps.html" target="_top" title="mpps" alt="" coords="799,1871,1023,2106">
+<area shape="rect" id="node13" href="patient.html" target="_top" title="patient" alt="" coords="538,1014,679,1102">
+<area shape="rect" id="node7" href="ian_task.html" target="_top" title="ian_task" alt="" coords="1154,2016,1303,2104">
+<area shape="rect" id="node11" href="person_name.html" target="_top" title="person_name" alt="" coords="229,306,420,394">
+<area shape="rect" id="node17" href="study.html" target="_top" title="study" alt="" coords="847,396,975,484">
+<area shape="rect" id="node23" href="metadata.html" target="_top" title="metadata" alt="" coords="831,183,992,271">
+<area shape="rect" id="node10" href="instance_req.html" target="_top" title="instance_req" alt="" coords="1716,714,1901,802">
+<area shape="rect" id="node12" href="location.html" target="_top" title="location" alt="" coords="1735,1056,1883,1144">
+<area shape="rect" id="node14" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="797,502,1025,1147">
+<area shape="rect" id="node15" href="rejected_instance.html" target="_top" title="rejected_instance" alt="" coords="799,1430,1023,1694">
+<area shape="rect" id="node16" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1123,412,1334,535">
+<area shape="rect" id="node18" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1117,1254,1341,1342">
+<area shape="rect" id="node19" href="ups.html" target="_top" title="ups" alt="" coords="855,1252,967,1340">
+<area shape="rect" id="node20" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="1082,1359,1375,1447">
+<area shape="rect" id="node21" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="1069,1492,1388,1580">
+<area shape="rect" id="node22" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="1079,1651,1379,1739">
+<area shape="rect" id="node24" href="series_query_attrs.html" target="_top" title="series_query_attrs" alt="" coords="1432,304,1661,392">
+<area shape="rect" id="node25" href="series_req.html" target="_top" title="series_req" alt="" coords="1465,146,1629,234">
+<area shape="rect" id="node26" href="sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="1126,658,1331,746">
+<area shape="rect" id="node27" href="subscription.html" target="_top" title="subscription" alt="" coords="1137,1148,1320,1236">
+<area shape="rect" id="node28" href="ups_req.html" target="_top" title="ups_req" alt="" coords="1156,552,1301,640">
+<area shape="rect" id="node29" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="1705,863,1912,951">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: true
+                    }
+                </script>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.2.4</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="../bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="../bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="../bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="../bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="../bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="../bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="../bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="../bower/pdfmake/pdfmake.min.js"></script>
+        <script src="../bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="../bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="../bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="../bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="../bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="../bower/codemirror/codemirror.js"></script>
+        <script src="../bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="../bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="table.js"></script>
+        <script src="../schemaSpy.js"></script>
+    </body>
+</html>
