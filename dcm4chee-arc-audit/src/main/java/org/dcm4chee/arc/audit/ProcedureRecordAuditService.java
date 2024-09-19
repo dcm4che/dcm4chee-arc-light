@@ -43,8 +43,6 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
@@ -81,31 +79,6 @@ import java.util.List;
 class ProcedureRecordAuditService extends AuditService {
 
     private final static Logger LOG = LoggerFactory.getLogger(ProcedureRecordAuditService.class);
-
-    private ArchiveDeviceExtension arcDev;
-    private ProcedureContext procCtx;
-    private HL7ConnectionEvent hl7ConnEvent;
-    private AuditInfoBuilder.Builder infoBuilder;
-    private HL7Segment pid;
-
-    ProcedureRecordAuditService(ProcedureContext ctx, ArchiveDeviceExtension arcDev) {
-        procCtx = ctx;
-        Patient patient = procCtx.getPatient();
-        infoBuilder = new AuditInfoBuilder.Builder()
-                .studyUIDAccNumDate(procCtx.getAttributes(), arcDev)
-                .pIDAndName(patient != null ? patient.getAttributes() : ctx.getAttributes(), arcDev)
-                .mppsUID(procCtx.getMppsUID())
-                .status(procCtx.getStatus())
-                .outcome(procCtx.getOutcomeMsg() != null ? procCtx.getOutcomeMsg() : outcome(procCtx.getException()));
-        if (procCtx.getAttributes() == null && procCtx.getStudyInstanceUID() != null)
-            infoBuilder.studyIUID(procCtx.getStudyInstanceUID());
-    }
-
-    ProcedureRecordAuditService(HL7ConnectionEvent hl7ConnEvent, ArchiveDeviceExtension arcDev) {
-        this.arcDev = arcDev;
-        this.hl7ConnEvent = hl7ConnEvent;
-        this.pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
-    }
 
     private static String callingUserID(ProcedureContext ctx, ArchiveDeviceExtension arcDev) {
         HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpRequest();
@@ -359,126 +332,6 @@ class ProcedureRecordAuditService extends AuditService {
                 .toAuditInfo();
     }
 
-    AuditInfoBuilder getProcUpdateAuditInfo() {
-        return procCtx.getHttpRequest() != null
-                ? procUpdatedByWeb()
-                : procCtx.getAssociation() != null
-                    ? procUpdatedByMPPS()
-                    : procCtx.getUnparsedHL7Message() != null
-                        ? procUpdatedByHL7() : procUpdatedByMWLImport();
-    }
-
-    AuditInfoBuilder getHL7IncomingOrderInfo() {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = hl7Message.msh();
-        infoBuilder = new AuditInfoBuilder.Builder()
-                .callingHost(hl7ConnEvent.getConnection().getHostname())
-                .callingUserID(msh.getSendingApplicationWithFacility())
-                .calledUserID(msh.getReceivingApplicationWithFacility())
-                .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
-                .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
-                .outcome(outcome(hl7ConnEvent.getException()));
-        if (hasPIDSegment())
-            infoBuilder
-                .patID(pid.getField(3, null), arcDev)
-                .patName(pid.getField(5, null), arcDev);
-        return HL7AuditUtils.isOrderProcessed(hl7ConnEvent) ? orderProcessed() : infoBuilder.build();
-    }
-
-    AuditInfoBuilder getHL7OutgoingOrderInfo() {
-        HL7Segment pid = HL7AuditUtils.getHL7Segment(hl7ConnEvent.getHL7Message(), "PID");
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = hl7Message.msh();
-        String sendingApplicationWithFacility = msh.getSendingApplicationWithFacility();
-        String receivingApplicationWithFacility = msh.getReceivingApplicationWithFacility();
-        infoBuilder = new AuditInfoBuilder.Builder()
-                .callingHost(ReverseDNS.hostNameOf(hl7ConnEvent.getSocket().getInetAddress()))
-                .callingUserID(sendingApplicationWithFacility)
-                .calledUserID(receivingApplicationWithFacility)
-                .studyIUID(HL7AuditUtils.procRecHL7StudyIUID(hl7Message, arcDev.auditUnknownStudyInstanceUID()))
-                .accNum(HL7AuditUtils.procRecHL7Acc(hl7Message))
-                .outcome(outcome(hl7ConnEvent.getException()))
-                .isOutgoingHL7()
-                .outgoingHL7Sender(sendingApplicationWithFacility)
-                .outgoingHL7Receiver(receivingApplicationWithFacility);
-        return pid != null ? procRecForward(pid) : infoBuilder.build();
-    }
-
-    boolean hasPIDSegment() {
-        return pid != null;
-    }
-
-    private AuditInfoBuilder procUpdatedByMPPS() {
-        Association as = procCtx.getAssociation();
-        return infoBuilder
-                .callingUserID(as.getCallingAET())
-                .callingHost(procCtx.getRemoteHostName())
-                .calledUserID(as.getCalledAET())
-                .build();
-    }
-
-    private AuditInfoBuilder procUpdatedByHL7() {
-        UnparsedHL7Message msg = procCtx.getUnparsedHL7Message();
-        return infoBuilder
-                .callingUserID(msg.msh().getSendingApplicationWithFacility())
-                .callingHost(procCtx.getRemoteHostName())
-                .calledUserID(msg.msh().getReceivingApplicationWithFacility())
-                .build();
-    }
-
-    private AuditInfoBuilder procUpdatedByWeb() {
-        if (procCtx.getSourceMwlScp() != null)
-            return procUpdatedByMWLImport();
-
-        HttpServletRequestInfo httpServletRequestInfo  = procCtx.getHttpRequest();
-        return infoBuilder
-                .callingUserID(httpServletRequestInfo.requesterUserID)
-                .callingHost(procCtx.getRemoteHostName())
-                .calledUserID(requestURLWithQueryParams(httpServletRequestInfo))
-                .build();
-    }
-
-    private String requestURLWithQueryParams(HttpServletRequestInfo httpServletRequestInfo) {
-        return httpServletRequestInfo.queryString == null
-                ? httpServletRequestInfo.requestURI
-                : httpServletRequestInfo.requestURI + "?" + httpServletRequestInfo.queryString;
-    }
-
-    private AuditInfoBuilder procUpdatedByMWLImport() {
-        HttpServletRequestInfo req  = procCtx.getHttpRequest();
-        AuditInfoBuilder.Builder auditInfoBuilder = infoBuilder
-                .findSCP(procCtx.getSourceMwlScp())
-                .destUserID(procCtx.getLocalAET());
-        if (req != null)
-            auditInfoBuilder.callingUserID(req.requesterUserID).callingHost(procCtx.getRemoteHostName());
-
-        return auditInfoBuilder.build();
-    }
-
-    private AuditInfoBuilder orderProcessed() {
-        UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
-        if (hl7ResponseMessage instanceof ArchiveHL7Message) {
-            ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
-            Attributes attrs = archiveHL7Message.getStudyAttrs();
-            if (attrs != null)
-                infoBuilder
-                    .studyIUID(attrs.getString(Tag.StudyInstanceUID))
-                    .accNum(attrs.getString(Tag.AccessionNumber));
-        }
-        return infoBuilder.build();
-    }
-
-    private AuditInfoBuilder procRecForward(HL7Segment pid) {
-        return infoBuilder
-                .patID(pid.getField(3, null), arcDev)
-                .patName(pid.getField(5, null), arcDev)
-                .build();
-    }
-    
-    private static String outcome(Exception e) {
-        return e != null ? e.getMessage() : null;
-    }
-
     static void audit(
             AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, Device device,
             IApplicationEntityCache aeCache, IHL7ApplicationCache hl7AppCache) {
@@ -710,10 +563,15 @@ class ProcedureRecordAuditService extends AuditService {
 
     private static EventIdentification getEventIdentification(AuditInfo auditInfo, AuditUtils.EventType eventType) {
         String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        String status = auditInfo.getField(AuditInfo.STATUS);
         EventIdentification ei = new EventIdentification();
         ei.setEventID(eventType.eventID);
         ei.setEventActionCode(eventType.eventActionCode);
-        ei.setEventOutcomeDescription(outcome);
+        ei.setEventOutcomeDescription(status == null
+                                        ? outcome
+                                        : outcome == null
+                                            ? status
+                                            : status + " : " + outcome);
         ei.setEventOutcomeIndicator(outcome == null
                 ? AuditMessages.EventOutcomeIndicator.Success
                 : AuditMessages.EventOutcomeIndicator.MinorFailure);
@@ -744,10 +602,28 @@ class ProcedureRecordAuditService extends AuditService {
                 AuditMessages.createParticipantObjectDetail("SeriesDescription", auditInfo.getField(AuditInfo.SERIES_DESC)));
         study.getParticipantObjectDetail().add(
                 AuditMessages.createParticipantObjectDetail("Modality", auditInfo.getField(AuditInfo.MODALITY)));
+
+        ParticipantObjectDescription participantObjectDescription = studyParticipantObjDesc(auditInfo);
+        if (participantObjectDescription != null)
+            study.setParticipantObjectDescription(participantObjectDescription);
         List<ParticipantObjectDetail> hl7ParticipantObjectDetails = hl7ParticipantObjectDetails(reader);
         if (!hl7ParticipantObjectDetails.isEmpty())
             study.getParticipantObjectDetail().addAll(hl7ParticipantObjectDetails);
         return study;
+    }
+
+    private static ParticipantObjectDescription studyParticipantObjDesc(AuditInfo auditInfo) {
+        String accessionNo = auditInfo.getField(AuditInfo.ACC_NUM);
+        String mppsUID = auditInfo.getField(AuditInfo.MPPS_UID);
+        if (accessionNo == null && mppsUID == null)
+            return null;
+
+        ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
+        if (accessionNo != null)
+            studyParticipantObjDesc.getAccession().add(AuditMessages.createAccession(accessionNo));
+        if (mppsUID != null)
+            studyParticipantObjDesc.getMPPS().add(AuditMessages.createMPPS(mppsUID));
+        return studyParticipantObjDesc;
     }
 
     private static List<ParticipantObjectDetail> hl7ParticipantObjectDetails(SpoolFileReader reader) {
@@ -776,80 +652,6 @@ class ProcedureRecordAuditService extends AuditService {
         detail.setType(key);
         detail.setValue(val);
         return detail;
-    }
-
-    static AuditMessage auditMsg(
-            AuditLogger auditLogger, Path path, AuditUtils.EventType eventType, IApplicationEntityCache aeCache) {
-        SpoolFileReader reader = new SpoolFileReader(path.toFile());
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        return AuditMessages.createMessage(
-                EventID.toEventIdentification(auditLogger, path, eventType, auditInfo),
-                activeParticipants(auditLogger, auditInfo, aeCache),
-                ParticipantObjectID.studyPatParticipants(auditInfo, reader, auditLogger));
-    }
-
-    private static ActiveParticipant[] activeParticipants(
-            AuditLogger auditLogger, AuditInfo auditInfo, IApplicationEntityCache aeCache) {
-        ActiveParticipant[] activeParticipants = new ActiveParticipant[3];
-        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        String callingHost = auditInfo.getField(AuditInfo.CALLING_HOST);
-
-        String findScp = auditInfo.getField(AuditInfo.FIND_SCP);
-        if (findScp != null) {
-            activeParticipants[0] = new ActiveParticipantBuilder(findScp, AuditUtils.findScpHost(findScp, aeCache))
-                                    .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                                    .build();
-            ActiveParticipantBuilder destination = new ActiveParticipantBuilder(
-                                                    auditInfo.getField(AuditInfo.DEST_USER_ID),
-                                                    getLocalHostName(auditLogger))
-                                                    .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
-                                                    .altUserID(AuditLogger.processID());
-            if (callingUserID != null) {
-                activeParticipants[1] = destination.build();
-                activeParticipants[2] = new ActiveParticipantBuilder(callingUserID, callingHost)
-                        .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                        .isRequester().build();
-            } else
-                activeParticipants[1] = destination.isRequester().build();
-
-            return activeParticipants;
-        }
-
-        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
-        AuditMessages.UserIDTypeCode calledUserIDTypeCode = userIDTypeCode(calledUserID);
-        boolean isHL7Forward = auditInfo.getField(AuditInfo.IS_OUTGOING_HL7) != null;
-        ActiveParticipantBuilder callingUserParticipant = new ActiveParticipantBuilder(callingUserID, callingHost)
-                .userIDTypeCode(AuditService.remoteUserIDTypeCode(
-                        calledUserIDTypeCode, callingUserID));
-
-        activeParticipants[0] = isHL7Forward
-                                ? callingUserParticipant.build()
-                                : callingUserParticipant.isRequester().build();
-        activeParticipants[1] = new ActiveParticipantBuilder(calledUserID, getLocalHostName(auditLogger))
-                                    .userIDTypeCode(calledUserIDTypeCode)
-                                    .altUserID(AuditLogger.processID())
-                                    .build();
-        if (isHL7Forward)
-            activeParticipants[2] = new ActiveParticipantBuilder(
-                    auditLogger.getDevice().getDeviceName(),
-                    getLocalHostName(auditLogger))
-                    .userIDTypeCode(AuditMessages.UserIDTypeCode.DeviceName)
-                    .altUserID(AuditLogger.processID())
-                    .isRequester()
-                    .build();
-        return activeParticipants;
-    }
-
-    private static String getLocalHostName(AuditLogger auditLogger) {
-        return auditLogger.getConnections().get(0).getHostname();
-    }
-
-    private static AuditMessages.UserIDTypeCode userIDTypeCode(String userID) {
-        return userID.indexOf('/') != -1
-                ? AuditMessages.UserIDTypeCode.URI
-                : userID.indexOf('|') != -1
-                    ? AuditMessages.UserIDTypeCode.ApplicationFacility
-                    : AuditMessages.UserIDTypeCode.StationAETitle;
     }
 
     static ApplicationEntity findApplicationEntity(String aet, IApplicationEntityCache aeCache) {

@@ -262,32 +262,41 @@ class StorageCommitAuditService extends AuditService {
     private static ParticipantObjectDescription participantObjDesc(
             AuditInfo auditInfo, SpoolFileReader reader, AuditLogger auditLogger) {
         String[] studyIUIDs = StringUtils.split(auditInfo.getField(AuditInfo.STUDY_UID), ';');
-        boolean showIUID = studyIUIDs.length > 1
+        boolean showSOPIUIDs = studyIUIDs.length > 1
                             || auditInfo.getField(AuditInfo.OUTCOME) != null
                             || auditLogger.isIncludeInstanceUID();
-        ParticipantObjectDescription participantObjDesc = new ParticipantObjectDescription();
+        InstanceInfo instanceInfo = instanceInfo(auditInfo, reader);
+        ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
+        if (studyIUIDs.length > 1)
+            studyParticipantObjDesc.setParticipantObjectContainsStudy(
+                    AuditMessages.createParticipantObjectContainsStudy(studyIUIDs));
+        String accessionNo = instanceInfo.getAccessionNo();
+        if (accessionNo != null)
+            studyParticipantObjDesc.getAccession().add(AuditMessages.createAccession(accessionNo));
+        studyParticipantObjDesc.getSOPClass().addAll(sopClasses(instanceInfo, showSOPIUIDs));
+        return studyParticipantObjDesc;
+    }
 
-        if (studyIUIDs.length > 1) {
-            ParticipantObjectContainsStudy participantObjectContainsStudy = new ParticipantObjectContainsStudy();
-            for (String studyIUID : studyIUIDs) {
-                StudyIDs studyIDs = new StudyIDs();
-                studyIDs.setUID(studyIUID);
-                participantObjectContainsStudy.getStudyIDs().add(studyIDs);
-            }
-            participantObjDesc.setParticipantObjectContainsStudy(participantObjectContainsStudy);
-        }
-
+    private static InstanceInfo instanceInfo(AuditInfo auditInfo, SpoolFileReader reader) {
         InstanceInfo instanceInfo = new InstanceInfo();
-        instanceInfo.addAcc(auditInfo);
-        reader.getInstanceLines().forEach(line -> {
-            AuditInfo info = new AuditInfo(line);
+        instanceInfo.setAccessionNo(auditInfo.getField(AuditInfo.ACC_NUM));
+        reader.getInstanceLines().forEach(instanceLine -> {
+            AuditInfo info = new AuditInfo(instanceLine);
             instanceInfo.addSOPInstance(info);
         });
-        instanceInfo.getSopClassMap().forEach((key, value) -> {
-            SOPClass sopClass = AuditMessages.createSOPClass(showIUID ? value : null, key, value.size());
-            participantObjDesc.getSOPClass().add(sopClass);
-        });
-        return participantObjDesc;
+        return instanceInfo;
+    }
+
+    private static List<SOPClass> sopClasses(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
+        return instanceInfo.getSopClassMap()
+                .entrySet()
+                .stream()
+                .map(entry ->
+                        AuditMessages.createSOPClass(
+                                showSOPIUIDs ? entry.getValue() : null,
+                                entry.getKey(),
+                                entry.getValue().size()))
+                .collect(Collectors.toList());
     }
 
     private static ActiveParticipant requestor(AuditInfo auditInfo) {

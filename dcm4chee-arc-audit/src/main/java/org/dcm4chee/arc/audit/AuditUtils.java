@@ -40,13 +40,10 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.HL7ConnectionEvent;
-import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
-import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.RejectionState;
@@ -65,7 +62,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -348,16 +344,6 @@ class AuditUtils {
                             : PROC_STD_D;
         }
 
-        static EventType forProcedure(String eventActionCode) {
-            return eventActionCode == null
-                    ? PROC_STD_R
-                    : eventActionCode.equals(AuditMessages.EventActionCode.Create)
-                        ? PROC_STD_C
-                        : eventActionCode.equals(AuditMessages.EventActionCode.Update)
-                            ? PROC_STD_U
-                            : PROC_STD_D;
-        }
-
         static EventType forHL7IncomingOrderMsg(HL7ConnectionEvent hl7ConnEvent) {
             UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
             if (hl7ResponseMessage instanceof ArchiveHL7Message)
@@ -367,49 +353,16 @@ class AuditUtils {
 
             //HL7 Exception in HL7 Connection Event != null
             return PROC_STD_U;
-
-//            if (hl7ResponseMessage instanceof ArchiveHL7Message) {
-//                ArchiveHL7Message archiveHL7Message = (ArchiveHL7Message) hl7ResponseMessage;
-//                String procRecEventActionCode = archiveHL7Message.getProcRecEventActionCode();
-//                return procRecEventActionCode == null
-//                        ? PROC_STD_R
-//                        : procRecEventActionCode.equals(AuditMessages.EventActionCode.Create)
-//                            ? PROC_STD_C
-//                            : PROC_STD_U;
-//            }
-//            return PROC_STD_R;
         }
 
-        static EventType forHL7OutgoingOrderMsg(HL7ConnectionEvent hl7ConnEvent) {
-            UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-            HL7Segment orc = HL7AuditUtils.getHL7Segment(hl7Message, AuditUtils.ORC_SEGMENT);
-            String orderCtrlStatus = orc.getField(AuditUtils.ORC_SEGMENT_ORDER_CONTROL, null)
+        static EventType forHL7OutgoingOrderMsg(HL7Message hl7Message) {
+            HL7Segment orc = hl7Message.getSegment(ORC_SEGMENT);
+            String orderCtrlStatus = orc.getField(ORC_SEGMENT_ORDER_CONTROL, null)
                                         + "_"
-                                        + orc.getField(AuditUtils.ORC_SEGMENT_ORDER_STATUS, null);
-            return Arrays.asList(AuditUtils.SPS_SCHEDULED).contains(orderCtrlStatus)
+                                        + orc.getField(ORC_SEGMENT_ORDER_STATUS, null);
+            return Arrays.asList(SPS_SCHEDULED).contains(orderCtrlStatus)
                     ? PROC_STD_C
                     : PROC_STD_U;
-        }
-
-        static EventType forHL7OutgoingOrderMsg(String orderCtrlStatus,
-                Collection<HL7OrderSPSStatus> hl7OrderSPSStatuses) {
-            EventType eventType = PROC_STD_R;
-            for (HL7OrderSPSStatus hl7OrderSPSStatus : hl7OrderSPSStatuses) {
-                String[] orderControlStatusCodes = hl7OrderSPSStatus.getOrderControlStatusCodes();
-                if (hl7OrderSPSStatus.getSPSStatus() == SPSStatus.SCHEDULED) {
-                    if (Arrays.asList(orderControlStatusCodes).contains(orderCtrlStatus)) {
-                        eventType = PROC_STD_C;
-                        break;
-                    }
-                } else {
-                    if (Arrays.asList(orderControlStatusCodes).contains(orderCtrlStatus)
-                            || orderCtrlStatus.equals("SC_CM")) {//SC_CM = archive sends proc update msg mpps or study receive trigger
-                        eventType = PROC_STD_U;
-                        break;
-                    }
-                }
-            }
-            return eventType;
         }
 
         static EventType forTaskEvent(TaskOperation operation) {
@@ -429,16 +382,6 @@ class AuditUtils {
                     + ", EventTypeCode = " + eventTypeCode
                     + "]";
         }
-    }
-
-    static String findScpHost(String findScp, IApplicationEntityCache aeCache) {
-        String findScpHost = null;
-        try {
-            findScpHost = aeCache.findApplicationEntity(findScp).getConnections().get(0).getHostname();
-        } catch (ConfigurationException e) {
-            LOG.info("Exception caught on getting hostname for C-FINDSCP {} : {}", findScp, e.getMessage());
-        }
-        return findScpHost;
     }
 
     static AuditMessages.EventTypeCode errorEventTypeCode(String errorCode) {

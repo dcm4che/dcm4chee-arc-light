@@ -372,7 +372,7 @@ public class ProcedureServiceEJB {
         mwl.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
     }
 
-    void updateStudySeriesAttributesFromMWL(ProcedureContext ctx) {
+    public void updateStudySeriesAttributesFromMWL(ProcedureContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)

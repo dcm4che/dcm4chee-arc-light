@@ -68,7 +68,6 @@ import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.HL7ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;
@@ -1035,18 +1034,6 @@ public class AuditService {
             writeSpoolFile(eventType.name(),
                     ProcedureRecordAuditService.procedureAuditInfoForHL7Incoming(hl7ConnEvent, hl7Message, getArchiveDevice()),
                     hl7MsgAndResponse);
-
-//            UnparsedHL7Message hl7ResponseMessage = hl7ConnEvent.getHL7ResponseMessage();
-//            if (HL7AuditUtils.isOrderMessage(hl7ConnEvent)) {
-//                ProcedureRecordAuditService procedureRecordAuditService
-//                        = new ProcedureRecordAuditService(hl7ConnEvent, getArchiveDevice());
-//                writeSpoolFile(
-//                        procedureRecordAuditService.getHL7IncomingOrderInfo(),
-//                        AuditUtils.EventType.forHL7IncomingOrderMsg(hl7ResponseMessage),
-//                        hl7ConnEvent);
-//                if (!procedureRecordAuditService.hasPIDSegment())
-//                    LOG.info("Missing PID segment. Abort patient audit of incoming HL7 order message.");
-//            }
         } catch (Exception e) {
             LOG.info("Failed to spool procedure record for incoming HL7 message {}\n", unparsedHL7Message, e);
         }
@@ -1057,14 +1044,6 @@ public class AuditService {
         HL7Message hl7Message = toHL7Message(hl7ConnEvent.getHL7Message());
         spoolOutgoingHL7MsgForPatientRecord(hl7ConnEvent, hl7Message, hl7MsgAndResponse);
         spoolOutgoingHL7MsgForProcedureRecord(hl7ConnEvent, hl7Message, hl7MsgAndResponse);
-
-//        try {
-//            if (HL7AuditUtils.isOrderMessage(hl7ConnEvent))
-//                spoolOutgoingHL7OrderMsg(hl7ConnEvent);
-//
-//        } catch (Exception e) {
-//            LOG.info("Failed to spool HL7 Outgoing for [Message={}]\n", hl7ConnEvent.getHL7Message(), e);
-//        }
     }
 
     private void spoolOutgoingHL7MsgForPatientRecord(
@@ -1104,7 +1083,7 @@ public class AuditService {
             return;
 
         try {
-            AuditUtils.EventType eventType = AuditUtils.EventType.forHL7OutgoingOrderMsg(hl7ConnEvent);
+            AuditUtils.EventType eventType = AuditUtils.EventType.forHL7OutgoingOrderMsg(hl7Message);
             writeSpoolFile(eventType.name(),
                     ProcedureRecordAuditService.procedureAuditInfoForHL7Outgoing(hl7ConnEvent, hl7Message, getArchiveDevice()),
                     hl7MsgAndResponse);
@@ -1117,20 +1096,6 @@ public class AuditService {
         HL7Segment msh = unparsedHL7Message.msh();
         String charset = msh.getField(17, "ASCII");
         return HL7Message.parse(unparsedHL7Message.unescapeXdddd(), charset);
-    }
-
-    private void spoolOutgoingHL7OrderMsg(HL7ConnectionEvent hl7ConnEvent) {
-        UnparsedHL7Message hl7Message = hl7ConnEvent.getHL7Message();
-        Collection<HL7OrderSPSStatus> hl7OrderSPSStatuses = device.getDeviceExtension(HL7DeviceExtension.class)
-                .getHL7Application(hl7Message.msh().getSendingApplicationWithFacility(), true)
-                .getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class)
-                .hl7OrderSPSStatuses();
-        HL7Segment orc = HL7AuditUtils.getHL7Segment(hl7Message, "ORC");
-        String orderCtrlStatus = orc.getField(1, null) + "_" + orc.getField(5, null);
-        writeSpoolFile(
-                new ProcedureRecordAuditService(hl7ConnEvent, getArchiveDevice()).getHL7OutgoingOrderInfo(),
-                AuditUtils.EventType.forHL7OutgoingOrderMsg(orderCtrlStatus, hl7OrderSPSStatuses),
-                hl7ConnEvent);
     }
 
     void spoolPatientRecord(PatientMgtContext ctx) {
@@ -1161,7 +1126,6 @@ public class AuditService {
         }
     }
 
-
     void spoolProcedureRecord(ProcedureContext ctx) {
         if (ctx.getUnparsedHL7Message() != null && !ctx.getUnparsedHL7Message().msh().getMessageType().equals("ADT^A10"))
             return;
@@ -1173,11 +1137,8 @@ public class AuditService {
         }
 
         try {
-            writeSpoolFile(eventType.name(), false, ProcedureRecordAuditService.procedureAuditInfo(ctx, getArchiveDevice()));
-//            writeSpoolFile(
-//                    AuditUtils.EventType.forProcedure(ctx.getEventActionCode()),
-//                    null,
-//                    new ProcedureRecordAuditService(ctx, getArchiveDevice()).getProcUpdateAuditInfo());
+            writeSpoolFile(eventType.name(), false,
+                    ProcedureRecordAuditService.procedureAuditInfo(ctx, getArchiveDevice()));
         } catch (Exception e) {
             LOG.info("Failed to spool Procedure Update procedure record for EventActionCode={}\n",
                     ctx.getEventActionCode(), e);
@@ -1252,13 +1213,6 @@ public class AuditService {
         writeSpoolFile(AuditUtils.EventType.STUDY_UPDT.name(), false, auditInfo);
     }
 
-    private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditUtils.EventType eventType)
-            throws Exception {
-        emitAuditMessage(
-                ProcedureRecordAuditService.auditMsg(auditLogger, path, eventType, aeCache),
-                auditLogger);
-    }
-
     void spoolProvideAndRegister(ExportContext ctx) {
         HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
         URI destination = ctx.getExporter().getExporterDescriptor().getExportURI();
@@ -1320,28 +1274,6 @@ public class AuditService {
                 URLEncoder.encode(auditLogger.getCommonName(), StandardCharsets.UTF_8));
     }
 
-    private void writeSpoolFile(
-            AuditInfoBuilder auditInfoBuilder, AuditUtils.EventType eventType, HL7ConnectionEvent hl7ConnEvent) {
-        UnparsedHL7Message unparsedHL7Message = hl7ConnEvent.getHL7Message();
-        HL7Segment msh = unparsedHL7Message.msh();
-        int auditHL7MsgLimit;
-        HL7Application hl7Application = device.getDeviceExtension(HL7DeviceExtension.class)
-                                        .getHL7Application(hl7ConnEvent.getType() == HL7ConnectionEvent.Type.MESSAGE_PROCESSED
-                                                        ? msh.getReceivingApplicationWithFacility()
-                                                        : msh.getSendingApplicationWithFacility(),
-                                                true);
-         if (hl7Application == null) {
-             LOG.info("No HL7 Application found for HL7ConnectionEvent.Type [name={}] - {}. Use auditHL7MsgLimit value from device.",
-                     hl7ConnEvent.getType().name(), msh);
-             auditHL7MsgLimit = device.getDeviceExtension(ArchiveDeviceExtension.class).getAuditHL7MsgLimit();
-         } else auditHL7MsgLimit = hl7Application.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class).auditHL7MsgLimit();
-
-        writeSpoolFile(auditInfoBuilder,
-                eventType,
-                limitHL7MsgInAudit(hl7ConnEvent.getHL7Message(), auditHL7MsgLimit),
-                limitHL7MsgInAudit(hl7ConnEvent.getHL7ResponseMessage(), auditHL7MsgLimit));
-    }
-
     private List<byte[]> hl7MsgAndResponse(HL7ConnectionEvent hl7ConnEvent) {
         List<byte[]> hl7MsgAndResponse = new ArrayList<>();
         int auditHL7MsgLimit = auditHL7MsgLimit(hl7ConnEvent);
@@ -1380,111 +1312,6 @@ public class AuditService {
         return truncatedHL7;
     }
 
-
-
-    private void writeSpoolFile(
-            AuditInfoBuilder auditInfoBuilder, AuditUtils.EventType eventType, byte[]... data) {
-        if (auditInfoBuilder == null) {
-            LOG.info("Attempt to write empty file by : {}", eventType);
-            return;
-        }
-        FileTime eventTime = null;
-        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        for (AuditLogger auditLogger : ext.getAuditLoggers())
-            if (auditLogger.isInstalled()) {
-                try {
-                    Path dir = toDirPath(auditLogger);
-                    Files.createDirectories(dir);
-                    Path file = Files.createTempFile(dir, eventType.name(), null);
-                    try (BufferedOutputStream out = new BufferedOutputStream(
-                            Files.newOutputStream(file, StandardOpenOption.APPEND))) {
-                        try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(
-                                file, StandardCharsets.UTF_8, StandardOpenOption.APPEND))) {
-                            writer.writeLine(new AuditInfo(auditInfoBuilder));
-                        }
-                        out.write(data[0]);
-                        if (data.length > 1 && data[1].length > 0)
-                            out.write(data[1]);
-                    }
-                    if (eventTime == null)
-                        eventTime = Files.getLastModifiedTime(file);
-                    else
-                        Files.setLastModifiedTime(file, eventTime);
-                    if (!getArchiveDevice().isAuditAggregate())
-                        auditAndProcessFile(auditLogger, file);
-                } catch (Exception e) {
-                    LOG.info("Failed to write audit spool file for [AuditEventType={}] at [AuditLogger={}]\n",
-                            eventType, auditLogger.getCommonName(), e);
-                }
-            }
-    }
-
-    void writeSpoolFile(AuditUtils.EventType eventType, String suffix, AuditInfoBuilder... auditInfoBuilders) {
-        String file = suffix != null ? eventType.name().concat(suffix) : eventType.name();
-        if (auditInfoBuilders == null) {
-            LOG.info("Attempt to write empty file : " + file);
-            return;
-        }
-        FileTime eventTime = null;
-        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
-            if (!auditLogger.isInstalled())
-                continue;
-
-            try {
-                Path dir = toDirPath(auditLogger);
-                Files.createDirectories(dir);
-                Path filePath = eventType.eventClass == AuditUtils.EventClass.STORE_WADOR
-                        || (suffix != null && eventType.eventClass == AuditUtils.EventClass.USER_DELETED)
-                        ? filePath(file, dir, auditInfoBuilders)
-                        : filePath(eventType, dir, auditInfoBuilders);
-                if (eventTime == null)
-                    eventTime = Files.getLastModifiedTime(filePath);
-                else
-                    Files.setLastModifiedTime(filePath, eventTime);
-                if (!getArchiveDevice().isAuditAggregate())
-                    auditAndProcessFile(auditLogger, filePath);
-            } catch (Exception e) {
-                LOG.info("Failed to write [AuditSpoolFile={}] at [AuditLogger={}]\n",
-                        file, auditLogger.getCommonName(), e);
-            }
-        }
-    }
-
-    private Path filePath(AuditUtils.EventType eventType, Path dir, AuditInfoBuilder... auditInfoBuilders)
-            throws IOException {
-        Path file = Files.createTempFile(dir, eventType.name(), null);
-        try (SpoolFileWriter writer = new SpoolFileWriter(
-                Files.newBufferedWriter(file, StandardCharsets.UTF_8, StandardOpenOption.APPEND))) {
-            for (AuditInfoBuilder auditInfoBuilder : auditInfoBuilders)
-                writer.writeLine(new AuditInfo(auditInfoBuilder));
-        }
-        return file;
-    }
-
-    private Path filePath(String fileName, Path dir, AuditInfoBuilder... auditInfoBuilders) throws IOException {
-        Path file = dir.resolve(fileName);
-        boolean append = Files.exists(file);
-        try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW))) {
-            if (!append)
-                writer.writeLine(new AuditInfo(auditInfoBuilders[0]));
-
-            writer.writeLine(new AuditInfo(auditInfoBuilders[1]));
-        }
-        return file;
-    }
-
-    private void emitAuditMessage(AuditMessage msg, AuditLogger logger) throws Exception {
-        msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
-        try {
-            logger.write(logger.timeStamp(), msg);
-        } catch (Exception e) {
-            LOG.info("Failed to emit audit message for [AuditLogger={}]\n", logger.getCommonName(), e);
-            throw e;
-        }
-    }
-
     static void emitAuditMessage(
             AuditLogger auditLogger, EventIdentification eventIdentification, List<ActiveParticipant> activeParticipants,
             ParticipantObjectIdentification... participantObjectIdentifications) {
@@ -1495,19 +1322,6 @@ public class AuditService {
         } catch (Exception e) {
             LOG.info("Failed to emit audit message for [AuditLogger={}]\n", auditLogger.getCommonName(), e);
         }
-    }
-
-    static AuditMessages.UserIDTypeCode remoteUserIDTypeCode(
-            AuditMessages.UserIDTypeCode archiveUserIDTypeCode, String remoteUserID) {
-        if (remoteUserID != null)
-            return remoteUserID.indexOf('|') != -1
-                    ? AuditMessages.UserIDTypeCode.ApplicationFacility
-                    : archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.URI
-                    ? AuditMessages.userIDTypeCode(remoteUserID)
-                    : AuditMessages.UserIDTypeCode.StationAETitle;
-
-        LOG.info("Remote user ID was not set during spooling.");
-        return null;
     }
 
     static Calendar getEventTime(Path path, AuditLogger auditLogger){

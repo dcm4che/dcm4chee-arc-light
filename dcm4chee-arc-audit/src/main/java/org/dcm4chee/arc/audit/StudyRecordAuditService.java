@@ -122,10 +122,8 @@ class StudyRecordAuditService extends AuditService {
     }
 
     private static ParticipantObjectDescription studyParticipantObjDesc(String accessionNo) {
-        Accession accession = new Accession();
-        accession.setNumber(accessionNo);
         ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
-        studyParticipantObjDesc.getAccession().add(accession);
+        studyParticipantObjDesc.getAccession().add(AuditMessages.createAccession(accessionNo));
         return studyParticipantObjDesc;
     }
 

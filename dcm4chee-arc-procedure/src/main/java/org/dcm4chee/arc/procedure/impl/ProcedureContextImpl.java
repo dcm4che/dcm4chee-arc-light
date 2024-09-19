@@ -141,7 +141,11 @@ public class ProcedureContextImpl implements ProcedureContext {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.requesterHost : ReverseDNS.hostNameOf(socket.getInetAddress());
+        return httpRequest != null
+                ? httpRequest.requesterHost
+                : socket != null
+                    ? ReverseDNS.hostNameOf(socket.getInetAddress())
+                    : null;
     }
 
     @Override

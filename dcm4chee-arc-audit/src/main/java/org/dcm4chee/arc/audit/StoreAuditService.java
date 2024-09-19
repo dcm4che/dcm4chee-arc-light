@@ -225,22 +225,13 @@ class StoreAuditService extends AuditService {
 
     private static ParticipantObjectDescription studyParticipantObjDesc(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
         ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
-        studyParticipantObjDesc.getAccession().add(accession(instanceInfo));
+        String accessionNo = instanceInfo.getAccessionNo();
+        if (accessionNo != null)
+            studyParticipantObjDesc.getAccession().add(AuditMessages.createAccession(accessionNo));
         studyParticipantObjDesc.getSOPClass().addAll(sopClasses(instanceInfo, showSOPIUIDs));
-        instanceInfo.getMpps().forEach(mppsUID -> studyParticipantObjDesc.getMPPS().add(mpps(mppsUID)));
+        instanceInfo.getMpps().forEach(
+                mppsUID -> studyParticipantObjDesc.getMPPS().add(AuditMessages.createMPPS(mppsUID)));
         return studyParticipantObjDesc;
-    }
-
-    private static Accession accession(InstanceInfo instanceInfo) {
-        Accession accession = new Accession();
-        accession.setNumber(instanceInfo.getAccessionNo());
-        return accession;
-    }
-
-    private static MPPS mpps(String mppsUID) {
-        MPPS mpps = new MPPS();
-        mpps.setUID(mppsUID);
-        return mpps;
     }
 
     private static List<SOPClass> sopClasses(InstanceInfo instanceInfo, boolean showSOPIUIDs) {

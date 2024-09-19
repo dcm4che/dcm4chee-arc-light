@@ -129,22 +129,24 @@ class DeletionAuditService extends AuditService {
     }
 
     private static ParticipantObjectDescription studyParticipantObjDesc(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
-        Accession accession = new Accession();
-        accession.setNumber(instanceInfo.getAccessionNo());
-        List<SOPClass> sopClasses = instanceInfo.getSopClassMap()
-                                                .entrySet()
-                                                .stream()
-                                                .map(entry ->
-                                                        AuditMessages.createSOPClass(
-                                                                showSOPIUIDs ? entry.getValue() : null,
-                                                                entry.getKey(),
-                                                                entry.getValue().size()))
-                                                .collect(Collectors.toList());
-
         ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
-        studyParticipantObjDesc.getAccession().add(accession);
-        studyParticipantObjDesc.getSOPClass().addAll(sopClasses);
+        String accessionNo = instanceInfo.getAccessionNo();
+        if (accessionNo != null)
+            studyParticipantObjDesc.getAccession().add(AuditMessages.createAccession(accessionNo));
+        studyParticipantObjDesc.getSOPClass().addAll(sopClasses(instanceInfo, showSOPIUIDs));
         return studyParticipantObjDesc;
+    }
+
+    private static List<SOPClass> sopClasses(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
+        return instanceInfo.getSopClassMap()
+                .entrySet()
+                .stream()
+                .map(entry ->
+                        AuditMessages.createSOPClass(
+                                showSOPIUIDs ? entry.getValue() : null,
+                                entry.getKey(),
+                                entry.getValue().size()))
+                .collect(Collectors.toList());
     }
 
     private static ActiveParticipant archive(

@@ -444,23 +444,33 @@ class RetrieveAuditService extends AuditService {
         study.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
         study.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
         study.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
-        study.getParticipantObjectDetail()
-                .add(AuditMessages.createParticipantObjectDetail("StudyDate", instanceInfo.getStudyDate()));
+        addParticipantObjectDetails(study, instanceInfo);
         study.setParticipantObjectDescription(studyParticipantObjDesc(instanceInfo, showSOPIUIDs));
         return study;
     }
 
-    private static ParticipantObjectDescription studyParticipantObjDesc(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
-        ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
-        studyParticipantObjDesc.getAccession().add(accession(instanceInfo));
-        studyParticipantObjDesc.getSOPClass().addAll(sopClasses(instanceInfo, showSOPIUIDs));
-        return studyParticipantObjDesc;
+    private static void addParticipantObjectDetails(ParticipantObjectIdentification study, InstanceInfo instanceInfo) {
+        addParticipantObjectDetail(study, "StudyDate", instanceInfo.getStudyDates().iterator());
+        addParticipantObjectDetail(study, "StudyDescription", instanceInfo.getStudyDescriptions().iterator());
+        addParticipantObjectDetail(study, "SeriesDescription", instanceInfo.getSeriesDescriptions().iterator());
+        addParticipantObjectDetail(study, "Modality", instanceInfo.getModalities().iterator());
     }
 
-    private static Accession accession(InstanceInfo instanceInfo) {
-        Accession accession = new Accession();
-        accession.setNumber(instanceInfo.getAccessionNo());
-        return accession;
+    private static void addParticipantObjectDetail(
+            ParticipantObjectIdentification study, String key, Iterator<String> fieldValueIterator) {
+        while (fieldValueIterator.hasNext()) {
+            study.getParticipantObjectDetail()
+                    .add(AuditMessages.createParticipantObjectDetail(key, fieldValueIterator.next()));
+        }
+    }
+
+    private static ParticipantObjectDescription studyParticipantObjDesc(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
+        ParticipantObjectDescription studyParticipantObjDesc = new ParticipantObjectDescription();
+        String accessionNo = instanceInfo.getAccessionNo();
+        if (accessionNo != null)
+            studyParticipantObjDesc.getAccession().add(AuditMessages.createAccession(accessionNo));
+        studyParticipantObjDesc.getSOPClass().addAll(sopClasses(instanceInfo, showSOPIUIDs));
+        return studyParticipantObjDesc;
     }
 
     private static List<SOPClass> sopClasses(InstanceInfo instanceInfo, boolean showSOPIUIDs) {
