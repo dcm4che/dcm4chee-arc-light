@@ -5,6 +5,11 @@ changetype: modify
 replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmWadoSupportedSRClasses
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.77
+
 dn: dcmQueryRetrieveViewID=iocmDisabled,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmQueryRetrieveViewID: iocmDisabled
@@ -21,3 +26,6 @@ dcmTag: 00081070
 dcmTag: 00081072
 dcmTag: 00401012
 dcmTag: 0040A078
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+
