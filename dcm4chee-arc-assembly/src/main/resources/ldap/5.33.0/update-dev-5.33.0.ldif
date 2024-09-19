@@ -26,6 +26,3 @@ dcmTag: 00081070
 dcmTag: 00081072
 dcmTag: 00401012
 dcmTag: 0040A078
-
-dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-
