@@ -52,6 +52,7 @@ export class IssuerSelectorComponent implements OnInit {
     }
     filterChanged(){
         this.extractModelsFromString();
+        this.modelChange.emit(this.filterModel);
     }
 
     initSplitters(){
