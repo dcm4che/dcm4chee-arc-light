@@ -178,20 +178,6 @@ public class HL7RS {
         return false;
     }
 
-    @PUT
-    @Consumes({"application/dicom+json,application/json"})
-    @Produces("application/json")
-    public Response updatePatient1(InputStream in) {
-        logRequest();
-        PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
-        if (ctx.getPatientIDs().isEmpty())
-            return errResponse(
-                    "Missing patient identifier with trusted assigning authority in " + ctx.getPatientIDs(),
-                    Response.Status.BAD_REQUEST);
-
-        return scheduleOrSendHL7("ADT^A31^ADT_A05", ctx);
-    }
-
     private Collection<IDWithIssuer> trustedPatientIDs(String multiplePatientIDs) {
         String[] patientIDs = multiplePatientIDs.split("~");
         Set<IDWithIssuer> patientIdentifiers = new LinkedHashSet<>(patientIDs.length);
@@ -221,48 +207,6 @@ public class HL7RS {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
         }
-    }
-
-    @POST
-    @Path("/{priorPatientID}/merge")
-    @Consumes({"application/dicom+json,application/json"})
-    @Produces("application/json")
-    public Response mergePatient(@PathParam("priorPatientID") String multiplePriorPatientIDs, InputStream in) {
-        Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs);
-        if (trustedPriorPatientIDs.isEmpty())
-            return errResponse(
-                    "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
-                    Response.Status.BAD_REQUEST);
-
-        return mergePatientOrChangePID(trustedPriorPatientIDs, in, "ADT^A40^ADT_A39");
-    }
-
-    @POST
-    @Path("/{priorPatientID}/changeid")
-    @Consumes({"application/dicom+json,application/json"})
-    @Produces("application/json")
-    public Response changePatientID(@PathParam("priorPatientID") String multiplePriorPatientIDs, InputStream in) {
-        Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs);
-        if (trustedPriorPatientIDs.isEmpty())
-            return errResponse(
-                    "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
-                    Response.Status.BAD_REQUEST);
-
-        return mergePatientOrChangePID(trustedPriorPatientIDs, in, "ADT^A47^ADT_A30");
-    }
-
-    private Response mergePatientOrChangePID(
-            Collection<IDWithIssuer> trustedPriorPatientIDs, InputStream in, String msgType) {
-        logRequest();
-        PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
-        if (ctx.getPatientIDs().isEmpty())
-            return errResponse(
-                    "Missing patient identifier with trusted assigning authority in " + ctx.getPatientIDs(),
-                    Response.Status.BAD_REQUEST);
-
-        ctx.setPreviousPatientIDs(trustedPriorPatientIDs);
-        ctx.setPreviousAttributes(exportPatientIDsWithIssuer(new Attributes(), trustedPriorPatientIDs));
-        return scheduleOrSendHL7(msgType, ctx);
     }
 
     private Attributes exportPatientIDsWithIssuer(Attributes attrs, Collection<IDWithIssuer> idWithIssuers) {

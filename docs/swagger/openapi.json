@@ -865,12 +865,6 @@
     "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients": {
       "$ref": "paths/pam.json#/hl7.patients"
     },
-    "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{priorPatientID}/merge": {
-      "$ref": "paths/legacy.json#/hl7.patient.merge"
-    },
-    "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{priorPatientID}/changeid": {
-      "$ref": "paths/legacy.json#/hl7.patient.changeID"
-    },
     "/hl7apps/{hl7AppNameWithFacility}/hl7/{externalHL7AppNameWithFacility}/patients/{PatientID}": {
       "$ref": "paths/pam.json#/hl7.patient"
     },
