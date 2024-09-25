@@ -82,6 +82,7 @@ public final class StorageDescriptor {
     private Availability instanceAvailability = Availability.ONLINE;
     private String storageClusterID;
     private String[] exportStorageID = {};
+    private boolean singleExportStorageByStudy;
     private String retrieveCacheStorageID;
     private boolean noRetrieveCacheOnPurgedInstanceRecords;
     private String[] noRetrieveCacheOnDestinationAETitles = {};
@@ -269,6 +270,14 @@ public final class StorageDescriptor {
 
     public void setExportStorageID(String... exportStorageID) {
         Arrays.sort(this.exportStorageID = exportStorageID);
+    }
+
+    public boolean isSingleExportStorageByStudy() {
+        return singleExportStorageByStudy;
+    }
+
+    public void setSingleExportStorageByStudy(boolean singleExportStorageByStudy) {
+        this.singleExportStorageByStudy = singleExportStorageByStudy;
     }
 
     public String getRetrieveCacheStorageID() {
@@ -481,8 +490,11 @@ public final class StorageDescriptor {
             combinations = join(combinations,
                     powerSetOf(storageClustered != null, otherStorageIDsOfStorageCLuster));
         if (exportStorageID.length > 0 && (storageExported == null || storageExported))
-            combinations = join(combinations,
-                    powerSetOf(storageExported != null, Arrays.asList(exportStorageID)));
+            if (singleExportStorageByStudy) {
+                combinations = join(combinations, exportStorageID, storageExported == null);
+            } else
+                combinations = join(combinations,
+                        powerSetOf(storageExported != null, Arrays.asList(exportStorageID)));
         if (!exportFromStorageIDs.isEmpty())
             combinations = join(combinations, powerSetOf(false, exportFromStorageIDs));
         if (retrieveCacheStorageID != null && !exportFromStorageIDs.contains(retrieveCacheStorageID))
@@ -517,7 +529,22 @@ public final class StorageDescriptor {
         return result;
     }
 
+    private static String[][] join(String[][] a, String[] b, boolean append) {
+        int n = a.length * b.length;
+        if (append) n += b.length;
+        String[][] result = new String[n][];
+        for (int i = 0, k = 0; i < a.length; i++) {
+            if (append) result[k++] = a[i];
+            for (int j = 0; j < b.length; j++, k++) {
+                result[k] = new String[a[i].length + 1];
+                System.arraycopy(a[i], 0, result[k], 0, a[i].length);
+                result[k][a[i].length] = b[i];
+            }
+        }
+        return result;
+    }
     private static List<String> toStudyStorageIDs(String[][] a) {
+
         String[] result = new String[a.length];
         for (int i = 0; i < a.length; i++) {
             Arrays.sort(a[i]);

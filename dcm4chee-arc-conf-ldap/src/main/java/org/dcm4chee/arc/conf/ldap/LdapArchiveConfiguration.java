@@ -2852,6 +2852,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getExternalRetrieveInstanceAvailability(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExportStorageID",
                 descriptor.getExportStorageID());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmSingleExportStorageByStudy",
+                descriptor.isSingleExportStorageByStudy(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveCacheStorageID",
                 descriptor.getRetrieveCacheStorageID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoRetrieveCacheOnPurgedInstanceRecords",
@@ -2915,6 +2917,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setExternalRetrieveInstanceAvailability(LdapUtils.enumValue(
                         Availability.class, attrs.get("dcmExternalRetrieveInstanceAvailability"), null));
                 desc.setExportStorageID(LdapUtils.stringArray(attrs.get("dcmExportStorageID")));
+                desc.setSingleExportStorageByStudy(
+                        LdapUtils.booleanValue(attrs.get("dcmSingleExportStorageByStudy"), false));
                 desc.setRetrieveCacheStorageID(
                         LdapUtils.stringValue(attrs.get("dcmRetrieveCacheStorageID"), null));
                 desc.setNoRetrieveCacheOnPurgedInstanceRecords(
@@ -3034,6 +3038,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getExternalRetrieveInstanceAvailability(), desc.getExternalRetrieveInstanceAvailability(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmExportStorageID",
                 prev.getExportStorageID(), desc.getExportStorageID());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSingleExportStorageByStudy",
+                prev.isSingleExportStorageByStudy(),
+                desc.isSingleExportStorageByStudy(),
+                false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveCacheStorageID",
                 prev.getRetrieveCacheStorageID(), desc.getRetrieveCacheStorageID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmNoRetrieveCacheOnPurgedInstanceRecords",

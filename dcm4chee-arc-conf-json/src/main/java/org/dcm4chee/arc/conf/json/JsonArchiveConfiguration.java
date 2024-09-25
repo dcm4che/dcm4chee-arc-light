@@ -567,6 +567,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmExternalRetrieveInstanceAvailability",
                     st.getExternalRetrieveInstanceAvailability(), null);
             writer.writeNotEmpty("dcmExportStorageID", st.getExportStorageID());
+            writer.writeNotDef("dcmSingleExportStorageByStudy",
+                    st.isSingleExportStorageByStudy(), false);
             writer.writeNotNullOrDef("dcmRetrieveCacheStorageID", st.getRetrieveCacheStorageID(), null);
             writer.writeNotDef("dcmNoRetrieveCacheOnPurgedInstanceRecords",
                     st.isNoRetrieveCacheOnPurgedInstanceRecords(), false);
@@ -2495,6 +2497,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmExportStorageID":
                         st.setExportStorageID(reader.stringArray());
+                        break;
+                    case "dcmSingleExportStorageByStudy":
+                        st.setSingleExportStorageByStudy(reader.booleanValue());
                         break;
                     case "dcmRetrieveCacheStorageID":
                         st.setRetrieveCacheStorageID(reader.stringValue());
