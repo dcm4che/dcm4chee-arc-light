@@ -930,6 +930,8 @@ class ArchiveDeviceFactory {
             UID.SegmentationStorage,
             UID.SurfaceSegmentationStorage,
             UID.TractographyResultsStorage,
+            UID.LabelMapSegmentationStorage,
+            UID.HeightMapSegmentationStorage,
             UID.RealWorldValueMappingStorage,
             UID.SurfaceScanMeshStorage,
             UID.SurfaceScanPointCloudStorage,
