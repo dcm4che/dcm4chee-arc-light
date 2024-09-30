@@ -107,7 +107,6 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIElasticsearchConfigs(writer, uiConfig.getElasticsearchConfigs());
         writeUILanguageConfigs(writer, uiConfig.getLanguageConfigs());
         writeUITableConfigs(writer, uiConfig.getTableConfigs());
-        writeUIDeviceURLs(writer, uiConfig.getDeviceURLs());
         writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
         writeUIFilterTemplate(writer, uiConfig.getFilterTemplates());
         writeUIAetList(writer, uiConfig.getAetLists());
@@ -201,21 +200,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         writer.writeEnd();
     }
-    private void writeUIDeviceURLs(JsonWriter writer, Collection<UIDeviceURL> uiDeviceURLs) {
-        if (uiDeviceURLs.isEmpty())
-            return;
 
-        writer.writeStartArray("dcmuiDeviceURLObject");
-        for (UIDeviceURL uiDeviceURL : uiDeviceURLs) {
-            writer.writeStartObject();
-            writer.writeNotNullOrDef("dcmuiDeviceURLName", uiDeviceURL.getDeviceName(), null);
-            writer.writeNotNullOrDef("dcmuiDeviceURL", uiDeviceURL.getDeviceURL(), null);
-            writer.writeNotNullOrDef("dcmuiDeviceURLDescription", uiDeviceURL.getDescription(), null);
-            writer.writeNotDef("dcmuiDeviceURLInstalled", uiDeviceURL.isInstalled(), true);
-            writer.writeEnd();
-        }
-        writer.writeEnd();
-    }
     private void writeUIDeviceClusters(JsonWriter writer, Collection<UIDeviceCluster> uiDeviceClusters) {
         if (uiDeviceClusters.isEmpty())
             return;
@@ -523,9 +508,6 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiTableConfig":
                     loadUITableConfigs(uiConfig, reader);
                     break;
-                case "dcmuiDeviceURLObject":
-                    loadUIDeviceURLs(uiConfig, reader);
-                    break;
                 case "dcmuiDeviceClusterObject":
                     loadUIDeviceClusters(uiConfig, reader);
                     break;
@@ -711,35 +693,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
-    private void loadUIDeviceURLs(UIConfig uiConfig, JsonReader reader) {
-        reader.next();
-        reader.expect(JsonParser.Event.START_ARRAY);
-        while (reader.next() == JsonParser.Event.START_OBJECT) {
-            reader.expect(JsonParser.Event.START_OBJECT);
-            UIDeviceURL uiDeviceURL = new UIDeviceURL();
-            while (reader.next() == JsonParser.Event.KEY_NAME) {
-                switch (reader.getString()) {
-                    case "dcmuiDeviceURLName":
-                        uiDeviceURL.setDeviceName(reader.stringValue());
-                        break;
-                    case "dcmuiDeviceURL":
-                        uiDeviceURL.setDeviceURL(reader.stringValue());
-                        break;
-                    case "dcmuiDeviceURLDescription":
-                        uiDeviceURL.setDescription(reader.stringValue());
-                        break;
-                    case "dcmuiDeviceURLInstalled":
-                        uiDeviceURL.setInstalled(reader.booleanValue());
-                        break;
-                    default:
-                        reader.skipUnknownProperty();
-                }
-            }
-            reader.expect(JsonParser.Event.END_OBJECT);
-            uiConfig.addDeviceURL(uiDeviceURL);
-        }
-        reader.expect(JsonParser.Event.END_ARRAY);
-    }
+
     private void loadUIDeviceClusters(UIConfig uiConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);

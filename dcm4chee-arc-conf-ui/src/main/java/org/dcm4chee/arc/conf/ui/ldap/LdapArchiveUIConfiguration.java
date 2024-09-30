@@ -100,7 +100,6 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         storeElasticsearchConfigs(diffs, uiConfig, uiConfigDN);
         storeLanguageConfigs(diffs, uiConfig, uiConfigDN);
         storeLTableConfigs(diffs, uiConfig, uiConfigDN);
-        storeDeviceURL(diffs, uiConfig, uiConfigDN);
         storeDeviceCluster(diffs, uiConfig, uiConfigDN);
         storeFiltersTemplate(diffs, uiConfig, uiConfigDN);
         storeAets(diffs, uiConfig, uiConfigDN);
@@ -177,14 +176,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             config.createSubcontext(uiTenantConfigDN, storeTo(ldapObj1, uiTenantConfig, new BasicAttributes(true)));
         }
     }
-    private void storeDeviceURL(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN) throws NamingException {
-        for (UIDeviceURL uiDeviceURL : uiConfig.getDeviceURLs()) {
-            String uiDeviceURLDN = LdapUtils.dnOf("dcmuiDeviceURLName", uiDeviceURL.getDeviceName(), uiConfigDN);
-            ConfigurationChanges.ModifiedObject ldapObj1 =
-                    ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiDeviceURLDN, ConfigurationChanges.ChangeType.C);
-            config.createSubcontext(uiDeviceURLDN, storeTo(ldapObj1, uiDeviceURL, new BasicAttributes(true)));
-        }
-    }
+
     private void storeDeviceCluster(ConfigurationChanges diffs, UIConfig uiConfig, String uiConfigDN) throws NamingException {
         for (UIDeviceCluster uiDeviceCluster : uiConfig.getDeviceClusters()) {
             String uiDeviceClusterDN = LdapUtils.dnOf("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName(), uiConfigDN);
@@ -280,14 +272,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", uiTenantConfig.getAcceptedRole());
         return attrs;
     }
-    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceURL uiDeviceURL, Attributes attrs) {
-        attrs.put(new BasicAttribute("objectclass", "dcmuiDeviceURLObject"));
-        attrs.put(new BasicAttribute("dcmuiDeviceURLName", uiDeviceURL.getDeviceName()));
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceURL", uiDeviceURL.getDeviceURL(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceURLDescription", uiDeviceURL.getDescription(), null);
-        LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiDeviceURLInstalled",uiDeviceURL.isInstalled(),true);
-        return attrs;
-    }
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceCluster uiDeviceCluster, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiDeviceClusterObject"));
         attrs.put(new BasicAttribute("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName()));
@@ -582,7 +567,6 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         loadElasticsearchConfigs(uiConfig, uiConfigDN);
         loadLanguageConfigs(uiConfig, uiConfigDN);
         loadTableConfigs(uiConfig, uiConfigDN);
-        loadDeviceURLs(uiConfig, uiConfigDN);
         loadDeviceClusters(uiConfig, uiConfigDN);
         loadFilterTemplates(uiConfig, uiConfigDN);
         loadAetList(uiConfig, uiConfigDN);
@@ -698,23 +682,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             LdapUtils.safeClose(ne);
         }
     }
-    private void loadDeviceURLs(UIConfig uiConfig, String uiConfigDN) throws NamingException {
-        NamingEnumeration<SearchResult> ne =
-                config.search(uiConfigDN, "(objectclass=dcmuiDeviceURLObject)");
-        try {
-            while (ne.hasMore()) {
-                SearchResult sr = ne.next();
-                Attributes attrs = sr.getAttributes();
-                UIDeviceURL uiDeviceURL = new UIDeviceURL((String) attrs.get("dcmuiDeviceURLName").get());
-                uiDeviceURL.setDeviceURL(LdapUtils.stringValue(attrs.get("dcmuiDeviceURL"), null));
-                uiDeviceURL.setDescription(LdapUtils.stringValue(attrs.get("dcmuiDeviceURLDescription"), null));
-                uiDeviceURL.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiDeviceURLInstalled"),true));
-                uiConfig.addDeviceURL(uiDeviceURL);
-            }
-        } finally {
-            LdapUtils.safeClose(ne);
-        }
-    }
+
     private void loadDeviceClusters(UIConfig uiConfig, String uiConfigDN) throws NamingException {
         NamingEnumeration<SearchResult> ne =
                 config.search(uiConfigDN, "(objectclass=dcmuiDeviceClusterObject)");
@@ -993,7 +961,6 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergeDashboardConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeElasticsearchConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeLanguageConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
-        mergeDeviceURL(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDeviceCluster(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeFilterTemplate(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
@@ -1184,35 +1151,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             }
         }
     }
-    private void mergeDeviceURL(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
-            throws NamingException {
-        for (UIDeviceURL prevUIDeviceURL : prevUIConfig.getDeviceURLs()) {
-            String prevUIDeviceURLName = prevUIDeviceURL.getDeviceName();
-            if (uiConfig.getDeviceURL(prevUIDeviceURLName) == null) {
-                String dn = LdapUtils.dnOf("dcmuiDeviceURLName", prevUIDeviceURLName, uiConfigDN);
-                config.destroySubcontext(dn);
-                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
-            }
-        }
-        for (UIDeviceURL uiDeviceURL : uiConfig.getDeviceURLs()) {
-            String uiDeviceURLName = uiDeviceURL.getDeviceName();
-            String dn = LdapUtils.dnOf("dcmuiDeviceURLName", uiDeviceURLName, uiConfigDN);
-            UIDeviceURL prevUIDeviceURL = prevUIConfig.getDeviceURL(uiDeviceURLName);
-            if (prevUIDeviceURL == null) {
-                ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
-                config.createSubcontext(dn,
-                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
-                                uiDeviceURL, new BasicAttributes(true)));
-            } else {
-                ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
-                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIDeviceURL, uiDeviceURL,
-                        new ArrayList<ModificationItem>()));
-                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
-            }
-        }
-    }
+
     private void mergeFilterTemplate(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
             throws NamingException {
         for (UIFiltersTemplate prevUIFiltersTemplate : prevUIConfig.getFilterTemplates()) {
@@ -1370,17 +1309,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiTenantConfig.getAcceptedRole());
         return mods;
     }
-    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceURL prev,
-                                              UIDeviceURL uiDeviceURL, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceURL",
-                prev.getDeviceURL(),
-                uiDeviceURL.getDeviceURL(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceURLDescription",
-                prev.getDescription(),
-                uiDeviceURL.getDescription(),null);
-        LdapUtils.storeDiff(ldapObj,mods,"dcmuiDeviceURLInstalled",prev.isInstalled(),uiDeviceURL.isInstalled(),true);
-        return mods;
-    }
+
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIFiltersTemplate prev,
                                               UIFiltersTemplate uiFiltersTemplate, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiFilterTemplateID",

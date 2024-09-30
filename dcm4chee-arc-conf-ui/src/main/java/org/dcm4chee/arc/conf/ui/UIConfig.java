@@ -75,7 +75,6 @@ public class UIConfig {
     private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
     private Map<String, UIDashboardConfig> dashboardConfigs = new HashMap<>();
     private Map<String, UIElasticsearchConfig> elasticsearchConfigs = new HashMap<>();
-    private Map<String, UIDeviceURL> deviceURL = new HashMap<>();
     private Map<String, UIDeviceCluster> deviceCluster = new HashMap<>();
     private Map<String, UIFiltersTemplate> filterTemplatte = new HashMap<>();
     private Map<String, UIAetList> aetList  = new HashMap<>();
@@ -280,22 +279,6 @@ public class UIConfig {
 
     public Collection<UIElasticsearchConfig> getElasticsearchConfigs() {
         return elasticsearchConfigs.values();
-    }
-
-    public UIDeviceURL getDeviceURL(String name) {
-        return deviceURL.get(name);
-    }
-
-    public void addDeviceURL(UIDeviceURL permission) {
-        deviceURL.put(permission.getDeviceName(), permission);
-    }
-
-    public UIDeviceURL removeDeviceURL(String name) {
-        return deviceURL.remove(name);
-    }
-
-    public Collection<UIDeviceURL> getDeviceURLs() {
-        return deviceURL.values();
     }
 
     public UIDeviceCluster getDeviceCluster(String name) {
