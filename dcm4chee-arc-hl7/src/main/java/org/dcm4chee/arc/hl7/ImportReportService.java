@@ -111,6 +111,11 @@ class ImportReportService extends DefaultHL7Service {
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, conn, s, msg);
         try {
             transform(ctx);
+            if (ctx.getAttributes() == null) {
+                LOG.info("No actions configured on receive of HL7 ORU message.");
+                return archiveHL7Message;
+            }
+
             ctx.setPatient(PatientUpdateService.updatePatient(ctx, patientService, archiveHL7Message));
             importReport(ctx);
         } catch(HL7Exception e) {
@@ -121,7 +126,6 @@ class ImportReportService extends DefaultHL7Service {
                             .setHL7ErrorCode(ERRSegment.APPLICATION_RECORD_LOCKED)
                             .setUserMessage(e.getMessage()));
         }
-
         return archiveHL7Message;
     }
 
@@ -130,10 +134,8 @@ class ImportReportService extends DefaultHL7Service {
         ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         HL7ORUAction[] hl7ORUActions = arcHL7App.hl7ORUAction();
-        if (hl7ORUActions.length == 0) {
-            LOG.info("No actions configured on receive of HL7 ORU message.");
+        if (hl7ORUActions.length == 0)
             return;
-        }
 
         String aet = arcHL7App.getAETitle();
         if (aet == null) {
