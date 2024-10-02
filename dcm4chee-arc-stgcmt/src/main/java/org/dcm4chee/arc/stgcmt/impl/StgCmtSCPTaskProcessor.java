@@ -49,6 +49,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
@@ -89,7 +90,7 @@ public class StgCmtSCPTaskProcessor implements TaskProcessor {
         String localAET = task.getLocalAET();
         ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(task.getRemoteAET());
-        Attributes actionInfo = task.getPayload(Attributes.class);
+        Attributes actionInfo = AttributesBlob.decodeAttributes(task.getPayload(), null);
         StgCmtContext ctx = new StgCmtContext(localAE, localAET)
                 .setRemoteAE(remoteAE)
                 .setTransactionUID(actionInfo.getString(Tag.TransactionUID));

@@ -893,30 +893,12 @@ public class Task {
         different = 0;
     }
 
-    public <T extends Serializable> T getPayload(Class<T> clazz) {
-        if (payload == null) return null;
-        ByteArrayInputStream bais = new ByteArrayInputStream(payload);
-        try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-            return (T) ois.readObject();
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected Exception", e);
-        }
+    public byte[] getPayload() {
+        return payload;
     }
 
-    public void setPayload(Serializable obj) {
-        if (obj == null) {
-            payload = null;
-        } else {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-            try {
-                try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-                    oos.writeObject(obj);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Unexpected Exception", e);
-            }
-            payload = baos.toByteArray();
-        }
+    public void setPayload(byte[] payload) {
+        this.payload = payload;
     }
 
     public Collection<AttributesBlob> getDiffTaskAttributes() {

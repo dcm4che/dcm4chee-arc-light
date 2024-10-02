@@ -47,6 +47,7 @@ import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.entity.Task_;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -99,7 +100,7 @@ public class RetrieveManagerEJB {
         task.setQueueName(ctx.getQueueName());
         task.setType(Task.Type.RETRIEVE);
         task.setFindSCP(ctx.getFindSCP());
-        task.setPayload(ctx.getKeys());
+        task.setPayload(AttributesBlob.encodeAttributes(ctx.getKeys()));
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(ctx.getBatchID());
         task.setLocalAET(ctx.getLocalAET());

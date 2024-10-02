@@ -68,6 +68,6 @@ public class RSClientTaskProcessor implements TaskProcessor {
                 task.getQueryString(),
                 task.getWebApplicationName(),
                 task.getPatientID(),
-                task.getPayload(byte[].class));
+                task.getPayload());
     }
 }

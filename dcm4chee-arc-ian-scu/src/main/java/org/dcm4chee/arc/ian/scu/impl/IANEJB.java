@@ -163,7 +163,7 @@ public class IANEJB {
         task.setLocalAET(callingAET);
         task.setRemoteAET(remoteAET);
         task.setSOPInstanceUID(UIDUtils.createUID());
-        task.setPayload(attrs);
+        task.setPayload(AttributesBlob.encodeAttributes(attrs));
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(batchID);
         return task;

@@ -47,6 +47,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.TaskProcessor;
@@ -64,7 +65,7 @@ public class StgCmtSCUTaskProcessor implements TaskProcessor {
     private StgCmtSCU stgCmtSCU;
 
     public Outcome process(Task task) throws Exception {
-        Attributes actionInfo = task.getPayload(Attributes.class);
+        Attributes actionInfo = AttributesBlob.decodeAttributes(task.getPayload(), null);
         actionInfo.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
         return stgCmtSCU.sendNAction(
                 task.getLocalAET(),

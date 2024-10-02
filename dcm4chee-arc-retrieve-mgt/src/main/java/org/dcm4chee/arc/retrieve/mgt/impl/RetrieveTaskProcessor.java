@@ -42,6 +42,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -71,7 +72,7 @@ public class RetrieveTaskProcessor implements TaskProcessor {
                                 task.getRequesterUserID(),
                                 task.getRequesterHost(),
                                 task.getRequestURI()))
-                        .setKeys(task.getPayload(Attributes.class)),
+                        .setKeys(AttributesBlob.decodeAttributes(task.getPayload(), null)),
                 task);
     }
 }

@@ -60,6 +60,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.DefaultExportContext;
@@ -239,7 +240,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         task.setSeriesInstanceUID(ctx.getSeriesInstanceUID());
         task.setSOPInstanceUID(ctx.getSopInstanceUID());
         task.setExporterID(exporterID);
-        task.setPayload(actionInfo);
+        task.setPayload(AttributesBlob.encodeAttributes(actionInfo));
         task.setStatus(Task.Status.SCHEDULED);
         task.setBatchID(ctx.getBatchID());
         taskManager.scheduleTask(task);
@@ -253,7 +254,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         task.setScheduledTime(new Date());
         task.setLocalAET(localAET);
         task.setRemoteAET(remoteAET);
-        task.setPayload(eventInfo);
+        task.setPayload(AttributesBlob.encodeAttributes(eventInfo));
         task.setStatus(Task.Status.SCHEDULED);
         taskManager.scheduleTask(task);
     }

@@ -47,6 +47,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Dimse;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -70,7 +71,7 @@ public class MPPSTaskProcessor implements TaskProcessor {
                     task.getRemoteAET(),
                     Dimse.valueOf(task.getDIMSE()),
                     task.getSOPInstanceUID(),
-                    task.getPayload(Attributes.class),
+                    AttributesBlob.decodeAttributes(task.getPayload(), null),
                     procAttrs(task));
     }
 

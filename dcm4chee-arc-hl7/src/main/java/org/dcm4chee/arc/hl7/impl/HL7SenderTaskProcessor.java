@@ -78,7 +78,7 @@ public class HL7SenderTaskProcessor implements TaskProcessor {
 
     @Override
     public Outcome process(Task task) throws Exception {
-        ArchiveHL7Message hl7Msg = new ArchiveHL7Message(task.getPayload(byte[].class));
+        ArchiveHL7Message hl7Msg = new ArchiveHL7Message(task.getPayload());
         HL7Application sender = device.getDeviceExtension(HL7DeviceExtension.class)
                 .getHL7Application(task.getSendingApplicationWithFacility(),true);
         HL7Application receiver = hl7AppCache.findHL7Application(task.getReceivingApplicationWithFacility());

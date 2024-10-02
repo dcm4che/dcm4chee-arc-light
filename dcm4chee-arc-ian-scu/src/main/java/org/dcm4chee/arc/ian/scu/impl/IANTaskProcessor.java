@@ -44,6 +44,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.ian.scu.IANSCU;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -66,6 +67,6 @@ public class IANTaskProcessor implements TaskProcessor {
                 task.getLocalAET(),
                 task.getRemoteAET(),
                 task.getSOPInstanceUID(),
-                task.getPayload(Attributes.class));
+                AttributesBlob.decodeAttributes(task.getPayload(), null));
     }
 }

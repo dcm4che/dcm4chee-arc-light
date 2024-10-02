@@ -56,6 +56,7 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.MPPSForwardRule;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
@@ -136,7 +137,7 @@ class MPPSSCUImpl implements MPPSSCU {
                 task.setStudyInstanceUID(ssAttrs.getString(Tag.StudyInstanceUID));
                 task.setPatientID(idWithIssuer != null ? idWithIssuer.toString() : null);
                 task.setPatientName(patAttrs.getString(Tag.PatientName));
-                task.setPayload(ctx.getAttributes());
+                task.setPayload(AttributesBlob.encodeAttributes(ctx.getAttributes()));
                 task.setStatus(Task.Status.SCHEDULED);
                 taskManager.scheduleTask(task);
             } catch (Exception e) {
