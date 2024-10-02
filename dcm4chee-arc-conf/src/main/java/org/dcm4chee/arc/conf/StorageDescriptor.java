@@ -538,7 +538,7 @@ public final class StorageDescriptor {
             for (int j = 0; j < b.length; j++, k++) {
                 result[k] = new String[a[i].length + 1];
                 System.arraycopy(a[i], 0, result[k], 0, a[i].length);
-                result[k][a[i].length] = b[i];
+                result[k][a[i].length] = b[j];
             }
         }
         return result;
