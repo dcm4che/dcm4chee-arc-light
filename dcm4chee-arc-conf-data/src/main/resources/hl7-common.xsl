@@ -683,13 +683,13 @@
     </xsl:variable>
     <xsl:variable name="patientTelecomInfo">
       <xsl:choose>
-        <xsl:when test="$home and $business">
+        <xsl:when test="string-length($home) > 0 and string-length($business) > 0">
           <xsl:value-of select="concat($homeTelecomInfoAsStr, '~', $businessTelecomInfoAsStr)"/>
         </xsl:when>
-        <xsl:when test="$home and not($business)">
+        <xsl:when test="string-length($home) > 0 and string-length($business) = 0">
           <xsl:value-of select="$homeTelecomInfoAsStr"/>
         </xsl:when>
-        <xsl:when test="$business and not($home)">
+        <xsl:when test="string-length($business) > 0 and string-length($home) = 0">
           <xsl:value-of select="$businessTelecomInfoAsStr"/>
         </xsl:when>
         <xsl:otherwise/>
@@ -702,13 +702,13 @@
     </xsl:call-template>
     <xsl:variable name="patientTelephoneNos">
       <xsl:choose>
-        <xsl:when test="$home and $business">
+        <xsl:when test="string-length($home) > 0 and string-length($business) > 0">
           <xsl:value-of select="concat($homeTelephone, '~', $businessTelephone)"/>
         </xsl:when>
-        <xsl:when test="$home and not($business)">
+        <xsl:when test="string-length($home) > 0 and string-length($business) = 0">
           <xsl:value-of select="$homeTelephone"/>
         </xsl:when>
-        <xsl:when test="$business and not($home)">
+        <xsl:when test="string-length($business) > 0 and string-length($home) = 0">
           <xsl:value-of select="$businessTelephone"/>
         </xsl:when>
         <xsl:otherwise/>
