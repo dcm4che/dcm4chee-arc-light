@@ -62,7 +62,7 @@ public class SelectLangServlet extends HttpServlet {
         try (PrintWriter out = resp.getWriter()) {
             out.print("<html><head><script>");
             setLang(req, out);
-            out.println("window.location.href=`/dcm4chee-arc/ui2/${lang}/index.html`;</script></head></html>");
+            out.println("window.location.href=`/pacs-admin/ui2/${lang}/index.html`;</script></head></html>");
         }
     }
 

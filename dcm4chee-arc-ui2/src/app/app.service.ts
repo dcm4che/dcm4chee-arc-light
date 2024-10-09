@@ -396,7 +396,7 @@ export class AppService implements OnInit, OnDestroy{
 
     getKeycloakJson(){
         if(!this.global || !this.global.notSecure){
-            return this.$httpClient.get("/dcm4chee-arc/ui2/rs/keycloak.json")
+            return this.$httpClient.get("/pacs-admin/ui2/rs/keycloak.json")
                 .pipe(map((res:any)=>{
                     if(_.isEmpty(res)){
                         console.log("ojbect is empty",res);

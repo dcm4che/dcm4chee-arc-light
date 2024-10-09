@@ -297,7 +297,7 @@ export class AppComponent implements OnInit {
     switchLanguage(language:LanguageObject){
         let saveAndRedirect = function () {
             localStorage.setItem('current_language', language.code);
-            window.location.href = `/dcm4chee-arc/ui2/${language.code}/`;
+            window.location.href = `/pacs-admin/ui2/${language.code}/`;
             setTimeout(() => {
                 location.reload();
             }, 1);

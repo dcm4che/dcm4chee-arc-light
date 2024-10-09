@@ -505,40 +505,40 @@
       "i18n": {
         "sourceLocale": {
           "code": "en",
-          "baseHref": "/dcm4chee-arc/ui2/en/"
+          "baseHref": "/pacs-admin/ui2/en/"
         },
         "locales": {
           "de": {
             "translation": "target/dcm4chee-arc-lang/de.json",
-            "baseHref": "/dcm4chee-arc/ui2/de/"
+            "baseHref": "/pacs-admin/ui2/de/"
           },
           "es": {
             "translation": "target/dcm4chee-arc-lang/es.json",
-            "baseHref": "/dcm4chee-arc/ui2/es/"
+            "baseHref": "/pacs-admin/ui2/es/"
           },
           "hi": {
             "translation": "target/dcm4chee-arc-lang/hi.json",
-            "baseHref": "/dcm4chee-arc/ui2/hi/"
+            "baseHref": "/pacs-admin/ui2/hi/"
           },
           "it": {
             "translation": "target/dcm4chee-arc-lang/it.json",
-            "baseHref": "/dcm4chee-arc/ui2/it/"
+            "baseHref": "/pacs-admin/ui2/it/"
           },
           "ja": {
             "translation": "target/dcm4chee-arc-lang/ja.json",
-            "baseHref": "/dcm4chee-arc/ui2/ja/"
+            "baseHref": "/pacs-admin/ui2/ja/"
           },
           "mr": {
             "translation": "target/dcm4chee-arc-lang/mr.json",
-            "baseHref": "/dcm4chee-arc/ui2/mr/"
+            "baseHref": "/pacs-admin/ui2/mr/"
           },
           "ru": {
             "translation": "target/dcm4chee-arc-lang/ru.json",
-            "baseHref": "/dcm4chee-arc/ui2/ru/"
+            "baseHref": "/pacs-admin/ui2/ru/"
           },
           "zh": {
             "translation": "target/dcm4chee-arc-lang/zh.json",
-            "baseHref": "/dcm4chee-arc/ui2/zh/"
+            "baseHref": "/pacs-admin/ui2/zh/"
           }
         }
       }
