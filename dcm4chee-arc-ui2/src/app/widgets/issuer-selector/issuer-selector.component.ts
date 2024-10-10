@@ -41,6 +41,15 @@ export class IssuerSelectorComponent implements OnInit {
                 this.model = `${this.filterModel?.["AccessionNumber"] || ''}`;
             }
             this.modelChange.emit(this.filterModel);
+        } else if(this.filterModel && this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"]) {
+            let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "ScheduledStepAttributesSequence.AccessionNumber"));
+            issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
+            if(issuerPart){
+                this.model = `${j4care.appendStringIfExist(this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"], "^")}${issuerPart}`;
+            }else{
+                this.model = `${this.filterModel?.["ScheduledStepAttributesSequence.AccessionNumber"] || ''}`;
+            }
+            this.modelChange.emit(this.filterModel);
         } else if(this.filterModel && this.filterModel["PatientID"]) {
             let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "PatientID"));
             issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');

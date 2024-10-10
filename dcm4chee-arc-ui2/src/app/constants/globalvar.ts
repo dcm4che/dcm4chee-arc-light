@@ -4320,17 +4320,17 @@ export class Globalvar {
                     tag:"issuer-selector",
                     issuers:[
                         {
-                            key:"AccessionNumber",
+                            key:"ScheduledStepAttributesSequence.AccessionNumber",
                             label:$localize `:@@accession_number:Accession Number`,
                         },
                         {
-                            key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
+                            key:"ScheduledStepAttributesSequence.IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
                             label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                         }, {
-                            key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
+                            key:"ScheduledStepAttributesSequence.IssuerOfAccessionNumberSequence.UniversalEntityID",
                             label:$localize `:@@universal_entity_id:Universal Entity ID`
                         }, {
-                            key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
+                            key:"ScheduledStepAttributesSequence.IssuerOfAccessionNumberSequence.UniversalEntityIDType",
                             label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                         }
                     ],
