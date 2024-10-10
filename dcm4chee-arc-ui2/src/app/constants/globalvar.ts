@@ -4313,8 +4313,8 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@patient_identifiers:Patient Identifiers`,
-                    placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
+                    description:$localize `:@@patient_identifier:Patient Identifier`,
+                    placeholder:$localize `:@@patient_identifier:Patient Identifier`
                 },
                 {
                     tag:"issuer-selector",
@@ -4525,8 +4525,8 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@patient_identifiers:Patient Identifiers`,
-                    placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
+                    description:$localize `:@@patient_identifier:Patient Identifier`,
+                    placeholder:$localize `:@@patient_identifier:Patient Identifier`
                 },
                 {
                     tag:"issuer-selector",
@@ -4984,8 +4984,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@patient_identifiers:Patient Identifiers`,
-                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
+                description:$localize `:@@patient_identifier:Patient Identifier`,
+                placeholder:$localize `:@@patient_identifier:Patient Identifier`
             },
             {
                 tag:"issuer-selector",
@@ -5300,8 +5300,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@patient_identifiers:Patient Identifiers`,
-                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
+                description:$localize `:@@patient_identifier:Patient Identifier`,
+                placeholder:$localize `:@@patient_identifier:Patient Identifier`
             },
             {
                 tag:"issuer-selector",
@@ -5739,8 +5739,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@patient_identifiers:Patient Identifiers`,
-                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
+                description:$localize `:@@patient_identifier:Patient Identifier`,
+                placeholder:$localize `:@@patient_identifier:Patient Identifier`
             },
             {
                 tag:"issuer-selector",
@@ -5922,8 +5922,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@patient_identifiers:Patient Identifiers`,
-                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
+                description:$localize `:@@patient_identifier:Patient Identifier`,
+                placeholder:$localize `:@@patient_identifier:Patient Identifier`
             }, {
                 tag:"p-calendar",
                 filterKey:"PatientBirthDate",
@@ -6073,8 +6073,8 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@patient_identifiers:Patient Identifiers`,
-                placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
+                description:$localize `:@@patient_identifier:Patient Identifier`,
+                placeholder:$localize `:@@patient_identifier:Patient Identifier`
             }, {
                 tag:"person-name-picker",
                 filterKey:"ReferringPhysicianName",
