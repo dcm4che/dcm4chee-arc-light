@@ -4082,53 +4082,52 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@patient_identifiers:Patient Identifiers`,
-                    placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"AccessionNumber",
-                    description:$localize `:@@accession_number:Accession Number`,
-                    placeholder:$localize `:@@accession_number:Accession Number`
-                }, {
+                    description:$localize `:@@patient_identifier:Patient Identifier`,
+                    placeholder:$localize `:@@patient_identifier:Patient Identifier`
+                },
+                {
                     tag:"issuer-selector",
                     issuers:[
+                        {
+                            key:"AccessionNumber",
+                            label:$localize `:@@accession_number:Accession Number`,
+                        },
                         {
                             key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                         }, {
                             key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID`
                         }, {
                             key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
-                    placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"AdmissionID",
-                    description:$localize `:@@admission_id:Admission ID`,
-                    placeholder:$localize `:@@admission_id:Admission ID`
-                }, {
+                    description:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+                    placeholder:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+                },
+                {
                     tag:"issuer-selector",
                     issuers:[
                         {
+                            key:"AdmissionID",
+                            label:$localize `:@@admission_id:Admission ID`,
+                        },
+                        {
                             key:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence_00380014:Issuer of Admission ID Sequence (0038,0014)`,
-                    placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
-                }, this.getInstitutionFilterSchemaElement(institutions), {
+                    description:$localize `:@@admission_id_issuer:Admission ID & Issuer of Admission ID Sequence`,
+                    placeholder:$localize `:@@admission_id_issuer:Admission ID & Issuer of Admission ID Sequence`,
+                },
+                this.getInstitutionFilterSchemaElement(institutions), {
                     tag:"input",
                     type:"text",
                     filterKey:"StudyInstanceUID",
@@ -4316,29 +4315,29 @@ export class Globalvar {
                     ],
                     description:$localize `:@@patient_identifiers:Patient Identifiers`,
                     placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"ScheduledStepAttributesSequence.AccessionNumber",
-                    description:$localize `:@@accession_number:Accession Number`,
-                    placeholder:$localize `:@@accession_number:Accession Number`
-                }, {
+                },
+                {
                     tag:"issuer-selector",
                     issuers:[
                         {
+                            key:"AccessionNumber",
+                            label:$localize `:@@accession_number:Accession Number`,
+                        },
+                        {
                             key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                         }, {
                             key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID`
                         }, {
                             key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
-                    placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
-                }, {
+                    description:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+                    placeholder:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+                },
+                {
                     tag:"input",
                     type:"text",
                     filterKey:"ScheduledStepAttributesSequence.StudyInstanceUID",
@@ -4528,29 +4527,29 @@ export class Globalvar {
                     ],
                     description:$localize `:@@patient_identifiers:Patient Identifiers`,
                     placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"AdmissionID",
-                    description:$localize `:@@admission_id:Admission ID`,
-                    placeholder:$localize `:@@admission_id:Admission ID`
-                }, {
+                },
+                {
                     tag:"issuer-selector",
                     issuers:[
                         {
+                            key:"AdmissionID",
+                            label:$localize `:@@admission_id:Admission ID`,
+                        },
+                        {
                             key:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence_00380014:Issuer of Admission ID Sequence (0038,0014)`,
-                    placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
-                }, {
+                    description:$localize `:@@admission_id_issuer:Admission ID & Issuer of Admission ID Sequence`,
+                    placeholder:$localize `:@@admission_id_issuer:Admission ID & Issuer of Admission ID Sequence`,
+                },
+                {
                     tag:"input",
                     type:"text",
                     filterKey:"WorklistLabel",
@@ -4717,29 +4716,29 @@ export class Globalvar {
                     filterKey:"ResponsiblePerson",
                     placeholder:$localize `:@@responsible_person:Responsible Person`,
                     description:$localize `:@@responsible_person_desc:Name of person with medical or welfare decision making authority for the Patient, typically if the Patient is a non-human organism.`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"AdmissionID",
-                    description:$localize `:@@admission_id:Admission ID`,
-                    placeholder:$localize `:@@admission_id:Admission ID`
-                }, {
+                },
+                {
                     tag:"issuer-selector",
                     issuers:[
                         {
+                            key:"AdmissionID",
+                            label:$localize `:@@admission_id:Admission ID`,
+                        },
+                        {
                             key:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence_00380014:Issuer of Admission ID Sequence (0038,0014)`,
-                    placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
-                }, {
+                    description:$localize `:@@admission_id_issuer:Admission ID & Issuer of Admission ID Sequence`,
+                    placeholder:$localize `:@@admission_id_issuer:Admission ID & Issuer of Admission ID Sequence`,
+                },
+                {
                     tag:"input",
                     type:"text",
                     filterKey:"StudyID",
@@ -4987,29 +4986,29 @@ export class Globalvar {
                 ],
                 description:$localize `:@@patient_identifiers:Patient Identifiers`,
                 placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
-            }, {
-                tag:"input",
-                type:"text",
-                filterKey:"AccessionNumber",
-                description:$localize `:@@accession_number:Accession Number`,
-                placeholder:$localize `:@@accession_number:Accession Number`
-            }, {
+            },
+            {
                 tag:"issuer-selector",
                 issuers:[
                     {
+                        key:"AccessionNumber",
+                        label:$localize `:@@accession_number:Accession Number`,
+                    },
+                    {
                         key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                        label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                        label:$localize `:@@universal_entity_id:Universal Entity ID`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
-                placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
-            }, {
+                description:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+                placeholder:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+            },
+            {
                 tag:"input",
                 type:"text",
                 filterKey:"StudyDescription",
@@ -5303,29 +5302,29 @@ export class Globalvar {
                 ],
                 description:$localize `:@@patient_identifiers:Patient Identifiers`,
                 placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
-            }, {
-                tag:"input",
-                type:"text",
-                filterKey:"AccessionNumber",
-                description:$localize `:@@accession_number:Accession Number`,
-                placeholder:$localize `:@@accession_number:Accession Number`
-            }, {
+            },
+            {
                 tag:"issuer-selector",
                 issuers:[
                     {
+                        key:"AccessionNumber",
+                        label:$localize `:@@accession_number:Accession Number`,
+                    },
+                    {
                         key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                        label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                        label:$localize `:@@universal_entity_id:Universal Entity ID`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
-                placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
-            }, {
+                description:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+                placeholder:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+            },
+            {
                 tag:"range-picker-limit",
                 type:"text",
                 filterKey:"StudyDate",
@@ -5452,29 +5451,29 @@ export class Globalvar {
                     filterKey:"ResponsiblePerson",
                     placeholder:$localize `:@@responsible_person:Responsible Person`,
                     description:$localize `:@@responsible_person_desc:Name of person with medical or welfare decision making authority for the Patient, typically if the Patient is a non-human organism.`
-                }, {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"AdmissionID",
-                    description:$localize `:@@admission_id:Admission ID`,
-                    placeholder:$localize `:@@admission_id:Admission ID`
-                }, {
+                },
+                {
                     tag:"issuer-selector",
                     issuers:[
                         {
+                            key:"AdmissionID",
+                            label:$localize `:@@admission_id:Admission ID`,
+                        },
+                        {
                             key:"IssuerOfAdmissionIDSequence.LocalNamespaceEntityID",
-                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityID",
-                            label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                            label:$localize `:@@universal_entity_id:Universal Entity ID`
                         }, {
                             key:"IssuerOfAdmissionIDSequence.UniversalEntityIDType",
-                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                         }
                     ],
-                    description:$localize `:@@issuer_of_admission_id_sequence_00380014:Issuer of Admission ID Sequence (0038,0014)`,
-                    placeholder:$localize `:@@issuer_of_admission_id_sequence:Issuer of Admission ID Sequence`
-                }, {
+                    description:$localize `:@@admission_id_issuer:Admission ID & Issuer of Admission ID Sequence`,
+                    placeholder:$localize `:@@admission_id_issuer:Admission ID & Issuer of Admission ID Sequence`,
+                },
+                {
                     tag:"input",
                     type:"text",
                     filterKey:"StudyID",
@@ -5742,29 +5741,29 @@ export class Globalvar {
                 ],
                 description:$localize `:@@patient_identifiers:Patient Identifiers`,
                 placeholder:$localize `:@@patient_identifiers:Patient Identifiers`
-            }, {
-                tag:"input",
-                type:"text",
-                filterKey:"AccessionNumber",
-                description:$localize `:@@accession_number:Accession Number`,
-                placeholder:$localize `:@@accession_number:Accession Number`
-            }, {
+            },
+            {
                 tag:"issuer-selector",
                 issuers:[
                     {
+                        key:"AccessionNumber",
+                        label:$localize `:@@accession_number:Accession Number`,
+                    },
+                    {
                         key:"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
-                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID (0040,0031)`
+                        label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityID",
-                        label:$localize `:@@universal_entity_id:Universal Entity ID (0040,0032)`
+                        label:$localize `:@@universal_entity_id:Universal Entity ID`
                     }, {
                         key:"IssuerOfAccessionNumberSequence.UniversalEntityIDType",
-                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type (0040,0033)`
+                        label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
                     }
                 ],
-                description:$localize `:@@Issuer_of_Accession_number_sequence_00080051:Issuer of Accession Number Sequence (0008,0051)`,
-                placeholder:$localize `:@@issuer_of_accession_number_seq:Issuer of Accession Number Sequence`
-            }, {
+                description:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+                placeholder:$localize `:@@accession_number_issuer:Accession Number & Issuer of Accession Number Sequence`,
+            },
+            {
                 tag:"input",
                 type:"text",
                 filterKey:"StudyInstanceUID",

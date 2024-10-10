@@ -31,16 +31,35 @@ export class IssuerSelectorComponent implements OnInit {
 
     ngOnInit() {
     }
-
     set(){
-        let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "PatientID"));
-        issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
-        if(issuerPart){
-            this.model = `${j4care.appendStringIfExist(this.filterModel["PatientID"], "^^^")}${issuerPart}`;
-        }else{
-            this.model = `${this.filterModel?.["PatientID"] || ''}`;
+        if(this.filterModel && this.filterModel["AccessionNumber"]) {
+            let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AccessionNumber"));
+            issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
+            if(issuerPart){
+                this.model = `${j4care.appendStringIfExist(this.filterModel["AccessionNumber"], "^")}${issuerPart}`;
+            }else{
+                this.model = `${this.filterModel?.["AccessionNumber"] || ''}`;
+            }
+            this.modelChange.emit(this.filterModel);
+        } else if(this.filterModel && this.filterModel["PatientID"]) {
+            let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "PatientID"));
+            issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
+            if(issuerPart){
+                this.model = `${j4care.appendStringIfExist(this.filterModel["PatientID"], "^^^")}${issuerPart}`;
+            }else{
+                this.model = `${this.filterModel?.["PatientID"] || ''}`;
+            }
+            this.modelChange.emit(this.filterModel);
+        } else if(this.filterModel && this.filterModel["AdmissionID"]) {
+            let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AdmissionID"));
+            issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
+            if(issuerPart){
+                this.model = `${j4care.appendStringIfExist(this.filterModel["AdmissionID"], "^^^")}${issuerPart}`;
+            }else{
+                this.model = `${this.filterModel?.["AdmissionID"] || ''}`;
+            }
+            this.modelChange.emit(this.filterModel);
         }
-        this.modelChange.emit(this.filterModel);
     }
     togglePicker(){
         this.selectorOpen = !this.selectorOpen;
