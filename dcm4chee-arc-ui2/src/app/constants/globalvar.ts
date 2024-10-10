@@ -4082,6 +4082,7 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
+                    id:"PatientID",
                     description:$localize `:@@patient_identifier:Patient Identifier`,
                     placeholder:$localize `:@@patient_identifier:Patient Identifier`
                 },
@@ -4313,6 +4314,7 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
+                    id:"PatientID",
                     description:$localize `:@@patient_identifier:Patient Identifier`,
                     placeholder:$localize `:@@patient_identifier:Patient Identifier`
                 },
@@ -4525,6 +4527,7 @@ export class Globalvar {
                             label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                         }
                     ],
+                    id:"PatientID",
                     description:$localize `:@@patient_identifier:Patient Identifier`,
                     placeholder:$localize `:@@patient_identifier:Patient Identifier`
                 },
@@ -4984,6 +4987,7 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
+                id:"PatientID",
                 description:$localize `:@@patient_identifier:Patient Identifier`,
                 placeholder:$localize `:@@patient_identifier:Patient Identifier`
             },
@@ -5300,6 +5304,7 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
+                id:"PatientID",
                 description:$localize `:@@patient_identifier:Patient Identifier`,
                 placeholder:$localize `:@@patient_identifier:Patient Identifier`
             },
@@ -5739,6 +5744,7 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
+                id:"PatientID",
                 description:$localize `:@@patient_identifier:Patient Identifier`,
                 placeholder:$localize `:@@patient_identifier:Patient Identifier`
             },
@@ -5922,6 +5928,7 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
+                id:"PatientID",
                 description:$localize `:@@patient_identifier:Patient Identifier`,
                 placeholder:$localize `:@@patient_identifier:Patient Identifier`
             }, {
@@ -6073,6 +6080,7 @@ export class Globalvar {
                         label:$localize `:@@issuer_of_patient_id_seq_universal_entity_id_type:Issuer of Patient ID Qualifiers Sequence - Universal Entity ID Type`
                     }
                 ],
+                id:"PatientID",
                 description:$localize `:@@patient_identifier:Patient Identifier`,
                 placeholder:$localize `:@@patient_identifier:Patient Identifier`
             }, {
