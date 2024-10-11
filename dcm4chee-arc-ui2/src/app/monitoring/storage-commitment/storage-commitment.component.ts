@@ -205,7 +205,6 @@ export class StorageCommitmentComponent implements OnInit {
                     }, (err) => {
                         $this.httpErrorHandler.handleError(err);
                     });
-                //}
             }
         });
     };
