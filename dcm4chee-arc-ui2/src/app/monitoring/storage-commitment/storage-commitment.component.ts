@@ -174,7 +174,7 @@ export class StorageCommitmentComponent implements OnInit {
             select: select,
             date: {
                 placeholder: $localize `:@@updated_before:Updated before`,
-                format: 'yy-mm-dd'
+                format: 'yyyy-MM-dd'
             },
             result: {
                 select: 'PENDING',
@@ -186,21 +186,23 @@ export class StorageCommitmentComponent implements OnInit {
         let $this = this;
         this.confirm(parameters).subscribe(result => {
             if (result){
-                // console.log("parametersdate",datePipeEn.transform(parameters.result.date,'yyyy-mm-dd'));
                 $this.cfpLoadingBar.start();
                 if (parameters.result.date === undefined){
                     $this.mainservice.showError($localize `:@@updated_before_not_set:"Updated before"-date was not set`);
                 }else{
-                    this.service.flush(parameters.result.select, parameters.result.date)
-
-                        .subscribe((res) => {
-                            console.log('resflush', res);
-                            $this.mainservice.showMsg($localize `:@@queues_deleted:${res.deleted}:deleted: queues deleted successfully!`);
-                            $this.search(0);
-                            $this.cfpLoadingBar.complete();
-                        }, (err) => {
-                            $this.httpErrorHandler.handleError(err);
-                        });
+                    let resultDate = j4care.extractDateTimeFromString(parameters.result.date).firstDateTime;
+                    if( resultDate && resultDate.dateObject){
+                        let formattedDate = j4care.formatDate(resultDate.dateObject,'yyyy-MM-dd')
+                        this.service.flush(parameters.result.select, formattedDate)
+                            .subscribe((res) => {
+                                console.log('resflush', res);
+                                $this.mainservice.showMsg($localize `:@@queues_deleted:${res.deleted}:deleted: queues deleted successfully!`);
+                                $this.search(0);
+                                $this.cfpLoadingBar.complete();
+                            }, (err) => {
+                                $this.httpErrorHandler.handleError(err);
+                            });
+                    }
                 }
             }
         });
