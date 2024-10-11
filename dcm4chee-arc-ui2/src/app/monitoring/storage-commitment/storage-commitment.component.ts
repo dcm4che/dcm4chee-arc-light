@@ -145,6 +145,7 @@ export class StorageCommitmentComponent implements OnInit {
             return duration.toString() + $localize `:@@storage-commitment._ms: ms`;
         }
     }
+
     flushBefore() {
         let select: any = [
             {
@@ -174,7 +175,8 @@ export class StorageCommitmentComponent implements OnInit {
             select: select,
             date: {
                 placeholder: $localize `:@@updated_before:Updated before`,
-                format: 'yyyy-MM-dd'
+                format: 'yyyy-MM-dd',
+                description:$localize `:@@stgcmt_updated_before:Maximum update date of Storage Commitment Result to filter by`
             },
             result: {
                 select: 'PENDING',
@@ -187,23 +189,23 @@ export class StorageCommitmentComponent implements OnInit {
         this.confirm(parameters).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
-                if (parameters.result.date === undefined){
-                    $this.mainservice.showError($localize `:@@updated_before_not_set:"Updated before"-date was not set`);
-                }else{
-                    let resultDate = j4care.extractDateTimeFromString(parameters.result.date).firstDateTime;
-                    if( resultDate && resultDate.dateObject){
-                        let formattedDate = j4care.formatDate(resultDate.dateObject,'yyyy-MM-dd')
-                        this.service.flush(parameters.result.select, formattedDate)
-                            .subscribe((res) => {
-                                console.log('resflush', res);
-                                $this.mainservice.showMsg($localize `:@@queues_deleted:${res.deleted}:deleted: queues deleted successfully!`);
-                                $this.search(0);
-                                $this.cfpLoadingBar.complete();
-                            }, (err) => {
-                                $this.httpErrorHandler.handleError(err);
-                            });
-                    }
+                let formattedDate;
+                let resultDate = j4care.extractDateTimeFromString(parameters.result.date);
+                if(resultDate) {
+                    let resultDateTime = resultDate.firstDateTime;
+                    if(resultDateTime && resultDateTime.dateObject)
+                        formattedDate = j4care.formatDate(resultDateTime.dateObject,'yyyy-MM-dd');
                 }
+                this.service.flush(parameters.result.select, formattedDate)
+                    .subscribe((res) => {
+                        console.log('resflush', res);
+                        $this.mainservice.showMsg($localize `:@@queues_deleted:${res.deleted}:deleted: queues deleted successfully!`);
+                        $this.search(0);
+                        $this.cfpLoadingBar.complete();
+                    }, (err) => {
+                        $this.httpErrorHandler.handleError(err);
+                    });
+                //}
             }
         });
     };
