@@ -95,11 +95,14 @@ export class RangePickerComponent implements OnInit {
         let format = this.dateFormat || "YYYYMMDD";
         try{
             if (e) {
-                if (e.value) {
-                    this[mode] = (<Moment>e.value).format(format);
-                } else {
-                    this[mode] = j4care.formatDate(new Date(e),"yyyyMMdd");
+                let formattedDate;
+                let resultDate = j4care.extractDateTimeFromString(e);
+                if(resultDate) {
+                    let resultDateTime = resultDate.firstDateTime;
+                    if(resultDateTime && resultDateTime.dateObject)
+                        formattedDate = j4care.formatDate(resultDateTime.dateObject, format);
                 }
+                this[mode] = formattedDate;
             }
         }catch (e) {
             console.error(e);
