@@ -44,19 +44,19 @@ package org.dcm4chee.arc.conf;
  */
 public class StorageThreshold {
     protected final String value;
-    protected final long minUsableSpace;
+    protected final long diskSpace;
 
-    protected StorageThreshold(String value, long minUsableSpace) {
+    protected StorageThreshold(String value, long diskSpace) {
         this.value = value;
-        this.minUsableSpace = minUsableSpace;
+        this.diskSpace = diskSpace;
     }
 
     public static StorageThreshold valueOf(String s) {
         return new StorageThreshold(s, BinaryPrefix.parse(s));
     }
 
-    public long getMinUsableDiskSpace() {
-        return minUsableSpace;
+    public long getDiskSpace() {
+        return diskSpace;
     }
 
     public String toString() {

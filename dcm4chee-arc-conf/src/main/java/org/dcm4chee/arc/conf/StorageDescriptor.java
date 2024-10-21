@@ -42,9 +42,10 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.OpenOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Period;
@@ -70,6 +71,7 @@ public final class StorageDescriptor {
     private AttributesFormat storagePathFormat = DEFAULT_ATTRIBUTES_FORMAT;
     private OnStoragePathAlreadyExists onStoragePathAlreadyExists = OnStoragePathAlreadyExists.RANDOM_PATH;
     private String checkMountFilePath;
+    private String deleterThresholdBlocksFilePath;
     private OpenOption[] fileOpenOptions = { StandardOpenOption.CREATE_NEW };
     private boolean altCreateDirectories;
     private int retryCreateDirectories;
@@ -97,6 +99,7 @@ public final class StorageDescriptor {
     private StorageDuration storageDuration = StorageDuration.PERMANENT;
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
+    private final ArrayList<DeleterThreshold> deleterThresholdsMaxUseableSpace = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
     private final EnumMap<RetentionPeriod.DeleteStudies,List<RetentionPeriod>> retentionPeriods =
             new EnumMap(RetentionPeriod.DeleteStudies.class);
@@ -151,6 +154,36 @@ public final class StorageDescriptor {
 
     public void setCheckMountFilePath(String checkMountFilePath) {
         this.checkMountFilePath = checkMountFilePath;
+    }
+
+    public String getDeleterThresholdBlocksFilePath() {
+        return deleterThresholdBlocksFilePath;
+    }
+
+    public void setDeleterThresholdBlocksFilePath(String deleterThresholdBlocksFilePath) {
+        this.deleterThresholdBlocksFilePath = deleterThresholdBlocksFilePath;
+    }
+
+    public long parseDeleterThresholdBlocksFile() throws IOException {
+        if (deleterThresholdBlocksFilePath == null)
+            return 0L;
+
+        Path path = Paths.get(deleterThresholdBlocksFilePath);
+        long l = Files.size(path);
+        if (l == 0 && l >= 16)
+            return 0L;
+
+        byte[] bytes = new byte[(int) l];
+        try (InputStream is = Files.newInputStream(path)) {
+            is.read(bytes);
+        }
+        long blocks = 0L;
+        for (byte b : bytes) {
+            int digit = (b & 0xFF) - '0';
+            if (digit < 0 || digit > 9) break;
+            blocks = blocks * 10 + digit;
+        }
+        return blocks;
     }
 
     public OpenOption[] getFileOpenOptions() {
@@ -377,11 +410,7 @@ public final class StorageDescriptor {
     }
 
     public String[] getDeleterThresholdsAsStrings() {
-        String[] ss = new String[deleterThresholds.size()];
-        for (int i = 0; i < ss.length; i++) {
-            ss[i] = deleterThresholds.get(i).toString();
-        }
-        return ss;
+        return getDeleterThresholdsAsStrings(deleterThresholds);
     }
 
     public List<DeleterThreshold> getDeleterThresholds() {
@@ -389,6 +418,42 @@ public final class StorageDescriptor {
     }
 
     public void setDeleterThresholdsFromStrings(String... ss) {
+        setDeleterThresholdsFromStrings(ss, deleterThresholds);
+    }
+
+    public long getDeleterThresholdMinUsableSpace(Calendar cal) {
+        return getDeleterThresholdDiskSpace(cal, this.deleterThresholds);
+    }
+
+    public boolean hasDeleterThresholdMaxUsableSpace() {
+        return !deleterThresholdsMaxUseableSpace.isEmpty();
+    }
+
+    public String[] getDeleterThresholdsMaxUsableSpaceAsStrings() {
+        return getDeleterThresholdsAsStrings(deleterThresholdsMaxUseableSpace);
+    }
+
+    public List<DeleterThreshold> getDeleterThresholdsMaxUseableSpace() {
+        return deleterThresholdsMaxUseableSpace;
+    }
+
+    public void setDeleterThresholdsMaxUseableSpaceFromStrings(String... ss) {
+        setDeleterThresholdsFromStrings(ss, deleterThresholdsMaxUseableSpace);
+    }
+
+    public long getDeleterThresholdMaxUsableSpace(Calendar cal) {
+        return getDeleterThresholdDiskSpace(cal, this.deleterThresholdsMaxUseableSpace);
+    }
+
+    private static String[] getDeleterThresholdsAsStrings(ArrayList<DeleterThreshold> deleterThresholds) {
+        String[] ss = new String[deleterThresholds.size()];
+        for (int i = 0; i < ss.length; i++) {
+            ss[i] = deleterThresholds.get(i).toString();
+        }
+        return ss;
+    }
+
+    private static void setDeleterThresholdsFromStrings(String[] ss, ArrayList<DeleterThreshold> deleterThresholds) {
         deleterThresholds.clear();
         for (String s : ss) {
             deleterThresholds.add(DeleterThreshold.valueOf(s));
@@ -396,10 +461,10 @@ public final class StorageDescriptor {
         Collections.sort(deleterThresholds);
     }
 
-    public long getDeleterThresholdMinUsableSpace(Calendar cal) {
+    private static long getDeleterThresholdDiskSpace(Calendar cal, ArrayList<DeleterThreshold> deleterThresholds) {
         for (DeleterThreshold deleterThreshold : deleterThresholds) {
             if (deleterThreshold.match(cal))
-                return deleterThreshold.getMinUsableDiskSpace();
+                return deleterThreshold.getDiskSpace();
         }
         return -1L;
     }

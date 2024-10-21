@@ -85,7 +85,7 @@ public class StorageFactory {
             return true;
 
         long usableSpace = storage.getUsableSpace();
-        return usableSpace < 0 || usableSpace >= storageThreshold.getMinUsableDiskSpace();
+        return usableSpace < 0 || usableSpace >= storageThreshold.getDiskSpace();
     }
 
     private static String[] updateStorageIDs(List<StorageDescriptor> free, List<StorageDescriptor> full) {

@@ -2938,7 +2938,16 @@
         },
         "deleterThreshold": {
           "title": "Deleter Threshold",
-          "description": "Minimal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System, if the usable space fall below that value",
+          "description": "Minimal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System, if the usable space fall below that value.",
+          "type": "object",
+          "properties": {
+            "": "number",
+            "nn[<schedule>]": "number"
+          }
+        },
+        "deleterThresholdMaxUsableSpace": {
+          "title": "Deleter Threshold Max Usable Space",
+          "description": "Maximal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage Systeme, if the used disk space exceeds that value.",
           "type": "object",
           "properties": {
             "": "number",
@@ -3035,6 +3044,11 @@
               "dcmSeriesMetadataStorageID"
             ]
           }
+        },
+        "usedSpace": {
+          "title": "Used Space",
+          "description": "Used Space on Storage System in bytes",
+          "type": "number"
         },
         "usableSpace": {
           "title": "Usable Space",

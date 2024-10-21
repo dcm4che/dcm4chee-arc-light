@@ -142,8 +142,10 @@ public class StorageRS {
                     writer.writeNotNull("dcmStorageThresholdExceeded", desc.getStorageThresholdExceeded());
                     writer.writeNotDef("dcmDeleterThreads", desc.getDeleterThreads(), 1);
                     if (desc.getStorageThreshold() != null)
-                        gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
-                    writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
+                        gen.write("storageThreshold", desc.getStorageThreshold().getDiskSpace());
+                    writeDeleterThresholds(writer, gen, "deleterThreshold", desc.getDeleterThresholds());
+                    writeDeleterThresholds(writer, gen, "deleterThresholdMaxUsableSpace",
+                            desc.getDeleterThresholdsMaxUseableSpace());
                     writer.writeNotEmpty("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitles());
                     writer.writeNotEmpty("dcmExportStorageID", desc.getExportStorageID());
                     if (desc.getRetrieveCacheStorageID() != null) {
@@ -165,6 +167,7 @@ public class StorageRS {
                             gen.write("status." + lsc.status, lsc.count);
                         }
                     }
+                    if (ss.usedSpace > 0) gen.write("usedSpace", ss.usedSpace);
                     gen.write("usableSpace", ss.usableSpace);
                     gen.write("totalSpace", ss.totalSpace);
                     gen.writeEnd();
@@ -247,13 +250,14 @@ public class StorageRS {
         return ss;
     }
 
-    private void writeDeleterThresholds(JsonWriter writer, JsonGenerator gen, List<DeleterThreshold> deleterThresholds) {
+    private void writeDeleterThresholds(JsonWriter writer, JsonGenerator gen, String name,
+                                        List<DeleterThreshold> deleterThresholds) {
         if (deleterThresholds.isEmpty())
             return;
-        writer.writeStartArray("deleterThreshold");
+        writer.writeStartArray(name);
         deleterThresholds.forEach(deleterThreshold -> {
             writer.writeStartObject();
-            gen.write(deleterThreshold.getPrefix(), deleterThreshold.getMinUsableDiskSpace());
+            gen.write(deleterThreshold.getPrefix(), deleterThreshold.getDiskSpace());
             writer.writeEnd();
         });
         writer.writeEnd();
@@ -300,7 +304,8 @@ public class StorageRS {
                     long usableSpace = storage.getUsableSpace();
                     if (usableSpaceBelow == null || usableSpace < usableSpaceBelow) {
                         long totalSpace = storage.getTotalSpace();
-                        storageSystems.add(new StorageSystem(desc, usableSpace, totalSpace, usages, aets));
+                        long usedSpace = desc.parseDeleterThresholdBlocksFile() * 1024;
+                        storageSystems.add(new StorageSystem(desc, usableSpace, totalSpace, usedSpace, usages, aets));
                     }
                 } catch (IOException e) {
                     LOG.warn("Failed to access {}", desc, e);
@@ -315,14 +320,16 @@ public class StorageRS {
         final StorageDescriptor desc;
         final long usableSpace;
         final long totalSpace;
+        final long usedSpace;
         final String[] usages;
         final String[] aets;
 
-        StorageSystem(StorageDescriptor desc, long usableSpace, long totalSpace,
+        StorageSystem(StorageDescriptor desc, long usableSpace, long totalSpace, long usedSpace,
                       Collection<String> usages, Collection<String> aets) {
             this.desc = desc;
             this.usableSpace = usableSpace;
             this.totalSpace = totalSpace;
+            this.usedSpace = usedSpace;
             this.usages = usages.toArray(StringUtils.EMPTY_STRING);
             this.aets = aets.toArray(StringUtils.EMPTY_STRING);
             Arrays.sort(this.usages);

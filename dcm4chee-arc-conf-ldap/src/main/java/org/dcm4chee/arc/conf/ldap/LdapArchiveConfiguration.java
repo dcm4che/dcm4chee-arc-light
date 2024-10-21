@@ -2816,6 +2816,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.isAltCreateDirectories(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCheckMountFilePath",
                 descriptor.getCheckMountFilePath(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleterThresholdBlocksFilePath",
+                descriptor.getDeleterThresholdBlocksFilePath(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption",
                 descriptor.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLocationStatus",
@@ -2844,6 +2846,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getStorageThreshold(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleterThreshold",
                 descriptor.getDeleterThresholdsAsStrings());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleterThresholdMaxUsableSpace",
+                descriptor.getDeleterThresholdsMaxUsableSpaceAsStrings());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty",
                 descriptor.getProperties());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExternalRetrieveAET",
@@ -2892,6 +2896,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setRetryCreateDirectories(LdapUtils.intValue(attrs.get("dcmRetryCreateDirectories"), 0));
                 desc.setAltCreateDirectories(LdapUtils.booleanValue(attrs.get("dcmAltCreateDirectories"), false));
                 desc.setCheckMountFilePath(LdapUtils.stringValue(attrs.get("dcmCheckMountFilePath"), null));
+                desc.setDeleterThresholdBlocksFilePath(LdapUtils.stringValue(attrs.get("dcmDeleterThresholdBlocksFilePath"), null));
                 desc.setFileOpenOptions(toOpenOptions(attrs.get("dcmFileOpenOption"), StandardOpenOption.CREATE_NEW));
                 desc.setLocationStatus(
                         LdapUtils.enumValue(LocationStatus.class, attrs.get("dcmLocationStatus"), LocationStatus.OK));
@@ -2912,6 +2917,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setStorageClusterID(LdapUtils.stringValue(attrs.get("dcmStorageClusterID"), null));
                 desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
                 desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
+                desc.setDeleterThresholdsMaxUseableSpaceFromStrings(
+                        LdapUtils.stringArray(attrs.get("dcmDeleterThresholdMaxUsableSpace")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 desc.setExternalRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmExternalRetrieveAET")));
                 desc.setExternalRetrieveInstanceAvailability(LdapUtils.enumValue(
@@ -3006,6 +3013,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isAltCreateDirectories(), desc.isAltCreateDirectories(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCheckMountFilePath",
                 prev.getCheckMountFilePath(), desc.getCheckMountFilePath(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleterThresholdBlocksFilePath",
+                prev.getDeleterThresholdBlocksFilePath(), desc.getDeleterThresholdBlocksFilePath(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFileOpenOption",
                 prev.getFileOpenOptions(), desc.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLocationStatus",
@@ -3031,6 +3040,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getStorageThreshold(), desc.getStorageThreshold(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreshold",
                 prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThresholdMaxUseableSpace",
+                prev.getDeleterThresholdsMaxUsableSpaceAsStrings(),
+                desc.getDeleterThresholdsMaxUsableSpaceAsStrings());
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiff(ldapObj, mods, "dcmExternalRetrieveAET",
                 prev.getExternalRetrieveAETitles(), desc.getExternalRetrieveAETitles());

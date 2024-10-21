@@ -2357,6 +2357,15 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.483 NAME 'dcmSingleExportStorageByStudy
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.484 NAME 'dcmDeleterThresholdMaxUsableSpace'
+  DESC 'Maximal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System configured for cache (dcmStorageDuration=CACHE) or temporary (dcmStorageDuration=TEMPORARY) storage, if the used disk space exceeds that value. Format [nn"[Used(s)"<schedule>"]"]nnn(MB|GB|MiB|GiB). Only effective if dcmDeleterThresholdBlocksFilePath is also specified.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.485 NAME 'dcmDeleterThresholdBlocksFilePath'
+  DESC 'Path of file containing the current used disk space in blocks (1024 bytes), periodically updated by an external application.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2863,6 +2872,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmStorageThresholdExceeded $
     dcmStorageThresholdExceedsPermanently $
     dcmDeleterThreshold $
+    dcmDeleterThresholdMaxUsableSpace $
+    dcmDeleterThresholdBlocksFilePath $
     dcmDeleteStudiesOlderThan $
     dcmDeleteStudiesReceivedBefore $
     dcmDeleteStudiesNotUsedSince $

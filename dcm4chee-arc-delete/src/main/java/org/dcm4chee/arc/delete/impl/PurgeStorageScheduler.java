@@ -64,9 +64,13 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -171,19 +175,26 @@ public class PurgeStorageScheduler extends Scheduler {
             deleteObjectsFromStorage(arcDev, desc);
         }
 
-        if (desc.hasDeleterThresholds()) {
-            long minUsableSpace = desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance());
-            long deleteSize = sizeToDelete(desc, minUsableSpace);
-            if (deleteSize == 0L)
+        if (desc.hasDeleterThresholds() || desc.hasDeleterThresholdMaxUsableSpace()) {
+            Calendar cal = Calendar.getInstance();
+            long minUsableSpace = desc.getDeleterThresholdMinUsableSpace(cal);
+            long maxUsableSpace = desc.getDeleterThresholdMaxUsableSpace(cal);
+            long usableSpaceUnderflow = usableSpaceUnderflow(desc, minUsableSpace);
+            long usedSpaceOverflow = usedSpaceOverflow(desc, maxUsableSpace);
+            if (usableSpaceUnderflow == 0L && usedSpaceOverflow == 0L)
                 return;
 
-            LOG.info("Usable Space on {} {} below {} - start deleting {}", desc.getStorageDuration(), desc,
-                    BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
+            if (usableSpaceUnderflow > usedSpaceOverflow)
+                LOG.info("Usable Space on {} {} below {} - start deleting {}", desc.getStorageDuration(), desc,
+                        BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(usableSpaceUnderflow));
+            else
+                LOG.info("Used Space on {} {} above {} - start deleting {}", desc.getStorageDuration(), desc,
+                        BinaryPrefix.formatDecimal(maxUsableSpace), BinaryPrefix.formatDecimal(maxUsableSpace));
             while (arcDev.getPurgeStoragePollingInterval() != null
-                    && deleteSize > 0L
+                    && (usableSpaceUnderflow > 0L || usedSpaceOverflow > 0L)
                     && deleteStudies(arcDev, desc, false) > 0) {
-                deleteObjectsFromStorage(arcDev, desc);
-                deleteSize = sizeToDelete(desc, minUsableSpace);
+                usedSpaceOverflow -= deleteObjectsFromStorage(arcDev, desc);
+                usableSpaceUnderflow = usableSpaceUnderflow(desc, minUsableSpace);
             }
         } else if (!desc.hasRetentionPeriods() && desc.isNoDeletionConstraint()) {
             LOG.info("Start deleting objects from {} {}", desc.getStorageDuration(), desc);
@@ -194,7 +205,7 @@ public class PurgeStorageScheduler extends Scheduler {
         }
     }
 
-    private long sizeToDelete(StorageDescriptor desc, long minUsableSpace) {
+    private long usableSpaceUnderflow(StorageDescriptor desc, long minUsableSpace) {
         if (minUsableSpace < 0L)
             return 0L;
 
@@ -203,6 +214,31 @@ public class PurgeStorageScheduler extends Scheduler {
         } catch (IOException e) {
             LOG.warn("Failed to determine usable space on {}", desc, e);
             return 0;
+        }
+    }
+
+    private long usedSpaceOverflow(StorageDescriptor desc, long maxUsedSpace) {
+        if (maxUsedSpace <= 0L)
+            return 0L;
+
+        String deleterThresholdBlocksFilePath = desc.getDeleterThresholdBlocksFilePath();
+        if (deleterThresholdBlocksFilePath == null) {
+            LOG.info("Deleter Threshold Blocks File Path on {} not configured - ignore ", desc);
+            return 0L;
+        }
+
+        try {
+            long blocks = desc.parseDeleterThresholdBlocksFile();
+            if (blocks == 0L) {
+                LOG.warn("Failed to parse Deleter Threshold Blocks File {} for {} - ignore",
+                        deleterThresholdBlocksFilePath, desc);
+                return 0L;
+            }
+            return Math.max(0, blocks * 1024 - maxUsedSpace);
+        } catch (IOException e) {
+            LOG.warn("Failed to read Deleter Threshold Blocks File {} for {} - ignore",
+                    deleterThresholdBlocksFilePath, desc, e);
+            return 0L;
         }
     }
 
@@ -474,11 +510,12 @@ public class PurgeStorageScheduler extends Scheduler {
         }
     }
 
-    private void deleteObjectsFromStorage(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
+    private long deleteObjectsFromStorage(ArchiveDeviceExtension arcDev, StorageDescriptor desc) {
         List<Location> locations;
         int fetchSize = arcDev.getPurgeStorageFetchSize();
+        long sizeDeleted = 0;
         do {
-            if (arcDev.getPurgeStoragePollingInterval() == null) return;
+            if (arcDev.getPurgeStoragePollingInterval() == null) return sizeDeleted;
             LOG.debug("Query for objects marked for deletion at {}", desc);
             locations = ejb.findLocationsWithStatus(desc.getStorageID(), LocationStatus.TO_DELETE, fetchSize);
             if (locations.isEmpty()) {
@@ -493,6 +530,7 @@ public class PurgeStorageScheduler extends Scheduler {
             AtomicInteger skipped = new AtomicInteger();
             try (Storage storage = storageFactory.getStorage(desc)) {
                 for (Location location : locations) {
+                    sizeDeleted += location.getSize();
                     if (semaphore == null) {
                         deleteLocation(storage, location, success, skipped);
                     } else {
@@ -518,6 +556,7 @@ public class PurgeStorageScheduler extends Scheduler {
                         success, skipped, locations.size() - success.get() - skipped.get(), desc);
             }
         } while (locations.size() == fetchSize);
+        return sizeDeleted;
     }
 
     private void deleteLocation(Storage storage, Location location, AtomicInteger success, AtomicInteger skipped) {

@@ -562,6 +562,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmStorageClusterID", st.getStorageClusterID(), null);
             writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
             writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
+            writer.writeNotEmpty("dcmDeleterThresholdMaxUsableSpace", st.getDeleterThresholdsMaxUsableSpaceAsStrings());
             writer.writeNotEmpty("dcmProperty", st.getProperties());
             writer.writeNotEmpty("dcmExternalRetrieveAET", st.getExternalRetrieveAETitles());
             writer.writeNotNullOrDef("dcmExternalRetrieveInstanceAvailability",
@@ -2444,6 +2445,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmCheckMountFilePath":
                         st.setCheckMountFilePath(reader.stringValue());
                         break;
+                    case "dcmDeleterThresholdBlocksFilePath":
+                        st.setDeleterThresholdBlocksFilePath(reader.stringValue());
+                        break;
                     case "dcmFileOpenOption":
                         st.setFileOpenOptions(toOpenOptions(reader.stringArray()));
                         break;
@@ -2485,6 +2489,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmDeleterThreshold":
                         st.setDeleterThresholdsFromStrings(reader.stringArray());
+                        break;
+                    case "dcmDeleterThresholdMaxUseableSpace":
+                        st.setDeleterThresholdsMaxUseableSpaceFromStrings(reader.stringArray());
                         break;
                     case "dcmProperty":
                         st.setProperties(reader.stringArray());
