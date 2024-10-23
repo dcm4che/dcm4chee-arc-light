@@ -52,6 +52,7 @@ import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.conf.HL7ReferredMergedPatientPolicy;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.*;
 import org.hibernate.annotations.QueryHints;
@@ -146,6 +147,31 @@ public class PatientServiceEJB {
 
     private void logSuppressPatientCreate(PatientMgtContext ctx) {
         LOG.info("{}: Suppress creation of Patient[id={}] by {}", ctx, ctx.getPatientIDs(), ctx.getUnparsedHL7Message().msh());
+    }
+
+    public Patient findPatient(Collection<IDWithIssuer> pids, Collection<IDWithIssuer> prev,
+                               HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy)
+            throws NonUniquePatientException, PatientMergedException {
+        Collection<Patient> list = findPatients(pids);
+        if (list.isEmpty())
+            return null;
+
+        if (list.size() > 1)
+            throw new NonUniquePatientException("Multiple Patients with ID " + pids);
+
+        Patient pat = list.iterator().next();
+        Patient mergedWith = pat.getMergedWith();
+        if (mergedWith != null) {
+            if (hl7ReferredMergedPatientPolicy != HL7ReferredMergedPatientPolicy.UNMERGE_DUPLICATED_REPEATED_MERGE
+                    || mergedWith.getPatientIDs().stream()
+                        .map(PatientID::getIDWithIssuer)
+                        .collect(Collectors.toList())
+                        .stream()
+                        .noneMatch(prev::contains))
+            throw new PatientMergedException("" + pat + " merged with " + mergedWith);
+        }
+
+        return pat;
     }
 
     public Patient findPatient(Collection<IDWithIssuer> pids)
@@ -276,7 +302,8 @@ public class PatientServiceEJB {
 
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(ctx.getPatientIDs());
+        HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy = ctx.getHl7ReferredMergedPatientPolicy();
+        Patient pat = findPatient(ctx.getPatientIDs(), ctx.getPreviousPatientIDs(), hl7ReferredMergedPatientPolicy);
         Patient prev = findPatient(ctx.getPreviousPatientIDs());
         if (pat == null && prev == null && ctx.isNoPatientCreate()) {
             logSuppressPatientCreate(ctx);
@@ -301,6 +328,8 @@ public class PatientServiceEJB {
             ctx.setAttributes(pat.getAttributes());
             ctx.setPreviousAttributes(prev.getAttributes());
         }
+        if (hl7ReferredMergedPatientPolicy == HL7ReferredMergedPatientPolicy.UNMERGE_DUPLICATED_REPEATED_MERGE)
+            pat.setMergedWith(null);
         prev.setMergedWith(pat);
         return pat;
     }

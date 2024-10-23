@@ -78,6 +78,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private Collection<IDWithIssuer> previousPatientIDs;
     private Attributes previousAttributes;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
+    private HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy;
     private String eventActionCode = AuditMessages.EventActionCode.Read;
     private Exception exception;
     private Patient patient;
@@ -328,5 +329,15 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public Socket getSocket() {
         return socket;
+    }
+
+    @Override
+    public HL7ReferredMergedPatientPolicy getHl7ReferredMergedPatientPolicy() {
+        return hl7ReferredMergedPatientPolicy;
+    }
+
+    @Override
+    public void setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy) {
+        this.hl7ReferredMergedPatientPolicy = hl7ReferredMergedPatientPolicy;
     }
 }

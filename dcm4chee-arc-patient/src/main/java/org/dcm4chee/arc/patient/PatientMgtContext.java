@@ -49,6 +49,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.conf.HL7ReferredMergedPatientPolicy;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 
@@ -138,4 +139,8 @@ public interface PatientMgtContext {
     Connection getConnection();
 
     Socket getSocket();
+
+    HL7ReferredMergedPatientPolicy getHl7ReferredMergedPatientPolicy();
+
+    void setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy);
 }

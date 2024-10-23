@@ -203,6 +203,7 @@ class PatientUpdateService extends DefaultHL7Service {
             ArchiveHL7ApplicationExtension arcHL7App) throws HL7Exception {
         UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         try {
+            ctx.setHl7ReferredMergedPatientPolicy(arcHL7App.hl7ReferredMergedPatientPolicy());
             return msg.msh().getMessageType().equals(CHANGE_PATIENT_IDENTIFIER)
                     ? patientService.changePatientID(ctx)
                     : patientService.mergePatient(ctx);

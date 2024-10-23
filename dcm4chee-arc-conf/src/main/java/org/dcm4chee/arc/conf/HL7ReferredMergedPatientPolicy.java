@@ -43,8 +43,9 @@ package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2020
  */
 public enum HL7ReferredMergedPatientPolicy {
-        REJECT, IGNORE, IGNORE_DUPLICATE_MERGE
+        REJECT, IGNORE, IGNORE_DUPLICATE_MERGE, UNMERGE_DUPLICATED_REPEATED_MERGE
 }
