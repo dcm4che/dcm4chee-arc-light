@@ -162,7 +162,7 @@ public class PatientServiceEJB {
         Patient pat = list.iterator().next();
         Patient mergedWith = pat.getMergedWith();
         if (mergedWith != null) {
-            if (hl7ReferredMergedPatientPolicy != HL7ReferredMergedPatientPolicy.UNMERGE_DUPLICATED_REPEATED_MERGE
+            if (hl7ReferredMergedPatientPolicy != HL7ReferredMergedPatientPolicy.ACCEPT_INVERSE_MERGE
                     || mergedWith.getPatientIDs().stream()
                         .map(PatientID::getIDWithIssuer)
                         .collect(Collectors.toList())
@@ -328,7 +328,7 @@ public class PatientServiceEJB {
             ctx.setAttributes(pat.getAttributes());
             ctx.setPreviousAttributes(prev.getAttributes());
         }
-        if (hl7ReferredMergedPatientPolicy == HL7ReferredMergedPatientPolicy.UNMERGE_DUPLICATED_REPEATED_MERGE)
+        if (hl7ReferredMergedPatientPolicy == HL7ReferredMergedPatientPolicy.ACCEPT_INVERSE_MERGE)
             pat.setMergedWith(null);
         prev.setMergedWith(pat);
         return pat;

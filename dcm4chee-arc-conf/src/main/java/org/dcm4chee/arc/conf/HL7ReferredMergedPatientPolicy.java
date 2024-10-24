@@ -47,5 +47,5 @@ package org.dcm4chee.arc.conf;
  * @since Apr 2020
  */
 public enum HL7ReferredMergedPatientPolicy {
-        REJECT, IGNORE, IGNORE_DUPLICATE_MERGE, UNMERGE_DUPLICATED_REPEATED_MERGE
+        REJECT, IGNORE, IGNORE_DUPLICATE_MERGE, ACCEPT_INVERSE_MERGE
 }
