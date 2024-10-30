@@ -49,6 +49,7 @@ import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -156,5 +157,15 @@ public class MergeAttribute {
             item = item.getNestedDataset(tagPath[i]);
         }
         return item;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof MergeAttribute))
+            return false;
+        MergeAttribute other = (MergeAttribute) obj;
+        return (Objects.equals(value, other.toString()));
     }
 }

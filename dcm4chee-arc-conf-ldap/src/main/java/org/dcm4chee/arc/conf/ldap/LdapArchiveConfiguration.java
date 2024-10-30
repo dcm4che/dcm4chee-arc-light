@@ -3002,7 +3002,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmArchiveSeriesAsTAR",
                 prev.isArchiveSeriesAsTAR(), desc.isArchiveSeriesAsTAR(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoragePathFormat",
-                prev.getStoragePathFormat(), desc.getStoragePathFormat(), StorageDescriptor.DEFAULT_ATTRIBUTES_FORMAT);
+                prev.getStoragePathFormat().toString(), desc.getStoragePathFormat().toString(),
+                StorageDescriptor.DEFAULT_ATTRIBUTES_FORMAT);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmOnStoragePathAlreadyExists",
                 prev.getOnStoragePathAlreadyExists(),
                 desc.getOnStoragePathAlreadyExists(),
