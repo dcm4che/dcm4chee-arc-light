@@ -153,34 +153,32 @@
                 <xsl:value-of select="'SC'" />
             </field>
             <field>
+                <xsl:variable name="placerNo" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00402016']/Value" />
+                <xsl:variable name="placerNoSq" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00402026']/Value" />
                 <xsl:choose>
-                    <xsl:when test="$PlacerOrderNumberImagingServiceRequest">
-                        <xsl:value-of select="$PlacerOrderNumberImagingServiceRequest"/>
-                        <xsl:call-template name="issuer">
-                            <xsl:with-param name="issuer" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00400026']/Item" />
+                    <xsl:when test="string-length($placerNo) > 0">
+                        <xsl:value-of select="$placerNo"/>
+                        <xsl:call-template name="populateIssuer">
+                            <xsl:with-param name="issuer" select="$placerNoSq"/>
                         </xsl:call-template>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:call-template name="idWithIssuer">
-                            <xsl:with-param name="idTag" select="'00402016'"/>
-                            <xsl:with-param name="sqTag" select="'00400026'"/>
-                        </xsl:call-template>
+                        <xsl:value-of select="$PlacerOrderNumberImagingServiceRequest"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </field>
             <field>
+                <xsl:variable name="fillerNo" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00402017']/Value" />
+                <xsl:variable name="fillerNoSq" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00402027']/Value" />
                 <xsl:choose>
-                    <xsl:when test="$FillerOrderNumberImagingServiceRequest">
-                        <xsl:value-of select="$FillerOrderNumberImagingServiceRequest"/>
-                        <xsl:call-template name="issuer">
-                            <xsl:with-param name="issuer" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00400027']/Item" />
+                    <xsl:when test="string-length($fillerNo) > 0">
+                        <xsl:value-of select="$fillerNo"/>
+                        <xsl:call-template name="populateIssuer">
+                            <xsl:with-param name="issuer" select="$fillerNoSq"/>
                         </xsl:call-template>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:call-template name="idWithIssuer">
-                            <xsl:with-param name="idTag" select="'00402017'"/>
-                            <xsl:with-param name="sqTag" select="'00400027'"/>
-                        </xsl:call-template>
+                        <xsl:value-of select="$FillerOrderNumberImagingServiceRequest"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </field>
@@ -207,34 +205,32 @@
         <OBR>
             <field/>
             <field>
+                <xsl:variable name="placerNo" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00402016']/Value" />
+                <xsl:variable name="placerNoSq" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00402026']/Value" />
                 <xsl:choose>
-                    <xsl:when test="$PlacerOrderNumberImagingServiceRequest">
-                        <xsl:value-of select="$PlacerOrderNumberImagingServiceRequest"/>
-                        <xsl:call-template name="issuer">
-                            <xsl:with-param name="issuer" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00400026']/Item" />
+                    <xsl:when test="string-length($placerNo) > 0">
+                        <xsl:value-of select="$placerNo"/>
+                        <xsl:call-template name="populateIssuer">
+                            <xsl:with-param name="issuer" select="$placerNoSq"/>
                         </xsl:call-template>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:call-template name="idWithIssuer">
-                            <xsl:with-param name="idTag" select="'00402016'"/>
-                            <xsl:with-param name="sqTag" select="'00400026'"/>
-                        </xsl:call-template>
+                        <xsl:value-of select="$PlacerOrderNumberImagingServiceRequest"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </field>
             <field>
+                <xsl:variable name="fillerNo" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00402017']/Value" />
+                <xsl:variable name="fillerNoSq" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00402027']/Value" />
                 <xsl:choose>
-                    <xsl:when test="$FillerOrderNumberImagingServiceRequest">
-                        <xsl:value-of select="$FillerOrderNumberImagingServiceRequest"/>
-                        <xsl:call-template name="issuer">
-                            <xsl:with-param name="issuer" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00400027']/Item" />
+                    <xsl:when test="string-length($fillerNo) > 0">
+                        <xsl:value-of select="$fillerNo"/>
+                        <xsl:call-template name="populateIssuer">
+                            <xsl:with-param name="issuer" select="$fillerNoSq"/>
                         </xsl:call-template>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:call-template name="idWithIssuer">
-                            <xsl:with-param name="idTag" select="'00402017'"/>
-                            <xsl:with-param name="sqTag" select="'00400027'"/>
-                        </xsl:call-template>
+                        <xsl:value-of select="$FillerOrderNumberImagingServiceRequest"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </field>
@@ -257,31 +253,28 @@
             <field/>
             <field/>
             <field>
+                <xsl:variable name="accNo" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00080050']/Value" />
+                <xsl:variable name="accNoSeq" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00080051']/Value" />
                 <xsl:choose>
-                    <xsl:when test="$AccessionNumber">
-                        <xsl:value-of select="$AccessionNumber"/>
-                        <xsl:call-template name="issuer">
-                            <xsl:with-param name="issuer" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00080051']/Item" />
+                    <xsl:when test="string-length($accNo) > 0">
+                        <xsl:value-of select="$accNo"/>
+                        <xsl:call-template name="populateIssuer">
+                            <xsl:with-param name="issuer" select="$accNoSeq"/>
                         </xsl:call-template>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:call-template name="idWithIssuer">
-                            <xsl:with-param name="idTag" select="'00080050'"/>
-                            <xsl:with-param name="sqTag" select="'00080051'"/>
-                        </xsl:call-template>
+                        <xsl:value-of select="$AccessionNumber"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </field>
             <field>
+                <xsl:variable name="reqProcID" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00401001']/Value" />
                 <xsl:choose>
-                    <xsl:when test="string-length($RequestedProcedureID) > 0">
-                        <xsl:value-of select="$RequestedProcedureID"/>
+                    <xsl:when test="string-length($reqProcID) > 0">
+                        <xsl:value-of select="$reqProcID"/>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:call-template name="attrVal">
-                            <xsl:with-param name="val" select="$scheduledStepAttributesSqItem/DicomAttribute[@tag='00401001']/Value"/>
-                            <xsl:with-param name="includeNullValues" select="$includeNullValues"/>
-                        </xsl:call-template>
+                        <xsl:value-of select="$RequestedProcedureID"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </field>
@@ -473,6 +466,27 @@
     </xsl:template>
 
     <xsl:template name="issuer">
+        <xsl:param name="issuer"/>
+        <xsl:if test="$issuer">
+            <component/>
+            <component/>
+            <component>
+                <xsl:value-of select="$issuer/DicomAttribute[@tag='00400031']/Value" />
+                <xsl:variable name="universalEntityID" select="$issuer/DicomAttribute[@tag='00400032']/Value"/>
+                <xsl:variable name="universalEntityIDType" select="$issuer/DicomAttribute[@tag='00400033']/Value"/>
+                <xsl:if test="$universalEntityID">
+                    <subcomponent>
+                        <xsl:value-of select="$universalEntityID" />
+                    </subcomponent>
+                    <subcomponent>
+                        <xsl:value-of select="$universalEntityIDType" />
+                    </subcomponent>
+                </xsl:if>
+            </component>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="populateIssuer">
         <xsl:param name="issuer"/>
         <xsl:if test="$issuer">
             <component/>
