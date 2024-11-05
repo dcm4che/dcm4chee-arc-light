@@ -133,7 +133,7 @@ public class PatientServiceEJB {
 
     public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(ctx.getPatientIDs());
+        Patient pat = findNotMergedPatient(ctx.getPatientIDs());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
                 logSuppressPatientCreate(ctx);
@@ -149,9 +149,7 @@ public class PatientServiceEJB {
         LOG.info("{}: Suppress creation of Patient[id={}] by {}", ctx, ctx.getPatientIDs(), ctx.getUnparsedHL7Message().msh());
     }
 
-    public Patient findPatient(Collection<IDWithIssuer> pids, Collection<IDWithIssuer> prev,
-                               HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy)
-            throws NonUniquePatientException, PatientMergedException {
+    public Patient findPatient(Collection<IDWithIssuer> pids) {
         Collection<Patient> list = findPatients(pids);
         if (list.isEmpty())
             return null;
@@ -159,31 +157,12 @@ public class PatientServiceEJB {
         if (list.size() > 1)
             throw new NonUniquePatientException("Multiple Patients with ID " + pids);
 
-        Patient pat = list.iterator().next();
-        Patient mergedWith = pat.getMergedWith();
-        if (mergedWith != null) {
-            if (hl7ReferredMergedPatientPolicy != HL7ReferredMergedPatientPolicy.ACCEPT_INVERSE_MERGE
-                    || mergedWith.getPatientIDs().stream()
-                        .map(PatientID::getIDWithIssuer)
-                        .collect(Collectors.toList())
-                        .stream()
-                        .noneMatch(prev::contains))
-            throw new PatientMergedException("" + pat + " merged with " + mergedWith);
-        }
-
-        return pat;
+        return list.iterator().next();
     }
 
-    public Patient findPatient(Collection<IDWithIssuer> pids)
+    public Patient findNotMergedPatient(Collection<IDWithIssuer> pids)
             throws NonUniquePatientException, PatientMergedException {
-        Collection<Patient> list = findPatients(pids);
-        if (list.isEmpty())
-            return null;
-
-        if (list.size() > 1)
-            throw new NonUniquePatientException("Multiple Patients with ID " + pids);
-
-        Patient pat = list.iterator().next();
+        Patient pat = findPatient(pids);
         Patient mergedWith = pat.getMergedWith();
         if (mergedWith != null)
             throw new PatientMergedException("" + pat + " merged with " + mergedWith);
@@ -302,9 +281,18 @@ public class PatientServiceEJB {
 
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy = ctx.getHl7ReferredMergedPatientPolicy();
-        Patient pat = findPatient(ctx.getPatientIDs(), ctx.getPreviousPatientIDs(), hl7ReferredMergedPatientPolicy);
-        Patient prev = findPatient(ctx.getPreviousPatientIDs());
+        Patient pat = findPatient(ctx.getPatientIDs());
+        Patient mergedWith = pat.getMergedWith();
+        if (mergedWith != null) {
+            if (ctx.getHl7ReferredMergedPatientPolicy() != HL7ReferredMergedPatientPolicy.ACCEPT_INVERSE_MERGE
+                    || mergedWith.getPatientIDs().stream()
+                    .map(PatientID::getIDWithIssuer)
+                    .noneMatch(ctx.getPreviousPatientIDs()::contains)) {
+                throw new PatientMergedException("" + pat + " merged with " + mergedWith);
+            }
+            pat.setMergedWith(null);
+        }
+        Patient prev = findNotMergedPatient(ctx.getPreviousPatientIDs());
         if (pat == null && prev == null && ctx.isNoPatientCreate()) {
             logSuppressPatientCreate(ctx);
             return null;
@@ -328,8 +316,6 @@ public class PatientServiceEJB {
             ctx.setAttributes(pat.getAttributes());
             ctx.setPreviousAttributes(prev.getAttributes());
         }
-        if (hl7ReferredMergedPatientPolicy == HL7ReferredMergedPatientPolicy.ACCEPT_INVERSE_MERGE)
-            pat.setMergedWith(null);
         prev.setMergedWith(pat);
         return pat;
     }
@@ -340,7 +326,7 @@ public class PatientServiceEJB {
 
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientAlreadyExistsException {
-        Patient pat = findPatient(ctx.getPreviousPatientIDs());
+        Patient pat = findNotMergedPatient(ctx.getPreviousPatientIDs());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
                 logSuppressPatientCreate(ctx);
@@ -353,7 +339,7 @@ public class PatientServiceEJB {
             ctx.setPreviousAttributes(new Attributes(pat.getAttributes()));
 
         Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
-        Patient pat2 = findPatient(patientIDs);
+        Patient pat2 = findNotMergedPatient(patientIDs);
         if (pat2 != null && pat2 != pat)
             throw new PatientAlreadyExistsException("Patient with Patient IDs " + pat2.getPatientIDs() + "already exists");
 
@@ -383,7 +369,7 @@ public class PatientServiceEJB {
         if (!attrs.contains(tag)) attrs.setNull(tag, vr);
     }
 
-    public Patient findPatient(PatientMgtContext ctx) {
+    public Patient findNotMergedPatient(PatientMgtContext ctx) {
         Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
         if (patientIDs.isEmpty()) {
             LOG.info("{}: No Patient IDs in received object", ctx);
@@ -526,7 +512,7 @@ public class PatientServiceEJB {
     }
 
     public Patient updatePatientStatus(PatientMgtContext ctx) {
-        Patient pat = findPatient(ctx.getPatientIDs());
+        Patient pat = findNotMergedPatient(ctx.getPatientIDs());
         if (pat != null) {
             pat.setVerificationStatus(ctx.getPatientVerificationStatus());
             pat.setVerificationTime(new Date());

@@ -126,7 +126,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient findPatient(Collection<IDWithIssuer> pids) {
-        return ejb.findPatient(pids);
+        return ejb.findNotMergedPatient(pids);
     }
 
     @Override
@@ -286,7 +286,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient findPatient(PatientMgtContext ctx) {
-        return ejb.findPatient(ctx);
+        return ejb.findNotMergedPatient(ctx);
     }
 
     @Override
