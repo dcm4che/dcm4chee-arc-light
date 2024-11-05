@@ -163,8 +163,8 @@ public class PatientServiceEJB {
     public Patient findNotMergedPatient(Collection<IDWithIssuer> pids)
             throws NonUniquePatientException, PatientMergedException {
         Patient pat = findPatient(pids);
-        Patient mergedWith = pat.getMergedWith();
-        if (mergedWith != null)
+        Patient mergedWith;
+        if (pat != null && (mergedWith = pat.getMergedWith()) != null)
             throw new PatientMergedException("" + pat + " merged with " + mergedWith);
 
         return pat;
@@ -282,8 +282,8 @@ public class PatientServiceEJB {
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
         Patient pat = findPatient(ctx.getPatientIDs());
-        Patient mergedWith = pat.getMergedWith();
-        if (mergedWith != null) {
+        Patient mergedWith;
+        if (pat != null && (mergedWith = pat.getMergedWith()) != null) {
             if (ctx.getHl7ReferredMergedPatientPolicy() != HL7ReferredMergedPatientPolicy.ACCEPT_INVERSE_MERGE
                     || mergedWith.getPatientIDs().stream()
                     .map(PatientID::getIDWithIssuer)
@@ -642,7 +642,7 @@ public class PatientServiceEJB {
         long createdPatientPk = createdPatient.getPk();
         Optional<Patient> createdPatientFound =
                 patients.stream().filter(p -> p.getPk() == createdPatientPk).findFirst();
-        if (!createdPatientFound.isPresent()) {
+        if (createdPatientFound.isEmpty()) {
             LOG.warn("Failed to find created {}", createdPatient);
             return false;
         }
@@ -652,7 +652,7 @@ public class PatientServiceEJB {
                 patients.stream().filter(p ->
                                 p.getPk() != createdPatientPk && Arrays.equals(p.getEncodedAttributes(), encodedAttrs))
                         .findFirst();
-        if (!otherPatientFound.isPresent()) {
+        if (otherPatientFound.isEmpty()) {
             LOG.info("No duplicate record with equal Patient attributes found {}", createdPatient);
             return false;
         }
