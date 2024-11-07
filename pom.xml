@@ -66,7 +66,7 @@
     <hibernate.orm.version>6.6.1.Final</hibernate.orm.version>
     <apache-commons-csv.version>1.10.0</apache-commons-csv.version>
     <apache-commons-compress.version>1.26.1</apache-commons-compress.version>
-    <jclouds.version>2.5.0</jclouds.version>
+    <jclouds.version>2.6.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
 
     <!-- JPA -->
