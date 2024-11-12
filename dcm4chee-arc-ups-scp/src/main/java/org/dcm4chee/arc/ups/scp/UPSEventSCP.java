@@ -136,7 +136,7 @@ public class UPSEventSCP {
 
     private static AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE, String subscriberAET) {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCalledAET(subscriberAET);
+        aarq.setCalledAET(localAE.masqueradeCalledAETitle(subscriberAET));
         TransferCapability tc = localAE.getTransferCapabilityFor(UID.UnifiedProcedureStepEvent,
                 TransferCapability.Role.SCP);
         aarq.addPresentationContext(new PresentationContext(1, UID.UnifiedProcedureStepEvent,

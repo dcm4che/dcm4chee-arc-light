@@ -5685,10 +5685,10 @@ karma@^6.4.2:
     ua-parser-js "^0.7.30"
     yargs "^16.1.1"
 
-keycloak-js@~25.0.5:
-  version "25.0.5"
-  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-25.0.5.tgz#d969f345caff99c132fc194d459d0853f95346ac"
-  integrity sha512-/lrUWHpDoqt4XrY07Wtfo4S2/KPJ3pvE4y1xtus65pAlgqtiEONtlYOdAdJv6iAWl7RE4Jx7eaN5P1A5yO/NLg==
+keycloak-js@~25.0.6:
+  version "25.0.6"
+  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-25.0.6.tgz#ea2e74d907f251c93080c6e2245d9d858bd4b329"
+  integrity sha512-Km+dc+XfNvY6a4az5jcxTK0zPk52ns9mAxLrHj7lF3V+riVYvQujfHmhayltJDjEpSOJ4C8a57LFNNKnNnRP2g==
   dependencies:
     js-sha256 "^0.11.0"
     jwt-decode "^4.0.0"
