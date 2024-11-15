@@ -703,6 +703,9 @@ public class QidoRS {
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         if (seriesInstanceUID != null)
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
+        String mwlWorklistLabel = ae.getAEExtension(ArchiveAEExtension.class).getMWLWorklistLabel();
+        if (mwlWorklistLabel != null)
+            keys.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabel);
         ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;
     }
