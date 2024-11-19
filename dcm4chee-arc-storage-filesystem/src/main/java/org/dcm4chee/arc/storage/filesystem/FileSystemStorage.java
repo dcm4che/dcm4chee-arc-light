@@ -67,6 +67,7 @@ public class FileSystemStorage extends AbstractStorage {
 
     private final URI rootURI;
     private final Path checkMountFilePath;
+    private final Path checkExistFilePath;
     private final CreateDirectories createDirectories;
 
     @FunctionalInterface
@@ -79,6 +80,8 @@ public class FileSystemStorage extends AbstractStorage {
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
         String checkMountFile = descriptor.getCheckMountFilePath();
         checkMountFilePath = checkMountFile != null ?  Paths.get(rootURI.resolve(checkMountFile)) : null;
+        String checkExistFile = descriptor.getCheckExistFilePath();
+        checkExistFilePath = checkExistFile != null ?  Paths.get(rootURI.resolve(checkExistFile)) : null;
         createDirectories = descriptor.isAltCreateDirectories()
             ? FileSystemStorage::altCreateDirectories
             : Files::createDirectories;
@@ -122,7 +125,8 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     public boolean isAccessable() {
-        return checkMountFilePath == null || Files.notExists(checkMountFilePath);
+        return (checkMountFilePath == null || Files.notExists(checkMountFilePath))
+                && (checkExistFilePath == null || Files.exists(checkExistFilePath));
     }
 
     @Override

@@ -2841,6 +2841,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.485 NAME 'dcmDeleterThresholdBlocksFilePa
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.486 NAME 'dcmCheckExistFilePath'
+  DESC 'Indicates to check if the specified file on the storage file system exists. If the file becomes inaccessible, the write operation to the storage fails, preventing to store objects on the file system.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -3339,6 +3345,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmRetryCreateDirectories $
     dcmAltCreateDirectories $
     dcmCheckMountFilePath $
+    dcmCheckExistFilePath $
     dcmFileOpenOption $
     dcmLocationStatus $
     dcmDigestAlgorithm $

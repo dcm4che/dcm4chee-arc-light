@@ -71,6 +71,7 @@ public final class StorageDescriptor {
     private AttributesFormat storagePathFormat = DEFAULT_ATTRIBUTES_FORMAT;
     private OnStoragePathAlreadyExists onStoragePathAlreadyExists = OnStoragePathAlreadyExists.RANDOM_PATH;
     private String checkMountFilePath;
+    private String checkExistFilePath;
     private String deleterThresholdBlocksFilePath;
     private OpenOption[] fileOpenOptions = { StandardOpenOption.CREATE_NEW };
     private boolean altCreateDirectories;
@@ -154,6 +155,14 @@ public final class StorageDescriptor {
 
     public void setCheckMountFilePath(String checkMountFilePath) {
         this.checkMountFilePath = checkMountFilePath;
+    }
+
+    public String getCheckExistFilePath() {
+        return checkExistFilePath;
+    }
+
+    public void setCheckExistFilePath(String checkExistFilePath) {
+        this.checkExistFilePath = checkExistFilePath;
     }
 
     public String getDeleterThresholdBlocksFilePath() {

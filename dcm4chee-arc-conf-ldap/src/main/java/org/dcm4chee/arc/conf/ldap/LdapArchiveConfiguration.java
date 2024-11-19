@@ -2816,6 +2816,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.isAltCreateDirectories(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCheckMountFilePath",
                 descriptor.getCheckMountFilePath(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCheckExistFilePath",
+                descriptor.getCheckExistFilePath(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleterThresholdBlocksFilePath",
                 descriptor.getDeleterThresholdBlocksFilePath(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFileOpenOption",
@@ -2896,6 +2898,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setRetryCreateDirectories(LdapUtils.intValue(attrs.get("dcmRetryCreateDirectories"), 0));
                 desc.setAltCreateDirectories(LdapUtils.booleanValue(attrs.get("dcmAltCreateDirectories"), false));
                 desc.setCheckMountFilePath(LdapUtils.stringValue(attrs.get("dcmCheckMountFilePath"), null));
+                desc.setCheckExistFilePath(LdapUtils.stringValue(attrs.get("dcmCheckExistFilePath"), null));
                 desc.setDeleterThresholdBlocksFilePath(LdapUtils.stringValue(attrs.get("dcmDeleterThresholdBlocksFilePath"), null));
                 desc.setFileOpenOptions(toOpenOptions(attrs.get("dcmFileOpenOption"), StandardOpenOption.CREATE_NEW));
                 desc.setLocationStatus(
@@ -3014,6 +3017,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isAltCreateDirectories(), desc.isAltCreateDirectories(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCheckMountFilePath",
                 prev.getCheckMountFilePath(), desc.getCheckMountFilePath(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCheckExistFilePath",
+                prev.getCheckExistFilePath(), desc.getCheckExistFilePath(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleterThresholdBlocksFilePath",
                 prev.getDeleterThresholdBlocksFilePath(), desc.getDeleterThresholdBlocksFilePath(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmFileOpenOption",

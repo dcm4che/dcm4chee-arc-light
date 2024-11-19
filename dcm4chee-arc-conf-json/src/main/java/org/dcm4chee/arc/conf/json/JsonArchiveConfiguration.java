@@ -546,6 +546,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRetryCreateDirectories", st.getRetryCreateDirectories(), 0);
             writer.writeNotDef("dcmAltCreateDirectories", st.isAltCreateDirectories(), false);
             writer.writeNotNullOrDef("dcmCheckMountFilePath", st.getCheckMountFilePath(), null);
+            writer.writeNotNullOrDef("dcmCheckExistFilePath", st.getCheckExistFilePath(), null);
             writer.writeNotEmpty("dcmFileOpenOption", st.getFileOpenOptions(), StandardOpenOption.CREATE_NEW);
             writer.writeNotNullOrDef("dcmLocationStatus", st.getLocationStatus(), LocationStatus.OK);
             writer.writeNotDef("dcmCountLocationsByStatus", st.isCountLocationsByStatus(), false);
@@ -2444,6 +2445,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmCheckMountFilePath":
                         st.setCheckMountFilePath(reader.stringValue());
+                        break;
+                    case "dcmCheckExistFilePath":
+                        st.setCheckExistFilePath(reader.stringValue());
                         break;
                     case "dcmDeleterThresholdBlocksFilePath":
                         st.setDeleterThresholdBlocksFilePath(reader.stringValue());
