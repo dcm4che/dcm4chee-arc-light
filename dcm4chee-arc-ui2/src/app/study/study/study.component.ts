@@ -1704,6 +1704,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             let token;
             let url;
             const target = this.studyWebService.selectedWebService['IID_URL_TARGET'] || '';
+            let encodeValue = this.studyWebService.selectedWebService['IID_ENCODE'];
+            const encodeCheck:boolean = (encodeValue === undefined || encodeValue === "" || (encodeValue && encodeValue == "true") || (encodeValue && encodeValue == "True"));
+
             let configuredUrlString = mode === "study" ? this.studyWebService.selectedWebService['IID_STUDY_URL'] : this.studyWebService.selectedWebService['IID_PATIENT_URL'];
             let studyUID = this.service.getStudyInstanceUID(model) || "";
             let patientID = this.service.getPatientId(model);
@@ -1737,12 +1740,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     "qidoBaseURL": qidoBaseURL
                 };
                 url = replaceDoubleBraces(configuredUrlString, substitutions).trim();
+                if(encodeCheck){
+                    url = encodeURI(url);
+                }
                 console.log("Prepared URL: ", url);
                 console.groupEnd();
                 if (target) {
-                    window.open(encodeURI(url), target);
+                    window.open(url, target);
                 } else {
-                    window.open(encodeURI(url));
+                    window.open(url);
                 }
             });
         }catch(e){
@@ -6820,7 +6826,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     webApp.dicomAETitleObject = aet;
                                 }
                             });
-                            this.service.convertStringLDAPParamToObject(webApp,"dcmProperty",['IID_STUDY_URL', 'IID_PATIENT_URL', 'IID_URL_TARGET']);
+                            this.service.convertStringLDAPParamToObject(webApp,"dcmProperty",['IID_STUDY_URL', 'IID_PATIENT_URL', 'IID_URL_TARGET','IID_ENCODE']);
                             return webApp;
                         }),
                         selectedWebService:_.get(this.studyWebService,"selectedWebService"),

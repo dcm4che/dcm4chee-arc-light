@@ -66,6 +66,8 @@ export class DictionaryPickerComponent implements OnInit {
                         },{
                             key:"IID_STUDY_URL=[VIEWER_URL]"
                         },{
+                            key:"IID_ENCODE=false"
+                        },{
                             key:"IID_URL_TARGET=_self"
                         },{
                             key:"IID_URL_TARGET=_blank"
