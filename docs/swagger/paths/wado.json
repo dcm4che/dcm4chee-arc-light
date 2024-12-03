@@ -699,9 +699,6 @@
         "200": {
           "$ref": "../responses.json#/retrievedMetadata"
         },
-        "400": {
-          "description": "There was a problem with the request."
-        },
         "404": {
           "description": "Study does not exists."
         },
@@ -741,9 +738,6 @@
       "responses": {
         "200": {
           "$ref": "../responses.json#/retrievedMetadata"
-        },
-        "400": {
-          "description": "There was a problem with the request."
         },
         "404": {
           "description": "There is no Archive AE with the specified Title."
@@ -787,9 +781,6 @@
       "responses": {
         "200": {
           "$ref": "../responses.json#/retrievedMetadata"
-        },
-        "400": {
-          "description": "There was a problem with the request."
         },
         "404": {
           "description": "There is no Archive AE with the specified Title."
