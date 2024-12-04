@@ -246,7 +246,10 @@ public class DeletionServiceImpl implements DeletionService {
             List<Location> locations1;
             while (!(locations1 = deleteStudy(ctx, limit, retainObj || reimport)).isEmpty())
                 locations.addAll(locations1);
-            LOG.info("Successfully delete {} from database", study);
+            if (ejb.updateStudyDeleting(study, false) != 0)
+                LOG.warn("Incomplete deletion of Study[uid=" + study.getStudyInstanceUID() + ']');
+            else
+                LOG.info("Successfully delete {} from database", study);
         } catch (Exception e) {
             if (ejb.updateStudyDeleting(study, false) == 0) {
                 LOG.warn("Failed to reset deletion in process flag on failed deletion of Study[uid="
