@@ -2370,6 +2370,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.486 NAME 'dcmCheckExistFilePath'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.487 NAME 'hl7NoPatientUpdateMessageType'
+  DESC 'Patient record will be not be updated by HL7 messages of specified Message Type(s) (MessageType^TriggerEvent).'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2531,6 +2536,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7OutgoingLogFilePattern $
     hl7OutgoingErrorLogFilePattern $
     hl7NoPatientCreateMessageType $
+    hl7NoPatientUpdateMessageType $
     dcmUnzipVendorDataToURI $
     dcmPurgeQueueMessagePollingInterval $
     dcmPurgeQueueMessageFetchSize $
@@ -2836,6 +2842,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
     hl7OutgoingLogFilePattern $
     hl7OutgoingErrorLogFilePattern $
     hl7NoPatientCreateMessageType $
+    hl7NoPatientUpdateMessageType $
     hl7UseNullValue $
     hl7ImportReportAdjustIUID $
     hl7PrimaryAssigningAuthorityOfPatientID $

@@ -327,6 +327,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", arcDev.getHL7ScheduledStationAETInOrder(),
                 null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", arcDev.getHL7NoPatientCreateMessageTypes());
+        writer.writeNotEmpty("hl7NoPatientUpdateMessageType", arcDev.getHL7NoPatientUpdateMessageTypes());
         writer.writeNotNullOrDef("dcmAuditUnknownStudyInstanceUID",
                 arcDev.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
         writer.writeNotNullOrDef("dcmAuditUnknownPatientID",
@@ -1972,6 +1973,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7NoPatientCreateMessageType":
                     arcDev.setHL7NoPatientCreateMessageTypes(reader.stringArray());
+                    break;
+                case "hl7NoPatientUpdateMessageType":
+                    arcDev.setHL7NoPatientUpdateMessageTypes(reader.stringArray());
                     break;
                 case "dcmAuditUnknownStudyInstanceUID":
                     arcDev.setAuditUnknownStudyInstanceUID(reader.stringValue());

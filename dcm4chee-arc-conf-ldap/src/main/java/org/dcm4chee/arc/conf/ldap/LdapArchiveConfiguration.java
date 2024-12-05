@@ -416,6 +416,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHL7ScheduledStationAETInOrder(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType",
                 ext.getHL7NoPatientCreateMessageTypes());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientUpdateMessageType",
+                ext.getHL7NoPatientUpdateMessageTypes());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditUnknownStudyInstanceUID",
                 ext.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditUnknownPatientID",
@@ -812,6 +814,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHL7ScheduledStationAETInOrder(LdapUtils.enumValue(ScheduledStationAETInOrder.class,
                 attrs.get("hl7ScheduledStationAETInOrder"), null));
         ext.setHL7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
+        ext.setHL7NoPatientUpdateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientUpdateMessageType")));
         ext.setAuditUnknownStudyInstanceUID(LdapUtils.stringValue(
                 attrs.get("dcmAuditUnknownStudyInstanceUID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID));
         ext.setAuditUnknownPatientID(LdapUtils.stringValue(
@@ -1370,6 +1373,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHL7ScheduledStationAETInOrder(), bb.getHL7ScheduledStationAETInOrder(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7NoPatientCreateMessageType",
                 aa.getHL7NoPatientCreateMessageTypes(), bb.getHL7NoPatientCreateMessageTypes());
+        LdapUtils.storeDiff(ldapObj, mods, "hl7NoPatientUpdateMessageType",
+                aa.getHL7NoPatientUpdateMessageTypes(), bb.getHL7NoPatientUpdateMessageTypes());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditUnknownStudyInstanceUID",
                 aa.getAuditUnknownStudyInstanceUID(), bb.getAuditUnknownStudyInstanceUID(),
                 ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);

@@ -78,6 +78,8 @@ public interface PatientMgtContext {
 
     boolean isNoPatientCreate();
 
+    boolean isNoPatientUpdate();
+
     Collection<IDWithIssuer> getPatientIDs();
 
     Attributes getAttributes();

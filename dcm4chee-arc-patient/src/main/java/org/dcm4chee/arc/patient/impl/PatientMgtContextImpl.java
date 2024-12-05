@@ -175,6 +175,16 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
+    public boolean isNoPatientUpdate() {
+        if (hl7app == null)
+            return false;
+
+        ArchiveHL7ApplicationExtension arcHL7App =
+                hl7app.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        return arcHL7App != null && arcHL7App.isHL7NoPatientUpdateMessageType(msg.msh().getMessageType());
+    }
+
+    @Override
     public Collection<IDWithIssuer> getPatientIDs() {
         return patientIDs;
     }

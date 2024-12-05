@@ -384,6 +384,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final List<MWLIdleTimeout> mwlIdleTimeoutList = new ArrayList<>();
     private final List<MWLImport> mwlImportList = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
+    private final LinkedHashSet<String> hl7NoPatientUpdateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
     private final Map<String,String> impaxReportProperties = new HashMap<>();
     private final Map<String, String> importReportTemplateParams = new HashMap<>();
@@ -1806,6 +1807,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public boolean isHL7NoPatientCreateMessageType(String messageType) {
         return hl7NoPatientCreateMessageTypes.contains(messageType);
+    }
+
+    public String[] getHL7NoPatientUpdateMessageTypes() {
+        return hl7NoPatientUpdateMessageTypes.toArray(new String[0]);
+    }
+
+    public void setHL7NoPatientUpdateMessageTypes(String... messageTypes) {
+        hl7NoPatientUpdateMessageTypes.clear();
+        hl7NoPatientUpdateMessageTypes.addAll(Arrays.asList(messageTypes));
+    }
+
+    public boolean isHL7NoPatientUpdateMessageType(String messageType) {
+        return hl7NoPatientUpdateMessageTypes.contains(messageType);
     }
 
     public Map<String, String> getXRoadProperties() {
@@ -3896,6 +3910,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7OrderSPSStatuses.putAll(arcdev.hl7OrderSPSStatuses);
         hl7NoPatientCreateMessageTypes.clear();
         hl7NoPatientCreateMessageTypes.addAll(arcdev.hl7NoPatientCreateMessageTypes);
+        hl7NoPatientUpdateMessageTypes.clear();
+        hl7NoPatientUpdateMessageTypes.addAll(arcdev.hl7NoPatientUpdateMessageTypes);
         compressionRules.clear();
         compressionRules.addAll(arcdev.compressionRules);
         studyRetentionPolicies.clear();

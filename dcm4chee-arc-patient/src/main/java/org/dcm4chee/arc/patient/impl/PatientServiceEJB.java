@@ -141,12 +141,20 @@ public class PatientServiceEJB {
             }
             return createPatient(ctx);
         }
+        if (ctx.isNoPatientUpdate()) {
+            logSuppressPatientUpdate(ctx);
+            return pat;
+        }
         updatePatient(pat, ctx);
         return pat;
     }
 
     private void logSuppressPatientCreate(PatientMgtContext ctx) {
         LOG.info("{}: Suppress creation of Patient[id={}] by {}", ctx, ctx.getPatientIDs(), ctx.getUnparsedHL7Message().msh());
+    }
+
+    private void logSuppressPatientUpdate(PatientMgtContext ctx) {
+        LOG.info("{}: Suppress update of Patient[id={}] by {}", ctx, ctx.getPatientIDs(), ctx.getUnparsedHL7Message().msh());
     }
 
     public Patient findPatient(Collection<IDWithIssuer> pids) {

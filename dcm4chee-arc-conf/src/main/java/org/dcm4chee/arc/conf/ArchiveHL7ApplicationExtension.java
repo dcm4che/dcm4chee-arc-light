@@ -93,6 +93,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private final ArrayList<HL7StudyRetentionPolicy> hl7StudyRetentionPolicies = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
+    private final LinkedHashSet<String> hl7NoPatientUpdateMessageTypes = new LinkedHashSet<>();
     private final Map<String, String> importReportTemplateParams = new HashMap<>();
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
@@ -153,6 +154,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
         hl7NoPatientCreateMessageTypes.clear();
         hl7NoPatientCreateMessageTypes.addAll(arcapp.hl7NoPatientCreateMessageTypes);
+        hl7NoPatientUpdateMessageTypes.clear();
+        hl7NoPatientUpdateMessageTypes.addAll(arcapp.hl7NoPatientUpdateMessageTypes);
         importReportTemplateParams.clear();
         importReportTemplateParams.putAll(arcapp.importReportTemplateParams);
     }
@@ -285,6 +288,21 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7NoPatientCreateMessageTypes.isEmpty()
             ? getArchiveDeviceExtension().isHL7NoPatientCreateMessageType(messageType)
             : hl7NoPatientCreateMessageTypes.contains(messageType);
+    }
+
+    public String[] getHL7NoPatientUpdateMessageTypes() {
+        return hl7NoPatientUpdateMessageTypes.toArray(new String[0]);
+    }
+
+    public void setHL7NoPatientUpdateMessageTypes(String... messageTypes) {
+        hl7NoPatientUpdateMessageTypes.clear();
+        hl7NoPatientUpdateMessageTypes.addAll(Arrays.asList(messageTypes));
+    }
+
+    public boolean isHL7NoPatientUpdateMessageType(String messageType) {
+        return hl7NoPatientUpdateMessageTypes.isEmpty()
+                ? getArchiveDeviceExtension().isHL7NoPatientUpdateMessageType(messageType)
+                : hl7NoPatientUpdateMessageTypes.contains(messageType);
     }
 
     public Boolean getHL7UseNullValue() {

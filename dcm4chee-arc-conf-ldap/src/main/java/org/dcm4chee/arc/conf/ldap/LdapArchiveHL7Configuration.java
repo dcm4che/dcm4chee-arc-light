@@ -91,6 +91,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledStationAETInOrder",
                 ext.getHL7ScheduledStationAETInOrder(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientUpdateMessageType", ext.getHL7NoPatientUpdateMessageTypes());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7UseNullValue", ext.getHL7UseNullValue(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PrimaryAssigningAuthorityOfPatientID",
                 ext.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
@@ -168,6 +169,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         ext.setHL7ScheduledStationAETInOrder(LdapUtils.enumValue(ScheduledStationAETInOrder.class,
                 attrs.get("hl7ScheduledStationAETInOrder"), null));
         ext.setHL7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
+        ext.setHL7NoPatientUpdateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientUpdateMessageType")));
         ext.setHL7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), null));
         ext.setHL7PrimaryAssigningAuthorityOfPatientID(LdapArchiveConfiguration.toIssuer(
                 LdapUtils.stringValue(attrs.get("hl7PrimaryAssigningAuthorityOfPatientID"), null)));
@@ -262,6 +264,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHL7ScheduledStationAETInOrder(), bb.getHL7ScheduledStationAETInOrder(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7NoPatientCreateMessageType",
                 aa.getHL7NoPatientCreateMessageTypes(), bb.getHL7NoPatientCreateMessageTypes());
+        LdapUtils.storeDiff(ldapObj, mods, "hl7NoPatientUpdateMessageType",
+                aa.getHL7NoPatientUpdateMessageTypes(), bb.getHL7NoPatientUpdateMessageTypes());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7UseNullValue",
                 aa.getHL7UseNullValue(), bb.getHL7UseNullValue(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PrimaryAssigningAuthorityOfPatientID",
