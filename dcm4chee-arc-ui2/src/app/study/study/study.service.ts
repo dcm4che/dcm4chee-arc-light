@@ -68,6 +68,7 @@ export class StudyService {
     selectedElements:SelectionActionElement;
     institutions;
     dcmuiInstitutionNameFilterType;
+    sharedObservables$:any = {};
     constructor(
         private aeListService: AeListService,
         private $http: J4careHttpService,
@@ -81,8 +82,15 @@ export class StudyService {
     ) {}
 
     getWebApps(filter?:any) {
-        return this.webAppListService.getWebApps(filter)
-            .pipe(map((webApp:any)=> this.webAppHasPermission(webApp)));
+        const filterMarker = [filter?.dcmWebServiceClass || "", filter?.dicomDeviceName || ""].join("_") || "all";
+        if(!(this.sharedObservables$["webapps"] && this.sharedObservables$["webapps"][filterMarker])){
+            this.sharedObservables$["webapps"] = this.sharedObservables$["webapps"] || {};
+            this.sharedObservables$["webapps"][filterMarker] = this.webAppListService.getWebApps(filter)
+                .pipe(
+                    map((webApp:any)=> this.webAppHasPermission(webApp)),
+                    shareReplay(1));
+        }
+        return this.sharedObservables$["webapps"][filterMarker]
     }
 
     getEntrySchema(devices, aetWebService): { schema: FilterSchema, lineLength: number } {
@@ -414,27 +422,29 @@ export class StudyService {
 
                 });
             }
-            schema.push({
-                tag: "html-select",
-                options: studyWebService.webServices.map((webApp: DcmWebApp) => {
-                    return new SelectDropdown(
-                        webApp.dcmWebAppName,
-                        webApp.dcmWebAppName,
-                        webApp.dicomDescription,
-                        undefined,
-                        undefined,
-                        webApp,
-                        (studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebAppName === webApp.dcmWebAppName)
-                    );
-                }),
-                filterKey: 'webApp',
-                text: $localize `:@@web_app_service:Web App Service`,
-                title: $localize `:@@web_app_service:Web App Service`,
-                showStar:tab === "diff",
-                placeholder: $localize `:@@web_app_service:Web App Service`,
-                cssClass: 'study_order',
-                showSearchField: true
-            });
+            if(studyWebService){
+                schema.push({
+                    tag: "html-select",
+                    options: studyWebService?.webServices.map((webApp: DcmWebApp) => {
+                        return new SelectDropdown(
+                            webApp.dcmWebAppName,
+                            webApp.dcmWebAppName,
+                            webApp.dicomDescription,
+                            undefined,
+                            undefined,
+                            webApp,
+                            (studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebAppName === webApp.dcmWebAppName)
+                        );
+                    }),
+                    filterKey: 'webApp',
+                    text: $localize `:@@web_app_service:Web App Service`,
+                    title: $localize `:@@web_app_service:Web App Service`,
+                    showStar:tab === "diff",
+                    placeholder: $localize `:@@web_app_service:Web App Service`,
+                    cssClass: 'study_order',
+                    showSearchField: true
+                });
+            }
             if (j4care.arrayIsNotEmpty(studyWebService,"webServices"))
                 schema.push({
                     tag: "button",
@@ -998,7 +1008,6 @@ export class StudyService {
     }
 
     getDiffAttributeSet = (baseUrl?: string) => this.$http.get(`${baseUrl ? j4care.addLastSlash(baseUrl): j4care.addLastSlash(this.appService.baseUrl)}attribute-set/DIFF_RS`);
-    sharedObservables$ = {};
     getAets(){
         if(!this.sharedObservables$["aets"]){
             this.sharedObservables$["aets"] = this.aeListService.getAets().pipe(shareReplay(1))
@@ -4896,7 +4905,13 @@ export class StudyService {
         return this.$http.put(`${url}/${studyUID}/expire/${expiredDate}${localParams}`, {})
     }
 
-    getExporters = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}export`);
+    getExporters(){
+        if(!this.sharedObservables$["export"]){
+            this.sharedObservables$["export"] = this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}export`)
+                .pipe(shareReplay(1));
+        }
+        return this.sharedObservables$["export"];
+    }
 
     deleteStudy = (studyInstanceUID: string, dcmWebApp: DcmWebApp, param) =>
         this.$http.delete(`${this.getDicomURL("study", dcmWebApp)}/${studyInstanceUID}${j4care.param(param)}`);

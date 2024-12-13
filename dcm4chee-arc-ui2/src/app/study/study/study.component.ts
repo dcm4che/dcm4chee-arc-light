@@ -6790,6 +6790,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     // aets;
     initWebApps(){
+        this.setSchema();
         let aetsTemp;
         let aesTemp;
         let webAppsTemp:DcmWebApp[];
