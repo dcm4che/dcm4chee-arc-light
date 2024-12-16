@@ -81,6 +81,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String[] upsEventSCUs = {};
     private volatile int upsEventSCUKeepAlive;
     private volatile boolean upsUpdateWithoutTransactionUID;
+    private volatile boolean ups2MWLCFindSCP;
+    private volatile Code[] ups2MWLScheduledStationNames = {};
     private volatile String fuzzyAlgorithmClass;
     private volatile String bulkDataDescriptorID;
     private volatile String[] seriesMetadataStorageIDs = {};
@@ -434,6 +436,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setUPSUpdateWithoutTransactionUID(boolean upsUpdateWithoutTransactionUID) {
         this.upsUpdateWithoutTransactionUID = upsUpdateWithoutTransactionUID;
+    }
+
+    public boolean isUPS2MWLCFindSCP() {
+        return ups2MWLCFindSCP;
+    }
+
+    public void setUPS2MWLCFindSCP(boolean ups2MWLCFindSCP) {
+        this.ups2MWLCFindSCP = ups2MWLCFindSCP;
+    }
+
+    public Code[] getUPS2MWLScheduledStationNames() {
+        return ups2MWLScheduledStationNames;
+    }
+
+    public void setUPS2MWLScheduledStationNames(Code[] ups2MWLScheduledStationNames) {
+        this.ups2MWLScheduledStationNames = ups2MWLScheduledStationNames;
     }
 
     public String getFuzzyAlgorithmClass() {

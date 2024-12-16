@@ -58,8 +58,8 @@ import java.util.List;
  * @since Sep 2019
  */
 public class UPSQuery extends AbstractQuery {
-    private Root<UPS> ups;
-    private Join<UPS, Patient> patient;
+    protected Root<UPS> ups;
+    protected Join<UPS, Patient> patient;
     private Path<byte[]> patientAttrBlob;
     private Path<byte[]> upsAttrBlob;
 
@@ -108,13 +108,13 @@ public class UPSQuery extends AbstractQuery {
         return false;
     }
 
-    private CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
+    protected CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
         if (context.getOrderByTags() != null)
             q.orderBy(builder.orderWorkitems(patient, ups, context.getOrderByTags()));
         return q;
     }
 
-    private <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<UPS, Patient> patient, Root<UPS> ups) {
+    protected <T> CriteriaQuery<T> restrict(CriteriaQuery<T> q, Join<UPS, Patient> patient, Root<UPS> ups) {
         List<Predicate> predicates = builder.upsPredicates(q, patient, ups,
                 context.getPatientIDs(),
                 context.getIssuerOfPatientID(),

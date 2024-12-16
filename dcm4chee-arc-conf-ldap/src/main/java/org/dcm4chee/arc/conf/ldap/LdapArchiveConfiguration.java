@@ -548,6 +548,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isMatchSOPClassOnInstanceLevel(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSUpdateWithoutTransactionUID",
                 ext.isUPSUpdateWithoutTransactionUID(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPS2MWLCFindSCP",
+                ext.isUPS2MWLCFindSCP(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPS2MWLScheduledStationNameCode",
+                ext.getUPS2MWLScheduledStationNames());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeyValueRetentionPollingInterval",
                 ext.getKeyValueRetentionPollingInterval(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmKeyValueRetentionFetchSize",
@@ -928,6 +932,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditHL7MsgLimit(LdapUtils.intValue(attrs.get("dcmAuditHL7MsgLimit"), 1000));
         ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), false));
         ext.setUPSUpdateWithoutTransactionUID(LdapUtils.booleanValue(attrs.get("dcmUPSUpdateWithoutTransactionUID"), false));
+        ext.setUPS2MWLCFindSCP(LdapUtils.booleanValue(attrs.get("dcmUPS2MWLCFindSCP"), false));
+        ext.setUPS2MWLScheduledStationNames(LdapUtils.codeArray(attrs.get("dcmUPS2MWLScheduledStationNameCode")));
         ext.setKeyValueRetentionPollingInterval(toDuration(attrs.get("dcmKeyValueRetentionPollingInterval"), null));
         ext.setKeyValueRetentionFetchSize(LdapUtils.intValue(attrs.get("dcmKeyValueRetentionFetchSize"), 100));
         ext.setKeyValueRetentionPeriod(toDuration(attrs.get("dcmKeyValueRetentionPeriod"), null));
@@ -1609,6 +1615,12 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isUPSUpdateWithoutTransactionUID(),
                 bb.isUPSUpdateWithoutTransactionUID(),
                 false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPS2MWLCFindSCP",
+                aa.isUPS2MWLCFindSCP(),
+                bb.isUPS2MWLCFindSCP(),
+                false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPS2MWLScheduledStationNameCode",
+                aa.getUPS2MWLScheduledStationNames(), bb.getUPS2MWLScheduledStationNames());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeyValueRetentionPollingInterval",
                 aa.getKeyValueRetentionPollingInterval(), bb.getKeyValueRetentionPollingInterval(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmKeyValueRetentionFetchSize",
@@ -1983,6 +1995,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getMatchSOPClassOnInstanceLevel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSUpdateWithoutTransactionUID",
                 ext.getUPSUpdateWithoutTransactionUID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPS2MWLCFindSCP",
+                ext.getUPS2MWLCFindSCP(), null);
     }
 
     @Override
@@ -2157,6 +2171,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFilterByIssuerOfPatientID(LdapUtils.booleanValue(attrs.get("dcmFilterByIssuerOfPatientID"), null));
         ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), null));
         ext.setUPSUpdateWithoutTransactionUID(LdapUtils.booleanValue(attrs.get("dcmUPSUpdateWithoutTransactionUID"), null));
+        ext.setUPS2MWLCFindSCP(LdapUtils.booleanValue(attrs.get("dcmUPS2MWLCFindSCP"), null));
     }
 
     @Override
@@ -2439,6 +2454,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMatchSOPClassOnInstanceLevel(), bb.getMatchSOPClassOnInstanceLevel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSUpdateWithoutTransactionUID",
                 aa.getUPSUpdateWithoutTransactionUID(), bb.getUPSUpdateWithoutTransactionUID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPS2MWLCFindSCP",
+                aa.getUPS2MWLCFindSCP(), bb.getUPS2MWLCFindSCP(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));

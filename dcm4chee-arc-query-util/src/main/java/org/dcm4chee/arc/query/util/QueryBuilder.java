@@ -46,6 +46,7 @@ import jakarta.persistence.metamodel.CollectionAttribute;
 import jakarta.persistence.metamodel.SingularAttribute;
 import org.dcm4che3.data.*;
 import org.dcm4che3.data.PersonName;
+import org.dcm4che3.dcmr.AcquisitionModality;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -56,6 +57,7 @@ import org.dcm4chee.arc.entity.*;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -455,6 +457,15 @@ public class QueryBuilder {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
         upsLevelPredicates(predicates, q, ups, keys, queryParam);
+        return predicates;
+    }
+
+    public <T> List<Predicate> mwlupsPredicates(CriteriaQuery<T> q,
+            Join<UPS, Patient> patient, Root<UPS> ups,
+            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
+        List<Predicate> predicates = new ArrayList<>();
+        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
+        mwlupsLevelPredicates(predicates, q, ups, keys, queryParam);
         return predicates;
     }
 
@@ -1129,6 +1140,76 @@ public class QueryBuilder {
         anyOf(predicates, ups.get(UPS_.procedureStepState), UPSState::fromString,
                 toUpperCase(keys.getStrings(Tag.ProcedureStepState)));
         notSubscribedBy(predicates, q, ups, queryParam.getNotSubscribedByAET());
+    }
+
+    private <T> void mwlupsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+                                        Root<UPS> ups, Attributes keys, QueryParam queryParam) {
+        Attributes mwlsps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if (mwlsps != null) {
+            anyOf(predicates, ups.get(UPS_.upsLabel), mwlsps.getStrings(Tag.ScheduledProcedureStepDescription), true);
+            dateRange(predicates, ups.get(UPS_.scheduledStartDateAndTime),
+                    mwlsps.getDateRange(Tag.ScheduledProcedureStepStartDateAndTime), FormatDate.DT);
+            String modality = mwlsps.getString(Tag.Modality);
+            if (modality != null) {
+                Code code = AcquisitionModality.codeOf(modality);
+                if (code != null) {
+                    codes(predicates, q, ups, UPS_.scheduledStationClassCodes, code.toItem());
+                }
+            }
+            String aet = mwlsps.getString(Tag.ScheduledStationAETitle);
+            if (aet != null) {
+                Stream.of(queryParam.getUPS2MWLScheduledStationNames())
+                        .filter(code -> code.getCodeMeaning().equals(aet))
+                        .findFirst()
+                        .ifPresent(code -> codes(predicates, q, ups, UPS_.scheduledStationNameCodes, code.toItem()));
+            }
+            code(predicates, ups.get(UPS_.scheduledWorkitemCode),
+                    mwlsps.getNestedDataset(Tag.ScheduledWorkitemCodeSequence));
+        }
+        predicates.add(cb.notEqual(ups.get(UPS_.scheduledStartDateAndTime), "*"));
+        predicates.add(cb.equal(ups.get(UPS_.procedureStepState), UPSState.SCHEDULED));
+        anyOf(predicates, ups.get(UPS_.worklistLabel), keys.getStrings(Tag.WorklistLabel), true);
+        String admissionID = keys.getString(Tag.AdmissionID, "*");
+        if (!isUniversalMatching(admissionID)) {
+            Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAdmissionIDSequence));
+            if (issuer == null)
+                issuer = queryParam.getDefaultIssuerOfAdmissionID();
+            if (wildCard(predicates, ups.get(UPS_.admissionID), admissionID) && issuer != null) {
+                issuer(predicates,
+                        ups.get(UPS_.admissionIDLocalNamespaceEntityID),
+                        ups.get(UPS_.admissionIDUniversalEntityID),
+                        ups.get(UPS_.admissionIDUniversalEntityIDType),
+                        issuer);
+            }
+        }
+        Subquery<UPSRequest> sq = q.subquery(UPSRequest.class);
+        Root<UPS> sqUPS = sq.correlate(ups);
+        Join<UPS, UPSRequest> request = sqUPS.join(UPS_.referencedRequests);
+        List<Predicate> requestPredicates = new ArrayList<>();
+        String accNo = keys.getString(Tag.AccessionNumber, "*");
+        if (!isUniversalMatching(accNo)) {
+            Issuer issuerOfAccessionNumber = Issuer.valueOf(keys
+                    .getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+            if (issuerOfAccessionNumber == null)
+                issuerOfAccessionNumber = queryParam.getDefaultIssuerOfAccessionNumber();
+            if (wildCard(requestPredicates, request.get(UPSRequest_.accessionNumber), accNo) && issuerOfAccessionNumber != null) {
+                issuer(requestPredicates,
+                        request.get(UPSRequest_.accessionNumberLocalNamespaceEntityID),
+                        request.get(UPSRequest_.accessionNumberUniversalEntityID),
+                        request.get(UPSRequest_.accessionNumberUniversalEntityIDType),
+                        issuerOfAccessionNumber);
+            }
+        }
+        anyOf(requestPredicates,
+                request.get(UPSRequest_.requestingService),
+                keys.getStrings(Tag.RequestingService), true);
+        personName(requestPredicates, q, request, UPSRequest_.requestingPhysician,
+                keys.getString(Tag.RequestingPhysician, "*"), queryParam);
+        anyOf(requestPredicates,
+                request.get(UPSRequest_.requestedProcedureID),
+                keys.getStrings(Tag.RequestedProcedureID), false);
+        if (!requestPredicates.isEmpty())
+            predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
     }
 
     private <T> void mppsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,

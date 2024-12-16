@@ -47,6 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -118,6 +119,8 @@ public interface QueryContext {
     void setOrderByTags(List<OrderByTag> orderByTags);
 
     boolean isConsiderPurgedInstances();
+
+    ArchiveDeviceExtension getArchiveDeviceExtension();
 
     Storage getStorage(String storageID);
 

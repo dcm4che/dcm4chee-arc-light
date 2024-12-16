@@ -68,6 +68,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String[] upsEventSCUs = {};
     private int upsEventSCUKeepAlive;
     private Boolean upsUpdateWithoutTransactionUID;
+    private Boolean ups2MWLCFindSCP;
     private String[] objectStorageIDs = {};
     private int objectStorageCount = 1;
     private String[] metadataStorageIDs = {};
@@ -273,6 +274,20 @@ public class ArchiveAEExtension extends AEExtension {
         return upsUpdateWithoutTransactionUID != null
                 ? upsUpdateWithoutTransactionUID
                 : getArchiveDeviceExtension().isUPSUpdateWithoutTransactionUID();
+    }
+
+    public Boolean getUPS2MWLCFindSCP() {
+        return ups2MWLCFindSCP;
+    }
+
+    public void setUPS2MWLCFindSCP(Boolean ups2MWLCFindSCP) {
+        this.ups2MWLCFindSCP = ups2MWLCFindSCP;
+    }
+
+    public boolean ups2MWLCFindSCP() {
+        return ups2MWLCFindSCP != null
+                ? ups2MWLCFindSCP
+                : getArchiveDeviceExtension().isUPS2MWLCFindSCP();
     }
 
     public String[] getObjectStorageIDs() {

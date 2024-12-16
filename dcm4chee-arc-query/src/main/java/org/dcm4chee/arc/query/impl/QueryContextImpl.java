@@ -262,7 +262,8 @@ class QueryContextImpl implements QueryContext {
                 && (queryKeys.containsValue(Tag.StudyInstanceUID) || queryKeys.containsValue(Tag.SeriesInstanceUID));
     }
 
-    private ArchiveDeviceExtension getArchiveDeviceExtension() {
+    @Override
+    public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
     }
 

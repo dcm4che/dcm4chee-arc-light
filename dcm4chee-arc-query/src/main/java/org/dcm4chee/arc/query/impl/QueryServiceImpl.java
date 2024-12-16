@@ -301,7 +301,9 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Query createMWLQuery(QueryContext ctx) {
         queryEvent.fire(ctx);
-        return new MWLQuery(ctx, em);
+        return ctx.getArchiveAEExtension().ups2MWLCFindSCP()
+                ? new MWLUPSQuery(ctx, em)
+                : new MWLQuery(ctx, em);
     }
 
     @Override

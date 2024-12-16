@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.query.util;
 
+import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -138,6 +139,10 @@ public class QueryParam {
 
     public AttributeFilter getAttributeFilter(Entity entity) {
         return arcDev.getAttributeFilter(entity);
+    }
+
+    public Code[] getUPS2MWLScheduledStationNames() {
+        return arcDev.getUPS2MWLScheduledStationNames();
     }
 
     public String getViewID() {

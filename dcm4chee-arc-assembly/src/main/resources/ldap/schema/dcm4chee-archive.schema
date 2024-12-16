@@ -2853,6 +2853,18 @@ attributetype ( 1.2.40.0.13.1.15.110.3.487 NAME 'hl7NoPatientUpdateMessageType'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.488 NAME 'dcmUPS2MWLCFindSCP'
+  DESC 'Indicates to feed Modality Worklist C-FIND SCP service from managed list of Unified Procedure Step (UPS) instances mapped to MWL items; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.489 NAME 'dcmUPS2MWLScheduledStationNameCode'
+  DESC 'Defines list of Station Name Codes in format (CV, CSD, "CM") used to map Scheduled Station AE Titles (0040,0001) in MWL C-FIND RQ/RSPs to Station Name Code Sequence (0040,4025) items of Unified Procedure Step (UPS) instances with the AE Title in the code meaning.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2879,6 +2891,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmUPSEventSCU $
     dcmUPSEventSCUKeepAlive $
     dcmUPSUpdateWithoutTransactionUID $
+    dcmUPS2MWLCFindSCP $
+    dcmUPS2MWLScheduledStationNameCode $
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $
@@ -3167,6 +3181,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmUPSEventSCU $
     dcmUPSEventSCUKeepAlive $
     dcmUPSUpdateWithoutTransactionUID $
+    dcmUPS2MWLCFindSCP $
     dcmStorageID $
     dcmObjectStorageID $
     dcmObjectStorageCount $

@@ -440,6 +440,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmAuditHL7MsgLimit", arcDev.getAuditHL7MsgLimit(), 1000);
         writer.writeNotDef("dcmMatchSOPClassOnInstanceLevel", arcDev.isMatchSOPClassOnInstanceLevel(), false);
         writer.writeNotDef("dcmUPSUpdateWithoutTransactionUID", arcDev.isUPSUpdateWithoutTransactionUID(), false);
+        writer.writeNotDef("dcmUPS2MWLCFindSCP", arcDev.isUPS2MWLCFindSCP(), false);
+        writer.writeNotEmpty("dcmUPS2MWLScheduledStationNameCode", arcDev.getUPS2MWLScheduledStationNames());
         writer.writeNotNullOrDef("dcmKeyValueRetentionPollingInterval",
                 arcDev.getKeyValueRetentionPollingInterval(), null);
         writer.writeNotDef("dcmKeyValueRetentionFetchSize", arcDev.getKeyValueRetentionFetchSize(), 100);
@@ -1387,6 +1389,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFilterByIssuerOfPatientID", arcAE.getFilterByIssuerOfPatientID());
         writer.writeNotNull("dcmMatchSOPClassOnInstanceLevel", arcAE.getMatchSOPClassOnInstanceLevel());
         writer.writeNotNull("dcmUPSUpdateWithoutTransactionUID", arcAE.getUPSUpdateWithoutTransactionUID());
+        writer.writeNotNull("dcmUPS2MWLCFindSCP", arcAE.getUPS2MWLCFindSCP());
         writeExportRule(writer, arcAE.getExportRules());
         writeExportPrefetchRules(writer, arcAE.getExportPriorsRules());
         writeMPPSForwardRule(writer, arcAE.getMPPSForwardRules());
@@ -2203,6 +2206,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSUpdateWithoutTransactionUID":
                     arcDev.setUPSUpdateWithoutTransactionUID(reader.booleanValue());
+                    break;
+                case "dcmUPS2MWLCFindSCP":
+                    arcDev.setUPS2MWLCFindSCP(reader.booleanValue());
+                    break;
+                case "dcmUPS2MWLScheduledStationNameCode":
+                    arcDev.setUPS2MWLScheduledStationNames(reader.codeArray());
                     break;
                 case "dcmKeyValueRetentionPollingInterval":
                     arcDev.setKeyValueRetentionPollingInterval(Duration.valueOf(reader.stringValue()));
@@ -4429,6 +4438,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSUpdateWithoutTransactionUID":
                     arcAE.setUPSUpdateWithoutTransactionUID(reader.booleanValue());
+                    break;
+                case "dcmUPS2MWLCFindSCP":
+                    arcAE.setUPS2MWLCFindSCP(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
