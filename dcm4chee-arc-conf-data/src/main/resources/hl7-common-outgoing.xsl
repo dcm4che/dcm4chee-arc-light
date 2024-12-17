@@ -212,9 +212,16 @@
                 <xsl:choose>
                     <xsl:when test="starts-with($addrComp, '^')">
                         <component/>
-                        <xsl:call-template name="addressComp">
-                            <xsl:with-param name="addrComp" select="substring-after($addrComp, '^')"/>
-                        </xsl:call-template>
+                        <xsl:choose>
+                            <xsl:when test="string-length($addrComp) > 1">
+                                <xsl:call-template name="addressComp">
+                                    <xsl:with-param name="addrComp" select="substring-after($addrComp, '^')"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <component/>
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:variable name="comp" select="substring-before($addrComp, '^')"/>
