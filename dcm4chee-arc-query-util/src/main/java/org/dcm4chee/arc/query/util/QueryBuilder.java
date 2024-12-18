@@ -1156,15 +1156,8 @@ public class QueryBuilder {
                     codes(predicates, q, ups, UPS_.scheduledStationClassCodes, code.toItem());
                 }
             }
-            String aet = mwlsps.getString(Tag.ScheduledStationAETitle);
-            if (aet != null) {
-                Stream.of(queryParam.getUPS2MWLScheduledStationNames())
-                        .filter(code1 -> aet.equals(
-                                queryParam.isUPS2MWLScheduledStationNameCodeValueAsAET()
-                                        ? code1.getCodeValue()
-                                        : code1.getCodeMeaning()))
-                        .findFirst()
-                        .ifPresent(code -> codes(predicates, q, ups, UPS_.scheduledStationNameCodes, code.toItem()));
+            if (queryParam.getScheduledStationNameCode() != null) {
+                codes(predicates, q, ups, UPS_.scheduledStationNameCodes, queryParam.getScheduledStationNameCode().toItem());
             }
             code(predicates, ups.get(UPS_.scheduledWorkitemCode),
                     mwlsps.getNestedDataset(Tag.ScheduledWorkitemCodeSequence));

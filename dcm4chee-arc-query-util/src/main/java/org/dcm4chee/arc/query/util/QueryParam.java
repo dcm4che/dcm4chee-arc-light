@@ -85,6 +85,7 @@ public class QueryParam {
     private boolean withoutIssuer;
     private String requested;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
+    private Code scheduledStationNameCode;
 
     public QueryParam(ApplicationEntity ae) {
         this(ae.getAEExtensionNotNull(ArchiveAEExtension.class));
@@ -117,6 +118,14 @@ public class QueryParam {
         this.hideSPSWithStatusFromMWL = hideSPSWithStatusFromMWL;
     }
 
+    public Code getScheduledStationNameCode() {
+        return scheduledStationNameCode;
+    }
+
+    public void setScheduledStationNameCode(Code scheduledStationNameCode) {
+        this.scheduledStationNameCode = scheduledStationNameCode;
+    }
+
     public FuzzyStr getFuzzyStr() {
         return arcDev.getFuzzyStr();
     }
@@ -139,14 +148,6 @@ public class QueryParam {
 
     public AttributeFilter getAttributeFilter(Entity entity) {
         return arcDev.getAttributeFilter(entity);
-    }
-
-    public Code[] getUPS2MWLScheduledStationNames() {
-        return arcDev.getUPS2MWLScheduledStationNames();
-    }
-
-    public boolean isUPS2MWLScheduledStationNameCodeValueAsAET() {
-        return arcDev.isUPS2MWLScheduledStationNameCodeValueAsAET();
     }
 
     public String getViewID() {

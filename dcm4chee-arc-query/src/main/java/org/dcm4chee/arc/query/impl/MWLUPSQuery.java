@@ -45,10 +45,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -56,8 +60,45 @@ import java.util.List;
  */
 public class MWLUPSQuery extends UPSQuery {
 
+    private final boolean scheduledStationNameCodeValueAsAET;
+    private final boolean noMatchingScheduledStationNameCode;
+
     MWLUPSQuery(QueryContext context, EntityManager em) {
         super(context, em);
+        ArchiveDeviceExtension arcdev = context.getArchiveDeviceExtension();
+        boolean codeValueAsAET = arcdev.isUPS2MWLScheduledStationNameCodeValueAsAET();
+        boolean noMatching = false;
+        Attributes mwlsps = context.getQueryKeys().getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if (mwlsps != null) {
+            String aet = mwlsps.getString(Tag.ScheduledStationAETitle, "*");
+            if (!aet.equals("*")) {
+                Optional<Code> matchingCode = Stream.of(arcdev.getUPS2MWLScheduledStationNames())
+                        .filter(code -> aet.equals(codeValueAsAET ? code.getCodeValue() : code.getCodeMeaning()))
+                        .findFirst();
+                if (matchingCode.isPresent()) {
+                    context.getQueryParam().setScheduledStationNameCode(matchingCode.get());
+                } else {
+                    noMatching = true;
+                }
+            }
+        }
+        this.scheduledStationNameCodeValueAsAET = codeValueAsAET;
+        this.noMatchingScheduledStationNameCode = noMatching;
+    }
+
+    @Override
+    public void executeQuery(int fetchSize) {
+        if (!noMatchingScheduledStationNameCode) super.executeQuery(fetchSize);
+    }
+
+    @Override
+    public boolean hasMoreMatches() throws DicomServiceException {
+        return !noMatchingScheduledStationNameCode && super.hasMoreMatches();
+    }
+
+    @Override
+    public long fetchCount() {
+        return !noMatchingScheduledStationNameCode ? super.fetchCount() : 0L;
     }
 
     @Override
@@ -77,7 +118,7 @@ public class MWLUPSQuery extends UPSQuery {
         Attributes sps = new Attributes();
         Attributes stationNameCode = attrs.getNestedDataset(Tag.ScheduledStationNameCodeSequence);
         if (stationNameCode != null) {
-            if (context.getQueryParam().isUPS2MWLScheduledStationNameCodeValueAsAET()) {
+            if (scheduledStationNameCodeValueAsAET) {
                 sps.setString(Tag.ScheduledStationAETitle, VR.AE, stationNameCode.getString(Tag.CodeValue));
                 sps.setString(Tag.ScheduledStationName, VR.SH, stationNameCode.getString(Tag.CodeMeaning));
             } else {
@@ -108,9 +149,7 @@ public class MWLUPSQuery extends UPSQuery {
 
     @Override
     protected CriteriaQuery<Tuple> order(CriteriaQuery<Tuple> q) {
-        if (context.getOrderByTags() != null)
-            q.orderBy(builder.orderWorkitems(patient, ups, context.getOrderByTags()));
-        return q;
+        return q; // ordering not supported
     }
 
     @Override
