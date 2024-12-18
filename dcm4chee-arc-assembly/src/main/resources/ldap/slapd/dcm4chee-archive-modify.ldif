@@ -2386,6 +2386,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.489 NAME 'dcmUPS2MWLScheduledStation
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.490 NAME 'dcmUPS2MWLScheduledStationNameCodeValueAsAET'
+  DESC 'Indicates to map Code Value (0008,0101) - instead Code Meaning (0008,0104) - of Scheduled Station Name Code Sequence (0040,4025) items of Unified Procedure Step (UPS) instances to Scheduled Station AE Titles (0040,0001) of MWL C-FIND RQ/RSPs; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 -
 replace: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -2416,6 +2421,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmUPSUpdateWithoutTransactionUID $
     dcmUPS2MWLCFindSCP $
     dcmUPS2MWLScheduledStationNameCode $
+    dcmUPS2MWLScheduledStationNameCodeValueAsAET $
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $

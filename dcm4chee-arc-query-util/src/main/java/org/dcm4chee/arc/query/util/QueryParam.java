@@ -145,6 +145,10 @@ public class QueryParam {
         return arcDev.getUPS2MWLScheduledStationNames();
     }
 
+    public boolean isUPS2MWLScheduledStationNameCodeValueAsAET() {
+        return arcDev.isUPS2MWLScheduledStationNameCodeValueAsAET();
+    }
+
     public String getViewID() {
         return qrView.getViewID();
     }

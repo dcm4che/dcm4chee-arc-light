@@ -2860,10 +2860,16 @@ attributetype ( 1.2.40.0.13.1.15.110.3.488 NAME 'dcmUPS2MWLCFindSCP'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.489 NAME 'dcmUPS2MWLScheduledStationNameCode'
-  DESC 'Defines list of Station Name Codes in format (CV, CSD, "CM") used to map Scheduled Station AE Titles (0040,0001) in MWL C-FIND RQ/RSPs to Station Name Code Sequence (0040,4025) items of Unified Procedure Step (UPS) instances with the AE Title in the code meaning.'
+  DESC 'Defines list of Station Name Codes in format (CV, CSD, "CM") used to map Scheduled Station AE Titles (0040,0001) in MWL C-FIND RQ/RSPs to Scheduled Station Name Code Sequence (0040,4025) items of Unified Procedure Step (UPS) instances.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.490 NAME 'dcmUPS2MWLScheduledStationNameCodeValueAsAET'
+  DESC 'Indicates to map Code Value (0008,0101) - instead Code Meaning (0008,0104) - of Scheduled Station Name Code Sequence (0040,4025) items of Unified Procedure Step (UPS) instances to Scheduled Station AE Titles (0040,0001) of MWL C-FIND RQ/RSPs; false if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -2893,6 +2899,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmUPSUpdateWithoutTransactionUID $
     dcmUPS2MWLCFindSCP $
     dcmUPS2MWLScheduledStationNameCode $
+    dcmUPS2MWLScheduledStationNameCodeValueAsAET $
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $

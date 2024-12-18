@@ -550,6 +550,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isUPSUpdateWithoutTransactionUID(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPS2MWLCFindSCP",
                 ext.isUPS2MWLCFindSCP(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPS2MWLScheduledStationNameCodeValueAsAET",
+                ext.isUPS2MWLScheduledStationNameCodeValueAsAET(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPS2MWLScheduledStationNameCode",
                 ext.getUPS2MWLScheduledStationNames());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeyValueRetentionPollingInterval",
@@ -933,6 +935,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setMatchSOPClassOnInstanceLevel(LdapUtils.booleanValue(attrs.get("dcmMatchSOPClassOnInstanceLevel"), false));
         ext.setUPSUpdateWithoutTransactionUID(LdapUtils.booleanValue(attrs.get("dcmUPSUpdateWithoutTransactionUID"), false));
         ext.setUPS2MWLCFindSCP(LdapUtils.booleanValue(attrs.get("dcmUPS2MWLCFindSCP"), false));
+        ext.setUPS2MWLScheduledStationNameCodeValueAsAET(
+                LdapUtils.booleanValue(attrs.get("dcmUPS2MWLScheduledStationNameCodeValueAsAET"), false));
         ext.setUPS2MWLScheduledStationNames(LdapUtils.codeArray(attrs.get("dcmUPS2MWLScheduledStationNameCode")));
         ext.setKeyValueRetentionPollingInterval(toDuration(attrs.get("dcmKeyValueRetentionPollingInterval"), null));
         ext.setKeyValueRetentionFetchSize(LdapUtils.intValue(attrs.get("dcmKeyValueRetentionFetchSize"), 100));
@@ -1618,6 +1622,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPS2MWLCFindSCP",
                 aa.isUPS2MWLCFindSCP(),
                 bb.isUPS2MWLCFindSCP(),
+                false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPS2MWLScheduledStationNameCodeValueAsAET",
+                aa.isUPS2MWLScheduledStationNameCodeValueAsAET(),
+                bb.isUPS2MWLScheduledStationNameCodeValueAsAET(),
                 false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPS2MWLScheduledStationNameCode",
                 aa.getUPS2MWLScheduledStationNames(), bb.getUPS2MWLScheduledStationNames());

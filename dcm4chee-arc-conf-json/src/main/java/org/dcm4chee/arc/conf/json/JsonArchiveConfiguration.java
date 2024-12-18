@@ -441,6 +441,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmMatchSOPClassOnInstanceLevel", arcDev.isMatchSOPClassOnInstanceLevel(), false);
         writer.writeNotDef("dcmUPSUpdateWithoutTransactionUID", arcDev.isUPSUpdateWithoutTransactionUID(), false);
         writer.writeNotDef("dcmUPS2MWLCFindSCP", arcDev.isUPS2MWLCFindSCP(), false);
+        writer.writeNotDef("dcmUPS2MWLScheduledStationNameCodeValueAsAET",
+                arcDev.isUPS2MWLScheduledStationNameCodeValueAsAET(), false);
         writer.writeNotEmpty("dcmUPS2MWLScheduledStationNameCode", arcDev.getUPS2MWLScheduledStationNames());
         writer.writeNotNullOrDef("dcmKeyValueRetentionPollingInterval",
                 arcDev.getKeyValueRetentionPollingInterval(), null);
@@ -2209,6 +2211,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPS2MWLCFindSCP":
                     arcDev.setUPS2MWLCFindSCP(reader.booleanValue());
+                    break;
+                case "dcmUPS2MWLScheduledStationNameCodeValueAsAET":
+                    arcDev.setUPS2MWLScheduledStationNameCodeValueAsAET(reader.booleanValue());
                     break;
                 case "dcmUPS2MWLScheduledStationNameCode":
                     arcDev.setUPS2MWLScheduledStationNames(reader.codeArray());

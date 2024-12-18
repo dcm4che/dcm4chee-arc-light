@@ -82,6 +82,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int upsEventSCUKeepAlive;
     private volatile boolean upsUpdateWithoutTransactionUID;
     private volatile boolean ups2MWLCFindSCP;
+    private volatile boolean ups2MWLScheduledStationNameCodeValueAsAET;
     private volatile Code[] ups2MWLScheduledStationNames = {};
     private volatile String fuzzyAlgorithmClass;
     private volatile String bulkDataDescriptorID;
@@ -444,6 +445,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setUPS2MWLCFindSCP(boolean ups2MWLCFindSCP) {
         this.ups2MWLCFindSCP = ups2MWLCFindSCP;
+    }
+
+    public boolean isUPS2MWLScheduledStationNameCodeValueAsAET() {
+        return ups2MWLScheduledStationNameCodeValueAsAET;
+    }
+
+    public void setUPS2MWLScheduledStationNameCodeValueAsAET(boolean ups2MWLUseScheduledStationNameCodeValueAsAET) {
+        this.ups2MWLScheduledStationNameCodeValueAsAET = ups2MWLUseScheduledStationNameCodeValueAsAET;
     }
 
     public Code[] getUPS2MWLScheduledStationNames() {
@@ -3623,6 +3632,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         upsEventSCUs = arcdev.upsEventSCUs;
         upsEventSCUKeepAlive = arcdev.upsEventSCUKeepAlive;
         upsUpdateWithoutTransactionUID = arcdev.upsUpdateWithoutTransactionUID;
+        ups2MWLCFindSCP = arcdev.ups2MWLCFindSCP;
+        ups2MWLScheduledStationNameCodeValueAsAET = arcdev.ups2MWLScheduledStationNameCodeValueAsAET;
+        ups2MWLScheduledStationNames = arcdev.ups2MWLScheduledStationNames;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
         bulkDataDescriptorID = arcdev.bulkDataDescriptorID;
