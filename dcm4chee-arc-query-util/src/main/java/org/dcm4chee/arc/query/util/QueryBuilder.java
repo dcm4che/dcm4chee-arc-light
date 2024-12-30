@@ -1100,9 +1100,12 @@ public class QueryBuilder {
         codes(predicates, q, ups, UPS_.scheduledStationGeographicLocationCodes,
                 keys.getNestedDataset(Tag.ScheduledStationGeographicLocationCodeSequence));
         Attributes scheduledHumanPerformersSequence = keys.getNestedDataset(Tag.ScheduledHumanPerformersSequence);
-        if (scheduledHumanPerformersSequence != null)
+        if (scheduledHumanPerformersSequence != null) {
             codes(predicates, q, ups, UPS_.humanPerformerCodes,
                     scheduledHumanPerformersSequence.getNestedDataset(Tag.HumanPerformerCodeSequence));
+            personName(predicates, q, ups, UPS_.humanPerformerName,
+                    scheduledHumanPerformersSequence.getString(Tag.HumanPerformerName, "*"), queryParam);
+        }
         if (queryParam.isTemplate())
             predicates.add(cb.equal(ups.get(UPS_.scheduledStartDateAndTime), "*"));
         else {
@@ -1149,6 +1152,8 @@ public class QueryBuilder {
             anyOf(predicates, ups.get(UPS_.upsLabel), mwlsps.getStrings(Tag.ScheduledProcedureStepDescription), true);
             dateRange(predicates, ups.get(UPS_.scheduledStartDateAndTime),
                     mwlsps.getDateRange(Tag.ScheduledProcedureStepStartDateAndTime), FormatDate.DT);
+            personName(predicates, q, ups, UPS_.humanPerformerName,
+                    mwlsps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam);
             String modality = mwlsps.getString(Tag.Modality);
             if (modality != null) {
                 Code code = AcquisitionModality.codeOf(modality);

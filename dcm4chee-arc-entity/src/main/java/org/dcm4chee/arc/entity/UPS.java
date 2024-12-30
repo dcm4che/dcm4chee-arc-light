@@ -51,6 +51,7 @@ import jakarta.persistence.Entity;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
 
 import java.util.ArrayList;
@@ -211,6 +212,10 @@ public class UPS {
             inverseJoinColumns = @JoinColumn(name = "perf_code_fk", referencedColumnName = "pk"))
     private Collection<CodeEntity> humanPerformerCodes;
 
+    @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "perf_name_fk")
+    private PersonName humanPerformerName;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "ups_fk")
     private Collection<UPSRequest> referencedRequests;
@@ -295,7 +300,7 @@ public class UPS {
         return attributesBlob.getAttributes();
     }
 
-    public void setAttributes(Attributes attrs, AttributeFilter filter) {
+    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         upsPriority = UPSPriority.valueOf(attrs.getString(Tag.ScheduledProcedureStepPriority, "MEDIUM"));
         upsLabel = attrs.getString(Tag.ProcedureStepLabel);
         worklistLabel = attrs.getString(Tag.WorklistLabel);
@@ -317,6 +322,9 @@ public class UPS {
         replacedSOPInstanceUID = getString(attrs.getNestedDataset(Tag.ReplacedProcedureStepSequence),
                 Tag.ReferencedSOPInstanceUID, "*");
         procedureStepState = UPSState.fromString(attrs.getString(Tag.ProcedureStepState, "SCHEDULED"));
+        humanPerformerName = PersonName.valueOf(
+                getString(attrs.getNestedDataset(Tag.ScheduledHumanPerformersSequence), Tag.HumanPerformerName, null),
+                fuzzyStr, humanPerformerName);
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else

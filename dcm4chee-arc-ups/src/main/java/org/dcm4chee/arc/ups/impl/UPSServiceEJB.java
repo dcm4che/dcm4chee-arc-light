@@ -113,7 +113,7 @@ public class UPSServiceEJB {
         setReferencedRequests(ups.getReferencedRequests(),
                 attrs.getSequence(Tag.ReferencedRequestSequence),
                 arcDev.getFuzzyStr());
-        ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS));
+        ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS), arcDev.getFuzzyStr());
         em.persist(ups);
         LOG.info("{}: Create {}", ctx, ups);
         if (!isTemplate(ups)) {
@@ -222,7 +222,7 @@ public class UPSServiceEJB {
                     attrs.getSequence(Tag.ReferencedRequestSequence),
                     arcDev.getFuzzyStr());
         }
-        ups.setAttributes(attrs, filter);
+        ups.setAttributes(attrs, filter, arcDev.getFuzzyStr());
         LOG.info("{}: Update {}", ctx, ups);
         if (isTemplate(ups))
             return ups;
@@ -401,7 +401,8 @@ public class UPSServiceEJB {
             if (!subscribers.isEmpty())
                 ctx.addUPSEvent(UPSEvent.Type.StateReport, ctx.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
         }
-        ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
+        ArchiveDeviceExtension arcDev = ctx.getArchiveDeviceExtension();
+        ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS), arcDev.getFuzzyStr());
         LOG.info("{}: Update {}", ctx, ups);
         return ups;
     }
@@ -462,7 +463,8 @@ public class UPSServiceEJB {
                         subscribers);
             }
         }
-        ups.setAttributes(attrs, ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
+        ArchiveDeviceExtension arcDev = ctx.getArchiveDeviceExtension();
+        ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS), arcDev.getFuzzyStr());
         LOG.info("{}: Update {}", ctx, ups);
     }
 
@@ -760,7 +762,8 @@ public class UPSServiceEJB {
             if (!attrs.contains(Tag.InputInformationSequence))
                 attrs.setNull(Tag.InputInformationSequence, VR.SQ);
             updateIncludeInputInformation(attrs.getSequence(Tag.InputInformationSequence), ctx);
-            ups.setAttributes(attrs, ctx.getStoreSession().getArchiveDeviceExtension().getAttributeFilter(Entity.UPS));
+            ArchiveDeviceExtension arcDev = ctx.getStoreSession().getArchiveDeviceExtension();
+            ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS), arcDev.getFuzzyStr());
             upsCtx.setAttributes(ups.getAttributes());
             updateUPS(upsCtx);
         } catch (NoResultException e) {
