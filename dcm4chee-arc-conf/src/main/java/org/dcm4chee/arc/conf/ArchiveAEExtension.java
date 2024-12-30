@@ -2065,6 +2065,7 @@ public class ArchiveAEExtension extends AEExtension {
         upsEventSCUs = aeExt.upsEventSCUs;
         upsEventSCUKeepAlive = aeExt.upsEventSCUKeepAlive;
         upsUpdateWithoutTransactionUID = aeExt.upsUpdateWithoutTransactionUID;
+        ups2MWLCFindSCP = aeExt.ups2MWLCFindSCP;
         objectStorageIDs = aeExt.objectStorageIDs;
         objectStorageCount = aeExt.objectStorageCount;
         metadataStorageIDs = aeExt.metadataStorageIDs;
