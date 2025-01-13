@@ -61,12 +61,10 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.InvokeValidate;
@@ -78,6 +76,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 /**
@@ -328,6 +327,7 @@ public class QueryRS {
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo, null);
             Attributes keys = queryAttributes.getQueryKeys();
             if (!count) {
+                applyDefaultOrderBy(queryAttributes.getOrderByTags(), arcAE.getQIDOResultOrderBy(qido.qidoService));
                 qido.addReturnTags(queryAttributes);
                 if (queryAttributes.isIncludeAll()) {
                     ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
@@ -382,6 +382,16 @@ public class QueryRS {
         } catch (Exception e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private void applyDefaultOrderBy(ArrayList<OrderByTag> orderByTags, QIDOResultOrderBy[] qidoResultOrderBy) {
+        if (orderByTags.isEmpty() && qidoResultOrderBy != null) {
+            for (QIDOResultOrderBy orderBy : qidoResultOrderBy) {
+                orderByTags.add(orderBy.isDescending()
+                        ? OrderByTag.desc(orderBy.getTag())
+                        : OrderByTag.asc(orderBy.getTag()));
+            }
         }
     }
 

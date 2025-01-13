@@ -114,6 +114,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcDev.getHideSPSWithStatusFrom());
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWLRS", arcDev.getHideSPSWithStatusFromMWLRS());
         writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcDev.getEncodeAsJSONNumber());
+        writer.writeNotEmpty("dcmQidoResultOrderBy", QIDOResultOrderBy.toStrings(arcDev.getQIDOResultOrderBy()));
         writer.writeNotEmpty("hl7ORUAction", arcDev.getHl7ORUAction());
         writer.writeNotNullOrDef("dcmMWLAccessionNumberGenerator",
                 arcDev.getMWLAccessionNumberGenerator(), null);
@@ -1278,6 +1279,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmMWLScheduledProcedureStepIDGenerator",
                 arcAE.getMWLScheduledProcedureStepIDGenerator(), ArchiveDeviceExtension.MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR);
         writer.writeNotEmpty("dcmEncodeAsJSONNumber", arcAE.getEncodeAsJSONNumber());
+        writer.writeNotEmpty("dcmQidoResultOrderBy", QIDOResultOrderBy.toStrings(arcAE.getQIDOResultOrderBy()));
         writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcAE.getPersonNameComponentOrderInsensitiveMatching());
         writer.writeNotNull("dcmSendPendingCGet", arcAE.getSendPendingCGet());
@@ -1497,6 +1499,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmEncodeAsJSONNumber":
                     arcDev.setEncodeAsJSONNumber(reader.enumArray(VR.class));
+                    break;
+                case "dcmQidoResultOrderBy":
+                    arcDev.setQIDOResultOrderBy(QIDOResultOrderBy.parse(reader.stringArray()));
                     break;
                 case "hl7ORUAction":
                     arcDev.setHl7ORUAction(reader.enumArray(HL7ORUAction.class));
@@ -4142,6 +4147,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmEncodeAsJSONNumber":
                     arcAE.setEncodeAsJSONNumber(reader.enumArray(VR.class));
+                    break;
+                case "dcmQidoResultOrderBy":
+                    arcAE.setQIDOResultOrderBy(QIDOResultOrderBy.parse(reader.stringArray()));
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcAE.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());

@@ -2871,6 +2871,11 @@ attributetype ( 1.2.40.0.13.1.15.110.3.490 NAME 'dcmUPS2MWLScheduledStationNameC
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.491 NAME 'dcmQidoResultOrderBy'
+  DESC 'Specifies order of matching results returned by QIDO-RS, UPS-RS and proprietary Search Services, if not specified by query parameter "orderby". Format: {service}:[-]{attributeID}[,...], with {service} is "patients", "studies", "series", "instances", "workitems", "mwlitems" or "mpps".'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2957,6 +2962,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQueryMaxNumberOfResults $
     dcmQidoMaxNumberOfResults $
     dcmQidoETag $
+    dcmQidoResultOrderBy $
     dcmFilterByIssuerOfPatientID $
     dcmMatchSOPClassOnInstanceLevel $
     dcmFwdMppsDestination $
@@ -3225,6 +3231,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmQueryMaxNumberOfResults $
     dcmQidoMaxNumberOfResults $
     dcmQidoETag $
+    dcmQidoResultOrderBy $
     dcmFilterByIssuerOfPatientID $
     dcmMatchSOPClassOnInstanceLevel $
     dcmFwdMppsDestination $

@@ -355,6 +355,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
+    private final EnumMap<QIDOResultOrderBy.QIDOService,QIDOResultOrderBy[]> qidoResultOrderBy =
+            new EnumMap<>(QIDOResultOrderBy.QIDOService.class);
     private final Map<AttributeSet.Type,Map<String,AttributeSet>> attributeSet = new EnumMap<>(AttributeSet.Type.class);
     private final Map<String, BasicBulkDataDescriptor> bulkDataDescriptorMap = new HashMap<>();
     private final Map<String, IDGenerator> idGenerators = new HashMap<>();
@@ -1929,6 +1931,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             tags = dest;
         }
         return tags;
+    }
+
+    public EnumMap<QIDOResultOrderBy.QIDOService, QIDOResultOrderBy[]> getQIDOResultOrderBy() {
+        return qidoResultOrderBy;
+    }
+
+    public void setQIDOResultOrderBy(EnumMap<QIDOResultOrderBy.QIDOService, QIDOResultOrderBy[]> map) {
+        qidoResultOrderBy.clear();
+        qidoResultOrderBy.putAll(map);
+    }
+
+    public QIDOResultOrderBy[] getQIDOResultOrderBy(QIDOResultOrderBy.QIDOService service) {
+        return qidoResultOrderBy.get(service);
     }
 
     public void addAttributeSet(AttributeSet tags) {
@@ -3896,6 +3911,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         changeRequesterAET = arcdev.changeRequesterAET;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
+        qidoResultOrderBy.clear();
+        qidoResultOrderBy.putAll(arcdev.qidoResultOrderBy);
         attributeSet.clear();
         attributeSet.putAll(arcdev.attributeSet);
         bulkDataDescriptorMap.clear();

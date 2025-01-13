@@ -258,6 +258,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWLRS", ext.getHideSPSWithStatusFromMWLRS());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmQidoResultOrderBy",
+                QIDOResultOrderBy.toStrings(ext.getQIDOResultOrderBy()));
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ORUAction", ext.getHl7ORUAction());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLAccessionNumberGenerator",
                 ext.getMWLAccessionNumberGenerator(), ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR);
@@ -699,6 +701,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
         ext.setHideSPSWithStatusFromMWLRS(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWLRS")));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
+        ext.setQIDOResultOrderBy(QIDOResultOrderBy.parse(LdapUtils.stringArray(attrs.get("dcmQidoResultOrderBy"))));
         ext.setHl7ORUAction(LdapUtils.enumArray(HL7ORUAction.class, attrs.get("hl7ORUAction")));
         ext.setMWLAccessionNumberGenerator(LdapUtils.stringValue(attrs.get("dcmMWLAccessionNumberGenerator"),
                 ArchiveDeviceExtension.MWL_ACCESSION_NUMBER_GENERATOR));
@@ -1202,6 +1205,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHideSPSWithStatusFromMWLRS(), bb.getHideSPSWithStatusFromMWLRS());
         LdapUtils.storeDiff(ldapObj, mods, "dcmEncodeAsJSONNumber",
                 aa.getEncodeAsJSONNumber(), bb.getEncodeAsJSONNumber());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQidoResultOrderBy",
+                QIDOResultOrderBy.toStrings(aa.getQIDOResultOrderBy()),
+                QIDOResultOrderBy.toStrings(bb.getQIDOResultOrderBy()));
         LdapUtils.storeDiff(ldapObj, mods, "hl7ORUAction", aa.getHl7ORUAction(), bb.getHl7ORUAction());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLAccessionNumberGenerator",
                 aa.getMWLAccessionNumberGenerator(), bb.getMWLAccessionNumberGenerator(),
@@ -1887,6 +1893,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLScheduledProcedureStepIDGenerator",
                 ext.getMWLScheduledProcedureStepIDGenerator(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmEncodeAsJSONNumber", ext.getEncodeAsJSONNumber());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmQidoResultOrderBy",
+                QIDOResultOrderBy.toStrings(ext.getQIDOResultOrderBy()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPStudyOlderThan",
                 ext.getFallbackCMoveSCPStudyOlderThan(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceURL",
@@ -2080,6 +2088,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setMWLScheduledProcedureStepIDGenerator(
                 LdapUtils.stringValue(attrs.get("dcmMWLScheduledProcedureStepIDGenerator"), null));
         ext.setEncodeAsJSONNumber(LdapUtils.enumArray(VR.class, attrs.get("dcmEncodeAsJSONNumber")));
+        ext.setQIDOResultOrderBy(QIDOResultOrderBy.parse(LdapUtils.stringArray(attrs.get("dcmQidoResultOrderBy"))));
         ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(
                 attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
         ext.setStorePermissionServiceURL(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceURL"), null));
@@ -2315,6 +2324,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMWLScheduledProcedureStepIDGenerator(), bb.getMWLScheduledProcedureStepIDGenerator(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmEncodeAsJSONNumber",
                 aa.getEncodeAsJSONNumber(), bb.getEncodeAsJSONNumber());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQidoResultOrderBy",
+                QIDOResultOrderBy.toStrings(aa.getQIDOResultOrderBy()),
+                QIDOResultOrderBy.toStrings(bb.getQIDOResultOrderBy()));
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPStudyOlderThan",
                 aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceURL",
