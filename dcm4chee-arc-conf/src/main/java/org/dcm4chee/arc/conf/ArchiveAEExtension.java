@@ -179,6 +179,8 @@ public class ArchiveAEExtension extends AEExtension {
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
+    private final EnumMap<QIDOResultOrderBy.QIDOService,QIDOResultOrderBy[]> qidoResultOrderBy =
+            new EnumMap<>(QIDOResultOrderBy.QIDOService.class);
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
@@ -1984,6 +1986,20 @@ public class ArchiveAEExtension extends AEExtension {
                 ArchiveDeviceExtension.encodeAsJSONNumber(writer, encodeAsJSONNumber));
     }
 
+    public EnumMap<QIDOResultOrderBy.QIDOService, QIDOResultOrderBy[]> getQIDOResultOrderBy() {
+        return qidoResultOrderBy;
+    }
+
+    public void setQIDOResultOrderBy(EnumMap<QIDOResultOrderBy.QIDOService, QIDOResultOrderBy[]> map) {
+        qidoResultOrderBy.clear();
+        qidoResultOrderBy.putAll(map);
+    }
+
+    public QIDOResultOrderBy[] getQIDOResultOrderBy(QIDOResultOrderBy.QIDOService service) {
+        QIDOResultOrderBy[] result = qidoResultOrderBy.get(service);
+        return result != null ? result : getArchiveDeviceExtension().getQIDOResultOrderBy(service);
+    }
+
     public Boolean getRetrieveTaskWarningOnNoMatch() {
         return retrieveTaskWarningOnNoMatch;
     }
@@ -2176,6 +2192,8 @@ public class ArchiveAEExtension extends AEExtension {
         changeRequesterAET = aeExt.changeRequesterAET;
         encodeAsJSONNumber.clear();
         encodeAsJSONNumber.addAll(aeExt.encodeAsJSONNumber);
+        qidoResultOrderBy.clear();
+        qidoResultOrderBy.putAll(aeExt.qidoResultOrderBy);
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();
