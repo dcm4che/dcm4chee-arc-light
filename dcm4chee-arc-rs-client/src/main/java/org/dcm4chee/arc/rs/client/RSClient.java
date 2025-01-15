@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.rs.client;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.Response;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.qmgt.Outcome;
 
@@ -59,5 +58,4 @@ public interface RSClient {
             String rsOp, String requestURI, String requestQueryStr, String webAppName, String patientID, byte[] content)
             throws Exception;
 
-    Response forward(HttpServletRequest request, String deviceName, String append) throws Exception;
 }
