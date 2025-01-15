@@ -1643,15 +1643,15 @@ public class WadoRS {
         }
         Attributes metadata = inst.isContainsMetadata() && !retrieveAsReceived ? inst.getAttributes()
                 : service.loadMetadata(ctx, inst);
-        if (ctx.getMetadataFilter() != null)
-            metadata = new Attributes(metadata, ctx.getMetadataFilter().getSelection());
-        else if (ctx.isWithoutPrivateAttributes())
-            metadata.removePrivateAttributes();
         StringBuffer sb = device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request);
         sb.setLength(sb.lastIndexOf("/metadata"));
         mkInstanceURL(sb, inst);
         setBulkdataURI(metadata, sb.toString());
         coerce.coerce(metadata, null);
+        if (ctx.getMetadataFilter() != null)
+            metadata = new Attributes(metadata, ctx.getMetadataFilter().getSelection());
+        else if (ctx.isWithoutPrivateAttributes())
+            metadata.removePrivateAttributes();
         return metadata;
     }
 
