@@ -384,7 +384,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                         seriesAttributes.attrs);
             } else {
                 new LocationQuery(em, cb, ctx, codeCache).execute(studyInfoMap);
-                if (ctx.isConsiderPurgedInstances())
+                if (ctx.isRetrieveMetadata() || ctx.isConsiderPurgedInstances())
                     queryLocationsFromMetadata(ctx, cb, studyInfoMap);
             }
             ctx.setNumberOfMatches(matches.size());
@@ -401,7 +401,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<Series> series = q.from(Series.class);
         Join<Series, Study> study = series.join(Series_.study);
-        Join<Series, Metadata> metadata = series.join(Series_.metadata, JoinType.LEFT);
+        Join<Series, Metadata> metadata = series.join(Series_.metadata);
         List<Predicate> predicates = new ArrayList<>();
         QueryBuilder builder = new QueryBuilder(cb);
         if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
@@ -411,7 +411,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         builder.seriesAccessControl(predicates, series, ctx.getAccessControlIDs());
         builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
         builder.uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), ctx.getSeriesInstanceUIDs());
-        predicates.add(cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED));
+        Predicate instancesPurged = cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED);
+        predicates.add(ctx.isRetrieveMetadata() && ctx.getQueryRetrieveLevel() != QueryRetrieveLevel2.IMAGE
+                ? cb.or(series.get(Series_.metadataScheduledUpdateTime).isNull(), instancesPurged)
+                : instancesPurged);
         q.multiselect(
                 series.get(Series_.pk),
                 metadata.get(Metadata_.storageID),
