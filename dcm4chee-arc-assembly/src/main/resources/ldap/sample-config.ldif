@@ -3337,6 +3337,7 @@ dcmTag: 00400250
 dcmTag: 00400251
 dcmTag: 00400260
 dcmTag: 00400275
+dcmTag: 00400280
 dcmEntity: Series
 objectClass: dcmAttributeFilter
 dcmAttributeUpdatePolicy: SUPPLEMENT
@@ -4677,6 +4678,7 @@ dcmTag: 00400250
 dcmTag: 00400251
 dcmTag: 00400260
 dcmTag: 00400275
+dcmTag: 00400280
 dcmTag: 00400512
 dcmTag: 00400513
 dcmTag: 00400515

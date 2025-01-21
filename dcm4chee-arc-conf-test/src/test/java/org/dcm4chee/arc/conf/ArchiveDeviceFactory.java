@@ -409,6 +409,7 @@ class ArchiveDeviceFactory {
             Tag.PerformedProcedureStepEndDate,
             Tag.PerformedProcedureStepEndTime,
             Tag.PerformedProtocolCodeSequence,
+            Tag.CommentsOnThePerformedProcedureStep,
             Tag.RequestAttributesSequence,
             Tag.SeriesDescriptionCodeSequence,
             Tag.OperatorsName,
