@@ -204,7 +204,7 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public String[] getAccessControlIDs() {
-        return arcAE.getAccessControlIDs();
+        return arcAE == null ? StringUtils.EMPTY_STRING : arcAE.getAccessControlIDs();
     }
 
     @Override
