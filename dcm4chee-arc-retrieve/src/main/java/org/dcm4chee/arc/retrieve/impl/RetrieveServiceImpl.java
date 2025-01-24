@@ -384,7 +384,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                         seriesAttributes.attrs);
             } else {
                 new LocationQuery(em, cb, ctx, codeCache).execute(studyInfoMap);
-                if (ctx.isRetrieveMetadata() || ctx.isConsiderPurgedInstances())
+                if (metadataUpdate == null && ctx.isRetrieveMetadata() || ctx.isConsiderPurgedInstances())
                     queryLocationsFromMetadata(ctx, cb, studyInfoMap);
             }
             ctx.setNumberOfMatches(matches.size());
