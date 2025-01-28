@@ -1166,7 +1166,13 @@ export class StudyService {
     }
 
     getStorageSystems() {
-        return this.storageSystems.search({}, 0);
+        if(!this.sharedObservables$["storageSystems"]){
+            this.sharedObservables$["storageSystems"] = this.sharedObservables$["storageSystems"] || {};
+            this.sharedObservables$["storageSystems"] = this.storageSystems.search({}, 0)
+                .pipe(
+                    shareReplay(1));
+        }
+        return this.sharedObservables$["storageSystems"]
     }
 
     verifyStorage = (attrs, studyWebService: StudyWebService, level: DicomLevel, param) => {
