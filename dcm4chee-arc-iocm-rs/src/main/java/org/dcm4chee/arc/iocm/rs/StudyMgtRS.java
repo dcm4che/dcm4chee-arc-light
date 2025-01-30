@@ -102,8 +102,8 @@ public class StudyMgtRS {
     private static final Logger LOG = LoggerFactory.getLogger(StudyMgtRS.class);
     private static final String SUPER_USER_ROLE = "super-user-role";
     private static final String UPDATE_STUDY_CONFLICTING_UIDS_MSG = "[StudyUID={}] in request URL does not match [StudyUID={}] in request payload";
-    private static final String UPDATE_SERIES_CONFLICTING_UIDS_MSG = "[StudyUID={}, SeriesUID={}] in request URL do not match [StudyUID={}, SeriesUID={}] in request payload";
-    private static final String UPDATE_INSTANCE_CONFLICTING_UIDS_MSG = "[StudyUID={}, SeriesUID={}, SOPUID={}] in request URL do not match [StudyUID={}, SeriesUID={}, SOPUID={}] in request payload";
+    private static final String UPDATE_SERIES_CONFLICTING_UIDS_MSG = "[SeriesUID={}] in request URL do not match [SeriesUID={}] in request payload";
+    private static final String UPDATE_INSTANCE_CONFLICTING_UIDS_MSG = "[SOPUID={}] in request URL do not match [SOPUID={}] in request payload";
 
     @Inject
     private Device device;
@@ -262,11 +262,9 @@ public class StudyMgtRS {
             return errResponse("Missing patient identifiers with trusted assigning authority in " + patientIDs,
                     Response.Status.BAD_REQUEST);
 
-        if (!seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID))
-                || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
+        if (!seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID)))
             return errResponse(MessageFormat.format(UPDATE_SERIES_CONFLICTING_UIDS_MSG,
-                                                    studyUID, seriesUID,
-                                                    attrs.getString(Tag.StudyInstanceUID),
+                                                    seriesUID,
                                                     attrs.getString(Tag.SeriesInstanceUID)),
                     Response.Status.BAD_REQUEST);
 
@@ -329,13 +327,9 @@ public class StudyMgtRS {
             return errResponse("Missing patient identifiers with trusted assigning authority in " + patientIDs,
                     Response.Status.BAD_REQUEST);
 
-        if (!sopUID.equals(attrs.getString(Tag.SOPInstanceUID))
-                || !seriesUID.equals(attrs.getString(Tag.SeriesInstanceUID))
-                || !studyUID.equals(attrs.getString(Tag.StudyInstanceUID)))
+        if (!sopUID.equals(attrs.getString(Tag.SOPInstanceUID)))
             return errResponse(MessageFormat.format(UPDATE_INSTANCE_CONFLICTING_UIDS_MSG,
-                                                    studyUID, seriesUID, sopUID,
-                                                    attrs.getString(Tag.StudyInstanceUID),
-                                                    attrs.getString(Tag.SeriesInstanceUID),
+                                                    sopUID,
                                                     attrs.getString(Tag.SOPInstanceUID)),
                     Response.Status.BAD_REQUEST);
 
