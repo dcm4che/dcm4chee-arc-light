@@ -4755,7 +4755,7 @@ export class Globalvar {
                     filterKey:"ExpirationState",
                     showStar:true,
                     options:[
-                        new SelectDropdown("UPDATABLE", $localize `:@@UPDATABLE:UPDATABLE`, $localize `:@@expiration_state_updateable:No expiration date set to study`),
+                        new SelectDropdown("UPDATEABLE", $localize `:@@UPDATEABLE:UPDATEABLE`, $localize `:@@expiration_state_updateable:No expiration date set to study`),
                         new SelectDropdown("FROZEN", $localize `:@@FROZEN:FROZEN`, $localize `:@@expiration_state_frozen:Study protected from being expired`),
                         new SelectDropdown("REJECTED", $localize `:@@REJECTED:REJECTED`, $localize `:@@expiration_state_rejected:Rejected expired studies`),
                         new SelectDropdown("EXPORT_SCHEDULED", $localize `:@@EXPORT_SCHEDULED:EXPORT_SCHEDULED`, $localize `:@@expiration_state_export_scheduled:Export scheduled for expired studies before rejecting them`),
