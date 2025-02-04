@@ -148,7 +148,6 @@ import java.util.*;
                 name = Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE,
                 query = "select st from Study st " +
                         "join fetch st.patient p " +
-                        "left join fetch p.patientIDs " +
                         "where st.size = -1 and st.updatedTime < ?1"),
         @NamedQuery(
                 name=Study.CLAIM_UNKNOWN_SIZE_STUDY,

@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.event;
 
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4chee.arc.entity.Study;
 
 import java.util.stream.Collectors;
@@ -48,8 +49,18 @@ import java.util.stream.Collectors;
  */
 public class StudySizeEvent {
     private final Study study;
+    private final String prompt;
     public StudySizeEvent(Study study) {
         this.study = study;
+        StringBuilder sb = new StringBuilder("StudySizeEvent[uid=");
+        sb.append(study.getStudyInstanceUID());
+        sb.append(", pid=");
+        for (IDWithIssuer idWithIssuer : IDWithIssuer.pidsOf(study.getPatient().getAttributes())) {
+            sb.append(idWithIssuer);
+            sb.append('~');
+        }
+        sb.setCharAt(sb.length() - 1, ']');
+        this.prompt = sb.toString();
     }
 
     public Study getStudy() {
@@ -58,12 +69,6 @@ public class StudySizeEvent {
 
     @Override
     public String toString() {
-        return "StudySizeEvent[uid=" + study.getStudyInstanceUID()
-                + ", pid="
-                + study.getPatient().getPatientIDs()
-                    .stream()
-                    .map(patientID -> patientID.getIDWithIssuer().toString())
-                    .collect(Collectors.joining("~"))
-                + "]";
+        return prompt;
     }
 }
