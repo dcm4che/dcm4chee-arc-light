@@ -12,11 +12,17 @@
       cursor: pointer;
     }
     span.glyphicon-triangle-bottom{
-      width: 10px;
+      width: 20px;
       font-size: 9px;
+      height: 100%;
+      position: relative;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .input_part{
-      width:calc(100% - 10px);
+      width:calc(100% - 20px);
       display: inline-block;
       float: left;
       min-height: 25px;
@@ -24,6 +30,11 @@
         border: 0;
         padding-left: 0;
         height: 30px;
+        color:black;
+        width: 100%;
+        &::placeholder {
+          color: black;
+        }
         //border-bottom: 1px solid #ccc;
         outline: none;
         background:transparent;
@@ -31,6 +42,11 @@
           outline: none;
         }
       }
+    }
+    &.editable{
+      position: relative;
+      background: white;
+      z-index: 99999;
     }
     .selected_value{
       max-height: 30px;

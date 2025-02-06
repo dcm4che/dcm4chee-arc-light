@@ -65,6 +65,10 @@ public class UIConfig {
 
     private String institutionNameFilterType;
     private String[] institutionNames = {};
+    private String[] issuerOfPatientIDSequence = {};
+    private String[] issuerOfAccessionNumberSequence = {};
+    private String[] issuerOfAdmissionIDSequence = {};
+
     private boolean hideOtherPatientIDs;
     private String pageTitle;
     private String personNameFormat;
@@ -146,6 +150,30 @@ public class UIConfig {
 
     public String[] getInstitutionNames() {
         return institutionNames;
+    }
+
+    public String[] getIssuerOfPatientIDSequence() {
+        return issuerOfPatientIDSequence;
+    }
+
+    public void setIssuerOfPatientIDSequence(String[] issuerOfPatientIDSequence) {
+        this.issuerOfPatientIDSequence = issuerOfPatientIDSequence;
+    }
+
+    public String[] getIssuerOfAccessionNumberSequence() {
+        return issuerOfAccessionNumberSequence;
+    }
+
+    public void setIssuerOfAccessionNumberSequence(String[] issuerOfAccessionNumberSequence) {
+        this.issuerOfAccessionNumberSequence = issuerOfAccessionNumberSequence;
+    }
+
+    public String[] getIssuerOfAdmissionIDSequence() {
+        return issuerOfAdmissionIDSequence;
+    }
+
+    public void setIssuerOfAdmissionIDSequence(String[] issuerOfAdmissionIDSequence) {
+        this.issuerOfAdmissionIDSequence = issuerOfAdmissionIDSequence;
     }
 
     public void setInstitutionNames(String[] institutionNames) {

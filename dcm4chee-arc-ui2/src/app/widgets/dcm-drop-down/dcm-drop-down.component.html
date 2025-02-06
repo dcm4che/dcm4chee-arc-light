@@ -1,7 +1,7 @@
 <div class="overlay" *ngIf="showDropdown" (click)="showDropdown = false"></div>
 <div class="dcm_dropdown" [ngClass]="{'single_mode':!multiSelectMode}">
-  <div class="dropdown_input" (click)="toggleDropdown()">
-    <div class="input_part">
+  <div class="dropdown_input"  [ngClass]="{'editable':editable&&showDropdown}">
+    <div class="input_part" (click)="!showDropdown && (showDropdown = true)">
         <!--<pre style="position:fixed;right:10px;width:70%;top:40px;z-index: 9999999;height: 200px;">{{selectedDropdown|json}}</pre>-->
         <ng-container *ngIf="multiSelectMode">
             <div class="selected_value" *ngIf="multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown">{{multiSelectValue | arrayToString:', '}}</div>
@@ -17,7 +17,7 @@
         <input class="edited_input_value" *ngIf="!(selectedDropdown && selectedDropdown.htmlLabel) && editable && !multiSelectMode" title="{{placeholder}}" placeholder="{{placeholder}}" min="{{min}}" max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
       <div *ngIf="!((selectedValue || showSelectedEmptyValue) && selectedDropdown) && !multiSelectMode && !editable" class="selected_value empty_field">{{placeholder}}</div>
     </div>
-    <span class="glyphicon glyphicon-triangle-bottom"></span>
+    <span class="glyphicon glyphicon-triangle-bottom" (click)="toggleDropdown()"></span>
   </div>
   <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
     <div action="" class="search_block" *ngIf="showSearchField">

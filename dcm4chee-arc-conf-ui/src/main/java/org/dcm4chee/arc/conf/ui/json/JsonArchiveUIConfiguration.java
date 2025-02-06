@@ -101,6 +101,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
         writer.writeNotNullOrDef("dcmuiInstitutionNameFilterType", uiConfig.getInstitutionNameFilterType(), null);
         writer.writeNotEmpty("dcmuiInstitutionName", uiConfig.getInstitutionNames());
+        writer.writeNotEmpty("dcmuiIssuerOfPatientIDSequence", uiConfig.getIssuerOfPatientIDSequence());
+        writer.writeNotEmpty("dcmuiIssuerOfAccessionNumberSequence", uiConfig.getIssuerOfAccessionNumberSequence());
+        writer.writeNotEmpty("dcmuiIssuerOfAdmissionIDSequence", uiConfig.getIssuerOfAdmissionIDSequence());
         writeUIPermissions(writer, uiConfig.getPermissions());
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
@@ -477,6 +480,15 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiInstitutionName":
                     uiConfig.setInstitutionNames(reader.stringArray());
+                    break;
+                case "dcmuiIssuerOfPatientIDSequence":
+                    uiConfig.setIssuerOfPatientIDSequence(reader.stringArray());
+                    break;
+                case "dcmuiIssuerOfAccessionNumberSequence":
+                    uiConfig.setIssuerOfAccessionNumberSequence(reader.stringArray());
+                    break;
+                case "dcmuiIssuerOfAdmissionIDSequence":
+                    uiConfig.setIssuerOfAdmissionIDSequence(reader.stringArray());
                     break;
                 case "dcmuiPermission":
                     loadUIPermissions(uiConfig, reader);
