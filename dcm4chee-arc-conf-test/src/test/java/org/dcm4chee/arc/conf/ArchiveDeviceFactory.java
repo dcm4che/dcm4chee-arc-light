@@ -413,7 +413,8 @@ class ArchiveDeviceFactory {
             Tag.RequestAttributesSequence,
             Tag.SeriesDescriptionCodeSequence,
             Tag.OperatorsName,
-            Tag.OperatorIdentificationSequence
+            Tag.OperatorIdentificationSequence,
+            Tag.ViewPosition
     };
     static final int[] INSTANCE_ATTRS = {
             Tag.SpecificCharacterSet,
@@ -463,7 +464,10 @@ class ArchiveDeviceFactory {
             Tag.PrimaryAnatomicStructureSequence,
             Tag.SegmentSequence,
             Tag.QuantityDefinitionSequence,
-            Tag.AuthorObserverSequence
+            Tag.AuthorObserverSequence,
+            Tag.ViewCodeSequence,
+            Tag.SharedFunctionalGroupsSequence,
+            Tag.PerFrameFunctionalGroupsSequence
     };
     static final int[] LEADING_CFIND_SCP_ATTRS = {
             Tag.StudyDate,
