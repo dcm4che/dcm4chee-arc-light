@@ -47,7 +47,6 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
-import org.dcm4che3.conf.api.IDeviceCache;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
@@ -78,9 +77,6 @@ public class RSClientImpl implements RSClient {
 
     @Inject
     private AccessTokenRequestor accessTokenRequestor;
-
-    @Inject
-    private IDeviceCache iDeviceCache;
 
     @Inject
     private IWebApplicationCache iWebAppCache;
@@ -129,14 +125,26 @@ public class RSClientImpl implements RSClient {
         if (requestQueryString != null)
             targetURI += "?" + requestQueryString;
 
-        Response response = toResponse(getMethod(rsOperation),
-                                        targetURI,
-                                        webApplication,
-                                        content,
-                                        accessTokenFromWebApp(webApplication));
-        Outcome outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
-        response.close();
-        return outcome;
+        try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(targetURI, webApplication).build()) {
+            WebTarget target = client.target(targetURI);
+            Invocation.Builder request = target.request();
+            String authorization = accessTokenFromWebApp(webApplication);
+            if (authorization != null)
+                request.header("Authorization", authorization);
+
+            String method = getMethod(rsOperation);
+            LOG.info("Restful Service Forward : {} {}", method, targetURI);
+
+            try (Response response = method.equals("POST")
+                    ? content != null
+                    ? request.post(Entity.json(content))
+                    : request.post(Entity.json(""))
+                    : method.equals("PUT")
+                    ? request.put(Entity.json(content))
+                    : request.delete()) {
+                return buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
+            }
+        }
     }
 
     private String accessTokenFromWebApp(WebApplication webApp) throws Exception {
@@ -165,50 +173,6 @@ public class RSClientImpl implements RSClient {
         }
         LOG.info("Target URL is {}", targetURI);
         return targetURI;
-    }
-
-    private Response toResponse(
-            String method, String uri, WebApplication webApp, byte[] content, String authorization) throws Exception {
-        try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, webApp).build()) {
-            WebTarget target = client.target(uri);
-            Invocation.Builder request = target.request();
-            if (authorization != null)
-                request.header("Authorization", authorization);
-
-            LOG.info("Restful Service Forward : {} {}", method, uri);
-
-            return method.equals("POST")
-                    ? content != null
-                        ? request.post(Entity.json(content))
-                        : request.post(Entity.json(""))
-                    : method.equals("PUT")
-                        ? request.put(Entity.json(content))
-                        : request.delete();
-        }
-    }
-
-    @Override
-    public Response forward(HttpServletRequest request, String deviceName, String append) throws Exception {
-        LOG.info("Forward {} {} from {}@{} to device {}", request.getMethod(), request.getRequestURI(),
-                request.getRemoteUser(), request.getRemoteHost(), deviceName);
-        String authorization = request.getHeader("Authorization");
-        String requestURI = request.getRequestURI();
-        Device device = iDeviceCache.findDevice(deviceName);
-        for (WebApplication webApplication : device.getWebApplications())
-            if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC)) {
-                StringBuilder targetURI = webApplication.getServiceURL()
-                                    .append(requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1)))
-                                    .append("?")
-                                    .append(request.getQueryString())
-                                    .append(append);
-                return toResponse("POST", targetURI.toString(), webApplication, null, authorization);
-            }
-
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Either Web Application with Service Class 'DCM4CHEE_ARC' not configured for device: "
-                            + deviceName
-                            + " or HTTP connection not configured for WebApplication with Service Class 'DCM4CHEE_ARC' of this device.")
-                    .build();
     }
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {

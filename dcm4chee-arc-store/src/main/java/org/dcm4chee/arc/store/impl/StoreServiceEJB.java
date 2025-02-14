@@ -730,7 +730,7 @@ public class StoreServiceEJB {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Location removeOrMarkLocationAs(Location location, LocationStatus status) {
+    public void removeOrMarkLocationAs(Location location, LocationStatus status) {
         location = em.merge(location);
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
@@ -740,7 +740,6 @@ public class StoreServiceEJB {
             location.setInstance(null);
             location.setStatus(status);
         }
-        return location;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

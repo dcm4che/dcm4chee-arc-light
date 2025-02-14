@@ -4,7 +4,7 @@
         <h2 i18n="Title|Title of the Monitoring queues page@@queues">Queues</h2>
         <div class="filter_line">
             <div class="filter_block">
-                <filter-generator [schema]="filterSchema" filterIdTemplate="monitoring-queues" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="statusChange()" (onFilterLoadFinish)="filterLoadFinished = true"></filter-generator>
+                <filter-generator [schema]="filterSchema" filterIdTemplate="monitoring-queues" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="statusChange()" (onFilterLoadFinish)="filterLoadFinished = true" [filterTreeHeight]="3"></filter-generator>
                 <div class="filter" (keyup)="filterKeyUp($event)"  *ngIf="filterLoadFinished">
                     <div class="filter_block auto_reloader" >
                         <table>

@@ -128,6 +128,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiMWLWorklistLabel", uiConfig.getMWLWorklistLabels());
         LdapUtils.storeNotNullOrDef(ldapObj,attrs, "dcmuiInstitutionNameFilterType", uiConfig.getInstitutionNameFilterType(),null);
         LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiInstitutionName", uiConfig.getInstitutionNames());
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiIssuerOfPatientIDSequence", uiConfig.getIssuerOfPatientIDSequence());
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiIssuerOfAccessionNumberSequence", uiConfig.getIssuerOfAccessionNumberSequence());
+        LdapUtils.storeNotEmpty(ldapObj,attrs, "dcmuiIssuerOfAdmissionIDSequence", uiConfig.getIssuerOfAdmissionIDSequence());
         return attrs;
     }
 
@@ -561,6 +564,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         uiConfig.setMWLWorklistLabels(LdapUtils.stringArray(attrs.get("dcmuiMWLWorklistLabel")));
         uiConfig.setInstitutionNameFilterType(LdapUtils.stringValue(attrs.get("dcmuiInstitutionNameFilterType"), null));
         uiConfig.setInstitutionNames(LdapUtils.stringArray(attrs.get("dcmuiInstitutionName")));
+        uiConfig.setIssuerOfPatientIDSequence(LdapUtils.stringArray(attrs.get("dcmuiIssuerOfPatientIDSequence")));
+        uiConfig.setIssuerOfAccessionNumberSequence(LdapUtils.stringArray(attrs.get("dcmuiIssuerOfAccessionNumberSequence")));
+        uiConfig.setIssuerOfAdmissionIDSequence(LdapUtils.stringArray(attrs.get("dcmuiIssuerOfAdmissionIDSequence")));
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
@@ -981,6 +987,12 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 prevUIConfig.getInstitutionNameFilterType(), uiConfig.getInstitutionNameFilterType(),null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiInstitutionName",
                 prevUIConfig.getInstitutionNames(), uiConfig.getInstitutionNames());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiIssuerOfPatientIDSequence",
+                prevUIConfig.getIssuerOfPatientIDSequence(), uiConfig.getIssuerOfPatientIDSequence());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiIssuerOfAccessionNumberSequence",
+                prevUIConfig.getIssuerOfAccessionNumberSequence(), uiConfig.getIssuerOfAccessionNumberSequence());
+        LdapUtils.storeDiff(ldapObj,mods,"dcmuiIssuerOfAdmissionIDSequence",
+                prevUIConfig.getIssuerOfAdmissionIDSequence(), uiConfig.getIssuerOfAdmissionIDSequence());
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiXDSInterfaceURL",
                 prevUIConfig.getXdsUrl(), uiConfig.getXdsUrl(),null);
         LdapUtils.storeDiffObject(ldapObj,mods,"dcmuiBackgroundURL",

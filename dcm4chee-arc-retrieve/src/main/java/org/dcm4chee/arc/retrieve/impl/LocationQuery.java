@@ -46,6 +46,7 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
@@ -99,6 +100,11 @@ class LocationQuery {
             predicates.add((cb.equal(series.get(Series_.pk), ctx.getSeriesMetadataUpdate().seriesPk)));
             q.orderBy(cb.asc(instance.get(Instance_.instanceNumber)));
         } else {
+            if (ctx.isRetrieveMetadata() && ctx.getQueryRetrieveLevel() != QueryRetrieveLevel2.IMAGE) {
+                predicates.add(cb.or(
+                        series.get(Series_.metadata).isNull(),
+                        series.get(Series_.metadataScheduledUpdateTime).isNotNull()));
+            }
             QueryBuilder builder = new QueryBuilder(cb);
             if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
                 builder.patientIDPredicate(predicates, q, study.join(Study_.patient), ctx.getPatientIDs());

@@ -12,11 +12,17 @@
       cursor: pointer;
     }
     span.glyphicon-triangle-bottom{
-      width: 10px;
+      width: 20px;
       font-size: 9px;
+      height: 100%;
+      position: relative;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .input_part{
-      width:calc(100% - 10px);
+      width:calc(100% - 20px);
       display: inline-block;
       float: left;
       min-height: 25px;
@@ -24,11 +30,23 @@
         border: 0;
         padding-left: 0;
         height: 30px;
+        width: 100%;
         //border-bottom: 1px solid #ccc;
         outline: none;
         background:transparent;
         &:focus{
           outline: none;
+        }
+      }
+    }
+    &.editable{
+      position: relative;
+      background: white;
+      z-index: 99999;
+      .edited_input_value{
+        color:black;
+        &::placeholder{
+          color:black;
         }
       }
     }

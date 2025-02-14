@@ -2875,6 +2875,7 @@ dcmTag: 00081090
 dcmTag: 00081111
 dcmTag: 00082218
 dcmTag: 00180015
+dcmTag: 00185101
 dcmTag: 0020000E
 dcmTag: 00200011
 dcmTag: 00200060
@@ -2884,6 +2885,7 @@ dcmTag: 00400250
 dcmTag: 00400251
 dcmTag: 00400260
 dcmTag: 00400275
+dcmTag: 00400280
 dcmEntity: Series
 objectClass: dcmAttributeFilter
 dcmAttributeUpdatePolicy: SUPPLEMENT
@@ -2974,6 +2976,7 @@ dcmTag: 00080201
 dcmTag: 00081115
 dcmTag: 00082218
 dcmTag: 00082228
+dcmTag: 00185101
 dcmTag: 0018A001
 dcmTag: 00200013
 dcmTag: 00200062
@@ -3004,12 +3007,15 @@ dcmTag: 0040A525
 dcmTag: 0040E001
 dcmTag: 00420010
 dcmTag: 00420012
+dcmTag: 00540220
 dcmTag: 00620002
 dcmTag: 00700080
 dcmTag: 00700081
 dcmTag: 00700082
 dcmTag: 00700083
 dcmTag: 00700084
+dcmTag: 52009229
+dcmTag: 52009230
 dcmEntity: Instance
 objectClass: dcmAttributeFilter
 
@@ -3886,6 +3892,7 @@ dcmTag: 00120064
 dcmTag: 00120081
 dcmTag: 00120082
 dcmTag: 00180015
+dcmTag: 00185101
 dcmTag: 0018A001
 dcmTag: 0020000D
 dcmTag: 0020000E
@@ -3918,6 +3925,7 @@ dcmTag: 00400250
 dcmTag: 00400251
 dcmTag: 00400260
 dcmTag: 00400275
+dcmTag: 00400280
 dcmTag: 00400512
 dcmTag: 00400513
 dcmTag: 00400515
@@ -3941,12 +3949,15 @@ dcmTag: 0040A525
 dcmTag: 0040E001
 dcmTag: 00420010
 dcmTag: 00420012
+dcmTag: 00540220
 dcmTag: 00620002
 dcmTag: 00700080
 dcmTag: 00700081
 dcmTag: 00700082
 dcmTag: 00700083
 dcmTag: 00700084
+dcmTag: 52009229
+dcmTag: 52009230
 dcmAttributeSetType: WADO_RS
 dcmAttributeSetID: AttributeFilters
 objectClass: dcmAttributeSet

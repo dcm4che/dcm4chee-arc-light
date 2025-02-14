@@ -58,6 +58,7 @@ import org.dcm4che3.net.service.AbstractDicomService;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.AttributesBlob;
@@ -352,7 +353,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
     private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE, TransferCapability.Role role) {
         AAssociateRQ aarq = new AAssociateRQ();
-        TransferCapability tc = localAE.getTransferCapabilityFor(UID.StorageCommitmentPushModel, role);
+        ApplicationEntity transferCapabilitiesAE = StringUtils.maskNull(localAE.transferCapabilitiesAE(), localAE);
+        TransferCapability tc = transferCapabilitiesAE.getTransferCapabilityFor(UID.StorageCommitmentPushModel, role);
         aarq.addPresentationContext(new PresentationContext(1, UID.StorageCommitmentPushModel,
                 tc.getTransferSyntaxes()));
         if (role == TransferCapability.Role.SCP)

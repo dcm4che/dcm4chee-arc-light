@@ -19,13 +19,15 @@ export class QueuesService{
         private tableService:TableService
     ) { }
 
-    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby) {
+    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby, StudyInstanceUID?) {
 
-        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby)));
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(
+            this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby, StudyInstanceUID)));
     };
 
-    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby) {
-        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby)));
+    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby, StudyInstanceUID?) {
+        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(
+            this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby, StudyInstanceUID)));
     };
 
     cancel(queueName, msgId) {
@@ -72,7 +74,7 @@ export class QueuesService{
         return header;
     }
 
-    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby) {
+    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, localAET, remoteAET, orderby, StudyInstanceUID) {
         let params = {
             offset: offset,
             limit: limit,
@@ -83,6 +85,7 @@ export class QueuesService{
             batchID:batchID,
             localAET:localAET,
             remoteAET:remoteAET,
+            StudyInstanceUID:StudyInstanceUID,
             orderby:undefined
         };
         if (orderby != '*')
@@ -233,9 +236,12 @@ export class QueuesService{
                 filterKey:"remoteAET",
                 placeholder:$localize `:@@remoteaet:Remote AET`,
                 description:$localize `:@@remote_ae_title_to_filter_by:Remote AE Title to filter by`
-            },
-            {
-                tag:"dummy"
+            }, {
+                tag:"input",
+                type:"text",
+                filterKey:"StudyInstanceUID",
+                description:$localize `:@@study_instance_uid:Study Instance UID`,
+                placeholder:$localize `:@@study_instance_uid:Study Instance UID`
             },
             {
                 tag:"button",
@@ -248,6 +254,12 @@ export class QueuesService{
                 id:"submit",
                 text:$localize `:@@SUBMIT:SUBMIT`,
                 description:$localize `:@@maximal_number_of_tasks_in_returned_list:Maximal number of tasks in returned list`
+            },
+            {
+                tag:"dummy"
+            },
+            {
+                tag:"dummy"
             }
         ]
     }

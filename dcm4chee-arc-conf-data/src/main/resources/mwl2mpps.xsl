@@ -67,11 +67,11 @@
           <!-- Requested Procedure Description -->
           <xsl:copy-of select="DicomAttribute[@tag='00321060']"/>
           <!-- Scheduled Procedure Step ID -->
-          <xsl:copy-of select="DicomAttribute[@tag='00400009']"/>
+          <xsl:copy-of select="DicomAttribute[@tag='00400100']/Item/DicomAttribute[@tag='00400009']"/>
           <!-- Scheduled Protocol Code Sequence -->
-          <xsl:copy-of select="DicomAttribute[@tag='00400008']"/>
+          <xsl:copy-of select="DicomAttribute[@tag='00400100']/Item/DicomAttribute[@tag='00400008']"/>
           <!-- Scheduled Procedure Step Description -->
-          <xsl:copy-of select="DicomAttribute[@tag='00400007']"/>
+          <xsl:copy-of select="DicomAttribute[@tag='00400100']/Item/DicomAttribute[@tag='00400007']"/>
         </Item>
       </DicomAttribute>
     </NativeDicomModel>

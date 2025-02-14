@@ -474,6 +474,21 @@ attributeTypes: ( 1.2.40.0.13.1.15.111.3.98 NAME 'dcmuiUWLWebAppLabels'
     EQUALITY caseExactMatch
     SUBSTR caseExactSubstringsMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.111.3.99 NAME 'dcmuiIssuerOfPatientIDSequence'
+   DESC 'Issuer of Patient ID Sequence'
+   EQUALITY caseIgnoreMatch
+   SUBSTR caseIgnoreSubstringsMatch
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.111.3.100 NAME 'dcmuiIssuerOfAccessionNumberSequence'
+   DESC 'Issuer of Accession Number Sequence'
+   EQUALITY caseIgnoreMatch
+   SUBSTR caseIgnoreSubstringsMatch
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.111.3.101 NAME 'dcmuiIssuerOfAdmissionIDSequence'
+   DESC 'Issuer of Admission ID Sequence'
+   EQUALITY caseIgnoreMatch
+   SUBSTR caseIgnoreSubstringsMatch
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 objectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
@@ -497,6 +512,9 @@ objectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
     dcmuiInstitutionNameFilterType $
     dcmuiStoreAccessControlID $
     dcmuiInstitutionName $
+    dcmuiIssuerOfPatientIDSequence $
+    dcmuiIssuerOfAccessionNumberSequence $
+    dcmuiIssuerOfAdmissionIDSequence $
     dcmuiMWLWorklistLabel ) )
 objectClasses: ( 1.2.40.0.13.1.15.111.4.2 NAME 'dcmuiPermission'
   DESC 'Permission for UI Action'

@@ -84,6 +84,7 @@ public class SelectLangServlet extends HttpServlet {
                         case "mr":
                         case "pt":
                         case "ru":
+                        case "fr":
                         case "zh":
                             out.print("const lang='" + lang + "';");
                             return;
