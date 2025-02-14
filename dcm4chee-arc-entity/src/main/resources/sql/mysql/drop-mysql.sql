@@ -54,6 +54,7 @@ alter table study drop foreign key FKndwmntu3lsjd78erctnbposyr;
 alter table study_query_attrs drop foreign key FKmu32jq25y6qkimi7hn7d4s2hp;
 alter table subscription drop foreign key FKh9mdhriyx32gr91pfdgnl48f0;
 alter table ups drop foreign key FKaddby69vtwxpssgaa12ct6pn3;
+alter table ups drop foreign key FKhy3cd5se2avt08upapu19y1g6;
 alter table ups drop foreign key FKjcmu4x6x02r0tc1d28xb3nf17;
 alter table ups drop foreign key FKr3t1gbo2e42oleaqeastvv5ej;
 alter table ups_req drop foreign key FK1b5veu90oftv8o95nxx2xndpb;

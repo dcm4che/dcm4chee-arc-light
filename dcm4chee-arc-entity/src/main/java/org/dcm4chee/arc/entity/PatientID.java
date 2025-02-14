@@ -63,6 +63,7 @@ import org.dcm4che3.data.Issuer;
                 "order by pid.pk")
 @Entity
 @Table(name = "patient_id",
+        uniqueConstraints = @UniqueConstraint(columnNames = { "pat_id", "entity_id", "entity_uid", "entity_uid_type" }),
         indexes = {
                 @Index(columnList = "pat_id"),
                 @Index(columnList = "entity_id"),
@@ -81,16 +82,19 @@ public class PatientID {
     @Column(name = "version")
     private long version;    
 
-    @Basic(optional=false)
+    @Basic(optional = false)
     @Column(name = "pat_id")
     private String id;
 
+    @Basic(optional = false)
     @Column(name = "entity_id")
     private String localNamespaceEntityID;
 
+    @Basic(optional = false)
     @Column(name = "entity_uid")
     private String universalEntityID;
 
+    @Basic(optional = false)
     @Column(name = "entity_uid_type")
     private String universalEntityIDType;
 

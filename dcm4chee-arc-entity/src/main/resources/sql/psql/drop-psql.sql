@@ -1,3 +1,4 @@
+set client_min_messages = WARNING;
 alter table if exists content_item drop constraint if exists FKfra6ee5jtybfp94ldpvva623o;
 alter table if exists content_item drop constraint if exists FK7rpy6unnb5b18b8ieuqr9w9i9;
 alter table if exists content_item drop constraint if exists FKei15n1lk1h1e8f89e9ubalm7q;
@@ -54,6 +55,7 @@ alter table if exists study drop constraint if exists FKndwmntu3lsjd78erctnbposy
 alter table if exists study_query_attrs drop constraint if exists FKmu32jq25y6qkimi7hn7d4s2hp;
 alter table if exists subscription drop constraint if exists FKh9mdhriyx32gr91pfdgnl48f0;
 alter table if exists ups drop constraint if exists FKaddby69vtwxpssgaa12ct6pn3;
+alter table if exists ups drop constraint if exists FKhy3cd5se2avt08upapu19y1g6;
 alter table if exists ups drop constraint if exists FKjcmu4x6x02r0tc1d28xb3nf17;
 alter table if exists ups drop constraint if exists FKr3t1gbo2e42oleaqeastvv5ej;
 alter table if exists ups_req drop constraint if exists FK1b5veu90oftv8o95nxx2xndpb;
