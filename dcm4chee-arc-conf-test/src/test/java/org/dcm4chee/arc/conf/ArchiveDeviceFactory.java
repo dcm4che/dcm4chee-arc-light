@@ -465,6 +465,7 @@ class ArchiveDeviceFactory {
             Tag.SegmentSequence,
             Tag.QuantityDefinitionSequence,
             Tag.AuthorObserverSequence,
+            Tag.ViewPosition,
             Tag.ViewCodeSequence,
             Tag.SharedFunctionalGroupsSequence,
             Tag.PerFrameFunctionalGroupsSequence
