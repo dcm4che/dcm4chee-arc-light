@@ -1,0 +1,24 @@
+version: 1
+
+dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 00185101
+dcmTag: 00400280
+
+dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 00185101
+dcmTag: 00400280
+dcmTag: 00540220
+dcmTag: 52009229
+dcmTag: 52009230
+
+dn: dcmEntity=Instance,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 00185101
+dcmTag: 00540220
+dcmTag: 52009229
+dcmTag: 52009230
