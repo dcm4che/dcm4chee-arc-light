@@ -303,21 +303,6 @@ class StoreServiceImpl implements StoreService {
         LOG.debug("{}: Enter postUpdateDB", storeSession);
         Instance instance = result.getCreatedInstance();
         if (instance != null) {
-            Patient createdPatient = result.getCreatedPatient();
-            if (createdPatient != null) {
-                Collection<IDWithIssuer> pids = IDWithIssuer.pidsOf(ctx.getAttributes());
-                if (pids != null) {
-                    try {
-                        if (patientService.deleteDuplicateCreatedPatient(
-                                pids, createdPatient, result.getCreatedStudy())) {
-                            result.setCreatedPatient(null);
-                        }
-                    } catch (Exception e) {
-                        LOG.warn("{}: Failed to remove duplicate created {}:\n",
-                                storeSession, createdPatient, e);
-                    }
-                }
-            }
             storeSession.cacheSeries(instance.getSeries());
         }
         commitStorage(result);
