@@ -9,9 +9,9 @@
       display: inline-block;
       height: 30px;
       &.scheduled{
-        background: -moz-linear-gradient(top,  rgba(21, 70, 109, 0.75) 0%, rgba(6, 29, 47, 0.84) 100%);
-        background: -webkit-linear-gradient(top,  rgba(21, 70, 109, 0.75) 0%,rgba(6, 29, 47, 0.84) 100%);
-        background: linear-gradient(to bottom,  rgba(21, 70, 109, 0.75) 0%,rgba(6, 29, 47, 0.84) 100%);
+        background: -moz-linear-gradient(top,  rgba(21, 70, 109, 0.75) 0%, var(--backgroundHoverColor) 100%);
+        background: -webkit-linear-gradient(top,  rgba(21, 70, 109, 0.75) 0%,var(--backgroundHoverColor) 100%);
+        background: linear-gradient(to bottom,  rgba(21, 70, 109, 0.75) 0%,var(--backgroundHoverColor) 100%);
         filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#165596', endColorstr='#0F2C4A',GradientType=0 );
       }
       &.scheduled-for-retry{

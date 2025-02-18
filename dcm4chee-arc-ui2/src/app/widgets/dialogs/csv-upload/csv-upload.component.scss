@@ -2,11 +2,11 @@
   h5{
     font-size: 22px;
     font-weight: bold;
-    color: rgba(6, 29, 47, 0.84);
+    color: var(--backgroundHoverColor);
   }
   .form_control{
-    padding: 5px 0px;
-    margin-bottom: 10px;
+    padding: 2px 0px;
+    margin-bottom: 0px;
     float: left;
     width: 100%;
     label{
@@ -15,13 +15,16 @@
       text-align: right;
       padding-right: 10px;
     }
-    .mat-select,.mat-mdc-select,input, range-picker{
+    .mat-select,.mat-mdc-select,input, range-picker, dcm-drop-down{
       width: 60%;
       float: right;
     }
     input[type=checkbox]{
       width: 15px;
       float: left;
+      height: 25px;
+      margin: 0;
+      padding: 0;
     }
     .mat-select, .mat-mdc-select{
       border:none;
@@ -43,6 +46,30 @@
     .csv_upload_loader{
       position: absolute;
       left: 7px;
+    }
+  }
+}
+.csv_preview{
+  width: 100%;
+  display: block;
+  max-height: 183px;
+  float: left;
+  overflow: auto;
+  border: 1px solid #5b5b5b;
+  margin: 10px 0;
+  table{
+    border-collapse: collapse;
+    table, th, td {
+      border: 1px solid #cccccc;
+    }
+    td{
+      padding: 0 2px;
+      &.active{
+        background:#999;
+      }
+      &:hover{
+        cursor: pointer;
+      }
     }
   }
 }

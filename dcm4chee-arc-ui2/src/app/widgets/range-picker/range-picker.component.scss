@@ -1,4 +1,4 @@
-$backgroundColor:rgba(6, 29, 47, 0.84);
+$backgroundColor:var(--backgroundColor);
 .range_picker{
   position: relative;
   height: 30px;

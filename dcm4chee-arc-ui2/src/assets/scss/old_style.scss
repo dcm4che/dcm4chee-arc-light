@@ -1,5 +1,4 @@
-$hoverBlue:#5293C1;
-$blue:#061d2f;
+//$blue:#061d2f;
 
 body{
   a{
@@ -29,7 +28,6 @@ body{
 	    top: 0;
 	    width: 100%;
 	    z-index: -1;
-
 	}
 	.main_content{
 		background: rgba(255, 255, 255, 0.85) none repeat scroll 0 0;
@@ -78,7 +76,7 @@ body{
 	}
 }
 ul.nav#mainmenu {
-    background: rgba(27, 42, 53, 0.95) none repeat scroll 0 0;
+    background: var(--backgroundColor) none repeat scroll 0 0;
     -moz-box-shadow: 0px 0px 21px 2px #000000;
     -webkit-box-shadow: 0px 0px 21px 2px #000000;
     box-shadow: 0px 0px 21px 2px #000000;
@@ -142,7 +140,7 @@ ul.nav#mainmenu {
 	}
 }
 .toggle-button.out {
-	background: rgba(6, 29, 47, 0.88);
+	background: var(--backgroundHoverColor);
 	-moz-box-shadow: 5px 2px 7px 3px #7e7e7e;
 	-webkit-box-shadow: 5px 2px 7px 3px #7e7e7e;
 	box-shadow: 5px 2px 7px 3px #7e7e7e;
@@ -180,7 +178,7 @@ ul.nav#mainmenu {
 #showDeviceForm.active_dropbox:focus
  {
  	outline: 0;
-    background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
+    background: var(--backgroundHoverColor) none repeat scroll 0 0;
     border: 1px solid #00526d;
     -moz-box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
     -webkit-box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
@@ -199,7 +197,7 @@ ul.nav#mainmenu {
 	.btn {
 	    //background: rgba(54, 54, 54, 0.55) none repeat scroll 0 0;
 	    //border: 1px solid #ccc;
-	    background: rgba(6, 29, 47, 0.84);
+	    background: var(--backgroundHoverColor);
 		border:1px solid #2e6da4;
 	    color: #ffffff;
 	    display: block;
@@ -251,7 +249,7 @@ device and create an other one with the new name*/
 		     background: rgba(255, 255, 255, 0.63);
 		}
 		.btn-primary,.save, .btn{
-			background: rgba(6, 29, 47, 0.84);
+			background: var(--backgroundHoverColor);
 			border:1px solid #2e6da4;
 			border-radius:0;
 		}
@@ -488,7 +486,7 @@ device and create an other one with the new name*/
     	font-weight: bold;
 	}
 	.vex-dialog-button-primary.vex-dialog-button.vex-dialog-button-primary.vex-first {
-	    background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
+	    background: var(--backgroundHoverColor) none repeat scroll 0 0;
 	    border-radius: 0;
 	    color: white;
 	}
@@ -503,7 +501,7 @@ device and create an other one with the new name*/
 	background-size: 11px auto;
 	margin:0 auto;
 	&:hover{
-		background: url(../img/echo_black.png);
+		background: url(../img/echo_black.png) !important;
 		background-repeat: no-repeat;
 		background-position: center;
 		background-size: 11px auto;
@@ -621,7 +619,7 @@ device and create an other one with the new name*/
 		    border-color: #296ba0;
 		    color: #fff;
 		    background: url(../img/info.png);
-    		background-color: rgba(28, 36, 43, 0.92);
+    		background-color: var(--backgroundColor);
 			background-size:55px;
 			background-position: 15px center;
 			background-repeat: no-repeat;
@@ -629,7 +627,7 @@ device and create an other one with the new name*/
               color:#fff;
             }
 			&:hover{
-	    		background-color: rgb(28, 36, 43);
+	    		background-color: var(--backgroundColorWithoutTransparence);
 			}
 
     	}
@@ -1969,7 +1967,7 @@ app-studies{
     .checkbox_button{
       color: #000;
       span{
-        color: rgba(6, 29, 47, 0.84);
+        color: var(--backgroundHoverColor);
       }
     }
   }
@@ -1980,11 +1978,11 @@ app-studies{
     &:hover{
       color: #000000;
       span{
-        color: rgba(6, 29, 47, 0.84);
+        color: var(--backgroundHoverColor);
       }
     }
     &.active{
-      background:rgba(6, 29, 47, 0.84);
+      background:var(--backgroundHoverColor);
       color:white;
       span {
         color: white;
@@ -2010,7 +2008,7 @@ app-studies{
           color:black;
         }
         &:hover{
-          background: rgba(6, 29, 47, 0.84);
+          background: var(--backgroundHoverColor);
           color:white;
           cursor:pointer;
           span{
@@ -2035,7 +2033,7 @@ app-studies{
           list-style: none;
           background: white;
           &:hover{
-            background: rgba(6, 29, 47, 0.84);
+            background: var(--backgroundHoverColor);
             color:white;
             cursor:pointer;
           }
@@ -2047,7 +2045,7 @@ app-studies{
       }
     }
     &:hover{
-      background: rgba(6, 29, 47, 0.84);
+      background: var(--backgroundHoverColor);
       color:white;
     }
     i{
@@ -2120,7 +2118,7 @@ app-studies{
         color:#a6a6a6;
           &:hover{
             cursor: pointer;
-            color: $blue;
+            color: var(--blue);
           }
       }
 	 //    .btn {
@@ -2215,7 +2213,7 @@ app-studies{
 		    height: 30px;
 		    width: 20%;
 		    border: 1px solid #aaa;
-		    background:rgba(6, 29, 47, 0.84);
+		    background:var(--backgroundHoverColor);
 		    color: white;
 		}
 		.optionlist {
@@ -2242,7 +2240,7 @@ app-studies{
       md-select{
         width:100%;
         .mat-select:focus:not(.mat-select-disabled) .mat-select-underline{
-          background-color: $blue;
+          background-color: var(--blue);
         }
       }
 	}
@@ -2571,7 +2569,7 @@ div[tooltip]{
 		}
 	}
   .mat-progress-spinner path, .mat-spinner path,.mat-progress-spinner svg circle{
-    stroke:$blue;
+    stroke:var(--blue);
   }
 }
 .orderbydateasc{
@@ -2865,7 +2863,7 @@ table.j4care-table{
 		    background:white;
 		}
 		button{
-			background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
+			background: var(--backgroundHoverColor) none repeat scroll 0 0;
 		    border: 1px solid #ccc;
 		    color: white;
 		    border-radius:0;
@@ -2879,7 +2877,7 @@ table.j4care-table{
 		}
 	}
 	.adddevice{
-	  	background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
+	  	background: var(--backgroundHoverColor) none repeat scroll 0 0;
 	    border: 1px solid #ccc;
 	    color: white;
 	    height: 27px;
@@ -3255,7 +3253,7 @@ input.ng-invalid, .has-error .form-control{
 					padding:0 !important;
 					float: left;
 					button{
-					    background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
+					    background: var(--backgroundHoverColor) none repeat scroll 0 0;
 					    border-radius: 0;
 					    color: white;
 					    height: 26px;
@@ -3438,7 +3436,7 @@ input.ng-invalid, .has-error .form-control{
 	    font-size: 15px;
 	    font-weight: bold;
 	    &:hover{
-	    	color: rgba(6, 29, 47, 0.84);
+	    	color: var(--backgroundHoverColor);
 	    }
 	}
 	.input{
@@ -3664,7 +3662,7 @@ input.ng-invalid, .has-error .form-control{
 	}
     .toggle_button {
 	   //background: #bbb none repeat scroll 0 0;
-	    background: #2e4150 none repeat scroll 0 0;
+	    background: var(--lightBlueNoTransparence) none repeat scroll 0 0;
 	    border-bottom-left-radius: 5px;
 	    border-top-left-radius: 5px;
 	    -moz-box-shadow:-3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
@@ -3866,7 +3864,7 @@ color:white;*/
 .vex.vex-theme-os.registernewaet{
 	.vex-content{
 		.vex-dialog-button-primary.vex-dialog-button.vex-first{
-			background: rgba(6, 29, 47, 0.84);
+			background: var(--backgroundHoverColor);
 		    border-radius: 0;
 		    color: white;
 		    // height: 26px;
@@ -3908,7 +3906,7 @@ color:white;*/
             border-top:1px solid #ddd;
           }
 		    h4 {
-			    background: rgba(6, 29, 47, 0.84);
+			    background: var(--backgroundHoverColor);
 			    -moz-box-shadow: 1px 6px 6px -3px #a3a1a1;
 			    -webkit-box-shadow: 1px 6px 6px -3px #a3a1a1;
 			    box-shadow: 1px 6px 6px -3px #a3a1a1;

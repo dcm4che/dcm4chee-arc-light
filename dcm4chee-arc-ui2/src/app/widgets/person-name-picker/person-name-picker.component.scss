@@ -107,6 +107,9 @@
     input{
       color:black;
     }
+    input::placeholder{
+      color:black;
+    }
   }
   .dicom_components{
     display: grid;

@@ -11,7 +11,7 @@ $height:27px;
     background:transparent;
   }
   .filter_button{
-    background: rgba(28, 36, 43, 0.92);
+    background: var(--backgroundColor);
     color: white;
     position: absolute;
     top: 0;
@@ -47,14 +47,14 @@ $height:27px;
   box-shadow: 7px 10px 10px 5px #444;
   padding: 20px 15px;
   min-width: 560px;
-  border-top: 20px solid rgba(6, 29, 47, 0.84);
+  border-top: 20px solid var(--backgroundHoverColor);
   border-top-right-radius: 5px;
   border-top-left-radius: 5px;
   h5{
     font-size: 18px;
   }
   .set_button{
-    background: rgba(6, 29, 47, 0.84);
+    background: var(--backgroundHoverColor);
     color: white;
     border: 0;
     width: 24%;

@@ -52,7 +52,7 @@ dcm-select{
         width:100%;
         height:30px;
         &:hover{
-          background: #2c404f;
+          background: var(--lightBlueNoTransparence);
           color: white;
           cursor: pointer;
         }
