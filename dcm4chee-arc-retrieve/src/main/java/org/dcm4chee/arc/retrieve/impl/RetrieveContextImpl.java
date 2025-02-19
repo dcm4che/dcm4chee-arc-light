@@ -98,6 +98,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private Series.MetadataUpdate metadataUpdate;
     private String[] sopInstanceUIDs = {};
     private Location.ObjectType objectType = Location.ObjectType.DICOM_FILE;
+    private boolean retrieveMetadata;
     private int numberOfMatches;
     private final List<InstanceLocations> matches = new ArrayList<>();
     private final List<StudyInfo> studyInfos = new ArrayList<>();
@@ -735,7 +736,12 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public boolean isRetrieveMetadata() {
-        return objectType == null;
+        return retrieveMetadata;
+    }
+
+    @Override
+    public void setRetrieveMetadata(boolean retrieveMetadata) {
+        this.retrieveMetadata = retrieveMetadata;
     }
 
     @Override

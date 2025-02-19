@@ -274,6 +274,8 @@ public interface RetrieveContext extends Closeable {
 
     boolean isRetrieveMetadata();
 
+    void setRetrieveMetadata(boolean retrieveMetadata);
+
     HttpServletRequestInfo getHttpServletRequestInfo();
 
     void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
