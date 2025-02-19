@@ -710,6 +710,7 @@ public class WadoRS {
                     HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata()) {
                 ctx.setObjectType(null);
+                ctx.setRetrieveMetadata(true);
                 ctx.setMetadataFilter(metadataFilter);
                 ctx.setWithoutPrivateAttributes(withoutPrivateAttributes(ae));
             }
