@@ -44,6 +44,87 @@ describe('StudyService', () => {
   it('should be created', inject([StudyService], (service: StudyService) => {
     expect(service).toBeTruthy();
   }));
+  it('should get the patient identifier', inject([StudyService], (service: StudyService) => {
+    expect(service.getPatientIdentifierOf(
+        {
+            "00100020": {
+                "vr": "LO",
+                "Value": [
+                    "1395056"
+                ]
+            },
+            "00100021": {
+                "vr": "LO",
+                "Value": [
+                    "2.16.840.1.113883.2.4.6.1.6020502.1.1"
+                ]
+            },
+            "00100024": {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00400032": {
+                            "vr": "UT",
+                            "Value": [
+                                "2.16.840.1.113883.2.4.6.1.6020502.1.1"
+                            ]
+                        },
+                        "00400033": {
+                            "vr": "CS",
+                            "Value": [
+                                "ISO"
+                            ]
+                        },
+                        "00400035": {
+                            "vr": "CS",
+                            "Value": [
+                                "PAT_CODE"
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    )).toBe("1395056^^^2.16.840.1.113883.2.4.6.1.6020502.1.1&2.16.840.1.113883.2.4.6.1.6020502.1.1&ISO&PAT_CODE");
+      expect(service.getPatientIdentifierOf(
+          {
+              "00100020": {
+                  "vr": "LO",
+                  "Value": [
+                      "1395056"
+                  ]
+              },
+              "00100021": {
+                  "vr": "LO",
+                  "Value": [
+                      "2.16.840.1.113883.2.4.6.1.6020502.1.1"
+                  ]
+              },
+              "00100024": {
+                  "vr": "SQ",
+                  "Value": [
+                      {
+                          "00400032": {
+                              "vr": "UT",
+                              "Value": [
+                                  "2.16.840.1.113883.2.4.6.1.6020502.1.1"
+                              ]
+                          },
+                          "00400033": {
+                              "vr": "CS",
+                              "Value": [
+                                  "ISO"
+                              ]
+                          },
+                          "00400035": {
+                              "vr": "CS"
+                          }
+                      }
+                  ]
+              }
+          }
+      )).toBe("1395056^^^2.16.840.1.113883.2.4.6.1.6020502.1.1&2.16.840.1.113883.2.4.6.1.6020502.1.1&ISO");
+  }));
 
   it("Has Study Web Service web service class", inject([StudyService], (service: StudyService) => {
       let studyWebService:any = {
