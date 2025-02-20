@@ -173,7 +173,7 @@ export class StudyService {
                 patientId += '&' + attrs['00100024'].Value[0]['00400033'].Value[0];
             }
             if (_.hasIn(attrs, '["00100024"].Value[0]["00400035"].Value[0]') && _.get(attrs, '["00100024"].Value[0]["00400035"].Value[0]') != "") {
-                patientId += '&' + attrs['00100024'].Value[0]['00400035'].Value[0];
+                patientId += '^' + attrs['00100024'].Value[0]['00400035'].Value[0];
             }
             return _.replace(patientId,"/","%2F");
         } else {
