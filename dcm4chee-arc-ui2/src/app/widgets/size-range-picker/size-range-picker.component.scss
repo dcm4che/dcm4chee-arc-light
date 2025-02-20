@@ -1,5 +1,5 @@
-$backgroundColor:rgba(28, 36, 43, 0.92);
-$backgroundColorHover:rgba(28, 36, 43, 1);
+$backgroundColor:var(--backgroundColor);
+$backgroundColorHover:var(--backgroundColorHover);
 
 .size_range_picker{
   position: relative;

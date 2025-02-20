@@ -3,11 +3,29 @@
 //@import "~bootstrap/dist/css/bootstrap.min.css";
 @import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 
-$green :#2FA6C1;
-$lightBlue:rgba(6, 29, 47, 0.84);
-$lightBlueNoTransparence:#2c404f;
-$blue:#061d2f;
-$hoverBlue:#5293C1;
+:root{
+  /*black design*/
+  --backgroundColor:rgba(28, 36, 43, 0.92);
+  --backgroundHoverColor:rgba(6, 29, 47, 0.84);
+  --backgroundColorWithoutTransparence:rgb(28, 36, 43);
+  /*white design*/
+  --pink:rgba(82, 36, 88, 0.85);
+  --backgroundColorWhite:rgba(255, 255, 255, 0.65);
+  --backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
+  --dashboardBackground:rgba(83, 103, 119, 0.92);
+  --dashboardSecondBackground: rgba(6, 29, 47, 0.71);
+  --dashboardTertiaryBackground:rgba(53, 65, 74, 0.92);
+
+  --tableSelectColor:rgba(67, 139, 173, 0.88);
+  --studiesTableHover:#9fa4a9;
+  --green :#2FA6C1;
+  --lightBlue:var(--backgroundColor);
+  --darkBlue:var(--backgroundHoverColor);
+  --lightBlueNoTransparence:#2c404f;
+  --blue:var(--backgroundHoverColor);
+  --hoverBlue:#5293C1;
+}
+
 
 @media screen and (min-width: 600px) {
   .filter{
@@ -72,7 +90,7 @@ $hoverBlue:#5293C1;
         &.active{
           a{
             margin-right:0px;
-            background: $lightBlueNoTransparence;
+            background: var(--lightBlueNoTransparence);;
             color: white;
             -webkit-border-radius: 0px;
             -moz-border-radius: 0px;
@@ -473,7 +491,7 @@ table-bordered, .table-bordered{
 
 
 /*progress{
-  background: rgba(6, 29, 47, 0.84);
+  background: var(--backgroundHoverColor);
 }*/
 .xroad_icon{
   background-image: url("assets/img/icon-xroad_black.svg");
@@ -524,7 +542,7 @@ table-bordered, .table-bordered{
   }
 }
 .active_breadcrumb{
-  background: rgba(6, 29, 47, 0.68);
+  background: var(--backgroundHoverColor);
   color: white;
   text-align: left;
   padding: 0 22px;
@@ -548,7 +566,7 @@ progress {
   margin: 10px 2px;
   padding: 2px;
   border: 0 none;
-  background: rgba(45, 64, 79, 0.56);
+  background: var(--backgroundColor);
   border-radius: 14px;
   -webkit-box-shadow: inset  0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
   -moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
@@ -556,7 +574,7 @@ progress {
 }
 progress::-moz-progress-bar {
   border-radius: 12px;
-  background: rgba(6, 29, 47, 0.84);
+  background: var(--backgroundHoverColor);
   box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);
 
 }
@@ -571,7 +589,7 @@ progress::-webkit-progress-bar {
 }
 progress::-webkit-progress-value {
   border-radius: 12px;
-  background: rgba(6, 29, 47, 0.84);
+  background: var(--backgroundHoverColor);
   box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);
 }
 .check_block,.send_block{
@@ -612,16 +630,16 @@ input.ng-invalid:focus{
 }
 p-calendar{
   button.ui-button,.ui-button:focus{
-    background: rgba(6, 29, 47, 0.84);
-    border: 1px solid rgba(6, 29, 47, 0.84);
+    background: var(--backgroundHoverColor);
+    border: 1px solid var(--backgroundHoverColor);
   }
   .ui-calendar button:enabled:hover{
-    background: rgba(6, 29, 47, 0.84);
-    border: 1px solid rgba(6, 29, 47, 0.84);
+    background: var(--backgroundHoverColor);
+    border: 1px solid var(--backgroundHoverColor);
   }
 }
 .clock{
-  background: rgba(6, 29, 47, 0.88);
+  background: var(--backgroundHoverColor);
   -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
   -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
   box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
@@ -678,7 +696,7 @@ p-calendar{
       margin-bottom: 10px;
       position: absolute;
       right: 10px;
-      background: rgba(6, 29, 47, 0.88);
+      background: var(--backgroundHoverColor);
       list-style: none;
       padding: 0;
       -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
@@ -833,7 +851,7 @@ p-calendar{
   color: #333333;
   border:1px solid #cccccc;
   &.active{
-    background:rgba(6, 29, 47, 0.84);
+    background:var(--backgroundHoverColor);
     border: none;
     color: white;
     .mat-checkbox-checked.mat-accent .mat-checkbox-background, .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background{
@@ -859,7 +877,7 @@ p-calendar{
   }*/
 }
 .csv_button{
-  background:rgba(6, 29, 47, 0.84);
+  background:var(--backgroundHoverColor);
   color: white;
   padding-left: 1vw;
   &:hover{
@@ -903,7 +921,7 @@ body{
   -moz-osx-font-smoothing: grayscale;
 }
 .mat-checkbox:not(.mat-checkbox-disabled).mat-accent .mat-checkbox-ripple .mat-ripple-element{
-  background-color: rgba(55, 79, 96, 0.26) !important;
+  background-color: var(--backgroundColor) !important;
 }
 
 mat-sidenav-layout{
@@ -962,31 +980,31 @@ mat-grid-list{
 }
 
 .mat-radio-checked .mat-radio-outer-circle{
-  border-color:$blue;
+  border-color:var(--blue);
 }
 .mat-radio-inner-circle{
-  background:$blue;
+  background:var(--blue);
 }
 .mat-checkbox-checked.mat-accent .mat-checkbox-background{
-  background:$blue;
+  background:var(--blue);
 }
 .mat-select:focus:not(.mat-select-disabled) {
   .mat-select-trigger, .mat-mdc-select-trigger{
-    color: $blue;
+    color: var(--blue);
   }
 }
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar{
-  background-color: $blue !important;
+  background-color: var(--blue) !important;
 }
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb{
-  background-color: $blue !important;
+  background-color: var(--blue) !important;
 }
 .mat-select:focus:not(.mat-select-disabled) .mat-select-underline,
 .mat-option.mat-selected, .mat-option.mat-selected:focus,.mat-option.mat-selected:active,
 .mat-select-arrow,
 .mat-select:focus:not(.mat-select-disabled) {
   .mat-select-trigger, .mat-mdc-select-trigger{
-    color: $blue;
+    color: var(--blue);
   }
 }
 .mat-select-trigger, .mat-mdc-select-trigger{
@@ -1188,7 +1206,7 @@ mat-grid-list{
   height: 40px;
   vertical-align: middle;
   line-height: 40px;
-  color: $lightBlue;
+  color: var(--lightBlue);
   &.left{
     left:25px;
   }
@@ -1200,7 +1218,7 @@ mat-grid-list{
   }
 }
 .mat-progress-spinner path, .mat-spinner path{
-  stroke: $lightBlue;
+  stroke: var(--lightBlue);
 }
 .subtable{
   width: 100%;
@@ -1252,7 +1270,7 @@ mat-grid-list{
   li{
     a{
       &.active{
-        background: rgba(32, 46, 58, 0.45);
+        background: var(--backgroundColor);
       }
     }
   }
@@ -1260,8 +1278,8 @@ mat-grid-list{
 
 .slim-loading-bar{
   .slim-loading-bar-progress{
-    background:$green;
-    color:$green;
+    background:var(--green);
+    color:var(--green);
     position: fixed;
     left: 0;
     top: 0;
@@ -1272,8 +1290,8 @@ mat-progress-circle, [_nghost-nyg-8]{
   height:25px !important;
   svg{
     path{
-      color:$green;
-      stroke:$green;
+      color:var(--green);
+      stroke:var(--green);
     }
   }
 }
@@ -1507,17 +1525,17 @@ iod-form-generator{
     padding: 0.75em 2em;
     text-transform: uppercase;
     &.save{
-      background: $lightBlue;
+      background: var(--lightBlue);
       color: white;
       &[disabled] {
         color: #888;
-        background: rgba(6, 29, 47, 0.74);
+        background: var(--backgroundHoverColor);
         &:hover{
-          background: rgba(6, 29, 47, 0.74);
+          background: var(--backgroundHoverColor);
         }
       }
       &:hover{
-        background:$blue;
+        background:var(--blue);
       }
       &.btn-danger{
         background:#da3a36;
@@ -1681,7 +1699,7 @@ p-calendar select{
   max-height: inherit;
 }
 mat-dialog-container, mat-mdc-dialog-container{
-  border-top: 20px solid $lightBlue;
+  border-top: 20px solid var(--lightBlue);
   border-radius: 5px;
   background:white;
   &.mat-dialog-container, &.mat-mdc-dialog-container{
@@ -1724,7 +1742,7 @@ mat-form-field, mat-mdc-form-field{
     .mat-icon{
       height: 40px;
       .glyphicon.glyphicon-calendar{
-        background: rgba(28, 36, 43, 0.92);
+        background: var(--backgroundColor);
         color: white;
         height: 25px;
         line-height: 25px;
@@ -1737,7 +1755,7 @@ mat-form-field, mat-mdc-form-field{
   height: 40px;
 }
 .mat-calendar-body-selected {
-  background-color: rgba(6, 29, 47, 0.84);
+  background-color: var(--backgroundHoverColor);
   color: #fff;
 }
 /*.cdk-overlay-container{
@@ -1745,7 +1763,7 @@ mat-form-field, mat-mdc-form-field{
     top: 5% !important;
     transform: translateX(-50%) translateX(0px) translateY(0px) !important;
     mat-dialog-container{
-      border-top: 20px solid $lightBlue;
+      border-top: 20px solid var(--lightBlue);
       border-radius: 5px;
     }
   }
@@ -1755,7 +1773,7 @@ mat-form-field, mat-mdc-form-field{
     top: 5% !important;
     transform: translateX(-50%) translateX(0px) translateY(0px) !important;
     mat-dialog-container, mat-mdc-dialog-container{
-      border-top: 20px solid $lightBlue;
+      border-top: 20px solid var(--lightBlue);
       border-radius: 5px;
     }
   }
@@ -1767,7 +1785,7 @@ mat-form-field, mat-mdc-form-field{
   h5{
     font-size: 22px;
     font-weight: bold;
-    color: rgba(6, 29, 47, 0.84);
+    color: var(--backgroundHoverColor);
   }
 }
 .filter{
@@ -1787,7 +1805,7 @@ mat-form-field, mat-mdc-form-field{
         float: right;
       }
       &:hover{
-        background:rgba(6, 29, 47, 0.84);
+        background:var(--backgroundHoverColor);
         color: white;
         cursor: pointer;
       }
@@ -2002,13 +2020,13 @@ mat-form-field, mat-mdc-form-field{
 }
 .queues,.monitoring{
   .btn-default.submit{
-    background:$lightBlue;
+    background:var(--lightBlue);
     color:white;
     -webkit-border-radius:0;
     -moz-border-radius:0;
     border-radius:0;
     &:hover{
-      background: $lightBlue;
+      background: var(--lightBlue);
     }
   }
   .btn-danger{
@@ -2129,17 +2147,17 @@ mat-form-field, mat-mdc-form-field{
   box-shadow: 2px 1px 4px #666666;
   text-align: center;
   height: 32px;
-  color: $blue;
+  color: var(--blue);
   position: relative;
   width: 131px;
   &:hover{
-    background:$lightBlue;
+    background:var(--lightBlue);
     color:white;
     border:none;
   }
   i{
     font-size: 18px;
-    color: $blue;
+    color: var(--blue);
     position: absolute;
     left: 15px;
   }
@@ -2182,10 +2200,10 @@ mat-form-field, mat-mdc-form-field{
     &[disabled] {
       div.submit{
         color: #888;
-        background: rgba(6, 29, 47, 0.74);
+        background: var(--backgroundHoverColor);
         opacity:1;
         &:hover{
-          background: rgba(6, 29, 47, 0.74);
+          background: var(--backgroundHoverColor);
         }
       }
     }
@@ -2193,30 +2211,30 @@ mat-form-field, mat-mdc-form-field{
       float: right;
       width: 150px;
       height: 30px;
-      background:$lightBlue;
+      background:var(--lightBlue);
       color:white;
       border-radius: 0;
       line-height: 30px;
       padding: 0;
       margin-top:20px;
-      background: $lightBlue;
+      background: var(--lightBlue);
       /*      &[disabled] {
               color: #888;
-              background: rgba(6, 29, 47, 0.74);
+              background: var(--backgroundHoverColor);
               opacity:1;
               &:hover{
-                background: rgba(6, 29, 47, 0.74);
+                background: var(--backgroundHoverColor);
               }
             }*/
       &:hover{
         cursor:pointer;
-        background:$blue;
+        background:var(--blue);
       }
     }
   }
 }
 [_nghost-c6]   .mat-progress-bar-fill[_ngcontent-c6]::after,.mat-progress-bar-fill::after{
-  background:$lightBlue;
+  background:var(--lightBlue);
 }
 .upload{
   input{
@@ -2253,7 +2271,7 @@ mat-form-field, mat-mdc-form-field{
     cursor: pointer;
     color:white;
     text-decoration: none;
-    background: $lightBlue;
+    background: var(--lightBlue);
   }
 }
 .dynamicform{
@@ -2280,7 +2298,7 @@ mat-form-field, mat-mdc-form-field{
       transition: 0.2s all ;
       &:hover{
         cursor: pointer;
-        background: $lightBlue;
+        background: var(--lightBlue);
       }
     }
     .vendordata_delete{
@@ -2303,7 +2321,7 @@ mat-form-field, mat-mdc-form-field{
       &:hover{
         color:white;
         cursor: pointer;
-        background: $lightBlue;
+        background: var(--lightBlue);
       }
     }
     .vendordata_replace{
@@ -2326,7 +2344,7 @@ mat-form-field, mat-mdc-form-field{
       &:hover{
         color:white;
         cursor: pointer;
-        background: $lightBlue;
+        background: var(--lightBlue);
       }
     }
     &:hover {
@@ -2351,7 +2369,7 @@ mat-form-field, mat-mdc-form-field{
       .vendordata_button{
         color:white;
         cursor: pointer;
-        background: $lightBlue;
+        background: var(--lightBlue);
         color: white;
         width:80%;
       }
@@ -2421,7 +2439,7 @@ mat-form-field, mat-mdc-form-field{
   text-align: center;
   color: #333333;
   &:hover{
-    background:$lightBlue;
+    background:var(--lightBlue);
     color: white;
     cursor: pointer;
     text-decoration: none;
@@ -2458,7 +2476,7 @@ mat-form-field, mat-mdc-form-field{
       line-height: 14px;
       vertical-align: middle;
       margin-right: 5px;
-      color: $blue;
+      color: var(--blue);
     }
     .prefix_breadcrumb,.suffix_breadcrumb{
       position: absolute;
@@ -2559,10 +2577,10 @@ mat-form-field, mat-mdc-form-field{
 }
 .btn-breadcrumb{
   .btn:not(:last-child):hover{
-    background:$lightBlueNoTransparence;
+    background:var(--lightBlueNoTransparence);
     color:white;
-    border-top: 1px solid $lightBlueNoTransparence;
-    border-bottom: 1px solid $lightBlueNoTransparence;
+    border-top: 1px solid var(--lightBlueNoTransparence);;
+    border-bottom: 1px solid var(--lightBlueNoTransparence);;
     i.breadcrumb_icon{
       color:white;
     }
@@ -2621,7 +2639,7 @@ mat-form-field, mat-mdc-form-field{
   .btn.btn-default:not(:last-child):after {
     border-left: 10px solid #fff;
     &:hover{
-      background:$lightBlueNoTransparence;
+      background:var(--lightBlueNoTransparence);;
       color:white;
     }
   }
@@ -2629,10 +2647,10 @@ mat-form-field, mat-mdc-form-field{
     border-left: 10px solid #ccc;
   }
   .btn.btn-default:not(:last-child):hover:after {
-    border-left: 10px solid $lightBlueNoTransparence;
+    border-left: 10px solid var(--lightBlueNoTransparence);;
   }
   .btn.btn-default:not(:last-child):hover:before {
-    border-left: 10px solid $lightBlueNoTransparence;
+    border-left: 10px solid var(--lightBlueNoTransparence);;
   }
 
 }
@@ -2651,7 +2669,7 @@ mat-form-field, mat-mdc-form-field{
     line-height: 30px;
 
     &:hover{
-      background:$lightBlue;
+      background:var(--lightBlue);
       cursor:pointer;
       color:white;
     }
@@ -2765,7 +2783,7 @@ mat-form-field, mat-mdc-form-field{
       }
       &:hover{
         cursor: pointer;
-        background: $lightBlue;
+        background: var(--lightBlue);
         color:white;
       }
       &.delete,&.add{
@@ -2857,7 +2875,7 @@ mat-form-field, mat-mdc-form-field{
             }
             &:hover{
               color: white;
-              background:rgba(6, 29, 47, 0.84);
+              background:var(--backgroundHoverColor);
             }
           }
           .clone_button{
@@ -2912,7 +2930,7 @@ mat-form-field, mat-mdc-form-field{
         }
         &:hover{
           cursor: pointer;
-          background: $lightBlue;
+          background: var(--lightBlue);
           color:white;
         }
       }
@@ -2968,7 +2986,7 @@ mat-form-field, mat-mdc-form-field{
       transition: 0.2s visibility, opacity 0.2s linear ;
       &:hover{
         cursor: pointer;
-        background: $lightBlue;
+        background: var(--lightBlue);
         color:white;
       }
       i{
@@ -3026,7 +3044,7 @@ mat-form-field, mat-mdc-form-field{
       }
       &:hover{
         cursor: pointer;
-        background: $lightBlue;
+        background: var(--lightBlue);
         color:white;
       }
     }
@@ -3038,7 +3056,7 @@ mat-form-field, mat-mdc-form-field{
   }
   .toggle{
     h4{
-      background: $lightBlue;
+      background: var(--lightBlue);
       box-shadow: 1px 6px 6px -3px #a3a1a1;
       color: white !important;
       display: block;
@@ -3061,7 +3079,7 @@ mat-form-field, mat-mdc-form-field{
   }
 }
 .blue_color{
-  color:$lightBlue;
+  color:var(--lightBlue);
 }
 .red_color{
   color:#da3a36;;
@@ -3071,7 +3089,7 @@ mat-form-field, mat-mdc-form-field{
   width: 100%;
 }
 .bluebar{
-  background: $lightBlue;
+  background: var(--lightBlue);
   box-shadow: 1px 6px 6px -3px #a3a1a1;
   color: white !important;
   display: block;
@@ -3099,7 +3117,7 @@ mat-form-field, mat-mdc-form-field{
       width: 100%;
       .th{
         float: left;
-        background: $lightBlue;
+        background: var(--lightBlue);
         color:white;
         box-sizing: border-box;
         padding: 5px 2px 5px 7px;
@@ -3110,7 +3128,7 @@ mat-form-field, mat-mdc-form-field{
   }
   .table_body{
     .tr{
-      border-bottom: 1px solid $lightBlue;
+      border-bottom: 1px solid var(--lightBlue);
       float: left;
       width: 100%;
       &:last-child{
@@ -3203,7 +3221,7 @@ mat-dialog-container{
     margin-bottom: 20px;
     font-weight: bold;
     font-size:22px;
-    color: $lightBlue;
+    color: var(--lightBlue);
   }
   .queued{
     float: left;
@@ -3225,14 +3243,14 @@ mat-dialog-container{
       vertical-align: middle;
       line-height: 30px;
       height: 33px;
-      color: $lightBlue;
+      color: var(--lightBlue);
       ::ng-deep .mat-checkbox-background {
-        background-color: $lightBlue;
+        background-color: var(--lightBlue);
       }
 
       ::ng-deep &.mat-checkbox-focused{
         .mat-ink-ripple{
-          background-color: $lightBlue;
+          background-color: var(--lightBlue);
         }
       }
 
@@ -3247,7 +3265,7 @@ mat-dialog-container{
     .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background:hover .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background:active,
     .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background:active,
     .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background:active {
-      background-color:$lightBlue;
+      background-color:var(--lightBlue);
     }
   }
   .table{
@@ -3279,7 +3297,7 @@ mat-dialog-container{
           background:#ccc;
         }
         &.active.diff_line{
-          background:rgba(33, 56, 74, 0.76);
+          background:var(--backgroundColor);
         }
         td{
           padding: 1px 11px;
@@ -3305,17 +3323,17 @@ mat-dialog-container{
     .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background:hover .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background:active,
     .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background:active
     {
-      background-color:$lightBlue;
+      background-color:var(--lightBlue);
     }
     mat-checkbox, mat-mdc-checkbox {
-      color: $lightBlue;
+      color: var(--lightBlue);
       ::ng-deep .mat-checkbox-background {
-        background-color: $lightBlue;
+        background-color: var(--lightBlue);
       }
 
       ::ng-deep &.mat-checkbox-focused{
         .mat-ink-ripple, .mat-mdc-ink-ripple{
-          background-color: $lightBlue;
+          background-color: var(--lightBlue);
         }
       }
     }
@@ -3341,12 +3359,12 @@ mat-dialog-container{
       border: 0 none;
       border-radius: 0px;
       text-transform: uppercase;
-      background: $lightBlue;
+      background: var(--lightBlue);
       height:30px;
       line-height:30px;
       color: white;
       &:hover{
-        background: $blue;
+        background: var(--blue);
       }
       &[disabled]{
         background: gray;
@@ -3398,21 +3416,21 @@ mat-dialog-container{
           color: #888;
         }
       }
-      color:$lightBlue;
+      color:var(--lightBlue);
       &:hover{
-        color: rgba(13, 39, 60, 0.84);
+        color: var(--backgroundHoverColor);
         cursor: pointer;
       }
     }
   }
   .diff_line{
-    background:rgba(36, 71, 98, 0.31);
+    background:var(--backgroundColor);
     color:black;
   }
   .first_diff,.second_diff{
     float: left;
     width:49%;
-    border:1px solid $lightBlue;
+    border:1px solid var(--lightBlue);
     box-sizing: border-box;
     //padding: 20px 15px;
   }
@@ -3437,14 +3455,14 @@ mat-dialog-container{
       float: left;
       display: inline-block;
       text-transform: uppercase;
-      background: $lightBlue;
+      background: var(--lightBlue);
       height:30px;
       line-height:30px;
       color: white;
       text-align: center;
       margin-bottom: 1px;
       &:hover{
-        background: $blue;
+        background: var(--blue);
         cursor: pointer;
       }
     }
@@ -3480,7 +3498,7 @@ mat-dialog-container{
         text-align: left;
         padding-left: 15%;
         .mat-checkbox-background, .mat-mdc-checkbox-background{
-          background-color:rgba(6, 29, 47, 0.84);
+          background-color:var(--backgroundHoverColor);
         }
       }
     }
@@ -3505,7 +3523,7 @@ mat-dialog-container{
 .bluecontent {
   float: left;
   width: 100%;
-  border: 1px solid $lightBlue;
+  border: 1px solid var(--lightBlue);
   border-top: none;
   box-sizing: border-box;
   //padding:20px 10px;
@@ -3591,12 +3609,12 @@ mat-dialog-container, mat-mdc-dialog-container{
   overflow: hidden !important;
 }
 .left_arrow, .right_arrow{
-  color: rgba(28, 36, 43, 0.60);
+  color: var(--backgroundColor);
   &.active{
-    color: rgba(28, 36, 43, 0.85);
+    color: var(--backgroundHoverColor);
     &:hover{
       cursor: pointer;
-      color: rgba(28, 36, 43,1);
+      color: var(--backgroundColorWithoutTransparence);
     }
   }
 }
@@ -3634,10 +3652,12 @@ mat-dialog-container, mat-mdc-dialog-container{
   -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
   -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
   box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  position: relative;
+  z-index: 1;
 }
 .filter{
   .btn-default.submit{
-    background: rgba(6, 29, 47, 0.84);
+    background: var(--backgroundHoverColor);
     color: white;
     border-radius: 0;
   }
@@ -3670,7 +3690,7 @@ mat-dialog-container, mat-mdc-dialog-container{
     }
     .btn_content{
       .btn{
-        background: rgba(6, 29, 47, 0.84);
+        background: var(--backgroundHoverColor);
         color: white;
         border: 0;
         width: 24%;
@@ -3704,7 +3724,7 @@ mat-dialog-container, mat-mdc-dialog-container{
         cursor: pointer;
       }
       &.active{
-        background: $lightBlue;
+        background: var(--lightBlue);
         color:white;
       }
     }
@@ -3715,12 +3735,12 @@ mat-dialog-container, mat-mdc-dialog-container{
   button{
     border-radius: 0;
     width: 100%;
-    background: $lightBlue;
+    background: var(--lightBlue);
     height: 30px;
     line-height: 30px;
     padding: 0;
     &:hover,&:active{
-      background: $blue;
+      background: var(--blue);
     }
   }
 }
@@ -3822,12 +3842,11 @@ dicom-list{
   }
 }
 /* New black and white design*/
-$pink:rgba(82, 36, 88, 0.85);
-$backgroundColor:rgba(28, 36, 43, 0.92);
-$backgroundHoverColor:rgba(6, 29, 47, 0.84);
+//$backgroundColor:var(--backgroundColor);
+
 .studies-stored.statistics{
   filter-generator{
-    background: rgba(28, 36, 43, 0.92);
+    background: var(--backgroundColor);
     float: left;
     width: 100%;
     color: white;
@@ -3891,8 +3910,8 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     height:28px;
   }
   .tab-content{
-    //background: rgba(28, 36, 43, 0.92);
-    //background: linear-gradient(to bottom, rgba(83, 103, 119, 0.92) 0%, rgba(28, 36, 43, 0.92) 100%);
+    //background: var(--backgroundColor);
+    //background: linear-gradient(to bottom, rgba(83, 103, 119, 0.92) 0%, var(--backgroundColor) 100%);
     float: left;
     box-sizing: border-box;
     width: 100%;
@@ -4124,7 +4143,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
        }
        & > .placeholder{
          flex-grow: 1;
-         background: $backgroundColor;
+         background: var(--backgroundColor);
        }*/
 
   }
@@ -4159,7 +4178,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
       max-height: 1000px;*/
       .tr {
         &.selected{
-          background:rgba(67, 139, 173, 0.88);
+          background:var(--tableSelectColor);
         }
         .td{
           .text_content{
@@ -4254,7 +4273,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
     padding: 0;
     list-style: none;
 /*    li{
-      background:rgba(28, 36, 43, 0.92);
+      background:var(--backgroundColor);
       margin: 2px 0px;
       padding: 3px 10px 0 10px;
       line-height: 25px;*/
@@ -4446,7 +4465,7 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
 
 }
 .mat-pseudo-checkbox-checked.mat-pseudo-checkbox-minimal::after, .mat-pseudo-checkbox-indeterminate.mat-pseudo-checkbox-minimal::after{
-  color: rgba(28, 36, 43, 0.92) !important;
+  color: var(--backgroundColor) !important;
 }
 .mat-mdc-option{
   min-height: 30px !important;
@@ -4455,28 +4474,29 @@ $backgroundHoverColor:rgba(6, 29, 47, 0.84);
   color:#e16a3b;
 }
 /*White design color START*/
-$pink:rgba(82, 36, 88, 0.85);
-$backgroundColorWhite:rgba(255, 255, 255, 0.65);
-$backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
+//$pink:var(--pink);
+//$backgroundColorWhite:rgba(255, 255, 255, 0.65);
+//$backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
+
 .white_design{
   background: transparent !important;
   ul.nav-tabs{
     li.active{
       & > a{
-        background: $backgroundColorWhite;
+        background: var(--backgroundColorWhite);
         color:black;
       }
     }
     li:not(.active){
       a:hover{
-        background: $backgroundHoverColorWhite;
+        background: var(--backgroundHoverColorWhite);
         color: black;
       }
     }
   }
   .checkbox_button{
     &:hover {
-      background:rgba(28, 36, 43, 0.92);
+      background:var(--backgroundColor);
       .mat-checkbox-frame, .mat-mdc-checkbox-frame{
         border-color: rgba(68, 68, 68, 0.6);
       }
@@ -4484,7 +4504,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         background-color: rgba(28, 36, 43, 0.45);
       }
       .mat-checkbox-checkmark-path, .mat-mdc-checkbox-checkmark-path{
-        stroke: rgba(28, 36, 43, 0.92);
+        stroke: var(--backgroundColor);
       }
     }
 
@@ -4505,14 +4525,14 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     fill: #5b5b5b;
     background: transparent;
     .long_loader{
-      background: $pink;
+      background: var(--pink);
     }
     .charts,h2, h3, h4, .main_sub_content{
-      background: $backgroundColorWhite;
+      background: var(--backgroundColorWhite);
     }
     .charts, .main_sub_content{
       .download_csv{
-        background: rgba(28, 36, 43, 0.92);
+        background: var(--backgroundColor);
         color: rgba(255, 255, 255, 0.90);
       }
     }
@@ -4533,7 +4553,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       &.auto_reloader .option_block button .mat-progress-spinner.mat-progress-spinner-indeterminate-animation[mode=indeterminate] circle,
       &.auto_reloader .option_block button .mat-mdc-progress-spinner.mat-mdc-progress-spinner-indeterminate-animation[mode=indeterminate] circle
       {
-        stroke:rgba(28, 36, 43, 0.92);;
+        stroke:var(--backgroundColor);;
       }
       &.auto_reloader .option_block .interval_block input{
         background: transparent;
@@ -4550,7 +4570,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       }
       .line{
         .mat-progress-spinner circle,.mat-mdc-progress-spinner circle{
-          stroke: rgba(28, 36, 43, 0.92);
+          stroke: var(--backgroundColor);
         }
         .input_group_dropdown{
           input{
@@ -4565,7 +4585,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       .size_range_picker{
         .size_range_icon{
           background-image: url("assets/img/size_range_white.png");
-          background-color: rgba(28, 36, 43, 0.92);
+          background-color: var(--backgroundColor);
           background-repeat: no-repeat;
           background-position: center;
           &:hover{
@@ -4586,11 +4606,11 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       color: rgba(255, 255, 255, 0.61);
       ul li:hover{
         color:rgb(22, 29, 35);
-        background: rgba(28, 36, 43, 0.92);
+        background: var(--backgroundColor);
       }
     }
     .btn-default.submit{
-      background: rgba(28, 36, 43, 0.92);
+      background: var(--backgroundColor);
       color: rgba(255, 255, 255, 0.90);
       &:hover{
         background: rgb(22, 29, 35);
@@ -4598,7 +4618,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       }
     }
     .range_picker  .main_input_block  .glyphicon-calendar {
-      background: rgba(28, 36, 43, 0.92) !important;
+      background: var(--backgroundColor) !important;
       color: rgba(255, 255, 255, 0.9) !important;
       &:hover{
         background: rgb(22, 29, 35) !important;
@@ -4606,7 +4626,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       }
     }
     .checkbox_button{
-      background: rgba(28, 36, 43, 0.92);
+      background: var(--backgroundColor);
       color: rgba(255, 255, 255, 0.90);
       &:hover{
         background: rgb(22, 29, 35);
@@ -4614,7 +4634,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       }
     }
     .csv_button{
-      background: rgba(28, 36, 43, 0.92);
+      background: var(--backgroundColor);
       color: rgba(255, 255, 255, 0.90);
       .custom_icon{
         &.csv_icon{
@@ -4645,12 +4665,12 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     }
   }
   .filter_line{
-    background:$backgroundColorWhite;
+    background:var(--backgroundColorWhite);
   }
   .dynamic_table{
     .table_header {
       .tr{
-        background: rgba(28, 36, 43, 0.92);
+        background: var(--backgroundColor);
         .th{
           background: transparent;
           overflow: hidden;
@@ -4659,10 +4679,10 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     }
     .table_body {
       .tr {
-        background: $backgroundColorWhite;
+        background: var(--backgroundColorWhite);
         .td{
           a, a span{
-            color: rgba(28, 36, 43, 0.92);
+            color: var(--backgroundColor);
             &:hover{
               color:rgb(22, 29, 35);
             }
@@ -4674,7 +4694,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   .j4care-table{
     thead {
       tr{
-        background: rgba(28, 36, 43, 0.92);
+        background: var(--backgroundColor);
         th{
           background: transparent;
         }
@@ -4685,10 +4705,10 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       overflow: auto;
       max-height: 65vh;
       tr {
-        background: $backgroundColorWhite;
+        background: var(--backgroundColorWhite);
         td{
           a, a span{
-            color: rgba(28, 36, 43, 0.92);
+            color: var(--backgroundColor);
             &:hover{
               color:rgb(22, 29, 35);
             }
@@ -4704,10 +4724,10 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
   .checkbox_button.active .mat-checkbox-checked.mat-accent .mat-checkbox-background, .checkbox_button.active .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
   .checkbox_button.active .mat-mdc-checkbox-checked.mat-mdc-accent .mat-mdc-checkbox-background, .checkbox_button.active .mat-mdc-checkbox-indeterminate.mat-mdc-accent .mat-mdc-checkbox-background
   {
-    background-color:$backgroundColorWhite;
+    background-color:var(--backgroundColorWhite);
   }
   .more{
-    background: rgba(28, 36, 43, 0.92);
+    background: var(--backgroundColor);
     color: rgba(255, 255, 255, 0.90);
     &:hover{
       background: rgb(22, 29, 35);
@@ -4728,7 +4748,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     box-shadow:   5px 3px 13px 0px rgba(68, 68, 68, 0.93);
     tr{
       th{
-        background: rgba(28, 36, 43, 0.92);
+        background: var(--backgroundColor);
         color: white;
         a{
           color:white;
@@ -4743,11 +4763,11 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         }
       }
       td{
-        background:$backgroundColorWhite;
+        background:var(--backgroundColorWhite);
         color: black;
         border: 1px solid rgba(0, 0, 0, 0.18);
         .crud_button{
-          background: rgba(28, 36, 43, 0.92);
+          background: var(--backgroundColor);
           color: white;
           i {
             color: white;
@@ -4772,11 +4792,11 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       -webkit-box-shadow:   5px 3px 13px 0px rgba(68, 68, 68, 0.93);
       -moz-box-shadow:  5px 3px 13px 0px rgba(68, 68, 68, 0.93);
       box-shadow:  5px 3px 13px 0px rgba(68, 68, 68, 0.93);
-      color:rgba(28, 36, 43, 0.92);
+      color:var(--backgroundColor);
     }
     .chart-legend .legend-label, text{
-      fill:rgba(28, 36, 43, 0.92);
-      color:rgba(28, 36, 43, 0.92);
+      fill:var(--backgroundColor);
+      color:var(--backgroundColor);
       &:hover{
         fill: rgb(22, 29, 35);
         color: rgb(22, 29, 35);
@@ -4784,7 +4804,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     }
   }
   .crud_button{
-    background: rgba(28, 36, 43, 0.92);
+    background: var(--backgroundColor);
     color: white;
     i {
       color: white;
@@ -4806,35 +4826,35 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
     -webkit-box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
     -moz-box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
     box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
-    background: $backgroundColorWhite;
+    background: var(--backgroundColorWhite);
     .mat-radio-button{
-      border-right: 1px solid rgba(28, 36, 43, 0.92);
+      border-right: 1px solid var(--backgroundColor);
       .mat-radio-label{
-        color: rgba(28, 36, 43, 0.92);
+        color: var(--backgroundColor);
         .mat-radio-container{
-          color: rgba(28, 36, 43, 0.92);
+          color: var(--backgroundColor);
           .mat-radio-outer-circle{
-            color: rgba(28, 36, 43, 0.92);
-            border-color:rgba(28, 36, 43, 0.92);
+            color: var(--backgroundColor);
+            border-color:var(--backgroundColor);
           }
           .mat-radio-inner-circle{
-            background-color: rgba(28, 36, 43, 0.92);
+            background-color: var(--backgroundColor);
           }
         }
       }
     }
     .mat-mdc-radio-button{
-      border-right: 1px solid rgba(28, 36, 43, 0.92);
+      border-right: 1px solid var(--backgroundColor);
       .mat-mdc-radio-label{
-        color: rgba(28, 36, 43, 0.92);
+        color: var(--backgroundColor);
         .mat-mdc-radio-container{
-          color: rgba(28, 36, 43, 0.92);
+          color: var(--backgroundColor);
           .mat-mdc-radio-outer-circle{
-            color: rgba(28, 36, 43, 0.92);
-            border-color:rgba(28, 36, 43, 0.92);
+            color: var(--backgroundColor);
+            border-color:var(--backgroundColor);
           }
           .mat-mdc-radio-inner-circle{
-            background-color: rgba(28, 36, 43, 0.92);
+            background-color: var(--backgroundColor);
           }
         }
       }
@@ -4887,13 +4907,13 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
       color: black;
     }
     .ui-chkbox-box.ui-state-active{
-      border: 1px solid rgba(28, 36, 43, 0.92);
-      background: rgba(28, 36, 43, 0.92);
+      border: 1px solid var(--backgroundColor);
+      background: var(--backgroundColor);
       color: #FFFFFF;
     }
     .ui-state-highlight{
-      border-color: rgba(6, 29, 47, 0.84);
-      background: rgba(6, 29, 47, 0.84);
+      border-color: var(--backgroundHoverColor);
+      background: var(--backgroundHoverColor);
       color: #FFFFFF;
     }
   }
@@ -4925,7 +4945,7 @@ $backgroundHoverColorWhite:rgba(255, 255, 255, 0.80);
         line-height: 25px;
         margin: 1px;
         background: rgba(204, 204, 204, 1);
-        //background: rgba(28, 36, 43, 0.92);
+        //background: var(--backgroundColor);
         //color: rgba(255, 255, 255, 0.9);
         -webkit-box-shadow: 3px 3px 12px 0px black;
         -moz-box-shadow: 3px 3px 12px 0px black;

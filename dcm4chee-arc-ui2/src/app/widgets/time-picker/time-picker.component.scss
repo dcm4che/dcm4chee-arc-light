@@ -30,7 +30,7 @@
         width: 100%;
         margin: 15px 0;
         button.btn{
-            background: rgba(6, 29, 47, 0.84);
+            background: var(--backgroundHoverColor);
             color: white;
             border: 0;
             //width: 24%;
@@ -57,7 +57,7 @@
         display: inline-block;
         width:26px;
         height:26px;
-        background-color: rgba(6, 29, 47, 0.84);
+        background-color: var(--backgroundHoverColor);
         color: white;
         text-align: center;
         float: right;

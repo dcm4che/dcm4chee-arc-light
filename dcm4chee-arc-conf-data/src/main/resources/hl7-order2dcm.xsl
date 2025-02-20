@@ -343,16 +343,12 @@
     </DicomAttribute>
   </xsl:template>
 
-  <xsl:template name="spsDescProtocolCode">
-    <xsl:param name="spsSiblings"/>
-    <xsl:param name="spsIDField"/>
+  <xsl:template name="spsDescProtocolCodeOBR">
+    <xsl:param name="obr"/>
     <xsl:param name="spsDescCodeField"/>
     <xsl:param name="offset" select="0"/>
-
-    <xsl:variable name="firstSiblingSPSID" select="$spsSiblings[1]/field[$spsIDField]"/>
-    <xsl:variable name="codedEntry" select="$spsSiblings[1]/field[$spsDescCodeField]"/>
+    <xsl:variable name="codedEntry" select="$obr/field[$spsDescCodeField]"/>
     <xsl:variable name="desc" select="$codedEntry/component[$offset+1]"/>
-
     <xsl:call-template name="trimmedAttr">
       <xsl:with-param name="tag" select="'00400007'"/>
       <xsl:with-param name="vr" select="'LO'"/>
@@ -363,19 +359,13 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
-
     <!-- Scheduled Protocol Step Description and Code Sequence -->
     <DicomAttribute tag="00400008" vr="SQ">
-      <xsl:for-each select="$spsSiblings">
-        <xsl:if test="string(field[$spsIDField]/text()) = $firstSiblingSPSID">
-          <xsl:variable name="siblingPosition" select="position()"/>
-          <xsl:call-template name="sps-protocol">
-            <xsl:with-param name="itemNo" select="$siblingPosition"/>
-            <xsl:with-param name="codedEntry" select="field[$spsDescCodeField]"/>
-            <xsl:with-param name="offset" select="$offset"/>
-          </xsl:call-template>
-        </xsl:if>
-      </xsl:for-each>
+      <xsl:call-template name="sps-protocol">
+        <xsl:with-param name="itemNo" select="1"/>
+        <xsl:with-param name="codedEntry" select="$codedEntry"/>
+        <xsl:with-param name="offset" select="$offset"/>
+      </xsl:call-template>
     </DicomAttribute>
   </xsl:template>
 
@@ -433,9 +423,8 @@
           <xsl:with-param name="cn" select="$spsScheduledPhysician"/>
         </xsl:call-template>
         <!-- Scheduled Protocol Step Description and Code Sequence -->
-        <xsl:call-template name="spsDescProtocolCode">
-          <xsl:with-param name="spsSiblings" select="following-sibling::OBR"/>
-          <xsl:with-param name="spsIDField" select="'20'"/>
+        <xsl:call-template name="spsDescProtocolCodeOBR">
+          <xsl:with-param name="obr" select="$obr"/>
           <xsl:with-param name="spsDescCodeField" select="'4'"/>
           <xsl:with-param name="offset">
             <xsl:choose>

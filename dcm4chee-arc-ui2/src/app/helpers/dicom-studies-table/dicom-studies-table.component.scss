@@ -1,5 +1,5 @@
-$hoverColor:#9fa4a9;
-$pink:rgba(82, 36, 88, 0.85);
+$hoverColor:var(--studiesTableHover);
+$pink:var(--pink);
 
 .j4care_dynamic_table{
   float: left;
@@ -8,7 +8,7 @@ $pink:rgba(82, 36, 88, 0.85);
   .th{
     width: 100%;
     float: left;
-    background: rgba(28, 36, 43, 0.92);
+    background: var(--backgroundColor);
     color:white;
     -webkit-box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
     -moz-box-shadow:    5px 3px 13px 0px rgba(68, 68, 68, 0.93) ;
@@ -163,7 +163,7 @@ $pink:rgba(82, 36, 88, 0.85);
       z-index: 4;
       position: relative;
       &.selected{
-        background:rgba(67, 139, 173, 0.88);
+        background:var(--tableSelectColor);
       }
     }
     &.study_block, &.mwl_block, &.diff_block{

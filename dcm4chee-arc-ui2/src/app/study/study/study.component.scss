@@ -66,14 +66,14 @@
        button{
          width: 35px;
          height: 30px;
-         background: rgba(28, 36, 43, 0.92);
+         background: var(--backgroundColor);
          border: none;
          color: rgba(255, 255, 255, 0.47);
          margin-bottom: 2px;
          -webkit-box-shadow: 4px 4px 11px 0px rgba(28, 36, 43, 0.78);
          -moz-box-shadow: 4px 4px 11px 0px rgba(28, 36, 43, 0.78);
          box-shadow: 4px 4px 11px 0px rgba(28, 36, 43, 0.78);
-         background: rgba(28, 36, 43, 0.92);
+         background: var(--backgroundColor);
          &:hover, &.active{
            color: white;
          }
@@ -95,7 +95,7 @@
      li{
        width: 210px;
        margin-bottom: 2px;
-       background: rgba(28, 36, 43, 0.92);
+       background: var(--backgroundColor);
        button{
          height: 30px;
          line-height: 30px;
@@ -112,3 +112,22 @@
    }
  }
 //}
+.worklist_mwl{
+
+}
+.worklist_study, .worklist_mwl{
+  position: relative;
+  .right_arrow{
+    position: absolute;
+    right: -40px;
+    top: 80%;
+  }
+  .left_arrow{
+    position: absolute;
+    left: -35px;
+    top: 80%;
+  }
+}
+.unwrapped{
+  margin:0;
+}
