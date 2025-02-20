@@ -273,8 +273,10 @@ public class PamRS {
     private boolean isPatientMatch(
             Collection<IDWithIssuer> targetPatientIDs, Collection<IDWithIssuer> trustedPriorPatientIDs) {
         for (IDWithIssuer trustedPriorPatientID : trustedPriorPatientIDs)
-            if (targetPatientIDs.contains(trustedPriorPatientID))
-                return true;
+            for (IDWithIssuer targetPatientID : targetPatientIDs)
+                if (Objects.equals(targetPatientID.getID(), trustedPriorPatientID.getID()) &&
+                        Objects.equals(targetPatientID.getIssuer(), trustedPriorPatientID.getIssuer()))
+                    return true;
 
         return false;
     }
