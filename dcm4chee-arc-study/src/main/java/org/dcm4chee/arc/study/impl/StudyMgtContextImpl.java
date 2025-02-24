@@ -71,6 +71,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private final AttributeFilter seriesAttributeFilter;
     private final AttributeFilter instanceAttributeFilter;
     private final FuzzyStr fuzzyStr;
+    private final boolean updateSeriesMetadata;
     private HttpServletRequestInfo httpRequest;
     private ArchiveAEExtension arcAE;
     private Connection conn;
@@ -101,6 +102,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
         this.seriesAttributeFilter = arcDev.getAttributeFilter(Entity.Series);
         this.instanceAttributeFilter = arcDev.getAttributeFilter(Entity.Instance);
         this.fuzzyStr = arcDev.getFuzzyStr();
+        this.updateSeriesMetadata = arcDev.isUpdateSeriesMetadata();
     }
 
     StudyMgtContextImpl withApplicationEntity(ApplicationEntity ae) {
@@ -136,6 +138,11 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     @Override
     public FuzzyStr getFuzzyStr() {
         return fuzzyStr;
+    }
+
+    @Override
+    public boolean isUpdateSeriesMetadata() {
+        return updateSeriesMetadata;
     }
 
     @Override

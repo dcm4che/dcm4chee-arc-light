@@ -63,6 +63,8 @@ public interface StudyMgtContext {
 
     FuzzyStr getFuzzyStr();
 
+    boolean isUpdateSeriesMetadata();
+
     HttpServletRequestInfo getHttpRequest();
 
     UnparsedHL7Message getUnparsedHL7Message();

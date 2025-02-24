@@ -253,9 +253,11 @@ public class PatientServiceEJB {
                         modified)
                 : attrs,
                 ctx.getAttributeFilter(), true, ctx.getFuzzyStr());
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
-                .setParameter(1, pat)
-                .executeUpdate();
+        if (ctx.isUpdateSeriesMetadata()) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
+                    .setParameter(1, pat)
+                    .executeUpdate();
+        }
     }
 
     public void updatePatientIDs(Patient pat, Collection<IDWithIssuer> patientIDs) {

@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.jivex.export.jivex.report;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Task;
@@ -56,10 +58,12 @@ import java.util.*;
  */
 public class JiveXReportExporter extends AbstractExporter {
     private final JiveXReportExporterEJB ejb;
+    private final Device device;
 
-    protected JiveXReportExporter(ExporterDescriptor descriptor, JiveXReportExporterEJB ejb) {
+    protected JiveXReportExporter(ExporterDescriptor descriptor, JiveXReportExporterEJB ejb, Device device) {
         super(descriptor);
         this.ejb = ejb;
+        this.device = device;
     }
 
     @Override
@@ -108,11 +112,15 @@ public class JiveXReportExporter extends AbstractExporter {
         }
         predecessorDocumentsSequence.add(predecessorDocumentsItem);
         received.getAttributesBlob().setAttributes(attrs);
-        ejb.updateAttributesBlob(received);
+        ejb.updateAttributesBlob(received, getArchiveDeviceExtension().isUpdateSeriesMetadata());
         return new Outcome(Task.Status.COMPLETED,
                 "Added references to " + insts.size() +
                         " Predecessor Documents to Encapsulated PDF[uid=" + iuid +
                         "] of Study[uid=" + suid + "].");
+    }
+
+    private ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
     private static Sequence refSOPSeq(Sequence refSeriesSeq, Instance inst) {

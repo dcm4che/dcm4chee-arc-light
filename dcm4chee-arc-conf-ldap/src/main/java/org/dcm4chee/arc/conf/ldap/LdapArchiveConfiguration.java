@@ -95,6 +95,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getBulkDataDescriptorID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSeriesMetadataStorageID",
                 ext.getSeriesMetadataStorageIDs());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUpdateSeriesMetadata",
+                ext.isUpdateSeriesMetadata(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataDelay",
                 ext.getSeriesMetadataDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataPollingInterval",
@@ -594,6 +596,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFuzzyAlgorithmClass(LdapUtils.stringValue(attrs.get("dcmFuzzyAlgorithmClass"), null));
         ext.setBulkDataDescriptorID(LdapUtils.stringValue(attrs.get("dcmBulkDataDescriptorID"), null));
         ext.setSeriesMetadataStorageIDs(LdapUtils.stringArray(attrs.get("dcmSeriesMetadataStorageID")));
+        ext.setUpdateSeriesMetadata(LdapUtils.booleanValue(attrs.get("dcmUpdateSeriesMetadata"), true));
         ext.setSeriesMetadataDelay(toDuration(attrs.get("dcmSeriesMetadataDelay"), null));
         ext.setSeriesMetadataPollingInterval(toDuration(attrs.get("dcmSeriesMetadataPollingInterval"), null));
         ext.setSeriesMetadataFetchSize(LdapUtils.intValue(attrs.get("dcmSeriesMetadataFetchSize"), 100));
@@ -979,6 +982,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSeriesMetadataStorageID",
                 aa.getSeriesMetadataStorageIDs(),
                 bb.getSeriesMetadataStorageIDs());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUpdateSeriesMetadata",
+                aa.isUpdateSeriesMetadata(),
+                bb.isUpdateSeriesMetadata(),
+                true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataDelay",
                 aa.getSeriesMetadataDelay(), bb.getSeriesMetadataDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataPollingInterval",

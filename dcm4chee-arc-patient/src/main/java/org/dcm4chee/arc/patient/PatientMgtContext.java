@@ -68,6 +68,8 @@ public interface PatientMgtContext {
 
     FuzzyStr getFuzzyStr();
 
+    boolean isUpdateSeriesMetadata();
+
     Association getAssociation();
 
     UnparsedHL7Message getUnparsedHL7Message();

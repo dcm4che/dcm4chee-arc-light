@@ -44,6 +44,7 @@ package org.dcm4chee.arc.jivex.export.jivex.report;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
@@ -60,8 +61,11 @@ public class JiveXReportExporterProvider implements ExporterProvider {
     @Inject
     JiveXReportExporterEJB ejb;
 
+    @Inject
+    private Device device;
+
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new JiveXReportExporter(descriptor, ejb);
+        return new JiveXReportExporter(descriptor, ejb, device);
     }
 }

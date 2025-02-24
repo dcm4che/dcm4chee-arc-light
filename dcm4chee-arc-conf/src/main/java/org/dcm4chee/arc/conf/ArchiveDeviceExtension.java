@@ -88,6 +88,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String bulkDataDescriptorID;
     private volatile String[] seriesMetadataStorageIDs = {};
     private volatile Duration seriesMetadataDelay;
+    private volatile boolean updateSeriesMetadata = true;
     private volatile Duration seriesMetadataPollingInterval;
     private volatile int seriesMetadataFetchSize = 100;
     private volatile int seriesMetadataThreads = 1;
@@ -579,6 +580,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setSeriesMetadataDelay(Duration seriesMetadataDelay) {
         this.seriesMetadataDelay = seriesMetadataDelay;
+    }
+
+    public boolean isUpdateSeriesMetadata() {
+        return updateSeriesMetadata;
+    }
+
+    public void setUpdateSeriesMetadata(boolean updateSeriesMetadata) {
+        this.updateSeriesMetadata = updateSeriesMetadata;
     }
 
     public Duration getSeriesMetadataPollingInterval() {
@@ -3655,6 +3664,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         bulkDataDescriptorID = arcdev.bulkDataDescriptorID;
         seriesMetadataStorageIDs = arcdev.seriesMetadataStorageIDs;
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
+        updateSeriesMetadata = arcdev.updateSeriesMetadata;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
         seriesMetadataThreads = arcdev.seriesMetadataThreads;

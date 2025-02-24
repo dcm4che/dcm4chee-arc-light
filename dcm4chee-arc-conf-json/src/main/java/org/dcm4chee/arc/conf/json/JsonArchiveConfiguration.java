@@ -89,6 +89,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmBulkDataDescriptorID", arcDev.getBulkDataDescriptorID(), null);
         writer.writeNotEmpty("dcmSeriesMetadataStorageID", arcDev.getSeriesMetadataStorageIDs());
         writer.writeNotNullOrDef("dcmSeriesMetadataDelay", arcDev.getSeriesMetadataDelay(), null);
+        writer.writeNotDef("dcmUpdateSeriesMetadata", arcDev.isUpdateSeriesMetadata(), true);
         writer.writeNotNullOrDef("dcmSeriesMetadataPollingInterval", arcDev.getSeriesMetadataPollingInterval(), null);
         writer.writeNotDef("dcmSeriesMetadataFetchSize", arcDev.getSeriesMetadataFetchSize(), 100);
         writer.writeNotDef("dcmSeriesMetadataThreads", arcDev.getSeriesMetadataThreads(), 1);
@@ -1433,6 +1434,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmSeriesMetadataStorageID":
                     arcDev.setSeriesMetadataStorageIDs(reader.stringArray());
+                    break;
+                case "dcmUpdateSeriesMetadata":
+                    arcDev.setUpdateSeriesMetadata(reader.booleanValue());
                     break;
                 case "dcmSeriesMetadataDelay":
                     arcDev.setSeriesMetadataDelay(Duration.valueOf(reader.stringValue()));

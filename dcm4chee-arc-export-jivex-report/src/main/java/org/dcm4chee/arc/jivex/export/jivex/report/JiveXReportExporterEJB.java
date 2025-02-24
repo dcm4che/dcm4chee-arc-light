@@ -64,10 +64,12 @@ public class JiveXReportExporterEJB {
                 .getResultList();
     }
 
-    public void updateAttributesBlob(Instance inst) {
+    public void updateAttributesBlob(Instance inst, boolean updateSeriesMetadata) {
         em.merge(inst.getAttributesBlob());
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
-                .setParameter(1, inst.getSeries().getPk())
-                .executeUpdate();
+        if (updateSeriesMetadata) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                    .setParameter(1, inst.getSeries().getPk())
+                    .executeUpdate();
+        }
     }
 }
