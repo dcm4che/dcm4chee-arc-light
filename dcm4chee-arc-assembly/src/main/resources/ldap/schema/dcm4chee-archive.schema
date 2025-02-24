@@ -2876,7 +2876,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.491 NAME 'dcmQidoResultOrderBy'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.490 NAME 'dcmUpdateSeriesMetadata'
+attributetype ( 1.2.40.0.13.1.15.110.3.492 NAME 'dcmUpdateSeriesMetadata'
   DESC 'Indicates to update aggregated Series Metadata on attributes update; true if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
