@@ -40,16 +40,18 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.ActiveParticipant;
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.EventIdentification;
+import org.dcm4che3.audit.ParticipantObjectIdentification;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -128,6 +130,10 @@ class QueryAuditService extends AuditService {
         poi.getParticipantObjectDetail()
             .add(AuditMessages.createParticipantObjectDetail("TransferSyntax", UID.ImplicitVRLittleEndian));
         poi.setParticipantObjectQuery(data);
+        Attributes cFindQueryKeys = cFindQueryKeys(data);
+        if (cFindQueryKeys != null)
+            poi.getParticipantObjectDetail()
+                .add(AuditMessages.createParticipantObjectDetail("CFindQueryReturnKeys", cFindQueryKeys.toString()));
         return poi;
     }
 
@@ -142,6 +148,16 @@ class QueryAuditService extends AuditService {
             data = new byte[0];
         }
         return data;
+    }
+
+    private static Attributes cFindQueryKeys(byte[] data) {
+        try {
+            DicomInputStream dis = new DicomInputStream(new ByteArrayInputStream(data));
+            return dis.readDataset();
+        } catch (IOException e) {
+            LOG.info("Not a DICOM stream \n", e);
+        }
+        return null;
     }
 
     private static ActiveParticipant archive(
