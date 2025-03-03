@@ -947,7 +947,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setKeyValueRetentionPollingInterval(toDuration(attrs.get("dcmKeyValueRetentionPollingInterval"), null));
         ext.setKeyValueRetentionFetchSize(LdapUtils.intValue(attrs.get("dcmKeyValueRetentionFetchSize"), 100));
         ext.setKeyValueRetentionPeriod(toDuration(attrs.get("dcmKeyValueRetentionPeriod"), null));
-        ext.setQStarVerificationStorageID(LdapUtils.stringValue(attrs.get("setQStarVerificationStorageID"), null));
+        ext.setQStarVerificationStorageID(LdapUtils.stringValue(attrs.get("dcmQStarVerificationStorageID"), null));
         ext.setQStarVerificationPollingInterval(toDuration(attrs.get("dcmQStarVerificationPollingInterval"), null));
         ext.setQStarVerificationFetchSize(LdapUtils.intValue(attrs.get("dcmQStarVerificationFetchSize"), 100));
         ext.setQStarVerificationDelay(toDuration(attrs.get("dcmQStarVerificationDelay"), null));
