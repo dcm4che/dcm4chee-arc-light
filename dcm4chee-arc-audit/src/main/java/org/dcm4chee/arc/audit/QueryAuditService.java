@@ -133,7 +133,7 @@ class QueryAuditService extends AuditService {
         Attributes cFindQueryKeys = cFindQueryKeys(data);
         if (cFindQueryKeys != null)
             poi.getParticipantObjectDetail()
-                .add(AuditMessages.createParticipantObjectDetail("CFindQueryReturnKeys", cFindQueryKeys.toString()));
+                .add(AuditMessages.createParticipantObjectDetail("Identifier", cFindQueryKeys.toString()));
         return poi;
     }
 
