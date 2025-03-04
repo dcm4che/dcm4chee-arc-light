@@ -116,8 +116,8 @@ class QueryAuditService extends AuditService {
         poi.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Query);
         poi.getParticipantObjectDetail()
             .add(AuditMessages.createParticipantObjectDetail("QueryEncoding", StandardCharsets.UTF_8.name()));
-        if (auditInfo.getField(AuditInfo.Q_STRING) != null)
-            poi.setParticipantObjectQuery(auditInfo.getField(AuditInfo.Q_STRING).getBytes());
+        if (auditInfo.getField(AuditInfo.QUERY) != null)
+            poi.setParticipantObjectQuery(auditInfo.getField(AuditInfo.QUERY).getBytes());
         return poi;
     }
 

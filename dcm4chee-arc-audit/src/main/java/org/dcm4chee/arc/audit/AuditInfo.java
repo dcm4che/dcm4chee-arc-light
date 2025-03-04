@@ -98,6 +98,7 @@ class AuditInfo {
     static final int STUDY_DESC = 43;
     static final int SERIES_DESC = 44;
     static final int MODALITY = 45;
+    static final int QUERY = 46;
 
     private final String[] fields;
 
@@ -148,7 +149,8 @@ class AuditInfo {
                 encode(i.qrLevel),
                 encode(i.studyDesc),
                 encode(i.seriesDesc),
-                encode(i.modality)
+                encode(i.modality),
+                encode(i.query)
         };
     }
 

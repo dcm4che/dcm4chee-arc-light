@@ -105,6 +105,7 @@ class AuditInfoBuilder {
     final String studyDesc;
     final String seriesDesc;
     final String modality;
+    final String query;
 
     static class Builder {
         private String callingHost;
@@ -153,6 +154,7 @@ class AuditInfoBuilder {
         private String studyDesc;
         private String seriesDesc;
         private String modality;
+        private String query;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -250,6 +252,10 @@ class AuditInfoBuilder {
         }
         Builder queryString(String val) {
             queryString = val;
+            return this;
+        }
+        Builder query(String val) {
+            query = val;
             return this;
         }
         Builder destUserID(String val) {
@@ -395,6 +401,7 @@ class AuditInfoBuilder {
         mppsUID = builder.mppsUID;
         queryPOID = builder.queryPOID;
         queryString = builder.queryString;
+        query = builder.query;
         destUserID = builder.destUserID;
         destNapID = builder.destNapID;
         cMoveOriginator = builder.cMoveOriginator;
