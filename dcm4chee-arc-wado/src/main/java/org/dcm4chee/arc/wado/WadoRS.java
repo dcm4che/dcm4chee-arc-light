@@ -1613,7 +1613,7 @@ public class WadoRS {
             JSONWriter writer = ctx.getArchiveAEExtension().encodeAsJSONNumber(new JSONWriter(gen));
             gen.writeStartArray();
             for (InstanceLocations inst : ctx.getMatches()) {
-                if (inst.getInstancePk() == null || !ctx.copyToRetrieveCache(inst))
+                if (!ctx.copyToRetrieveCache(inst))
                     writer.write(loadMetadata(ctx, inst));
             }
             ctx.copyToRetrieveCache(null);
