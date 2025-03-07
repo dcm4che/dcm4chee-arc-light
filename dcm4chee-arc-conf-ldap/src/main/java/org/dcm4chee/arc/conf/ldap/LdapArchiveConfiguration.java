@@ -2889,6 +2889,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.isStorageThresholdExceedsPermanently(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThresholdExceeded",
                 descriptor.getStorageThresholdExceeded(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleterMinStudyAccessTime",
+                descriptor.getDeleterMinStudyAccessTime(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleterThreads",
                 descriptor.getDeleterThreads(), 1);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageClusterID",
@@ -2965,6 +2967,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.booleanValue(attrs.get("dcmStorageThresholdExceedsPermanently"), true));
                 desc.setStorageThresholdExceeded(
                         LdapUtils.dateTimeValue(attrs.get("dcmStorageThresholdExceeded")));
+                desc.setDeleterMinStudyAccessTime(
+                        LdapUtils.dateTimeValue(attrs.get("dcmDeleterMinStudyAccessTime")));
                 desc.setDeleterThreads(LdapUtils.intValue(attrs.get("dcmDeleterThreads"), 1));
                 desc.setStorageClusterID(LdapUtils.stringValue(attrs.get("dcmStorageClusterID"), null));
                 desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
@@ -3087,6 +3091,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isStorageThresholdExceedsPermanently(), desc.isStorageThresholdExceedsPermanently(), true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThresholdExceeded",
                 prev.getStorageThresholdExceeded(), desc.getStorageThresholdExceeded(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleterMinStudyAccessTime",
+                prev.getDeleterMinStudyAccessTime(), desc.getDeleterMinStudyAccessTime(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreads",
                 prev.getDeleterThreads(), desc.getDeleterThreads(), 1);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageClusterID",

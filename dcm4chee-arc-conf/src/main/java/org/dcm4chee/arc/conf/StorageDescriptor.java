@@ -97,6 +97,7 @@ public final class StorageDescriptor {
     private boolean noDeletionConstraint;
     private boolean storageThresholdExceedsPermanently = true;
     private Date storageThresholdExceeded;
+    private Date deleterMinStudyAccessTime;
     private StorageDuration storageDuration = StorageDuration.PERMANENT;
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
@@ -552,6 +553,14 @@ public final class StorageDescriptor {
 
     public void setStorageClusterID(String storageClusterID) {
         this.storageClusterID = storageClusterID;
+    }
+
+    public Date getDeleterMinStudyAccessTime() {
+        return deleterMinStudyAccessTime;
+    }
+
+    public void setDeleterMinStudyAccessTime(Date deleterMinStudyAccessTime) {
+        this.deleterMinStudyAccessTime = deleterMinStudyAccessTime;
     }
 
     public List<String> getStudyStorageIDs(

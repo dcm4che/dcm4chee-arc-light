@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
@@ -119,6 +120,8 @@ public interface StoreService {
     Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Attributes coerceAttrs,
                              Attributes.UpdatePolicy updatePolicy)
             throws Exception;
+
+    void updateDeviceConfiguration(ArchiveDeviceExtension arcDev);
 
     ZipInputStream openZipInputStream(
             StoreSession session, String storageID, String storagePath, String studyUID)

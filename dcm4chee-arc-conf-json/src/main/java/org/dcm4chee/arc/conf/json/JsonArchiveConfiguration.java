@@ -566,6 +566,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmStorageThresholdExceedsPermanently",
                     st.isStorageThresholdExceedsPermanently(), true);
             writer.writeNotNull("dcmStorageThresholdExceeded", st.getStorageThresholdExceeded());
+            writer.writeNotNull("dcmDeleterMinStudyAccessTime", st.getDeleterMinStudyAccessTime());
             writer.writeNotDef("dcmDeleterThreads", st.getDeleterThreads(), 1);
             writer.writeNotNullOrDef("dcmStorageClusterID", st.getStorageClusterID(), null);
             writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
@@ -2508,6 +2509,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmStorageThresholdExceeded":
                         st.setStorageThresholdExceeded(reader.dateTimeValue());
+                        break;
+                    case "dcmDeleterMinStudyAccessTime":
+                        st.setDeleterMinStudyAccessTime(reader.dateTimeValue());
                         break;
                     case "dcmDeleterThreads":
                         st.setDeleterThreads(reader.intValue());

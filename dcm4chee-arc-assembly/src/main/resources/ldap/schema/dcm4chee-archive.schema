@@ -2882,6 +2882,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.492 NAME 'dcmUpdateSeriesMetadata'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.493 NAME 'dcmDeleterMinStudyAccessTime'
+  DESC 'Least recent access time of Studies for Deletion in format YYYYMMDDHHMMSS.FFFFFF.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -3401,6 +3407,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmStorageThreshold $
     dcmStorageThresholdExceeded $
     dcmStorageThresholdExceedsPermanently $
+    dcmDeleterMinStudyAccessTime $
     dcmDeleterThreshold $
     dcmDeleterThresholdMaxUsableSpace $
     dcmDeleterThresholdBlocksFilePath $
