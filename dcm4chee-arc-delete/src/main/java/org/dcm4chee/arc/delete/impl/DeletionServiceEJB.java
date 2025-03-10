@@ -155,8 +155,7 @@ public class DeletionServiceEJB {
         return query.select(cb.construct(
                 Study.PKUID.class,
                 study.get(Study_.pk),
-                study.get(Study_.studyInstanceUID),
-                study.get(Study_.accessTime)));
+                study.get(Study_.studyInstanceUID)));
     }
 
     public Date minAccessTime(
