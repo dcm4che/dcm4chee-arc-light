@@ -511,6 +511,7 @@
     <module>dcm4chee-arc-export-stow</module>
     <module>dcm4chee-arc-export-wado</module>
     <module>dcm4chee-arc-export-xdsi</module>
+    <module>dcm4chee-arc-fhir</module>
     <module>dcm4chee-arc-hl7</module>
     <module>dcm4chee-arc-hl7-psu</module>
     <module>dcm4chee-arc-hl7-rs</module>

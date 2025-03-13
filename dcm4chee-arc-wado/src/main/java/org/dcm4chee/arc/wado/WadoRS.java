@@ -816,8 +816,9 @@ public class WadoRS {
                 SafeClose.close(compressedFramesOutput);
                 SafeClose.close(decompressFramesOutput);
                 purgeSpoolDirectory();
-            ctx.getRetrieveService().updateLocations(ctx);
-            ctx.setException(throwable);
+                ctx.getRetrieveService().updateLocations(ctx);
+                ctx.getRetrieveService().updateInstanceAvailability(ctx);
+                ctx.setException(throwable);
                 retrieveEnd.fire(ctx);
         });
         Object entity = output.entity(this, target, ctx, frameList, attributePath);
