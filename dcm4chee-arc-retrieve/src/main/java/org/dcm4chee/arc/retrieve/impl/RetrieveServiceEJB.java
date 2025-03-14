@@ -127,13 +127,8 @@ public class RetrieveServiceEJB {
                         ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
                 updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
                         ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
-                if (ctx.getStudyInstanceUID() != null
-                        && em.createNamedQuery(Instance.GREATER_AVAILABILITY_BY_STUDY_IUID, Availability.class)
-                        .setParameter(1, ctx.getStudyInstanceUID())
-                        .setParameter(2, ctx.getUpdateInstanceAvailability())
-                        .setMaxResults(1)
-                        .getResultList()
-                        .isEmpty()) {
+                if (allInstancesAvailableWith(Instance.GREATER_AVAILABILITY_BY_STUDY_IUID,
+                        ctx.getStudyInstanceUID(), ctx.getUpdateInstanceAvailability())) {
                     updateInstanceAvailability(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
                             ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
                 }
@@ -141,22 +136,12 @@ public class RetrieveServiceEJB {
             case IMAGE:
                 updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_SOP_IUID,
                         ctx.getSopInstanceUIDs(), ctx.getUpdateInstanceAvailability());
-                if (ctx.getSeriesInstanceUID() != null
-                        && em.createNamedQuery(Instance.GREATER_AVAILABILITY_BY_SERIES_IUID, Availability.class)
-                                .setParameter(1, ctx.getSeriesInstanceUID())
-                                .setParameter(2, ctx.getUpdateInstanceAvailability())
-                                .setMaxResults(1)
-                                .getResultList()
-                                .isEmpty()) {
+                if (allInstancesAvailableWith(Instance.GREATER_AVAILABILITY_BY_SERIES_IUID,
+                        ctx.getSeriesInstanceUID(), ctx.getUpdateInstanceAvailability())) {
                     updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
                             ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
-                    if (ctx.getStudyInstanceUID() != null
-                            && em.createNamedQuery(Instance.GREATER_AVAILABILITY_BY_STUDY_IUID, Availability.class)
-                                    .setParameter(1, ctx.getStudyInstanceUID())
-                                    .setParameter(2, ctx.getUpdateInstanceAvailability())
-                                    .setMaxResults(1)
-                                    .getResultList()
-                                    .isEmpty()) {
+                    if (allInstancesAvailableWith(Instance.GREATER_AVAILABILITY_BY_STUDY_IUID,
+                            ctx.getStudyInstanceUID(), ctx.getUpdateInstanceAvailability())) {
                         updateInstanceAvailability(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
                                 ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
                     }
@@ -172,5 +157,14 @@ public class RetrieveServiceEJB {
                     .setParameter(2, availability)
                     .executeUpdate();
         }
+    }
+
+    private boolean allInstancesAvailableWith(String name, String uid, Availability availability) {
+        return uid != null && em.createNamedQuery(name, Availability.class)
+                .setParameter(1, uid)
+                .setParameter(2, availability)
+                .setMaxResults(1)
+                .getResultList()
+                .isEmpty();
     }
 }
