@@ -198,11 +198,9 @@ public class StudyServiceEJB {
                             modified)
                         : attrs,
                 filter, true, ctx.getFuzzyStr());
-        if (ctx.isUpdateSeriesMetadata()) {
-            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
-                    .setParameter(1, instance.getSeries().getPk())
-                    .executeUpdate();
-        }
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                .setParameter(1, instance.getSeries().getPk())
+                .executeUpdate();
     }
 
     public void updateStudyRequest(StudyMgtContext ctx) throws StudyMissingException {
