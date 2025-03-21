@@ -185,7 +185,7 @@ public class PurgeStorageScheduler extends Scheduler {
                         BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(usableSpaceUnderflow));
             else
                 LOG.info("Used Space on {} {} above {} - start deleting {}", desc.getStorageDuration(), desc,
-                        BinaryPrefix.formatDecimal(maxUsableSpace), BinaryPrefix.formatDecimal(maxUsableSpace));
+                        BinaryPrefix.formatDecimal(maxUsableSpace), BinaryPrefix.formatDecimal(usedSpaceOverflow));
             while (arcDev.getPurgeStoragePollingInterval() != null
                     && (usableSpaceUnderflow > 0L || usedSpaceOverflow > 0L)
                     && deleteStudies(arcDev, desc, false) > 0) {
@@ -601,6 +601,7 @@ public class PurgeStorageScheduler extends Scheduler {
                         success, skipped, locations.size() - success.get() - skipped.get(), desc);
             }
         } while (locations.size() == fetchSize);
+        LOG.info("Finished deleting {} from {}", BinaryPrefix.formatDecimal(sizeDeleted), desc);
         return sizeDeleted;
     }
 
