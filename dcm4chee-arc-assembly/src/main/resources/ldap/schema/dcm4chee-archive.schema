@@ -2985,6 +2985,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmMatchSOPClassOnInstanceLevel $
     dcmFwdMppsDestination $
     dcmIanDestination $
+    dcmIanTrigger $
     dcmIanDelay $
     dcmIanTimeout $
     dcmIanOnTimeout $
@@ -3483,7 +3484,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
     dcmRejectForDataRetentionExpiry $
     dcmStgCmtSCP $
     dcmIanDestination $
-    dcmIanTrigger $
     dcmRetrieveAET $
     dcmRetrieveLocationUID $
     dcmInstanceAvailability $
