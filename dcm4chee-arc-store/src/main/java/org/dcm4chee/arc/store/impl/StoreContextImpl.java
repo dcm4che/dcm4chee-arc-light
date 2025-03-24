@@ -49,6 +49,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.RejectedInstance;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -88,6 +89,7 @@ class StoreContextImpl implements StoreContext {
     private Availability availability;
     private LocalDate expirationDate;
     private Code impaxReportPatientMismatch;
+    private Study createdStudy;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -351,6 +353,16 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setImpaxReportPatientMismatch(Code impaxReportPatientMismatch) {
         this.impaxReportPatientMismatch = impaxReportPatientMismatch;
+    }
+
+    @Override
+    public Study getCreatedStudy() {
+        return createdStudy;
+    }
+
+    @Override
+    public void setCreatedStudy(Study createdStudy) {
+        this.createdStudy = createdStudy;
     }
 
     @Override

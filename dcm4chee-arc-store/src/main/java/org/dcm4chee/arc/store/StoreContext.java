@@ -6,6 +6,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.RejectedInstance;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
 
@@ -115,6 +116,10 @@ public interface StoreContext {
     Code getImpaxReportPatientMismatch();
 
     void setImpaxReportPatientMismatch(Code impaxReportPatientMismatch);
+
+    Study getCreatedStudy();
+
+    void setCreatedStudy(Study createdStudy);
 
     boolean match(ExportReoccurredInstances exportReoccurredInstances);
 }

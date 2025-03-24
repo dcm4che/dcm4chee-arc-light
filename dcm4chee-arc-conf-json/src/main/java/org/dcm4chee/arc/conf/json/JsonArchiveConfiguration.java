@@ -158,6 +158,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmQidoETag", arcDev.isQidoETag(), false);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcDev.getIanDestinations());
+        writer.writeNotEmpty("dcmIanTrigger", arcDev.getIanTriggers());
         writer.writeNotNullOrDef("dcmIanDelay", arcDev.getIanDelay(), null);
         writer.writeNotNullOrDef("dcmIanTimeout", arcDev.getIanTimeout(), null);
         writer.writeNotDef("dcmIanOnTimeout", arcDev.isIanOnTimeout(), false);
@@ -1304,6 +1305,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmQidoETag", arcAE.getQidoETag());
         writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcAE.getIanDestinations());
+        writer.writeNotEmpty("dcmIanTrigger", arcAE.getIanTriggers());
         writer.writeNotNullOrDef("dcmIanDelay", arcAE.getIanDelay(), null);
         writer.writeNotNullOrDef("dcmIanTimeout", arcAE.getIanTimeout(), null);
         writer.writeNotNull("dcmIanOnTimeout", arcAE.getIanOnTimeout());
@@ -1594,6 +1596,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIanDestination":
                     arcDev.setIanDestinations(reader.stringArray());
+                    break;
+                case "dcmIanTrigger":
+                    arcDev.setIanTriggers(reader.enumArray(IANTrigger.class));
                     break;
                 case "dcmIanDelay":
                     arcDev.setIanDelay(Duration.valueOf(reader.stringValue()));
@@ -4221,6 +4226,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIanDestination":
                     arcAE.setIanDestinations(reader.stringArray());
+                    break;
+                case "dcmIanTrigger":
+                    arcAE.setIanTriggers(reader.enumArray(IANTrigger.class));
                     break;
                 case "dcmIanDelay":
                     arcAE.setIanDelay(Duration.valueOf(reader.stringValue()));

@@ -353,6 +353,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Issuer auditAssigningAuthorityOfPatientID;
 
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
+    private final EnumSet<IANTrigger> ianTriggers = EnumSet.noneOf(IANTrigger.class);
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -912,6 +913,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setMppsForwardDestinations(String... mppsForwardDestinations) {
         this.mppsForwardDestinations = mppsForwardDestinations;
+    }
+
+    public IANTrigger[] getIanTriggers() {
+        return ianTriggers.toArray(new IANTrigger[0]);
+    }
+
+    public void setIanTriggers(IANTrigger... ianTriggers) {
+        this.ianTriggers.clear();
+        this.ianTriggers.addAll(Arrays.asList(ianTriggers));
+    }
+
+    public boolean isIANTrigger(IANTrigger ianTrigger) {
+        return ianTriggers.contains(ianTrigger);
     }
 
     public String[] getIanDestinations() {
@@ -3693,6 +3707,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         encodeAsJSONNumber.clear();
         encodeAsJSONNumber.addAll(arcdev.encodeAsJSONNumber);
+        ianTriggers.clear();
+        ianTriggers.addAll(arcdev.ianTriggers);
         wadoSupportedSRClasses.clear();
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
         wadoSupportedPRClasses.clear();

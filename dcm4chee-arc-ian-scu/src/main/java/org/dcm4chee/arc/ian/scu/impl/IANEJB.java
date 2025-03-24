@@ -99,7 +99,7 @@ public class IANEJB {
 
     public IanTaskAction createOrUpdateIANTaskForStudy(ArchiveAEExtension arcAE, String callingAET, String studyInstanceUID) {
         try {
-            IanTask task = em.createNamedQuery(IanTask.FIND_BY_STUDY_IUID, IanTask.class)
+            IanTask task = em.createNamedQuery(IanTask.FIND_WITHOUT_MPPS_BY_STUDY_IUID, IanTask.class)
                     .setParameter(1, studyInstanceUID)
                     .getSingleResult();
             task.setScheduledTime(scheduledTime(arcAE.ianDelay()));

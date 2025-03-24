@@ -211,6 +211,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQidoETag", ext.isQidoETag(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", ext.getIanDestinations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanTrigger", ext.getIanTriggers());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanDelay", ext.getIanDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmIanOnTimeout", ext.isIanOnTimeout(), false);
@@ -671,6 +672,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQidoETag(LdapUtils.booleanValue(attrs.get("dcmQidoETag"), false));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
+        ext.setIanTriggers(LdapUtils.enumArray(IANTrigger.class, attrs.get("dcmIanTrigger")));
         ext.setIanDelay(toDuration(attrs.get("dcmIanDelay"), null));
         ext.setIanTimeout(toDuration(attrs.get("dcmIanTimeout"), null));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), false));
@@ -1154,6 +1156,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanTrigger", aa.getIanTriggers(), bb.getIanTriggers());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanOnTimeout", aa.isIanOnTimeout(), bb.isIanOnTimeout(), false);
@@ -1888,6 +1891,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQidoETag", ext.getQidoETag(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", ext.getIanDestinations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanTrigger", ext.getIanTriggers());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanDelay", ext.getIanDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanOnTimeout", ext.getIanOnTimeout(), null);
@@ -2084,6 +2088,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQidoETag(LdapUtils.booleanValue(attrs.get("dcmQidoETag"), null));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
+        ext.setIanTriggers(LdapUtils.enumArray(IANTrigger.class, attrs.get("dcmIanTrigger")));
         ext.setIanDelay(toDuration(attrs.get("dcmIanDelay"), null));
         ext.setIanTimeout(toDuration(attrs.get("dcmIanTimeout"), null));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
@@ -2313,6 +2318,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination",
                 aa.getIanDestinations(), bb.getIanDestinations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanTrigger",
+                aa.getIanTriggers(), bb.getIanTriggers());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanDelay",
                 aa.getIanDelay(), bb.getIanDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanTimeout",

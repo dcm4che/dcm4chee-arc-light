@@ -272,6 +272,7 @@ class StoreServiceImpl implements StoreService {
                 UpdateDBResult result = new UpdateDBResult(ctx);
                 long start = System.currentTimeMillis();
                 ejb.updateDB(ctx, result);
+                ctx.setCreatedStudy(result.getCreatedStudy());
                 long time = System.currentTimeMillis() - start;
                 LOG.info("{}: Updated DB in {} ms", session, time);
                 metricsService.accept("db-update-on-store", time);

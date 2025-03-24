@@ -2405,6 +2405,10 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.493 NAME 'dcmDeleterMinStudyAccessTime'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.494 NAME 'dcmIanTrigger'
+  DESC 'Specifies events triggering to send an IAN N-CREATE RQ to Application Entities configured by dcmIanDestination. Enumerated values: STUDY_RECEIVED, MPPS_RECEIVED, REJECTION_NOTE_RECEIVED, FIRST_OBJECT_OF_STUDY_RECEIVED.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2765,6 +2769,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmMatchSOPClassOnInstanceLevel $
     dcmFwdMppsDestination $
     dcmIanDestination $
+    dcmIanTrigger $
     dcmIanDelay $
     dcmIanTimeout $
     dcmIanOnTimeout $
@@ -2987,6 +2992,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
     dcmRejectForDataRetentionExpiry $
     dcmStgCmtSCP $
     dcmIanDestination $
+    dcmIanTrigger $
     dcmRetrieveAET $
     dcmRetrieveLocationUID $
     dcmInstanceAvailability $
