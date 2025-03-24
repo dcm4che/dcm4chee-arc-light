@@ -44,27 +44,15 @@ package org.dcm4chee.arc.stow.client.impl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-import org.dcm4che3.data.UID;
-import org.dcm4che3.net.Status;
-import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.util.Base64;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.stow.client.StowClient;
 import org.dcm4chee.arc.stow.client.StowTask;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Gunter Zeilinger (gunterze@protonmail.com)
@@ -87,48 +75,6 @@ public class StowClientImpl implements StowClient {
 
     @Override
     public StowTask newStowTask(RetrieveContext ctx) throws DicomServiceException {
-        try {
-            WebApplication webApp = ctx.getDestinationWebApp();
-            Map<String, String> props = webApp.getProperties();
-            String url = webApp.getServiceURL().append("/studies").toString();
-            try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build()) {
-                ResteasyWebTarget target = client.target(url)
-                        .setChunked(Boolean.parseBoolean(props.get("chunked")));
-                String authorization = webApp.getKeycloakClientID() != null
-                        ? "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken()
-                        : props.containsKey("bearer-token")
-                            ? "Bearer " + props.get("bearer-token")
-                            : props.containsKey("basic-auth")
-                                ? "Basic " + encodeBase64(props.get("basic-auth").getBytes(StandardCharsets.UTF_8))
-                                : null;
-                return new StowTaskImpl(ctx, retrieveStart, retrieveEnd,
-                        target,
-                        authorization,
-                        uidsOf(props.get("transfer-syntax")),
-                        props.containsKey("concurrency") ? Integer.parseInt(props.get("concurrency")) : 1);
-            }
-        } catch (Exception e) {
-            LOG.info("Failed to build STOW request: ", e);
-            DicomServiceException dse = new DicomServiceException(Status.UnableToPerformSubOperations, e);
-            ctx.setException(dse);
-            throw dse;
-        }
+        return new StowTaskImpl(ctx, retrieveStart, retrieveEnd, accessTokenRequestor);
     }
-
-    private static List<String> uidsOf(String s) {
-        String[] uids = StringUtils.split(s, ',');
-        for (int i = 0; i < uids.length; i++) {
-            if (Character.isLetter((uids[i] = uids[i].trim()).charAt(0)))
-                uids[i] = UID.forName(uids[i]);
-        }
-        return Arrays.asList(uids);
-    }
-
-    private static String encodeBase64(byte[] b) {
-        int len = (b.length * 4 / 3 + 3) & ~3;
-        char[] ch = new char[len];
-        Base64.encode(b, 0, b.length, ch, 0);
-        return new String(ch);
-    }
-
 }

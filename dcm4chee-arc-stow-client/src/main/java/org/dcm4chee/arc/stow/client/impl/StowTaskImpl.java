@@ -50,14 +50,22 @@ import jakarta.ws.rs.client.InvocationCallback;
 import jakarta.ws.rs.core.Response;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.json.JSONReader;
+import org.dcm4che3.net.Status;
+import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.Base64;
 import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.stream.DicomObjectOutput;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.stow.client.StowTask;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
@@ -66,7 +74,10 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -83,24 +94,58 @@ public class StowTaskImpl implements StowTask {
     private final Event<RetrieveContext> retrieveEnd;
     private final RetrieveContext ctx;
     private final BlockingQueue<WrappedInstanceLocations> matches = new LinkedBlockingQueue<>();
-    private final ResteasyWebTarget target;
     private final String authorization;
     private final Collection<String> acceptableTransferSyntaxes;
     private final int concurrency;
+    private final WebApplication destWebApp;
+    private final Map<String, String> props;
+    private final AccessTokenRequestor accessTokenRequestor;
     private final Semaphore semaphore;
     private volatile boolean canceled;
 
     public StowTaskImpl(RetrieveContext ctx, Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd,
-            ResteasyWebTarget target, String authorization, Collection<String> acceptableTransferSyntaxes,
-            int concurrency) {
+                        AccessTokenRequestor accessTokenRequestor) {
         this.ctx = ctx;
         this.retrieveStart = retrieveStart;
         this.retrieveEnd = retrieveEnd;
-        this.target = target;
-        this.authorization = authorization;
-        this.acceptableTransferSyntaxes = acceptableTransferSyntaxes;
-        this.concurrency = concurrency;
+        this.destWebApp = ctx.getDestinationWebApp();
+        this.props = ctx.getDestinationWebApp().getProperties();
+        this.accessTokenRequestor = accessTokenRequestor;
+        this.authorization = authorization();
+        this.acceptableTransferSyntaxes = uidsOf(props.get("transfer-syntax"));
+        this.concurrency = props.containsKey("concurrency") ? Integer.parseInt(props.get("concurrency")) : 1;
         this.semaphore = concurrency > 1 ? new Semaphore(concurrency) : null;
+    }
+
+    private String authorization() {
+        try {
+            return destWebApp.getKeycloakClientID() != null
+                    ? "Bearer " + accessTokenRequestor.getAccessToken2(destWebApp).getToken()
+                    : props.containsKey("bearer-token")
+                        ? "Bearer " + props.get("bearer-token")
+                        : props.containsKey("basic-auth")
+                            ? "Basic " + encodeBase64(props.get("basic-auth").getBytes(StandardCharsets.UTF_8))
+                            : null;
+        } catch (Exception e) {
+            LOG.info("Unable to obtain Bearer token or basic auth token.\n", e);
+            return null;
+        }
+    }
+
+    private List<String> uidsOf(String s) {
+        String[] uids = StringUtils.split(s, ',');
+        for (int i = 0; i < uids.length; i++) {
+            if (Character.isLetter((uids[i] = uids[i].trim()).charAt(0)))
+                uids[i] = UID.forName(uids[i]);
+        }
+        return Arrays.asList(uids);
+    }
+
+    private String encodeBase64(byte[] b) {
+        int len = (b.length * 4 / 3 + 3) & ~3;
+        char[] ch = new char[len];
+        Base64.encode(b, 0, b.length, ch, 0);
+        return new String(ch);
     }
 
     @Override
@@ -110,44 +155,56 @@ public class StowTaskImpl implements StowTask {
 
     @Override
     public void run() {
-        retrieveStart.fire(ctx);
-        try {
-            for (InstanceLocations match : ctx.getMatches()) {
-                if (!ctx.copyToRetrieveCache(match)) {
-                    matches.offer(new WrappedInstanceLocations(match));
+        String url = destWebApp.getServiceURL().append("/studies").toString();
+        try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, destWebApp).build()) {
+            ResteasyWebTarget target = client.target(url).setChunked(Boolean.parseBoolean(props.get("chunked")));
+            retrieveStart.fire(ctx);
+            try {
+                for (InstanceLocations match : ctx.getMatches()) {
+                    if (!ctx.copyToRetrieveCache(match)) {
+                        matches.offer(new WrappedInstanceLocations(match));
+                    }
                 }
-            }
-            ctx.copyToRetrieveCache(null);
-            matches.offer(new WrappedInstanceLocations(null));
-            runStoreOperations();
-        } finally {
-            if (semaphore != null) {
-                try {
-                    semaphore.acquire(concurrency);
-                } catch (InterruptedException e) {
-                    LOG.warn("{}: failed to wait for pending responses:\n", target, e);
+                ctx.copyToRetrieveCache(null);
+                matches.offer(new WrappedInstanceLocations(null));
+                runStoreOperations(target);
+            } finally {
+                if (semaphore != null) {
+                    try {
+                        semaphore.acquire(concurrency);
+                    } catch (InterruptedException e) {
+                        LOG.warn("{}: failed to wait for pending responses:\n", target, e);
+                    }
                 }
+                ctx.getRetrieveService().updateLocations(ctx);
+                SafeClose.close(ctx);
             }
-            target.getResteasyClient().close();
-            ctx.getRetrieveService().updateLocations(ctx);
-            SafeClose.close(ctx);
+            retrieveEnd.fire(ctx);
+        } catch (Exception e) {
+            LOG.info("Failed to build STOW request: ", e);
+            DicomServiceException dse = new DicomServiceException(Status.UnableToPerformSubOperations, e);
+            ctx.setException(dse);
+            try {
+                throw dse;
+            } catch (DicomServiceException ex) {
+                throw new RuntimeException(ex);
+            }
         }
-        retrieveEnd.fire(ctx);
     }
 
-    private void runStoreOperations() {
+    private void runStoreOperations(ResteasyWebTarget target) {
         try {
             InstanceLocations match;
             while (!canceled && (match = matches.take().instanceLocations) != null)
-                store(match);
+                store(target, match);
             while (!canceled && (match = ctx.copiedToRetrieveCache()) != null)
-                store(match);
+                store(target, match);
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to fetch next match from queue:\n", target, e);
         }
     }
 
-    private void store(InstanceLocations inst) {
+    private void store(ResteasyWebTarget target, InstanceLocations inst) {
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         output.addPart(new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes),
                 MediaTypes.applicationDicomWithTransferSyntax(MediaTypeUtils.selectTransferSyntax(
@@ -174,7 +231,7 @@ public class StowTaskImpl implements StowTask {
                 if (semaphore != null) semaphore.release();
             }
         };
-        if (async()) {
+        if (async(target)) {
             request.async().post(entity, callback);
         } else {
             try {
@@ -185,7 +242,7 @@ public class StowTaskImpl implements StowTask {
         }
     }
 
-    private boolean async() {
+    private boolean async(ResteasyWebTarget target) {
         if (semaphore != null) {
             try {
                 semaphore.acquire();
