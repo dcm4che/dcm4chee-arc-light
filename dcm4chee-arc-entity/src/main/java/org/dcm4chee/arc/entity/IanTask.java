@@ -57,8 +57,8 @@ import java.util.Date;
         @NamedQuery(name = IanTask.FIND_SCHEDULED_BY_DEVICE_NAME,
                 query = "select o from IanTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp " +
                         "order by o.scheduledTime"),
-        @NamedQuery(name = IanTask.FIND_BY_STUDY_IUID,
-                query = "select o from IanTask o where o.studyInstanceUID=?1"),
+        @NamedQuery(name = IanTask.FIND_WITHOUT_MPPS_BY_STUDY_IUID,
+                query = "select o from IanTask o where o.mpps is null and  o.studyInstanceUID=?1"),
 
 })
 @Entity
@@ -69,7 +69,7 @@ import java.util.Date;
 public class IanTask {
     public static final String FIND_WITH_MPPS_BY_DEVICE_NAME = "IanTask.findWithMppsByDeviceName";
     public static final String FIND_SCHEDULED_BY_DEVICE_NAME = "IanTask.findScheduledByDeviceName";
-    public static final String FIND_BY_STUDY_IUID = "IanTask.findByStudyIUID";
+    public static final String FIND_WITHOUT_MPPS_BY_STUDY_IUID = "IanTask.findByStudyIUID";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

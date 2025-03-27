@@ -1038,9 +1038,11 @@ public class StoreServiceEJB {
                     ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
                     : attrs,
                 filter, true, arcDev.getFuzzyStr());
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
-                .setParameter(1, pat)
-                .executeUpdate();
+        if (arcDev.isUpdateSeriesMetadata()) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
+                    .setParameter(1, pat)
+                    .executeUpdate();
+        }
         return pat;
     }
 
@@ -1077,9 +1079,11 @@ public class StoreServiceEJB {
                     : attrs,
                 filter, true, arcDev.getFuzzyStr());
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
-                .setParameter(1, study)
-                .executeUpdate();
+        if (arcDev.isUpdateSeriesMetadata()) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                    .setParameter(1, study)
+                    .executeUpdate();
+        }
         study.resetSize();
         study.resetExternalRetrieveAET();
         return study;

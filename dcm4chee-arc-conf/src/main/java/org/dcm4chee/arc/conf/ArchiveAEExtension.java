@@ -179,6 +179,7 @@ public class ArchiveAEExtension extends AEExtension {
     private int[] rejectConflictingPatientAttribute = {};
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
+    private final EnumSet<IANTrigger> ianTriggers = EnumSet.noneOf(IANTrigger.class);
     private final EnumMap<QIDOResultOrderBy.QIDOService,QIDOResultOrderBy[]> qidoResultOrderBy =
             new EnumMap<>(QIDOResultOrderBy.QIDOService.class);
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
@@ -626,6 +627,21 @@ public class ArchiveAEExtension extends AEExtension {
         return mppsForwardDestinations.length > 0
                 ? mppsForwardDestinations
                 : getArchiveDeviceExtension().getMppsForwardDestinations();
+    }
+
+    public IANTrigger[] getIanTriggers() {
+        return ianTriggers.toArray(new IANTrigger[0]);
+    }
+
+    public void setIanTriggers(IANTrigger... ianTriggers) {
+        this.ianTriggers.clear();
+        this.ianTriggers.addAll(Arrays.asList(ianTriggers));
+    }
+
+    public boolean isIanTriggers(IANTrigger ianTrigger) {
+        return ianTriggers.isEmpty()
+                ? getArchiveDeviceExtension().isIANTrigger(ianTrigger)
+                : ianTriggers.contains(ianTrigger);
     }
 
     public String[] getIanDestinations() {
@@ -2192,6 +2208,8 @@ public class ArchiveAEExtension extends AEExtension {
         changeRequesterAET = aeExt.changeRequesterAET;
         encodeAsJSONNumber.clear();
         encodeAsJSONNumber.addAll(aeExt.encodeAsJSONNumber);
+        ianTriggers.clear();
+        ianTriggers.addAll(aeExt.ianTriggers);
         qidoResultOrderBy.clear();
         qidoResultOrderBy.putAll(aeExt.qidoResultOrderBy);
         acceptedMoveDestinations.clear();

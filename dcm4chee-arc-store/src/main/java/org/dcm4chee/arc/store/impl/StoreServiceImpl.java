@@ -57,8 +57,6 @@ import org.dcm4che3.imageio.codec.TransferSyntaxType;
 import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
-import org.dcm4che3.net.hl7.HL7Application;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.CountingInputStream;
 import org.dcm4che3.util.StringUtils;
@@ -93,7 +91,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -275,6 +272,7 @@ class StoreServiceImpl implements StoreService {
                 UpdateDBResult result = new UpdateDBResult(ctx);
                 long start = System.currentTimeMillis();
                 ejb.updateDB(ctx, result);
+                ctx.setCreatedStudy(result.getCreatedStudy());
                 long time = System.currentTimeMillis() - start;
                 LOG.info("{}: Updated DB in {} ms", session, time);
                 metricsService.accept("db-update-on-store", time);
@@ -781,7 +779,8 @@ class StoreServiceImpl implements StoreService {
         return usableStorage.storage;
     }
 
-    private void updateDeviceConfiguration(ArchiveDeviceExtension arcDev) {
+    @Override
+    public void updateDeviceConfiguration(ArchiveDeviceExtension arcDev) {
         Device device = arcDev.getDevice();
         try {
             LOG.info("Update Storage configuration of Device: {}", device.getDeviceName());

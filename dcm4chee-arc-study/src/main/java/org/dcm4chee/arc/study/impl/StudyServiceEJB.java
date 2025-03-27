@@ -50,7 +50,6 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -119,9 +118,11 @@ public class StudyServiceEJB {
                 : attrs,
                 filter, true, ctx.getFuzzyStr());
         setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
-                .setParameter(1, study)
-                .executeUpdate();
+        if (ctx.isUpdateSeriesMetadata()) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                    .setParameter(1, study)
+                    .executeUpdate();
+        }
         LOG.info("{} updated successfully.", study);
     }
 
@@ -155,9 +156,11 @@ public class StudyServiceEJB {
                         modified)
                         : attrs,
                 filter, true, ctx.getFuzzyStr());
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
-                .setParameter(1, series.getPk())
-                .executeUpdate();
+        if (ctx.isUpdateSeriesMetadata()) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                    .setParameter(1, series.getPk())
+                    .executeUpdate();
+        }
         if (modified.contains(Tag.Modality))
             em.createNamedQuery(StudyQueryAttributes.DELETE_FOR_STUDY)
                     .setParameter(1, series.getStudy())
@@ -250,9 +253,11 @@ public class StudyServiceEJB {
                         modified)
                         : attrs,
                 studyAttrFilter, true, ctx.getFuzzyStr());
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
-                .setParameter(1, study)
-                .executeUpdate();
+        if (ctx.isUpdateSeriesMetadata()) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                    .setParameter(1, study)
+                    .executeUpdate();
+        }
     }
 
     public void updateSeriesRequest(StudyMgtContext ctx) throws StudyMissingException {
@@ -275,7 +280,7 @@ public class StudyServiceEJB {
                 rqAttrsSeq.add(new Attributes(requestAttr));
             }
         }
-        FuzzyStr fuzzyStr = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getFuzzyStr();
+        FuzzyStr fuzzyStr = ctx.getFuzzyStr();
         Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, requestAttrs.size());
         Collection<SeriesRequestAttributes> requestAttributes = series.getRequestAttributes();
         requestAttributes.clear();
@@ -295,9 +300,11 @@ public class StudyServiceEJB {
                         modified)
                         : seriesAttr,
                 seriesAttrFilter, true, ctx.getFuzzyStr());
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
-                .setParameter(1, series.getPk())
-                .executeUpdate();
+        if (ctx.isUpdateSeriesMetadata()) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                    .setParameter(1, series.getPk())
+                    .executeUpdate();
+        }
         ctx.setStudy(series.getStudy());
         ctx.setPatient(series.getStudy().getPatient());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);

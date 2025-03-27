@@ -764,6 +764,7 @@ class RetrieveContextImpl implements RetrieveContext {
                         copyToRetrieveCacheTask.schedule(null);
             return false;
         }
+        if (retrieveMetadata && match.isContainsMetadata()) return false;
         StorageDescriptor storageDescriptor = null;
         ArchiveDeviceExtension arcdev = retrieveService.getArchiveDeviceExtension();
         for (Location location : match.getLocations()) {

@@ -68,6 +68,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private final AttributeFilter attributeFilter;
     private final AttributeFilter studyAttributeFilter;
     private final FuzzyStr fuzzyStr;
+    private final boolean updateSeriesMetadata;
     private HL7Application hl7app;
     private Association as;
     private Connection conn;
@@ -94,6 +95,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
         this.attributeFilter = arcDev.getAttributeFilter(Entity.Patient);
         this.studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
         this.fuzzyStr = arcDev.getFuzzyStr();
+        this.updateSeriesMetadata = arcDev.isUpdateSeriesMetadata();
     }
 
     void setHL7Application(HL7Application hl7app) {
@@ -139,6 +141,11 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public FuzzyStr getFuzzyStr() {
         return fuzzyStr;
+    }
+
+    @Override
+    public boolean isUpdateSeriesMetadata() {
+        return updateSeriesMetadata;
     }
 
     @Override

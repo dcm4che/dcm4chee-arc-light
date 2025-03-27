@@ -88,6 +88,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String bulkDataDescriptorID;
     private volatile String[] seriesMetadataStorageIDs = {};
     private volatile Duration seriesMetadataDelay;
+    private volatile boolean updateSeriesMetadata = true;
     private volatile Duration seriesMetadataPollingInterval;
     private volatile int seriesMetadataFetchSize = 100;
     private volatile int seriesMetadataThreads = 1;
@@ -352,6 +353,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Issuer auditAssigningAuthorityOfPatientID;
 
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
+    private final EnumSet<IANTrigger> ianTriggers = EnumSet.noneOf(IANTrigger.class);
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -579,6 +581,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setSeriesMetadataDelay(Duration seriesMetadataDelay) {
         this.seriesMetadataDelay = seriesMetadataDelay;
+    }
+
+    public boolean isUpdateSeriesMetadata() {
+        return updateSeriesMetadata;
+    }
+
+    public void setUpdateSeriesMetadata(boolean updateSeriesMetadata) {
+        this.updateSeriesMetadata = updateSeriesMetadata;
     }
 
     public Duration getSeriesMetadataPollingInterval() {
@@ -903,6 +913,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setMppsForwardDestinations(String... mppsForwardDestinations) {
         this.mppsForwardDestinations = mppsForwardDestinations;
+    }
+
+    public IANTrigger[] getIanTriggers() {
+        return ianTriggers.toArray(new IANTrigger[0]);
+    }
+
+    public void setIanTriggers(IANTrigger... ianTriggers) {
+        this.ianTriggers.clear();
+        this.ianTriggers.addAll(Arrays.asList(ianTriggers));
+    }
+
+    public boolean isIANTrigger(IANTrigger ianTrigger) {
+        return ianTriggers.contains(ianTrigger);
     }
 
     public String[] getIanDestinations() {
@@ -3655,6 +3678,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         bulkDataDescriptorID = arcdev.bulkDataDescriptorID;
         seriesMetadataStorageIDs = arcdev.seriesMetadataStorageIDs;
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
+        updateSeriesMetadata = arcdev.updateSeriesMetadata;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
         seriesMetadataThreads = arcdev.seriesMetadataThreads;
@@ -3683,6 +3707,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         encodeAsJSONNumber.clear();
         encodeAsJSONNumber.addAll(arcdev.encodeAsJSONNumber);
+        ianTriggers.clear();
+        ianTriggers.addAll(arcdev.ianTriggers);
         wadoSupportedSRClasses.clear();
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
         wadoSupportedPRClasses.clear();

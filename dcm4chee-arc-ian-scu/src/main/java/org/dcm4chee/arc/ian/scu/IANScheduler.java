@@ -163,7 +163,7 @@ public class IANScheduler extends Scheduler {
         if (mpps.getStatus() == MPPS.Status.COMPLETED) {
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             String[] ianDestinations = arcAE.ianDestinations();
-            if (ianDestinations.length != 0 && arcAE.ianDelay() == null) {
+            if (ianDestinations.length != 0 && arcAE.isIanTriggers(IANTrigger.MPPS_RECEIVED)) {
                 try {
                     IanTask ianTaskForMPPS = ejb.createIANTaskForMPPS(arcAE, ctx.getCalledAET(), mpps);
                     LOG.info("{}: Created {}", ctx, ianTaskForMPPS);
@@ -187,14 +187,23 @@ public class IANScheduler extends Scheduler {
         RejectionNote rejectionNote = ctx.getRejectionNote();
         if (rejectionNote != null) {
             if (!rejectionNote.isRevokeRejection()) {
-                Attributes ian = createIANOnReject(ctx);
-                for (String ianDestination : ianDestinations) {
-                    ejb.scheduleMessage(session.getCalledAET(), ian, ianDestination, new Date());
+                if (arcAE.isIanTriggers(IANTrigger.REJECTION_NOTE_RECEIVED)) {
+                    Attributes ian = createIANOnReject(ctx);
+                    for (String ianDestination : ianDestinations) {
+                        ejb.scheduleMessage(session.getCalledAET(), ian, ianDestination, new Date());
+                    }
                 }
             }
             return;
         }
-        if (arcAE.ianDelay() != null) {
+        if (ctx.getCreatedStudy() != null && arcAE.isIanTriggers(IANTrigger.FIRST_OBJECT_OF_STUDY_RECEIVED)) {
+            Attributes ian = queryService.createIAN(session.getLocalApplicationEntity(), ctx.getStudyInstanceUID(),
+                    StringUtils.EMPTY_STRING, null, null, null, null);;
+            for (String ianDestination : ianDestinations) {
+                ejb.scheduleMessage(session.getCalledAET(), ian, ianDestination, new Date());
+            }
+        }
+        if (arcAE.ianDelay() != null && arcAE.isIanTriggers(IANTrigger.STUDY_RECEIVED)) {
             try {
                 IANEJB.IanTaskAction ianTaskAction =
                         ejb.createOrUpdateIANTaskForStudy(arcAE, session.getCalledAET(), ctx.getStudyInstanceUID());

@@ -118,7 +118,7 @@ public class ProcedureServiceEJB {
                 mwlAttrs.remove(Tag.ScheduledProcedureStepSequence);
                 if (!updateSPS
                         && !attrs.updateSelected(ctx.getAttributeUpdatePolicy(), mwlAttrs, null,
-                                device.getDeviceExtension(ArchiveDeviceExtension.class)
+                                getArchiveDeviceExtension()
                                       .getAttributeFilter(Entity.MWL)
                                       .getSelection(false)))
                     return;
@@ -135,7 +135,7 @@ public class ProcedureServiceEJB {
 
     private void updateMWL(ProcedureContext ctx, MWLItem mwlItem) {
         Attributes mwlAttrs = ctx.getAttributes();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         mwlItem.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setInstitutionCode(findOrCreateCode(mwlAttrs, Tag.InstitutionCodeSequence));
         mwlItem.setInstitutionalDepartmentTypeCode(findOrCreateCode(mwlAttrs, Tag.InstitutionalDepartmentTypeCodeSequence));
@@ -192,7 +192,7 @@ public class ProcedureServiceEJB {
 
     private void createMWL(ProcedureContext ctx) {
         Attributes attrs = ctx.getAttributes();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         MWLItem mwlItem = new MWLItem();
         mwlItem.setPatient(ctx.getPatient());
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
@@ -274,7 +274,7 @@ public class ProcedureServiceEJB {
 
     public void updateSPSStatus(ProcedureContext ctx) {
         MWLItem mwlItem = findMWLItem(ctx);
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         if (mwlItem == null)
             return;
 
@@ -296,7 +296,7 @@ public class ProcedureServiceEJB {
     }
 
     private List<MWLItem> updateMWLStatus(SPSStatus status, List<MWLItem> mwlItems) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         mwlItems.forEach(mwl -> {
             Attributes mwlAttrs = mwl.getAttributes();
             Iterator<Attributes> spsItems = mwlAttrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
@@ -363,7 +363,7 @@ public class ProcedureServiceEJB {
     }
 
     private void updateMWLSPS(SPSStatus spsStatus, MWLItem mwl) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         Attributes attrs = mwl.getAttributes();
         Attributes sps = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         attrs.remove(Tag.ScheduledProcedureStepSequence);
@@ -372,8 +372,12 @@ public class ProcedureServiceEJB {
         mwl.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
     }
 
+    private ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+    }
+
     public void updateStudySeriesAttributesFromMWL(ProcedureContext ctx) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         Attributes mwlAttr = ctx.getAttributes();
         List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
                                     .setParameter(1, ctx.getStudyInstanceUIDInstRefs() == null
@@ -409,15 +413,17 @@ public class ProcedureServiceEJB {
                         modified)
                     : studyAttr,
                     studyFilter, true, arcDev.getFuzzyStr());
-            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
-                    .setParameter(1, study)
-                    .executeUpdate();
+            if (arcDev.isUpdateSeriesMetadata()) {
+                em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                        .setParameter(1, study)
+                        .executeUpdate();
+            }
         }
         Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
             if (sourceSeriesIUIDs == null || sourceSeriesIUIDs.contains(series.getSeriesInstanceUID()))
-                updateSeriesAttributes(series, mwlAttr,
-                        arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr(), now, ctx);
+                updateSeriesAttributes(series, mwlAttr, arcDev.getAttributeFilter(Entity.Series),
+                        arcDev.getFuzzyStr(), arcDev.isUpdateSeriesMetadata(), now, ctx);
 
         LOG.info("Study and series attributes updated successfully for study : "
                 + (ctx.getStudyInstanceUIDInstRefs() == null
@@ -428,7 +434,8 @@ public class ProcedureServiceEJB {
     }
 
     private void updateSeriesAttributes(Series series, Attributes mwlAttr,
-                                        AttributeFilter filter, FuzzyStr fuzzyStr, Date now, ProcedureContext ctx) {
+                                        AttributeFilter filter, FuzzyStr fuzzyStr, boolean updateSeriesMetadata,
+                                        Date now, ProcedureContext ctx) {
         Attributes seriesAttr = series.getAttributes();
         Attributes.unifyCharacterSets(seriesAttr, mwlAttr);
         Attributes modified = new Attributes(seriesAttr, Tag.RequestAttributesSequence);
@@ -449,9 +456,11 @@ public class ProcedureServiceEJB {
             requestAttributes.add(request);
         }
         series.setAttributes(seriesAttr, filter, true, fuzzyStr);
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
-                .setParameter(1, series.getPk())
-                .executeUpdate();
+        if (updateSeriesMetadata) {
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                    .setParameter(1, series.getPk())
+                    .executeUpdate();
+        }
     }
 
     private boolean recordAttributeModification(ProcedureContext ctx) {

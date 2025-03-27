@@ -95,6 +95,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getBulkDataDescriptorID(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSeriesMetadataStorageID",
                 ext.getSeriesMetadataStorageIDs());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUpdateSeriesMetadata",
+                ext.isUpdateSeriesMetadata(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataDelay",
                 ext.getSeriesMetadataDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataPollingInterval",
@@ -209,6 +211,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQidoETag", ext.isQidoETag(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", ext.getIanDestinations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanTrigger", ext.getIanTriggers());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanDelay", ext.getIanDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmIanOnTimeout", ext.isIanOnTimeout(), false);
@@ -594,6 +597,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFuzzyAlgorithmClass(LdapUtils.stringValue(attrs.get("dcmFuzzyAlgorithmClass"), null));
         ext.setBulkDataDescriptorID(LdapUtils.stringValue(attrs.get("dcmBulkDataDescriptorID"), null));
         ext.setSeriesMetadataStorageIDs(LdapUtils.stringArray(attrs.get("dcmSeriesMetadataStorageID")));
+        ext.setUpdateSeriesMetadata(LdapUtils.booleanValue(attrs.get("dcmUpdateSeriesMetadata"), true));
         ext.setSeriesMetadataDelay(toDuration(attrs.get("dcmSeriesMetadataDelay"), null));
         ext.setSeriesMetadataPollingInterval(toDuration(attrs.get("dcmSeriesMetadataPollingInterval"), null));
         ext.setSeriesMetadataFetchSize(LdapUtils.intValue(attrs.get("dcmSeriesMetadataFetchSize"), 100));
@@ -668,6 +672,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQidoETag(LdapUtils.booleanValue(attrs.get("dcmQidoETag"), false));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
+        ext.setIanTriggers(LdapUtils.enumArray(IANTrigger.class, attrs.get("dcmIanTrigger")));
         ext.setIanDelay(toDuration(attrs.get("dcmIanDelay"), null));
         ext.setIanTimeout(toDuration(attrs.get("dcmIanTimeout"), null));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), false));
@@ -944,7 +949,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setKeyValueRetentionPollingInterval(toDuration(attrs.get("dcmKeyValueRetentionPollingInterval"), null));
         ext.setKeyValueRetentionFetchSize(LdapUtils.intValue(attrs.get("dcmKeyValueRetentionFetchSize"), 100));
         ext.setKeyValueRetentionPeriod(toDuration(attrs.get("dcmKeyValueRetentionPeriod"), null));
-        ext.setQStarVerificationStorageID(LdapUtils.stringValue(attrs.get("setQStarVerificationStorageID"), null));
+        ext.setQStarVerificationStorageID(LdapUtils.stringValue(attrs.get("dcmQStarVerificationStorageID"), null));
         ext.setQStarVerificationPollingInterval(toDuration(attrs.get("dcmQStarVerificationPollingInterval"), null));
         ext.setQStarVerificationFetchSize(LdapUtils.intValue(attrs.get("dcmQStarVerificationFetchSize"), 100));
         ext.setQStarVerificationDelay(toDuration(attrs.get("dcmQStarVerificationDelay"), null));
@@ -979,6 +984,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSeriesMetadataStorageID",
                 aa.getSeriesMetadataStorageIDs(),
                 bb.getSeriesMetadataStorageIDs());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUpdateSeriesMetadata",
+                aa.isUpdateSeriesMetadata(),
+                bb.isUpdateSeriesMetadata(),
+                true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataDelay",
                 aa.getSeriesMetadataDelay(), bb.getSeriesMetadataDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataPollingInterval",
@@ -1147,6 +1156,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanTrigger", aa.getIanTriggers(), bb.getIanTriggers());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanOnTimeout", aa.isIanOnTimeout(), bb.isIanOnTimeout(), false);
@@ -1881,6 +1891,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQidoETag", ext.getQidoETag(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", ext.getIanDestinations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanTrigger", ext.getIanTriggers());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanDelay", ext.getIanDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanOnTimeout", ext.getIanOnTimeout(), null);
@@ -2077,6 +2088,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQidoETag(LdapUtils.booleanValue(attrs.get("dcmQidoETag"), null));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
+        ext.setIanTriggers(LdapUtils.enumArray(IANTrigger.class, attrs.get("dcmIanTrigger")));
         ext.setIanDelay(toDuration(attrs.get("dcmIanDelay"), null));
         ext.setIanTimeout(toDuration(attrs.get("dcmIanTimeout"), null));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
@@ -2306,6 +2318,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination",
                 aa.getIanDestinations(), bb.getIanDestinations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanTrigger",
+                aa.getIanTriggers(), bb.getIanTriggers());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanDelay",
                 aa.getIanDelay(), bb.getIanDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanTimeout",
@@ -2882,6 +2896,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.isStorageThresholdExceedsPermanently(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThresholdExceeded",
                 descriptor.getStorageThresholdExceeded(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleterMinStudyAccessTime",
+                descriptor.getDeleterMinStudyAccessTime(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleterThreads",
                 descriptor.getDeleterThreads(), 1);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageClusterID",
@@ -2958,6 +2974,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.booleanValue(attrs.get("dcmStorageThresholdExceedsPermanently"), true));
                 desc.setStorageThresholdExceeded(
                         LdapUtils.dateTimeValue(attrs.get("dcmStorageThresholdExceeded")));
+                desc.setDeleterMinStudyAccessTime(
+                        LdapUtils.dateTimeValue(attrs.get("dcmDeleterMinStudyAccessTime")));
                 desc.setDeleterThreads(LdapUtils.intValue(attrs.get("dcmDeleterThreads"), 1));
                 desc.setStorageClusterID(LdapUtils.stringValue(attrs.get("dcmStorageClusterID"), null));
                 desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
@@ -3080,6 +3098,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.isStorageThresholdExceedsPermanently(), desc.isStorageThresholdExceedsPermanently(), true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThresholdExceeded",
                 prev.getStorageThresholdExceeded(), desc.getStorageThresholdExceeded(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleterMinStudyAccessTime",
+                prev.getDeleterMinStudyAccessTime(), desc.getDeleterMinStudyAccessTime(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreads",
                 prev.getDeleterThreads(), desc.getDeleterThreads(), 1);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageClusterID",

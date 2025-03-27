@@ -115,22 +115,37 @@ public class RetrieveServiceEJB {
     public void updateInstanceAvailability(RetrieveContext ctx) {
         switch (ctx.getQueryRetrieveLevel()) {
             case STUDY:
-                updateInstanceAvailability(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_STUDY_IUID,
                         ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
                 updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
                         ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
-                updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                updateInstanceAvailability(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
                         ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
                 break;
             case SERIES:
-                updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
-                        ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
                 updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_SERIES_IUID,
                         ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
+                        ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                if (allInstancesAvailableWith(Instance.GREATER_AVAILABILITY_BY_STUDY_IUID,
+                        ctx.getStudyInstanceUID(), ctx.getUpdateInstanceAvailability())) {
+                    updateInstanceAvailability(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                            ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                }
                 break;
             case IMAGE:
                 updateInstanceAvailability(Instance.UPDATE_AVAILABILITY_BY_SOP_IUID,
                         ctx.getSopInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                if (allInstancesAvailableWith(Instance.GREATER_AVAILABILITY_BY_SERIES_IUID,
+                        ctx.getSeriesInstanceUID(), ctx.getUpdateInstanceAvailability())) {
+                    updateInstanceAvailability(SeriesQueryAttributes.UPDATE_AVAILABILITY_BY_SERIES_IUID,
+                            ctx.getSeriesInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                    if (allInstancesAvailableWith(Instance.GREATER_AVAILABILITY_BY_STUDY_IUID,
+                            ctx.getStudyInstanceUID(), ctx.getUpdateInstanceAvailability())) {
+                        updateInstanceAvailability(StudyQueryAttributes.UPDATE_AVAILABILITY_BY_STUDY_IUID,
+                                ctx.getStudyInstanceUIDs(), ctx.getUpdateInstanceAvailability());
+                    }
+                }
                 break;
         }
     }
@@ -142,5 +157,14 @@ public class RetrieveServiceEJB {
                     .setParameter(2, availability)
                     .executeUpdate();
         }
+    }
+
+    private boolean allInstancesAvailableWith(String name, String uid, Availability availability) {
+        return uid != null && em.createNamedQuery(name, Availability.class)
+                .setParameter(1, uid)
+                .setParameter(2, availability)
+                .setMaxResults(1)
+                .getResultList()
+                .isEmpty();
     }
 }

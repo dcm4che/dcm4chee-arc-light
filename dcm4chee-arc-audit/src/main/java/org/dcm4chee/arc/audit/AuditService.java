@@ -621,7 +621,7 @@ public class AuditService {
                                         .callingUserID(httpServletRequestInfo.requesterUserID)
                                         .calledUserID(httpServletRequestInfo.requestURI)
                                         .queryPOID(ctx.getSearchMethod())
-                                        .queryString(httpServletRequestInfo.queryString)
+                                        .query(httpServletRequestInfo.query)
                                         .toAuditInfo();
         writeQuerySpoolFile(auditInfo, ctx);
     }

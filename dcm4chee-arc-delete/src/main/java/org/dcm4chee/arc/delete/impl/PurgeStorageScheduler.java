@@ -64,13 +64,9 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -189,7 +185,7 @@ public class PurgeStorageScheduler extends Scheduler {
                         BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(usableSpaceUnderflow));
             else
                 LOG.info("Used Space on {} {} above {} - start deleting {}", desc.getStorageDuration(), desc,
-                        BinaryPrefix.formatDecimal(maxUsableSpace), BinaryPrefix.formatDecimal(maxUsableSpace));
+                        BinaryPrefix.formatDecimal(maxUsableSpace), BinaryPrefix.formatDecimal(usedSpaceOverflow));
             while (arcDev.getPurgeStoragePollingInterval() != null
                     && (usableSpaceUnderflow > 0L || usedSpaceOverflow > 0L)
                     && deleteStudies(arcDev, desc, false) > 0) {
@@ -243,25 +239,74 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private int deleteStudies(ArchiveDeviceExtension arcDev, StorageDescriptor desc, boolean retentionPeriods) {
+        List<String> studyStorageIDs = desc.getStudyStorageIDs(
+                arcDev.getOtherStorageIDsOfStorageCluster(desc),
+                Collections.emptyList(),
+                null,
+                true);
+        Date maxAccessTime = null;
+        Date preserveAccessTime =  arcDev.getPreserveStudyInterval() != null
+                ? new Date(System.currentTimeMillis() - arcDev.getPreserveStudyInterval().getSeconds() * 1000L)
+                : null;
+        Duration deleteStudyInterval = arcDev.getDeleteStudyInterval();
+        if (deleteStudyInterval != null) {
+            Date minAccessTime = desc.getDeleterMinStudyAccessTime();
+            if (minAccessTime == null) {
+                minAccessTime = ejb.minAccessTime(arcDev, desc, studyStorageIDs, retentionPeriods);
+                if (minAccessTime == null) {
+                    LOG.warn("No studies for deletion found on {}", desc);
+                    return 0;
+                }
+                desc.setDeleterMinStudyAccessTime(minAccessTime);
+                storeService.updateDeviceConfiguration(arcDev);
+            }
+            maxAccessTime = maxAccessTime(minAccessTime, deleteStudyInterval, preserveAccessTime);
+        } else if (arcDev.getPreserveStudyInterval() != null) {
+            maxAccessTime = new Date(System.currentTimeMillis() - arcDev.getPreserveStudyInterval().getSeconds() * 1000);
+        }
         List<Study.PKUID> studyPks;
-        try {
-           studyPks = findStudiesForDeletion(arcDev, desc, retentionPeriods);
-        } catch (Exception e) {
-            LOG.warn("Query for studies for deletion on {} failed", desc, e);
-            return 0;
+        for (;;) {
+            try {
+                studyPks = findStudiesForDeletion(arcDev, desc, studyStorageIDs, retentionPeriods, maxAccessTime);
+            } catch (Exception e) {
+                LOG.warn("Query for studies for deletion on {} failed", desc, e);
+                return 0;
+            }
+            if (!studyPks.isEmpty()) {
+                return desc.getStorageDuration() == StorageDuration.CACHE
+                        ? deleteObjectsOfStudies(arcDev, desc, studyPks)
+                        : deleteStudiesFromDB(arcDev, desc, studyPks);
+            }
+            desc.setDeleterMinStudyAccessTime(
+                    maxAccessTime != null ? maxAccessTime : new Date(System.currentTimeMillis()));
+            storeService.updateDeviceConfiguration(arcDev);
+            if (maxAccessTime == null || maxAccessTime == preserveAccessTime) break;
+            LOG.info("No studies for deletion found on {} with access time before {}", desc, maxAccessTime);
+            maxAccessTime = maxAccessTime(maxAccessTime, deleteStudyInterval, preserveAccessTime);
         }
-        if (studyPks.isEmpty()) {
-            LOG.warn("No studies for deletion found on {}", desc);
-            return 0;
-        }
-        return desc.getStorageDuration() == StorageDuration.CACHE
-                ? deleteObjectsOfStudies(arcDev, desc, studyPks)
-                : deleteStudiesFromDB(arcDev, desc, studyPks);
+        LOG.warn("No studies for deletion found on {}", desc);
+        return 0;
     }
 
-    private List<Study.PKUID> findStudiesForDeletion(ArchiveDeviceExtension arcDev, StorageDescriptor desc,
-            boolean retentionPeriods) {
-        List<Study.PKUID> studyPks = ejb.findStudiesForDeletionOnStorage(arcDev, desc, retentionPeriods);
+    private static Date maxAccessTime(Date minAccessTime, Duration deleteStudyInterval, Date preserveAccessTime) {
+        long maxAccessTime = minAccessTime.getTime() + deleteStudyInterval.getSeconds() * 1000L;
+        if (preserveAccessTime != null && maxAccessTime >= preserveAccessTime.getTime())
+            return preserveAccessTime;
+        return (preserveAccessTime != null && maxAccessTime >= preserveAccessTime.getTime())
+                ? preserveAccessTime
+                : maxAccessTime < System.currentTimeMillis()
+                ? new Date(maxAccessTime)
+                : null;
+    }
+
+    private List<Study.PKUID> findStudiesForDeletion(
+            ArchiveDeviceExtension arcDev,
+            StorageDescriptor desc,
+            List<String> studyStorageIDs,
+            boolean retentionPeriods,
+            Date maxAccessTime) {
+        List<Study.PKUID> studyPks = ejb.findStudiesForDeletionOnStorage(
+                arcDev, desc, studyStorageIDs, retentionPeriods, maxAccessTime);
         String storageID = desc.getStorageID();
         String[] exportStorageID = desc.getExportStorageID();
         StoreSession storeSession = storeService.newStoreSession(device.getApplicationEntities().iterator().next());
@@ -556,6 +601,7 @@ public class PurgeStorageScheduler extends Scheduler {
                         success, skipped, locations.size() - success.get() - skipped.get(), desc);
             }
         } while (locations.size() == fetchSize);
+        LOG.info("Finished deleting {} from {}", BinaryPrefix.formatDecimal(sizeDeleted), desc);
         return sizeDeleted;
     }
 

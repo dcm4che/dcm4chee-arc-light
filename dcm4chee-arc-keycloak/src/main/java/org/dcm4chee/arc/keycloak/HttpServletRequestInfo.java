@@ -57,6 +57,7 @@ public class HttpServletRequestInfo {
     public final String requestURI;
     public final String queryString;
     public final String localHost;
+    public String query;
     public MediaType contentType;
 
     private HttpServletRequestInfo(HttpServletRequest request) {
@@ -65,6 +66,7 @@ public class HttpServletRequestInfo {
         requesterPort = request.getRemotePort();
         requestURI = request.getRequestURL().toString();
         queryString = request.getQueryString();
+        query = request.getContextPath() + request.getPathInfo() + request.getQueryString();
         localHost = request.getServerName();
     }
 

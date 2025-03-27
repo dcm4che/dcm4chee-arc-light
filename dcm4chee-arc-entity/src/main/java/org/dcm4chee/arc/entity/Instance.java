@@ -180,6 +180,14 @@ import java.util.*;
             "and instance.series.seriesInstanceUID = ?2 " +
             "and instance.sopInstanceUID = ?3"),
 @NamedQuery(
+    name = Instance.GREATER_AVAILABILITY_BY_STUDY_IUID,
+    query = "select i.availability from Instance i " +
+            "where i.series.study.studyInstanceUID = ?1 and i.availability > ?2"),
+@NamedQuery(
+    name = Instance.GREATER_AVAILABILITY_BY_SERIES_IUID,
+    query = "select i.availability from Instance i " +
+            "where i.series.seriesInstanceUID = ?1 and i.availability > ?2"),
+@NamedQuery(
     name = Instance.UPDATE_AVAILABILITY_BY_STUDY_PK,
     query = "update Instance i set i.availability = ?2 " +
             "where i.availability != ?2 and i.series in (" +
@@ -244,6 +252,8 @@ public class Instance {
     public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Instance.findLastModifiedSeriesLevel";
     public static final String FIND_LAST_MODIFIED_INSTANCE_LEVEL = "Instance.findLastModifiedInstanceLevel";
     public static final String MAX_UPDATED_TIME_OF_SERIES = "Instance.maxUpdateTimeOfSeries";
+    public static final String GREATER_AVAILABILITY_BY_STUDY_IUID = "Instance.greaterAvailabilityByStudyIUID";
+    public static final String GREATER_AVAILABILITY_BY_SERIES_IUID = "Instance.greaterAvailabilityBySeriesIUID";
     public static final String UPDATE_AVAILABILITY_BY_STUDY_PK = "Instance.updateAvailabilityByStudyPk";
     public static final String UPDATE_AVAILABILITY_BY_STUDY_IUID = "Instance.updateAvailabilityByStudyIUID";
     public static final String UPDATE_AVAILABILITY_BY_SERIES_IUID = "Instance.updateAvailabilityBySeriesIUID";
