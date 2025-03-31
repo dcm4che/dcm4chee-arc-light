@@ -491,28 +491,10 @@ public class PatientServiceEJB {
         PatientID patientID = new PatientID();
         patientID.setPatient(patient);
         patientID.setID(idWithIssuer.getID());
-        patientID.setIssuer(ensureFullQualified(idWithIssuer.getIssuer()));
+        patientID.setIssuer(idWithIssuer.getIssuer());
+        patientID.setPatientName(patient.getAttributes().getString(Tag.PatientName, "*"));
         em.persist(patientID);
         return patientID;
-    }
-
-    private Issuer ensureFullQualified(Issuer issuer) {
-        return (issuer == null)
-            ? new Issuer(
-                    "*",
-                    "iss:*",
-                    "URI")
-            : (issuer.getLocalNamespaceEntityID() == null)
-            ? new Issuer(
-                    issuer.getUniversalEntityID(),
-                    issuer.getUniversalEntityID(),
-                    issuer.getUniversalEntityIDType())
-            : (issuer.getUniversalEntityID() == null)
-            ? new Issuer(
-                    issuer.getLocalNamespaceEntityID(),
-                    "iss:" + issuer.getLocalNamespaceEntityID(),
-                    "URI")
-            : issuer;
     }
 
     public void deletePatient(Patient patient) {
