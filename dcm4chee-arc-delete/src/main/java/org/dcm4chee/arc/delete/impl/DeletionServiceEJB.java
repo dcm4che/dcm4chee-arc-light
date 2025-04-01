@@ -434,19 +434,27 @@ public class DeletionServiceEJB {
      public String[] claimDeleteStudy(Study.PKUID studyPkUID, StorageDescriptor desc, List<String> storageIDs) {
          LOG.debug("claiming deletion of {} at {}", studyPkUID, desc);
          String[] prevStorageIDs = StringUtils.split(getStorageIDs(studyPkUID.pk), '\\');
-         if (!StringUtils.contains(prevStorageIDs, desc.getStorageID())) {
+         if (prevStorageIDs == null || !StringUtils.contains(prevStorageIDs, desc.getStorageID())) {
              LOG.info("{} does not contain objects at {}", studyPkUID, desc);
              return null;
          }
-         StringBuilder sb = new StringBuilder();
+         String remainingStorageIDs = null;
          for (String prevStorageID : prevStorageIDs) {
              if (!storageIDs.contains(prevStorageID)) {
-                 if (sb.length() > 0) sb.append('\\');
-                 sb.append(prevStorageID);
+                 if (remainingStorageIDs == null) {
+                     remainingStorageIDs = prevStorageID;
+                 } else {
+                     remainingStorageIDs = new StringBuilder(remainingStorageIDs)
+                             .append('\\').append(prevStorageID)
+                             .toString();
+                 }
              }
          }
-         String remainingStorageIDs = sb.length() == 0 ? null : sb.toString();
-         setStorageIDs(studyPkUID.pk, remainingStorageIDs);
+         if (remainingStorageIDs == null) {
+             clearStorageIDs(studyPkUID.pk);
+         } else {
+             setStorageIDs(studyPkUID.pk, remainingStorageIDs);
+         }
          LOG.info("Update Storage IDs of {} from {} to {}", studyPkUID, prevStorageIDs, remainingStorageIDs);
          return prevStorageIDs;
     }
@@ -461,6 +469,12 @@ public class DeletionServiceEJB {
         em.createNamedQuery(Study.SET_STORAGE_IDS)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDs)
+                .executeUpdate();
+    }
+
+    public void clearStorageIDs(Long studyPk) {
+        em.createNamedQuery(Study.CLEAR_STORAGE_IDS)
+                .setParameter(1, studyPk)
                 .executeUpdate();
     }
 
