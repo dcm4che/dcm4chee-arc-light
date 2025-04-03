@@ -747,7 +747,7 @@ public class WadoRS {
     }
 
     private boolean withoutPrivateAttributes(ApplicationEntity ae) {
-        return excludeprivate != null ? excludeprivate.equals("false")
+        return excludeprivate != null ? !excludeprivate.equals("false")
                 : ae.getAEExtensionNotNull(ArchiveAEExtension.class).wadoMetadataWithoutPrivate();
     }
 

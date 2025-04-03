@@ -141,6 +141,10 @@ import java.util.*;
                 query = "update Study st set st.storageIDs = ?2 " +
                         "where st.pk = ?1 and st.storageIDs != ?2"),
         @NamedQuery(
+                name = Study.CLEAR_STORAGE_IDS,
+                query = "update Study st set st.storageIDs = null " +
+                        "where st.pk = ?1 and st.storageIDs is not null"),
+        @NamedQuery(
                 name = Study.UPDATE_ACCESS_CONTROL_ID,
                 query = "update Study st set st.accessControlID = ?2 " +
                         "where st.studyInstanceUID = ?1 and st.accessControlID != ?2"),
@@ -206,6 +210,7 @@ public class Study {
     public static final String STORAGE_IDS_BY_STUDY_PK = "Study.storageIDsByStudyPk";
     public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
     public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
+    public static final String CLEAR_STORAGE_IDS = "Study.clearStorageIDs";
     public static final String UPDATE_ACCESS_CONTROL_ID = "Study.updateAccessControlID";
     public static final String FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE = "Study.findByUpdateTimeAndUnknownSize";
     public static final String CLAIM_UNKNOWN_SIZE_STUDY = "Study.claimUnknownSizeStudy";
