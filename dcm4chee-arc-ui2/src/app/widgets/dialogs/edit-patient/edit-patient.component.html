@@ -2,10 +2,10 @@
     <div class="vex-dialog-form" (click)="checkClick($event)">
         <h3 [innerHtml]="titleLabel"></h3>
         <ul class="modal_vertical_nav">
-            <li (click)="formMode='simple'" [ngClass]="{'active':formMode==='simple'}">
+            <li (click)="changeFormMode('simple')" [ngClass]="{'active':formMode==='simple'}">
                 Simple
             </li>
-            <li (click)="formMode='complex'" [ngClass]="{'active':formMode==='complex'}">
+            <li (click)="changeFormMode('complex')" [ngClass]="{'active':formMode==='complex'}">
                 Technical
             </li>
         </ul>
