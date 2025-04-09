@@ -194,7 +194,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public boolean updatePatientAttrs(Attributes attrs, Attributes.UpdatePolicy updatePolicy,
                                       Attributes newAttrs, Attributes modified, AttributeFilter filter) {
-        return ejb.updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter);
+        return ejb.updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter, null);
     }
 
         private boolean deleteDuplicateCreatedPatient(PatientMgtContext ctx, Patient patient) {

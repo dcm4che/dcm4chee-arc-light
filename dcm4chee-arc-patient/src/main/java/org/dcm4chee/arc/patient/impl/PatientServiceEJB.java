@@ -231,7 +231,7 @@ public class PatientServiceEJB {
             attrs = newAttrs;
         } else {
             Attributes.unifyCharacterSets(attrs, newAttrs);
-            if (!updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter))
+            if (!updatePatientAttrs(attrs, updatePolicy, newAttrs, modified, filter, ctx.getPreviousPatientIDs()))
                 return;
         }
 
@@ -312,6 +312,7 @@ public class PatientServiceEJB {
         else {
             updatePatient(pat, ctx);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+            if (pat == prev) return pat;
         }
         if (prev == null) {
             prev = createPatient(ctx, ctx.getPreviousPatientIDs(), ctx.getPreviousAttributes());
@@ -328,6 +329,10 @@ public class PatientServiceEJB {
         }
         prev.setMergedWith(pat);
         return pat;
+    }
+
+    private static boolean containsMatchingPatientID(Collection<IDWithIssuer> pids, IDWithIssuer other) {
+        return pids.stream().anyMatch(pid -> other.matches(pid));
     }
 
     private void suppressMergedPatientDeletionAudit(PatientMgtContext ctx) {
@@ -377,6 +382,10 @@ public class PatientServiceEJB {
 
     private static void setNullIfMissing(Attributes attrs, int tag, VR vr) {
         if (!attrs.contains(tag)) attrs.setNull(tag, vr);
+    }
+
+    private static void setNullIfHasValue(Attributes attrs, int tag, VR vr) {
+        if (attrs.containsValue(tag)) attrs.setNull(tag, vr);
     }
 
     public Patient findNotMergedPatient(PatientMgtContext ctx) {
@@ -683,7 +692,8 @@ public class PatientServiceEJB {
     }
 
     public boolean updatePatientAttrs(Attributes attrs, Attributes.UpdatePolicy updatePolicy,
-                                             Attributes newAttrs, Attributes modified, AttributeFilter filter) {
+                                      Attributes newAttrs, Attributes modified, AttributeFilter filter,
+                                      Collection<IDWithIssuer> prevPatientIDs) {
         int[] selection = without(filter.getSelection(false),
                 Tag.PatientID,
                 Tag.IssuerOfPatientID,
@@ -692,6 +702,33 @@ public class PatientServiceEJB {
                 Tag.OtherPatientIDsSequence);
         int pidUpdated = 0;
         Sequence otherPIDs = attrs.getSequence(Tag.OtherPatientIDsSequence);
+        if (prevPatientIDs != null) {
+            IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
+            if (pid != null && containsMatchingPatientID(prevPatientIDs, pid)) {
+                pid = null;
+                attrs.setNull(Tag.PatientID, VR.LO);
+                setNullIfHasValue(attrs, Tag.IssuerOfPatientID, VR.LO);
+                setNullIfHasValue(attrs, Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+                setNullIfHasValue(attrs, Tag.IdentifierTypeCode, VR.CS);
+                pidUpdated++;
+            }
+            if (otherPIDs != null) {
+                Iterator<Attributes> opids = otherPIDs.iterator();
+                while (opids.hasNext()) {
+                    Attributes item = opids.next();
+                    IDWithIssuer opid = IDWithIssuer.pidOf(item);
+                    if (containsMatchingPatientID(prevPatientIDs, opid)) {
+                        opids.remove();
+                        pidUpdated++;
+                    } else if (pid == null) {
+                        opids.remove();
+                        attrs.addAll(item);
+                        pid = opid;
+                        pidUpdated++;
+                    }
+                }
+            }
+        }
         Set<IDWithIssuer> updatedPids = IDWithIssuer.pidsOf(newAttrs);
         if (mergeIssuer(attrs, updatedPids)) pidUpdated++;
         if (otherPIDs != null)
