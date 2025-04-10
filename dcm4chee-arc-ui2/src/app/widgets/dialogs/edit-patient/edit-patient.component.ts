@@ -19,7 +19,7 @@ import {EditPatientService} from "./edit-patient.service";
 export class EditPatientComponent {
 
 
-    formMode="complex"
+    formMode= localStorage.getItem('patient_edit_mode') || "complex";
     opendropdown = false;
     addPatientAttribut = '';
     lastPressedCode;
@@ -45,7 +45,7 @@ export class EditPatientComponent {
     ) {
         setTimeout(()=>{
             this.simpleForm.schema = this.service.getSimpleFormSchema();
-            this.formMode = "simple";
+            this.formMode = localStorage.getItem('patient_edit_mode') || "simple";
         },10)
     }
     onChange(newValue, model) {
@@ -320,4 +320,8 @@ export class EditPatientComponent {
     }
 
 
+    changeFormMode(mode: string) {
+        localStorage.setItem('patient_edit_mode',mode);
+        this.formMode = mode;
+    }
 }
