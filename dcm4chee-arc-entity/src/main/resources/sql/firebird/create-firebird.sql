@@ -44,7 +44,7 @@ create table mpps (pk bigint not null, accession_no varchar(255) not null, accno
 create table mwl_item (pk bigint not null, accession_no varchar(16) not null, accno_entity_id varchar(64), accno_entity_uid varchar(64), accno_entity_uid_type varchar(64), admission_id varchar(64) not null, admid_entity_id varchar(64), admid_entity_uid varchar(64), admid_entity_uid_type varchar(16), created_time timestamp not null, institution varchar(64) not null, department varchar(64) not null, modality varchar(16) not null, req_proc_id varchar(16) not null, sps_id varchar(16) not null, sps_start_date varchar(16) not null, sps_start_time varchar(16) not null, sps_status integer not null, study_iuid varchar(64) not null, updated_time timestamp not null, version bigint, worklist_label varchar(64) not null, dicomattrs_fk bigint not null, inst_code_fk bigint, dept_code_fk bigint, patient_fk bigint not null, perf_phys_name_fk bigint, primary key (pk));
 create table patient (pk bigint not null, created_time timestamp not null, failed_verifications integer not null, num_studies integer not null, pat_birthdate varchar(255) not null, pat_custom1 varchar(255) not null, pat_custom2 varchar(255) not null, pat_custom3 varchar(255) not null, pat_sex varchar(255) not null, updated_time timestamp not null, verification_status smallint not null check (verification_status between 0 and 4), verification_time timestamp, version bigint, dicomattrs_fk bigint not null, merge_fk bigint, pat_name_fk bigint, resp_person_fk bigint, primary key (pk));
 create table patient_demographics (pat_id varchar(255) not null, pat_birthdate varchar(255), pat_name varchar(255), pat_sex varchar(255), primary key (pat_id));
-create table patient_id (pk bigint not null, pat_id varchar(64) not null, pat_id_type_code varchar(64), entity_id varchar(64) not null, entity_uid varchar(64) not null, entity_uid_type varchar(64), version bigint, patient_fk bigint not null, primary key (pk));
+create table patient_id (pk bigint not null, pat_id varchar(64) not null, pat_id_type_code varchar(64), entity_id varchar(64), pat_name varchar(64) not null, entity_uid varchar(64), entity_uid_type varchar(64), version bigint, patient_fk bigint not null, primary key (pk));
 create table person_name (pk bigint not null, alphabetic_name varchar(255) not null, ideographic_name varchar(255) not null, phonetic_name varchar(255) not null, primary key (pk));
 create table rejected_instance (pk bigint not null, created_time timestamp not null, series_iuid varchar(64) not null, sop_cuid varchar(64) not null, sop_iuid varchar(64) not null, study_iuid varchar(64) not null, reject_code_fk bigint, primary key (pk));
 create table rel_study_pcode (study_fk bigint not null, pcode_fk bigint not null);
@@ -135,7 +135,7 @@ alter table patient add constraint UK56r2g5ggptqgcvb3hl11adke2 unique (resp_pers
 create index IDXtkyjkkxxhnr0fem7m0h3844jk on patient_id (pat_id);
 create index IDXd1sdyupb0vwvx23jownjnyy72 on patient_id (entity_id);
 create index IDXm2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid, entity_uid_type);
-alter table patient_id add constraint UKm3ywheu0gq9baixf5dmrhg6oo unique (pat_id, entity_id, entity_uid, entity_uid_type);
+alter table patient_id add constraint UK16wguo1gr8at9dv9xqjw211wc unique (pat_id, pat_name);
 create index IDXgs2yshbwu0gkd33yxyv13keoh on person_name (alphabetic_name);
 create index IDXala4l4egord8i2tjvjidoqd1s on person_name (ideographic_name);
 create index IDX9nr8ddkp8enufvbn72esyw3n1 on person_name (phonetic_name);
