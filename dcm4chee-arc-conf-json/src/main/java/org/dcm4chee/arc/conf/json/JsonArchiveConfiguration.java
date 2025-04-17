@@ -109,6 +109,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmRelationalMismatchPolicy",
                 arcDev.getRelationalMismatchPolicy(), RelationalMismatchPolicy.IGNORE);
         writer.writeNotDef("dcmRecordAttributeModification", arcDev.isRecordAttributeModification(), true);
+        writer.writeNotDef("dcmIdentifyPatientByIDAndName", arcDev.isIdentifyPatientByIDAndName(), false);
         writer.writeNotDef("dcmIdentifyPatientByAllAttributes", arcDev.isIdentifyPatientByAllAttributes(), false);
         writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
                 arcDev.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
@@ -1491,6 +1492,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRecordAttributeModification":
                     arcDev.setRecordAttributeModification(reader.booleanValue());
+                    break;
+                case "dcmIdentifyPatientByIDAndName":
+                    arcDev.setIdentifyPatientByIDAndName(reader.booleanValue());
                     break;
                 case "dcmIdentifyPatientByAllAttributes":
                     arcDev.setIdentifyPatientByAllAttributes(reader.booleanValue());

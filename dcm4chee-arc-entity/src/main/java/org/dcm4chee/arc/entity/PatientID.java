@@ -83,7 +83,7 @@ public class PatientID {
     private long version;    
 
     @Basic(optional=false)
-    @Column(name = "pat_id")
+    @Column(name = "pat_id", updatable = false)
     private String id;
 
     @Column(name = "entity_id")
@@ -99,7 +99,7 @@ public class PatientID {
     private String identifierTypeCode;
 
     @Basic(optional=false)
-    @Column(name = "pat_name")
+    @Column(name = "pat_name", updatable = false)
     private String patientName;
 
     @ManyToOne(optional = false)

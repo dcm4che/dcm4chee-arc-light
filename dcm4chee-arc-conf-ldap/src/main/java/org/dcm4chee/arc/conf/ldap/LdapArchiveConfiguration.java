@@ -130,6 +130,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getRelationalMismatchPolicy(), RelationalMismatchPolicy.IGNORE);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRecordAttributeModification",
                 ext.isRecordAttributeModification(), true);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmIdentifyPatientByIDAndName",
+                ext.isIdentifyPatientByIDAndName(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmIdentifyPatientByAllAttributes",
                 ext.isIdentifyPatientByAllAttributes(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory",
@@ -619,6 +621,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 RelationalMismatchPolicy.class, attrs.get("dcmRelationalMismatchPolicy"), RelationalMismatchPolicy.IGNORE));
         ext.setRecordAttributeModification(
                 LdapUtils.booleanValue(attrs.get("dcmRecordAttributeModification"), true));
+        ext.setIdentifyPatientByIDAndName(
+                LdapUtils.booleanValue(attrs.get("dcmIdentifyPatientByIDAndName"), false));
         ext.setIdentifyPatientByAllAttributes(
                 LdapUtils.booleanValue(attrs.get("dcmIdentifyPatientByAllAttributes"), false));
         ext.setBulkDataSpoolDirectory(
@@ -1045,6 +1049,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isRecordAttributeModification(),
                 bb.isRecordAttributeModification(),
                 true);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIdentifyPatientByIDAndName",
+                aa.isIdentifyPatientByIDAndName(),
+                bb.isIdentifyPatientByIDAndName(),
+                false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmIdentifyPatientByAllAttributes",
                 aa.isIdentifyPatientByAllAttributes(),
                 bb.isIdentifyPatientByAllAttributes(),

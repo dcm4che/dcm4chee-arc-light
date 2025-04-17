@@ -340,6 +340,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean restrictRetrieveSilently;
     private volatile boolean stowQuicktime2MP4;
     private volatile long stowMaxFragmentLength = 2147483646L; // Integer.MAX_VALUE - 1
+    private volatile boolean identifyPatientByIDAndName;
     private volatile boolean identifyPatientByAllAttributes;
     private volatile String changeRequesterAET;
     private volatile MultipleStoreAssociations[] multipleStoreAssociations = {};
@@ -3550,6 +3551,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             throw new IllegalArgumentException("stowMaxFragmentLength not in range 1024..4294967294");
     }
 
+    public boolean isIdentifyPatientByIDAndName() {
+        return identifyPatientByIDAndName;
+    }
+
+    public void setIdentifyPatientByIDAndName(boolean identifyPatientByIDAndName) {
+        this.identifyPatientByIDAndName = identifyPatientByIDAndName;
+    }
+
     public boolean isIdentifyPatientByAllAttributes() {
         return identifyPatientByAllAttributes;
     }
@@ -3920,6 +3929,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         restrictRetrieveSilently = arcdev.restrictRetrieveSilently;
         stowQuicktime2MP4 = arcdev.stowQuicktime2MP4;
         stowMaxFragmentLength = arcdev.stowMaxFragmentLength;
+        identifyPatientByIDAndName = arcdev.identifyPatientByIDAndName;
         identifyPatientByAllAttributes = arcdev.identifyPatientByAllAttributes;
         multipleStoreAssociations = arcdev.multipleStoreAssociations;
         mwlPollingInterval = arcdev.mwlPollingInterval;

@@ -89,27 +89,39 @@ public class PatientServiceEJB {
     public Collection<Patient> findPatients(Collection<IDWithIssuer> pids) {
         IdentityHashMap<Patient,Object> withoutMatchingIssuer = new IdentityHashMap<>();
         IdentityHashMap<Patient,Object> withMatchingIssuer = new IdentityHashMap<>();
-        findPatients(pids, withoutMatchingIssuer, withMatchingIssuer);
+        findPatients(pids, null, withoutMatchingIssuer, withMatchingIssuer);
         return (withMatchingIssuer.isEmpty() ? withoutMatchingIssuer : withMatchingIssuer).keySet();
     }
 
-    private void findPatients(Collection<IDWithIssuer> pids, IdentityHashMap<Patient, Object> withoutMatchingIssuer,
-                           IdentityHashMap<Patient, Object> withMatchingIssuer) {
+    private void findPatients(Collection<IDWithIssuer> pids, String pn,
+                              IdentityHashMap<Patient, Object> withoutMatchingIssuer,
+                              IdentityHashMap<Patient, Object> withMatchingIssuer) {
         for (IDWithIssuer pid : pids) {
-            for (PatientID patientID : findPatientIDs(pid)) {
+            for (PatientID patientID : findPatientIDs(pid, pn)) {
                 (matchingIssuer(pid.getIssuer(), patientID.getIssuer()) ? withMatchingIssuer : withoutMatchingIssuer)
                         .put(patientID.getPatient(), null);
             }
         }
     }
 
-    private List<PatientID> findPatientIDs(IDWithIssuer pid) {
+    private List<PatientID> findPatientIDs(IDWithIssuer pid, String pn) {
         List<PatientID> list = em.createNamedQuery(PatientID.FIND_BY_PATIENT_ID_EAGER, PatientID.class)
                 .setParameter(1, pid.getID())
                 .getResultList();
         if (pid.getIssuer() != null)
             list.removeIf(id -> id.getIssuer() != null && !id.getIssuer().matches(pid.getIssuer(), true, true));
+        if (pn != null)
+            list.removeIf(id -> !equalsFamilyNameIgnoreCase(pn, id.getPatientName())
+                    && !equalsFamilyNameIgnoreCase(pn, id.getPatient().getAttributes().getString(Tag.PatientName)));
         return list;
+    }
+
+    private static boolean equalsFamilyNameIgnoreCase(String pn1, String pn2) {
+        int l1 = pn1.indexOf('^');
+        int l2 = pn2.indexOf('^');
+        if (l1 < 0) l1 = pn1.length();
+        if (l2 < 0) l2 = pn2.length();
+        return l1 == l2 && pn1.regionMatches(true, 0, pn2, 0, l2);
     }
 
     public Patient createPatient(PatientMgtContext ctx) {
@@ -397,9 +409,12 @@ public class PatientServiceEJB {
 
         IdentityHashMap<Patient,Object> withoutMatchingIssuer = new IdentityHashMap<>();
         IdentityHashMap<Patient,Object> withMatchingIssuer = new IdentityHashMap<>();
-        findPatients(patientIDs, withoutMatchingIssuer, withMatchingIssuer);
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
+        findPatients(patientIDs,
+                arcdev.isIdentifyPatientByIDAndName() ? ctx.getAttributes().getString(Tag.PatientName) : null,
+                withoutMatchingIssuer, withMatchingIssuer);
         Collection<Patient> list = (withMatchingIssuer.isEmpty() ? withoutMatchingIssuer : withMatchingIssuer).keySet();
-        if (withMatchingIssuer.isEmpty() && getArchiveDeviceExtension().isIdentifyPatientByAllAttributes()) {
+        if (withMatchingIssuer.isEmpty() && arcdev.isIdentifyPatientByAllAttributes()) {
             removeNonMatching(ctx, list);
             if (list.size() > 1) {
                 LOG.info("{}: Found {} Patients with IDs: {} and matching attributes", ctx, list.size(), patientIDs);
@@ -753,7 +768,7 @@ public class PatientServiceEJB {
             if (pid.matches(newPID, true, true))
                 return false;
         }
-        if (!findPatientIDs(newPID).isEmpty()) {
+        if (!findPatientIDs(newPID, null).isEmpty()) {
             LOG.info("Ignore Patient ID {} already associated with different Patient", newPID);
             return false;
         }
