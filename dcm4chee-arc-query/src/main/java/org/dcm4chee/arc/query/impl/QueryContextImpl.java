@@ -75,6 +75,7 @@ class QueryContextImpl implements QueryContext {
     private QueryRetrieveLevel2 qrLevel;
     private IDWithIssuer[] patientIDs = {};
     private Issuer issuerOfPatientID;
+    private String notAccessControlID;
     private Attributes queryKeys;
     private Attributes coercedQueryKeys = new Attributes();
     private Attributes returnKeys;
@@ -188,6 +189,16 @@ class QueryContextImpl implements QueryContext {
     @Override
     public void setIssuerOfPatientID(Issuer issuerOfPatientID) {
         this.issuerOfPatientID = issuerOfPatientID;
+    }
+
+    @Override
+    public String getNotAccessControlID() {
+        return notAccessControlID;
+    }
+
+    @Override
+    public void setNotAccessControlID(String notAccessControlID) {
+        this.notAccessControlID = notAccessControlID;
     }
 
     @Override

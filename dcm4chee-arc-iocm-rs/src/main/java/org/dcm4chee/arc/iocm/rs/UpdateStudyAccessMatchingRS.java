@@ -211,6 +211,7 @@ public class UpdateStudyAccessMatchingRS {
             QueryContext qCtx = queryContext(method, qrlevel, ae);
             int count;
             String accessControlID1 = "null".equals(accessControlID) ? "*" : accessControlID;
+            qCtx.setNotAccessControlID(accessControlID1);
             try (Query query = queryService.createQuery(qCtx)) {
                 int queryMaxNumberOfResults = qCtx.getArchiveAEExtension().queryMaxNumberOfResults();
                 if (queryMaxNumberOfResults > 0 && !qCtx.containsUniqueKey()

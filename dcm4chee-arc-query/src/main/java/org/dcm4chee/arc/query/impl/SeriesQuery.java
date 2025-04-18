@@ -231,10 +231,9 @@ class SeriesQuery extends AbstractQuery {
         List<Predicate> predicates = builder.seriesPredicates(q, patient, study, series,
                 context.getPatientIDs(),
                 context.getIssuerOfPatientID(),
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()));
+                context.getQueryKeys(), context.getQueryParam(), codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()), context.getNotAccessControlID()
+        );
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
         return q;
