@@ -1,0 +1,145 @@
+services:
+  ldap:
+    image: dcm4che/slapd-dcm4chee:2.6.7-33.1
+    container_name: ldap 
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    ports:
+      - "389:389"
+      - "636:636"
+    environment:
+      STORAGE_DIR: /storage/fs1
+    volumes:
+      - ./dcm4chee-arc/ldap:/var/lib/openldap/openldap-data
+      - ./dcm4chee-arc/slapd.d:/etc/openldap/slapd.d
+
+  mariadb:
+    image: mariadb:10.11.4
+    container_name: mariadb
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: keycloak
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/local/dcm4chee-arc/mysql:/var/lib/mysql
+
+  keycloak:
+    image: dcm4che/keycloak:25.0.5
+    container_name: keycloak
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    ports:
+      - "8843:8843"
+    environment:
+      KC_HTTPS_PORT: 8843
+      KC_HOSTNAME: https://demo.radiology.kapsiki.net/keycloak/
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: 'true'
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: changeit
+      KC_PROXY: passthrough
+      KC_PROXY_HEADERS: xforwarded
+      KC_DB: mariadb
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_URL_HOST: mariadb
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_LOG: file
+      ARCHIVE_HOST: 212.132.115.76
+      KEYCLOAK_WAIT_FOR: ldap:389 mariadb:3306
+    depends_on:
+      - ldap
+      - mariadb
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/local/dcm4chee-arc/keycloak:/opt/keycloak/data
+
+  db:
+    image: dcm4che/postgres-dcm4chee:16.4-33
+    container_name: db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: pacsdb
+      POSTGRES_USER: pacs
+      POSTGRES_PASSWORD: pacs
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/local/dcm4chee-arc/db:/var/lib/postgresql/data
+
+  arc:
+    image: dcm4che/dcm4chee-arc-psql:5.33.0-secure-ui
+    container_name: arc
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "9990:9990"
+      - "9993:9993"
+      - "11112:11112"
+      - "2762:2762"
+      - "2575:2575"
+      - "12575:12575"
+    environment:
+      POSTGRES_DB: pacsdb
+      POSTGRES_USER: pacs
+      POSTGRES_PASSWORD: pacs
+      AUTH_SERVER_URL: https://keycloak:8843
+      UI_AUTH_SERVER_URL: https://demo.radiology.kapsiki.net/keycloak/
+      WILDFLY_CHOWN: /storage
+      WILDFLY_WAIT_FOR: ldap:389 db:5432 keycloak:8843
+    depends_on:
+      - ldap
+      - keycloak
+      - db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/local/dcm4chee-arc/wildfly:/opt/wildfly/standalone
+      - /var/local/dcm4chee-arc/storage:/storage
+
+  ohif-viewer:
+    image: kapsiki-kapsiki-ohif-viewer
+    container_name: ohif-viewer
+    ports:
+      - "3000:8080"  # Expose port 3000 to access the viewer
+    volumes:
+      - ./config/app-config.js:/usr/share/nginx/html/app-config.js  
+    depends_on:
+      - arc  
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"  
+      - "443:443"  
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/certs:/etc/letsencrypt
+    depends_on:
+      - arc
+      - keycloak
+   
+volumes:
+  postgres_data:
