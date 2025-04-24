@@ -350,6 +350,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmCompressionFetchSize", arcDev.getCompressionFetchSize(), 100);
         writer.writeNotEmpty("dcmCompressionSchedule", arcDev.getCompressionSchedules());
         writer.writeNotDef("dcmCompressionThreads", arcDev.getCompressionThreads(), 1);
+        writer.writeNotNullOrDef("dcmChangeAccessControlIDPollingInterval",
+                arcDev.getChangeAccessControlIDPollingInterval(), null);
         writer.writeNotNullOrDef("dcmDiffTaskProgressUpdateInterval",
                 arcDev.getDiffTaskProgressUpdateInterval(), null);
         writer.writeNotNullOrDef("dcmPatientVerificationPDQServiceID",
@@ -473,6 +475,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeMPPSForwardRule(writer, arcDev.getMPPSForwardRules());
         writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcDev.getStoreAccessControlIDRules());
+        writeChangeAccessControlIDRules(writer, arcDev.getChangeAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
         writeArchiveAttributeCoercion2(writer, arcDev.getAttributeCoercions2());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
@@ -799,6 +802,22 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
             writer.writeNotDef("dcmAccessControlSeriesIndividually", acr.isAccessControlSeriesIndividually(), false);
             writer.writeNotEmpty("dcmProperty", acr.getConditions().getMap());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeChangeAccessControlIDRules(JsonWriter writer, Collection<ChangeAccessControlIDRule> rules) {
+        writer.writeStartArray("dcmChangeAccessControlIDRule");
+        for (ChangeAccessControlIDRule rule : rules) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
+            writer.writeNotNullOrDef("dicomAETitle", rule.getAETitle(), Entity.Study);
+            writer.writeNotNullOrDef("dcmStoreAccessControlID", rule.getStoreAccessControlID(), null);
+            writer.writeNotNullOrDef("dcmEntity", rule.getEntity(), Entity.Study);
+            writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
+            writer.writeNotNullOrDef("dcmChangeAccessControlIDDelay", rule.getDelay(), null);
+            writer.writeNotNullOrDef("dcmChangeAccessControlIDMaxDelay", rule.getMaxDelay(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -2039,6 +2058,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmCompressionThreads":
                     arcDev.setCompressionThreads(reader.intValue());
                     break;
+                case "dcmChangeAccessControlIDPollingInterval":
+                    arcDev.setChangeAccessControlIDPollingInterval(Duration.valueOf(reader.stringValue()));
+                    break;
                 case "dcmDiffTaskProgressUpdateInterval":
                     arcDev.setDiffTaskProgressUpdateInterval(Duration.valueOf(reader.stringValue()));
                     break;
@@ -2298,6 +2320,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStoreAccessControlIDRule":
                     loadStoreAccessControlIDRule(arcDev.getStoreAccessControlIDRules(), reader);
+                    break;
+                case "dcmChangeAccessControlIDRule":
+                    loadChangeAccessControlIDRule(arcDev.getChangeAccessControlIDRules(), reader);
                     break;
                 case "dcmArchiveAttributeCoercion":
                     loadArchiveAttributeCoercion(arcDev.getAttributeCoercions(), reader, config);
@@ -3077,6 +3102,45 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             rules.add(acr);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadChangeAccessControlIDRule(Collection<ChangeAccessControlIDRule> rules, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            ChangeAccessControlIDRule rule = new ChangeAccessControlIDRule();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        rule.setCommonName(reader.stringValue());
+                        break;
+                    case "dicomAETitle":
+                        rule.setAETitle(reader.stringValue());
+                        break;
+                    case "dcmStoreAccessControlID":
+                        rule.setStoreAccessControlID(reader.stringValue());
+                        break;
+                    case "dcmEntity":
+                        rule.setEntity(Entity.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmEntitySelector":
+                        rule.setEntitySelectors(ChangeAccessControlIDRule.entitySelectors(reader.stringArray()));
+                        break;
+                    case "dcmChangeAccessControlIDDelay":
+                        rule.setDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmChangeAccessControlIDMaxDelay":
+                        rule.setMaxDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            rules.add(rule);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

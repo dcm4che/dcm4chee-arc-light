@@ -293,6 +293,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int compressionFetchSize = 100;
     private volatile int compressionThreads = 1;
     private volatile ScheduleExpression[] compressionSchedules = {};
+    private volatile Duration changeAccessControlIDPollingInterval;
     private volatile Duration diffTaskProgressUpdateInterval;
     private volatile String patientVerificationPDQServiceID;
     private volatile Duration patientVerificationPollingInterval;
@@ -388,6 +389,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final List<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final List<ArchiveAttributeCoercion2> attributeCoercions2 = new ArrayList<>();
     private final List<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
+    private final List<ChangeAccessControlIDRule> changeAccessControlIDRules = new ArrayList<>();
     private final List<MWLIdleTimeout> mwlIdleTimeoutList = new ArrayList<>();
     private final List<MWLImport> mwlImportList = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
@@ -2559,6 +2561,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return storeAccessControlIDRules;
     }
 
+    public void removeChangeAccessControlIDRule(ChangeAccessControlIDRule changeAccessControlIDRule) {
+        changeAccessControlIDRules.remove(changeAccessControlIDRule);
+    }
+
+    public void clearChangeAccessControlIDRules() {
+        changeAccessControlIDRules.clear();
+    }
+
+    public void addStoreAccessControlIDRule(ChangeAccessControlIDRule changeAccessControlIDRule) {
+        changeAccessControlIDRules.add(changeAccessControlIDRule);
+    }
+
+    public List<ChangeAccessControlIDRule> getChangeAccessControlIDRules() {
+        return changeAccessControlIDRules;
+    }
+
     public void removeMWLIdleTimeout(MWLIdleTimeout mwlIdleTimeout) {
         mwlIdleTimeoutList.remove(mwlIdleTimeout);
     }
@@ -2982,6 +3000,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setCompressionSchedules(ScheduleExpression[] compressionSchedules) {
         this.compressionSchedules = compressionSchedules;
+    }
+
+    public Duration getChangeAccessControlIDPollingInterval() {
+        return changeAccessControlIDPollingInterval;
+    }
+
+    public void setChangeAccessControlIDPollingInterval(Duration changeAccessControlIDPollingInterval) {
+        this.changeAccessControlIDPollingInterval = changeAccessControlIDPollingInterval;
     }
 
     public Duration getDiffTaskProgressUpdateInterval() {
@@ -3879,6 +3905,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionFetchSize = arcdev.compressionFetchSize;
         compressionSchedules = arcdev.compressionSchedules;
         compressionThreads = arcdev.compressionThreads;
+        changeAccessControlIDPollingInterval = arcdev.changeAccessControlIDPollingInterval;
         diffTaskProgressUpdateInterval = arcdev.diffTaskProgressUpdateInterval;
         patientVerificationPDQServiceID = arcdev.patientVerificationPDQServiceID;
         patientVerificationPollingInterval = arcdev.patientVerificationPollingInterval;
@@ -3997,6 +4024,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         attributeCoercions2.addAll(arcdev.attributeCoercions2);
         storeAccessControlIDRules.clear();
         storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
+        changeAccessControlIDRules.clear();
+        changeAccessControlIDRules.addAll(arcdev.changeAccessControlIDRules);
         mwlIdleTimeoutList.clear();
         mwlIdleTimeoutList.addAll(arcdev.mwlIdleTimeoutList);
         mwlImportList.clear();

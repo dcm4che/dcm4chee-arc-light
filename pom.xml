@@ -595,6 +595,7 @@
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
     <module>dcm4chee-arc-ui2</module>
+    <module>dcm4chee-arc-update</module>
     <module>dcm4chee-arc-xroad-rs</module>
     <module>dcm4chee-arc-xsl-cda</module>
     <module>dcm4chee-arc-ear</module>
