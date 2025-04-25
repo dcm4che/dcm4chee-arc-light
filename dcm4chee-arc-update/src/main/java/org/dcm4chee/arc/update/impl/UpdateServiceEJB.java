@@ -45,13 +45,11 @@ import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -85,7 +83,7 @@ public class UpdateServiceEJB {
                 codeCache.findOrCreateEntities(
                         queryParam.getQueryRetrieveView().getShowInstancesRejectedByCodes()),
                 accessControlID);
-        update.where(cb.exists(sq.select(study).where(predicates.toArray(new Predicate[predicates.size()]))));
+        update.where(cb.exists(sq.select(study).where(predicates.toArray(new Predicate[0]))));
         return em.createQuery(update).executeUpdate();
     }
 
@@ -109,7 +107,7 @@ public class UpdateServiceEJB {
                 codeCache.findOrCreateEntities(
                         queryParam.getQueryRetrieveView().getShowInstancesRejectedByCodes()),
                 accessControlID);
-        update.where(cb.exists(sq.select(series).where(predicates.toArray(new Predicate[predicates.size()]))));
+        update.where(cb.exists(sq.select(series).where(predicates.toArray(new Predicate[0]))));
         return em.createQuery(update).executeUpdate();
     }
 }
