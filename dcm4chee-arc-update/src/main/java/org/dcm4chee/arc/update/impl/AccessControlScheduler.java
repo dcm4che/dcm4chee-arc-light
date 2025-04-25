@@ -102,14 +102,14 @@ public class AccessControlScheduler extends Scheduler {
             case Study:
                 if ((updated = ejb.updateAccessControlIDOfStudies(
                         queryKeys, queryParam, rule.getStoreAccessControlID())) > 0) {
-                    LOG.info("{}: Changed access control ID of {} Studies to {}",
+                    LOG.info("{}: Changed Access Control ID of {} Studies to {}",
                             rule.getAETitle(), updated, rule.getStoreAccessControlID());
                 }
                 break;
             case Series:
                 if ((updated = ejb.updateAccessControlIDOfSeries(
                         queryKeys, queryParam, rule.getStoreAccessControlID())) > 0) {
-                    LOG.info("{}: Changed access control ID of {} Series to {}",
+                    LOG.info("{}: Changed Access Control ID of {} Series to {}",
                             rule.getAETitle(), updated, rule.getStoreAccessControlID());
                 }
                 break;
