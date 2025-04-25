@@ -89,38 +89,30 @@ public class AccessControlScheduler extends Scheduler {
             }
             QueryParam queryParam = new QueryParam(ae);
             if (rule.getEntitySelectors().length == 0) {
-                int updated;
-                switch (rule.getEntity()) {
-                    case Study:
-                        updated = ejb.updateAccessControlIDOfStudies(
-                               new Attributes(), queryParam, rule.getStoreAccessControlID());
-                        LOG.info("{}: Changed access control ID of {} Studies to {}",
-                                ae.getAETitle(), updated, rule.getStoreAccessControlID());
-                        break;
-                    case Series:
-                        updated = ejb.updateAccessControlIDOfSeries(
-                                new Attributes(), queryParam, rule.getStoreAccessControlID());
-                        LOG.info("{}: Changed access control ID of {} Series with {} to {}",
-                                ae.getAETitle(), updated, rule.getStoreAccessControlID());
-                        break;
-                }
+                updateAccessControlIDs(rule, rule.getQueryKeys(), queryParam);
             } else for (ChangeAccessControlIDRule.EntitySelector entitySelector : rule.getEntitySelectors()) {
-                int updated;
-                switch (rule.getEntity()) {
-                    case Study:
-                        updated = ejb.updateAccessControlIDOfStudies(
-                                entitySelector.getQueryKeys(rule), queryParam, rule.getStoreAccessControlID());
-                        LOG.info("{}: Changed access control ID of {} Studies with {} to {}",
-                                ae.getAETitle(), updated, entitySelector, rule.getStoreAccessControlID());
-                        break;
-                    case Series:
-                        updated = ejb.updateAccessControlIDOfSeries(
-                                entitySelector.getQueryKeys(rule), queryParam, rule.getStoreAccessControlID());
-                        LOG.info("{}: Changed access control ID of {} Series with {} to {}",
-                                ae.getAETitle(), updated, entitySelector, rule.getStoreAccessControlID());
-                        break;
-                }
+                updateAccessControlIDs(rule, entitySelector.getQueryKeys(rule), queryParam);
             }
+        }
+    }
+
+    private void updateAccessControlIDs(ChangeAccessControlIDRule rule, Attributes queryKeys, QueryParam queryParam) {
+        int updated;
+        switch (rule.getEntity()) {
+            case Study:
+                if ((updated = ejb.updateAccessControlIDOfStudies(
+                        queryKeys, queryParam, rule.getStoreAccessControlID())) > 0) {
+                    LOG.info("{}: Changed access control ID of {} Studies to {}",
+                            rule.getAETitle(), updated, rule.getStoreAccessControlID());
+                }
+                break;
+            case Series:
+                if ((updated = ejb.updateAccessControlIDOfSeries(
+                        queryKeys, queryParam, rule.getStoreAccessControlID())) > 0) {
+                    LOG.info("{}: Changed access control ID of {} Series to {}",
+                            rule.getAETitle(), updated, rule.getStoreAccessControlID());
+                }
+                break;
         }
     }
 }

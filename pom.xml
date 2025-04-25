@@ -582,6 +582,7 @@
     <module>dcm4chee-arc-stow</module>
     <module>dcm4chee-arc-stow-client</module>
     <module>dcm4chee-arc-study</module>
+    <module>dcm4chee-arc-update</module>
     <module>dcm4chee-arc-ups</module>
     <module>dcm4chee-arc-ups-ian</module>
     <module>dcm4chee-arc-ups-movescu</module>
@@ -595,7 +596,6 @@
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
     <module>dcm4chee-arc-ui2</module>
-    <module>dcm4chee-arc-update</module>
     <module>dcm4chee-arc-xroad-rs</module>
     <module>dcm4chee-arc-xsl-cda</module>
     <module>dcm4chee-arc-ear</module>

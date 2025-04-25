@@ -88,14 +88,21 @@ public class ChangeAccessControlIDRule {
         }
 
         public Attributes getQueryKeys(ChangeAccessControlIDRule rule) {
-            Attributes queryKeys = new Attributes(this.keys);
-            long now = System.currentTimeMillis();
-            queryKeys.setDateRange(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT,
-                    new DateRange(
-                            rule.maxDelay != null ? new Date(now - rule.maxDelay.getSeconds() * 1000L) : null,
-                            new Date(now - rule.delay.getSeconds() * 1000L)));
-            return queryKeys;
+            return rule.setStudyReceiveDateTimeRange(new Attributes(this.keys));
         }
+    }
+
+    public Attributes getQueryKeys() {
+        return setStudyReceiveDateTimeRange(new Attributes(1));
+    }
+
+    private Attributes setStudyReceiveDateTimeRange(Attributes queryKeys) {
+        long now = System.currentTimeMillis();
+        queryKeys.setDateRange(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT,
+                new DateRange(
+                        maxDelay != null ? new Date(now - maxDelay.getSeconds() * 1000L) : null,
+                        new Date(now - delay.getSeconds() * 1000L)));
+        return queryKeys;
     }
 
     public static EntitySelector[] entitySelectors(String... ss) {

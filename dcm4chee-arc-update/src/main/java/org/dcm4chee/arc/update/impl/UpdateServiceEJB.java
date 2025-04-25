@@ -78,7 +78,7 @@ public class UpdateServiceEJB {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         List<Predicate> predicates = builder.studyPredicates(update, patient, study,
                 idWithIssuer != null
-                        ? new IDWithIssuer[] { idWithIssuer } : null,
+                        ? new IDWithIssuer[] { idWithIssuer } : IDWithIssuer.EMPTY,
                 idWithIssuer == null && queryParam.isFilterByIssuerOfPatientID()
                         ? Issuer.fromIssuerOfPatientID(keys) : null,
                 keys, queryParam,
@@ -102,7 +102,7 @@ public class UpdateServiceEJB {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         List<Predicate> predicates = builder.seriesPredicates(update, patient, study, series,
                 idWithIssuer != null
-                        ? new IDWithIssuer[] { idWithIssuer } : null,
+                        ? new IDWithIssuer[] { idWithIssuer } : IDWithIssuer.EMPTY,
                 idWithIssuer == null && queryParam.isFilterByIssuerOfPatientID()
                         ? Issuer.fromIssuerOfPatientID(keys) : null,
                 keys, queryParam,
