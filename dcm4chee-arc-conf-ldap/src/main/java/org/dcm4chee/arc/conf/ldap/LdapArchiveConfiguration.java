@@ -5272,8 +5272,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", rule.getConditions().getMap());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID", rule.getStoreAccessControlID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", rule.getPriority(), 0);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmAccessControlSeriesIndividually",
-                rule.isAccessControlSeriesIndividually(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmEntity", rule.getEntity(), Entity.Study);
         return attrs;
     }
 
@@ -5390,7 +5389,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 rule.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
                 rule.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
-                rule.setAccessControlSeriesIndividually(LdapUtils.booleanValue(attrs.get("dcmAccessControlSeriesIndividually"), false));
+                rule.setEntity(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), Entity.Study));
                 rules.add(rule);
             }
         } finally {
@@ -5921,9 +5920,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID",
                 prev.getStoreAccessControlID(), rule.getStoreAccessControlID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmAccessControlSeriesIndividually",
-                prev.isAccessControlSeriesIndividually(),
-                rule.isAccessControlSeriesIndividually(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmEntity",
+                prev.getEntity(), rule.getEntity(), Entity.Study);
         return mods;
     }
 

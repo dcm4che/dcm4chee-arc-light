@@ -2309,9 +2309,9 @@ public class ArchiveAEExtension extends AEExtension {
                 .orElse(null);
     }
 
-    public Stream<StoreAccessControlIDRule> storeAccessControlIDRules(boolean accessControlSeriesIndividually) {
+    public Stream<StoreAccessControlIDRule> storeAccessControlIDRules(Entity entity) {
         return Stream.concat(storeAccessControlIDRules.stream(), getArchiveDeviceExtension().getStoreAccessControlIDRules().stream())
-                .filter(rule -> rule.isAccessControlSeriesIndividually() == accessControlSeriesIndividually)
+                .filter(rule -> rule.getEntity().equals(entity))
                 .sorted(Comparator.comparingInt(StoreAccessControlIDRule::getPriority).reversed());
     }
 

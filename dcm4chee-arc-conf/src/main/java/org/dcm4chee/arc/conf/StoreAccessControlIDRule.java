@@ -52,7 +52,7 @@ public class StoreAccessControlIDRule {
     public static final StoreAccessControlIDRule[] EMPTY = {};
     private String commonName;
 
-    private boolean accessControlSeriesIndividually;
+    private Entity entity = Entity.Study;
 
     private int priority;
 
@@ -75,12 +75,19 @@ public class StoreAccessControlIDRule {
         this.commonName = commonName;
     }
 
-    public boolean isAccessControlSeriesIndividually() {
-        return accessControlSeriesIndividually;
+    public Entity getEntity() {
+        return entity;
     }
 
-    public void setAccessControlSeriesIndividually(boolean accessControlSeriesIndividually) {
-        this.accessControlSeriesIndividually = accessControlSeriesIndividually;
+    public void setEntity(Entity entity) {
+        switch (entity) {
+            case Study:
+            case Series:
+                break;
+            default:
+                throw new IllegalArgumentException(entity.toString());
+        }
+        this.entity = entity;
     }
 
     public int getPriority() {
@@ -116,7 +123,7 @@ public class StoreAccessControlIDRule {
     public String toString() {
         return "StoreAccessControlIDRule{" +
                 "cn='" + commonName +
-                "', accessControlSeriesIndividually=" + accessControlSeriesIndividually +
+                "', entity=" + entity +
                 ", priority=" + priority +
                 ", conditions=" + conditions +
                 ", storeAccessControlID='" + storeAccessControlID +

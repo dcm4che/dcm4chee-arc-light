@@ -1320,7 +1320,7 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
         study.addStorageID(objectStorageID(ctx));
-        study.setAccessControlID(arcAE.storeAccessControlIDRules(false)
+        study.setAccessControlID(arcAE.storeAccessControlIDRules(Entity.Study)
                 .filter(rule -> rule.match(
                                 session.getRemoteHostName(),
                                 session.getCallingAET(),
@@ -1513,7 +1513,7 @@ public class StoreServiceEJB {
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         series.setExpirationState(ExpirationState.UPDATEABLE);
-        arcAE.storeAccessControlIDRules(true)
+        arcAE.storeAccessControlIDRules(Entity.Series)
                 .filter(rule -> rule.match(
                         session.getRemoteHostName(),
                         session.getCallingAET(),

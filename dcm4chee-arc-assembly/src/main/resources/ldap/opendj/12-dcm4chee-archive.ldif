@@ -2348,7 +2348,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.481 NAME 'dcmRelationalMismatchPolicy'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.482 NAME 'dcmAccessControlSeriesIndividually'
-  DESC 'Indicates if access of series should be controlled individually or not. If absent, it is false.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -3125,6 +3125,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.23 NAME 'dcmStoreAccessControlIDRule'
     cn $
     dcmStoreAccessControlID )
   MAY (
+    dcmEntity $
     dcmAccessControlSeriesIndividually $
     dcmRulePriority $
     dcmProperty ) )
