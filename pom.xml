@@ -582,6 +582,7 @@
     <module>dcm4chee-arc-stow</module>
     <module>dcm4chee-arc-stow-client</module>
     <module>dcm4chee-arc-study</module>
+    <module>dcm4chee-arc-update</module>
     <module>dcm4chee-arc-ups</module>
     <module>dcm4chee-arc-ups-ian</module>
     <module>dcm4chee-arc-ups-movescu</module>

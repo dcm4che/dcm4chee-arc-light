@@ -204,9 +204,9 @@ class StudyQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getIssuerOfPatientID(),
                 context.getQueryKeys(),
-                context.getQueryParam(),
-                codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()));
+                context.getQueryParam(), codeCache.findOrCreateEntities(
+                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()), context.getNotAccessControlID()
+        );
         for (Predicate predicate : extra)
             predicates.add(predicate);
         if (!predicates.isEmpty())

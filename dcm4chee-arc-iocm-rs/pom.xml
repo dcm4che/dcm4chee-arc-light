@@ -155,6 +155,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-update</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-csv</artifactId>
     </dependency>

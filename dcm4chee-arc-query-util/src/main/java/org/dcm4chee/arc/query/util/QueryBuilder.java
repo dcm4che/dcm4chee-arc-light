@@ -57,7 +57,6 @@ import org.dcm4chee.arc.entity.*;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -347,9 +346,9 @@ public class QueryBuilder {
         return true;
     }
 
-    public <T, Z> void patientIDPredicate(
-            List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Patient> patient, IDWithIssuer[] pids) {
-        Subquery<Patient> sq = q.subquery(Patient.class);
+    public <Z> void patientIDPredicate(
+            List<Predicate> predicates, CommonAbstractCriteria criteria, From<Z, Patient> patient, IDWithIssuer[] pids) {
+        Subquery<Patient> sq = criteria.subquery(Patient.class);
         Root<PatientID> patientIdentifier = sq.from(PatientID.class);
         List<Predicate> y = new ArrayList<>();
         patIDPredicate(y, pids, patientIdentifier);
@@ -401,80 +400,80 @@ public class QueryBuilder {
                 issuer);
     }
 
-    public <T> List<Predicate> patientPredicates(CriteriaQuery<T> q,
+    public List<Predicate> patientPredicates(CommonAbstractCriteria criteria,
             Root<Patient> patient, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.PATIENT);
+        patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.PATIENT);
         return predicates;
     }
 
-    public <T> List<Predicate> studyPredicates(CriteriaQuery<T> q,
+    public List<Predicate> studyPredicates(CommonAbstractCriteria criteria,
            From<Study, Patient> patient, Root<Study> study,
            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
-           CodeEntity[] showInstancesRejectedByCodes) {
+           CodeEntity[] showInstancesRejectedByCodes, String notAccessControlID) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.STUDY);
-        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.STUDY, showInstancesRejectedByCodes);
+        patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.STUDY);
+        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.STUDY, showInstancesRejectedByCodes, notAccessControlID);
         return predicates;
     }
 
-    public <T> List<Predicate> seriesPredicates(CriteriaQuery<T> q,
+    public <T> List<Predicate> seriesPredicates(CommonAbstractCriteria criteria,
             From<Study, Patient> patient, From<Series, Study> study, Root<Series> series,
             IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
-            CodeEntity[] showInstancesRejectedByCodes) {
+            CodeEntity[] showInstancesRejectedByCodes, String notAccessControlID) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.SERIES);
-        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
-        seriesLevelPredicates(predicates, q, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
+        patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.SERIES);
+        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes, null);
+        seriesLevelPredicates(predicates, criteria, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes, notAccessControlID);
         return predicates;
     }
 
-    public <T> List<Predicate> instancePredicates(CriteriaQuery<T> q,
+    public List<Predicate> instancePredicates(CommonAbstractCriteria criteria,
             From<Study, Patient> patient, From<Series, Study> study, From<Instance, Series> series,
             Root<Instance> instance, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.IMAGE);
-        studyLevelPredicates(predicates, q, study, keys, queryParam, QueryRetrieveLevel2.IMAGE, showInstancesRejectedByCodes);
-        seriesLevelPredicates(predicates, q, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
-        instanceLevelPredicates(predicates, q, study, series, instance, keys, queryParam,
+        patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.IMAGE);
+        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.IMAGE, showInstancesRejectedByCodes, null);
+        seriesLevelPredicates(predicates, criteria, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes, null);
+        instanceLevelPredicates(predicates, criteria, study, series, instance, keys, queryParam,
                 showInstancesRejectedByCodes, hideRejectionNoteWithCodes);
         return predicates;
     }
 
-    public <T> List<Predicate> mwlItemPredicates(CriteriaQuery<T> q,
+    public List<Predicate> mwlItemPredicates(CommonAbstractCriteria criteria,
             From<MWLItem, Patient> patient, Root<MWLItem> mwlItem,
             IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
-        mwlItemLevelPredicates(predicates, q, mwlItem, keys, queryParam);
+        patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, null);
+        mwlItemLevelPredicates(predicates, criteria, mwlItem, keys, queryParam);
         return predicates;
     }
 
-    public <T> List<Predicate> upsPredicates(CriteriaQuery<T> q,
+    public List<Predicate> upsPredicates(CommonAbstractCriteria criteria,
             Join<UPS, Patient> patient, Root<UPS> ups,
             IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
-        upsLevelPredicates(predicates, q, ups, keys, queryParam);
+        patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, null);
+        upsLevelPredicates(predicates, criteria, ups, keys, queryParam);
         return predicates;
     }
 
-    public <T> List<Predicate> mwlupsPredicates(CriteriaQuery<T> q,
+    public List<Predicate> mwlupsPredicates(CommonAbstractCriteria criteria,
             Join<UPS, Patient> patient, Root<UPS> ups,
             IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
-        mwlupsLevelPredicates(predicates, q, ups, keys, queryParam);
+        patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, null);
+        mwlupsLevelPredicates(predicates, criteria, ups, keys, queryParam);
         return predicates;
     }
 
-    public <T> List<Predicate> mppsPredicates(CriteriaQuery<T> q,
+    public <T> List<Predicate> mppsPredicates(CommonAbstractCriteria criteria,
            From<MPPS, Patient> patient, Root<MPPS> mpps,
            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
-        patientLevelPredicates(predicates, q, patient, pids, issuer, keys, queryParam, null);
-        mppsLevelPredicates(predicates, q, mpps, keys, queryParam);
+        patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, null);
+        mppsLevelPredicates(predicates, criteria, mpps, keys, queryParam);
         return predicates;
     }
 
@@ -569,13 +568,13 @@ public class QueryBuilder {
         return predicates;
     }
 
-    private <T, Z> void patientLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <Z> void patientLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
             From<Z, Patient> patient, IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
             QueryRetrieveLevel2 queryRetrieveLevel) {
         if (patient == null)
             return;
 
-        Subquery<Patient> sq = q.subquery(Patient.class);
+        Subquery<Patient> sq = criteria.subquery(Patient.class);
         Root<PatientID> patientIdentifier = sq.from(PatientID.class);
         List<Predicate> y = new ArrayList<>();
         if (queryParam.isWithoutIssuer())
@@ -588,11 +587,11 @@ public class QueryBuilder {
             predicates.add(patient.in(
                     sq.select(patientIdentifier.get(PatientID_.patient)).where(y.toArray(new Predicate[0]))));
         }
-        patientLevelPredicates2(predicates, q, patient, keys, queryParam, queryRetrieveLevel);
+        patientLevelPredicates2(predicates, criteria, patient, keys, queryParam, queryRetrieveLevel);
     }
 
-    public <T> List<Predicate> patientIDPredicates(
-            CriteriaQuery<T> q, Root<PatientID> patientID, Join<PatientID, Patient> patient, IDWithIssuer[] pids, Issuer issuer,
+    public List<Predicate> patientIDPredicates(
+            CommonAbstractCriteria criteria, Root<PatientID> patientID, Join<PatientID, Patient> patient, IDWithIssuer[] pids, Issuer issuer,
             Attributes keys, QueryParam queryParam) {
         List<Predicate> predicates = new ArrayList<>();
         if (queryParam.isWithoutIssuer())
@@ -601,11 +600,11 @@ public class QueryBuilder {
             patIDPredicate(predicates, pids, patientID);
         else if (!QueryBuilder.isUniversalMatching(issuer))
             patIDIssuerPredicate(predicates, issuer, patientID);
-        patientLevelPredicates2(predicates, q, patient, keys, queryParam, QueryRetrieveLevel2.PATIENT);
+        patientLevelPredicates2(predicates, criteria, patient, keys, queryParam, QueryRetrieveLevel2.PATIENT);
         return predicates;
     }
 
-    private <T, Z> void patientLevelPredicates2(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <Z> void patientLevelPredicates2(List<Predicate> predicates, CommonAbstractCriteria criteria,
                From<Z, Patient> patient, Attributes keys, QueryParam queryParam,
                QueryRetrieveLevel2 queryRetrieveLevel) {
         if (queryRetrieveLevel == QueryRetrieveLevel2.PATIENT) {
@@ -614,15 +613,15 @@ public class QueryBuilder {
             else
                 predicates.add(patient.get(Patient_.mergedWith).isNull());
             if (queryParam.isOnlyWithStudies())
-                predicates.add(onlyWithStudiesPredicate(q, patient, queryParam));
+                predicates.add(onlyWithStudiesPredicate(criteria, patient, queryParam));
         }
-        personName(predicates, q, patient, Patient_.patientName,
+        personName(predicates, criteria, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
         anyOf(predicates, patient.get(Patient_.patientSex),
                 toUpperCase(keys.getStrings(Tag.PatientSex)), false);
         dateRange(predicates, patient.get(Patient_.patientBirthDate),
                 keys.getDateRange(Tag.PatientBirthDate), FormatDate.DA);
-        personName(predicates, q, patient, Patient_.responsiblePerson,
+        personName(predicates, criteria, patient, Patient_.responsiblePerson,
                 keys.getString(Tag.ResponsiblePerson, "*"), queryParam);
         dateRange(predicates, patient.get(Patient_.createdTime),
                 keys.getDateRange(PrivateTag.PrivateCreator, PrivateTag.PatientCreateDateTime, VR.DT));
@@ -637,11 +636,11 @@ public class QueryBuilder {
             predicates.add(cb.equal(patient.get(Patient_.verificationStatus), queryParam.getPatientVerificationStatus()));
     }
 
-    private <T, Z> Predicate onlyWithStudiesPredicate(CriteriaQuery<T> q, From<Z, Patient> patient, QueryParam queryParam) {
+    private <Z> Predicate onlyWithStudiesPredicate(CommonAbstractCriteria criteria, From<Z, Patient> patient, QueryParam queryParam) {
         if (queryParam.getAccessControlIDs().length == 0)
             return cb.greaterThan(patient.get(Patient_.numberOfStudies), 0);
 
-        Subquery<Study> sq = q.subquery(Study.class);
+        Subquery<Study> sq = criteria.subquery(Study.class);
         Root<Study> study = sq.from(Study.class);
         return cb.exists(sq.select(study).where(cb.and(
                 accessControlPredicate(study, queryParam.getAccessControlIDs()),
@@ -704,9 +703,9 @@ public class QueryBuilder {
         return predicates;
     }
 
-    private <T, Z> void studyLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <Z> void studyLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
             From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel,
-            CodeEntity[] showInstancesRejectedByCodes) {
+            CodeEntity[] showInstancesRejectedByCodes, String notAccessControlID) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         accessControl(predicates, study, queryParam.getAccessControlIDs());
         anyOf(predicates, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
@@ -714,7 +713,7 @@ public class QueryBuilder {
         dateRange(predicates, study.get(Study_.studyDate), study.get(Study_.studyTime),
                 Tag.StudyDate, Tag.StudyTime, Tag.StudyDateAndTime,
                 keys, combinedDatetimeMatching);
-        personName(predicates, q, study, Study_.referringPhysicianName,
+        personName(predicates, criteria, study, Study_.referringPhysicianName,
                 keys.getString(Tag.ReferringPhysicianName, "*"), queryParam);
         anyOf(predicates, study.get(Study_.studyDescription),
                 keys.getStrings(Tag.StudyDescription), true);
@@ -734,16 +733,16 @@ public class QueryBuilder {
         String[] modalitiesInStudy = keys.getStrings(Tag.ModalitiesInStudy);
         if (queryParam.isAllOfModalitiesInStudy() && modalitiesInStudy != null && modalitiesInStudy.length > 1) {
             for (String modality : modalitiesInStudy) {
-                seriesAttributesInStudy(predicates, q, study, keys, queryParam, queryRetrieveLevel, modality);
+                seriesAttributesInStudy(predicates, criteria, study, keys, queryParam, queryRetrieveLevel, modality);
             }
         } else {
-            seriesAttributesInStudy(predicates, q, study, keys, queryParam, queryRetrieveLevel, modalitiesInStudy);
+            seriesAttributesInStudy(predicates, criteria, study, keys, queryParam, queryRetrieveLevel, modalitiesInStudy);
         }
-        codes(predicates, q, study, Study_.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence));
+        codes(predicates, criteria, study, Study_.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             String requested = queryParam.getRequested();
             if (requested != null) {
-                Subquery<Series> sq = q.subquery(Series.class);
+                Subquery<Series> sq = criteria.subquery(Series.class);
                 Root<Series> series = sq.from(Series.class);
                 Predicate exists = cb.exists(sq.select(series).where(cb.and(
                         cb.isNotEmpty(series.get(Series_.requestAttributes)),
@@ -768,7 +767,7 @@ public class QueryBuilder {
             predicates.add(cb.notEqual(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAETNot()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             if (queryParam.isHideNotRejectedInstances()) {
-                Subquery<RejectedInstance> sq = q.subquery(RejectedInstance.class);
+                Subquery<RejectedInstance> sq = criteria.subquery(RejectedInstance.class);
                 Root<RejectedInstance> ri = sq.from(RejectedInstance.class);
                 Predicate y = cb.equal(ri.get(RejectedInstance_.studyInstanceUID), study.get(Study_.studyInstanceUID));
                 if (showInstancesRejectedByCodes.length > 0) {
@@ -804,6 +803,8 @@ public class QueryBuilder {
                         issuer);
             }
         }
+        if (notAccessControlID != null)
+            predicates.add(cb.notEqual(study.get(Study_.accessControlID), notAccessControlID));
     }
 
     public static void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
@@ -830,9 +831,10 @@ public class QueryBuilder {
         return series.get(Series_.accessControlID).in(a);
     }
 
-    private <T, Z> void seriesLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <Z> void seriesLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
              From<Series, Study> study, From<Z, Series> series, Attributes keys, QueryParam queryParam,
-             QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes) {
+             QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes,
+             String notAccessControlID) {
         seriesAccessControl(predicates, series, queryParam.getAccessControlIDs());
         anyOf(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID), false);
         numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
@@ -848,7 +850,7 @@ public class QueryBuilder {
                 Tag.PerformedProcedureStepStartDate, Tag.PerformedProcedureStepStartTime,
                 Tag.PerformedProcedureStepStartDateAndTime,
                 keys, queryParam.isCombinedDatetimeMatching());
-        personName(predicates, q, series, Series_.performingPhysicianName,
+        personName(predicates, criteria, series, Series_.performingPhysicianName,
                 keys.getString(Tag.PerformingPhysicianName), queryParam);
         anyOf(predicates, series.get(Series_.seriesDescription),
                 keys.getStrings(Tag.SeriesDescription), true);
@@ -859,13 +861,13 @@ public class QueryBuilder {
         anyOf(predicates, series.get(Series_.institutionName),
                 keys.getStrings(Tag.InstitutionName), true);
         Attributes reqAttrs = keys.getNestedDataset(Tag.RequestAttributesSequence);
-        requestAttributes(predicates, q, series, reqAttrs, queryParam);
+        requestAttributes(predicates, criteria, series, reqAttrs, queryParam);
         code(predicates, series.get(Series_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
         code(predicates,
                 series.get(Series_.institutionalDepartmentTypeCode),
                 keys.getNestedDataset(Tag.InstitutionalDepartmentTypeCodeSequence));
         if (queryRetrieveLevel2 == QueryRetrieveLevel2.SERIES && queryParam.isHideNotRejectedInstances()) {
-            Subquery<RejectedInstance> sq = q.subquery(RejectedInstance.class);
+            Subquery<RejectedInstance> sq = criteria.subquery(RejectedInstance.class);
             Root<RejectedInstance> ri = sq.from(RejectedInstance.class);
             Predicate y = cb.and(cb.equal(ri.get(RejectedInstance_.studyInstanceUID), study.get(Study_.studyInstanceUID)),
                     cb.equal(ri.get(RejectedInstance_.seriesInstanceUID), series.get(Series_.seriesInstanceUID)));
@@ -919,9 +921,11 @@ public class QueryBuilder {
             dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
         if (queryParam.getExpirationState() != null)
             predicates.add(series.get(Series_.expirationState).in(queryParam.getExpirationState()));
+        if (notAccessControlID != null)
+            predicates.add(cb.notEqual(series.get(Series_.accessControlID), notAccessControlID));
     }
 
-    private <T> void instanceLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private void instanceLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Path<Study> study, Path<Series> series, Root<Instance> instance, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
@@ -941,12 +945,12 @@ public class QueryBuilder {
                 keys.getNestedDataset(Tag.ConceptNameCodeSequence)))
             hideRejectionNote(predicates, instance, hideRejectionNoteWithCodes);
         Attributes reqAttrs = keys.getNestedDataset(Tag.ReferencedRequestSequence);
-        instanceRequestAttributes(predicates, q, instance, reqAttrs, queryParam);
-        verifyingObserver(predicates, q, instance, keys.getNestedDataset(Tag.VerifyingObserverSequence), queryParam);
+        instanceRequestAttributes(predicates, criteria, instance, reqAttrs, queryParam);
+        verifyingObserver(predicates, criteria, instance, keys.getNestedDataset(Tag.VerifyingObserverSequence), queryParam);
         Sequence contentSeq = keys.getSequence(Tag.ContentSequence);
         if (contentSeq != null)
             for (Attributes item : contentSeq)
-                contentItem(predicates, q, instance, item);
+                contentItem(predicates, criteria, instance, item);
         AttributeFilter attrFilter = queryParam
                 .getAttributeFilter(Entity.Instance);
         wildCard(predicates,
@@ -964,11 +968,11 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys,
                         attrFilter.getCustomAttribute3(), "*"),
                 true);
-        hideRejectedInstance(predicates, q, study, series, instance,
+        hideRejectedInstance(predicates, criteria, study, series, instance,
                 showInstancesRejectedByCodes, queryParam.isHideNotRejectedInstances());
     }
 
-    public <T> List<Predicate> sopInstanceRefs(CriteriaQuery<T> q,
+    public List<Predicate> sopInstanceRefs(CommonAbstractCriteria criteria,
             Path<Study> study, Path<Series> series, Root<Instance> instance,
             String studyIUID, String objectUID, QueryRetrieveView qrView,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes, String... seriesUID) {
@@ -978,13 +982,13 @@ public class QueryBuilder {
             uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), seriesUID);
         if (!isUniversalMatching(objectUID))
             predicates.add(cb.equal(instance.get(Instance_.sopInstanceUID), objectUID));
-        hideRejectedInstance(predicates, q, study, series, instance,
+        hideRejectedInstance(predicates, criteria, study, series, instance,
                 showInstancesRejectedByCodes, qrView.isHideNotRejectedInstances());
         hideRejectionNote(predicates, instance, hideRejectionNoteWithCodes);
         return predicates;
     }
 
-    private <T> void mwlItemLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q, Root<MWLItem> mwlItem,
+    private void mwlItemLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria, Root<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
         anyOf(predicates, mwlItem.get(MWLItem_.worklistLabel), keys.getStrings(Tag.WorklistLabel), false, true);
         anyOf(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
@@ -1016,7 +1020,7 @@ public class QueryBuilder {
                     Tag.ScheduledProcedureStepStartTime,
                     Tag.ScheduledProcedureStepStartDateAndTime,
                     sps, true);
-            personName(predicates, q, mwlItem, MWLItem_.scheduledPerformingPhysicianName,
+            personName(predicates, criteria, mwlItem, MWLItem_.scheduledPerformingPhysicianName,
                     sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam);
             anyOf(predicates, mwlItem.get(MWLItem_.modality),
                     toUpperCase(sps.getStrings(Tag.Modality)), false);
@@ -1084,7 +1088,7 @@ public class QueryBuilder {
             predicates.add(mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not());
     }
 
-    private <T> void upsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private void upsLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Root<UPS> ups, Attributes keys, QueryParam queryParam) {
         anyOf(predicates, ups.get(UPS_.upsInstanceUID), keys.getStrings(Tag.SOPInstanceUID), false);
         anyOf(predicates, ups.get(UPS_.upsPriority), UPSPriority::valueOf,
@@ -1093,17 +1097,17 @@ public class QueryBuilder {
                 keys.getDateRange(Tag.ScheduledProcedureStepModificationDateTime));
         anyOf(predicates, ups.get(UPS_.upsLabel), keys.getStrings(Tag.ProcedureStepLabel), true);
         anyOf(predicates, ups.get(UPS_.worklistLabel), keys.getStrings(Tag.WorklistLabel), true);
-        codes(predicates, q, ups, UPS_.scheduledStationNameCodes,
+        codes(predicates, criteria, ups, UPS_.scheduledStationNameCodes,
                 keys.getNestedDataset(Tag.ScheduledStationNameCodeSequence));
-        codes(predicates, q, ups, UPS_.scheduledStationClassCodes,
+        codes(predicates, criteria, ups, UPS_.scheduledStationClassCodes,
                 keys.getNestedDataset(Tag.ScheduledStationClassCodeSequence));
-        codes(predicates, q, ups, UPS_.scheduledStationGeographicLocationCodes,
+        codes(predicates, criteria, ups, UPS_.scheduledStationGeographicLocationCodes,
                 keys.getNestedDataset(Tag.ScheduledStationGeographicLocationCodeSequence));
         Attributes scheduledHumanPerformersSequence = keys.getNestedDataset(Tag.ScheduledHumanPerformersSequence);
         if (scheduledHumanPerformersSequence != null) {
-            codes(predicates, q, ups, UPS_.humanPerformerCodes,
+            codes(predicates, criteria, ups, UPS_.humanPerformerCodes,
                     scheduledHumanPerformersSequence.getNestedDataset(Tag.HumanPerformerCodeSequence));
-            personName(predicates, q, ups, UPS_.humanPerformerName,
+            personName(predicates, criteria, ups, UPS_.humanPerformerName,
                     scheduledHumanPerformersSequence.getString(Tag.HumanPerformerName, "*"), queryParam);
         }
         if (queryParam.isTemplate())
@@ -1134,7 +1138,7 @@ public class QueryBuilder {
                         issuer);
             }
         }
-        upsRequestAttributes(predicates, q, ups, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
+        upsRequestAttributes(predicates, criteria, ups, keys.getNestedDataset(Tag.ReferencedRequestSequence), queryParam);
         Attributes replacedProcedureStep = keys.getNestedDataset(Tag.ReplacedProcedureStepSequence);
         if (replacedProcedureStep != null) {
             anyOf(predicates, ups.get(UPS_.replacedSOPInstanceUID),
@@ -1142,27 +1146,27 @@ public class QueryBuilder {
         }
         anyOf(predicates, ups.get(UPS_.procedureStepState), UPSState::fromString,
                 toUpperCase(keys.getStrings(Tag.ProcedureStepState)));
-        notSubscribedBy(predicates, q, ups, queryParam.getNotSubscribedByAET());
+        notSubscribedBy(predicates, criteria, ups, queryParam.getNotSubscribedByAET());
     }
 
-    private <T> void mwlupsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private void mwlupsLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
                                         Root<UPS> ups, Attributes keys, QueryParam queryParam) {
         Attributes mwlsps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (mwlsps != null) {
             anyOf(predicates, ups.get(UPS_.upsLabel), mwlsps.getStrings(Tag.ScheduledProcedureStepDescription), true);
             dateRange(predicates, ups.get(UPS_.scheduledStartDateAndTime),
                     mwlsps.getDateRange(Tag.ScheduledProcedureStepStartDateAndTime), FormatDate.DT);
-            personName(predicates, q, ups, UPS_.humanPerformerName,
+            personName(predicates, criteria, ups, UPS_.humanPerformerName,
                     mwlsps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam);
             String modality = mwlsps.getString(Tag.Modality);
             if (modality != null) {
                 Code code = AcquisitionModality.codeOf(modality);
                 if (code != null) {
-                    codes(predicates, q, ups, UPS_.scheduledStationClassCodes, code.toItem());
+                    codes(predicates, criteria, ups, UPS_.scheduledStationClassCodes, code.toItem());
                 }
             }
             if (queryParam.getScheduledStationNameCode() != null) {
-                codes(predicates, q, ups, UPS_.scheduledStationNameCodes, queryParam.getScheduledStationNameCode().toItem());
+                codes(predicates, criteria, ups, UPS_.scheduledStationNameCodes, queryParam.getScheduledStationNameCode().toItem());
             }
             code(predicates, ups.get(UPS_.scheduledWorkitemCode),
                     mwlsps.getNestedDataset(Tag.ScheduledWorkitemCodeSequence));
@@ -1183,7 +1187,7 @@ public class QueryBuilder {
                         issuer);
             }
         }
-        Subquery<UPSRequest> sq = q.subquery(UPSRequest.class);
+        Subquery<UPSRequest> sq = criteria.subquery(UPSRequest.class);
         Root<UPS> sqUPS = sq.correlate(ups);
         Join<UPS, UPSRequest> request = sqUPS.join(UPS_.referencedRequests);
         List<Predicate> requestPredicates = new ArrayList<>();
@@ -1204,7 +1208,7 @@ public class QueryBuilder {
         anyOf(requestPredicates,
                 request.get(UPSRequest_.requestingService),
                 keys.getStrings(Tag.RequestingService), true);
-        personName(requestPredicates, q, request, UPSRequest_.requestingPhysician,
+        personName(requestPredicates, criteria, request, UPSRequest_.requestingPhysician,
                 keys.getString(Tag.RequestingPhysician, "*"), queryParam);
         anyOf(requestPredicates,
                 request.get(UPSRequest_.requestedProcedureID),
@@ -1213,7 +1217,7 @@ public class QueryBuilder {
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
     }
 
-    private <T> void mppsLevelPredicates(List<Predicate> predicates, CriteriaQuery<T> q,
+    private void mppsLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
                                         Root<MPPS> mpps, Attributes keys, QueryParam queryParam) {
         anyOf(predicates, mpps.get(MPPS_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID), true);
         dateRange(predicates,
@@ -1244,10 +1248,10 @@ public class QueryBuilder {
         }
     }
 
-    public <T> void hideRejectedInstance(List<Predicate> predicates, CriteriaQuery<T> q,
+    public void hideRejectedInstance(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Path<Study> study, Path<Series> series, Path<Instance> instance, CodeEntity[] codes,
             boolean hideNotRejectedInstances) {
-        Subquery<RejectedInstance> sq = q.subquery(RejectedInstance.class);
+        Subquery<RejectedInstance> sq = criteria.subquery(RejectedInstance.class);
         Root<RejectedInstance> ri = sq.from(RejectedInstance.class);
         Predicate[] y = new Predicate[codes.length > 0 ? 4 : 3];
         y[0] = cb.equal(ri.get(RejectedInstance_.studyInstanceUID), study.get(Study_.studyInstanceUID));
@@ -1420,10 +1424,10 @@ public class QueryBuilder {
         return ss;
     }
 
-    private <T> void seriesAttributesInStudy(List<Predicate> predicates, CriteriaQuery<T> q,
+    private void seriesAttributesInStudy(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Path<Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel,
             String... modalitiesInStudy) {
-        Subquery<Series> sq = q.subquery(Series.class);
+        Subquery<Series> sq = criteria.subquery(Series.class);
         Root<Series> series = sq.from(Series.class);
         List<Predicate> y = new ArrayList<>();
         anyOf(y, series.get(Series_.modality), toUpperCase(modalitiesInStudy), false);
@@ -1507,12 +1511,12 @@ public class QueryBuilder {
         return result;
     }
 
-    private <T, Z, X> void codes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, X> from,
+    private <Z, X> void codes(List<Predicate> predicates, CommonAbstractCriteria criteria, From<Z, X> from,
                                  CollectionAttribute<X, CodeEntity> collection, Attributes item) {
         if (isUniversalMatching(item))
             return;
 
-        Subquery<CodeEntity> sq = q.subquery(CodeEntity.class);
+        Subquery<CodeEntity> sq = criteria.subquery(CodeEntity.class);
         From<Z, X> sqFrom = correlate(sq, from);
         CollectionJoin<X, CodeEntity> code = sqFrom.join(collection);
         List<Predicate> y = new ArrayList<>();
@@ -1521,12 +1525,12 @@ public class QueryBuilder {
             predicates.add(cb.exists(sq.select(code).where(y.toArray(new Predicate[0]))));
     }
 
-    private <T, Z> void notSubscribedBy(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <Z> void notSubscribedBy(List<Predicate> predicates, CommonAbstractCriteria criteria,
             From<Z, UPS> ups, String subscriberAET) {
         if (subscriberAET == null)
             return;
 
-        Subquery<Subscription> sq = q.subquery(Subscription.class);
+        Subquery<Subscription> sq = criteria.subquery(Subscription.class);
         From<Z, UPS> sqUPS = correlate(sq, ups);
         CollectionJoin<UPS, Subscription> sub = sqUPS.join(UPS_.subscriptions);
         predicates.add(cb.exists(
@@ -1534,7 +1538,7 @@ public class QueryBuilder {
                 .not());
     }
 
-    private <T, Z> void requestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Series> series,
+    private <Z> void requestAttributes(List<Predicate> predicates, CommonAbstractCriteria criteria, From<Z, Series> series,
             Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item)) {
             String requested = queryParam.getRequested();
@@ -1544,7 +1548,7 @@ public class QueryBuilder {
                         : cb.isEmpty(series.get(Series_.requestAttributes)));
             return;
         }
-        Subquery<SeriesRequestAttributes> sq = q.subquery(SeriesRequestAttributes.class);
+        Subquery<SeriesRequestAttributes> sq = criteria.subquery(SeriesRequestAttributes.class);
         From<Z, Series> sqSeries = correlate(sq, series);
         Join<Series, SeriesRequestAttributes> request = sqSeries.join(Series_.requestAttributes);
         List<Predicate> requestPredicates = new ArrayList<>();
@@ -1565,7 +1569,7 @@ public class QueryBuilder {
         anyOf(requestPredicates,
                 request.get(SeriesRequestAttributes_.requestingService),
                 item.getStrings(Tag.RequestingService), true);
-        personName(requestPredicates, q, request, SeriesRequestAttributes_.requestingPhysician,
+        personName(requestPredicates, criteria, request, SeriesRequestAttributes_.requestingPhysician,
                 item.getString(Tag.RequestingPhysician, "*"), queryParam);
         anyOf(requestPredicates,
                 request.get(SeriesRequestAttributes_.requestedProcedureID),
@@ -1580,13 +1584,13 @@ public class QueryBuilder {
         }
     }
 
-    private <T, Z> void instanceRequestAttributes(
-            List<Predicate> predicates, CriteriaQuery<T> q, From<Z, Instance> instance, Attributes item,
+    private <Z> void instanceRequestAttributes(
+            List<Predicate> predicates, CommonAbstractCriteria criteria, From<Z, Instance> instance, Attributes item,
             QueryParam queryParam) {
         if (isUniversalMatching(item))
             return;
 
-        Subquery<InstanceRequestAttributes> sq = q.subquery(InstanceRequestAttributes.class);
+        Subquery<InstanceRequestAttributes> sq = criteria.subquery(InstanceRequestAttributes.class);
         From<Z, Instance> sqSeries = correlate(sq, instance);
         Join<Instance, InstanceRequestAttributes> request = sqSeries.join(Instance_.requestAttributes);
         List<Predicate> requestPredicates = new ArrayList<>();
@@ -1607,7 +1611,7 @@ public class QueryBuilder {
         anyOf(requestPredicates,
                 request.get(InstanceRequestAttributes_.requestingService),
                 item.getStrings(Tag.RequestingService), true);
-        personName(requestPredicates, q, request, InstanceRequestAttributes_.requestingPhysician,
+        personName(requestPredicates, criteria, request, InstanceRequestAttributes_.requestingPhysician,
                 item.getString(Tag.RequestingPhysician, "*"), queryParam);
         anyOf(requestPredicates,
                 request.get(InstanceRequestAttributes_.requestedProcedureID),
@@ -1622,12 +1626,12 @@ public class QueryBuilder {
         }
     }
 
-    private <T> void upsRequestAttributes(List<Predicate> predicates, CriteriaQuery<T> q, Root<UPS> ups,
+    private void upsRequestAttributes(List<Predicate> predicates, CommonAbstractCriteria criteria, Root<UPS> ups,
                                           Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
             return;
 
-        Subquery<UPSRequest> sq = q.subquery(UPSRequest.class);
+        Subquery<UPSRequest> sq = criteria.subquery(UPSRequest.class);
         Root<UPS> sqUPS = sq.correlate(ups);
         Join<UPS, UPSRequest> request = sqUPS.join(UPS_.referencedRequests);
         List<Predicate> requestPredicates = new ArrayList<>();
@@ -1648,7 +1652,7 @@ public class QueryBuilder {
         anyOf(requestPredicates,
                 request.get(UPSRequest_.requestingService),
                 item.getStrings(Tag.RequestingService), true);
-        personName(requestPredicates, q, request, UPSRequest_.requestingPhysician,
+        personName(requestPredicates, criteria, request, UPSRequest_.requestingPhysician,
                 item.getString(Tag.RequestingPhysician, "*"), queryParam);
         anyOf(requestPredicates,
                 request.get(UPSRequest_.requestedProcedureID),
@@ -1663,16 +1667,16 @@ public class QueryBuilder {
         return parent instanceof Root ? sq.correlate((Root) parent) : sq.correlate((Join) parent);
     }
 
-    private <T> void verifyingObserver(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <T> void verifyingObserver(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Root<Instance> instance, Attributes item, QueryParam queryParam) {
         if (isUniversalMatching(item))
             return;
 
-        Subquery<VerifyingObserver> sq = q.subquery(VerifyingObserver.class);
+        Subquery<VerifyingObserver> sq = criteria.subquery(VerifyingObserver.class);
         Root<Instance> sqInstance = sq.correlate(instance);
         Join<Instance, VerifyingObserver> observer = sqInstance.join(Instance_.verifyingObservers);
         List<Predicate> y = new ArrayList<>();
-        personName(y, q, observer, VerifyingObserver_.verifyingObserverName,
+        personName(y, criteria, observer, VerifyingObserver_.verifyingObserverName,
                 item.getString(Tag.VerifyingObserverName, "*"), queryParam);
         dateRange(y, observer.get(VerifyingObserver_.verificationDateTime),
                 item.getDateRange(Tag.VerificationDateTime), FormatDate.DT);
@@ -1681,13 +1685,13 @@ public class QueryBuilder {
         }
     }
 
-    private <T> void contentItem(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <T> void contentItem(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Root<Instance> instance, Attributes item) {
         String valueType = item.getString(Tag.ValueType);
         if (!("CODE".equals(valueType) || "TEXT".equals(valueType)))
             return;
 
-        Subquery<ContentItem> sq = q.subquery(ContentItem.class);
+        Subquery<ContentItem> sq = criteria.subquery(ContentItem.class);
         Root<Instance> sqInstance = sq.correlate(instance);
         CollectionJoin<Instance, ContentItem> contentItem = sqInstance.join(Instance_.contentItems);
         List<Predicate> y = new ArrayList<>();
@@ -1704,13 +1708,13 @@ public class QueryBuilder {
         }
     }
 
-    private <T, Z, X> void personName(List<Predicate> predicates, CriteriaQuery<T> q, From<Z, X> patient,
+    private <T, Z, X> void personName(List<Predicate> predicates, CommonAbstractCriteria criteria, From<Z, X> patient,
             SingularAttribute<X, org.dcm4chee.arc.entity.PersonName> attribute, String value,
             QueryParam queryParam) {
         if (!isUniversalMatching(value)) {
             String[] pnGroupValues = StringUtils.split(value, '=');
             if (queryParam.isFuzzySemanticMatching())
-                fuzzyMatch(predicates, q, patient.join(attribute), new PersonName(pnGroupValues[0], true), queryParam);
+                fuzzyMatch(predicates, criteria, patient.join(attribute), new PersonName(pnGroupValues[0], true), queryParam);
             else
                 literalMatch(predicates, patient.join(attribute), pnGroupValues);
         }
@@ -1770,14 +1774,14 @@ public class QueryBuilder {
         wildCard(predicates, qpn, pn, ignoreCase);
     }
 
-    private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q, Path<org.dcm4chee.arc.entity.PersonName> qpn,
+    private <T> void fuzzyMatch(List<Predicate> predicates, CommonAbstractCriteria criteria, Path<org.dcm4chee.arc.entity.PersonName> qpn,
             PersonName pn, QueryParam param) {
-        fuzzyMatch(predicates, q, qpn, pn, PersonName.Component.FamilyName, param);
-        fuzzyMatch(predicates, q, qpn, pn, PersonName.Component.GivenName, param);
-        fuzzyMatch(predicates, q, qpn, pn, PersonName.Component.MiddleName, param);
+        fuzzyMatch(predicates, criteria, qpn, pn, PersonName.Component.FamilyName, param);
+        fuzzyMatch(predicates, criteria, qpn, pn, PersonName.Component.GivenName, param);
+        fuzzyMatch(predicates, criteria, qpn, pn, PersonName.Component.MiddleName, param);
     }
 
-    private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <T> void fuzzyMatch(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Path<org.dcm4chee.arc.entity.PersonName> qpn, PersonName pn, PersonName.Component c, QueryParam param) {
         String name = pn.get(c);
         if (isUniversalMatching(name))
@@ -1785,10 +1789,10 @@ public class QueryBuilder {
 
         Iterator<String> parts = SoundexCode.tokenizePersonNameComponent(name);
         for (int i = 0; parts.hasNext(); ++i)
-            fuzzyMatch(predicates, q, qpn, c, i, parts.next(), param);
+            fuzzyMatch(predicates, criteria, qpn, c, i, parts.next(), param);
     }
 
-    private <T> void fuzzyMatch(List<Predicate> predicates, CriteriaQuery<T> q,
+    private <T> void fuzzyMatch(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Path<org.dcm4chee.arc.entity.PersonName> qpn, PersonName.Component c, int partIndex, String name,
             QueryParam param) {
         boolean wc = name.endsWith("*");
@@ -1805,7 +1809,7 @@ public class QueryBuilder {
             else // code "" is stored as "*"
                 fuzzyName = "*";
 
-        Subquery<SoundexCode> sq = q.subquery(SoundexCode.class);
+        Subquery<SoundexCode> sq = criteria.subquery(SoundexCode.class);
         Root<SoundexCode> soundexCode = sq.from(SoundexCode.class);
         Predicate y = cb.and(cb.equal(soundexCode.get(SoundexCode_.personName), qpn),
                 wc ? cb.like(soundexCode.get(SoundexCode_.codeValue), fuzzyName + '%')

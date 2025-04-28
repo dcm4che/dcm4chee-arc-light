@@ -2819,7 +2819,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.481 NAME 'dcmRelationalMismatchPolicy'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.482 NAME 'dcmAccessControlSeriesIndividually'
-  DESC 'Indicates if access of series should be controlled individually or not. If absent, it is false.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -2893,7 +2893,25 @@ attributetype ( 1.2.40.0.13.1.15.110.3.494 NAME 'dcmIanTrigger'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.495 NAME 'dcmIdentifyPatientByIDAndName'
+attributetype ( 1.2.40.0.13.1.15.110.3.495 NAME 'dcmChangeAccessControlIDPollingInterval'
+  DESC 'Polling Interval for Series to be compressed in ISO-8601 duration format PnDTnHnMn.nS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.496 NAME 'dcmChangeAccessControlIDDelay'
+  DESC 'Delay after receive of the first object of a Study after which the Access Control ID associated with the Study or including Series shall be changed to the specified Store Access Control ID in ISO-8601 duration format PnDTnHnMn.nS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.497 NAME 'dcmChangeAccessControlIDMaxDelay'
+  DESC 'Indicates to stop applying this rule for Studies which first object was received before the specified interval in ISO-8601 duration format PnDTnHnMn.nS. Required if there are other rules for changing the Access Control ID again in the future.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.498 NAME 'dcmIdentifyPatientByIDAndName'
   DESC 'Indicates to consider also the Patient Name on receive of DICOM objects to determine if they belongs to an already existing Patient in the archive; false if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
@@ -3127,6 +3145,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmCompressionSchedule $
     dcmCompressionThreads $
     dcmCompressionAETitle $
+    dcmChangeAccessControlIDPollingInterval $
     dcmDiffTaskProgressUpdateInterval $
     dcmPatientVerificationPDQServiceID $
     dcmPatientVerificationPollingInterval $
@@ -3615,6 +3634,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.23 NAME 'dcmStoreAccessControlIDRule'
     cn $
     dcmStoreAccessControlID )
   MAY (
+    dcmEntity $
     dcmAccessControlSeriesIndividually $
     dcmRulePriority $
     dcmProperty ) )
@@ -4000,3 +4020,16 @@ objectclass ( 1.2.40.0.13.1.15.110.4.45 NAME 'dcmArchiveAttributeCoercion2'
     dcmCoercionParam $
     dcmCoercionSufficient $
     dcmCoercionOnFailure ) )
+
+objectclass ( 1.2.40.0.13.1.15.110.4.46 NAME 'dcmChangeAccessControlIDRule'
+  DESC 'Change Access Control ID Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dicomAETitle $
+    dcmChangeAccessControlIDDelay $
+    dcmStoreAccessControlID )
+  MAY (
+    dcmEntity $
+    dcmEntitySelector $
+    dcmChangeAccessControlIDMaxDelay ) )
