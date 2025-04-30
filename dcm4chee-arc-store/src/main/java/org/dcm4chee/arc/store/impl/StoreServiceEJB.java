@@ -258,7 +258,7 @@ public class StoreServiceEJB {
                                             : RejectionState.NONE);
                             prevStudy.setModifiedTime(new Date());
                             deleteStudyQueryAttributes(prevStudy);
-                            prevSeries.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
+                            prevSeries.scheduleMetadataUpdate(arcAE.seriesMetadataDelay(), true);
                             prevStudy.setExternalRetrieveAET("*");
                             prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                             return result;
@@ -328,7 +328,7 @@ public class StoreServiceEJB {
                             .executeUpdate();
             }
         }
-        series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
+        series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay(), true);
         series.scheduleStorageVerification(arcAE.storageVerificationInitialDelay());
         if (locationOp != LocationOp.COPY) {
             series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
@@ -552,7 +552,7 @@ public class StoreServiceEJB {
                     if (rejectionState == RejectionState.COMPLETE)
                         series.setExpirationDate(null);
                     deleteSeriesQueryAttributes(series);
-                    series.scheduleMetadataUpdate(seriesMetadataDelay);
+                    series.scheduleMetadataUpdate(seriesMetadataDelay, true);
                 }
             }
             if (series != null) {
@@ -620,7 +620,7 @@ public class StoreServiceEJB {
                         series.setRejectionState(
                                 hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE);
                         deleteSeriesQueryAttributes(series);
-                        series.scheduleMetadataUpdate(seriesMetadataDelay);
+                        series.scheduleMetadataUpdate(seriesMetadataDelay, true);
                     }
                 }
             }
@@ -778,7 +778,7 @@ public class StoreServiceEJB {
             if (deleteSeriesIfEmpty(series, ctx))
                 deleteStudyIfEmpty(study, ctx);
             else
-                series.scheduleMetadataUpdate(ctx.getStoreSession().getArchiveAEExtension().seriesMetadataDelay());
+                series.scheduleMetadataUpdate(ctx.getStoreSession().getArchiveAEExtension().seriesMetadataDelay(), true);
         }
     }
 

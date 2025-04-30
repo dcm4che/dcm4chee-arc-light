@@ -212,7 +212,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
         query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
-                "se.pk, se.version, se.metadataUpdateFailures, " +
+                "se.pk, se.version, se.metadataUpdateLoadObjects, se.metadataUpdateFailures, " +
                 "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
                 "from Series se " +
                 "left join se.metadata metadata " +
@@ -220,7 +220,7 @@ import java.util.stream.Stream;
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
         query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
-                "se.pk, se.version, se.metadataUpdateFailures, " +
+                "se.pk, se.version, se.metadataUpdateLoadObjects, se.metadataUpdateFailures, " +
                 "se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
                 "from Series se " +
                 "join se.metadata metadata " +
@@ -283,7 +283,7 @@ import java.util.stream.Stream;
                 "where se.pk = ?1"),
 @NamedQuery(
         name=Series.SET_METADATA,
-        query = "update Series se set se.metadata = ?2, se.metadataUpdateFailures = 0, se.metadataScheduledUpdateTime = null " +
+        query = "update Series se set se.metadata = ?2, se.metadataUpdateFailures = 0, se.metadataScheduledUpdateTime = null, se.metadataUpdateLoadObjects = false " +
                 "where se.pk = ?1"),
 @NamedQuery(
         name=Series.CLAIM_STORAGE_VERIFICATION,
@@ -425,15 +425,17 @@ public class Series {
     public static class MetadataUpdate {
         public final Long seriesPk;
         public final Long version;
+        public final boolean loadObjects;
         public final int updateFailures;
         public final InstancePurgeState instancePurgeState;
         public final String storageID;
         public final String storagePath;
 
-        public MetadataUpdate(Long seriesPk, Long version, int updateFailures,
+        public MetadataUpdate(Long seriesPk, Long version, boolean loadObjects, int updateFailures,
                               InstancePurgeState instancePurgeState, String storageID, String storagePath) {
             this.seriesPk = seriesPk;
             this.version = version;
+            this.loadObjects = loadObjects;
             this.updateFailures = updateFailures;
             this.instancePurgeState = instancePurgeState;
             this.storageID = storageID;
@@ -661,6 +663,10 @@ public class Series {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "metadata_update_time")
     private Date metadataScheduledUpdateTime;
+
+    @Basic(optional = false)
+    @Column(name = "metadata_update_load_objects")
+    private boolean metadataUpdateLoadObjects;
 
     @Basic(optional = false)
     @Column(name = "metadata_update_failures")
@@ -1004,9 +1010,19 @@ public class Series {
         this.metadataScheduledUpdateTime = metadataScheduledUpdateTime;
     }
 
-    public void scheduleMetadataUpdate(Duration delay) {
-        if (delay != null && metadataScheduledUpdateTime == null)
+    public void scheduleMetadataUpdate(Duration delay, boolean loadObjects) {
+        if (delay != null && (metadataScheduledUpdateTime == null || !metadataUpdateLoadObjects && loadObjects)) {
             metadataScheduledUpdateTime = new Date(System.currentTimeMillis() + delay.getSeconds() * 1000L);
+            metadataUpdateLoadObjects = loadObjects;
+        }
+    }
+
+    public boolean isMetadataUpdateLoadObjects() {
+        return metadataUpdateLoadObjects;
+    }
+
+    public void setMetadataUpdateLoadObjects(boolean metadataUpdateloadObjects) {
+        this.metadataUpdateLoadObjects = metadataUpdateloadObjects;
     }
 
     public int getMetadataUpdateFailures() {

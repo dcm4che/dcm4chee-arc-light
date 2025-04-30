@@ -374,7 +374,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         try {
             HashMap<Long,StudyInfo> studyInfoMap = new HashMap<>();
             Series.MetadataUpdate metadataUpdate = ctx.getSeriesMetadataUpdate();
-            if (metadataUpdate != null && metadataUpdate.instancePurgeState == Series.InstancePurgeState.PURGED) {
+            if (metadataUpdate != null && !metadataUpdate.loadObjects && metadataUpdate.storageID != null) {
                 SeriesAttributes seriesAttributes = new SeriesAttributes(em, cb, metadataUpdate.seriesPk);
                 studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
                 ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
