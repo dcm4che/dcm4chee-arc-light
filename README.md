@@ -21,17 +21,17 @@ Build
 
 * Make sure you have Java 17 (JDK) or newer installed.
 
-* Build `master` branch of [dcm4che 3 Library](https://github.com/dcm4che/dcm4che) -
+* Build `master` branch of [dcm4che 3 Library](https://github.com/kapsiki/dcm4che.git) -
   only necessary to build unreleased version, which is not (yet) available in the Maven repository:
 
-        git clone https://github.com/dcm4che/dcm4che.git
+        git clone https://github.com/kapsiki/dcm4che.git
         cd dcm4che
         ./mvnw install
 
-* Build `master` branch of [dcm4chee-arc-lang](https://github.com/dcm4che/dcm4chee-arc-lang/) -
+* Build `master` branch of [dcm4chee-arc-lang](https://github.com/kapsiki/dcm4chee-arc-lang.git) -
   only necessary to build unreleased version, which is not (yet) available in the Maven repository:
 
-        git clone https://github.com/dcm4che/dcm4chee-arc-lang.git
+        git clone https://github.com/kapsiki/dcm4chee-arc-lang.git
         cd dcm4chee-arc-lang
         ./mvnw install
 

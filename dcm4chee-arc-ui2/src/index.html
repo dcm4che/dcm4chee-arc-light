@@ -1,173 +1,191 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>dcm4chee-arc-ui</title>
-  <!--<base href="/">-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Kapsiki Radiology</title>
+    <!--<base href="/">-->
     <!--<script>document.write('<base href="' + document.location + '" />');</script>-->
-  <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
-    <meta name="viewport" content="width=1324">
-    <base href="/dcm4chee-arc/ui2/">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head>
-<body class="mat-typography">
-  <app-root>
-      <div style="position:absolute;left:50%;top:50%;-ms-transform:translate(-50%, -50%);-webkit-transform:translate(-50%, -50%);transform: translate(-50%, -50%);">
-          <style type='text/css'>
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <meta name="viewport" content="width=1324" />
+    <base href="/dcm4chee-arc/ui2/" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="mat-typography">
+    <app-root>
+      <div
+        style="
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          -ms-transform: translate(-50%, -50%);
+          -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+        "
+      >
+        <style type="text/css">
           @-webkit-keyframes uil-ring-anim {
-              0% {
-                  -ms-transform: rotate(0deg);
-                  -moz-transform: rotate(0deg);
-                  -webkit-transform: rotate(0deg);
-                  -o-transform: rotate(0deg);
-                  transform: rotate(0deg);
-              }
-              100% {
-                  -ms-transform: rotate(360deg);
-                  -moz-transform: rotate(360deg);
-                  -webkit-transform: rotate(360deg);
-                  -o-transform: rotate(360deg);
-                  transform: rotate(360deg);
-              }
+            0% {
+              -ms-transform: rotate(0deg);
+              -moz-transform: rotate(0deg);
+              -webkit-transform: rotate(0deg);
+              -o-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -ms-transform: rotate(360deg);
+              -moz-transform: rotate(360deg);
+              -webkit-transform: rotate(360deg);
+              -o-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
           }
           @-webkit-keyframes uil-ring-anim {
-              0% {
-                  -ms-transform: rotate(0deg);
-                  -moz-transform: rotate(0deg);
-                  -webkit-transform: rotate(0deg);
-                  -o-transform: rotate(0deg);
-                  transform: rotate(0deg);
-              }
-              100% {
-                  -ms-transform: rotate(360deg);
-                  -moz-transform: rotate(360deg);
-                  -webkit-transform: rotate(360deg);
-                  -o-transform: rotate(360deg);
-                  transform: rotate(360deg);
-              }
+            0% {
+              -ms-transform: rotate(0deg);
+              -moz-transform: rotate(0deg);
+              -webkit-transform: rotate(0deg);
+              -o-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -ms-transform: rotate(360deg);
+              -moz-transform: rotate(360deg);
+              -webkit-transform: rotate(360deg);
+              -o-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
           }
           @-moz-keyframes uil-ring-anim {
-              0% {
-                  -ms-transform: rotate(0deg);
-                  -moz-transform: rotate(0deg);
-                  -webkit-transform: rotate(0deg);
-                  -o-transform: rotate(0deg);
-                  transform: rotate(0deg);
-              }
-              100% {
-                  -ms-transform: rotate(360deg);
-                  -moz-transform: rotate(360deg);
-                  -webkit-transform: rotate(360deg);
-                  -o-transform: rotate(360deg);
-                  transform: rotate(360deg);
-              }
+            0% {
+              -ms-transform: rotate(0deg);
+              -moz-transform: rotate(0deg);
+              -webkit-transform: rotate(0deg);
+              -o-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -ms-transform: rotate(360deg);
+              -moz-transform: rotate(360deg);
+              -webkit-transform: rotate(360deg);
+              -o-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
           }
           @-ms-keyframes uil-ring-anim {
-              0% {
-                  -ms-transform: rotate(0deg);
-                  -moz-transform: rotate(0deg);
-                  -webkit-transform: rotate(0deg);
-                  -o-transform: rotate(0deg);
-                  transform: rotate(0deg);
-              }
-              100% {
-                  -ms-transform: rotate(360deg);
-                  -moz-transform: rotate(360deg);
-                  -webkit-transform: rotate(360deg);
-                  -o-transform: rotate(360deg);
-                  transform: rotate(360deg);
-              }
+            0% {
+              -ms-transform: rotate(0deg);
+              -moz-transform: rotate(0deg);
+              -webkit-transform: rotate(0deg);
+              -o-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -ms-transform: rotate(360deg);
+              -moz-transform: rotate(360deg);
+              -webkit-transform: rotate(360deg);
+              -o-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
           }
           @-moz-keyframes uil-ring-anim {
-              0% {
-                  -ms-transform: rotate(0deg);
-                  -moz-transform: rotate(0deg);
-                  -webkit-transform: rotate(0deg);
-                  -o-transform: rotate(0deg);
-                  transform: rotate(0deg);
-              }
-              100% {
-                  -ms-transform: rotate(360deg);
-                  -moz-transform: rotate(360deg);
-                  -webkit-transform: rotate(360deg);
-                  -o-transform: rotate(360deg);
-                  transform: rotate(360deg);
-              }
+            0% {
+              -ms-transform: rotate(0deg);
+              -moz-transform: rotate(0deg);
+              -webkit-transform: rotate(0deg);
+              -o-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -ms-transform: rotate(360deg);
+              -moz-transform: rotate(360deg);
+              -webkit-transform: rotate(360deg);
+              -o-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
           }
           @-webkit-keyframes uil-ring-anim {
-              0% {
-                  -ms-transform: rotate(0deg);
-                  -moz-transform: rotate(0deg);
-                  -webkit-transform: rotate(0deg);
-                  -o-transform: rotate(0deg);
-                  transform: rotate(0deg);
-              }
-              100% {
-                  -ms-transform: rotate(360deg);
-                  -moz-transform: rotate(360deg);
-                  -webkit-transform: rotate(360deg);
-                  -o-transform: rotate(360deg);
-                  transform: rotate(360deg);
-              }
+            0% {
+              -ms-transform: rotate(0deg);
+              -moz-transform: rotate(0deg);
+              -webkit-transform: rotate(0deg);
+              -o-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -ms-transform: rotate(360deg);
+              -moz-transform: rotate(360deg);
+              -webkit-transform: rotate(360deg);
+              -o-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
           }
           @-o-keyframes uil-ring-anim {
-              0% {
-                  -ms-transform: rotate(0deg);
-                  -moz-transform: rotate(0deg);
-                  -webkit-transform: rotate(0deg);
-                  -o-transform: rotate(0deg);
-                  transform: rotate(0deg);
-              }
-              100% {
-                  -ms-transform: rotate(360deg);
-                  -moz-transform: rotate(360deg);
-                  -webkit-transform: rotate(360deg);
-                  -o-transform: rotate(360deg);
-                  transform: rotate(360deg);
-              }
+            0% {
+              -ms-transform: rotate(0deg);
+              -moz-transform: rotate(0deg);
+              -webkit-transform: rotate(0deg);
+              -o-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -ms-transform: rotate(360deg);
+              -moz-transform: rotate(360deg);
+              -webkit-transform: rotate(360deg);
+              -o-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
           }
           @keyframes uil-ring-anim {
-              0% {
-                  -ms-transform: rotate(0deg);
-                  -moz-transform: rotate(0deg);
-                  -webkit-transform: rotate(0deg);
-                  -o-transform: rotate(0deg);
-                  transform: rotate(0deg);
-              }
-              100% {
-                  -ms-transform: rotate(360deg);
-                  -moz-transform: rotate(360deg);
-                  -webkit-transform: rotate(360deg);
-                  -o-transform: rotate(360deg);
-                  transform: rotate(360deg);
-              }
+            0% {
+              -ms-transform: rotate(0deg);
+              -moz-transform: rotate(0deg);
+              -webkit-transform: rotate(0deg);
+              -o-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -ms-transform: rotate(360deg);
+              -moz-transform: rotate(360deg);
+              -webkit-transform: rotate(360deg);
+              -o-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
           }
           .uil-ring-css {
-              background: none;
-              position: relative;
-              width: 200px;
-              height: 200px;
+            background: none;
+            position: relative;
+            width: 200px;
+            height: 200px;
           }
           .uil-ring-css > div {
-              position: absolute;
-              display: block;
-              width: 160px;
-              height: 160px;
-              top: 20px;
-              left: 20px;
-              border-radius: 80px;
-              box-shadow: 0 6px 0 0 #2d404f;
-              -ms-animation: uil-ring-anim 1s linear infinite;
-              -moz-animation: uil-ring-anim 1s linear infinite;
-              -webkit-animation: uil-ring-anim 1s linear infinite;
-              -o-animation: uil-ring-anim 1s linear infinite;
-              animation: uil-ring-anim 1s linear infinite;
+            position: absolute;
+            display: block;
+            width: 160px;
+            height: 160px;
+            top: 20px;
+            left: 20px;
+            border-radius: 80px;
+            box-shadow: 0 6px 0 0 #2d404f;
+            -ms-animation: uil-ring-anim 1s linear infinite;
+            -moz-animation: uil-ring-anim 1s linear infinite;
+            -webkit-animation: uil-ring-anim 1s linear infinite;
+            -o-animation: uil-ring-anim 1s linear infinite;
+            animation: uil-ring-anim 1s linear infinite;
           }
-          </style> <div class='uil-ring-css' style='transform:scale(0.6);'><div></div></div>
-  </div>
-  </app-root>
-</body>
+        </style>
+        <div class="uil-ring-css" style="transform: scale(0.6)">
+          <div></div>
+        </div>
+      </div>
+    </app-root>
+  </body>
 </html>

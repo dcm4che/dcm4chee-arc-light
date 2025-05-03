@@ -1,21 +1,28 @@
 <div class="vex vex-theme-os info-dialog" xmlns="http://www.w3.org/1999/html">
-    <div class="vex-content">
-        <div class="info-block">
-        <div class="head">
-        <h1>J4Care</h1>
-        <h3>SMooTH Archive</h3>
-        <h4><ng-container i18n="@@product_labelling.version">Version</ng-container> {{archive.dicomSoftwareVersion}}</h4>
-        </div>
-        <div class="content">
-        <p><b>J4Care GmbH</b><br/>Enzersdorfer Strasse 7<br/>A-2340 Mödling</p>
-        </div>
-        <div class="pre_footer">
-        <span>{{year || '2020'}}</span>
-        </div>
-        <div class="footer">
-        <div class="footer_left col-sm-6">
-        </div>
-        </div>
-        </div>
+  <div class="vex-content">
+    <div class="info-block">
+      <div class="head">
+        <h1>Kapsiki</h1>
+        <h3>Radiology</h3>
+        <h4>
+          <ng-container i18n="@@product_labelling.version"
+            >Version</ng-container
+          >
+          {{ archive.dicomSoftwareVersion }}
+        </h4>
+      </div>
+      <div class="content">
+        <p>
+          <b>Kouete Digital Solution</b><br />Stuttgart, Germany | Douala,
+          Cameroon<br />
+        </p>
+      </div>
+      <div class="pre_footer">
+        <span>{{ year || "2020" }}</span>
+      </div>
+      <div class="footer">
+        <div class="footer_left col-sm-6"></div>
+      </div>
     </div>
+  </div>
 </div>
