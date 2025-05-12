@@ -451,25 +451,25 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "dcm4chee-arc-ui2:build",
             "crossOrigin": "use-credentials",
             "allowedCommonJsDependencies": [
               "lodash"
-            ]
+            ],
+            "buildTarget": "dcm4chee-arc-ui2:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "dcm4chee-arc-ui2:build:production"
+              "buildTarget": "dcm4chee-arc-ui2:build:production"
             },
             "sq": {
-              "browserTarget": "dcm4chee-arc-ui2:build:sq"
+              "buildTarget": "dcm4chee-arc-ui2:build:sq"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "dcm4chee-arc-ui2:build"
+            "buildTarget": "dcm4chee-arc-ui2:build"
           }
         },
         "test": {
