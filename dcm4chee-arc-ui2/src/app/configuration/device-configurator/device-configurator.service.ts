@@ -1235,17 +1235,18 @@ export class DeviceConfiguratorService{
         }
 
     }
-    private getSchemaPart(currentSchema, path, paramArray, currentIndex){
+    private getSchemaPart(currentSchema, path, paramArray, currentIndex) {
         if (_.hasIn(currentSchema, `${path}.$ref`) || _.hasIn(currentSchema,  `${path}.items.$ref`) || _.hasIn(currentSchema,  `${path}.properties.$ref`)) {
             let schemaName = _.get(currentSchema, `${path}.$ref`) || _.get(currentSchema,  `${path}.items.$ref`) || _.get(currentSchema,  `${path}.properties.$ref`);
-            let schemaRefPath = _.hasIn(currentSchema, `${path}.$ref`) ? `${path}.$ref` : null  ||
-            _.hasIn(currentSchema,  `${path}.items.$ref`) ?  `${path}.items.$ref` : null || `${path}.properties.$ref`;
-            return this.getSchema(schemaName).pipe(switchMap((newSchema)=>{
-                let schemaPathWithoutRef = schemaRefPath.replace(".$ref", "");
+            let schemaRefPath =   _.hasIn(currentSchema, `${path}.$ref`) && `${path}.$ref` ||
+                                         _.hasIn(currentSchema,  `${path}.items.$ref`) && `${path}.items.$ref` ||
+                                         `${path}.properties.$ref`;
+            return this.getSchema(schemaName).pipe(switchMap((newSchema)=> {
+                let schemaPathWithoutRef = schemaRefPath.replace('.$ref', '');
                 _.set(currentSchema, schemaPathWithoutRef,newSchema);
                 return this.getSchemaDeepHelper(currentSchema, paramArray, currentIndex + 1);
             }))
-        }else{
+        } else {
             return of(currentSchema);
         }
     }
