@@ -4,6 +4,7 @@
   "license": "MIT",
   "author": "Shefki Esadi",
   "angular-cli": {},
+  "packageManager": "yarn@1.22.21",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
