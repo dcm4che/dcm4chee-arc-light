@@ -1393,6 +1393,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: RT Treatment Summary Record Storage SCP
 
+dn: cn=Waveform Presentation State Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Presentation State Storage SCP
+
 dn: cn=X-Ray 3D Angiographic Image Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.13.1.1
 dicomTransferRole: SCP
@@ -2130,6 +2139,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private GE eNTEGRA Protocol or NM Genie Storage SCP
+
+dn: cn=Waveform Acquisition Presentation State Storage SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Acquisition Presentation State Storage SCP
 
 dn: cn=Hardcopy Color Image Storage SOP Class (Retired) SCP,dicomAETitle=STORESCP,dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.1.30
@@ -7076,6 +7094,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: RT Treatment Summary Record Storage SCU
 
+dn: cn=Waveform Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Presentation State Storage SCP
+
+dn: cn=Waveform Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Presentation State Storage SCU
+
 dn: cn=X-Ray 3D Angiographic Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.13.1.1
 dicomTransferRole: SCP
@@ -9297,6 +9333,24 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private GE eNTEGRA Protocol or NM Genie Storage SCU
+
+dn: cn=Waveform Acquisition Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Acquisition Presentation State Storage SCP
+
+dn: cn=Waveform Acquisition Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Acquisition Presentation State Storage SCU
 
 dn: cn=Hardcopy Color Image Storage SOP Class (Retired) SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.1.30
@@ -12429,6 +12483,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: RT Treatment Summary Record Storage SCU
 
+dn: cn=Waveform Presentation State Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Presentation State Storage SCU
+
 dn: cn=X-Ray 3D Angiographic Image Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.13.1.1
 dicomTransferRole: SCU
@@ -13527,6 +13590,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private GE eNTEGRA Protocol or NM Genie Storage SCU
+
+dn: cn=Waveform Acquisition Presentation State Storage SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Acquisition Presentation State Storage SCU
 
 dn: cn=Hardcopy Color Image Storage SOP Class (Retired) SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.1.30
@@ -15989,6 +16061,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: RT Treatment Summary Record Storage SCU
 
+dn: cn=Waveform Presentation State Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Presentation State Storage SCU
+
 dn: cn=X-Ray 3D Angiographic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.13.1.1
 dicomTransferRole: SCU
@@ -17095,6 +17176,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private GE eNTEGRA Protocol or NM Genie Storage SCU
+
+dn: cn=Waveform Acquisition Presentation State Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.9.100.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Waveform Acquisition Presentation State Storage SCU
 
 dn: cn=Hardcopy Color Image Storage SOP Class (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.1.30

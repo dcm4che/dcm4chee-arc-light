@@ -914,6 +914,8 @@ class ArchiveDeviceFactory {
             UID.ElectrooculogramWaveformStorage,
             UID.SleepElectroencephalogramWaveformStorage,
             UID.BodyPositionWaveformStorage,
+            UID.WaveformPresentationStateStorage,
+            UID.WaveformAcquisitionPresentationStateStorage,
             UID.StandaloneModalityLUTStorage,
             UID.StandaloneVOILUTStorage,
             UID.GrayscaleSoftcopyPresentationStateStorage,
