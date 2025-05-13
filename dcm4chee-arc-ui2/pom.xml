@@ -70,6 +70,7 @@
     <dependency>
       <groupId>org.wildfly.security</groupId>
       <artifactId>wildfly-elytron</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
