@@ -5,7 +5,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 //import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
-import {HttpHeaders} from "@angular/common/http";
+import { HttpHeaders } from "@angular/common/http";
 import {SelectDropdown} from "../../interfaces";
 import { loadTranslations } from '@angular/localize';
 import {AppService} from "../../app.service";

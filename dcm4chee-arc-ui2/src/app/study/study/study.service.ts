@@ -27,7 +27,7 @@ import {GSPSQueryParams} from "../../models/gsps-query-params";
 import {StorageSystemsService} from "../../monitoring/storage-systems/storage-systems.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import {DcmWebApp, WebServiceClass} from "../../models/dcm-web-app";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {
     DicomTableSchema,
     DynamicPipe,

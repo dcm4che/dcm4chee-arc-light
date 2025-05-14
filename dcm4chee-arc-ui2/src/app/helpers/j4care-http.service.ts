@@ -4,7 +4,7 @@ import {AppService} from "../app.service";
 import * as _ from 'lodash-es';
 import {HttpErrorHandler} from "./http-error-handler";
 import {DcmWebApp} from "../models/dcm-web-app";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {DcmWebAppRequestParam, HttpMethod} from "../interfaces";
 import {j4care} from "./j4care.service";
 import {KeycloakService} from "./keycloak-service/keycloak.service";

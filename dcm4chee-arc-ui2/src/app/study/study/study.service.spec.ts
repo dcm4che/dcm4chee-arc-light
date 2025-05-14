@@ -11,7 +11,7 @@ import {PermissionService} from "../../helpers/permissions/permission.service";
 import {LargeIntFormatPipe} from "../../pipes/large-int-format.pipe";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {AppService} from "../../app.service";
-import {HttpClient, HttpHandler} from "@angular/common/http";
+import { HttpClient, HttpHandler } from "@angular/common/http";
 import {Router} from "@angular/router";
 import {StudyWebService} from "./study-web-service.model";
 import {j4care} from "../../helpers/j4care.service";

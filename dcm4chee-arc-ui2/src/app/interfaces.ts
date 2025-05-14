@@ -1,7 +1,7 @@
 import {Aet} from "./models/aet";
 import {Device} from "./models/device";
 import {DcmWebApp} from "./models/dcm-web-app";
-import {HttpHeaders} from "@angular/common/http";
+import { HttpHeaders } from "@angular/common/http";
 import {SelectionsDicomObjects} from "./study/study/selections-dicom-objects.model";
 import {DicomTableSchema, TableAction} from "./helpers/dicom-studies-table/dicom-studies-table.interfaces";
 

@@ -4,7 +4,7 @@ import {User} from './models/user';
 import * as _ from 'lodash-es';
 import {WindowRefService} from "./helpers/window-ref.service";
 import {DatePipe} from "@angular/common";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {j4care} from "./helpers/j4care.service";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {Router} from "@angular/router";

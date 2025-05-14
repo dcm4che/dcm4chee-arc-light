@@ -19,7 +19,7 @@ import {
 import {TableSchemaElement} from "../models/dicom-table-schema-element";
 import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import * as uuid from  'uuid/v4';
 import {User} from "../models/user";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";

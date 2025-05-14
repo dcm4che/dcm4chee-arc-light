@@ -5,7 +5,7 @@ import {AppService} from "./app.service";
 import {j4care} from "./helpers/j4care.service";
 import {forkJoin, of} from "rxjs";
 import {catchError, combineLatest, map, shareReplay, switchMap} from "rxjs/operators";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import * as _ from 'lodash-es';
 import {DcmWebApp} from "./models/dcm-web-app";
 import {environment} from "../environments/environment";

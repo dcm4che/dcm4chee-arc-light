@@ -15,7 +15,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DeviceConfiguratorService} from "../device-configurator/device-configurator.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {Globalvar} from "../../constants/globalvar";
-import {HttpHeaders} from "@angular/common/http";
+import { HttpHeaders } from "@angular/common/http";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../helpers/j4care.service";
 import {SelectDropdown} from "../../interfaces";

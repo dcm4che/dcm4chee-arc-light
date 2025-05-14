@@ -17,14 +17,7 @@
 
 import {Injectable, InjectionToken, Injector} from '@angular/core';
 import {Observable} from 'rxjs';
-import {
-    HTTP_INTERCEPTORS,
-    HttpBackend,
-    HttpClient,
-    HttpEvent, HttpHandler,
-    HttpInterceptor,
-    HttpRequest
-} from "@angular/common/http";
+import { HTTP_INTERCEPTORS, HttpBackend, HttpClient, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 
 /**
  * This provides a wrapper over the ng2 Http class that insures tokens are refreshed on each request.

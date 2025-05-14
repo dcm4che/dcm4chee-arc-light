@@ -5,7 +5,7 @@ import {DevicesService} from "../../configuration/devices/devices.service";
 import {AppService} from "../../app.service";
 import * as _ from 'lodash-es';
 import {DatePipe} from "@angular/common";
-import {HttpHeaders} from "@angular/common/http";
+import { HttpHeaders } from "@angular/common/http";
 import {TableService} from "../../table.service";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 

@@ -51,7 +51,7 @@ import {EditPatientComponent} from "../../widgets/dialogs/edit-patient/edit-pati
 // import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
-import {HttpHeaders} from "@angular/common/http";
+import { HttpHeaders } from "@angular/common/http";
 import {EditMwlComponent} from "../../widgets/dialogs/edit-mwl/edit-mwl.component";
 import {ComparewithiodPipe} from "../../pipes/comparewithiod.pipe";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";

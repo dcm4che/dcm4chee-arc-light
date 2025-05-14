@@ -13,7 +13,7 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import {j4care} from "./helpers/j4care.service";
 import {PermissionService} from "./helpers/permissions/permission.service";
 import {Observable} from "../../node_modules/rxjs";
-import {HttpClient} from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import {DcmWebApp} from "./models/dcm-web-app";
 import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
 import {Globalvar} from "./constants/globalvar";

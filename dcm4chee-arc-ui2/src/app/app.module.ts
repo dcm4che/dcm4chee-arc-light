@@ -66,7 +66,7 @@ import { FilterGeneratorComponent } from './helpers/filter-generator/filter-gene
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
 import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
 import {AuthGuard} from "./helpers/permissions/auth.guard";
-import {HttpClientModule} from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import {PermissionService} from "./helpers/permissions/permission.service";
 import { PermissionDirective } from './helpers/permissions/permission.directive';
 import {LoadingBarModule} from "@ngx-loading-bar/core";
@@ -126,8 +126,7 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
 
 // registerLocaleData(localeDe, 'de-DE');
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AppComponent,
         PageNotFoundComponent,
         ControlComponent,
@@ -191,10 +190,9 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
         CustomDatePipe,
         FormGeneratorComponent
     ],
-    imports: [
-        BrowserModule,
+    bootstrap: [AppComponent],
+    exports: [ArrayToStringPipe, PlaceholderchangerDirective], imports: [BrowserModule,
         FormsModule,
-        HttpClientModule,
         MatIconModule,
         MatSelectModule,
         MatProgressBarModule,
@@ -217,11 +215,11 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
                 path: '',
                 redirectTo: '/study/study',
                 pathMatch: 'full'
-            },{
+            }, {
                 path: 'index',
                 redirectTo: '/study/study',
                 pathMatch: 'full'
-            },{
+            }, {
                 path: 'index.html',
                 redirectTo: '/study/study',
                 pathMatch: 'full'
@@ -252,9 +250,7 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
             { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent, canActivate: [AuthGuard] },
             { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent, canActivate: [AuthGuard] },
             { path: '**', component: PageNotFoundComponent }
-        ], { useHash: false })
-    ],
-    providers: [
+        ], { useHash: false })], providers: [
         WidgetsComponents,
         WidgetsModule,
         MatDatepickerModule,
@@ -299,13 +295,13 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
         CustomDatePipe,
         DynamicPipePipe,
         Title,
-/*        {
-            provide: MatDialogRef,
-            useValue: {}
-        },*/
+        /*        {
+                    provide: MatDialogRef,
+                    useValue: {}
+                },*/
         { provide: LOCALE_ID, useValue: 'en-US' },
         { provide: LOCALE_ID, useValue: 'de' },
-        {provide:MAT_DIALOG_DATA,useValue:{}},
+        { provide: MAT_DIALOG_DATA, useValue: {} },
         {
             provide: DateAdapter,
             useClass: MomentDateAdapter,
@@ -313,8 +309,6 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
         },
         // { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: MY_FORMATS },
         { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
-    ],
-    bootstrap: [AppComponent],
-    exports: [ArrayToStringPipe, PlaceholderchangerDirective]
-})
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule { }

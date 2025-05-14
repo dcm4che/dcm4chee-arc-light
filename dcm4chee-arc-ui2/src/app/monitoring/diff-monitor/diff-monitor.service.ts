@@ -5,7 +5,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {AppService} from "../../app.service";
 import {DatePipe} from "@angular/common";
 import {Router} from "@angular/router";
-import {HttpHeaders} from "@angular/common/http";
+import { HttpHeaders } from "@angular/common/http";
 import {TableService} from "../../table.service";
 import * as _ from 'lodash-es'
 

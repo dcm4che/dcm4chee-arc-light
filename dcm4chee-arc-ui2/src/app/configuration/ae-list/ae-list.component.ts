@@ -11,7 +11,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DevicesService} from "../devices/devices.service";
 import {j4care} from "../../helpers/j4care.service";
-import {HttpHeaders} from "@angular/common/http";
+import { HttpHeaders } from "@angular/common/http";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 

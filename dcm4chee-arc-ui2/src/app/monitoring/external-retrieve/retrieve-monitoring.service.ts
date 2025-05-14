@@ -4,7 +4,7 @@ import {AppService} from "../../app.service";
 import {DevicesService} from "../../configuration/devices/devices.service";
 import * as _ from 'lodash-es';
 import {j4care} from "../../helpers/j4care.service";
-import {HttpHeaders} from "@angular/common/http";
+import { HttpHeaders } from "@angular/common/http";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 import {TableService} from "../../table.service";
 
