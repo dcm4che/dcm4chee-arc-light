@@ -68,6 +68,8 @@
             <module name="org.dcm4che.qstar" export="TRUE"/>
             <module name="org.dcm4che.xdsi" export="TRUE"/>
             <module name="org.dcm4che.xroad" export="TRUE"/>
+            <!-- wildfly security elytron-http-oidc module -->
+            <module name="org.wildfly.security.elytron-http-oidc" export="TRUE"/>
             <!-- apache-cxf modules -->
             <module name="org.apache.cxf.impl" export="TRUE"/>
             <!-- jclouds module -->
