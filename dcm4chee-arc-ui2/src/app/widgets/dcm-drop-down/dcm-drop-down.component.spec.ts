@@ -13,10 +13,10 @@ describe('DcmDropDownComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    declarations: [DcmDropDownComponent, ClickOutsideDirective, SearchPipe, ArrayToStringPipe],
-    imports: [FormsModule, BrowserAnimationsModule],
-    teardown: { destroyAfterEach: false }
-})
+        declarations: [DcmDropDownComponent, ClickOutsideDirective, SearchPipe, ArrayToStringPipe],
+        imports: [FormsModule, BrowserAnimationsModule],
+        teardown: { destroyAfterEach: false }
+    })
     .compileComponents();
   }));
 

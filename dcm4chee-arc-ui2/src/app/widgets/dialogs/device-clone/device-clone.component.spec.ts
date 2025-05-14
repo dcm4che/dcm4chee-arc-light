@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
 import { DeviceCloneComponent } from './device-clone.component';
 
@@ -6,13 +6,13 @@ describe('DeviceCloneComponent', () => {
   let component: DeviceCloneComponent;
   let fixture: ComponentFixture<DeviceCloneComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    declarations: [DeviceCloneComponent],
-    teardown: { destroyAfterEach: false }
-})
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+        declarations: [DeviceCloneComponent],
+        teardown: { destroyAfterEach: false }
+    })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DeviceCloneComponent);

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
 import { PersonNamePickerComponent } from './person-name-picker.component';
 import {MatDialogRef} from "@angular/material/dialog";
@@ -9,16 +9,16 @@ describe('PatientNamePickerComponent', () => {
   let component: PersonNamePickerComponent;
   let fixture: ComponentFixture<PersonNamePickerComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-    declarations: [PersonNamePickerComponent],
-      providers: [
-        { provide: AppService, useClass: PatientNameDependenc }
-      ],
-    teardown: { destroyAfterEach: false }
-})
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [PersonNamePickerComponent],
+        providers: [
+          { provide: AppService, useClass: PatientNameDependenc }
+        ],
+      teardown: { destroyAfterEach: false }
+  })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PersonNamePickerComponent);
