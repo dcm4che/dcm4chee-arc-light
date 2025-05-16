@@ -347,7 +347,7 @@ class ImportReportService extends DefaultHL7Service {
         int n = suids.size();
         Sequence seq = attrs.newSequence(Tag.IdenticalDocumentsSequence, n);
         for (String suid : suids)
-            seq.add(refStudy(suid));
+            seq.add(refStudy(suid, attrs));
         for (int i = 0; i < n; i++) {
             Attributes refStudy = seq.remove(i);
             Attributes refSeries = refStudy.getNestedDataset(Tag.ReferencedSeriesSequence);
@@ -361,24 +361,24 @@ class ImportReportService extends DefaultHL7Service {
         }
     }
 
-    private Attributes refStudy(String studyUID) {
+    private Attributes refStudy(String studyUID, Attributes attrs) {
         Attributes refStudyAttrs = new Attributes(2);
         refStudyAttrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-        refStudyAttrs.newSequence(Tag.ReferencedSeriesSequence, 2).add(refSeries());
+        refStudyAttrs.newSequence(Tag.ReferencedSeriesSequence, 2).add(refSeries(attrs));
         return refStudyAttrs;
     }
 
-    private Attributes refSeries() {
+    private Attributes refSeries(Attributes attrs) {
         Attributes refSeriesAttrs = new Attributes(2);
         refSeriesAttrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
-        refSeriesAttrs.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP());
+        refSeriesAttrs.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP(attrs));
         return refSeriesAttrs;
     }
 
-    private Attributes refSOP() {
-        Attributes attrs = new Attributes(2);
-        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, UIDUtils.createUID());
-        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.BasicTextSRStorage);
-        return attrs;
+    private Attributes refSOP(Attributes attrs) {
+        Attributes refSOP = new Attributes(2);
+        refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, UIDUtils.createUID());
+        refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, attrs.getString(Tag.SOPClassUID));
+        return refSOP;
     }
 }
