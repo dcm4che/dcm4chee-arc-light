@@ -29,7 +29,8 @@ import {MatDialogRef} from "@angular/material/dialog";
             width: 96%;
             min-height: 30px;
         }
-    `]
+    `],
+    standalone: false
 })
 export class EditSeriesComponent{
 

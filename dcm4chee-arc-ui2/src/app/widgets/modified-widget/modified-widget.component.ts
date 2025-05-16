@@ -8,9 +8,10 @@ import {TrimPipe} from "../../pipes/trim.pipe";
 declare var DCM4CHE: any;
 
 @Component({
-  selector: 'modified-widget',
-  templateUrl: './modified-widget.component.html',
-  styleUrls: ['./modified-widget.component.scss']
+    selector: 'modified-widget',
+    templateUrl: './modified-widget.component.html',
+    styleUrls: ['./modified-widget.component.scss'],
+    standalone: false
 })
 export class ModifiedWidgetComponent implements OnInit {
   stateText="";

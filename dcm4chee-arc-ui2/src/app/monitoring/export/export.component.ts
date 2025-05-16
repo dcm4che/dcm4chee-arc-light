@@ -26,8 +26,9 @@ import {Component, OnDestroy, OnInit, ViewContainerRef} from "@angular/core";
 
 
 @Component({
-  selector: 'app-export',
-  templateUrl: './export.component.html'
+    selector: 'app-export',
+    templateUrl: './export.component.html',
+    standalone: false
 })
 export class ExportComponent implements OnInit, OnDestroy {
     matches = [];

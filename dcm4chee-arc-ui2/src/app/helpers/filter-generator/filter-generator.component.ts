@@ -22,7 +22,8 @@ import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'filter-generator',
     templateUrl: './filter-generator.component.html',
-    styleUrls: ['./filter-generator.component.scss']
+    styleUrls: ['./filter-generator.component.scss'],
+    standalone: false
 })
 export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContentChecked {
 

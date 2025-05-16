@@ -8,7 +8,8 @@ import {TableAction} from "../dicom-studies-table/dicom-studies-table.interfaces
 @Component({
     selector: 'table-generator',
     templateUrl: './table-generator.component.html',
-    styleUrls: ['./table-generator.component.scss']
+    styleUrls: ['./table-generator.component.scss'],
+    standalone: false
 })
 export class TableGeneratorComponent implements OnInit {
 

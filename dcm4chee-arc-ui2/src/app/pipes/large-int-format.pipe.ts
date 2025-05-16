@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import * as _ from "lodash-es";
 
 @Pipe({
-  name: 'largeIntFormat'
+    name: 'largeIntFormat',
+    standalone: false
 })
 export class LargeIntFormatPipe implements PipeTransform {
 

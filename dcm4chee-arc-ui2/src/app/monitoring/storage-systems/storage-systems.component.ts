@@ -16,9 +16,9 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {SelectDropdown} from "../../interfaces";
 
 @Component({
-  selector: 'app-storage-systems',
-  templateUrl: './storage-systems.component.html',
-    styles:[`
+    selector: 'app-storage-systems',
+    templateUrl: './storage-systems.component.html',
+    styles: [`
         .td_buttons{
             width:55px;
         }
@@ -26,7 +26,8 @@ import {SelectDropdown} from "../../interfaces";
         .td_buttons a{
             padding: 2px;
         }
-    `]
+    `],
+    standalone: false
 })
 export class StorageSystemsComponent implements OnInit {
     matches = [];

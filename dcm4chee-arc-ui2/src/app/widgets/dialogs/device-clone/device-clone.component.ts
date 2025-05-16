@@ -6,9 +6,10 @@ import {AppService} from "../../../app.service";
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-device-clone',
-  templateUrl: './device-clone.component.html',
-  styleUrls: ['./device-clone.component.scss']
+    selector: 'app-device-clone',
+    templateUrl: './device-clone.component.html',
+    styleUrls: ['./device-clone.component.scss'],
+    standalone: false
 })
 export class DeviceCloneComponent implements OnInit {
     validationDetailMessage:String = "";

@@ -16,7 +16,8 @@ import {MatDialogRef} from "@angular/material/dialog";
         .dropdown{
             margin-top: 0;
         }
-    `]
+    `],
+    standalone: false
 })
 export class EditMwlComponent {
 

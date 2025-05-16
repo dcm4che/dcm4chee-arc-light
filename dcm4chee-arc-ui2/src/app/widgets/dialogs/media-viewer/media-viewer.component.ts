@@ -10,7 +10,8 @@ import {MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'app-media-viewer',
     templateUrl: './media-viewer.component.html',
-    styleUrls: ['./media-viewer.component.scss']
+    styleUrls: ['./media-viewer.component.scss'],
+    standalone: false
 })
 export class MediaViewerComponent implements OnInit {
     title;

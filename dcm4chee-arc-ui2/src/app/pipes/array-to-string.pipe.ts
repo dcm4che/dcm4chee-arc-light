@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import * as _ from "lodash-es";
 @Pipe({
     name: 'arrayToString',
-    pure: false
+    pure: false,
+    standalone: false
 })
 export class ArrayToStringPipe implements PipeTransform {
     transform(value: any, args?: any): any {

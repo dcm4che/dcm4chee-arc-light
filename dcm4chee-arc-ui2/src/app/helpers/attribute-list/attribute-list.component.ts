@@ -14,7 +14,8 @@ declare var DCM4CHE: any;
 @Component({
     selector: 'attribute-list',
     templateUrl: './attribute-list.component.html',
-    styleUrls: ['./attribute-list.component.scss']
+    styleUrls: ['./attribute-list.component.scss'],
+    standalone: false
 })
 export class AttributeListComponent implements OnInit {
 

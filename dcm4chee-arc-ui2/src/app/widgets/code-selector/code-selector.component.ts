@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as _ from "lodash-es";
 @Component({
-  selector: 'code-selector',
-  templateUrl: './code-selector.component.html',
-  styleUrls: ['./code-selector.component.scss']
+    selector: 'code-selector',
+    templateUrl: './code-selector.component.html',
+    styleUrls: ['./code-selector.component.scss'],
+    standalone: false
 })
 export class CodeSelectorComponent implements OnInit {
 

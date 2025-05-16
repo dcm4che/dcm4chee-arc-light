@@ -2,7 +2,8 @@ import {Directive, ElementRef, Input, OnInit} from '@angular/core';
 import {PermissionService} from "./permission.service";
 
 @Directive({
-  selector: '[permission]'
+    selector: '[permission]',
+    standalone: false
 })
 export class PermissionDirective implements OnInit{
 

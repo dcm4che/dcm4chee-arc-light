@@ -3,8 +3,8 @@ import {Input} from '@angular/core';
 import * as _ from 'lodash-es';
 
 @Component({
-  selector: 'connection-formater',
-  template: `
+    selector: 'connection-formater',
+    template: `
         <div *ngFor="let connblock of dicomNetworkConnection">
             <span>
                 {{connblock.dicomHostname}}
@@ -13,7 +13,8 @@ import * as _ from 'lodash-es';
             </span>
             <i *ngIf="connblock.dicomTLSCipherSuite" title="{{connblock.dicomTLSCipherSuite}}" class="material-icons connection_tls" i18n="@@vpn_key">vpn_key</i>
         </div>
-    `
+    `,
+    standalone: false
 })
 export class ConnectionFormaterComponent implements OnInit {
     @Input() dicomNetworkConnection;

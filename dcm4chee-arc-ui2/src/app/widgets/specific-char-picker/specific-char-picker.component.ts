@@ -5,7 +5,8 @@ import {SearchPipe} from "../../pipes/search.pipe";
 @Component({
     selector: 'specific-char-picker',
     templateUrl: './specific-char-picker.component.html',
-    styleUrls: ['./specific-char-picker.component.css']
+    styleUrls: ['./specific-char-picker.component.css'],
+    standalone: false
 })
 export class SpecificCharPickerComponent implements OnInit {
     localModel;

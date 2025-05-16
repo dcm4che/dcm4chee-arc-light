@@ -8,8 +8,9 @@ import {j4care} from "../../../helpers/j4care.service";
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-upload-files',
-  templateUrl: './upload-vendor.component.html'
+    selector: 'app-upload-files',
+    templateUrl: './upload-vendor.component.html',
+    standalone: false
 })
 export class UploadVendorComponent implements OnInit {
 

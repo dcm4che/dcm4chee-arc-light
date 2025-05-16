@@ -10,8 +10,9 @@ import {DeviceConfiguratorService} from "../../../configuration/device-configura
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-create-exporter',
-  templateUrl: './create-exporter.component.html'
+    selector: 'app-create-exporter',
+    templateUrl: './create-exporter.component.html',
+    standalone: false
 })
 export class CreateExporterComponent implements OnInit{
     showselectdevice = true;

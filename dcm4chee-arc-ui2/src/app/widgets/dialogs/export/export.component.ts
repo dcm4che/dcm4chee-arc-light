@@ -13,6 +13,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'app-export',
     templateUrl: './export.component.html',
+    standalone: false
 })
 export class ExportDialogComponent implements OnInit, OnDestroy{
 

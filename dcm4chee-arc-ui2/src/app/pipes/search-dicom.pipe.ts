@@ -3,7 +3,8 @@ import * as _ from 'lodash-es';
 import {StudyDicom} from "../models/study-dicom";
 
 @Pipe({
-  name: 'searchDicom'
+    name: 'searchDicom',
+    standalone: false
 })
 export class SearchDicomPipe implements PipeTransform {
 

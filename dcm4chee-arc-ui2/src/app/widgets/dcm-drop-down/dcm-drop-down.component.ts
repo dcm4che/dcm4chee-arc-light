@@ -17,27 +17,28 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
     selector: 'dcm-drop-down',
     templateUrl: './dcm-drop-down.component.html',
     styleUrls: ['./dcm-drop-down.component.scss'],
-    animations:[
-        trigger("showHide",[
-            state("show",style({
-                padding:"*",
-                height:'*',
-                opacity:1
+    animations: [
+        trigger("showHide", [
+            state("show", style({
+                padding: "*",
+                height: '*',
+                opacity: 1
             })),
-            state("hide",style({
-                padding:"0",
-                opacity:0,
-                height:'0px',
-                margin:"0"
+            state("hide", style({
+                padding: "0",
+                opacity: 0,
+                height: '0px',
+                margin: "0"
             })),
-            transition("show => hide",[
+            transition("show => hide", [
                 animate('0.1s')
             ]),
-            transition("hide => show",[
+            transition("hide => show", [
                 animate('0.2s cubic-bezier(.52,-0.01,.15,1)')
             ])
         ])
-    ]
+    ],
+    standalone: false
 })
 export class DcmDropDownComponent implements OnInit {
     selectedValue:any;

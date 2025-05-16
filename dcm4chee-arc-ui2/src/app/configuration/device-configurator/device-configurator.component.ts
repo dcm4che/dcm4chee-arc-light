@@ -18,8 +18,9 @@ import { loadTranslations } from '@angular/localize';
 import {LocalLanguageObject} from "../../interfaces";
 
 @Component({
-  selector: 'app-device-configurator',
-  templateUrl: './device-configurator.component.html'
+    selector: 'app-device-configurator',
+    templateUrl: './device-configurator.component.html',
+    standalone: false
 })
 export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     formObj: FormElement<any>[];

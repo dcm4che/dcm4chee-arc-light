@@ -24,8 +24,9 @@ import {SelectDropdown} from "../../interfaces";
 
 
 @Component({
-  selector: 'app-queues',
-  templateUrl: './queues.component.html'
+    selector: 'app-queues',
+    templateUrl: './queues.component.html',
+    standalone: false
 })
 export class QueuesComponent implements OnInit, OnDestroy{
     private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);

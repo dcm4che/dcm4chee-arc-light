@@ -87,27 +87,28 @@ declare var DCM4CHE: any;
     selector: 'app-study',
     templateUrl: './study.component.html',
     styleUrls: ['./study.component.scss'],
-    animations:[
-        trigger("showHide",[
-            state("show",style({
-                padding:"*",
-                height:'*',
-                opacity:1
+    animations: [
+        trigger("showHide", [
+            state("show", style({
+                padding: "*",
+                height: '*',
+                opacity: 1
             })),
-            state("hide",style({
-                padding:"0",
-                opacity:0,
-                height:'0px',
-                margin:"0"
+            state("hide", style({
+                padding: "0",
+                opacity: 0,
+                height: '0px',
+                margin: "0"
             })),
-            transition("show => hide",[
+            transition("show => hide", [
                 animate('0.2s')
             ]),
-            transition("hide => show",[
+            transition("hide => show", [
                 animate('0.3s')
             ])
         ])
-    ]
+    ],
+    standalone: false
 })
 export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 

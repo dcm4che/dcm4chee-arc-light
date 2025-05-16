@@ -4,7 +4,8 @@ import * as _ from 'lodash-es';
 import {AppService} from "../../app.service";
 
 @Directive({
-    selector: '[tooltip]'
+    selector: '[tooltip]',
+    standalone: false
 })
 export class TooltipDirective implements OnDestroy{
     @Input() tooltip: string;

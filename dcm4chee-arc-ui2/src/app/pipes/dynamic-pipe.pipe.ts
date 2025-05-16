@@ -3,7 +3,8 @@ import * as _ from 'lodash-es';
 import {DynamicPipe} from "../helpers/dicom-studies-table/dicom-studies-table.interfaces";
 
 @Pipe({
-  name: 'dynamicPipe'
+    name: 'dynamicPipe',
+    standalone: false
 })
 export class DynamicPipePipe implements PipeTransform {
 

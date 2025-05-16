@@ -9,9 +9,10 @@ import {Globalvar} from "../../constants/globalvar";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
 
 @Component({
-  selector: 'dictionary-picker',
-  templateUrl: './dictionary-picker.component.html',
-  styleUrls: ['./dictionary-picker.component.css']
+    selector: 'dictionary-picker',
+    templateUrl: './dictionary-picker.component.html',
+    styleUrls: ['./dictionary-picker.component.css'],
+    standalone: false
 })
 export class DictionaryPickerComponent implements OnInit {
     Object = Object;

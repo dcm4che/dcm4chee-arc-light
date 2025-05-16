@@ -3,8 +3,9 @@ import {MatDialogRef} from "@angular/material/dialog";
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
-  selector: 'app-info',
-  templateUrl: './info.component.html'
+    selector: 'app-info',
+    templateUrl: './info.component.html',
+    standalone: false
 })
 export class InfoComponent{
 

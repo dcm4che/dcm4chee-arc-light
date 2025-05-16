@@ -27,7 +27,8 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 @Component({
     selector: 'df-element',
     templateUrl: './dynamic-form-element.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class DynamicFormElementComponent implements OnDestroy{
 

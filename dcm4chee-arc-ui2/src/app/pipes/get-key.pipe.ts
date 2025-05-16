@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'getKey'
+    name: 'getKey',
+    standalone: false
 })
 export class GetKeyPipe implements PipeTransform {
 

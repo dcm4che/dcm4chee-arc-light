@@ -2,9 +2,10 @@ import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, O
 import {DynamicFieldService} from "./dynamic-field.service";
 import * as _ from "lodash-es";
 @Component({
-  selector: 'dynamic-field',
-  templateUrl: './dynamic-field.component.html',
-  styleUrls: ['./dynamic-field.component.scss']
+    selector: 'dynamic-field',
+    templateUrl: './dynamic-field.component.html',
+    styleUrls: ['./dynamic-field.component.scss'],
+    standalone: false
 })
 export class DynamicFieldComponent implements OnInit {
 

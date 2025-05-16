@@ -3,7 +3,8 @@ import * as _ from 'lodash-es';
 import {j4care} from "../helpers/j4care.service";
 
 @Pipe({
-  name: 'patientIssuer'
+    name: 'patientIssuer',
+    standalone: false
 })
 export class PatientIssuerPipe implements PipeTransform {
 

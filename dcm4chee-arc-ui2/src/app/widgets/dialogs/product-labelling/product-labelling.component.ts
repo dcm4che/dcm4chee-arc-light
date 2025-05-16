@@ -4,8 +4,9 @@ import {j4care} from "../../../helpers/j4care.service";
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-product-labelling',
-  templateUrl: './product-labelling.component.html'
+    selector: 'app-product-labelling',
+    templateUrl: './product-labelling.component.html',
+    standalone: false
 })
 export class ProductLabellingComponent {
     private _archive;

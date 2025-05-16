@@ -32,7 +32,8 @@ import {MatDialogRef} from "@angular/material/dialog";
         .mdc-dialog__content{
             float: left;
         }
-    `]
+    `],
+    standalone: false
 })
 export class EditStudyComponent{
 

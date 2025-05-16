@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'dicomConnectionFormater'
+    name: 'dicomConnectionFormater',
+    standalone: false
 })
 export class DicomConnectionFormaterPipe implements PipeTransform {
 

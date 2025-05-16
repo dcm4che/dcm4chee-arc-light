@@ -5,9 +5,10 @@ import {NgForm} from "@angular/forms";
 import * as _ from 'lodash-es';
 
 @Component({
-  selector: 'form-generator',
-  templateUrl: './form-generator.component.html',
-  styleUrls: ['./form-generator.component.scss']
+    selector: 'form-generator',
+    templateUrl: './form-generator.component.html',
+    styleUrls: ['./form-generator.component.scss'],
+    standalone: false
 })
 export class FormGeneratorComponent implements OnInit{
   @Input() schema:FormElement<any>[];

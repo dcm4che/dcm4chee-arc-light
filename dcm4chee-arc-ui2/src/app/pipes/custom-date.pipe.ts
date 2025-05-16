@@ -4,7 +4,8 @@ import {j4care} from "../helpers/j4care.service";
 import * as _ from 'lodash-es';
 
 @Pipe({
-    name: 'customDate'
+    name: 'customDate',
+    standalone: false
 })
 export class CustomDatePipe implements PipeTransform {
 

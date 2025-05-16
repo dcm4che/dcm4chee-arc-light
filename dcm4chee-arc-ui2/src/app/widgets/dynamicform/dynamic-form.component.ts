@@ -17,7 +17,8 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 @Component({
     selector: 'dynamic-form',
     templateUrl: './dynamic-form.component.html',
-    providers: [ FormService ]
+    providers: [FormService],
+    standalone: false
 })
 export class DynamicFormComponent implements OnInit{
     @Input() formelements: FormElement<any>[] = [];

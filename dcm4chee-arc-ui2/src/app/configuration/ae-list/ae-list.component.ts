@@ -18,8 +18,9 @@ import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import { loadTranslations } from '@angular/localize';
 
 @Component({
-  selector: 'app-ae-list',
-  templateUrl: './ae-list.component.html'
+    selector: 'app-ae-list',
+    templateUrl: './ae-list.component.html',
+    standalone: false
 })
 export class AeListComponent implements OnInit{
     _ = _;

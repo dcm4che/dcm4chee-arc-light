@@ -15,7 +15,8 @@ import {MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'modify-ups',
     templateUrl: './modify-ups.component.html',
-    styleUrls: ['./modify-ups.component.scss']
+    styleUrls: ['./modify-ups.component.scss'],
+    standalone: false
 })
 export class ModifyUpsComponent {
 

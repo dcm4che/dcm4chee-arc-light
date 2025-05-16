@@ -22,9 +22,9 @@ import {MatDialogRef} from "@angular/material/dialog";
 
 
 @Component({
-  selector: 'app-upload-files',
+    selector: 'app-upload-files',
     templateUrl: './upload-files.component.html',
-    styles:[`        
+    styles: [`        
         .upload label{
             float: left;
             width: 100%;
@@ -52,7 +52,8 @@ import {MatDialogRef} from "@angular/material/dialog";
         .edit_attribute_block{
             max-height: 32vh;
         }
-    `]
+    `],
+    standalone: false
 })
 export class UploadFilesComponent implements OnInit {
 

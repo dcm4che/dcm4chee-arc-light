@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'custom-attribute-list',
-  templateUrl: './custom-attribute-list.component.html',
-  styleUrls: ['./custom-attribute-list.component.scss']
+    selector: 'custom-attribute-list',
+    templateUrl: './custom-attribute-list.component.html',
+    styleUrls: ['./custom-attribute-list.component.scss'],
+    standalone: false
 })
 export class CustomAttributeListComponent implements OnInit {
     @Input() dicomAttributesAsSubAttribute;

@@ -3,7 +3,8 @@ import * as _ from 'lodash-es';
 import {PATIENT_NAME_PARTS} from "../models/patient-dicom";
 
 @Pipe({
-  name: 'personName'
+    name: 'personName',
+    standalone: false
 })
 export class PersonNamePipe implements PipeTransform {
 

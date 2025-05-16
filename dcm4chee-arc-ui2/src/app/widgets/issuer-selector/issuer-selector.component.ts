@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as _ from "lodash-es";
 import {j4care} from "../../helpers/j4care.service";
 @Component({
-  selector: 'issuer-selector',
-  templateUrl: './issuer-selector.component.html',
-  styleUrls: ['./issuer-selector.component.scss']
+    selector: 'issuer-selector',
+    templateUrl: './issuer-selector.component.html',
+    styleUrls: ['./issuer-selector.component.scss'],
+    standalone: false
 })
 export class IssuerSelectorComponent implements OnInit {
 

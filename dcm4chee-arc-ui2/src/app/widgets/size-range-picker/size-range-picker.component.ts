@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {SelectDropdown} from "../../interfaces";
 
 @Component({
-  selector: 'size-range-picker',
-  templateUrl: './size-range-picker.component.html',
-  styleUrls: ['./size-range-picker.component.scss']
+    selector: 'size-range-picker',
+    templateUrl: './size-range-picker.component.html',
+    styleUrls: ['./size-range-picker.component.scss'],
+    standalone: false
 })
 export class SizeRangePickerComponent implements OnInit{
 

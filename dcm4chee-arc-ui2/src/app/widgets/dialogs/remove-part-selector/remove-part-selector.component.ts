@@ -3,8 +3,9 @@ import {MatDialogRef} from "@angular/material/dialog";
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
-  selector: 'app-remove-part-selector',
-  templateUrl: './remove-part-selector.component.html'
+    selector: 'app-remove-part-selector',
+    templateUrl: './remove-part-selector.component.html',
+    standalone: false
 })
 export class RemovePartSelectorComponent{
     selectedOption;

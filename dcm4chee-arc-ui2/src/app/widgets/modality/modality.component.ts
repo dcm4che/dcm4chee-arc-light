@@ -4,11 +4,12 @@ import {Globalvar} from "../../constants/globalvar";
 @Component({
     selector: 'modality',
     templateUrl: './modality.component.html',
-    styles:[`
+    styles: [`
         .input_field{
             width:100%;
         }
-    `]
+    `],
+    standalone: false
 })
 export class ModalityComponent implements OnInit {
 

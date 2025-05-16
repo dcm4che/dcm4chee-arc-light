@@ -9,9 +9,10 @@ import {j4care} from "../../helpers/j4care.service";
 import {environment} from "../../../environments/environment";
 
 @Component({
-  selector: 'app-metrics',
-  templateUrl: './metrics.component.html',
-  styleUrls: ['./metrics.component.scss']
+    selector: 'app-metrics',
+    templateUrl: './metrics.component.html',
+    styleUrls: ['./metrics.component.scss'],
+    standalone: false
 })
 export class MetricsComponent implements OnInit {
 

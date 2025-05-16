@@ -4,7 +4,8 @@ import {Globalvar} from '../constants/globalvar';
 import * as _ from 'lodash-es';
 
 @Directive({
-  selector: '[placeholderchanger]'
+    selector: '[placeholderchanger]',
+    standalone: false
 })
 export class PlaceholderchangerDirective implements OnInit{
 

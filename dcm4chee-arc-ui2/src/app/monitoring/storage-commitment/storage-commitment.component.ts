@@ -14,8 +14,9 @@ import {j4care} from "../../helpers/j4care.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 
 @Component({
-  selector: 'app-storage-commitment',
-  templateUrl: './storage-commitment.component.html'
+    selector: 'app-storage-commitment',
+    templateUrl: './storage-commitment.component.html',
+    standalone: false
 })
 export class StorageCommitmentComponent implements OnInit {
     matches = [];

@@ -3,9 +3,10 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
 
 
 @Component({
-  selector: 'composed-input',
-  templateUrl: './composed-input.component.html',
-  styleUrls: ['./composed-input.component.scss']
+    selector: 'composed-input',
+    templateUrl: './composed-input.component.html',
+    styleUrls: ['./composed-input.component.scss'],
+    standalone: false
 })
 export class ComposedInputComponent/* implements ControlValueAccessor */{
   modelArray = [];

@@ -3,8 +3,9 @@ import {MatDialogRef} from "@angular/material/dialog";
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
-  selector: 'app-clone-selector',
-  templateUrl: './clone-selector.component.html'
+    selector: 'app-clone-selector',
+    templateUrl: './clone-selector.component.html',
+    standalone: false
 })
 export class CloneSelectorComponent {
     selectedOption;

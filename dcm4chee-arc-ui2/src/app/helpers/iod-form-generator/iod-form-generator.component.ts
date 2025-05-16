@@ -5,8 +5,9 @@ import {AppService} from "../../app.service";
 declare var DCM4CHE: any;
 
 @Component({
-  selector: 'iod-form-generator',
-  templateUrl: './iod-form-generator.component.html'
+    selector: 'iod-form-generator',
+    templateUrl: './iod-form-generator.component.html',
+    standalone: false
 })
 export class IodFormGeneratorComponent implements OnInit {
     @Input() object;

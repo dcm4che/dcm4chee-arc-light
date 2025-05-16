@@ -10,8 +10,9 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {j4care} from "../../helpers/j4care.service";
 
 @Component({
-  selector: 'app-associations',
-  templateUrl: './associations.component.html'
+    selector: 'app-associations',
+    templateUrl: './associations.component.html',
+    standalone: false
 })
 export class AssociationsComponent implements OnDestroy{
     updaterate: any = 3;

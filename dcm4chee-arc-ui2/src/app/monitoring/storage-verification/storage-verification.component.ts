@@ -19,9 +19,10 @@ import {map} from 'rxjs/operators';
 import {environment} from "../../../environments/environment";
 
 @Component({
-  selector: 'app-storage-verification',
-  templateUrl: './storage-verification.component.html',
-  styleUrls: ['./storage-verification.component.scss']
+    selector: 'app-storage-verification',
+    templateUrl: './storage-verification.component.html',
+    styleUrls: ['./storage-verification.component.scss'],
+    standalone: false
 })
 export class StorageVerificationComponent implements OnInit, OnDestroy {
     filterObject;

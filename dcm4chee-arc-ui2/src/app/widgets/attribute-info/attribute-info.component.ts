@@ -2,9 +2,10 @@ import { Component, OnInit, Input } from '@angular/core';
 declare var DCM4CHE: any;
 
 @Component({
-  selector: 'attribute-info',
-  templateUrl: './attribute-info.component.html',
-  styleUrls: ['./attribute-info.component.css']
+    selector: 'attribute-info',
+    templateUrl: './attribute-info.component.html',
+    styleUrls: ['./attribute-info.component.css'],
+    standalone: false
 })
 export class AttributeInfoComponent implements OnInit {
 

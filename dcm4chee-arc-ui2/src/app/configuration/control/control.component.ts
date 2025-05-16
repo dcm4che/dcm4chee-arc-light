@@ -14,7 +14,8 @@ import {j4care} from "../../helpers/j4care.service";
 @Component({
     selector: 'app-control',
     templateUrl: './control.component.html',
-    styleUrls: ['./control.component.scss']
+    styleUrls: ['./control.component.scss'],
+    standalone: false
 })
 export class ControlComponent implements OnInit{
     status: any;

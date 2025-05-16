@@ -33,6 +33,7 @@ const worker = new Worker(new URL('./server-time.worker', import.meta.url), {typ
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
+    standalone: false
 })
 export class AppComponent implements OnInit {
     progressValue = 30;

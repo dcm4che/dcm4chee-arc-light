@@ -14,8 +14,9 @@ import {StudyService} from "../../../study/study/study.service";
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-upload-dicom',
-  templateUrl: './upload-dicom.component.html'
+    selector: 'app-upload-dicom',
+    templateUrl: './upload-dicom.component.html',
+    standalone: false
 })
 export class UploadDicomComponent implements OnInit{
 

@@ -15,7 +15,8 @@ import {MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'app-create-ae',
     templateUrl: './create-ae.component.html',
-    styleUrls: ['./create-ae.component.scss']
+    styleUrls: ['./create-ae.component.scss'],
+    standalone: false
 })
 export class CreateAeComponent implements OnInit{
     private _dicomconn;

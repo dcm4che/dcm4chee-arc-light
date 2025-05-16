@@ -4,9 +4,10 @@ import {SearchPipe} from "../../pipes/search.pipe";
 import * as _ from 'lodash-es';
 
 @Component({
-  selector: 'language-picker',
-  templateUrl: './language-picker.component.html',
-  styleUrls: ['./language-picker.component.scss']
+    selector: 'language-picker',
+    templateUrl: './language-picker.component.html',
+    styleUrls: ['./language-picker.component.scss'],
+    standalone: false
 })
 export class LanguagePickerComponent implements OnInit {
   Object = Object;

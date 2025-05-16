@@ -10,8 +10,9 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {j4care} from "../../helpers/j4care.service";
 
 @Component({
-  selector: 'app-hl7-applications',
-  templateUrl: './hl7-applications.component.html'
+    selector: 'app-hl7-applications',
+    templateUrl: './hl7-applications.component.html',
+    standalone: false
 })
 export class Hl7ApplicationsComponent implements OnInit {
 

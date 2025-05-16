@@ -4,7 +4,8 @@ import * as _ from 'lodash-es';
 
 @Directive({
     selector: '[appCustomValidator]',
-    providers: [{ provide: NG_VALIDATORS, useExisting: CustomValidatorDirective, multi: true }]
+    providers: [{ provide: NG_VALIDATORS, useExisting: CustomValidatorDirective, multi: true }],
+    standalone: false
 })
 export class CustomValidatorDirective{
 

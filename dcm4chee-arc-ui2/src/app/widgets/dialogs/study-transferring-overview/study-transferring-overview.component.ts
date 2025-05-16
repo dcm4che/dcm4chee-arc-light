@@ -5,9 +5,10 @@ import {SelectDropdown} from "../../../interfaces";
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-study-transferring-overview',
-  templateUrl: './study-transferring-overview.component.html',
-  styleUrls: ['./study-transferring-overview.component.scss']
+    selector: 'app-study-transferring-overview',
+    templateUrl: './study-transferring-overview.component.html',
+    styleUrls: ['./study-transferring-overview.component.scss'],
+    standalone: false
 })
 export class StudyTransferringOverviewComponent implements OnInit {
 

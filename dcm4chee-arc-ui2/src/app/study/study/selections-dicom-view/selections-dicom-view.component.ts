@@ -7,9 +7,10 @@ import * as _ from "lodash-es";
 import {j4care} from "../../../helpers/j4care.service";
 
 @Component({
-  selector: 'selections-dicom-view',
-  templateUrl: './selections-dicom-view.component.html',
-  styleUrls: ['./selections-dicom-view.component.scss']
+    selector: 'selections-dicom-view',
+    templateUrl: './selections-dicom-view.component.html',
+    styleUrls: ['./selections-dicom-view.component.scss'],
+    standalone: false
 })
 export class SelectionsDicomViewComponent implements OnInit {
 

@@ -25,8 +25,9 @@ import {map} from "rxjs/operators";
 import {environment} from "../../../environments/environment";
 
 @Component({
-  selector: 'retrieve-monitoring',
-  templateUrl: './retrieve-monitoring.component.html'
+    selector: 'retrieve-monitoring',
+    templateUrl: './retrieve-monitoring.component.html',
+    standalone: false
 })
 export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     before;

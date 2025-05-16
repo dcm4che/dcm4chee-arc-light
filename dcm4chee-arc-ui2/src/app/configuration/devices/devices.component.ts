@@ -24,9 +24,10 @@ import { loadTranslations } from '@angular/localize';
 import {DeviceCloneComponent} from "../../widgets/dialogs/device-clone/device-clone.component";
 
 @Component({
-  selector: 'app-devices',
-  templateUrl: './devices.component.html',
-  styleUrls: ['./devices.component.css']
+    selector: 'app-devices',
+    templateUrl: './devices.component.html',
+    styleUrls: ['./devices.component.css'],
+    standalone: false
 })
 export class DevicesComponent implements OnInit{
     debugpre = false;

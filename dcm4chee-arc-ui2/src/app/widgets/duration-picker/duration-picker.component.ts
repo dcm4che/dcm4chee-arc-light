@@ -31,9 +31,10 @@ const MONTH = {
 };
 
 @Component({
-  selector: 'duration-picker',
-  templateUrl: './duration-picker.component.html',
-  styleUrls: ['./duration-picker.component.css']
+    selector: 'duration-picker',
+    templateUrl: './duration-picker.component.html',
+    styleUrls: ['./duration-picker.component.css'],
+    standalone: false
 })
 export class DurationPickerComponent implements OnInit {
 

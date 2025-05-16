@@ -2,9 +2,10 @@ import {Component, OnInit, EventEmitter, Output, Input} from '@angular/core';
 import * as _ from 'lodash-es';
 
 @Component({
-  selector: 'schedule-picker',
-  templateUrl: './schedule-picker.component.html',
-  styleUrls: ['./schedule-picker.component.css']
+    selector: 'schedule-picker',
+    templateUrl: './schedule-picker.component.html',
+    styleUrls: ['./schedule-picker.component.css'],
+    standalone: false
 })
 export class SchedulePickerComponent implements OnInit {
 

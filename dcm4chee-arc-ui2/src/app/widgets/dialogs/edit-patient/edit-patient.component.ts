@@ -14,7 +14,8 @@ import {EditPatientService} from "./edit-patient.service";
     selector: 'app-edit-patient',
     templateUrl: './edit-patient.component.html',
     styleUrls: ['./edit-patient.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class EditPatientComponent {
 

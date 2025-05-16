@@ -15,7 +15,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
             "localize": [
               "de",
@@ -33,11 +33,14 @@
               "uuid/v4",
               "file-saver"
             ],
-            "outputPath": "target/webapp",
+            "outputPath": {
+              "base": "target/webapp"
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
             "crossOrigin": "use-credentials",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "tsConfig": "tsconfig.app.json",
             "aot": false,
             "assets": [
@@ -389,12 +392,11 @@
               "src/app/constants/http---www.gemedicalsystems.com-it_solutions-rad_pacs-.js"
             ],
             "webWorkerTsConfig": "tsconfig.worker.json",
-            "vendorChunk": true,
             "extractLicenses": false,
-            "buildOptimizer": false,
             "sourceMap": true,
             "optimization": false,
-            "namedChunks": true
+            "namedChunks": true,
+            "browser": "src/main.ts"
           },
           "configurations": {
             "production": {
@@ -410,8 +412,6 @@
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -434,13 +434,13 @@
                 ],
                 "optimization": true,
                 "outputHashing": "all",
-                "outputPath": "target/webapp",
+                "outputPath": {
+                  "base": "target/webapp"
+                },
                 "sourceMap": false,
                 "namedChunks": false,
                 "aot": true,
                 "extractLicenses": true,
-                "vendorChunk": false,
-                "buildOptimizer": true,
                 "i18nFile": "src/assets/locale/sq.json",
                 "i18nLocale": "sq",
                 "i18nMissingTranslation": "warning"

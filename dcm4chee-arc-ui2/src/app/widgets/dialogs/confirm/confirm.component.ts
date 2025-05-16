@@ -5,7 +5,8 @@ import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
     selector: 'app-confirm',
-    templateUrl: './confirm.component.html'
+    templateUrl: './confirm.component.html',
+    standalone: false
 })
 export class ConfirmComponent{
     _ = _;

@@ -6,6 +6,7 @@ import {j4care} from "../../helpers/j4care.service";
     templateUrl: './time-picker.component.html',
     styleUrls: ['./time-picker.component.scss'],
     encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class TimePickerComponent implements OnInit {
 

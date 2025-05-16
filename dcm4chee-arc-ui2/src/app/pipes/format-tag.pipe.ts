@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'formatTag'
+    name: 'formatTag',
+    standalone: false
 })
 export class FormatTagPipe implements PipeTransform {
 

@@ -4,9 +4,10 @@ import {CreateAeComponent} from "../create-ae/create-ae.component";
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-create-webapp',
-  templateUrl: './create-webapp.component.html',
-  styleUrls: ['./create-webapp.component.scss']
+    selector: 'app-create-webapp',
+    templateUrl: './create-webapp.component.html',
+    styleUrls: ['./create-webapp.component.scss'],
+    standalone: false
 })
 export class CreateWebappComponent implements OnInit {
 

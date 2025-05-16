@@ -24,7 +24,8 @@ import {environment} from "../../../environments/environment";
 @Component({
     selector: 'diff-monitor',
     templateUrl: './diff-monitor.component.html',
-    styleUrls: ['./diff-monitor.component.scss']
+    styleUrls: ['./diff-monitor.component.scss'],
+    standalone: false
 })
 export class DiffMonitorComponent implements OnInit {
 

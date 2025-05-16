@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import * as _ from 'lodash-es';
 
 @Component({
-  selector: 'stacked-progress',
-  templateUrl: './stacked-progress.component.html',
-  styleUrls: ['./stacked-progress.component.scss']
+    selector: 'stacked-progress',
+    templateUrl: './stacked-progress.component.html',
+    styleUrls: ['./stacked-progress.component.scss'],
+    standalone: false
 })
 export class StackedProgressComponent implements OnInit {
 

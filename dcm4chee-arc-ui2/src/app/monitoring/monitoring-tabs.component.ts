@@ -17,7 +17,8 @@ import { Component } from '@angular/core';
         <li [permission]="{id:'tab-monitoring->storage_verification',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-verification" routerLinkActive="active" i18n="@@storage_verification">Storage Verification</a></li>
         <li [permission]="{id:'tab-monitoring->metrics',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/metrics" routerLinkActive="active" i18n="@@metrics.metrics">Metrics</a></li>
     </ul>
-  `
+  `,
+    standalone: false
 })
 export class MonitoringTabsComponent {
 }

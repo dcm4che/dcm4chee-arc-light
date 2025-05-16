@@ -3,10 +3,11 @@ import {MatDialogRef} from "@angular/material/dialog";
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
-  selector: 'app-delete-rejected-instances',
-  templateUrl: './delete-rejected-instances.component.html',
+    selector: 'app-delete-rejected-instances',
+    templateUrl: './delete-rejected-instances.component.html',
     styles: [`        
-    `]
+    `],
+    standalone: false
 })
 export class DeleteRejectedInstancesComponent{
     private _rjnotes;

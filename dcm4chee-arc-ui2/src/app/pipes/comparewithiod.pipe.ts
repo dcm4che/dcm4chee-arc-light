@@ -14,7 +14,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 *
 * */
 @Pipe({
-  name: 'comparewithiod'
+    name: 'comparewithiod',
+    standalone: false
 })
 export class ComparewithiodPipe implements PipeTransform {
 

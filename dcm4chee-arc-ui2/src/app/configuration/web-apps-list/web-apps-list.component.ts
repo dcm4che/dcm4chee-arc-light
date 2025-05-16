@@ -13,9 +13,10 @@ import {CreateWebappComponent} from "../../widgets/dialogs/create-webapp/create-
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-web-apps-list',
-  templateUrl: './web-apps-list.component.html',
-  styleUrls: ['./web-apps-list.component.scss']
+    selector: 'app-web-apps-list',
+    templateUrl: './web-apps-list.component.html',
+    styleUrls: ['./web-apps-list.component.scss'],
+    standalone: false
 })
 export class WebAppsListComponent implements OnInit {
 

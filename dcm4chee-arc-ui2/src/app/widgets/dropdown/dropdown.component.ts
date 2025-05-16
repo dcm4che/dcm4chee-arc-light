@@ -19,28 +19,28 @@ import {SearchPipe} from "../../pipes/search.pipe";
     selector: 'j4care-select',
     templateUrl: './dropdown.component.html',
     styleUrls: ['./dropdown.component.scss'],
-    animations:[
-        trigger("showHide",[
-            state("show",style({
-                padding:"*",
-                height:'*',
-                opacity:1
+    animations: [
+        trigger("showHide", [
+            state("show", style({
+                padding: "*",
+                height: '*',
+                opacity: 1
             })),
-            state("hide",style({
-                padding:"0",
-                opacity:0,
-                height:'0px',
-                margin:"0"
+            state("hide", style({
+                padding: "0",
+                opacity: 0,
+                height: '0px',
+                margin: "0"
             })),
-            transition("show => hide",[
+            transition("show => hide", [
                 animate('0.1s')
             ]),
-            transition("hide => show",[
+            transition("hide => show", [
                 animate('0.2s cubic-bezier(.52,-0.01,.15,1)')
             ])
         ])
     ],
-    // changeDetection: ChangeDetectionStrategy.OnPush
+    standalone: false
 })
 export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     selectedValue:string;

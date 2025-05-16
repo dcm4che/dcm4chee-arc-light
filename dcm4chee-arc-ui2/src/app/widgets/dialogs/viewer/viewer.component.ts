@@ -10,9 +10,10 @@ import {StudyWebService} from "../../../study/study/study-web-service.model";
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'app-viewer',
-  templateUrl: './viewer.component.html',
-  styleUrls: ['./viewer.component.css']
+    selector: 'app-viewer',
+    templateUrl: './viewer.component.html',
+    styleUrls: ['./viewer.component.css'],
+    standalone: false
 })
 export class ViewerComponent implements OnInit {
 

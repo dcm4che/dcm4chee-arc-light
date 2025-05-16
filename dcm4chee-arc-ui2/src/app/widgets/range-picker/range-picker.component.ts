@@ -8,7 +8,8 @@ import {FormControl, FormGroup} from "@angular/forms";
 @Component({
     selector: 'range-picker',
     templateUrl: './range-picker.component.html',
-    styleUrls: ['./range-picker.component.scss']
+    styleUrls: ['./range-picker.component.scss'],
+    standalone: false
 })
 export class RangePickerComponent implements OnInit {
     @Input() model;

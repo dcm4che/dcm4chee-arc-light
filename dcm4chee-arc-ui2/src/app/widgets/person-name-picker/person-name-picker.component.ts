@@ -4,9 +4,10 @@ import {PersonNamePickerService} from "./person-name-picker.service";
 import * as _ from "lodash-es";
 
 @Component({
-  selector: 'person-name-picker',
-  templateUrl: './person-name-picker.component.html',
-  styleUrls: ['./person-name-picker.component.scss']
+    selector: 'person-name-picker',
+    templateUrl: './person-name-picker.component.html',
+    styleUrls: ['./person-name-picker.component.scss'],
+    standalone: false
 })
 export class PersonNamePickerComponent implements OnInit {
 

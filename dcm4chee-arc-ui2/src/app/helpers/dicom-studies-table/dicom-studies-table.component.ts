@@ -10,9 +10,10 @@ import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
 
 @Component({
-  selector: 'dicom-studies-table',
-  templateUrl: './dicom-studies-table.component.html',
-  styleUrls: ['./dicom-studies-table.component.scss']
+    selector: 'dicom-studies-table',
+    templateUrl: './dicom-studies-table.component.html',
+    styleUrls: ['./dicom-studies-table.component.scss'],
+    standalone: false
 })
 export class DicomStudiesTableComponent implements OnInit {
     _ = _;

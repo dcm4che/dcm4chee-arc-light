@@ -6,8 +6,8 @@ import {InfoComponent} from '../dialogs/info/info.component';
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {WindowRefService} from "../../helpers/window-ref.service";
 @Component({
-  selector: 'app-messaging',
-  template: `
+    selector: 'app-messaging',
+    template: `
     <div class="msg_container" *ngIf="msg && msg.length > 0">
         <li *ngFor="let m of msg" class="{{m.status}} msg_{{m.id}} slideInRight animated"  (click)="closeBox(m)">
             <span class="close" data-dismiss="alert" aria-label="close">&times;</span>  
@@ -20,7 +20,8 @@ import {WindowRefService} from "../../helpers/window-ref.service";
             <div class="progress"></div>
         </li>
     </div>
-  `
+  `,
+    standalone: false
 })
 export class MessagingComponent implements OnDestroy{
     private msgTimeout = 20000;

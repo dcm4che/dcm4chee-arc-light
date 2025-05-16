@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'removedots'
+    name: 'removedots',
+    standalone: false
 })
 export class RemovedotsPipe implements PipeTransform {
 

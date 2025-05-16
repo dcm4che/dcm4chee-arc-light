@@ -8,9 +8,10 @@ import * as _ from "lodash-es";
 import {MatDialogRef} from "@angular/material/dialog";
 
 @Component({
-  selector: 'csv-upload',
-  templateUrl: './csv-upload.component.html',
-  styleUrls: ['./csv-upload.component.scss']
+    selector: 'csv-upload',
+    templateUrl: './csv-upload.component.html',
+    styleUrls: ['./csv-upload.component.scss'],
+    standalone: false
 })
 export class CsvUploadComponent implements OnInit {
 
