@@ -3,7 +3,6 @@ import * as _  from "lodash-es";
 import {DicomNetworkConnection, SelectDropdown} from "../../interfaces";
 import {Device} from "../../models/device";
 import {j4care} from "../../helpers/j4care.service";
-import {NetworkInterfaceInfo} from "os";
 
 
 export class StudyDeviceWebserviceModel {
