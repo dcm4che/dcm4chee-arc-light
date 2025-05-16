@@ -1480,6 +1480,10 @@
                                 </thead>
                                 <tbody>
                                 <tr>
+                                    <td>series_rejection_state_check</td>
+                                    <td>((rejection_state &gt;&#61; 0) AND (rejection_state &lt;&#61; 3))</td>
+                                </tr>
+                                <tr>
                                     <td>series_completeness_check</td>
                                     <td>((completeness &gt;&#61; 0) AND (completeness &lt;&#61; 2))</td>
                                 </tr>
@@ -1490,10 +1494,6 @@
                                 <tr>
                                     <td>series_expiration_state_check</td>
                                     <td>((expiration_state &gt;&#61; 0) AND (expiration_state &lt;&#61; 5))</td>
-                                </tr>
-                                <tr>
-                                    <td>series_rejection_state_check</td>
-                                    <td>((rejection_state &gt;&#61; 0) AND (rejection_state &lt;&#61; 3))</td>
                                 </tr>
                                 </tbody>
                             </table>

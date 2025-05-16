@@ -11,7 +11,7 @@ BEGIN { FS = "[ )]" }
         } else if ($3 == "rejected_instance") {
             print "create table rejected_instance (pk bigint not null, created_time timestamp not null, series_iuid varchar(64) not null, sop_cuid varchar(64) not null, sop_iuid varchar(64) not null, study_iuid varchar(64) not null, reject_code_fk bigint, primary key (pk));"
         } else if ($3 == "patient_id") {
-            print "create table patient_id (pk bigint not null, pat_id varchar(64) not null, pat_id_type_code varchar(64), entity_id varchar(64), pat_name varchar(64) not null, entity_uid varchar(64), entity_uid_type varchar(64), version bigint, patient_fk bigint not null, primary key (pk));"
+            print "create table patient_id (pk bigint not null, pat_id varchar(64) not null, pat_id_type_code varchar(64), entity_id varchar(64) not null, pat_name varchar(64) not null, entity_uid varchar(64) not null, entity_uid_type varchar(64) not null, version bigint, patient_fk bigint not null, primary key (pk));"
         } else {
             print $0
         }

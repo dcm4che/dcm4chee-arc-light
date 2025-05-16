@@ -33,8 +33,12 @@ update patient_id set pat_name = (
     where pat_name is null;
 update patient_id set pat_name = '*'
     where pat_name is null;
-alter table patient_id add constraint patient_id_pat_id_pat_name_key
-    unique (pat_id, pat_name);
+update patient_id set entity_id = '*'
+    where entity_id is null;
+update patient_id set entity_uid = '*', entity_uid_type = '*'
+    where entity_uid is null;
+alter table patient_id add constraint patient_id_pat_id_entity_id_entity_uid_entity_uid_type_pat__key
+    unique (pat_id, entity_id, entity_uid, entity_uid_type, pat_name);
 
 update series set metadata_update_load_objects = true
     where metadata_update_time is not null and metadata_update_load_objects is null;
@@ -43,6 +47,9 @@ update series set metadata_update_load_objects = false
 
 -- part 3: can be applied on already running archive 5.34
 alter table patient_id
+    alter entity_id set not null,
+    alter entity_uid set not null,
+    alter entity_uid_type set not null,
     alter pat_name set not null;
 
 alter table series

@@ -684,12 +684,12 @@
             <parent column="pat_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="patient_demographics"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="pat_id_type_code" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="entity_id" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="entity_id" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="pat_name" nullable="false" remarks="" size="255" type="varchar" typeCode="12">
             <parent column="name" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="id_sequence"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="entity_uid" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="entity_uid_type" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="entity_uid" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="entity_uid_type" nullable="false" remarks="" size="255" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="version" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="patient_fk" nullable="false" remarks="" size="19" type="int8" typeCode="-5">
             <parent column="pk" foreignKey="fkih8d22x50j7orytfmigrnssea" implied="false" onDeleteCascade="false" schema="public" table="patient"/>
@@ -711,8 +711,11 @@
          <index name="idxtkyjkkxxhnr0fem7m0h3844jk" unique="false">
             <column ascending="true" name="pat_id"/>
          </index>
-         <index name="patient_id_pat_id_pat_name_key" unique="true">
+         <index name="patient_id_pat_id_entity_id_entity_uid_entity_uid_type_pat__key" unique="true">
             <column ascending="true" name="pat_id"/>
+            <column ascending="true" name="entity_id"/>
+            <column ascending="true" name="entity_uid"/>
+            <column ascending="true" name="entity_uid_type"/>
             <column ascending="true" name="pat_name"/>
          </index>
       </table>

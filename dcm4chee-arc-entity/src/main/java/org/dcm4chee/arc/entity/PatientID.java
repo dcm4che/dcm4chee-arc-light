@@ -43,6 +43,7 @@ package org.dcm4chee.arc.entity;
 import jakarta.persistence.*;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
+import org.dcm4che3.util.StringUtils;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -63,7 +64,7 @@ import org.dcm4che3.data.Issuer;
                 "order by pid.pk")
 @Entity
 @Table(name = "patient_id",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "pat_id", "pat_name" }),
+        uniqueConstraints = @UniqueConstraint(columnNames = { "pat_id", "entity_id", "entity_uid", "entity_uid_type", "pat_name" }),
         indexes = {
                 @Index(columnList = "pat_id"),
                 @Index(columnList = "entity_id"),
@@ -86,12 +87,15 @@ public class PatientID {
     @Column(name = "pat_id", updatable = false)
     private String id;
 
+    @Basic(optional=false)
     @Column(name = "entity_id")
     private String localNamespaceEntityID;
 
+    @Basic(optional=false)
     @Column(name = "entity_uid")
     private String universalEntityID;
 
+    @Basic(optional=false)
     @Column(name = "entity_uid_type")
     private String universalEntityIDType;
 
@@ -139,20 +143,23 @@ public class PatientID {
     }
 
     public Issuer getIssuer() {
-        return localNamespaceEntityID != null || universalEntityID != null
-                ? new Issuer(localNamespaceEntityID, universalEntityID, universalEntityIDType)
+        return !localNamespaceEntityID.equals("*") || !universalEntityID.equals("*")
+                ? new Issuer(
+                        StringUtils.nullify(localNamespaceEntityID, "*"),
+                        StringUtils.nullify(universalEntityID, "*"),
+                        StringUtils.nullify(universalEntityIDType, "*"))
                 : null;
     }
 
     public void setIssuer(Issuer issuer) {
         if (issuer != null) {
-            localNamespaceEntityID = issuer.getLocalNamespaceEntityID();
-            universalEntityID = issuer.getUniversalEntityID();
-            universalEntityIDType = issuer.getUniversalEntityIDType();
+            localNamespaceEntityID = StringUtils.maskNull(issuer.getLocalNamespaceEntityID(), "*");
+            universalEntityID = StringUtils.maskNull(issuer.getUniversalEntityID(), "*");
+            universalEntityIDType = StringUtils.maskNull(issuer.getUniversalEntityIDType(), "*");
         } else {
-            localNamespaceEntityID = null;
-            universalEntityID = null;
-            universalEntityIDType = null;
+            localNamespaceEntityID = "*";
+            universalEntityID = "*";
+            universalEntityIDType = "*";
         }
     }
 
