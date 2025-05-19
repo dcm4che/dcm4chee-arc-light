@@ -3,17 +3,16 @@ import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
 import {CreateAeComponent} from '../../widgets/dialogs/create-ae/create-ae.component';
-import {WindowRefService} from "../../helpers/window-ref.service";
-import {AeListService} from "./ae-list.service";
-import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {J4careHttpService} from "../../helpers/j4care-http.service";
-//import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MatLegacyDialogConfig as MatDialogConfig } from "@angular/material/legacy-dialog";
-import {LoadingBarService} from "@ngx-loading-bar/core";
-import {DevicesService} from "../devices/devices.service";
-import {j4care} from "../../helpers/j4care.service";
-import { HttpHeaders } from "@angular/common/http";
-import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
-import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {WindowRefService} from '../../helpers/window-ref.service';
+import {AeListService} from './ae-list.service';
+import {HttpErrorHandler} from '../../helpers/http-error-handler';
+import {J4careHttpService} from '../../helpers/j4care-http.service';
+import {LoadingBarService} from '@ngx-loading-bar/core';
+import {DevicesService} from '../devices/devices.service';
+import {j4care} from '../../helpers/j4care.service';
+import { HttpHeaders } from '@angular/common/http';
+import {KeycloakService} from '../../helpers/keycloak-service/keycloak.service';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 import { loadTranslations } from '@angular/localize';
 
@@ -22,7 +21,7 @@ import { loadTranslations } from '@angular/localize';
     templateUrl: './ae-list.component.html',
     standalone: false
 })
-export class AeListComponent implements OnInit{
+export class AeListComponent implements OnInit {
     _ = _;
     aes;
     advancedConfig;
@@ -47,48 +46,51 @@ export class AeListComponent implements OnInit{
     filterSchema;
     inherit = $localize `:@@inherit:inherit`
     constructor(
-      public $http:J4careHttpService,
+      public $http: J4careHttpService,
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
       public viewContainerRef: ViewContainerRef ,
       public dialog: MatDialog,
       public service: AeListService,
-      public httpErrorHandler:HttpErrorHandler,
-      private devicesService:DevicesService
-  ){}
-    ngOnInit(){
+      public httpErrorHandler: HttpErrorHandler,
+      private devicesService: DevicesService
+  ) {}
+    ngOnInit() {
         this.initCheck(10);
         this.filterSchema = this.service.getFiltersSchema(this.devices, this.mainservice.global.aes);
     }
-    initCheck(retries){
+    initCheck(retries) {
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated)  || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if (
+            (KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated)  ||
+            (_.hasIn(this.mainservice, 'global.notSecure') && this.mainservice.global.notSecure)
+        ) {
             this.init();
-        }else{
-            if (retries){
-                setTimeout(()=>{
-                    $this.initCheck(retries-1);
-                },20);
-            }else{
+        } else {
+            if (retries) {
+                setTimeout(() => {
+                    $this.initCheck(retries - 1);
+                }, 20);
+            } else {
                 this.init();
             }
         }
     }
-    init(){
+    init() {
       this.getAes();
       this.getAets();
       this.getDevices();
     }
 
-    getKeys(obj){
+    getKeys(obj) {
         console.log('getkeys obj', obj);
-        if (obj){
-            if (_.isArray(obj)){
+        if (obj) {
+            if (_.isArray(obj)) {
                 return obj;
-            }else{
+            } else {
                 return Object.keys(obj);
             }
-        }else{
+        } else {
             return [];
         }
     }
@@ -101,8 +103,9 @@ export class AeListComponent implements OnInit{
         // console.log("scrollevent",event);
         // $(window).scroll(function() {
         // let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
-        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0]).top : 0,
-            hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0] ?
+                j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0]).top : 0,
+            hH = WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0].offsetHeight,
             // wH = $(window).height(),
             wH = WindowRefService.nativeWindow.innerHeight,
             wS = window.pageYOffset;
@@ -110,12 +113,12 @@ export class AeListComponent implements OnInit{
         // console.log("hH",hH);
         // console.log("wH",wH);
         // console.log("wS",wS);
-        if (wS > (hT + hH - wH)){
+        if (wS > (hT + hH - wH)) {
             this.loadMoreAes();
         }
         // });
     }
-    loadMoreAes(){
+    loadMoreAes() {
         this.moreAes.loaderActive = true;
         this.moreAes.limit += 20;
         // if(this.moreAes.limit > 50){
@@ -123,11 +126,10 @@ export class AeListComponent implements OnInit{
         // }
         this.moreAes.loaderActive = false;
     }
-    searchAes(e?){
+    searchAes(e?) {
         this.cfpLoadingBar.start();
         let $this = this;
         this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}aes${j4care.param(this.filter)}`)
-            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aes = response;
                 $this.cfpLoadingBar.complete();
@@ -136,8 +138,8 @@ export class AeListComponent implements OnInit{
                 $this.cfpLoadingBar.complete();
             });
     };
-    confirm(confirmparameters){
-        //this.config.viewContainerRef = this.viewContainerRef;
+    confirm(confirmparameters) {
+        // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'
@@ -145,14 +147,14 @@ export class AeListComponent implements OnInit{
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
-    clearForm(){
+    clearForm() {
         let $this = this;
         _.forEach($this.filter, (m, i) => {
             $this.filter[i] = '';
         });
         this.searchAes();
     };
-    echoAe(ae){
+    echoAe(ae) {
         let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         let select: any = [];
         _.forEach(this.aets, (m, i) => {
@@ -172,7 +174,7 @@ export class AeListComponent implements OnInit{
         };
         let $this = this;
         this.confirm(parameters).subscribe(result => {
-            if (result){
+            if (result) {
                 console.log('result', result);
                 console.log('result', parameters.result);
                 $this.cfpLoadingBar.start();
@@ -193,7 +195,7 @@ export class AeListComponent implements OnInit{
             }
         });
     };
-    deleteAE(device, ae){
+    deleteAE(device, ae) {
         let parameters: any = {
             content: $localize `:@@are_you_sure_you_want_to_delete_from_device_aet:Are you sure you want to delete from <b>${device}</b> the AE: <b>${ae}</b>?`,
             input: {
@@ -205,22 +207,22 @@ export class AeListComponent implements OnInit{
             saveButton: $localize `:@@DELETE:DELETE`,
             cssClass: 'deleteaet'
         };
-        if(this.mainservice.archiveDeviceName === device){
+        if (this.mainservice.archiveDeviceName === device) {
             delete parameters.input;
         }
         console.log('parameters', parameters);
         let $this = this;
         this.confirm(parameters).subscribe(result => {
-            if (result){
+            if (result) {
                 console.log('in clearae', result);
-                if (result.input === true){
+                if (result.input === true) {
                     $this.$http.delete(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device}`).subscribe((res) => {
                             console.log('res', res);
                             $this.mainservice.showMsg($localize `:@@device_deleted_successfully:Device deleted successfully!`);
-                            $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}).subscribe((res) => {
+                            $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}).subscribe(() => {
                                 $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                 $this.searchAes();
-                            }, (error) => {
+                            }, () => {
                                 console.warn('Reloading the Archive failed');
                             });
 
@@ -228,18 +230,17 @@ export class AeListComponent implements OnInit{
                         (err) => {
                             $this.httpErrorHandler.handleError(err);
                         });
-                }else{
+                } else {
                     $this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device}`)
-                        // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
                         .subscribe(
                             (res) => {
                                 console.log('res', res);
                                 let deviceObject = res;
-                                //Remove ae from device and save it back
+                                // Remove ae from device and save it back
                                 _.forEach(deviceObject.dicomNetworkAE , (m, i) => {
                                     console.log('m', m);
                                     console.log('i', i);
-                                    if (m && m.dicomAETitle === ae){
+                                    if (m && m.dicomAETitle === ae) {
                                         deviceObject.dicomNetworkAE.splice(i, 1);
                                     }
                                 });
@@ -247,9 +248,12 @@ export class AeListComponent implements OnInit{
                                 console.log('deviceObj', deviceObject);
                                 $this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device}`, deviceObject)
                                     .subscribe((resdev) => {
-                                            console.log('resdev', resdev);
-                                            $this.mainservice.showMsg($localize `:@@ae_removed_from_device_successfully:Ae removed from device successfully!`);
-                                            $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}).subscribe((res) => {
+                                        console.log('resdev', resdev);
+                                        $this.mainservice.showMsg(
+                                            $localize `:@@ae_removed_from_device_successfully:Ae removed from device successfully!`
+                                        );
+                                        $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {})
+                                            .subscribe(() => {
                                                 $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                                 $this.searchAes();
                                             });
@@ -267,7 +271,7 @@ export class AeListComponent implements OnInit{
             }
         });
     };
-    createAe(){
+    createAe() {
         this.cfpLoadingBar.start();
         let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         let dicomconn = [];
@@ -288,7 +292,7 @@ export class AeListComponent implements OnInit{
             'name': 'dicom'
         });
         let $this = this;
-        //this.config.viewContainerRef = this.viewContainerRef;
+        // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(CreateAeComponent, {
             height: 'auto',
             width: '90%'
@@ -299,33 +303,40 @@ export class AeListComponent implements OnInit{
         this.dialogRef.componentInstance.aes = this.aes;
         this.dialogRef.componentInstance.devices = this.devices;
         this.dialogRef.afterClosed().subscribe(re => {
-            if (re){
+            if (re) {
                 console.log('res', re);
-                    if (re.mode === 'createdevice'){
-                        //Create device
+                    if (re.mode === 'createdevice') {
+                        // Create device
                         //            console.log("$scope.netAEModel",$scope.netAEModel);
                         console.log('re.newaetmodel', re.newaetmodel);
-                        if (re.newaetmodel.dicomInstalled === 'true'){
+                        if (re.newaetmodel.dicomInstalled === 'true') {
                             re.newaetmodel.dicomInstalled = true;
-                        }else{
-                            if (re.newaetmodel.dicomInstalled === 'false'){
+                        } else {
+                            if (re.newaetmodel.dicomInstalled === 'false') {
                                 re.newaetmodel.dicomInstalled = false;
-                            }else{
+                            } else {
                                 re.newaetmodel.dicomInstalled = true;
                             }
                         }
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
-                        if (!re.newaetmodel.dicomDeviceName || re.newaetmodel.dicomDeviceName === ''){
+                        if (!re.newaetmodel.dicomDeviceName || re.newaetmodel.dicomDeviceName === '') {
                             re.newaetmodel.dicomDeviceName = re.newaetmodel.dicomNetworkAE[0].dicomAETitle.toLowerCase();
                         }
-                        $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${re.newaetmodel.dicomDeviceName}`, re.newaetmodel, headers)
-                            .subscribe( (devre) => {
+                        $this.$http.post(
+                            `${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${re.newaetmodel.dicomDeviceName}`,
+                            re.newaetmodel,
+                            headers
+                        ).subscribe( (devre) => {
                                     $this.mainservice.showMsg($localize `:@@device_with_the_aet_created_successfully:Device with the AET created successfully!`);
-                                    if(re.selectedForAcceptedCallingAET && re.selectedForAcceptedCallingAET.length > 0){
-                                        this.setAetAsAcceptedCallingAet(re.newaetmodel.dicomNetworkAE[0],re.selectedForAcceptedCallingAET);
-                                    }else{
-                                        $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}, headers).subscribe((res) => {
+                                    if (re.selectedForAcceptedCallingAET && re.selectedForAcceptedCallingAET.length > 0) {
+                                        this.setAetAsAcceptedCallingAet(re.newaetmodel.dicomNetworkAE[0], re.selectedForAcceptedCallingAET);
+                                    } else {
+                                        $this.$http.post(
+                                            `${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`,
+                                            {},
+                                            headers
+                                        ).subscribe((res) => {
                                             $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                         });
                                     }
@@ -335,14 +346,16 @@ export class AeListComponent implements OnInit{
                                     $this.cfpLoadingBar.complete();
                                     $this.httpErrorHandler.handleError(err);
                                 });
-                    }else{
+                    } else {
                         re.device.dicomNetworkAE =  re.device.dicomNetworkAE || [];
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
                         re.device.dicomNetworkAE.push(re.newaetmodel.dicomNetworkAE[0]);
                         $this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${re.device.dicomDeviceName}`, re.device)
                             .subscribe((putresponse) => {
-                                $this.mainservice.showMsg($localize `:@@aet_added_to_device_successfully:Aet added to device successfully!`);
+                                $this.mainservice.showMsg(
+                                    $localize `:@@aet_added_to_device_successfully:Aet added to device successfully!`
+                                );
                                 $this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {}).subscribe((res) => {
                                     $this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                                 });
@@ -385,55 +398,58 @@ export class AeListComponent implements OnInit{
             }
         });
     };
-    setAetAsAcceptedCallingAet(newAet, setAetAsAcceptedCallingAet){
-        console.log("newAet",newAet);
-        console.log("setAetAsAcceptedCallingAet",setAetAsAcceptedCallingAet);
+    setAetAsAcceptedCallingAet(newAet, setAetAsAcceptedCallingAet) {
+        console.log('newAet', newAet);
+        console.log('setAetAsAcceptedCallingAet', setAetAsAcceptedCallingAet);
         let deviceAet = {};
-        this.aes.forEach(ae=>{
-            if(setAetAsAcceptedCallingAet.indexOf(ae.dicomAETitle) > -1){
+        this.aes.forEach(ae => {
+            if (setAetAsAcceptedCallingAet.indexOf(ae.dicomAETitle) > -1) {
                 deviceAet[ae.dicomDeviceName] = deviceAet[ae.dicomDeviceName] || [];
                 deviceAet[ae.dicomDeviceName].push(ae);
             }
         });
-        Object.keys(deviceAet).forEach(deviceName=>{
-            this.devicesService.getDevice(deviceName).subscribe(device=>{
-                deviceAet[deviceName].forEach(ae=>{
-                    device.dicomNetworkAE.forEach(deviceAe=>{
-                        if(deviceAe.dicomAETitle === ae.dicomAETitle){
-                            if(_.hasIn(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle") && deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.length > 0){
+        Object.keys(deviceAet).forEach(deviceName => {
+            this.devicesService.getDevice(deviceName).subscribe(device => {
+                deviceAet[deviceName].forEach(ae => {
+                    device.dicomNetworkAE.forEach(deviceAe => {
+                        if (deviceAe.dicomAETitle === ae.dicomAETitle) {
+                            if (
+                                _.hasIn(deviceAe, 'dcmNetworkAE.dcmAcceptedCallingAETitle') &&
+                                deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.length > 0
+                            ) {
                                 deviceAe.dcmNetworkAE.dcmAcceptedCallingAETitle.push(newAet.dicomAETitle)
-                            }else{
-                                _.set(deviceAe, "dcmNetworkAE.dcmAcceptedCallingAETitle",[newAet.dicomAETitle])
+                            } else {
+                                _.set(deviceAe, 'dcmNetworkAE.dcmAcceptedCallingAETitle', [newAet.dicomAETitle])
                             }
                         }
                     });
                 });
-                this.devicesService.saveDeviceChanges(deviceName,device).subscribe(result=>{
-                    this.mainservice.showMsg($localize `:@@ae-list.set_as_accepted_aet:${newAet.dicomAETitle}:newAet: was set successfully as 'Accepted Calling AE Title' to following AETs: ${j4care.join(setAetAsAcceptedCallingAet,", ", " and ")}:aets:`);
+                this.devicesService.saveDeviceChanges(deviceName, device).subscribe(result => {
+                    this.mainservice.showMsg($localize `:@@ae-list.set_as_accepted_aet:${newAet.dicomAETitle}:newAet: was set successfully as 'Accepted Calling AE Title' to following AETs: ${j4care.join(setAetAsAcceptedCallingAet, ', ', ' and ')}:aets:`);
                     this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}ctrl/reload`, {},  new HttpHeaders({ 'Content-Type': 'application/json' })).subscribe((res) => {
                         this.mainservice.showMsg($localize `:@@archive_reloaded_successfully:Archive reloaded successfully!`);
                     });
-                },err=>{
+                }, err => {
                     this.httpErrorHandler.handleError(err);
                 })
-            },err=>{
+            }, err => {
                 this.httpErrorHandler.handleError(err);
             });
         });
     }
-    getAes(){
+    getAes() {
         let $this = this;
         this.service.getAes()
             .subscribe((response) => {
                 $this.aes = response;
-                if ($this.mainservice.global && !$this.mainservice.global.aes){
+                if ($this.mainservice.global && !$this.mainservice.global.aes) {
                     let global = _.cloneDeep($this.mainservice.global);
                     global.aes = response;
                     $this.mainservice.setGlobal(global);
-                }else{
-                    if ($this.mainservice.global && $this.mainservice.global.aes){
+                } else {
+                    if ($this.mainservice.global && $this.mainservice.global.aes) {
                         $this.mainservice.global.aes = response;
-                    }else{
+                    } else {
                         $this.mainservice.setGlobal({aes: response});
                     }
                 }
@@ -441,7 +457,7 @@ export class AeListComponent implements OnInit{
                 // vex.dialog.alert("Error loading aes, please reload the page and try again!");
             });
     }
-    getAets(){
+    getAets() {
         let $this = this;
         this.service.getAets()
             .subscribe((response) => {
@@ -451,11 +467,11 @@ export class AeListComponent implements OnInit{
             });
     }
 
-    getDevices(){
+    getDevices() {
         let $this = this;
-        if (this.mainservice.global && this.mainservice.global.devices){
+        if (this.mainservice.global && this.mainservice.global.devices) {
             this.devices = this.mainservice.global.devices;
-        }else{
+        } else {
             this.service.getDevices()
                 .subscribe((response) => {
                     $this.devices = response;

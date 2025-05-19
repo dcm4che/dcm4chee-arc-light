@@ -1,5 +1,5 @@
 <ngx-loading-bar [color]="'#2d404f'"></ngx-loading-bar>
-<!--<pre style="color:red;font-size:50px">TEST</pre>-->
+<pre style="color:red;font-size:50px">TEST</pre>
 <!--<input type="text" [(ngModel)]="testurl">
 <button (click)="onClick()">Alert</button>-->
 <!--<button (click)="msgcomp.setMessage('SetnewMessagetest')">setmessage</button>-->
@@ -16,12 +16,12 @@
 <!--<button (click)="testUser()">test</button>-->
 <div class="language_switcher" *ngIf="languageSwitcher && languageSwitcher.currentSelectedLanguage">
     <div class="default_block" (click)="languageSwitcher.open = !languageSwitcher.open">
-        <img src="{{languageSwitcher.currentSelectedLanguage.flag}}">
+        <img src="{{languageSwitcher.currentSelectedLanguage.flag}}" alt="">
         <span>{{languageSwitcher.currentSelectedLanguage.nativeName}}</span>
     </div>
     <ul *ngIf="languageSwitcher.open" class="languages">
         <li *ngFor="let lang of languageSwitcher.languageList" (click)="switchLanguage(lang)">
-            <img src="{{lang.flag}}"> <span>{{lang.nativeName}}</span>
+            <img src="{{lang.flag}}" alt=""> <span>{{lang.nativeName}}</span>
         </li>
     </ul>
 </div>
