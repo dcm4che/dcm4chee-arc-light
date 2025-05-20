@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ **** BEGIN LICENSE BLOCK *****
+  ~ Version: MPL 1.1/GPL 2.0/LGPL 2.1
+  ~
+  ~ The contents of this file are subject to the Mozilla Public License Version
+  ~ 1.1 (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~ http://www.mozilla.org/MPL/
+  ~
+  ~ Software distributed under the License is distributed on an "AS IS" basis,
+  ~ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+  ~ for the specific language governing rights and limitations under the
+  ~ License.
+  ~
+  ~ The Original Code is part of dcm4che, an implementation of DICOM(TM) in
+  ~ Java(TM), hosted at https://github.com/dcm4che.
+  ~
+  ~ The Initial Developer of the Original Code is
+  ~ J4Care.
+  ~ Portions created by the Initial Developer are Copyright (C) 2015-2025
+  ~ the Initial Developer. All Rights Reserved.
+  ~
+  ~ Contributor(s):
+  ~ See @authors listed below
+  ~
+  ~ Alternatively, the contents of this file may be used under the terms of
+  ~ either the GNU General Public License Version 2 or later (the "GPL"), or
+  ~ the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+  ~ in which case the provisions of the GPL or the LGPL are applicable instead
+  ~ of those above. If you wish to allow use of your version of this file only
+  ~ under the terms of either the GPL or the LGPL, and not to allow others to
+  ~ use your version of this file under the terms of the MPL, indicate your
+  ~ decision by deleting the provisions above and replace them with the notice
+  ~ and other provisions required by the GPL or the LGPL. If you do not delete
+  ~ the provisions above, a recipient may use your version of this file under
+  ~ the terms of any one of the MPL, the GPL or the LGPL.
+  ~
+  ~ **** END LICENSE BLOCK *****
+  -->
+
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
+
+  <package>org.dcm4chee.arc.entity</package>
+
+  <access>FIELD</access>
+
+  <entity class="org.dcm4chee.arc.entity.CodeEntity">
+    <attributes>
+      <basic name="codeMeaning" optional="false">
+        <column name="code_meaning" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.ContentItem">
+    <attributes>
+      <basic name="textValue" optional="false">
+        <column name="text_value" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.HL7PSUTask">
+    <attributes>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.MPPS">
+    <attributes>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.MWLItem">
+    <attributes>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="admissionID" optional="false">
+        <column name="admission_id" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="institutionalDepartmentName" optional="false">
+        <column name="department" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="institutionName" optional="false">
+        <column name="institution" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="requestedProcedureID" optional="false">
+        <column name="req_proc_id" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="scheduledProcedureStepID" optional="false">
+        <column name="sps_id" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.PersonName">
+    <attributes>
+      <basic name="alphabeticName">
+        <column name="alphabetic_name" column-definition="nvarchar(255)"/>
+      </basic>
+      <basic name="ideographicName">
+        <column name="ideographic_name" column-definition="nvarchar(255)"/>
+      </basic>
+      <basic name="phoneticName">
+        <column name="phonetic_name" column-definition="nvarchar(255)"/>
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.Series">
+    <attributes>
+      <basic name="institutionalDepartmentName" optional="false">
+        <column name="department" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="institutionName" optional="false">
+        <column name="institution" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="seriesDescription" optional="false">
+        <column name="series_desc" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="stationName" optional="false">
+        <column name="station_name" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.SeriesRequestAttributes">
+    <attributes>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="requestedProcedureID" optional="false">
+        <column name="req_proc_id" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="requestingService" optional="false">
+        <column name="req_service" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="scheduledProcedureStepID" optional="false">
+        <column name="sps_id" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.InstanceRequestAttributes">
+    <attributes>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="requestedProcedureID" optional="false">
+        <column name="req_proc_id" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="requestingService" optional="false">
+        <column name="req_service" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="scheduledProcedureStepID" optional="false">
+        <column name="sps_id" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.Study">
+    <attributes>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="admissionID" optional="false">
+        <column name="admission_id" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="studyDescription" optional="false">
+        <column name="study_desc" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="studyID" optional="false">
+        <column name="study_id" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.UPS">
+    <attributes>
+      <basic name="admissionID" optional="false">
+        <column name="admission_id" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="upsLabel" optional="false">
+        <column name="ups_label" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="worklistLabel" optional="false">
+        <column name="worklist_label" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.UPSRequest">
+    <attributes>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="requestedProcedureID" optional="false">
+        <column name="req_proc_id" column-definition="nvarchar(255)" />
+      </basic>
+      <basic name="requestingService" optional="false">
+        <column name="req_service" column-definition="nvarchar(255)" />
+      </basic>
+    </attributes>
+  </entity>
+
+</entity-mappings>
