@@ -18,7 +18,7 @@
   ~
   ~ The Initial Developer of the Original Code is
   ~ J4Care.
-  ~ Portions created by the Initial Developer are Copyright (C) 2015
+  ~ Portions created by the Initial Developer are Copyright (C) 2015-2025
   ~ the Initial Developer. All Rights Reserved.
   ~
   ~ Contributor(s):
@@ -78,6 +78,9 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="code_pk_seq"/>
       </id>
+      <basic name="codeMeaning" optional="false">
+        <column name="code_meaning" column-definition="nvarchar2(255)" />
+      </basic>
     </attributes>
   </entity>
 
@@ -88,6 +91,9 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="content_item_pk_seq"/>
       </id>
+      <basic name="textValue" optional="false">
+        <column name="text_value" column-definition="nvarchar2(255)" />
+      </basic>
     </attributes>
   </entity>
 
@@ -108,6 +114,9 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="hl7psu_task_pk_seq"/>
       </id>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar2(255)" />
+      </basic>
     </attributes>
   </entity>
 
@@ -158,6 +167,24 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="mwl_item_pk_seq"/>
       </id>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="admissionID" optional="false">
+        <column name="admission_id" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="institutionalDepartmentName" optional="false">
+        <column name="department" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="institutionName" optional="false">
+        <column name="institution" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="requestedProcedureID" optional="false">
+        <column name="req_proc_id" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="scheduledProcedureStepID" optional="false">
+        <column name="sps_id" column-definition="nvarchar2(255)" />
+      </basic>
     </attributes>
   </entity>
 
@@ -246,6 +273,12 @@
       <basic name="institutionName" optional="false">
         <column name="institution" column-definition="nvarchar2(255)" />
       </basic>
+      <basic name="seriesDescription" optional="false">
+        <column name="series_desc" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="stationName" optional="false">
+        <column name="station_name" column-definition="nvarchar2(255)" />
+      </basic>
     </attributes>
   </entity>
 
@@ -266,8 +299,17 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="series_req_pk_seq"/>
       </id>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="requestedProcedureID" optional="false">
+        <column name="req_proc_id" column-definition="nvarchar2(255)" />
+      </basic>
       <basic name="requestingService" optional="false">
         <column name="req_service" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="scheduledProcedureStepID" optional="false">
+        <column name="sps_id" column-definition="nvarchar2(255)" />
       </basic>
     </attributes>
   </entity>
@@ -279,8 +321,17 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="instance_req_pk_seq"/>
       </id>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="requestedProcedureID" optional="false">
+        <column name="req_proc_id" column-definition="nvarchar2(255)" />
+      </basic>
       <basic name="requestingService" optional="false">
         <column name="req_service" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="scheduledProcedureStepID" optional="false">
+        <column name="sps_id" column-definition="nvarchar2(255)" />
       </basic>
     </attributes>
   </entity>
@@ -312,8 +363,17 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="study_pk_seq"/>
       </id>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="admissionID" optional="false">
+        <column name="admission_id" column-definition="nvarchar2(255)" />
+      </basic>
       <basic name="studyDescription" optional="false">
         <column name="study_desc" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="studyID" optional="false">
+        <column name="study_id" column-definition="nvarchar2(255)" />
       </basic>
     </attributes>
   </entity>
@@ -345,6 +405,15 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="ups_pk_seq"/>
       </id>
+      <basic name="admissionID" optional="false">
+        <column name="admission_id" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="upsLabel" optional="false">
+        <column name="ups_label" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="worklistLabel" optional="false">
+        <column name="worklist_label" column-definition="nvarchar2(255)" />
+      </basic>
     </attributes>
   </entity>
 
@@ -355,6 +424,15 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="ups_request_pk_seq"/>
       </id>
+      <basic name="accessionNumber" optional="false">
+        <column name="accession_no" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="requestedProcedureID" optional="false">
+        <column name="req_proc_id" column-definition="nvarchar2(255)" />
+      </basic>
+      <basic name="requestingService" optional="false">
+        <column name="req_service" column-definition="nvarchar2(255)" />
+      </basic>
     </attributes>
   </entity>
 
