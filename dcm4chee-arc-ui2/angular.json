@@ -34,7 +34,8 @@
               "file-saver"
             ],
             "outputPath": {
-              "base": "target/webapp"
+              "base": "target/webapp",
+              "browser": ""
             },
             "index": "src/index.html",
             "crossOrigin": "use-credentials",
@@ -435,7 +436,8 @@
                 "optimization": true,
                 "outputHashing": "all",
                 "outputPath": {
-                  "base": "target/webapp"
+                  "base": "target/webapp",
+                  "browser": ""
                 },
                 "sourceMap": false,
                 "namedChunks": false,
