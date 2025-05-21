@@ -53,7 +53,7 @@
   <packaging>war</packaging>
 
   <properties>
-    <node.version>v20.11.0</node.version>
+    <node.version>v22.15.0</node.version>
     <yarn.version>v1.22.21</yarn.version>
     <yarn.run>prod</yarn.run>
     <secure-classifier>secure</secure-classifier>
