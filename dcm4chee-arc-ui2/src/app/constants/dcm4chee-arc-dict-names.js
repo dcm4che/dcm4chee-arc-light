@@ -6,6 +6,7 @@ DCM4CHE.elementName.addDictionary({
 "7777xx13":"Patient Verification Status",
 "7777xx14":"Failed Verifications of Patient",
 "7777xx15":"Dominant Patient Sequence",
+"7777xx16":"Logical Patient ID",
 "7777xx20":"Study Receive Date Time",
 "7777xx21":"Study Update Date Time",
 "7777xx22":"Study Access Date Time",

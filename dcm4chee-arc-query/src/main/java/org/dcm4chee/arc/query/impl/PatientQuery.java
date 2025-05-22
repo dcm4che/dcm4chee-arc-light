@@ -150,6 +150,8 @@ class PatientQuery extends AbstractQuery {
         if (context.getQueryParam().isMerged())
             attrs.newSequence(PrivateTag.PrivateCreator, PrivateTag.DominantPatientSequence, 1)
                     .add(AttributesBlob.decodeAttributes(results.get(dominantPatientAttrBlob), null));
+        attrs.setString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID, VR.LO,
+                results.get(patient.get(Patient_.pk)).toString());
     }
 
     @Override
