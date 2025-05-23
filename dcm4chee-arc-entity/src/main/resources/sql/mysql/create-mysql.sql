@@ -105,7 +105,7 @@ alter table patient add constraint UK56r2g5ggptqgcvb3hl11adke2 unique (resp_pers
 create index IDXtkyjkkxxhnr0fem7m0h3844jk on patient_id (pat_id);
 create index IDXd1sdyupb0vwvx23jownjnyy72 on patient_id (entity_id);
 create index IDXm2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid, entity_uid_type);
-alter table patient_id add constraint UKq9cv3b9n0uv93ugud52uiw9k1 unique (pat_id, entity_id, entity_uid, entity_uid_type, pat_name);
+alter table patient_id add constraint UKq9cv3b9n0uv93ugud52uiw9k1 unique (pat_id(128), entity_id(128), entity_uid(128), entity_uid_type(128), pat_name(128));
 create index IDXgs2yshbwu0gkd33yxyv13keoh on person_name (alphabetic_name);
 create index IDXala4l4egord8i2tjvjidoqd1s on person_name (ideographic_name);
 create index IDX9nr8ddkp8enufvbn72esyw3n1 on person_name (phonetic_name);

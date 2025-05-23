@@ -1,4 +1,3 @@
-
 -- part 1: can be applied on archive running archive 5.33
 alter table ups add perf_name_fk bigint;
 alter table ups add constraint FKhy3cd5se2avt08upapu19y1g6 foreign key (perf_name_fk) references person_name;

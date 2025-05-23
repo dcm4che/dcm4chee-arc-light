@@ -1,55 +1,8 @@
 #!/usr/bin/awk -f
 BEGIN { FS = "[ )]" }
 {
-    if ($3 == "id_sequence") {
-            print "create table id_sequence (name varchar(64) not null, next_value integer not null, version bigint, primary key (name));"
-    } else if ($3 == "IDX6a0y0rsssms4mtm9bpkw8vgl6") {
-            print "create index IDX6a0y0rsssms4mtm9bpkw8vgl6 on task (study_iuid(64), series_iuid(64), sop_iuid(64));"
-    } else if ($3 == "IDXr3oh859i9osv3aluoc8dcx9wk") {
-            print "create index IDXr3oh859i9osv3aluoc8dcx9wk on location (storage_id(64), status);"
-    } else if ($3 == "IDXf7c9hmq8pfypohkgkp5vkbhxp") {
-            print "create index IDXf7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id(64), status);"
-    } else if ($3 == "IDXm2jq6xe87vegohf6g10t5ptew") {
-            print "create index IDXm2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid(64), entity_uid_type(64));"
-    } else if ($2 == "index" \
-            && $6 != "(created_time" \
-            && $6 != "(updated_time" \
-            && $6 != "(scheduled_time" \
-            && $6 != "(inst_no" \
-            && $6 != "(multi_ref" \
-            && $6 != "(sps_status" \
-            && $6 != "(num_studies" \
-            && $6 != "(msg_status" \
-            && $6 != "(completeness" \
-            && $6 != "(rejection_state" \
-            && $6 != "(expiration_state" \
-            && $6 != "(study_size" \
-            && $6 != "(series_no" \
-            && $6 != "(failed_retrieves" \
-            && $6 != "(stgver_time" \
-            && $6 != "(stgver_failures" \
-            && $6 != "(compress_time" \
-            && $6 != "(compress_failures" \
-            && $6 != "(sx_pn_comp" \
-            && $6 != "(sx_pn_comp_part" \
-            && $6 != "(stgcmt_status" \
-            && $6 != "(access_time" \
-            && $6 != "(metadata_update_time" \
-            && $6 != "(metadata_update_failures" \
-            && $6 != "(inst_purge_time" \
-            && $6 != "(inst_purge_state" \
-            && $6 != "(check_missing" \
-            && $6 != "(check_different" \
-            && $6 != "(verification_status" \
-            && $6 != "(verification_time" \
-            && $6 != "(ups_priority" \
-            && $6 != "(input_readiness_state" \
-            && $6 != "(ups_state" \
-            && $6 != "(task_status" \
-            && $6 != "(task_type" \
-            && $6 != "(task_fk" \
-        ) {
-        print $1 " " $2 " " $3 " " $4 " " $5 " " $6 "(64));"
+    if ($6 == "UKq9cv3b9n0uv93ugud52uiw9k1") {
+        print "alter table patient_id add constraint UKq9cv3b9n0uv93ugud52uiw9k1 unique (pat_id(128), entity_id(128), entity_uid(128), entity_uid_type(128), pat_name(128));"
     } else {
         print $0
     }
