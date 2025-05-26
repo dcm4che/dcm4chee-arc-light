@@ -300,6 +300,18 @@ public class UPS {
         return attributesBlob.getAttributes();
     }
 
+    public String getAdmissionID() {
+        return admissionID;
+    }
+
+    public String getUpsLabel() {
+        return upsLabel;
+    }
+
+    public String getWorklistLabel() {
+        return worklistLabel;
+    }
+
     public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         upsPriority = UPSPriority.valueOf(attrs.getString(Tag.ScheduledProcedureStepPriority, "MEDIUM"));
         upsLabel = attrs.getString(Tag.ProcedureStepLabel);
