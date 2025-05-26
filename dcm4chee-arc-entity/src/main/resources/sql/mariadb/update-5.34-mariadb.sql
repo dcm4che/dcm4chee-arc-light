@@ -1,5 +1,6 @@
 -- part 1: can be applied on archive running archive 5.33
 alter table ups add perf_name_fk bigint unique;
+alter table ups add constraint UKhmvl80qis2pab8xtd9qyqea5b unique (perf_name_fk);
 alter table ups add constraint FKhy3cd5se2avt08upapu19y1g6 foreign key (perf_name_fk) references person_name(pk);
 create index FKhy3cd5se2avt08upapu19y1g6 on ups (perf_name_fk) ;
 
