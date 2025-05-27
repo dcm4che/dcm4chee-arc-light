@@ -108,6 +108,8 @@
           <xsl:copy-of select="DicomAttribute[@tag='00401002']"/>
           <!-- Reason for Requested Procedure Code Sequence -->
           <xsl:copy-of select="DicomAttribute[@tag='0040100A']"/>
+          <!-- Confidentiality Code -->
+          <xsl:copy-of select="DicomAttribute[@tag='00401008']"/>
         </Item>
       </DicomAttribute>
     </NativeDicomModel>

@@ -471,7 +471,8 @@ public class MWLItem {
             Tag.IssuerOfAccessionNumberSequence,
             Tag.RequestedProcedureID,
             Tag.StudyInstanceUID,
-            Tag.RequestedProcedureDescription
+            Tag.RequestedProcedureDescription,
+            Tag.ConfidentialityCode
     };
 
     private static final int[] SPS_REQUEST_ATTR = {
