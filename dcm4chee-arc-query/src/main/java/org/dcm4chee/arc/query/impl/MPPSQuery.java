@@ -74,6 +74,7 @@ public class MPPSQuery extends AbstractQuery {
         this.patient = mpps.join(MPPS_.patient);
         return order(restrict(q, patient, mpps)).multiselect(
                 mpps.get(MPPS_.pk),
+                patient.get(Patient_.pk),
                 patient.get(Patient_.numberOfStudies),
                 patient.get(Patient_.createdTime),
                 patient.get(Patient_.updatedTime),

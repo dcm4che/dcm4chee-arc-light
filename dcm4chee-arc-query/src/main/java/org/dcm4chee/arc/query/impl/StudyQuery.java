@@ -87,6 +87,7 @@ class StudyQuery extends AbstractQuery {
         this.studyQueryAttributes = QueryBuilder.joinStudyQueryAttributes(cb, study, viewID);
         return order(restrict(q, patient, study)).multiselect(
                 study.get(Study_.pk),
+                patient.get(Patient_.pk),
                 patient.get(Patient_.numberOfStudies),
                 patient.get(Patient_.createdTime),
                 patient.get(Patient_.updatedTime),

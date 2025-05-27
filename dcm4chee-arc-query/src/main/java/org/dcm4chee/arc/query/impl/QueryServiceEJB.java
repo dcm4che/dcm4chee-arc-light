@@ -105,6 +105,7 @@ public class QueryServiceEJB {
         try {
             result = em.createQuery(q.multiselect(
                     study.get(Study_.pk),
+                    patient.get(Patient_.pk),
                     patient.get(Patient_.numberOfStudies),
                     patient.get(Patient_.createdTime),
                     patient.get(Patient_.updatedTime),

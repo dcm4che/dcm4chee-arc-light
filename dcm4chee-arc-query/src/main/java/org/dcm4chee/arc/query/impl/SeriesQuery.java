@@ -96,6 +96,7 @@ class SeriesQuery extends AbstractQuery {
         return order(restrict(q, patient, study, series)).multiselect(
                 study.get(Study_.pk),
                 series.get(Series_.pk),
+                patient.get(Patient_.pk),
                 patient.get(Patient_.numberOfStudies),
                 patient.get(Patient_.createdTime),
                 patient.get(Patient_.updatedTime),
