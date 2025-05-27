@@ -359,8 +359,8 @@ public class QueryBuilder {
     }
 
     private <X> void patIDWithoutIssuerPredicate(List<Predicate> predicates, From<X, PatientID> patientID, IDWithIssuer[] pids) {
-        predicates.add(patientID.get(PatientID_.localNamespaceEntityID).isNull());
-        predicates.add(patientID.get(PatientID_.universalEntityID).isNull());
+        predicates.add(cb.equal(patientID.get(PatientID_.localNamespaceEntityID), "*"));
+        predicates.add(cb.equal(patientID.get(PatientID_.universalEntityID), "*"));
         if (isUniversalMatching(pids))
             return;
 
