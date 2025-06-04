@@ -303,10 +303,7 @@ export class AppComponent implements OnInit {
     switchLanguage(language: LanguageObject) {
         let saveAndRedirect = function () {
             localStorage.setItem('current_language', language.code);
-            window.location.href = `/dcm4chee-arc/ui2/${language.code}/`;
-            setTimeout(() => {
-                location.reload();
-            }, 1);
+            window.location.replace(window.location.origin +  window.location.pathname.replace(/\/ui2\/\w{2}/,`/ui2/${language.code}`))
         }
         if (!this.mainservice.global.notSecure) {
             this.keycloakHelperService.changeLanguageToUserProfile(language.code).subscribe(res => {

@@ -20,7 +20,8 @@ import {TableSchemaElement} from "../models/dicom-table-schema-element";
 import {DicomNetworkConnection} from "../interfaces";
 import {DcmWebApp} from "../models/dcm-web-app";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import * as uuid from  'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
+
 import {User} from "../models/user";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Aet} from "../models/aet";
@@ -1704,7 +1705,7 @@ export class j4care {
     }
 
     static generateOIDFromUUID(){
-        let guid = uuid();                            //Generate UUID
+        let guid = uuidv4();                            //Generate UUID
         let guidBytes = `0${guid.replace(/-/g, "")}`; //add prefix 0 and remove `-`
         return `2.25.${bigInt(guidBytes,16).toString()}`;       //Output the previous parsed integer as string by adding `2.25.` as prefix
     }

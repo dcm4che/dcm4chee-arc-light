@@ -1,7 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 //@import "material-design-icons/iconfont/material-icons.css";
 //@import "bootstrap/dist/css/bootstrap.min.css";
-@import "@angular/material/prebuilt-themes/deeppurple-amber.css";
+@use "@angular/material/prebuilt-themes/deeppurple-amber.css";
+@use "app/widgets/dialogs/upload-files/upload-files.component";
+
 
 :root{
   /*black design*/
@@ -1304,7 +1306,6 @@ iod-form-generator{
     }
   }
 }
-@import "app/widgets/dialogs/upload-files/upload-files.component";
 .repeat4_hover{
   .checkbox_content{
     width: 15%;
@@ -3409,6 +3410,7 @@ mat-dialog-container{
       }
     }
     a{
+      color:var(--lightBlue);
       &[disabled] {
         color: #888;
         opacity:1;
@@ -3416,7 +3418,6 @@ mat-dialog-container{
           color: #888;
         }
       }
-      color:var(--lightBlue);
       &:hover{
         color: var(--backgroundHoverColor);
         cursor: pointer;

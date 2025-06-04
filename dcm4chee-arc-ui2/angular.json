@@ -20,10 +20,12 @@
             "localize": [
               "de",
               "es",
+              "fr",
               "hi",
-              "it",
               "ja",
               "mr",
+              "pt",
+              "it",
               "ru",
               "zh"
             ],
@@ -31,6 +33,7 @@
               "lodash",
               "moment",
               "uuid/v4",
+              "uuid",
               "file-saver"
             ],
             "outputPath": {
@@ -425,27 +428,6 @@
                   "maximumError": "10kb"
                 }
               ]
-            },
-              "sq": {
-                "fileReplacements": [
-                  {
-                    "replace": "src/environments/environment.ts",
-                    "with": "src/environments/environment.prod.ts"
-                  }
-                ],
-                "optimization": true,
-                "outputHashing": "all",
-                "outputPath": {
-                  "base": "target/webapp",
-                  "browser": ""
-                },
-                "sourceMap": false,
-                "namedChunks": false,
-                "aot": true,
-                "extractLicenses": true,
-                "i18nFile": "src/assets/locale/sq.json",
-                "i18nLocale": "sq",
-                "i18nMissingTranslation": "warning"
             }
           },
           "defaultConfiguration": ""
@@ -541,6 +523,10 @@
           "zh": {
             "translation": "target/dcm4chee-arc-lang/zh.json",
             "baseHref": "/dcm4chee-arc/ui2/zh/"
+          },
+          "pt": {
+            "translation": "target/dcm4chee-arc-lang/pt.json",
+            "baseHref": "/dcm4chee-arc/ui2/pt/"
           }
         }
       }
