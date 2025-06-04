@@ -500,6 +500,10 @@
             "translation": "target/dcm4chee-arc-lang/es.json",
             "baseHref": "/dcm4chee-arc/ui2/es/"
           },
+          "fr": {
+            "translation": "target/dcm4chee-arc-lang/fr.json",
+            "baseHref": "/dcm4chee-arc/ui2/fr/"
+          },
           "hi": {
             "translation": "target/dcm4chee-arc-lang/hi.json",
             "baseHref": "/dcm4chee-arc/ui2/hi/"
