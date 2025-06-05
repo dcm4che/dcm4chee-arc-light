@@ -1162,7 +1162,7 @@
     "delete_all_matching_tasks": "Delete all matching tasks",
     "count_param": "COUNT {$count}",
     "matching_task_question": "Are you sure, you want to {$PH} all matching tasks?",
-    "task_deleted_param": "{$tasks} tasks deleted successfully!",
+    "task_deleted_param": "{$taskid} tasks deleted successfully!",
     "tasks_rescheduled_param": "{$count} tasks rescheduled successfully!",
     "diff-monitor.no_diff": "No diff tasks found!",
     "action_task_question": "Are you sure you want to {$PH} this task?",
