@@ -153,10 +153,10 @@
   optionalDependencies:
     lmdb "3.3.0"
 
-"@angular/cdk@^19.2.16":
-  version "19.2.16"
-  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-19.2.16.tgz#2635e9c4530f492a98c5282ad0b64fcfde823caf"
-  integrity sha512-67nbWqoiZIBc8nEaCn7GHd02bM5T9qAbJ5w+Zq4V19CL3oCtrCrS4CV3Lsoi5HETSmn4iZcYS/Dph8omCvNkew==
+"@angular/cdk@^20.0.2":
+  version "20.0.2"
+  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-20.0.2.tgz#0a42fe52380885b1a9ae7a80c7631a54c87a9ba7"
+  integrity sha512-gRQcpTNhnwBxXSmpnrljODUHQmB2Hnxc6L2Ad6mSMV+c3opd9KIFxL5eG2WOOPHGAaPrV4gNFw+t1i01U4grTg==
   dependencies:
     parse5 "^7.1.2"
     tslib "^2.3.0"
@@ -250,17 +250,17 @@
     tinyglobby "^0.2.12"
     yargs "^18.0.0"
 
-"@angular/material-moment-adapter@^19.2.16":
-  version "19.2.16"
-  resolved "https://registry.yarnpkg.com/@angular/material-moment-adapter/-/material-moment-adapter-19.2.16.tgz#56101a7f0ddf6715620f46a74c8034125f27a451"
-  integrity sha512-0HMgsOx1GyCuYZJGBz8KK0k4iTOomkF4H7zBWNx5vd4kOLnWhUdNTn3X3O05P1YqQ6yZY0nhZjiZOHGbNfGFKA==
+"@angular/material-moment-adapter@^20.0.2":
+  version "20.0.2"
+  resolved "https://registry.yarnpkg.com/@angular/material-moment-adapter/-/material-moment-adapter-20.0.2.tgz#f2834c57564c13126bb231344d5cdef07f8de702"
+  integrity sha512-EwpvAjoS18qV+31eNq3VffKOiLjo3X/OaoST+caf1opGxXLzgLol1OYZcBUo/lkPMPjmCriVzdT4rt5CiKJfMA==
   dependencies:
     tslib "^2.3.0"
 
-"@angular/material@^19.2.16":
-  version "19.2.16"
-  resolved "https://registry.yarnpkg.com/@angular/material/-/material-19.2.16.tgz#cbe4bb07757f7a89a2c20f99cab55c2caa4c406a"
-  integrity sha512-SSky/3MBOTdCBWOEffmVdnnKaCX6T4r3CqK2TJCLqWsHarPz5jovYIacfOe1RJzXijmDxXK5+VYhS64PNJaa6g==
+"@angular/material@^20.0.2":
+  version "20.0.2"
+  resolved "https://registry.yarnpkg.com/@angular/material/-/material-20.0.2.tgz#addd40681ec02e0b0d33ced3ae4fd0af98d394d9"
+  integrity sha512-yIXvF+LjFdHjJWyvn1SxbWB9LdNxYnqEKbKzminW4WPXlPJMOAeyhEDFeQv9W92Zv+/ibS4tI3/SD759ejb45g==
   dependencies:
     tslib "^2.3.0"
 
