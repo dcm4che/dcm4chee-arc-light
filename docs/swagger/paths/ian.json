@@ -209,6 +209,9 @@
           "$ref": "../parameters.json#/StudyAccessDateTime"
         },
         {
+          "$ref": "../parameters.json#/SeriesReceiveDateTime"
+        },
+        {
           "$ref": "../parameters.json#/StudySizeInKB"
         },
         {
@@ -318,6 +321,9 @@
           "$ref": "../parameters.json#/StudyAccessDateTime"
         },
         {
+          "$ref": "../parameters.json#/SeriesReceiveDateTime"
+        },
+        {
           "$ref": "../parameters.json#/StudySizeInKB"
         },
         {
@@ -419,6 +425,9 @@
         },
         {
           "$ref": "../parameters.json#/StudyAccessDateTime"
+        },
+        {
+          "$ref": "../parameters.json#/SeriesReceiveDateTime"
         },
         {
           "$ref": "../parameters.json#/StudySizeInKB"
@@ -533,6 +542,9 @@
           "$ref": "../parameters.json#/StudyAccessDateTime"
         },
         {
+          "$ref": "../parameters.json#/SeriesReceiveDateTime"
+        },
+        {
           "$ref": "../parameters.json#/StudySizeInKB"
         },
         {
@@ -639,6 +651,9 @@
           "$ref": "../parameters.json#/StudyAccessDateTime"
         },
         {
+          "$ref": "../parameters.json#/SeriesReceiveDateTime"
+        },
+        {
           "$ref": "../parameters.json#/StudySizeInKB"
         },
         {
@@ -740,6 +755,9 @@
       },
       {
         "$ref": "../parameters.json#/StudyAccessDateTime"
+      },
+      {
+        "$ref": "../parameters.json#/SeriesReceiveDateTime"
       },
       {
         "$ref": "../parameters.json#/StudySizeInKB"

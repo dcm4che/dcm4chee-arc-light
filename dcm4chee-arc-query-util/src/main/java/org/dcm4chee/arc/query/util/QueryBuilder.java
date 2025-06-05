@@ -883,6 +883,8 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true);
         wildCard(predicates, series.get(Series_.seriesCustomAttribute3),
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true);
+        dateRange(predicates, series.get(Series_.createdTime),
+                keys.getDateRange(PrivateTag.PrivateCreator, PrivateTag.SeriesReceiveDateTime, VR.DT));
         if (queryParam.isIncomplete())
             predicates.add(cb.notEqual(series.get(Series_.completeness), Completeness.COMPLETE));
         if (queryParam.isRetrieveFailed())
@@ -1483,6 +1485,8 @@ public class QueryBuilder {
             anyOf(y, series.get(Series_.receivingHL7Facility),
                     keys.getStrings(PrivateTag.PrivateCreator, PrivateTag.ReceivingHL7FacilityOfSeries, VR.LO),
                     false);
+            dateRange(y, series.get(Series_.createdTime),
+                    keys.getDateRange(PrivateTag.PrivateCreator, PrivateTag.SeriesReceiveDateTime, VR.DT));
             if (queryParam.isStorageVerificationFailed())
                 y.add(cb.greaterThan(series.get(Series_.failuresOfLastStorageVerification), 0));
             if (queryParam.isMetadataUpdateFailed())

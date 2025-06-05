@@ -24,6 +24,7 @@ update series set metadata_update_load_objects = 1
     where metadata_update_time is not null;
 update series set metadata_update_load_objects = 0
     where metadata_update_time is null;
+create index IDX12auabn3ubq8bat0wkg33n3ms on series (created_time);
 
 -- part 2: shall be applied on stopped archive before starting 5.34
 update patient_id set pat_name = (

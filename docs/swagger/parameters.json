@@ -1147,6 +1147,14 @@
       "type": "string"
     }
   },
+  "SeriesReceiveDateTime": {
+    "name": "SeriesReceiveDateTime",
+    "in": "query",
+    "description": "return Instances of Series which were created between {datetime1}-{datetime2} (proprietary extension)",
+    "schema": {
+      "type": "string"
+    }
+  },
   "StudySizeInKB": {
     "name": "StudySizeInKB",
     "in": "query",

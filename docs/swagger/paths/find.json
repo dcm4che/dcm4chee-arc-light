@@ -33,24 +33,6 @@
         },
         {
           "$ref": "../parameters.json#/orderBy"
-        },
-        {
-          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/StudyReceiveDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudyAccessDateTime"
         }
       ],
       "responses": {
@@ -93,34 +75,7 @@
           "$ref": "../parameters.json#/filter"
         },
         {
-          "$ref": "../parameters.json#/includefield"
-        },
-        {
           "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/includedefaults"
-        },
-        {
-          "$ref": "../parameters.json#/orderBy"
-        },
-        {
-          "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/ReceivingApplicationEntityTitleOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/SendingPresentationAddressOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/ReceivingPresentationAddressOfSeries"
-        },
-        {
-          "$ref": "../parameters.json#/StudyReceiveDateTime"
-        },
-        {
-          "$ref": "../parameters.json#/StudyAccessDateTime"
         }
       ],
       "responses": {
@@ -671,9 +626,6 @@
           "$ref": "../parameters.json#/fuzzymatching"
         },
         {
-          "$ref": "../parameters.json#/includedefaults"
-        },
-        {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
         },
         {
@@ -818,9 +770,6 @@
         },
         {
           "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/includedefaults"
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"
@@ -973,9 +922,6 @@
         },
         {
           "$ref": "../parameters.json#/fuzzymatching"
-        },
-        {
-          "$ref": "../parameters.json#/includedefaults"
         },
         {
           "$ref": "../parameters.json#/SendingApplicationEntityTitleOfSeries"

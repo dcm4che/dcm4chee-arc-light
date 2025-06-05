@@ -235,6 +235,10 @@ public class QueryAttributes {
                     keys.setString(PrivateTag.PrivateCreator, PrivateTag.PatientCreateDateTime, VR.DT,
                             entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
+                case "SeriesReceiveDateTime":
+                    keys.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesReceiveDateTime, VR.DT,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
+                    break;
                 default:
                     addQueryKey(key, entry.getValue());
                     break;

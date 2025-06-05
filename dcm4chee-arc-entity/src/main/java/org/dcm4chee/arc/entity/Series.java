@@ -327,6 +327,7 @@ import java.util.stream.Stream;
 @Table(name = "series",
     uniqueConstraints = @UniqueConstraint(columnNames = { "study_fk", "series_iuid" }),
     indexes = {
+        @Index(columnList = "created_time"),
         @Index(columnList = "series_iuid"),
         @Index(columnList = "access_control_id"),
         @Index(columnList = "rejection_state"),
