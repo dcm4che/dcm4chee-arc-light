@@ -356,6 +356,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
     private final EnumSet<IANTrigger> ianTriggers = EnumSet.noneOf(IANTrigger.class);
+    private final EnumSet<HL7PSUTrigger> hl7PSUTriggers = EnumSet.noneOf(HL7PSUTrigger.class);
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final HashSet<String> wadoSupportedPRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1719,6 +1720,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHL7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
         this.hl7PSUReceivingApplications = hl7PSUReceivingApplications;
+    }
+
+    public HL7PSUTrigger[] getHL7PSUTriggers() {
+        return hl7PSUTriggers.toArray(new HL7PSUTrigger[0]);
+    }
+
+    public void setHL7PSUTriggers(HL7PSUTrigger... hl7PSUTriggers) {
+        this.hl7PSUTriggers.clear();
+        this.hl7PSUTriggers.addAll(Arrays.asList(hl7PSUTriggers));
+    }
+
+    public boolean isHL7PSUTrigger(HL7PSUTrigger hl7PSUTrigger) {
+        return hl7PSUTriggers.contains(hl7PSUTrigger);
     }
 
     public Duration getHL7PSUDelay() {
@@ -3857,6 +3871,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;
         hl7PSUSendingApplication = arcdev.hl7PSUSendingApplication;
         hl7PSUReceivingApplications = arcdev.hl7PSUReceivingApplications;
+        hl7PSUTriggers.clear();
+        hl7PSUTriggers.addAll(arcdev.hl7PSUTriggers);
         hl7PSUDelay = arcdev.hl7PSUDelay;
         hl7PSUTimeout = arcdev.hl7PSUTimeout;
         hl7PSUOnTimeout = arcdev.hl7PSUOnTimeout;

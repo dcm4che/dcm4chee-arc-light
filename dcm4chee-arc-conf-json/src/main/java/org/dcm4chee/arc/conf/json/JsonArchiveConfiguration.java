@@ -270,6 +270,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmValidateCallingAEHostname", arcDev.isValidateCallingAEHostname(), false);
         writer.writeNotNullOrDef("hl7PSUSendingApplication", arcDev.getHL7PSUSendingApplication(), null);
         writer.writeNotEmpty("hl7PSUReceivingApplication", arcDev.getHL7PSUReceivingApplications());
+        writer.writeNotEmpty("hl7PSUTrigger", arcDev.getHL7PSUTriggers());
         writer.writeNotNullOrDef("hl7PSUDelay", arcDev.getHL7PSUDelay(), null);
         writer.writeNotNullOrDef("hl7PSUTimeout", arcDev.getHL7PSUTimeout(), null);
         writer.writeNotDef("hl7PSUOnTimeout", arcDev.isHL7PSUOnTimeout(), false);
@@ -1369,6 +1370,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmValidateCallingAEHostname", arcAE.getValidateCallingAEHostname());
         writer.writeNotNullOrDef("hl7PSUSendingApplication", arcAE.getHL7PSUSendingApplication(), null);
         writer.writeNotEmpty("hl7PSUReceivingApplication", arcAE.getHL7PSUReceivingApplications());
+        writer.writeNotEmpty("hl7PSUTrigger", arcAE.getHL7PSUTriggers());
         writer.writeNotNullOrDef("hl7PSUDelay", arcAE.getHL7PSUDelay(), null);
         writer.writeNotNullOrDef("hl7PSUTimeout", arcAE.getHL7PSUTimeout(), null);
         writer.writeNotNull("hl7PSUOnTimeout", arcAE.getHL7PSUOnTimeout());
@@ -1887,6 +1889,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUReceivingApplication":
                     arcDev.setHL7PSUReceivingApplications(reader.stringArray());
+                    break;
+                case "hl7PSUTrigger":
+                    arcDev.setHL7PSUTriggers(reader.enumArray(HL7PSUTrigger.class));
                     break;
                 case "hl7PSUDelay":
                     arcDev.setHL7PSUDelay(Duration.valueOf(reader.stringValue()));
@@ -4409,6 +4414,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUReceivingApplication":
                     arcAE.setHL7PSUReceivingApplications(reader.stringArray());
+                    break;
+                case "hl7PSUTrigger":
+                    arcAE.setHL7PSUTriggers(reader.enumArray(HL7PSUTrigger.class));
                     break;
                 case "hl7PSUDelay":
                     arcAE.setHL7PSUDelay(Duration.valueOf(reader.stringValue()));

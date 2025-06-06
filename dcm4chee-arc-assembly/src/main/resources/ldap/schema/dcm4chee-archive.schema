@@ -2917,6 +2917,11 @@ attributetype ( 1.2.40.0.13.1.15.110.3.498 NAME 'dcmIdentifyPatientByIDAndName'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.499 NAME 'hl7PSUTrigger'
+  DESC 'Specifies trigger events to send a HL7 Procedure Status Update notification to HL7 Receivers configured by HL7 Procedure Status Update Receiving Application. Enumerated values: STUDY_RECEIVED, MPPS_RECEIVED, REJECTION_NOTE_RECEIVED, FIRST_OBJECT_OF_STUDY_RECEIVED.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -3195,6 +3200,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PSUSendingApplication $
     hl7PSUMppsTemplateURI $
     hl7PSUStudyTemplateURI $
+    hl7PSUTrigger $
     hl7PSUDelay $
     hl7PSUCondition $
     hl7PSUForRequestedProcedure $
@@ -3348,6 +3354,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     hl7PSUSendingApplication $
     hl7PSUMppsTemplateURI $
     hl7PSUStudyTemplateURI $
+    hl7PSUTrigger $
     hl7PSUDelay $
     hl7PSUCondition $
     hl7PSUForRequestedProcedure $

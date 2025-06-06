@@ -180,6 +180,7 @@ public class ArchiveAEExtension extends AEExtension {
     private MultipleStoreAssociations[] multipleStoreAssociations = {};
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
     private final EnumSet<IANTrigger> ianTriggers = EnumSet.noneOf(IANTrigger.class);
+    private final EnumSet<HL7PSUTrigger> hl7PSUTriggers = EnumSet.noneOf(HL7PSUTrigger.class);
     private final EnumMap<QIDOResultOrderBy.QIDOService,QIDOResultOrderBy[]> qidoResultOrderBy =
             new EnumMap<>(QIDOResultOrderBy.QIDOService.class);
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
@@ -1478,6 +1479,21 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getHL7PSUReceivingApplications();
     }
 
+    public HL7PSUTrigger[] getHL7PSUTriggers() {
+        return hl7PSUTriggers.toArray(new HL7PSUTrigger[0]);
+    }
+
+    public void setHL7PSUTriggers(HL7PSUTrigger... hl7PSUTriggers) {
+        this.hl7PSUTriggers.clear();
+        this.hl7PSUTriggers.addAll(Arrays.asList(hl7PSUTriggers));
+    }
+
+    public boolean isHL7PSUTrigger(HL7PSUTrigger hl7PSUTrigger) {
+        return hl7PSUTriggers.isEmpty()
+                ? getArchiveDeviceExtension().isHL7PSUTrigger(hl7PSUTrigger)
+                : hl7PSUTriggers.contains(hl7PSUTrigger);
+    }
+
     public Duration getHL7PSUDelay() {
         return hl7PSUDelay;
     }
@@ -2173,6 +2189,8 @@ public class ArchiveAEExtension extends AEExtension {
         returnRetrieveAETitles = aeExt.returnRetrieveAETitles;
         hl7PSUSendingApplication = aeExt.hl7PSUSendingApplication;
         hl7PSUReceivingApplications = aeExt.hl7PSUReceivingApplications;
+        hl7PSUTriggers.clear();
+        hl7PSUTriggers.addAll(aeExt.hl7PSUTriggers);
         hl7PSUDelay = aeExt.hl7PSUDelay;
         hl7PSUTimeout = aeExt.hl7PSUTimeout;
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
