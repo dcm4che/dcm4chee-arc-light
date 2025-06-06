@@ -3135,6 +3135,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmAccessControlID":
                         rule.setAccessControlIDs(reader.stringArray());
+                        break;
                     case "dcmEntity":
                         rule.setEntity(Entity.valueOf(reader.stringValue()));
                         break;
