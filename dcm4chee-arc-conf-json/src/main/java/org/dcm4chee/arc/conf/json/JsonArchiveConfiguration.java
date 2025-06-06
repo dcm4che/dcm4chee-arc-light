@@ -816,6 +816,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
             writer.writeNotNullOrDef("dicomAETitle", rule.getAETitle(), Entity.Study);
             writer.writeNotNullOrDef("dcmStoreAccessControlID", rule.getStoreAccessControlID(), null);
+            writer.writeNotEmpty("dcmAccessControlID", rule.getAccessControlIDs());
             writer.writeNotNullOrDef("dcmEntity", rule.getEntity(), Entity.Study);
             writer.writeNotEmpty("dcmEntitySelector", rule.getEntitySelectors());
             writer.writeNotNullOrDef("dcmChangeAccessControlIDDelay", rule.getDelay(), null);
@@ -3132,6 +3133,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmStoreAccessControlID":
                         rule.setStoreAccessControlID(reader.stringValue());
                         break;
+                    case "dcmAccessControlID":
+                        rule.setAccessControlIDs(reader.stringArray());
                     case "dcmEntity":
                         rule.setEntity(Entity.valueOf(reader.stringValue()));
                         break;

@@ -410,21 +410,21 @@ public class QueryBuilder {
     public List<Predicate> studyPredicates(CommonAbstractCriteria criteria,
            From<Study, Patient> patient, Root<Study> study,
            IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
-           CodeEntity[] showInstancesRejectedByCodes, String notAccessControlID) {
+           CodeEntity[] showInstancesRejectedByCodes) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.STUDY);
-        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.STUDY, showInstancesRejectedByCodes, notAccessControlID);
+        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.STUDY, showInstancesRejectedByCodes);
         return predicates;
     }
 
     public <T> List<Predicate> seriesPredicates(CommonAbstractCriteria criteria,
             From<Study, Patient> patient, From<Series, Study> study, Root<Series> series,
             IDWithIssuer[] pids, Issuer issuer, Attributes keys, QueryParam queryParam,
-            CodeEntity[] showInstancesRejectedByCodes, String notAccessControlID) {
+            CodeEntity[] showInstancesRejectedByCodes) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.SERIES);
-        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes, null);
-        seriesLevelPredicates(predicates, criteria, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes, notAccessControlID);
+        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
+        seriesLevelPredicates(predicates, criteria, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
         return predicates;
     }
 
@@ -434,8 +434,8 @@ public class QueryBuilder {
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         List<Predicate> predicates = new ArrayList<>();
         patientLevelPredicates(predicates, criteria, patient, pids, issuer, keys, queryParam, QueryRetrieveLevel2.IMAGE);
-        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.IMAGE, showInstancesRejectedByCodes, null);
-        seriesLevelPredicates(predicates, criteria, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes, null);
+        studyLevelPredicates(predicates, criteria, study, keys, queryParam, QueryRetrieveLevel2.IMAGE, showInstancesRejectedByCodes);
+        seriesLevelPredicates(predicates, criteria, study, series, keys, queryParam, QueryRetrieveLevel2.SERIES, showInstancesRejectedByCodes);
         instanceLevelPredicates(predicates, criteria, study, series, instance, keys, queryParam,
                 showInstancesRejectedByCodes, hideRejectionNoteWithCodes);
         return predicates;
@@ -637,13 +637,13 @@ public class QueryBuilder {
     }
 
     private <Z> Predicate onlyWithStudiesPredicate(CommonAbstractCriteria criteria, From<Z, Patient> patient, QueryParam queryParam) {
-        if (queryParam.getAccessControlIDs().length == 0)
+        if (queryParam.getAEAccessControlIDs().length == 0)
             return cb.greaterThan(patient.get(Patient_.numberOfStudies), 0);
 
         Subquery<Study> sq = criteria.subquery(Study.class);
         Root<Study> study = sq.from(Study.class);
         return cb.exists(sq.select(study).where(cb.and(
-                accessControlPredicate(study, queryParam.getAccessControlIDs()),
+                accessControlPredicate(study, queryParam.getAEAccessControlIDs()),
                 cb.equal(study.get(Study_.patient), patient))));
     }
 
@@ -705,9 +705,9 @@ public class QueryBuilder {
 
     private <Z> void studyLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
             From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel,
-            CodeEntity[] showInstancesRejectedByCodes, String notAccessControlID) {
+            CodeEntity[] showInstancesRejectedByCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
-        accessControl(predicates, study, queryParam.getAccessControlIDs());
+        accessControl(predicates, study, queryParam.getAEAccessControlIDs());
         anyOf(predicates, study.get(Study_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
         anyOf(predicates, study.get(Study_.studyID), keys.getStrings(Tag.StudyID), false);
         dateRange(predicates, study.get(Study_.studyDate), study.get(Study_.studyTime),
@@ -766,6 +766,10 @@ public class QueryBuilder {
         if (queryParam.getExternalRetrieveAETNot() != null)
             predicates.add(cb.notEqual(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAETNot()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
+            if (queryParam.getAccessControlIDs().length != 0)
+                predicates.add(study.get(Study_.accessControlID).in(queryParam.getAccessControlIDs()));
+            if (queryParam.getAccessControlIDNot() != null)
+                predicates.add(cb.notEqual(study.get(Study_.accessControlID), queryParam.getAccessControlIDNot()));
             if (queryParam.isHideNotRejectedInstances()) {
                 Subquery<RejectedInstance> sq = criteria.subquery(RejectedInstance.class);
                 Root<RejectedInstance> ri = sq.from(RejectedInstance.class);
@@ -803,8 +807,6 @@ public class QueryBuilder {
                         issuer);
             }
         }
-        if (notAccessControlID != null)
-            predicates.add(cb.notEqual(study.get(Study_.accessControlID), notAccessControlID));
     }
 
     public static void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
@@ -833,9 +835,12 @@ public class QueryBuilder {
 
     private <Z> void seriesLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
              From<Series, Study> study, From<Z, Series> series, Attributes keys, QueryParam queryParam,
-             QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes,
-             String notAccessControlID) {
-        seriesAccessControl(predicates, series, queryParam.getAccessControlIDs());
+             QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes) {
+        seriesAccessControl(predicates, series, queryParam.getAEAccessControlIDs());
+        if (queryParam.getAccessControlIDs().length != 0)
+            predicates.add(series.get(Series_.accessControlID).in(queryParam.getAccessControlIDs()));
+        if (queryParam.getAccessControlIDNot() != null)
+            predicates.add(cb.notEqual(series.get(Series_.accessControlID), queryParam.getAccessControlIDNot()));
         anyOf(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID), false);
         numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
         anyOf(predicates, series.get(Series_.modality),
@@ -923,8 +928,6 @@ public class QueryBuilder {
             dateRange(predicates, series.get(Series_.expirationDate), queryParam.getExpirationDate(), FormatDate.DA);
         if (queryParam.getExpirationState() != null)
             predicates.add(series.get(Series_.expirationState).in(queryParam.getExpirationState()));
-        if (notAccessControlID != null)
-            predicates.add(cb.notEqual(series.get(Series_.accessControlID), notAccessControlID));
     }
 
     private void instanceLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,

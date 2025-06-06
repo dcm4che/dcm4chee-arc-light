@@ -202,7 +202,7 @@ public class UpdateStudyAccessMatchingRS {
             validateWebAppServiceClass();
 
         try {
-            QueryContext qCtx = queryContext(method, qrlevel, ae);
+            QueryContext qCtx = queryContext(method, qrlevel, storeAccessControlID, ae);
             int updated = updateService.updateAccessControlID(qCtx, storeAccessControlID);
             if (updated > 0) 
                 LOG.info("Changed Access Control ID of {} Studies to {}", updated, storeAccessControlID);
@@ -213,9 +213,9 @@ public class UpdateStudyAccessMatchingRS {
         }
     }
 
-    private QueryContext queryContext(String method, QueryRetrieveLevel2 qrlevel, ApplicationEntity ae) {
+    private QueryContext queryContext(String method, QueryRetrieveLevel2 qrlevel, String storeAccessControlID, ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(
-                HttpServletRequestInfo.valueOf(request), method, aet, ae, queryParam(ae));
+                HttpServletRequestInfo.valueOf(request), method, aet, ae, queryParam(ae, storeAccessControlID));
         ctx.setQueryRetrieveLevel(qrlevel);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo, null);
         Attributes keys = queryAttrs.getQueryKeys();
@@ -228,7 +228,7 @@ public class UpdateStudyAccessMatchingRS {
         return ctx;
     }
 
-    private org.dcm4chee.arc.query.util.QueryParam queryParam(ApplicationEntity ae) {
+    private org.dcm4chee.arc.query.util.QueryParam queryParam(ApplicationEntity ae, String storeAccessControlID) {
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(true);
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
@@ -249,6 +249,7 @@ public class UpdateStudyAccessMatchingRS {
                     .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
         if (expirationState != null)
             queryParam.setExpirationState(ExpirationState.valueOf(expirationState));
+        queryParam.setAccessControlIDNot(storeAccessControlID);
         return queryParam;
     }
 

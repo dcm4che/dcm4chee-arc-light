@@ -81,8 +81,7 @@ public class UpdateServiceEJB {
                         ? Issuer.fromIssuerOfPatientID(keys) : null,
                 keys, queryParam,
                 codeCache.findOrCreateEntities(
-                        queryParam.getQueryRetrieveView().getShowInstancesRejectedByCodes()),
-                accessControlID);
+                        queryParam.getQueryRetrieveView().getShowInstancesRejectedByCodes()));
         update.where(cb.exists(sq.select(study).where(predicates.toArray(new Predicate[0]))));
         return em.createQuery(update).executeUpdate();
     }
@@ -105,8 +104,7 @@ public class UpdateServiceEJB {
                         ? Issuer.fromIssuerOfPatientID(keys) : null,
                 keys, queryParam,
                 codeCache.findOrCreateEntities(
-                        queryParam.getQueryRetrieveView().getShowInstancesRejectedByCodes()),
-                accessControlID);
+                        queryParam.getQueryRetrieveView().getShowInstancesRejectedByCodes()));
         update.where(cb.exists(sq.select(series).where(predicates.toArray(new Predicate[0]))));
         return em.createQuery(update).executeUpdate();
     }

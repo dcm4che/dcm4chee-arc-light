@@ -3510,6 +3510,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.46 NAME 'dcmChangeAccessControlIDRule
     dcmChangeAccessControlIDDelay $
     dcmStoreAccessControlID )
   MAY (
+    dcmAccessControlID $
     dcmEntity $
     dcmEntitySelector $
     dcmChangeAccessControlIDMaxDelay ) )

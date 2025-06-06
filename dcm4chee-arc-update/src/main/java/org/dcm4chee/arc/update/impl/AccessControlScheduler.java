@@ -88,6 +88,11 @@ public class AccessControlScheduler extends Scheduler {
                 continue;
             }
             QueryParam queryParam = new QueryParam(ae);
+            if (rule.getAccessControlIDs().length > 0) {
+                queryParam.setAccessControlIDs(rule.getAccessControlIDs());
+            } else {
+                queryParam.setAccessControlIDNot(rule.getStoreAccessControlID());
+            }
             if (rule.getEntitySelectors().length == 0) {
                 updateAccessControlIDs(rule, rule.getQueryKeys(), queryParam);
             } else for (ChangeAccessControlIDRule.EntitySelector entitySelector : rule.getEntitySelectors()) {

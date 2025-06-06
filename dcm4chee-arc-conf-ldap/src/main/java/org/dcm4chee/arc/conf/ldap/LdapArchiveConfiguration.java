@@ -5300,6 +5300,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeAccessControlIDDelay", rule.getDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmChangeAccessControlIDMaxDelay", rule.getMaxDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID", rule.getStoreAccessControlID(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAccessControlID", rule.getAccessControlIDs());
         return attrs;
     }
 
@@ -5427,6 +5428,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setDelay(toDuration(attrs.get("dcmChangeAccessControlIDDelay"), null));
                 rule.setMaxDelay(toDuration(attrs.get("dcmChangeAccessControlIDMaxDelay"), null));
                 rule.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
+                rule.setAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmAccessControlID")));
                 rules.add(rule);
             }
         } finally {
@@ -5955,6 +5957,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getDelay(), rule.getDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID",
                 prev.getStoreAccessControlID(), rule.getStoreAccessControlID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAccessControlID",
+                prev.getAccessControlIDs(), rule.getAccessControlIDs());
         return mods;
     }
 

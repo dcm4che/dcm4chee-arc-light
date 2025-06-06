@@ -71,6 +71,8 @@ public class QueryParam {
     private boolean compressionfailed;
     private boolean template;
     private boolean merged;
+    private String[] accessControlIDs = {};
+    private String accessControlIDNot;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
     private String subscriberAET;
@@ -106,7 +108,7 @@ public class QueryParam {
         return calledAET;
     }
 
-    public String[] getAccessControlIDs() {
+    public String[] getAEAccessControlIDs() {
         return arcAE.getAccessControlIDs();
     }
 
@@ -236,6 +238,22 @@ public class QueryParam {
 
     public void setCompressionFailed(boolean compressionfailed) {
         this.compressionfailed = compressionfailed;
+    }
+
+    public String[] getAccessControlIDs() {
+        return accessControlIDs;
+    }
+
+    public void setAccessControlIDs(String[] accessControlIDs) {
+        this.accessControlIDs = accessControlIDs;
+    }
+
+    public String getAccessControlIDNot() {
+        return accessControlIDNot;
+    }
+
+    public void setAccessControlIDNot(String accessControlIDNot) {
+        this.accessControlIDNot = accessControlIDNot;
     }
 
     public String getExternalRetrieveAET() {

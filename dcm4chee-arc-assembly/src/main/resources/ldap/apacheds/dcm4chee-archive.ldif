@@ -7853,6 +7853,7 @@ m-must: cn
 m-must: dicomAETitle
 m-must: dcmChangeAccessControlIDDelay
 m-must: dcmStoreAccessControlID
+m-may: dcmAccessControlID
 m-may: dcmEntity
 m-may: dcmEntitySelector
 m-may: dcmChangeAccessControlIDMaxDelay

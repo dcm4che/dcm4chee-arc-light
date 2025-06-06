@@ -282,7 +282,7 @@ class InstanceQuery extends AbstractQuery {
                 context.getPatientIDs(),
                 context.getIssuerOfPatientID(),
                 context.getQueryKeys(), context.getQueryParam(), codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()), null
+                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes())
         );
         predicates.add(cb.equal(series.get(Series_.instancePurgeState), Series.InstancePurgeState.PURGED));
         return q.where(predicates.toArray(new Predicate[0]));

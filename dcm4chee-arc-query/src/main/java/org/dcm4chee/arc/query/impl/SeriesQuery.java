@@ -234,8 +234,7 @@ class SeriesQuery extends AbstractQuery {
                 context.getIssuerOfPatientID(),
                 context.getQueryKeys(), context.getQueryParam(),
                 codeCache.findOrCreateEntities(
-                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes()),
-                context.getNotAccessControlID()
+                        context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes())
         );
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));

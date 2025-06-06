@@ -57,6 +57,7 @@ public class ChangeAccessControlIDRule {
     private String commonName;
     private String aeTitle;
     private String storeAccessControlID;
+    private String[] accessControlIDs = {};
     private Entity entity = Entity.Study;
     private Duration delay;
     private Duration maxDelay;
@@ -88,17 +89,21 @@ public class ChangeAccessControlIDRule {
         }
 
         public Attributes getQueryKeys(ChangeAccessControlIDRule rule) {
-            return rule.setStudyReceiveDateTimeRange(new Attributes(this.keys));
+            return rule.setReceiveDateTimeRange(new Attributes(this.keys));
         }
     }
 
     public Attributes getQueryKeys() {
-        return setStudyReceiveDateTimeRange(new Attributes(1));
+        return setReceiveDateTimeRange(new Attributes(1));
     }
 
-    private Attributes setStudyReceiveDateTimeRange(Attributes queryKeys) {
+    private Attributes setReceiveDateTimeRange(Attributes queryKeys) {
         long now = System.currentTimeMillis();
-        queryKeys.setDateRange(PrivateTag.PrivateCreator, PrivateTag.StudyReceiveDateTime, VR.DT,
+        queryKeys.setDateRange(PrivateTag.PrivateCreator,
+                entity == Entity.Study
+                        ? PrivateTag.StudyReceiveDateTime
+                        : PrivateTag.SeriesReceiveDateTime,
+                VR.DT,
                 new DateRange(
                         maxDelay != null ? new Date(now - maxDelay.getSeconds() * 1000L) : null,
                         new Date(now - delay.getSeconds() * 1000L)));
@@ -141,6 +146,14 @@ public class ChangeAccessControlIDRule {
 
     public void setStoreAccessControlID(String storeAccessControlID) {
         this.storeAccessControlID = storeAccessControlID;
+    }
+
+    public String[] getAccessControlIDs() {
+        return accessControlIDs;
+    }
+
+    public void setAccessControlIDs(String[] accessControlIDs) {
+        this.accessControlIDs = accessControlIDs;
     }
 
     public Entity getEntity() {
@@ -187,6 +200,7 @@ public class ChangeAccessControlIDRule {
         return "ChangeAccessControlIDRule{"  +
                 "commonName='" + commonName + '\'' +
                 ", storeAccessControlID='" + storeAccessControlID + '\'' +
+                ", accessControlIDs='" + Arrays.toString(accessControlIDs) + '\'' +
                 ", entity=" + entity +
                 ", selectors=" + Arrays.toString(entitySelectors) +
                 ", delay=" + delay +

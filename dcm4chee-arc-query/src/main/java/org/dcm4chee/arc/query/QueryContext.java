@@ -106,10 +106,6 @@ public interface QueryContext {
 
     void setIssuerOfPatientID(Issuer issuerOfPatientID);
 
-    String getNotAccessControlID();
-
-    void setNotAccessControlID(String notAccessControlID);
-
     QueryService getQueryService();
 
     Attributes getReturnKeys();
