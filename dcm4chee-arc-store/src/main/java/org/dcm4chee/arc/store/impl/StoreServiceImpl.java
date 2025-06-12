@@ -862,7 +862,7 @@ class StoreServiceImpl implements StoreService {
                 .findFirst();
         if (matchingRule.isPresent()) {
             if (imageDescriptor.getBitsAllocated() < 8) {
-                LOG.info("Compression with Bits Allocated: {} not supported", imageDescriptor.getBitsAllocated());
+                LOG.info("Compression of object with Bits Allocated: {} not supported", imageDescriptor.getBitsAllocated());
             } else if (imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
                 LOG.info("Compression of multi-frame image with embedded overlays not supported");
             } else {
