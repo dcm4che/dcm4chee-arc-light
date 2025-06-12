@@ -861,10 +861,13 @@ class StoreServiceImpl implements StoreService {
                                 storeContext.getAttributes()))
                 .findFirst();
         if (matchingRule.isPresent()) {
-            if (!imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
+            if (imageDescriptor.getBitsAllocated() < 8) {
+                LOG.info("Compression with Bits Allocated: {} not supported", imageDescriptor.getBitsAllocated());
+            } else if (imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
+                LOG.info("Compression of multi-frame image with embedded overlays not supported");
+            } else {
                 return matchingRule.get();
             }
-            LOG.info("Compression of multi-frame image with embedded overlays not supported");
         }
         return null;
     }
