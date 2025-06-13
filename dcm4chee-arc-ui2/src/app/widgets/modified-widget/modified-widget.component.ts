@@ -5,13 +5,22 @@ import {j4care} from "../../helpers/j4care.service";
 import * as _ from 'lodash-es';
 import {forkJoin} from "rxjs";
 import {TrimPipe} from "../../pipes/trim.pipe";
+import {CommonModule, NgClass} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {DcmDropDownComponent} from '../dcm-drop-down/dcm-drop-down.component';
 declare var DCM4CHE: any;
 
 @Component({
-    selector: 'modified-widget',
-    templateUrl: './modified-widget.component.html',
-    styleUrls: ['./modified-widget.component.scss'],
-    standalone: false
+  selector: 'modified-widget',
+  templateUrl: './modified-widget.component.html',
+  styleUrls: ['./modified-widget.component.scss'],
+  imports: [
+    NgClass,
+    FormsModule,
+    DcmDropDownComponent,
+    CommonModule
+  ],
+  standalone: true
 })
 export class ModifiedWidgetComponent implements OnInit {
   stateText="";

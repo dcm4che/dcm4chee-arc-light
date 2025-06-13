@@ -1,10 +1,17 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as _ from "lodash-es";
+import {CommonModule, NgClass} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 @Component({
     selector: 'code-selector',
     templateUrl: './code-selector.component.html',
     styleUrls: ['./code-selector.component.scss'],
-    standalone: false
+    imports: [
+        NgClass,
+        FormsModule,
+        CommonModule
+    ],
+    standalone: true
 })
 export class CodeSelectorComponent implements OnInit {
 

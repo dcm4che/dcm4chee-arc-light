@@ -14,6 +14,12 @@ import {DcmWebApp} from "../../../models/dcm-web-app";
 import {Observable, Subscriber} from "rxjs";
 import {UploadFilesService} from "./upload-files.service";
 import {MatDialogRef} from "@angular/material/dialog";
+import {TrimPipe} from '../../../pipes/trim.pipe';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {FormsModule} from '@angular/forms';
+import {EditStudyComponent} from '../edit-study/edit-study.component';
+import {MatProgressBar} from '@angular/material/progress-bar';
+import {CommonModule} from '@angular/common';
 // import {StudyWebService} from "../../../study/study/study-web-service.model";
 
 // declare var uuidv4: any;
@@ -24,36 +30,50 @@ import {MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'app-upload-files',
     templateUrl: './upload-files.component.html',
-    styles: [`        
-        .upload label{
+    styles: [`
+        .upload label {
             float: left;
             width: 100%;
         }
-        .edit_attribute_button{
+
+        .edit_attribute_button {
             margin-top: 15px;
             overflow: auto;
             max-height: 32vh;
         }
-        input[type=checkbox]{
+
+        input[type=checkbox] {
             clear: both;
             width: auto;
             height: 20px;
             margin-top: 0;
             margin-right: 7px;
         }
-        label.simple_label{
+
+        label.simple_label {
             vertical-align: middle;
             height: 26px;
             margin-top: 35px;
         }
-        .mat-mdc-dialog-content.mdc-dialog__content{
+
+        .mat-mdc-dialog-content.mdc-dialog__content {
             float: left;
         }
-        .edit_attribute_block{
+
+        .edit_attribute_block {
             max-height: 32vh;
         }
     `],
-    standalone: false
+    imports: [
+        MatSelect,
+        TrimPipe,
+        FormsModule,
+        MatOption,
+        EditStudyComponent,
+        MatProgressBar,
+        CommonModule
+    ],
+    standalone: true
 })
 export class UploadFilesComponent implements OnInit {
 

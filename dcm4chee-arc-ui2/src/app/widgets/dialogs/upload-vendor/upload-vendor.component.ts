@@ -10,7 +10,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'app-upload-files',
     templateUrl: './upload-vendor.component.html',
-    standalone: false
+    standalone: true
 })
 export class UploadVendorComponent implements OnInit {
 

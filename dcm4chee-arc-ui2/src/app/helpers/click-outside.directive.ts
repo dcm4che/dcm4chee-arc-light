@@ -2,7 +2,7 @@ import {Directive, ElementRef, Output, EventEmitter, HostListener, Input} from '
 
 @Directive({
     selector: '[clickOutside]',
-    standalone: false
+    standalone: true
 })
 export class ClickOutsideDirective {
     constructor(private _elementRef : ElementRef) {

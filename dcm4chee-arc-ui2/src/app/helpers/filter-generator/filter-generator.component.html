@@ -281,7 +281,7 @@
                           (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                           placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                           dateFormat="YYYYMMDD"
-                          onlySingleMode="true"
+                          [onlySingleMode]="true"
                           defaultTime="00:00:00"
                           mode="single"
                           title="{{line[index]?.description}}"
@@ -289,7 +289,7 @@
                       <input
                           type="file"
                           *ngSwitchCase="'file'"
-                          (change)="model[line[index]?.filterKey] = $event.target.files"
+                          (change)="model[line[index]?.filterKey] = $event.target['files']"
                       >
                     <code-selector *ngSwitchCase="'code-selector'"
                         [title]="line[index]?.description"

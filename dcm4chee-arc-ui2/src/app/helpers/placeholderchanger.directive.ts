@@ -5,7 +5,7 @@ import * as _ from 'lodash-es';
 
 @Directive({
     selector: '[placeholderchanger]',
-    standalone: false
+    standalone: true
 })
 export class PlaceholderchangerDirective implements OnInit{
 

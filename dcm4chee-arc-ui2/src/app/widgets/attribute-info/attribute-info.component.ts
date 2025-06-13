@@ -5,7 +5,7 @@ declare var DCM4CHE: any;
     selector: 'attribute-info',
     templateUrl: './attribute-info.component.html',
     styleUrls: ['./attribute-info.component.css'],
-    standalone: false
+    standalone: true
 })
 export class AttributeInfoComponent implements OnInit {
 

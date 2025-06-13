@@ -2,12 +2,19 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AppService} from "../../app.service";
 import {PersonNamePickerService} from "./person-name-picker.service";
 import * as _ from "lodash-es";
+import {CommonModule, NgClass} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 @Component({
-    selector: 'person-name-picker',
-    templateUrl: './person-name-picker.component.html',
-    styleUrls: ['./person-name-picker.component.scss'],
-    standalone: false
+  selector: 'person-name-picker',
+  templateUrl: './person-name-picker.component.html',
+  styleUrls: ['./person-name-picker.component.scss'],
+  imports: [
+    NgClass,
+    FormsModule,
+    CommonModule
+  ],
+  standalone: true
 })
 export class PersonNamePickerComponent implements OnInit {
 

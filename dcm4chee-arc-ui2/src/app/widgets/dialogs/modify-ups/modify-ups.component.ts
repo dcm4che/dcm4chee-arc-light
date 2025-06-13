@@ -10,13 +10,26 @@ import {SelectDropdown, UPSModifyMode, UPSSubscribeType} from "../../../interfac
 import {j4care} from "../../../helpers/j4care.service";
 import {Aet} from "../../../models/aet";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
+import {FormsModule} from '@angular/forms';
+import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
+import {AppModule} from '../../../app.module';
+import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'modify-ups',
     templateUrl: './modify-ups.component.html',
     styleUrls: ['./modify-ups.component.scss'],
-    standalone: false
+    imports: [
+        FormsModule,
+        DcmDropDownComponent,
+        IodFormGeneratorComponent,
+        MatDialogContent,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class ModifyUpsComponent {
 

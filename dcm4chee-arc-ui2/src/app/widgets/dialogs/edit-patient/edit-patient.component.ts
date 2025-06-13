@@ -9,13 +9,25 @@ import {WindowRefService} from "../../../helpers/window-ref.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {MatDialogRef} from "@angular/material/dialog";
 import {EditPatientService} from "./edit-patient.service";
+import {CommonModule, NgClass} from '@angular/common';
+import {FormGeneratorComponent} from '../../../helpers/form-generator/form-generator.component';
+import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
+import {FormsModule} from '@angular/forms';
 
 @Component({
     selector: 'app-edit-patient',
     templateUrl: './edit-patient.component.html',
     styleUrls: ['./edit-patient.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    imports: [
+        NgClass,
+        FormGeneratorComponent,
+        IodFormGeneratorComponent,
+        FormsModule,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class EditPatientComponent {
 

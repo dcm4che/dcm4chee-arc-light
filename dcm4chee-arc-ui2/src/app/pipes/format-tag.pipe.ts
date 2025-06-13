@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     name: 'formatTag',
-    standalone: false
+    standalone: true
 })
 export class FormatTagPipe implements PipeTransform {
 

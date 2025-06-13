@@ -1,14 +1,30 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {FormElement} from "../form/form-element";
 import {FormGeneratorService} from "./form-generator.service";
-import {NgForm} from "@angular/forms";
+import {FormsModule, NgForm} from '@angular/forms';
 import * as _ from 'lodash-es';
+import {CommonModule, NgClass, NgStyle, NgSwitch} from '@angular/common';
+import {ComposedInputComponent} from '../../widgets/composed-input/composed-input.component';
+import {IssuerSelectorComponent} from '../../widgets/issuer-selector/issuer-selector.component';
+import {RangePickerComponent} from '../../widgets/range-picker/range-picker.component';
+import {DcmDropDownComponent} from '../../widgets/dcm-drop-down/dcm-drop-down.component';
 
 @Component({
-    selector: 'form-generator',
-    templateUrl: './form-generator.component.html',
-    styleUrls: ['./form-generator.component.scss'],
-    standalone: false
+  selector: 'form-generator',
+  templateUrl: './form-generator.component.html',
+  styleUrls: ['./form-generator.component.scss'],
+  imports: [
+    NgClass,
+    NgSwitch,
+    FormsModule,
+    NgStyle,
+    ComposedInputComponent,
+    IssuerSelectorComponent,
+    RangePickerComponent,
+    DcmDropDownComponent,
+    CommonModule
+  ],
+  standalone: true
 })
 export class FormGeneratorComponent implements OnInit{
   @Input() schema:FormElement<any>[];

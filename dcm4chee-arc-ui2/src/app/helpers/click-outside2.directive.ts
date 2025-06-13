@@ -18,7 +18,7 @@ import { isPlatformBrowser } from '@angular/common';
 @Injectable()
 @Directive({
     selector: '[clickOutside2]',
-    standalone: false
+    standalone: true
 })
 export class ClickOutsideDirective2 implements OnInit, OnChanges, OnDestroy {
 

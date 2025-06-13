@@ -5,7 +5,7 @@ import * as _ from 'lodash-es';
 
 @Pipe({
     name: 'customDate',
-    standalone: false
+    standalone: true
 })
 export class CustomDatePipe implements PipeTransform {
 

@@ -6,7 +6,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'app-product-labelling',
     templateUrl: './product-labelling.component.html',
-    standalone: false
+    standalone: true
 })
 export class ProductLabellingComponent {
     private _archive;

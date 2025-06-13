@@ -2,12 +2,26 @@ import {Component, OnInit, Input} from '@angular/core';
 import * as _ from 'lodash-es';
 import {Globalvar} from '../../constants/globalvar';
 import {AppService} from "../../app.service";
+import {CommonModule, NgClass} from '@angular/common';
+import {RangePickerComponent} from '../../widgets/range-picker/range-picker.component';
+import {FormsModule} from '@angular/forms';
+import {SpecificCharPickerComponent} from '../../widgets/specific-char-picker/specific-char-picker.component';
+import {AppModule} from '../../app.module';
+import {PlaceholderchangerDirective} from '../placeholderchanger.directive';
 declare var DCM4CHE: any;
 
 @Component({
     selector: 'iod-form-generator',
     templateUrl: './iod-form-generator.component.html',
-    standalone: false
+    imports: [
+        NgClass,
+        RangePickerComponent,
+        FormsModule,
+        SpecificCharPickerComponent,
+        PlaceholderchangerDirective,
+        CommonModule
+    ],
+    standalone: true
 })
 export class IodFormGeneratorComponent implements OnInit {
     @Input() object;

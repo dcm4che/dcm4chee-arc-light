@@ -1,12 +1,19 @@
 import {Component, OnInit, EventEmitter, Output, Input, ViewEncapsulation} from '@angular/core';
 import {j4care} from "../../helpers/j4care.service";
+import {CommonModule, NgClass} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 @Component({
     selector: 'time-picker',
     templateUrl: './time-picker.component.html',
     styleUrls: ['./time-picker.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    imports: [
+        NgClass,
+        FormsModule,
+        CommonModule
+    ],
+    standalone: true
 })
 export class TimePickerComponent implements OnInit {
 

@@ -3,7 +3,7 @@ import {PermissionService} from "./permission.service";
 
 @Directive({
     selector: '[permission]',
-    standalone: false
+    standalone: true
 })
 export class PermissionDirective implements OnInit{
 

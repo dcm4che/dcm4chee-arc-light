@@ -8,16 +8,26 @@ import {SearchPipe} from '../../../pipes/search.pipe';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {MatDialogRef} from "@angular/material/dialog";
+import {FormsModule} from '@angular/forms';
+import {CommonModule, NgClass} from '@angular/common';
+import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
 
 @Component({
     selector: 'app-edit-mwl',
     templateUrl: './edit-mwl.component.html',
     styles: [`
-        .dropdown{
+        .dropdown {
             margin-top: 0;
         }
     `],
-    standalone: false
+    imports: [
+        FormsModule,
+        NgClass,
+        IodFormGeneratorComponent,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class EditMwlComponent {
 

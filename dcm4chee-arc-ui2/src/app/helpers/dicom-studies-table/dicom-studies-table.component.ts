@@ -8,12 +8,30 @@ import {StudyWebService} from "../../study/study/study-web-service.model";
 import {DicomLevel, PaginationDirection} from "../../interfaces";
 import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {CommonModule, NgClass, NgStyle, NgSwitch} from '@angular/common';
+import {TooltipDirective} from '../tooltip/tooltip.directive';
+import {MatMenu, MatMenuTrigger} from '@angular/material/menu';
+import {AttributeListComponent} from '../attribute-list/attribute-list.component';
+import {CustomAttributeListComponent} from '../custom-attribute-list/custom-attribute-list.component';
+import {SearchDicomPipe} from '../../pipes/search-dicom.pipe';
 
 @Component({
     selector: 'dicom-studies-table',
     templateUrl: './dicom-studies-table.component.html',
     styleUrls: ['./dicom-studies-table.component.scss'],
-    standalone: false
+    imports: [
+        NgClass,
+        NgStyle,
+        NgSwitch,
+        TooltipDirective,
+        MatMenuTrigger,
+        MatMenu,
+        AttributeListComponent,
+        CustomAttributeListComponent,
+        CommonModule,
+        SearchDicomPipe
+    ],
+    standalone: true
 })
 export class DicomStudiesTableComponent implements OnInit {
     _ = _;

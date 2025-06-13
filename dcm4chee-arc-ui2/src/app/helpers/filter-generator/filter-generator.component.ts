@@ -18,12 +18,51 @@ import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component"
 import {RangePickerService} from "../../widgets/range-picker/range-picker.service";
 import {StudyService} from "../../study/study/study.service";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {TrimPipe} from '../../pipes/trim.pipe';
+import {DcmDropDownComponent} from '../../widgets/dcm-drop-down/dcm-drop-down.component';
+import {ModifiedWidgetComponent} from '../../widgets/modified-widget/modified-widget.component';
+import {IssuerSelectorComponent} from '../../widgets/issuer-selector/issuer-selector.component';
+import {CodeSelectorComponent} from '../../widgets/code-selector/code-selector.component';
+import {RangePickerComponent} from '../../widgets/range-picker/range-picker.component';
+import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
+import {DropdownComponent} from '../../widgets/dropdown/dropdown.component';
+import {OptionComponent} from '../../widgets/dropdown/option.component';
+import {PersonNamePickerComponent} from '../../widgets/person-name-picker/person-name-picker.component';
+import {ModalityComponent} from '../../widgets/modality/modality.component';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {FormsModule} from '@angular/forms';
+import {CommonModule, NgClass, NgStyle, NgSwitch} from '@angular/common';
+import {SizeRangePickerComponent} from '../../widgets/size-range-picker/size-range-picker.component';
 
 @Component({
     selector: 'filter-generator',
     templateUrl: './filter-generator.component.html',
     styleUrls: ['./filter-generator.component.scss'],
-    standalone: false
+    imports: [
+        MatProgressSpinner,
+        TrimPipe,
+        DcmDropDownComponent,
+        ModifiedWidgetComponent,
+        IssuerSelectorComponent,
+        CodeSelectorComponent,
+        RangePickerComponent,
+        MatRadioGroup,
+        MatRadioButton,
+        DropdownComponent,
+        OptionComponent,
+        PersonNamePickerComponent,
+        ModalityComponent,
+        MatSelect,
+        FormsModule,
+        NgClass,
+        NgStyle,
+        SizeRangePickerComponent,
+        MatOption,
+        NgSwitch,
+        CommonModule
+    ],
+    standalone: true
 })
 export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContentChecked {
 

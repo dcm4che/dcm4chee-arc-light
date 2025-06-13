@@ -11,12 +11,26 @@ import {SelectDropdown} from "../../../interfaces";
 import {CreateAeService} from "./create-ae.service";
 import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
 import {MatDialogRef} from "@angular/material/dialog";
+import {FormsModule} from '@angular/forms';
+import {CommonModule, NgClass} from '@angular/common';
+import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {SearchPipe} from '../../../pipes/search.pipe';
 
 @Component({
     selector: 'app-create-ae',
     templateUrl: './create-ae.component.html',
     styleUrls: ['./create-ae.component.scss'],
-    standalone: false
+    imports: [
+        FormsModule,
+        NgClass,
+        DcmDropDownComponent,
+        MatSelect,
+        MatOption,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class CreateAeComponent implements OnInit{
     private _dicomconn;

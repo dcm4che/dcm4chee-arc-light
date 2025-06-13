@@ -8,11 +8,17 @@ import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
 import {MatDialogRef} from "@angular/material/dialog";
+import {DynamicFormComponent} from '../../dynamicform/dynamic-form.component';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'app-create-exporter',
     templateUrl: './create-exporter.component.html',
-    standalone: false
+    imports: [
+        DynamicFormComponent,
+        CommonModule
+    ],
+    standalone: true
 })
 export class CreateExporterComponent implements OnInit{
     showselectdevice = true;

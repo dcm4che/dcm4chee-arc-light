@@ -3,11 +3,14 @@ import {OptionService} from "./option.service";
 import {SelectDropdown} from "../../interfaces";
 import * as _ from 'lodash-es';
 import {DropdownComponent} from "./dropdown.component";
+import {FormsModule} from '@angular/forms';
+import {CommonModule, NgClass} from '@angular/common';
 
 @Component({
     selector: 'j4care-option',
     template: `
-        <div [hidden]="!showElement" class="option" (click)="select($event)" #options [ngClass]="{'active':selected}" title="{{title || ''}}">
+        <div [hidden]="!showElement" class="option" (click)="select($event)" #options [ngClass]="{'active':selected}"
+             title="{{title || ''}}">
             <div *ngIf="htmlLabel" [innerHTML]="htmlLabel"></div>
             <input type="checkbox" *ngIf="value && value != '' && multiSelectMode" [(ngModel)]="selected">
             <ng-content *ngIf="!htmlLabel">
@@ -18,15 +21,22 @@ import {DropdownComponent} from "./dropdown.component";
         .option.active {
             background: #cccccc;
         }
+
         .option {
             padding: 5px 10px;
         }
+
         .option:hover {
             cursor: pointer;
             background: rgba(28, 36, 43, 0.1);
         }
     `],
-    standalone: false
+    imports: [
+        FormsModule,
+        NgClass,
+        CommonModule
+    ],
+    standalone: true
 })
 export class OptionComponent implements OnInit {
     @Input() value;

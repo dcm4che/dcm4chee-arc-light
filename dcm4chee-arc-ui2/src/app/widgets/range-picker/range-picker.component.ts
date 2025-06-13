@@ -3,13 +3,28 @@ import {j4care} from "../../helpers/j4care.service";
 import {RangePickerService} from "./range-picker.service";
 import {Moment} from "moment";
 import * as _ from "lodash-es";
-import {FormControl, FormGroup} from "@angular/forms";
+import {FormControl, FormGroup, FormsModule} from '@angular/forms';
+import {CommonModule, NgClass} from '@angular/common';
+import {TimePickerComponent} from '../time-picker/time-picker.component';
+import {DurationPickerComponent} from '../duration-picker/duration-picker.component';
+import {ArrayToStringPipe} from '../../pipes/array-to-string.pipe';
+import {DatePickerComponent} from '../date-picker/date-picker.component';
+import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
 
 @Component({
     selector: 'range-picker',
     templateUrl: './range-picker.component.html',
     styleUrls: ['./range-picker.component.scss'],
-    standalone: false
+    imports: [
+        NgClass,
+        FormsModule,
+        TimePickerComponent,
+        DurationPickerComponent,
+        DatePickerComponent,
+        ClickOutsideDirective,
+        CommonModule
+    ],
+    standalone: true
 })
 export class RangePickerComponent implements OnInit {
     @Input() model;

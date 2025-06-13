@@ -7,12 +7,19 @@ import {SearchPipe} from "../../pipes/search.pipe";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {Globalvar} from "../../constants/globalvar";
 import {DeviceConfiguratorService} from "../../configuration/device-configurator/device-configurator.service";
+import {FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'dictionary-picker',
     templateUrl: './dictionary-picker.component.html',
     styleUrls: ['./dictionary-picker.component.css'],
-    standalone: false
+    imports: [
+        FormsModule,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class DictionaryPickerComponent implements OnInit {
     Object = Object;

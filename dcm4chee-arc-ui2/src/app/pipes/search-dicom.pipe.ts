@@ -4,7 +4,7 @@ import {StudyDicom} from "../models/study-dicom";
 
 @Pipe({
     name: 'searchDicom',
-    standalone: false
+    standalone: true
 })
 export class SearchDicomPipe implements PipeTransform {
 

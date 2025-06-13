@@ -1,11 +1,19 @@
 import {Component, OnInit, EventEmitter, Output, Input} from '@angular/core';
 import * as _ from 'lodash-es';
+import {CommonModule, NgSwitch, NgSwitchCase} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 @Component({
     selector: 'schedule-picker',
     templateUrl: './schedule-picker.component.html',
     styleUrls: ['./schedule-picker.component.css'],
-    standalone: false
+    imports: [
+        NgSwitch,
+        FormsModule,
+        NgSwitchCase,
+        CommonModule
+    ],
+    standalone: true
 })
 export class SchedulePickerComponent implements OnInit {
 

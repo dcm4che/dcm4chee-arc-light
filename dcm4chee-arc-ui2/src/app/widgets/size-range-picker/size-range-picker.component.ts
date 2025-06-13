@@ -1,11 +1,21 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {SelectDropdown} from "../../interfaces";
+import {FormsModule} from '@angular/forms';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {AppModule} from '../../app.module';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'size-range-picker',
     templateUrl: './size-range-picker.component.html',
     styleUrls: ['./size-range-picker.component.scss'],
-    standalone: false
+    imports: [
+        FormsModule,
+        MatSelect,
+        MatOption,
+        CommonModule
+    ],
+    standalone: true
 })
 export class SizeRangePickerComponent implements OnInit{
 

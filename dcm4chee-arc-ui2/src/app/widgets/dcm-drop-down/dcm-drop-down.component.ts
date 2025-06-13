@@ -12,33 +12,45 @@ import {
 import {OptionComponent} from "../dropdown/option.component";
 import {SelectDropdown} from "../../interfaces";
 import {animate, state, style, transition, trigger} from "@angular/animations";
+import {CommonModule, NgClass} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {AppModule} from '../../app.module';
+import {ArrayToStringPipe} from '../../pipes/array-to-string.pipe';
+import {SearchPipe} from '../../pipes/search.pipe';
 
 @Component({
     selector: 'dcm-drop-down',
     templateUrl: './dcm-drop-down.component.html',
     styleUrls: ['./dcm-drop-down.component.scss'],
     animations: [
-        trigger("showHide", [
-            state("show", style({
-                padding: "*",
+        trigger('showHide', [
+            state('show', style({
+                padding: '*',
                 height: '*',
                 opacity: 1
             })),
-            state("hide", style({
-                padding: "0",
+            state('hide', style({
+                padding: '0',
                 opacity: 0,
                 height: '0px',
-                margin: "0"
+                margin: '0'
             })),
-            transition("show => hide", [
+            transition('show => hide', [
                 animate('0.1s')
             ]),
-            transition("hide => show", [
+            transition('hide => show', [
                 animate('0.2s cubic-bezier(.52,-0.01,.15,1)')
             ])
         ])
     ],
-    standalone: false
+    imports: [
+        NgClass,
+        FormsModule,
+        ArrayToStringPipe,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class DcmDropDownComponent implements OnInit {
     selectedValue:any;

@@ -14,33 +14,41 @@ import {SelectDropdown} from "../../interfaces";
 import {OptionComponent} from "./option.component";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {SearchPipe} from "../../pipes/search.pipe";
+import {FormsModule} from '@angular/forms';
+import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'j4care-select',
     templateUrl: './dropdown.component.html',
     styleUrls: ['./dropdown.component.scss'],
     animations: [
-        trigger("showHide", [
-            state("show", style({
-                padding: "*",
+        trigger('showHide', [
+            state('show', style({
+                padding: '*',
                 height: '*',
                 opacity: 1
             })),
-            state("hide", style({
-                padding: "0",
+            state('hide', style({
+                padding: '0',
                 opacity: 0,
                 height: '0px',
-                margin: "0"
+                margin: '0'
             })),
-            transition("show => hide", [
+            transition('show => hide', [
                 animate('0.1s')
             ]),
-            transition("hide => show", [
+            transition('hide => show', [
                 animate('0.2s cubic-bezier(.52,-0.01,.15,1)')
             ])
         ])
     ],
-    standalone: false
+    imports: [
+        FormsModule,
+        ClickOutsideDirective,
+        CommonModule
+    ],
+    standalone: true
 })
 export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     selectedValue:string;

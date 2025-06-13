@@ -1,5 +1,5 @@
 
-<div class="size_range_picker" (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="['min','max','unit','clear','mat-option-text','mat-option']">
+<div class="size_range_picker" >
     <div class="main_input_block">
         <input class="main_input" type="text" [(ngModel)]="model" i18n-placeholder="@@placeholder.study_size_range"  placeholder="Study Size Range" i18n-title="@@title.size-range-picker.study_size_range_in_kb" title="Study Size Range in KB" (keyup)="keyUpMainInput()">
         <span class="size_range_icon" (click)="togglePicker()"></span>
@@ -21,3 +21,4 @@
         <button class="clear" (click)="clear()" i18n="@@Clear">Clear</button>
     </div>
 </div>
+<div class="overlay" *ngIf="showPicker" (click)="closeFromOutside()"></div>

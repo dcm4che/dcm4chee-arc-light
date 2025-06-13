@@ -3,7 +3,7 @@ import * as _ from 'lodash-es';
 
 @Pipe({
     name: 'search',
-    standalone: false
+    standalone: true
 })
 export class SearchPipe implements PipeTransform {
 

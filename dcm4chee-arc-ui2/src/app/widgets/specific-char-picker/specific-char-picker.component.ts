@@ -1,12 +1,22 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {Globalvar} from "../../constants/globalvar";
 import {SearchPipe} from "../../pipes/search.pipe";
+import {FormsModule} from '@angular/forms';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'specific-char-picker',
     templateUrl: './specific-char-picker.component.html',
     styleUrls: ['./specific-char-picker.component.css'],
-    standalone: false
+    imports: [
+        FormsModule,
+        MatSelect,
+        MatOption,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class SpecificCharPickerComponent implements OnInit {
     localModel;

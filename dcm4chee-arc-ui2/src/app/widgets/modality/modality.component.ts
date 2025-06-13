@@ -1,15 +1,23 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Globalvar} from "../../constants/globalvar";
+import {FormsModule} from '@angular/forms';
+import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'modality',
     templateUrl: './modality.component.html',
     styles: [`
-        .input_field{
-            width:100%;
+        .input_field {
+            width: 100%;
         }
     `],
-    standalone: false
+    imports: [
+        FormsModule,
+        ClickOutsideDirective,
+        CommonModule
+    ],
+    standalone: true
 })
 export class ModalityComponent implements OnInit {
 

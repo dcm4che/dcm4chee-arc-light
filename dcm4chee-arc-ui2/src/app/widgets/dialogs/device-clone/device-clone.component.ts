@@ -4,12 +4,18 @@ import * as _ from 'lodash-es';
 import {j4care} from "../../../helpers/j4care.service";
 import {AppService} from "../../../app.service";
 import {MatDialogRef} from "@angular/material/dialog";
+import {FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'app-device-clone',
     templateUrl: './device-clone.component.html',
     styleUrls: ['./device-clone.component.scss'],
-    standalone: false
+    imports: [
+        FormsModule,
+        CommonModule
+    ],
+    standalone: true
 })
 export class DeviceCloneComponent implements OnInit {
     validationDetailMessage:String = "";

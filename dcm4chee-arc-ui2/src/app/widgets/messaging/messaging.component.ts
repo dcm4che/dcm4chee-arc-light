@@ -5,23 +5,27 @@ import {InfoComponent} from '../dialogs/info/info.component';
 // import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {CommonModule, NgIf} from '@angular/common';
 @Component({
     selector: 'app-messaging',
     template: `
-    <div class="msg_container" *ngIf="msg && msg.length > 0">
-        <li *ngFor="let m of msg" class="{{m.status}} msg_{{m.id}} slideInRight animated"  (click)="closeBox(m)">
-            <span class="close" data-dismiss="alert" aria-label="close">&times;</span>  
-            <h4>{{m.title}}</h4>
-            <p *ngIf="!m.detailError" [innerHtml]="m.text"></p>
-            <p *ngIf="m.detailError">
-                {{m.text}}<br>
-                <a *ngIf="m.detailError" class="more" (click)="$event.preventDefault();alert(m)">more..</a>
-            </p>
-            <div class="progress"></div>
-        </li>
-    </div>
-  `,
-    standalone: false
+        <div class="msg_container" *ngIf="msg && msg.length > 0">
+            <li *ngFor="let m of msg" class="{{m.status}} msg_{{m.id}} slideInRight animated" (click)="closeBox(m)">
+                <span class="close" data-dismiss="alert" aria-label="close">&times;</span>
+                <h4>{{ m.title }}</h4>
+                <p *ngIf="!m.detailError" [innerHtml]="m.text"></p>
+                <p *ngIf="m.detailError">
+                    {{ m.text }}<br>
+                    <a *ngIf="m.detailError" class="more" (click)="$event.preventDefault();alert(m)">more..</a>
+                </p>
+                <div class="progress"></div>
+            </li>
+        </div>
+    `,
+    imports: [
+        CommonModule
+    ],
+    standalone: true
 })
 export class MessagingComponent implements OnDestroy{
     private msgTimeout = 20000;

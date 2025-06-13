@@ -4,7 +4,7 @@ import {DynamicPipe} from '../helpers/dicom-studies-table/dicom-studies-table.in
 
 @Pipe({
     name: 'dynamicPipe',
-    standalone: false
+    standalone: true
 })
 export class DynamicPipePipe implements PipeTransform {
 

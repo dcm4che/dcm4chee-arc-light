@@ -9,13 +9,25 @@ import {LoadingBarService} from "@ngx-loading-bar/core";
 import {StudyWebService} from "../../study/study/study-web-service.model";
 import {StudyService} from "../../study/study/study.service";
 import {j4care} from "../j4care.service";
+import {CommonModule, NgClass, NgStyle, NgSwitch} from '@angular/common';
+import {TooltipDirective} from '../tooltip/tooltip.directive';
+import {MatMenu, MatMenuTrigger} from '@angular/material/menu';
+import {FormatTagPipe} from '../../pipes/format-tag.pipe';
+import {CustomDatePipe} from '../../pipes/custom-date.pipe';
+import {FormatAttributeValuePipe} from '../../pipes/format-attribute-value.pipe';
 declare var DCM4CHE: any;
 
 @Component({
     selector: 'attribute-list',
     templateUrl: './attribute-list.component.html',
     styleUrls: ['./attribute-list.component.scss'],
-    standalone: false
+    imports: [
+        FormatTagPipe,
+        CustomDatePipe,
+        FormatAttributeValuePipe,
+        CommonModule
+    ],
+    standalone: true
 })
 export class AttributeListComponent implements OnInit {
 

@@ -3,12 +3,25 @@ import { Component, OnInit } from '@angular/core';
 import {SelectionActionElement} from "../../../study/study/selection-action-element.models";
 import {SelectDropdown} from "../../../interfaces";
 import {MatDialogRef} from "@angular/material/dialog";
+import {FormsModule} from '@angular/forms';
+import {PatientIssuerPipe} from '../../../pipes/patient-issuer.pipe';
+import {AppModule} from '../../../app.module';
+import {CommonModule, NgSwitch, UpperCasePipe} from '@angular/common';
+import {SelectionsDicomViewComponent} from '../../../study/study/selections-dicom-view/selections-dicom-view.component';
 
 @Component({
     selector: 'app-study-transferring-overview',
     templateUrl: './study-transferring-overview.component.html',
     styleUrls: ['./study-transferring-overview.component.scss'],
-    standalone: false
+    imports: [
+        FormsModule,
+        PatientIssuerPipe,
+        NgSwitch,
+        UpperCasePipe,
+        SelectionsDicomViewComponent,
+        CommonModule
+    ],
+    standalone: true
 })
 export class StudyTransferringOverviewComponent implements OnInit {
 

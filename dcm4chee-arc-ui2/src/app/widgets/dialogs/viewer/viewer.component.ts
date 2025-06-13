@@ -8,12 +8,18 @@ import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.servic
 import {StudyService} from "../../../study/study/study.service";
 import {StudyWebService} from "../../../study/study/study-web-service.model";
 import {MatDialogRef} from "@angular/material/dialog";
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'app-viewer',
     templateUrl: './viewer.component.html',
     styleUrls: ['./viewer.component.css'],
-    standalone: false
+    imports: [
+        MatProgressSpinner,
+        CommonModule
+    ],
+    standalone: true
 })
 export class ViewerComponent implements OnInit {
 

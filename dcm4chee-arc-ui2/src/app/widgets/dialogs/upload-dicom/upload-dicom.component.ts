@@ -11,12 +11,24 @@ import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.servic
 import {j4care} from "../../../helpers/j4care.service";
 import {DcmWebApp} from "../../../models/dcm-web-app";
 import {StudyService} from "../../../study/study/study.service";
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
+import {FormsModule} from '@angular/forms';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {MatProgressBar} from '@angular/material/progress-bar';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'app-upload-dicom',
     templateUrl: './upload-dicom.component.html',
-    standalone: false
+    imports: [
+        FormsModule,
+        MatDialogContent,
+        MatSelect,
+        MatOption,
+        MatProgressBar,
+        CommonModule
+    ],
+    standalone: true
 })
 export class UploadDicomComponent implements OnInit{
 

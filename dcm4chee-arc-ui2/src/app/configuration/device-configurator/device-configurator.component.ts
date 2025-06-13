@@ -16,11 +16,21 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {j4care} from "../../helpers/j4care.service";
 import { loadTranslations } from '@angular/localize';
 import {LocalLanguageObject} from "../../interfaces";
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {DynamicFormComponent} from '../../widgets/dynamicform/dynamic-form.component';
+import {SearchPipe} from '../../pipes/search.pipe';
 
 @Component({
     selector: 'app-device-configurator',
     templateUrl: './device-configurator.component.html',
-    standalone: false
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        DynamicFormComponent,
+        SearchPipe
+    ]
 })
 export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     formObj: FormElement<any>[];

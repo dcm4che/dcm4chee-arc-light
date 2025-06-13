@@ -4,7 +4,7 @@ import {j4care} from "../helpers/j4care.service";
 
 @Pipe({
     name: 'patientIssuer',
-    standalone: false
+    standalone: true
 })
 export class PatientIssuerPipe implements PipeTransform {
 

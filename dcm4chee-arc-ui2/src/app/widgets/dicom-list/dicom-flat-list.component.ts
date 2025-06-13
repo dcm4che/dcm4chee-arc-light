@@ -2,11 +2,16 @@ import {Component, HostListener, Input, OnInit} from '@angular/core';
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {j4care} from "../../helpers/j4care.service";
+import {CommonModule, NgStyle} from '@angular/common';
 
 @Component({
     selector: 'dicom-list',
     templateUrl: './dicom-flat-list.component.html',
-    standalone: false
+    imports: [
+        NgStyle,
+        CommonModule
+    ],
+    standalone: true
 })
 export class DicomFlatListComponent implements OnInit {
 

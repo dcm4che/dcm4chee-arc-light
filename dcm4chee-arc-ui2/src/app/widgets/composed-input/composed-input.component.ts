@@ -1,12 +1,18 @@
 import {Component, EventEmitter, forwardRef, Input, Output} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
+import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {CommonModule, NgStyle} from '@angular/common';
 
 
 @Component({
-    selector: 'composed-input',
-    templateUrl: './composed-input.component.html',
-    styleUrls: ['./composed-input.component.scss'],
-    standalone: false
+  selector: 'composed-input',
+  templateUrl: './composed-input.component.html',
+  styleUrls: ['./composed-input.component.scss'],
+  imports: [
+    NgStyle,
+    FormsModule,
+    CommonModule
+  ],
+  standalone: true
 })
 export class ComposedInputComponent/* implements ControlValueAccessor */{
   modelArray = [];

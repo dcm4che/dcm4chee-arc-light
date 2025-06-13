@@ -7,7 +7,7 @@ import {MatDialogRef} from "@angular/material/dialog";
     selector: 'app-create-webapp',
     templateUrl: './create-webapp.component.html',
     styleUrls: ['./create-webapp.component.scss'],
-    standalone: false
+    standalone: true
 })
 export class CreateWebappComponent implements OnInit {
 

@@ -79,6 +79,16 @@ import {ModifyUpsComponent} from "../../widgets/dialogs/modify-ups/modify-ups.co
 import {Subscriber} from "rxjs/index";
 import {Device} from "../../models/device";
 import {environment} from "../../../environments/environment";
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {DcmDropDownComponent} from '../../widgets/dcm-drop-down/dcm-drop-down.component';
+import {DynamicPipePipe} from '../../pipes/dynamic-pipe.pipe';
+import {FormsModule} from '@angular/forms';
+import {PermissionDirective} from '../../helpers/permissions/permission.directive';
+import {CommonModule, NgClass} from '@angular/common';
+import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
+import {DicomStudiesTableComponent} from '../../helpers/dicom-studies-table/dicom-studies-table.component';
+import {SelectionsDicomViewComponent} from './selections-dicom-view/selections-dicom-view.component';
+import {StudyTabComponent} from '../study-tab.component';
 
 declare var DCM4CHE: any;
 
@@ -88,27 +98,40 @@ declare var DCM4CHE: any;
     templateUrl: './study.component.html',
     styleUrls: ['./study.component.scss'],
     animations: [
-        trigger("showHide", [
-            state("show", style({
-                padding: "*",
+        trigger('showHide', [
+            state('show', style({
+                padding: '*',
                 height: '*',
                 opacity: 1
             })),
-            state("hide", style({
-                padding: "0",
+            state('hide', style({
+                padding: '0',
                 opacity: 0,
                 height: '0px',
-                margin: "0"
+                margin: '0'
             })),
-            transition("show => hide", [
+            transition('show => hide', [
                 animate('0.2s')
             ]),
-            transition("hide => show", [
+            transition('hide => show', [
                 animate('0.3s')
             ])
         ])
     ],
-    standalone: false
+    imports: [
+        FilterGeneratorComponent,
+        DcmDropDownComponent,
+        DynamicPipePipe,
+        FormsModule,
+        PermissionDirective,
+        NgClass,
+        ClickOutsideDirective,
+        DicomStudiesTableComponent,
+        SelectionsDicomViewComponent,
+        StudyTabComponent,
+        CommonModule
+    ],
+    standalone: true
 })
 export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 

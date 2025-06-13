@@ -5,7 +5,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 @Component({
     selector: 'app-info',
     templateUrl: './info.component.html',
-    standalone: false
+    standalone: true
 })
 export class InfoComponent{
 

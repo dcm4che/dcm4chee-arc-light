@@ -1,5 +1,7 @@
 import {Component, OnInit, EventEmitter, Output, Input} from '@angular/core';
 import * as _ from 'lodash-es';
+import {FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
 
 const WEEK = {
     plural:$localize `:@@week_plural:weeks`,
@@ -34,7 +36,11 @@ const MONTH = {
     selector: 'duration-picker',
     templateUrl: './duration-picker.component.html',
     styleUrls: ['./duration-picker.component.css'],
-    standalone: false
+    imports: [
+        FormsModule,
+        CommonModule
+    ],
+    standalone: true
 })
 export class DurationPickerComponent implements OnInit {
 

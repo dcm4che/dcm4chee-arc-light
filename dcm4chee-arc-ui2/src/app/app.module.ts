@@ -133,28 +133,14 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
         QueuesComponent,
         OrderByPipe,
         GetKeyPipe,
-        WidgetsComponents,
         FormatDAPipe,
         FormatTMPipe,
-        FormatTagPipe,
         ContentDescriptionPipe,
-        PatientIssuerPipe,
         PersonNamePipe,
-        FormatAttributeValuePipe,
         RemovedotsPipe,
-        AttributeListComponent,
-        TrimPipe,
-        SearchPipe,
-        SearchDicomPipe,
         KeysPipe,
-        IodFormGeneratorComponent,
-        TooltipDirective,
         ComparewithiodPipe,
-        PlaceholderchangerDirective,
         DevicesComponent,
-        DeviceConfiguratorComponent,
-        DynamicFormElementComponent,
-        DynamicFormComponent,
         ExportComponent,
         DicomConnectionFormaterPipe,
         AssociationsComponent,
@@ -167,10 +153,6 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
         MonitoringTabsComponent,
         Hl7ApplicationsComponent,
         RetrieveMonitoringComponent,
-        FilterGeneratorComponent,
-        ClickOutsideDirective,
-        ClickOutsideDirective2,
-        PermissionDirective,
         PermissionDeniedComponent,
         StackedProgressComponent,
         DiffMonitorComponent,
@@ -178,20 +160,12 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
         TableGeneratorComponent,
         StorageVerificationComponent,
         ConfigTabComponent,
-        StudyTabComponent,
-        StudyComponent,
-        DicomStudiesTableComponent,
-        DynamicPipePipe,
-        ArrayToStringPipe,
         MetricsComponent,
-        WebAppsListComponent,
-        SelectionsDicomViewComponent,
-        CustomAttributeListComponent,
-        CustomDatePipe,
-        FormGeneratorComponent
+        WebAppsListComponent
     ],
     bootstrap: [AppComponent],
-    exports: [ArrayToStringPipe, PlaceholderchangerDirective], imports: [BrowserModule,
+    exports: [ArrayToStringPipe, PlaceholderchangerDirective, ClickOutsideDirective, IodFormGeneratorComponent, FilterGeneratorComponent, FormGeneratorComponent, SelectionsDicomViewComponent],
+    imports: [BrowserModule,
         FormsModule,
         MatIconModule,
         MatSelectModule,
@@ -229,28 +203,107 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
                 redirectTo: '/monitoring/queues',
                 pathMatch: 'full'
             },
-            { path: 'study/:tab', component: StudyComponent, canActivate: [AuthGuard] },
-            { path: 'permission-denied', component: PermissionDeniedComponent },
-            { path: 'monitoring/control', component: ControlComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/export', component: ExportComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/external', component: RetrieveMonitoringComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/queues', component: QueuesComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/associations', component: AssociationsComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/storage-systems', component: StorageSystemsComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/storage-verification', component: StorageVerificationComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/diff', component: DiffMonitorComponent, canActivate: [AuthGuard] },
-            { path: 'monitoring/metrics', component: MetricsComponent, canActivate: [AuthGuard] },
-            { path: 'device/devicelist', component: DevicesComponent, canActivate: [AuthGuard] },
-            { path: 'device/aelist', component: AeListComponent, canActivate: [AuthGuard] },
-            { path: 'device/webappslist', component: WebAppsListComponent, canActivate: [AuthGuard] },
-            { path: 'device/hl7applications', component: Hl7ApplicationsComponent, canActivate: [AuthGuard] },
-            { path: 'device/edit/:device', component: DeviceConfiguratorComponent, canActivate: [AuthGuard] },
-            { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent, canActivate: [AuthGuard] },
-            { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent, canActivate: [AuthGuard] },
-            { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent, canActivate: [AuthGuard] },
-            { path: '**', component: PageNotFoundComponent }
-        ], { useHash: false })], providers: [
+            //{path: 'study/:tab', component: StudyComponent, canActivate: [AuthGuard]},
+            {
+                path: 'study/:tab',
+                canActivate: [AuthGuard],
+                loadComponent: () =>
+                    import('./study/study/study.component').then(m => m.StudyComponent)
+            },
+            {path: 'permission-denied', component: PermissionDeniedComponent},
+            {
+                path: 'monitoring/control',
+                loadComponent: () => import('./configuration/control/control.component').then(m => m.ControlComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/export',
+                loadComponent: () => import('./monitoring/export/export.component').then(m => m.ExportComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/external',
+                loadComponent: () => import('./monitoring/external-retrieve/retrieve-monitoring.component').then(m => m.RetrieveMonitoringComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/queues',
+                loadComponent: () => import('./monitoring/queues/queues.component').then(m => m.QueuesComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/associations',
+                loadComponent: () => import('./monitoring/associations/associations.component').then(m => m.AssociationsComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/storage-commitment',
+                loadComponent: () => import('./monitoring/storage-commitment/storage-commitment.component').then(m => m.StorageCommitmentComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/storage-systems',
+                loadComponent: () => import('./monitoring/storage-systems/storage-systems.component').then(m => m.StorageSystemsComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/storage-verification',
+                loadComponent: () => import('./monitoring/storage-verification/storage-verification.component').then(m => m.StorageVerificationComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/diff',
+                loadComponent: () => import('./monitoring/diff-monitor/diff-monitor.component').then(m => m.DiffMonitorComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'monitoring/metrics',
+                loadComponent: () => import('./monitoring/metrics/metrics.component').then(m => m.MetricsComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'device/devicelist',
+                loadComponent: () => import('./configuration/devices/devices.component').then(m => m.DevicesComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'device/aelist',
+                loadComponent: () => import('./configuration/ae-list/ae-list.component').then(m => m.AeListComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'device/webappslist',
+                loadComponent: () => import('./configuration/web-apps-list/web-apps-list.component').then(m => m.WebAppsListComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'device/hl7applications',
+                loadComponent: () => import('./configuration/hl7-applications/hl7-applications.component').then(m => m.Hl7ApplicationsComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'device/edit/:device',
+                loadComponent: () => import('./configuration/device-configurator/device-configurator.component').then(m => m.DeviceConfiguratorComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'device/edit/:device/:devicereff',
+                loadComponent: () => import('./configuration/device-configurator/device-configurator.component').then(m => m.DeviceConfiguratorComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'device/edit/:device/:devicereff/:schema',
+                loadComponent: () => import('./configuration/device-configurator/device-configurator.component').then(m => m.DeviceConfiguratorComponent),
+                canActivate: [AuthGuard]
+            },
+            {
+                path: 'device/edit/:device/:devicereff/:schema/:clone',
+                loadComponent: () => import('./configuration/device-configurator/device-configurator.component').then(m => m.DeviceConfiguratorComponent),
+                canActivate: [AuthGuard]
+            },
+            {path: '**', component: PageNotFoundComponent}
+        ], {useHash: false}),
+        DeviceConfiguratorComponent, DynamicFormElementComponent, DynamicFormComponent, WidgetsComponents, ArrayToStringPipe, ClickOutsideDirective, ClickOutsideDirective2, PatientIssuerPipe, IodFormGeneratorComponent, PlaceholderchangerDirective, TrimPipe, SearchPipe, FilterGeneratorComponent, DynamicPipePipe, SelectionsDicomViewComponent, FormGeneratorComponent, StudyTabComponent, StudyComponent, DicomStudiesTableComponent, CustomAttributeListComponent, CustomDatePipe, FormatTagPipe, FormatAttributeValuePipe, AttributeListComponent, TooltipDirective, PermissionDirective, SearchDicomPipe], providers: [
         WidgetsComponents,
         WidgetsModule,
         MatDatepickerModule,

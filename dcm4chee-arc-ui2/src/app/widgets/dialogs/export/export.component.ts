@@ -9,11 +9,24 @@ import {Aet} from "../../../models/aet";
 import {DcmWebApp} from "../../../models/dcm-web-app";
 import {j4care} from "../../../helpers/j4care.service";
 import {MatDialogRef} from "@angular/material/dialog";
+import {FormsModule} from '@angular/forms';
+import {RangePickerComponent} from '../../range-picker/range-picker.component';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'app-export',
     templateUrl: './export.component.html',
-    standalone: false
+    imports: [
+        MatSelect,
+        FormsModule,
+        RangePickerComponent,
+        MatOption,
+        DcmDropDownComponent,
+        CommonModule
+    ],
+    standalone: true
 })
 export class ExportDialogComponent implements OnInit, OnDestroy{
 

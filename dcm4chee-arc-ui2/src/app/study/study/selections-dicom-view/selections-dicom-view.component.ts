@@ -5,12 +5,22 @@ import {TableSchemaElement} from "../../../models/dicom-table-schema-element";
 import {SelectionsDicomViewService} from "./selections-dicom-view.service";
 import * as _ from "lodash-es";
 import {j4care} from "../../../helpers/j4care.service";
+import {CommonModule, NgStyle, NgSwitch, UpperCasePipe} from '@angular/common';
+import {TrimPipe} from '../../../pipes/trim.pipe';
+import {DynamicPipePipe} from '../../../pipes/dynamic-pipe.pipe';
 
 @Component({
     selector: 'selections-dicom-view',
     templateUrl: './selections-dicom-view.component.html',
     styleUrls: ['./selections-dicom-view.component.scss'],
-    standalone: false
+    imports: [
+        NgStyle,
+        NgSwitch,
+        DynamicPipePipe,
+        UpperCasePipe,
+        CommonModule
+    ],
+    standalone: true
 })
 export class SelectionsDicomViewComponent implements OnInit {
 

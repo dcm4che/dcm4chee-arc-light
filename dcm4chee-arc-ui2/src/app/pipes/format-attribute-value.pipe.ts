@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     name: 'formatAttributeValue',
-    standalone: false
+    standalone: true
 })
 export class FormatAttributeValuePipe implements PipeTransform {
 

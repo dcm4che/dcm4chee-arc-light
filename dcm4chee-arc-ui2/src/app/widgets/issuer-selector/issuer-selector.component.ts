@@ -1,11 +1,18 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as _ from "lodash-es";
 import {j4care} from "../../helpers/j4care.service";
+import {CommonModule, NgClass} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 @Component({
     selector: 'issuer-selector',
     templateUrl: './issuer-selector.component.html',
     styleUrls: ['./issuer-selector.component.scss'],
-    standalone: false
+    imports: [
+        NgClass,
+        FormsModule,
+        CommonModule
+    ],
+    standalone: true
 })
 export class IssuerSelectorComponent implements OnInit {
 

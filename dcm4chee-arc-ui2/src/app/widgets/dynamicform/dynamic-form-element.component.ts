@@ -5,12 +5,12 @@ import {
     Component, Input, ElementRef, ChangeDetectionStrategy,
     ViewContainerRef, ChangeDetectorRef, HostListener, OnDestroy
 } from '@angular/core';
-import {UntypedFormGroup, UntypedFormControl, UntypedFormArray, UntypedFormBuilder} from '@angular/forms';
+import {UntypedFormGroup, UntypedFormControl, UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {DynamicFormComponent} from './dynamic-form.component';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
 import * as _ from 'lodash-es';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {DeviceConfiguratorService} from '../../configuration/device-configurator/device-configurator.service';
 // import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
@@ -23,12 +23,44 @@ import {j4care} from "../../helpers/j4care.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {CommonModule, NgClass, NgSwitch} from '@angular/common';
+import {WidgetsComponents} from '../widgets.module';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {DictionaryPickerComponent} from '../dictionary-picker/dictionary-picker.component';
+import {LanguagePickerComponent} from '../language-picker/language-picker.component';
+import {AttributeInfoComponent} from '../attribute-info/attribute-info.component';
+import {TimePickerComponent} from '../time-picker/time-picker.component';
+import {DurationPickerComponent} from '../duration-picker/duration-picker.component';
+import {SchedulePickerComponent} from '../schedule-picker/schedule-picker.component';
+import {SpecificCharPickerComponent} from '../specific-char-picker/specific-char-picker.component';
+import {DynamicFieldComponent} from '../dynamic-field/dynamic-field.component';
+import {DcmSelectComponent} from '../dcm-select/dcm-select.component';
+import {SearchPipe} from '../../pipes/search.pipe';
 
 @Component({
     selector: 'df-element',
     templateUrl: './dynamic-form-element.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    imports: [
+        ReactiveFormsModule,
+        NgClass,
+        NgSwitch,
+        MatSelect,
+        DictionaryPickerComponent,
+        LanguagePickerComponent,
+        AttributeInfoComponent,
+        TimePickerComponent,
+        DurationPickerComponent,
+        SchedulePickerComponent,
+        SpecificCharPickerComponent,
+        DynamicFieldComponent,
+        MatOption,
+        RouterLink,
+        DcmSelectComponent,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class DynamicFormElementComponent implements OnDestroy{
 

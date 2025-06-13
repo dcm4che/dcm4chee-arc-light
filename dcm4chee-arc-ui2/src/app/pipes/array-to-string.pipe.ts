@@ -3,7 +3,7 @@ import * as _ from "lodash-es";
 @Pipe({
     name: 'arrayToString',
     pure: false,
-    standalone: false
+    standalone: true
 })
 export class ArrayToStringPipe implements PipeTransform {
     transform(value: any, args?: any): any {

@@ -5,7 +5,7 @@ import {AppService} from "../../app.service";
 
 @Directive({
     selector: '[tooltip]',
-    standalone: false
+    standalone: true
 })
 export class TooltipDirective implements OnDestroy{
     @Input() tooltip: string;

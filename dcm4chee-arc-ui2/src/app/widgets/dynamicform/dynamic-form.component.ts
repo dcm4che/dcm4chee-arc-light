@@ -2,7 +2,7 @@
  * Created by shefki on 9/20/16.
  */
 import {Component, OnInit, Input, EventEmitter} from '@angular/core';
-import {UntypedFormBuilder, UntypedFormGroup} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup} from '@angular/forms';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
 import {Output} from '@angular/core';
@@ -13,12 +13,20 @@ import {AppService} from "../../app.service";
 import {DeviceConfiguratorComponent} from "../../configuration/device-configurator/device-configurator.component";
 import {ActivatedRoute} from "@angular/router";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {DynamicFormElementComponent} from './dynamic-form-element.component';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'dynamic-form',
     templateUrl: './dynamic-form.component.html',
     providers: [FormService],
-    standalone: false
+    imports: [
+        DynamicFormElementComponent,
+        ReactiveFormsModule,
+        FormsModule,
+        CommonModule
+    ],
+    standalone: true
 })
 export class DynamicFormComponent implements OnInit{
     @Input() formelements: FormElement<any>[] = [];

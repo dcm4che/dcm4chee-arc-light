@@ -8,13 +8,17 @@ import * as _ from 'lodash-es';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {SelectDropdown} from "../../../interfaces";
 import {MatDialogRef} from "@angular/material/dialog";
+import {FormsModule} from '@angular/forms';
+import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
+import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
+import {CommonModule} from '@angular/common';
 
 
 @Component({
     selector: 'edit-series',
     templateUrl: './edit-series.component.html',
     styles: [`
-        .form_input{
+        .form_input {
             display: grid;
             grid-template-columns: 1fr 1.36fr;
             margin-bottom: 15px;
@@ -22,15 +26,24 @@ import {MatDialogRef} from "@angular/material/dialog";
             border-bottom: 1px solid #ccc;
             padding-bottom: 5px;
         }
-        .form_input label{
+
+        .form_input label {
             text-align: right;
         }
-        .form_input input, .form_input dcm-drop-down{
+
+        .form_input input, .form_input dcm-drop-down {
             width: 96%;
             min-height: 30px;
         }
     `],
-    standalone: false
+    imports: [
+        FormsModule,
+        IodFormGeneratorComponent,
+        DcmDropDownComponent,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class EditSeriesComponent{
 
