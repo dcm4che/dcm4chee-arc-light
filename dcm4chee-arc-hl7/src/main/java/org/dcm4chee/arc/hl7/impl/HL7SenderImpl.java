@@ -117,7 +117,7 @@ public class HL7SenderImpl implements HL7Sender {
         int field45Len = msh.getField(4, "").length() + msh.getField(5, "").length() + 2;
         try {
             byte[] data = replaceField2345(msg.data(), dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len);
-            scheduleMessage(null, data);
+            scheduleMessage(data);
         } catch (Exception e) {
             LOG.warn("Failed to schedule forward of HL7 message to {}:\n", dest, e);
         }
@@ -142,7 +142,7 @@ public class HL7SenderImpl implements HL7Sender {
             throws ConfigurationException {
         getSendingHl7Application(sendingApplication, sendingFacility);
         hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
-        scheduleMessage(null, hl7msg);
+        scheduleMessage(hl7msg);
     }
 
     @Override
@@ -178,7 +178,21 @@ public class HL7SenderImpl implements HL7Sender {
     }
 
     @Override
+    public void scheduleMessage(byte[] data) {
+        Task hl7SendTask = createHL7SendTask(data);
+        taskManager.scheduleTask(hl7SendTask);
+    }
+
+    @Override
     public void scheduleMessage(HttpServletRequestInfo httpServletRequestInfo, byte[] data) {
+        Task hl7SendTask = createHL7SendTask(data);
+        hl7SendTask.setRequesterUserID(httpServletRequestInfo.requesterUserID);
+        hl7SendTask.setRequesterHost(httpServletRequestInfo.requesterHost);
+        hl7SendTask.setRequestURI(requestURL(httpServletRequestInfo));
+        taskManager.scheduleTask(hl7SendTask);
+    }
+
+    private Task createHL7SendTask(byte[] data) {
         UnparsedHL7Message hl7Msg = new UnparsedHL7Message(data);
         HL7Segment msh = hl7Msg.msh();
         Task task = new Task();
@@ -190,14 +204,9 @@ public class HL7SenderImpl implements HL7Sender {
         task.setReceivingApplicationWithFacility(msh.getReceivingApplicationWithFacility());
         task.setMessageType(msh.getMessageType());
         task.setMessageControlID(msh.getMessageControlID());
-        if (httpServletRequestInfo != null) {
-            task.setRequesterUserID(httpServletRequestInfo.requesterUserID);
-            task.setRequesterHost(httpServletRequestInfo.requesterHost);
-            task.setRequestURI(requestURL(httpServletRequestInfo));
-        }
         task.setPayload(data);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.scheduleTask(task);
+        return task;
     }
 
     private String requestURL(HttpServletRequestInfo httpServletRequestInfo) {

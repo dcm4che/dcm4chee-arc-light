@@ -290,12 +290,7 @@ public class ProcedureServiceEJB {
     public List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status) {
         return updateMWLStatus(status, findMWLItems(studyIUID));
     }
-
-    public List<MWLItem> updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask task, SPSStatus status) {
-        return updateMWLStatus(status, findMWLItems(arcAE, task));
-    }
-
-    private List<MWLItem> updateMWLStatus(SPSStatus status, List<MWLItem> mwlItems) {
+    public List<MWLItem> updateMWLStatus(SPSStatus status, List<MWLItem> mwlItems) {
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         mwlItems.forEach(mwl -> {
             Attributes mwlAttrs = mwl.getAttributes();
@@ -317,7 +312,7 @@ public class ProcedureServiceEJB {
                 .getResultList();
     }
 
-    private List<MWLItem> findMWLItems(ArchiveAEExtension arcAE, HL7PSUTask task) {
+    public List<MWLItem> findMWLItems(ArchiveAEExtension arcAE, HL7PSUTask task) {
         return arcAE.hl7PSUMWLMatchingKey() == HL7PSUMWLMatchingKey.AccessionNumber
                 ? em.createNamedQuery(MWLItem.FIND_BY_ACCESSION_NO_EAGER, MWLItem.class)
                     .setParameter(1, task.getAccessionNumber())

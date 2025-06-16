@@ -281,8 +281,13 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
-    public List<MWLItem> updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask task, SPSStatus status) {
-        return ejb.updateMWLStatus(arcAE, task, status);
+    public List<MWLItem> updateMWLStatus(List<MWLItem> mwlItems, SPSStatus status) {
+        return ejb.updateMWLStatus(status, mwlItems);
+    }
+
+    @Override
+    public List<MWLItem> findMWLItems(ArchiveAEExtension arcAE, HL7PSUTask task) {
+        return ejb.findMWLItems(arcAE, task);
     }
 
     @Override

@@ -143,6 +143,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String[] returnRetrieveAETitles = {};
     private String hl7PSUSendingApplication;
     private String[] hl7PSUReceivingApplications = {};
+    private HL7PSUAction[] hl7PSUAction = {};
     private Duration hl7PSUDelay;
     private Duration hl7PSUTimeout;
     private Boolean hl7PSUOnTimeout;
@@ -1494,6 +1495,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : hl7PSUTriggers.contains(hl7PSUTrigger);
     }
 
+    public HL7PSUAction[] getHL7PSUAction() {
+        return hl7PSUAction;
+    }
+
+    public void setHL7PSUAction(HL7PSUAction[] hl7PSUAction) {
+        this.hl7PSUAction = hl7PSUAction;
+    }
+
+    public HL7PSUAction[] hl7PSUAction() {
+        return hl7PSUAction.length > 0
+                ? hl7PSUAction
+                : getArchiveDeviceExtension().getHL7PSUAction();
+    }
+
     public Duration getHL7PSUDelay() {
         return hl7PSUDelay;
     }
@@ -2189,6 +2204,7 @@ public class ArchiveAEExtension extends AEExtension {
         returnRetrieveAETitles = aeExt.returnRetrieveAETitles;
         hl7PSUSendingApplication = aeExt.hl7PSUSendingApplication;
         hl7PSUReceivingApplications = aeExt.hl7PSUReceivingApplications;
+        hl7PSUAction = aeExt.hl7PSUAction;
         hl7PSUTriggers.clear();
         hl7PSUTriggers.addAll(aeExt.hl7PSUTriggers);
         hl7PSUDelay = aeExt.hl7PSUDelay;

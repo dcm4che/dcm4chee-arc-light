@@ -61,17 +61,63 @@ import java.util.stream.Collectors;
  */
 public class HL7SenderUtils {
 
-    public static byte[] data(
-            HL7Application sender, String sendingAppWithFacility, HL7Application receiver,
-            Attributes attrs, Attributes prev, String msgType, String uri, String ppsStatus, ArchiveAEExtension arcAE)
+    public static byte[] hl7PSUData(
+            HL7Application sender, HL7Application receiver, Attributes attrs, String uri,
+            String ppsStatus, ArchiveAEExtension arcAE)
             throws TransformerConfigurationException, UnsupportedEncodingException, SAXException {
         return SAXTransformer.transform(attrs, sender.getHL7SendingCharacterSet(), uri, tr -> {
-            tr.setParameter("sender", sendingAppWithFacility);
+            tr.setParameter("sender", sender.getApplicationName());
             tr.setParameter("receiver", receiver.getApplicationName());
             tr.setParameter("dateTime", HL7Segment.timeStamp(new Date()));
             tr.setParameter("msgControlID", HL7Segment.nextMessageControlID());
+            tr.setParameter("msgType", arcAE.hl7PSUMessageType().name());
+            tr.setParameter("patientIdentifiers", IDWithIssuer.pidsOf(attrs).stream()
+                    .map(IDWithIssuer::toString)
+                    .collect(Collectors.joining("~")));
+            tr.setParameter("isPIDPV1", arcAE.hl7PSUPIDPV1());
+            arcAE.hl7PSUTemplateParams().forEach(
+                    (k,v) -> tr.setParameter(k, new AttributesFormat(v).format(attrs)));
+            if (ppsStatus != null)
+                tr.setParameter("ppsStatus", ppsStatus);
             if (!sender.getHL7SendingCharacterSet().equals("ASCII"))
                 tr.setParameter("charset", sender.getHL7SendingCharacterSet());
+            if (sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class).hl7UseNullValue())
+                tr.setParameter("includeNullValues", "\"\"");
+        });
+    }
+
+    public static byte[] hl7PSUDataExporter(
+            HL7Application sender, String hl7SenderOtherAppName, HL7Application receiver, Attributes attrs, String msgType,
+            String uri, ArchiveAEExtension arcAE)
+            throws TransformerConfigurationException, UnsupportedEncodingException, SAXException {
+        return SAXTransformer.transform(attrs, sender.getHL7SendingCharacterSet(), uri, tr -> {
+            tr.setParameter("sender", hl7SenderOtherAppName);
+            tr.setParameter("receiver", receiver.getApplicationName());
+            tr.setParameter("dateTime", HL7Segment.timeStamp(new Date()));
+            tr.setParameter("msgControlID", HL7Segment.nextMessageControlID());
+            tr.setParameter("msgType", msgType);
+            tr.setParameter("patientIdentifiers", IDWithIssuer.pidsOf(attrs).stream()
+                    .map(IDWithIssuer::toString)
+                    .collect(Collectors.joining("~")));
+            tr.setParameter("isPIDPV1", arcAE.hl7PSUPIDPV1());
+            arcAE.hl7PSUTemplateParams().forEach(
+                    (k,v) -> tr.setParameter(k, new AttributesFormat(v).format(attrs)));
+            if (!sender.getHL7SendingCharacterSet().equals("ASCII"))
+                tr.setParameter("charset", sender.getHL7SendingCharacterSet());
+            if (sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class).hl7UseNullValue())
+                tr.setParameter("includeNullValues", "\"\"");
+        });
+    }
+
+    public static byte[] hl7ADTData(
+            HL7Application sender, String hl7SenderOtherAppName, HL7Application receiver,
+            Attributes attrs, Attributes prev, String msgType, String uri)
+            throws TransformerConfigurationException, UnsupportedEncodingException, SAXException {
+        return SAXTransformer.transform(attrs, sender.getHL7SendingCharacterSet(), uri, tr -> {
+            tr.setParameter("sender", hl7SenderOtherAppName);
+            tr.setParameter("receiver", receiver.getApplicationName());
+            tr.setParameter("dateTime", HL7Segment.timeStamp(new Date()));
+            tr.setParameter("msgControlID", HL7Segment.nextMessageControlID());
             tr.setParameter("msgType", msgType);
             tr.setParameter("patientIdentifiers", IDWithIssuer.pidsOf(attrs).stream()
                                                             .map(IDWithIssuer::toString)
@@ -84,15 +130,10 @@ public class HL7SenderUtils {
                 if (msgType.equals("ADT^A40^ADT_A39") && prevPatName != null)
                     tr.setParameter("priorPatientName", prevPatName);
             }
+            if (!sender.getHL7SendingCharacterSet().equals("ASCII"))
+                tr.setParameter("charset", sender.getHL7SendingCharacterSet());
             if (sender.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class).hl7UseNullValue())
                 tr.setParameter("includeNullValues", "\"\"");
-            if (ppsStatus != null)
-                tr.setParameter("ppsStatus", ppsStatus);
-            if (arcAE != null) {
-                tr.setParameter("isPIDPV1", arcAE.hl7PSUPIDPV1());
-                arcAE.hl7PSUTemplateParams().forEach(
-                        (k,v) -> tr.setParameter(k, new AttributesFormat(v).format(attrs)));
-            }
         });
     }
 }

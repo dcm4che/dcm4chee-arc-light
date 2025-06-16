@@ -47,9 +47,11 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.HL7PSUAction;
 import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.mpps.MPPSContext;
@@ -58,7 +60,7 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.dcm4chee.arc.Scheduler;
+
 import java.util.List;
 
 /**
@@ -69,6 +71,12 @@ import java.util.List;
 @ApplicationScoped
 public class HL7PSUScheduler extends Scheduler {
     private static final Logger LOG = LoggerFactory.getLogger(HL7PSUScheduler.class);
+    private static final String MISSING_HL7PSU_DELAY = "HL7 Procedure Status Update Delay not configured ";
+    private static final String HL7PSU_CONDITIONS_NO_MATCH = "HL7 Procedure Status Update Conditions didn't match. ";
+    private static final String MISSING_HL7PSU_TIMEOUT = "HL7 Procedure Status Update Timeout not configured ";
+    private static final String INVALID_SSA = "Missing MPPS attributes PlacerOrderNumberImagingServiceRequest and FillerOrderNumberImagingServiceRequest in ScheduledStepAttributesSequence. ";
+    private static final String MISSING_HL7PSU_ACTION = "HL7 Procedure Status Update Action not configured.";
+    private static final String HL7PSU_TASK_ABORT_MSG = "Abort HL7 Procedure Status Update Task creation.";
 
     @Inject
     private HL7PSUEJB ejb;
@@ -156,21 +164,31 @@ public class HL7PSUScheduler extends Scheduler {
 
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        if (arcAE.hl7PSUOnStudy() && arcAE.hl7PSUConditions().match(
+
+        HL7PSUAction[] hl7PSUActions = arcAE.hl7PSUAction();
+        if (hl7PSUActions.length == 0) {
+            LOG.info(MISSING_HL7PSU_ACTION + HL7PSU_TASK_ABORT_MSG);
+            return;
+        }
+
+        if (arcAE.hl7PSUDelay() == null || !arcAE.hl7PSUConditions().match(
                 session.getRemoteHostName(),
                 session.getCallingAET(),
                 session.getLocalHostName(),
                 session.getCalledAET(),
                 ctx.getAttributes())) {
-            try {
-                ejb.createOrUpdateHL7PSUTaskForStudy(arcAE, ctx);
-            } catch (Exception e) {
-                LOG.warn("{}: Failed to create or update HL7PSUTask:\n", ctx, e);
-            }
+            LOG.info(MISSING_HL7PSU_DELAY + "or" + HL7PSU_CONDITIONS_NO_MATCH + HL7PSU_TASK_ABORT_MSG);
+            return;
+        }
+
+        try {
+            ejb.createOrUpdateHL7PSUTaskForStudy(arcAE, ctx);
+        } catch (Exception e) {
+            LOG.warn("{}: Failed to create or update HL7PSUTask:\n", ctx, e);
         }
     }
 
-    private boolean createHL7PSUOnMPPS(MPPSContext ctx) {
+    private boolean validScheduledStepAttrs(MPPSContext ctx) {
         Attributes ssaAttrs = ctx.getMPPS().getAttributes().getNestedDataset(Tag.ScheduledStepAttributesSequence);
         return ssaAttrs.getString(Tag.PlacerOrderNumberImagingServiceRequest) != null
                 && ssaAttrs.getString(Tag.FillerOrderNumberImagingServiceRequest) != null;
@@ -180,17 +198,25 @@ public class HL7PSUScheduler extends Scheduler {
         if (ctx.getException() != null)
             return;
 
-        if (createHL7PSUOnMPPS(ctx)) {
-            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-            if (arcAE.hl7PSUOnMPPS()) {
-                try {
-                    ejb.createHL7PSUTaskForMPPS(arcAE, ctx);
-                } catch (Exception e) {
-                    LOG.warn("{}: Failed to create or update HL7PSUTask:\n", ctx, e);
-                }
-            }
-        } else
-            LOG.info("Missing MPPS attributes PlacerOrderNumberImagingServiceRequest and FillerOrderNumberImagingServiceRequest in ScheduledStepAttributesSequence");
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        HL7PSUAction[] hl7PSUActions = arcAE.hl7PSUAction();
+        if (hl7PSUActions.length == 0) {
+            LOG.info(MISSING_HL7PSU_ACTION + HL7PSU_TASK_ABORT_MSG);
+            return;
+        }
+
+
+        if (!validScheduledStepAttrs(ctx) || arcAE.hl7PSUTimeout() == null) {
+            LOG.info(MISSING_HL7PSU_TIMEOUT + "or" + INVALID_SSA + HL7PSU_TASK_ABORT_MSG);
+            return;
+        }
+
+        try {
+            ejb.createHL7PSUTaskForMPPS(arcAE, ctx);
+        } catch (Exception e) {
+            LOG.warn("{}: Failed to create or update HL7PSUTask:\n", ctx, e);
+        }
+
     }
 
     private boolean checkAllRefInMpps(ApplicationEntity ae, MPPS mpps) {

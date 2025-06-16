@@ -67,7 +67,9 @@ public interface ProcedureService {
 
     List<MWLItem> updateMWLStatus(String studyIUID, SPSStatus status);
 
-    List<MWLItem> updateMWLStatus(ArchiveAEExtension arcAE, HL7PSUTask hl7PSUTask, SPSStatus status);
+    List<MWLItem> updateMWLStatus(List<MWLItem> mwlItems, SPSStatus status);
+
+    List<MWLItem> findMWLItems(ArchiveAEExtension arcAE, HL7PSUTask hl7PSUTask);
 
     void updateMWLStatus(ProcedureContext ctx);
 

@@ -925,10 +925,9 @@ public class PamRS {
         for (String receivingAppFacility : arcDev.getHL7ADTReceivingApplication()) {
             try {
                 HL7Application receiver = hl7AppCache.findHL7Application(receivingAppFacility);
-                byte[] data = HL7SenderUtils.data(sender, sendingAppFacility, receiver,
+                byte[] data = HL7SenderUtils.hl7ADTData(sender, sendingAppFacility, receiver,
                                                 ctx.getAttributes(), ctx.getPreviousAttributes(),
-                                                msgType, arcDev.getOutgoingPatientUpdateTemplateURI(),
-                                                null, null);
+                                                msgType, arcDev.getOutgoingPatientUpdateTemplateURI());
                 hl7Sender.scheduleMessage(ctx.getHttpServletRequestInfo(), data);
             } catch (ConfigurationException e) {
                 LOG.info("Unknown HL7 receiving application and facility {} to send message type {}",

@@ -195,6 +195,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile SPSStatus[] hideSPSWithStatusFrom = {};
     private volatile SPSStatus[] hideSPSWithStatusFromMWLRS = {};
     private volatile HL7ORUAction[] hl7ORUAction = {};
+    private volatile HL7PSUAction[] hl7PSUAction = {};
     private volatile String mwlAccessionNumberGenerator = MWL_ACCESSION_NUMBER_GENERATOR;
     private volatile String mwlRequestedProcedureIDGenerator = MWL_REQUESTED_PROCEDURE_ID_GENERATOR;
     private volatile String mwlScheduledProcedureStepIDGenerator = MWL_SCHEDULED_PROCEDURE_STEP_ID_GENERATOR;
@@ -1509,6 +1510,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHl7ORUAction(HL7ORUAction[] hl7ORUAction) {
         this.hl7ORUAction = hl7ORUAction;
+    }
+
+    public HL7PSUAction[] getHL7PSUAction() {
+        return hl7PSUAction;
+    }
+
+    public void setHL7PSUAction(HL7PSUAction[] hl7PSUAction) {
+        this.hl7PSUAction = hl7PSUAction;
     }
 
     public String getMWLAccessionNumberGenerator() {
@@ -3839,6 +3848,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         hideSPSWithStatusFromMWLRS = arcdev.hideSPSWithStatusFromMWLRS;
         hl7ORUAction = arcdev.hl7ORUAction;
+        hl7PSUAction = arcdev.hl7PSUAction;
         mwlAccessionNumberGenerator = arcdev.mwlAccessionNumberGenerator;
         mwlRequestedProcedureIDGenerator = arcdev.mwlRequestedProcedureIDGenerator;
         mwlScheduledProcedureStepIDGenerator = arcdev.mwlScheduledProcedureStepIDGenerator;

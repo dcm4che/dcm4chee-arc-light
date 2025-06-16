@@ -2922,6 +2922,11 @@ attributetype ( 1.2.40.0.13.1.15.110.3.499 NAME 'hl7PSUTrigger'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.500 NAME 'hl7PSUAction'
+  DESC 'Specifies HL7 Procedure Status Update action: SEND_NOTIFICATION (= send HL7 Procedure Status Update Notification message to configured HL7 Procedure Status Update Receiving Applications), UPDATE_MWL_STATUS (= set Scheduled Procedure Step Status of MWL Items associated to STUDY to COMPLETED)'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -3198,6 +3203,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
+    hl7PSUAction $
     hl7PSUMppsTemplateURI $
     hl7PSUStudyTemplateURI $
     hl7PSUTrigger $
@@ -3352,6 +3358,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmMWLWorklistLabel $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
+    hl7PSUAction $
     hl7PSUMppsTemplateURI $
     hl7PSUStudyTemplateURI $
     hl7PSUTrigger $

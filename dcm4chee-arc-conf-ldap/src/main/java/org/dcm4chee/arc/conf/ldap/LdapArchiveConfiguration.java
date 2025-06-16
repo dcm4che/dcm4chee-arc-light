@@ -347,6 +347,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication",
                 ext.getHL7PSUSendingApplication(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHL7PSUReceivingApplications());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUAction", ext.getHL7PSUAction());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUTrigger", ext.getHL7PSUTriggers());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHL7PSUDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHL7PSUTimeout(), null);
@@ -776,6 +777,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), false));
         ext.setHL7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
         ext.setHL7PSUReceivingApplications(LdapUtils.stringArray(attrs.get("hl7PSUReceivingApplication")));
+        ext.setHL7PSUAction(LdapUtils.enumArray(HL7PSUAction.class, attrs.get("hl7PSUAction")));
         ext.setHL7PSUTriggers(LdapUtils.enumArray(HL7PSUTrigger.class, attrs.get("hl7PSUTrigger")));
         ext.setHL7PSUDelay(toDuration(attrs.get("hl7PSUDelay"), null));
         ext.setHL7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout"), null));
@@ -1329,6 +1331,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHL7PSUSendingApplication(), bb.getHL7PSUSendingApplication(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUReceivingApplication",
                 aa.getHL7PSUReceivingApplications(), bb.getHL7PSUReceivingApplications());
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUAction", aa.getHL7PSUAction(), bb.getHL7PSUAction());
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUTrigger", aa.getHL7PSUTriggers(), bb.getHL7PSUTriggers());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUDelay", aa.getHL7PSUDelay(), bb.getHL7PSUDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUTimeout", aa.getHL7PSUTimeout(), bb.getHL7PSUTimeout(), null);
@@ -1971,6 +1974,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication",
                 ext.getHL7PSUSendingApplication(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHL7PSUReceivingApplications());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUAction", ext.getHL7PSUAction());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUTrigger", ext.getHL7PSUTriggers());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHL7PSUDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHL7PSUTimeout(), null);
@@ -2161,6 +2165,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), null));
         ext.setHL7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
         ext.setHL7PSUReceivingApplications(LdapUtils.stringArray(attrs.get("hl7PSUReceivingApplication")));
+        ext.setHL7PSUAction(LdapUtils.enumArray(HL7PSUAction.class, attrs.get("hl7PSUAction")));
         ext.setHL7PSUTriggers(LdapUtils.enumArray(HL7PSUTrigger.class, attrs.get("hl7PSUTrigger")));
         ext.setHL7PSUDelay(toDuration(attrs.get("hl7PSUDelay"), null));
         ext.setHL7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout"), null));
@@ -2422,6 +2427,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHL7PSUSendingApplication(), bb.getHL7PSUSendingApplication(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUReceivingApplication",
                 aa.getHL7PSUReceivingApplications(), bb.getHL7PSUReceivingApplications());
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUAction", aa.getHL7PSUAction(), bb.getHL7PSUAction());
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUTrigger",
                 aa.getHL7PSUTriggers(), bb.getHL7PSUTriggers());
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUDelay",
