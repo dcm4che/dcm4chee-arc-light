@@ -147,4 +147,12 @@ public interface PatientMgtContext {
     HL7ReferredMergedPatientPolicy getHl7ReferredMergedPatientPolicy();
 
     void setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy);
+
+    String getReasonForModification();
+
+    void setReasonForModification(String reasonForModification);
+
+    String getSourceOfPreviousValues();
+
+    void setSourceOfPreviousValues(String sourceOfPreviousValues);
 }

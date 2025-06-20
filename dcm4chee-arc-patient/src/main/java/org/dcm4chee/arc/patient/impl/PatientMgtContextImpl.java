@@ -89,6 +89,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private ArchiveAEExtension arcAE;
     private String localAET;
     private String sourceMwlScp;
+    private String reasonForModification;
+    private String sourceOfPreviousValues;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -356,5 +358,25 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setHl7ReferredMergedPatientPolicy(HL7ReferredMergedPatientPolicy hl7ReferredMergedPatientPolicy) {
         this.hl7ReferredMergedPatientPolicy = hl7ReferredMergedPatientPolicy;
+    }
+
+    @Override
+    public String getReasonForModification() {
+        return reasonForModification;
+    }
+
+    @Override
+    public void setReasonForModification(String reasonForModification) {
+        this.reasonForModification = reasonForModification;
+    }
+
+    @Override
+    public String getSourceOfPreviousValues() {
+        return sourceOfPreviousValues;
+    }
+
+    @Override
+    public void setSourceOfPreviousValues(String sourceOfPreviousValues) {
+        this.sourceOfPreviousValues = sourceOfPreviousValues;
     }
 }

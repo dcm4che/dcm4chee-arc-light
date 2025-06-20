@@ -151,6 +151,13 @@ public class PamRS {
     @Context
     private UriInfo uriInfo;
 
+    @QueryParam("reasonForModification")
+    @Pattern(regexp = "COERCE|CORRECT")
+    private String reasonForModification;
+
+    @QueryParam("sourceOfPreviousValues")
+    private String sourceOfPreviousValues;
+
     @Override
     public String toString() {
         String requestURI = request.getRequestURI();
@@ -304,6 +311,8 @@ public class PamRS {
         PatientMgtContext ctx = patientMgtCtx(in);
         ctx.setArchiveAEExtension(arcAE);
         ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(ctx.getPatientIDs()));
+        ctx.setReasonForModification(reasonForModification);
+        ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
         if (ctx.getPatientIDs().isEmpty())
             return errResponse(
                     "Missing patient identifier with trusted assigning authority in request payload " + ctx.getPatientIDs(),

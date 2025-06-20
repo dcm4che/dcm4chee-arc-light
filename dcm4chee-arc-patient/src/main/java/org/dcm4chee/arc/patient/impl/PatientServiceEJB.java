@@ -252,15 +252,21 @@ public class PatientServiceEJB {
     }
 
     private void updatePatientAttrs(Patient pat, PatientMgtContext ctx, Attributes attrs, Attributes modified) {
+        String sourceOfPreviousValues = null;
+        String reasonForModification = Attributes.CORRECT;
+        if (ctx.getReasonForModification() != null) {
+            sourceOfPreviousValues = ctx.getSourceOfPreviousValues();
+            reasonForModification = ctx.getReasonForModification();
+        }
+
         updatePatientIDs(pat,
                 getArchiveDeviceExtension().retainTrustedPatientIDs(IDWithIssuer.pidsOf(attrs)));
-
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         pat.setAttributes(recordAttributeModification(ctx)
                 ? attrs.addOriginalAttributes(
-                        null,
+                        sourceOfPreviousValues,
                         new Date(),
-                        Attributes.CORRECT,
+                        reasonForModification,
                         device.getDeviceName(),
                         modified)
                 : attrs,
