@@ -71,6 +71,8 @@ public interface ProcedureService {
 
     List<MWLItem> findMWLItems(ArchiveAEExtension arcAE, HL7PSUTask hl7PSUTask);
 
+    List<MWLItem> findMWLItems(ArchiveAEExtension arcAE, Attributes studyAttrs);
+
     void updateMWLStatus(ProcedureContext ctx);
 
     void updateMWLStatus(ProcedureContext ctx, SPSStatus from);

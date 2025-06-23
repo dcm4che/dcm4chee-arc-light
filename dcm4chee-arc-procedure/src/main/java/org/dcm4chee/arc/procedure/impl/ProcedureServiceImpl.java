@@ -291,6 +291,11 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
+    public List<MWLItem> findMWLItems(ArchiveAEExtension arcAE, Attributes studyAttrs) {
+        return ejb.findMWLItems(arcAE, studyAttrs);
+    }
+
+    @Override
     public void updateMWLStatus(ProcedureContext ctx) {
         try {
             ejb.updateMWLStatus(ctx);

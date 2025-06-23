@@ -12,6 +12,7 @@
     <xsl:param name="isPIDPV1" />
     <xsl:param name="includeNullValues" />
     <xsl:param name="patientIdentifiers" />
+    <xsl:param name="resultStatus"/>
     <xsl:param name="RequestedProcedureID"/>
     <xsl:param name="AccessionNumber"/>
     <xsl:param name="PlacerOrderNumberImagingServiceRequest"/>
@@ -265,7 +266,7 @@
                 <xsl:call-template name="diagnosticServiceSectionID"/>
             </field>
             <field>
-                <xsl:value-of select="'R'" />
+                <xsl:value-of select="$resultStatus" />
             </field>
             <field/>
             <field>

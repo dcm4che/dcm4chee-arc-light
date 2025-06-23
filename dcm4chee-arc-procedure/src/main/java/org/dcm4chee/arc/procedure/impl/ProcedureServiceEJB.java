@@ -320,6 +320,14 @@ public class ProcedureServiceEJB {
                 : findMWLItems(task.getStudyInstanceUID());
     }
 
+    public List<MWLItem> findMWLItems(ArchiveAEExtension arcAE, Attributes studyAttrs) {
+        return arcAE.hl7PSUMWLMatchingKey() == HL7PSUMWLMatchingKey.AccessionNumber
+                ? em.createNamedQuery(MWLItem.FIND_BY_ACCESSION_NO_EAGER, MWLItem.class)
+                    .setParameter(1, studyAttrs.getString(Tag.AccessionNumber))
+                    .getResultList()
+                : findMWLItems(studyAttrs.getString(Tag.StudyInstanceUID));
+    }
+
     public void updateMWLStatus(ProcedureContext ctx) {
         MWLItem mwlItem = findMWLItem(ctx);
         if (mwlItem == null)

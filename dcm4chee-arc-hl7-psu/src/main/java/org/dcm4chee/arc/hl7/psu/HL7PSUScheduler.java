@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2013-2025
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -48,10 +48,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.HL7PSUAction;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.mpps.MPPSContext;
@@ -71,10 +68,12 @@ import java.util.List;
 @ApplicationScoped
 public class HL7PSUScheduler extends Scheduler {
     private static final Logger LOG = LoggerFactory.getLogger(HL7PSUScheduler.class);
-    private static final String MISSING_HL7PSU_DELAY = "HL7 Procedure Status Update Delay not configured ";
-    private static final String HL7PSU_CONDITIONS_NO_MATCH = "HL7 Procedure Status Update Conditions didn't match. ";
-    private static final String MISSING_HL7PSU_TIMEOUT = "HL7 Procedure Status Update Timeout not configured ";
-    private static final String INVALID_SSA = "Missing MPPS attributes PlacerOrderNumberImagingServiceRequest and FillerOrderNumberImagingServiceRequest in ScheduledStepAttributesSequence. ";
+    private static final String MISSING_HL7PSU_DELAY = "HL7 Procedure Status Update Delay not configured";
+    private static final String MISSING_STUDY_TRIGGER = "HL7 Procedure Status Update Trigger STUDY_RECEIVED not configured";
+    private static final String MISSING_MPPS_TRIGGER = "HL7 Procedure Status Update Trigger MPPS_RECEIVED not configured";
+    private static final String HL7PSU_CONDITIONS_NO_MATCH = "HL7 Procedure Status Update Conditions didn't match.";
+    private static final String MISSING_HL7PSU_TIMEOUT = "HL7 Procedure Status Update Timeout not configured";
+    private static final String INVALID_SSA = "Missing MPPS attributes PlacerOrderNumberImagingServiceRequest and FillerOrderNumberImagingServiceRequest in ScheduledStepAttributesSequence.";
     private static final String MISSING_HL7PSU_ACTION = "HL7 Procedure Status Update Action not configured.";
     private static final String HL7PSU_TASK_ABORT_MSG = "Abort HL7 Procedure Status Update Task creation.";
 
@@ -159,7 +158,7 @@ public class HL7PSUScheduler extends Scheduler {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getException() != null || ctx.getLocations().isEmpty() || ctx.getRejectionNote() != null)
+        if (ctx.getException() != null || ctx.getLocations().isEmpty())
             return;
 
         StoreSession session = ctx.getStoreSession();
@@ -171,13 +170,36 @@ public class HL7PSUScheduler extends Scheduler {
             return;
         }
 
-        if (arcAE.hl7PSUDelay() == null || !arcAE.hl7PSUConditions().match(
-                session.getRemoteHostName(),
-                session.getCallingAET(),
-                session.getLocalHostName(),
-                session.getCalledAET(),
-                ctx.getAttributes())) {
-            LOG.info(MISSING_HL7PSU_DELAY + "or" + HL7PSU_CONDITIONS_NO_MATCH + HL7PSU_TASK_ABORT_MSG);
+        RejectionNote rejectionNote = ctx.getRejectionNote();
+        if (rejectionNote != null) {
+            if (!rejectionNote.isRevokeRejection()
+                    && arcAE.isHL7PSUTrigger(HL7PSUTrigger.REJECTION_NOTE_RECEIVED))
+                ejb.scheduleHL7Msg(arcAE, ctx.getAttributes());
+
+            return;
+        }
+
+        if (ctx.getCreatedStudy() != null
+                && arcAE.isHL7PSUTrigger(HL7PSUTrigger.FIRST_OBJECT_OF_STUDY_RECEIVED)
+                && arcAE.hl7PSUConditions().match(
+                        session.getRemoteHostName(),
+                        session.getCallingAET(),
+                        session.getLocalHostName(),
+                        session.getCalledAET(),
+                        ctx.getAttributes()))
+            ejb.scheduleHL7Msg(arcAE, ctx.getAttributes());
+
+        if (!arcAE.isHL7PSUTrigger(HL7PSUTrigger.STUDY_RECEIVED)
+                || arcAE.hl7PSUDelay() == null
+                || !arcAE.hl7PSUConditions().match(
+                    session.getRemoteHostName(),
+                    session.getCallingAET(),
+                    session.getLocalHostName(),
+                    session.getCalledAET(),
+                    ctx.getAttributes())) {
+            LOG.info(MISSING_HL7PSU_DELAY
+                    + " or " + MISSING_STUDY_TRIGGER
+                    + " or " + HL7PSU_CONDITIONS_NO_MATCH + HL7PSU_TASK_ABORT_MSG);
             return;
         }
 
@@ -206,8 +228,12 @@ public class HL7PSUScheduler extends Scheduler {
         }
 
 
-        if (!validScheduledStepAttrs(ctx) || arcAE.hl7PSUTimeout() == null) {
-            LOG.info(MISSING_HL7PSU_TIMEOUT + "or" + INVALID_SSA + HL7PSU_TASK_ABORT_MSG);
+        if (!validScheduledStepAttrs(ctx)
+                || !arcAE.isHL7PSUTrigger(HL7PSUTrigger.MPPS_RECEIVED)
+                || arcAE.hl7PSUTimeout() == null) {
+            LOG.info(MISSING_HL7PSU_TIMEOUT
+                    + " or " + MISSING_MPPS_TRIGGER
+                    + " or " + INVALID_SSA + HL7PSU_TASK_ABORT_MSG);
             return;
         }
 

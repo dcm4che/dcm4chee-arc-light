@@ -63,7 +63,7 @@ public class HL7SenderUtils {
 
     public static byte[] hl7PSUData(
             HL7Application sender, HL7Application receiver, Attributes attrs, String uri,
-            String ppsStatus, ArchiveAEExtension arcAE)
+            String ppsStatus, String resultStatus, ArchiveAEExtension arcAE)
             throws TransformerConfigurationException, UnsupportedEncodingException, SAXException {
         return SAXTransformer.transform(attrs, sender.getHL7SendingCharacterSet(), uri, tr -> {
             tr.setParameter("sender", sender.getApplicationName());
@@ -75,6 +75,7 @@ public class HL7SenderUtils {
                     .map(IDWithIssuer::toString)
                     .collect(Collectors.joining("~")));
             tr.setParameter("isPIDPV1", arcAE.hl7PSUPIDPV1());
+            tr.setParameter("resultStatus", resultStatus);
             arcAE.hl7PSUTemplateParams().forEach(
                     (k,v) -> tr.setParameter(k, new AttributesFormat(v).format(attrs)));
             if (ppsStatus != null)
