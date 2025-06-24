@@ -10,12 +10,20 @@ import {DevicesService} from '../devices/devices.service';
 import {HttpErrorHandler} from '../../helpers/http-error-handler';
 import {KeycloakService} from '../../helpers/keycloak-service/keycloak.service';
 import {j4care} from '../../helpers/j4care.service';
+import {ConfigTabComponent} from '../config-tab.component';
+import {CommonModule, NgClass, NgStyle} from '@angular/common';
 
 @Component({
     selector: 'app-control',
     templateUrl: './control.component.html',
     styleUrls: ['./control.component.scss'],
-    standalone: false
+    imports: [
+        ConfigTabComponent,
+        NgStyle,
+        NgClass,
+        CommonModule
+    ],
+    standalone: true
 })
 export class ControlComponent implements OnInit {
     status: any;

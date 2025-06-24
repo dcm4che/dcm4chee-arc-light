@@ -4376,7 +4376,7 @@ export class StudyService {
             return (_.hasIn(studyWebService,"selectedWebService.dcmWebServiceClass") && studyWebService.selectedWebService.dcmWebServiceClass.indexOf(webServiceClass) > -1) ||
                 studyWebService.webServices.filter((webService:DcmWebApp)=>webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1).length > 0 ||
                 studyWebService.allWebServices.filter((webService:DcmWebApp)=>webService.dicomDeviceName === studyWebService.selectedWebService.dicomDeviceName && webService.dcmWebServiceClass.indexOf(webServiceClass) > -1).length > 0
-        }catch(e){
+        }catch(e: unknown){
             return false;
         }
 

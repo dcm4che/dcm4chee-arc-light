@@ -78,7 +78,7 @@ export class UploadFilesService {
             observer.complete();
           };
         }
-      }catch(e){
+      }catch(e: unknown){
         observer.next("NO_TYPE_FOUND");
         observer.complete();
       }

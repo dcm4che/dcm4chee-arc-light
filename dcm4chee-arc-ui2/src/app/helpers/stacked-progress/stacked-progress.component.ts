@@ -1,18 +1,23 @@
 import {Component, Input, OnInit} from '@angular/core';
 import * as _ from 'lodash-es';
+import {NgClass, NgStyle} from '@angular/common';
 
 @Component({
     selector: 'stacked-progress',
     templateUrl: './stacked-progress.component.html',
     styleUrls: ['./stacked-progress.component.scss'],
-    standalone: false
+    imports: [
+        NgClass,
+        NgStyle
+    ],
+    standalone: true
 })
 export class StackedProgressComponent implements OnInit {
 
     @Input() model;
     @Input() diffModel;
     progress = [];
-    totalCount:number = 0;
+    totalCount: number = 0;
     constructor() { }
 
     ngOnInit() {

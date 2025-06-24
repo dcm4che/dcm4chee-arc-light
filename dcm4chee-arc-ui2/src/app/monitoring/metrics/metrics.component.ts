@@ -7,20 +7,30 @@ import {AppService} from "../../app.service";
 import {FilterSchema, MetricsDescriptors, SelectDropdown} from "../../interfaces";
 import {j4care} from "../../helpers/j4care.service";
 import {environment} from "../../../environments/environment";
+import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
+import {CommonModule} from '@angular/common';
 
 @Component({
     selector: 'app-metrics',
     templateUrl: './metrics.component.html',
     styleUrls: ['./metrics.component.scss'],
-    standalone: false
+    imports: [
+        MonitoringTabsComponent,
+        FilterGeneratorComponent,
+        TableGeneratorComponent,
+        CommonModule
+    ],
+    standalone: true
 })
 export class MetricsComponent implements OnInit {
 
     metricsDescriptors;
-    filterObject = {
-        bin:1
+    filterObject: any = {
+        bin: 1
     };
-    filterSchema:FilterSchema;
+    filterSchema: FilterSchema;
     tableConfig;
     selectedMetricsDescriptors:MetricsDescriptors;
     metrics;

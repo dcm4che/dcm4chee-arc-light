@@ -153,7 +153,7 @@ export class DeviceConfiguratorService{
                 }
             }
             return false;
-        }catch(e){
+        }catch(e: unknown){
             return false;
         }
     }
@@ -208,7 +208,7 @@ export class DeviceConfiguratorService{
                         }
                 }
             }
-        }catch(e){
+        }catch(e: unknown){
             return {
                 prefix:[],
                 suffix:[]
@@ -1310,7 +1310,7 @@ export class DeviceConfiguratorService{
                 allOptions[schemaPath] = new OrderByPipe().transform(options,'title') || [];
                 return allOptions[schemaPath];
             }
-        }catch(e){
+        }catch(e: unknown){
             return [];
         }
 
@@ -1344,7 +1344,7 @@ export class DeviceConfiguratorService{
             tempArray.splice(0,1);
             return tempArray.reverse().join(".");
 
-        }catch(e){
+        }catch(e: unknown){
             console.error(e);
             return path;
         }

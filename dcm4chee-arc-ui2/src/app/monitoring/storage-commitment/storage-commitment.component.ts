@@ -1,7 +1,6 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-// import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import * as _ from 'lodash-es';
 import {AppService} from '../../app.service';
@@ -12,11 +11,21 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {j4care} from "../../helpers/j4care.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {CommonModule, DatePipe, NgClass} from '@angular/common';
 
 @Component({
     selector: 'app-storage-commitment',
     templateUrl: './storage-commitment.component.html',
-    standalone: false
+    imports: [
+        MonitoringTabsComponent,
+        FilterGeneratorComponent,
+        NgClass,
+        DatePipe,
+        CommonModule
+    ],
+    standalone: true
 })
 export class StorageCommitmentComponent implements OnInit {
     matches = [];

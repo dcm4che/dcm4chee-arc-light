@@ -17,18 +17,37 @@ import {ActivatedRoute} from "@angular/router";
 import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {PermissionService} from "../../helpers/permissions/permission.service";
-import {Validators} from "@angular/forms";
+import {FormsModule, Validators} from '@angular/forms';
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {map} from "rxjs/operators";
 import {SelectDropdown} from "../../interfaces";
 import {environment} from "../../../environments/environment";
 import {Component, OnDestroy, OnInit, ViewContainerRef} from "@angular/core";
+import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {CommonModule, NgClass} from '@angular/common';
+import {PermissionDirective} from '../../helpers/permissions/permission.directive';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
 
 
 @Component({
     selector: 'app-export',
     templateUrl: './export.component.html',
-    standalone: false
+    imports: [
+        MonitoringTabsComponent,
+        FilterGeneratorComponent,
+        NgClass,
+        FormsModule,
+        MatProgressSpinner,
+        PermissionDirective,
+        MatSelect,
+        MatOption,
+        TableGeneratorComponent,
+        CommonModule
+    ],
+    standalone: true
 })
 export class ExportComponent implements OnInit, OnDestroy {
     matches = [];

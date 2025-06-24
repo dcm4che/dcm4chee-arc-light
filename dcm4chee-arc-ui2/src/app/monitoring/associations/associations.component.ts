@@ -8,11 +8,24 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {j4care} from "../../helpers/j4care.service";
+import {CommonModule, NgClass} from '@angular/common';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {FormsModule} from '@angular/forms';
+import {OrderByPipe} from '../../pipes/order-by.pipe';
 
 @Component({
     selector: 'app-associations',
     templateUrl: './associations.component.html',
-    standalone: false
+    imports: [
+        NgClass,
+        MatProgressSpinner,
+        MonitoringTabsComponent,
+        FormsModule,
+        OrderByPipe,
+        CommonModule
+    ],
+    standalone: true
 })
 export class AssociationsComponent implements OnDestroy{
     updaterate: any = 3;
@@ -25,7 +38,12 @@ export class AssociationsComponent implements OnDestroy{
     pause = false;
     // myValue = 10;
     Object = Object;
-    constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: LoadingBarService, public messaging: MessagingComponent, public httpErrorHandler:HttpErrorHandler) {
+    constructor(
+        public $http: J4careHttpService,
+        public appservices: AppService, private cfpLoadingBar: LoadingBarService,
+        public messaging: MessagingComponent,
+        public httpErrorHandler: HttpErrorHandler
+    ) {
     }
 
 

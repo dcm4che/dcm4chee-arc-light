@@ -22,12 +22,28 @@ import {SelectDropdown} from "../../interfaces";
 import {WebAppsListService} from "../web-apps-list/web-apps-list.service";
 import { loadTranslations } from '@angular/localize';
 import {DeviceCloneComponent} from "../../widgets/dialogs/device-clone/device-clone.component";
+import {ConfigTabComponent} from '../config-tab.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {DcmDropDownComponent} from '../../widgets/dcm-drop-down/dcm-drop-down.component';
+import {FormsModule} from '@angular/forms';
+import {PermissionDirective} from '../../helpers/permissions/permission.directive';
+import {CommonModule} from '@angular/common';
+import {SearchPipe} from '../../pipes/search.pipe';
 
 @Component({
     selector: 'app-devices',
     templateUrl: './devices.component.html',
     styleUrls: ['./devices.component.css'],
-    standalone: false
+    imports: [
+        ConfigTabComponent,
+        FilterGeneratorComponent,
+        DcmDropDownComponent,
+        FormsModule,
+        PermissionDirective,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class DevicesComponent implements OnInit{
     debugpre = false;

@@ -88,21 +88,6 @@ $backgroundColor:var(--backgroundColor);
     }
     .left{
       height: 50px;
-/*      display: grid;
-      grid-template-columns: 1fr 16px 1fr;
-      justify-content: center;
-      justify-items: center;*/
-/*      height: 50px;
-      //float: left;
-      //width:60%;
-      display: -webkit-box;
-      display: -moz-box;
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-      margin: 10px 0;
-      -webkit-flex-flow: row wrap;
-      justify-content: space-around;*/
       .material_calendar{
         float: left;
         //width: 45%;
@@ -120,7 +105,6 @@ $backgroundColor:var(--backgroundColor);
         }
       }
       p-calendar{
-        //width: 41%;
         margin-right: 28px;
       }
       .infinit{
@@ -189,9 +173,9 @@ $backgroundColor:var(--backgroundColor);
         //margin-right: 1%;
         text-align: center;
         //float: left;
-        -webkit-box-shadow: 3px 3px 6px 0px #666;
-        -moz-box-shadow: 3px 3px 6px 0px #666;
-        box-shadow: 3px 3px 6px 0px #666;
+        -webkit-box-shadow: 3px 3px 6px 0 #666;
+        -moz-box-shadow: 3px 3px 6px 0 #666;
+        box-shadow: 3px 3px 6px 0 #666;
         &.active{
           -webkit-box-shadow: none;
           -moz-box-shadow: none;
@@ -267,9 +251,9 @@ $backgroundColor:var(--backgroundColor);
         //margin-right: 1%;
         text-align: center;
         //float: left;
-        -webkit-box-shadow: 3px 3px 6px 0px #666;
-        -moz-box-shadow: 3px 3px 6px 0px #666;
-        box-shadow: 3px 3px 6px 0px #666;
+        -webkit-box-shadow: 3px 3px 6px 0 #666;
+        -moz-box-shadow: 3px 3px 6px 0 #666;
+        box-shadow: 3px 3px 6px 0 #666;
         &.active{
           -webkit-box-shadow: none;
           -moz-box-shadow: none;
@@ -349,18 +333,18 @@ ul.j4care_select{
   z-index: 2;
   padding:0;
   height: 30px;
-  -webkit-box-shadow: 3px 3px 6px 0px #666;
-  -moz-box-shadow: 3px 3px 6px 0px #666;
-  box-shadow: 3px 3px 6px 0px #666;
+  -webkit-box-shadow: 3px 3px 6px 0 #666;
+  -moz-box-shadow: 3px 3px 6px 0 #666;
+  box-shadow: 3px 3px 6px 0 #666;
   li{
     list-style: none;
   }
   li:not(.placeholder){
     border-top: 1px solid white;
     background: rgb(56, 83, 103);
-    -webkit-box-shadow: 3px 3px 6px 0px rgba(43, 43, 43, 0.58);
-    -moz-box-shadow: 3px 3px 6px 0px rgba(43, 43, 43, 0.58);
-    box-shadow: 3px 3px 6px 0px rgba(43, 43, 43, 0.58);
+    -webkit-box-shadow: 3px 3px 6px 0 rgba(43, 43, 43, 0.58);
+    -moz-box-shadow: 3px 3px 6px 0 rgba(43, 43, 43, 0.58);
+    box-shadow: 3px 3px 6px 0 rgba(43, 43, 43, 0.58);
     width: 130%;
     &:hover{
       background: rgb(48, 91, 123);

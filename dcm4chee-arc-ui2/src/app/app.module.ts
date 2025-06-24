@@ -1,11 +1,10 @@
-import { BrowserModule, Title } from '@angular/platform-browser';
+import { BrowserModule, Title, provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { RouterModule }   from '@angular/router';
+import {NoPreloading, RouterModule} from '@angular/router';
 import {AppComponent} from './app.component';
 import { MatNativeDateModule, MAT_DATE_FORMATS, DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-//import {MAT_LEGACY_FORM_FIELD_DEFAULT_OPTIONS as MAT_FORM_FIELD_DEFAULT_OPTIONS, MatLegacyFormFieldModule as MatFormFieldModule} from '@angular/material/legacy-form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './configuration/control/control.component';
@@ -24,7 +23,7 @@ import { FormatAttributeValuePipe } from './pipes/format-attribute-value.pipe';
 import { RemovedotsPipe } from './pipes/removedots.pipe';
 import {StudiesService} from './studies/studies.service';
 import {AppService} from './app.service';
-import {AttributeListComponent} from "./helpers/attribute-list/attribute-list.component";
+import {AttributeListComponent} from './helpers/attribute-list/attribute-list.component';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SearchPipe } from './pipes/search.pipe';
 import { KeysPipe } from './pipes/keys.pipe';
@@ -34,7 +33,7 @@ import { ComparewithiodPipe } from './pipes/comparewithiod.pipe';
 import { PlaceholderchangerDirective } from './helpers/placeholderchanger.directive';
 import {QueuesService} from './monitoring/queues/queues.service';
 import { DevicesComponent } from './configuration/devices/devices.component';
-import { DeviceConfiguratorComponent } from './configuration/device-configurator/device-configurator.component';
+
 import {DynamicFormElementComponent} from './widgets/dynamicform/dynamic-form-element.component';
 import {DynamicFormComponent} from './widgets/dynamicform/dynamic-form.component';
 import { ExportComponent } from './monitoring/export/export.component';
@@ -54,117 +53,74 @@ import {ControlService} from './configuration/control/control.service';
 import { StorageSystemsComponent } from './monitoring/storage-systems/storage-systems.component';
 import {StorageSystemsService} from './monitoring/storage-systems/storage-systems.service';
 import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.service';
-import {WindowRefService} from "./helpers/window-ref.service";
+import {WindowRefService} from './helpers/window-ref.service';
 import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component';
-import { Hl7ApplicationsComponent } from './configuration/hl7-applications/hl7-applications.component';
-import {Hl7ApplicationsService} from "./configuration/hl7-applications/hl7-applications.service";
-import {AeListService} from "./configuration/ae-list/ae-list.service";
-import {HttpErrorHandler} from "./helpers/http-error-handler";
-import {j4care} from "./helpers/j4care.service";
-import {J4careHttpService} from "./helpers/j4care-http.service";
+import {Hl7ApplicationsService} from './configuration/hl7-applications/hl7-applications.service';
+import {AeListService} from './configuration/ae-list/ae-list.service';
+import {HttpErrorHandler} from './helpers/http-error-handler';
+import {j4care} from './helpers/j4care.service';
+import {J4careHttpService} from './helpers/j4care-http.service';
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
-import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
-import {AuthGuard} from "./helpers/permissions/auth.guard";
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
-import {PermissionService} from "./helpers/permissions/permission.service";
+import {DynamicFieldService} from './widgets/dynamic-field/dynamic-field.service';
+import {AuthGuard} from './helpers/permissions/auth.guard';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {PermissionService} from './helpers/permissions/permission.service';
 import { PermissionDirective } from './helpers/permissions/permission.directive';
-import {LoadingBarModule} from "@ngx-loading-bar/core";
-import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied.component";
-import {CsvUploadService} from "./widgets/dialogs/csv-upload/csv-upload.service";
+import {LoadingBarModule} from '@ngx-loading-bar/core';
+import {PermissionDeniedComponent} from './helpers/permissions/permission-denied.component';
+import {CsvUploadService} from './widgets/dialogs/csv-upload/csv-upload.service';
 import { StackedProgressComponent } from './helpers/stacked-progress/stacked-progress.component';
 import { DiffMonitorComponent } from './monitoring/diff-monitor/diff-monitor.component';
-import {DiffMonitorService} from "./monitoring/diff-monitor/diff-monitor.service";
+import {DiffMonitorService} from './monitoring/diff-monitor/diff-monitor.service';
 import { LargeIntFormatPipe } from './pipes/large-int-format.pipe';
 import { TableGeneratorComponent } from './helpers/table-generator/table-generator.component';
-import {RangePickerService} from "./widgets/range-picker/range-picker.service";
+import {RangePickerService} from './widgets/range-picker/range-picker.service';
 import { StorageVerificationComponent } from './monitoring/storage-verification/storage-verification.component';
-import {StorageVerificationService} from "./monitoring/storage-verification/storage-verification.service";
-import { ConfigTabComponent } from './configuration/config-tab.component';
+import {StorageVerificationService} from './monitoring/storage-verification/storage-verification.service';
 import {DevicesService} from './configuration/devices/devices.service';
-import {StudyTabComponent} from "./study/study-tab.component";
-import { StudyComponent } from './study/study/study.component';
-import {StudyService} from "./study/study/study.service";
-import { DicomStudiesTableComponent } from './helpers/dicom-studies-table/dicom-studies-table.component';
-import { DynamicPipePipe } from './pipes/dynamic-pipe.pipe';
-import {OptionService} from "./widgets/dropdown/option.service";
-import {RetrieveMonitoringComponent} from "./monitoring/external-retrieve/retrieve-monitoring.component";
-import {RetrieveMonitoringService} from "./monitoring/external-retrieve/retrieve-monitoring.service";
-import { ArrayToStringPipe } from './pipes/array-to-string.pipe';
-import {KeycloakService} from "./helpers/keycloak-service/keycloak.service";
-import {KeycloakHttpClient} from "./helpers/keycloak-service/keycloak-http-client.service";
-import { MetricsComponent } from './monitoring/metrics/metrics.component';
-import {MetricsService} from "./monitoring/metrics/metrics.service";
-import { WebAppsListComponent } from './configuration/web-apps-list/web-apps-list.component';
-import {WebAppsListService} from "./configuration/web-apps-list/web-apps-list.service";
-import {SearchDicomPipe} from "./pipes/search-dicom.pipe";
-import {ClickOutsideDirective2} from "./helpers/click-outside2.directive";
-import { SelectionsDicomViewComponent } from './study/study/selections-dicom-view/selections-dicom-view.component';
-import {SelectionsDicomViewService} from "./study/study/selections-dicom-view/selections-dicom-view.service";
-import {MY_FORMATS} from "./constants/globalvar";
-import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from "@angular/material-moment-adapter";
 
-// import localeDe from '@angular/common/locales/de';
-//import {MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogModule as MatDialogModule} from '@angular/material/legacy-dialog';
-import { CustomAttributeListComponent } from './helpers/custom-attribute-list/custom-attribute-list.component';
+import {StudyService} from './study/study/study.service';
+import { DynamicPipePipe } from './pipes/dynamic-pipe.pipe';
+import {OptionService} from './widgets/dropdown/option.service';
+import {RetrieveMonitoringService} from './monitoring/external-retrieve/retrieve-monitoring.service';
+import { ArrayToStringPipe } from './pipes/array-to-string.pipe';
+import {KeycloakService} from './helpers/keycloak-service/keycloak.service';
+import {KeycloakHttpClient} from './helpers/keycloak-service/keycloak-http-client.service';
+import {MetricsService} from './monitoring/metrics/metrics.service';
+import {WebAppsListService} from './configuration/web-apps-list/web-apps-list.service';
+
+import {SelectionsDicomViewService} from './study/study/selections-dicom-view/selections-dicom-view.service';
+import {MY_FORMATS} from './constants/globalvar';
+import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter} from '@angular/material-moment-adapter';
+
 import { CustomDatePipe } from './pipes/custom-date.pipe';
-import {UploadFilesService} from "./widgets/dialogs/upload-files/upload-files.service";
-import {MatSelectModule} from "@angular/material/select";
-import {MatCheckboxModule} from "@angular/material/checkbox";
-import {MatButtonModule} from "@angular/material/button";
-import {MatProgressBarModule} from "@angular/material/progress-bar";
-import {MatInputModule} from "@angular/material/input";
-import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {MatRadioModule} from "@angular/material/radio";
-import {MatMenuModule} from "@angular/material/menu";
-//import {MatDialogModule} from '@angular/material/dialog';
+import {UploadFilesService} from './widgets/dialogs/upload-files/upload-files.service';
+import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatButtonModule} from '@angular/material/button';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatMenuModule} from '@angular/material/menu';
 import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
-import { MatFormFieldModule} from "@angular/material/form-field";
-import { FormGeneratorComponent } from './helpers/form-generator/form-generator.component';
-//import {MatLegacyDialogModule} from "@angular/material/legacy-dialog";
+import { MatFormFieldModule} from '@angular/material/form-field';
 
 
 // registerLocaleData(localeDe, 'de-DE');
 
+
+
 @NgModule({ declarations: [
         AppComponent,
         PageNotFoundComponent,
-        ControlComponent,
-        QueuesComponent,
-        OrderByPipe,
-        GetKeyPipe,
-        FormatDAPipe,
-        FormatTMPipe,
-        ContentDescriptionPipe,
-        PersonNamePipe,
-        RemovedotsPipe,
-        KeysPipe,
-        ComparewithiodPipe,
-        DevicesComponent,
-        ExportComponent,
-        DicomConnectionFormaterPipe,
-        AssociationsComponent,
-        StorageCommitmentComponent,
-        ConnectionFormaterComponent,
-        AeListComponent,
-        UtcPipe,
         CustomValidatorDirective,
-        StorageSystemsComponent,
-        MonitoringTabsComponent,
-        Hl7ApplicationsComponent,
-        RetrieveMonitoringComponent,
-        PermissionDeniedComponent,
-        StackedProgressComponent,
-        DiffMonitorComponent,
-        LargeIntFormatPipe,
-        TableGeneratorComponent,
-        StorageVerificationComponent,
-        ConfigTabComponent,
-        MetricsComponent,
-        WebAppsListComponent
+        PermissionDeniedComponent
     ],
     bootstrap: [AppComponent],
-    exports: [ArrayToStringPipe, PlaceholderchangerDirective, ClickOutsideDirective, IodFormGeneratorComponent, FilterGeneratorComponent, FormGeneratorComponent, SelectionsDicomViewComponent],
+    exports: [
+    ],
     imports: [BrowserModule,
         FormsModule,
         MatIconModule,
@@ -203,7 +159,6 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
                 redirectTo: '/monitoring/queues',
                 pathMatch: 'full'
             },
-            //{path: 'study/:tab', component: StudyComponent, canActivate: [AuthGuard]},
             {
                 path: 'study/:tab',
                 canActivate: [AuthGuard],
@@ -223,7 +178,8 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
             },
             {
                 path: 'monitoring/external',
-                loadComponent: () => import('./monitoring/external-retrieve/retrieve-monitoring.component').then(m => m.RetrieveMonitoringComponent),
+                loadComponent: () => import('./monitoring/external-retrieve/retrieve-monitoring.component')
+                    .then(m => m.RetrieveMonitoringComponent),
                 canActivate: [AuthGuard]
             },
             {
@@ -238,7 +194,8 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
             },
             {
                 path: 'monitoring/storage-commitment',
-                loadComponent: () => import('./monitoring/storage-commitment/storage-commitment.component').then(m => m.StorageCommitmentComponent),
+                loadComponent: () => import('./monitoring/storage-commitment/storage-commitment.component')
+                    .then(m => m.StorageCommitmentComponent),
                 canActivate: [AuthGuard]
             },
             {
@@ -248,7 +205,8 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
             },
             {
                 path: 'monitoring/storage-verification',
-                loadComponent: () => import('./monitoring/storage-verification/storage-verification.component').then(m => m.StorageVerificationComponent),
+                loadComponent: () => import('./monitoring/storage-verification/storage-verification.component')
+                    .then(m => m.StorageVerificationComponent),
                 canActivate: [AuthGuard]
             },
             {
@@ -278,32 +236,43 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
             },
             {
                 path: 'device/hl7applications',
-                loadComponent: () => import('./configuration/hl7-applications/hl7-applications.component').then(m => m.Hl7ApplicationsComponent),
+                loadComponent: () => import('./configuration/hl7-applications/hl7-applications.component')
+                    .then(m => m.Hl7ApplicationsComponent),
                 canActivate: [AuthGuard]
             },
             {
                 path: 'device/edit/:device',
-                loadComponent: () => import('./configuration/device-configurator/device-configurator.component').then(m => m.DeviceConfiguratorComponent),
+                loadComponent: () => import('./configuration/device-configurator/device-configurator.component')
+                    .then(m => m.DeviceConfiguratorComponent),
                 canActivate: [AuthGuard]
             },
             {
                 path: 'device/edit/:device/:devicereff',
-                loadComponent: () => import('./configuration/device-configurator/device-configurator.component').then(m => m.DeviceConfiguratorComponent),
+                loadComponent: () => import('./configuration/device-configurator/device-configurator.component')
+                    .then(m => m.DeviceConfiguratorComponent),
                 canActivate: [AuthGuard]
             },
             {
                 path: 'device/edit/:device/:devicereff/:schema',
-                loadComponent: () => import('./configuration/device-configurator/device-configurator.component').then(m => m.DeviceConfiguratorComponent),
+                loadComponent: () => import('./configuration/device-configurator/device-configurator.component')
+                    .then(m => m.DeviceConfiguratorComponent),
                 canActivate: [AuthGuard]
             },
             {
                 path: 'device/edit/:device/:devicereff/:schema/:clone',
-                loadComponent: () => import('./configuration/device-configurator/device-configurator.component').then(m => m.DeviceConfiguratorComponent),
+                loadComponent: () => import('./configuration/device-configurator/device-configurator.component')
+                    .then(m => m.DeviceConfiguratorComponent),
                 canActivate: [AuthGuard]
             },
             {path: '**', component: PageNotFoundComponent}
-        ], {useHash: false}),
-        DeviceConfiguratorComponent, DynamicFormElementComponent, DynamicFormComponent, WidgetsComponents, ArrayToStringPipe, ClickOutsideDirective, ClickOutsideDirective2, PatientIssuerPipe, IodFormGeneratorComponent, PlaceholderchangerDirective, TrimPipe, SearchPipe, FilterGeneratorComponent, DynamicPipePipe, SelectionsDicomViewComponent, FormGeneratorComponent, StudyTabComponent, StudyComponent, DicomStudiesTableComponent, CustomAttributeListComponent, CustomDatePipe, FormatTagPipe, FormatAttributeValuePipe, AttributeListComponent, TooltipDirective, PermissionDirective, SearchDicomPipe], providers: [
+        ], {
+            useHash: false,
+            preloadingStrategy: NoPreloading
+        }),
+        WidgetsComponents,
+        PlaceholderchangerDirective,
+        PermissionDirective, ClickOutsideDirective,
+    ], providers: [
         WidgetsComponents,
         WidgetsModule,
         MatDatepickerModule,
@@ -363,5 +332,6 @@ import { FormGeneratorComponent } from './helpers/form-generator/form-generator.
         // { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: MY_FORMATS },
         { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
         provideHttpClient(withInterceptorsFromDi()),
+        provideClientHydration(withEventReplay()),
     ] })
 export class AppModule { }

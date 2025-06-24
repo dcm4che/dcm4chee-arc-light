@@ -1,22 +1,39 @@
 import { Component, OnInit } from '@angular/core';
-import {Hl7ApplicationsService} from "./hl7-applications.service";
-import {AppService} from "../../app.service";
-import {HostListener} from "@angular/core";
+import {Hl7ApplicationsService} from './hl7-applications.service';
+import {AppService} from '../../app.service';
+import {HostListener} from '@angular/core';
 import * as _ from 'lodash-es';
-import {Router} from "@angular/router";
-import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
-import {WindowRefService} from "../../helpers/window-ref.service";
-import {j4care} from "../../helpers/j4care.service";
+import {Router, RouterLink} from '@angular/router';
+import {HttpErrorHandler} from '../../helpers/http-error-handler';
+import {KeycloakService} from '../../helpers/keycloak-service/keycloak.service';
+import {WindowRefService} from '../../helpers/window-ref.service';
+import {j4care} from '../../helpers/j4care.service';
+import {ConfigTabComponent} from '../config-tab.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {FormsModule} from '@angular/forms';
+import {ConnectionFormaterComponent} from '../../helpers/connection-formater/connection-formater.component';
+import {SearchPipe} from '../../pipes/search.pipe';
+import {CommonModule, SlicePipe} from '@angular/common';
+import {Aet} from '../../models/aet';
 
 @Component({
     selector: 'app-hl7-applications',
     templateUrl: './hl7-applications.component.html',
-    standalone: false
+    imports: [
+        ConfigTabComponent,
+        FilterGeneratorComponent,
+        FormsModule,
+        RouterLink,
+        ConnectionFormaterComponent,
+        SearchPipe,
+        SlicePipe,
+        CommonModule
+    ],
+    standalone: true
 })
 export class Hl7ApplicationsComponent implements OnInit {
 
-    hl7Applications;
+    hl7Applications: any[] = [];
     moreHl7 = {
         limit: 30,
         start: 0,
@@ -26,28 +43,31 @@ export class Hl7ApplicationsComponent implements OnInit {
     filter = {};
     devicefilter = '';
     filterHeight = 2;
-    urlParam = "";
+    urlParam = '';
     filterSchema;
     constructor(
-        private service:Hl7ApplicationsService,
-        public mainservice:AppService,
-        private router: Router,
-        private httpErrorHandler:HttpErrorHandler
+        private service: Hl7ApplicationsService,
+        public mainservice: AppService,
+        private router:  Router,
+        private httpErrorHandler: HttpErrorHandler
     ) { }
-    ngOnInit(){
+    ngOnInit() {
         this.initCheck(10);
         this.filterSchema = this.service.getFiltersSchema();
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if ((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) ||
+            (_.hasIn(this.mainservice, 'global.notSecure') &&
+                this.mainservice.global.notSecure)
+        ) {
             this.init();
-        }else{
-            if (retries){
-                setTimeout(()=>{
-                    $this.initCheck(retries-1);
-                },20);
-            }else{
+        } else {
+            if (retries) {
+                setTimeout(() => {
+                    $this.initCheck(retries - 1);
+                }, 20);
+            } else {
                 this.init();
             }
         }
@@ -58,41 +78,42 @@ export class Hl7ApplicationsComponent implements OnInit {
 
     @HostListener('window:scroll', ['$event'])
     loadMoreDeviceOnScroll(event) {
-        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0]).top : 0,
-            hH = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0] ?
+                j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0]).top : 0,
+            hH = WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0].offsetHeight,
             wH = WindowRefService.nativeWindow.innerHeight,
             wS = WindowRefService.nativeWindow.pageYOffset;
-        if (wS > (hT + hH - wH)){
+        if (wS > (hT + hH - wH)) {
             this.loadMoreDevices();
         }
     }
-    loadMoreDevices(){
+    loadMoreDevices() {
         this.moreHl7.loaderActive = true;
         this.moreHl7.limit += 20;
         this.moreHl7.loaderActive = false;
     }
 
-    clearForm(){
+    clearForm() {
         let $this = this;
         _.forEach($this.filter, (m, i) => {
             $this.filter[i] = '';
         });
     };
-    editDevice(devicename){
-        if (devicename && devicename != ''){
+    editDevice(devicename: string) {
+        if (devicename && devicename != '') {
             this.router.navigateByUrl('/device/edit/' + devicename + '/dcmDevice/properties.dcmDevice');
         }
     }
-    getHl7ApplicationsList(retries){
+    getHl7ApplicationsList(retries) {
         let $this = this;
         this.service.getHl7ApplicationsList(this.filter).subscribe(
-            (res)=>{
+            (res) => {
                 $this.hl7Applications = res;
             },
-            (err)=>{
-                if(retries){
+            (err) => {
+                if (retries) {
                     $this.getHl7ApplicationsList(retries - 1);
-                }else{
+                } else {
                     $this.httpErrorHandler.handleError(err);
                 }
             }

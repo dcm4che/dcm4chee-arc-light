@@ -71,7 +71,7 @@ export class PermissionService {
                             this.mainservice.deviceName = deviceName;
                             this.mainservice.archiveDeviceName = archiveDeviceName;
                             this.mainservice.setGlobal(global);
-                        }catch(e){
+                        }catch(e: unknown){
                             console.warn("Permission not found!",e);
                             this.mainservice.showError("Permission not found!");
                             return response.call(this);
@@ -134,7 +134,7 @@ export class PermissionService {
                         this.mainservice.archiveDeviceName = archiveDeviceName;
                         this.mainservice.deviceName = deviceName;
                         this.mainservice.setGlobal(global);
-                    }catch(e){
+                    }catch(e: unknown){
                         console.warn("Permission not found!",e);
                         if(this.mainservice.global.notSecure || (this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)){
                             this.mainservice.global.notSecure = true;
@@ -246,7 +246,7 @@ export class PermissionService {
                 }else{
                     return [];
                 }
-            }catch(e){
+            }catch(e: unknown){
                 console.warn(e);
                 return [];
             }

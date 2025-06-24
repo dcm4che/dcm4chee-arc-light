@@ -40,6 +40,7 @@ export class j4care {
         private router: Router,
         private sanitizer : DomSanitizer
     ) {}
+
     static traverse(object,func, savedKeys?:string){
         if(savedKeys != undefined){
             savedKeys += `[${savedKeys}]`;
@@ -224,7 +225,7 @@ export class j4care {
         return Observable.create(observer=>{
             promise.then(res=>{
                 observer.next(res);
-            }).catch(err=>{
+            }).catch((err: unknown)=>{
                 observer.error(err);
             })
         });
@@ -1165,7 +1166,6 @@ export class j4care {
                     }
                 }
             });
-            console.log("calculated table",table);
             return table;
         }catch (e){
             this.log("Error on calculating width of table",e);
@@ -1441,7 +1441,7 @@ export class j4care {
                 }
             }
             return devices;
-        }catch(e){
+        }catch(e: unknown){
             this.log("Error on mapping devices", e);
             return devices;
         }
@@ -1457,7 +1457,7 @@ export class j4care {
                 }
             }
             return aets;
-        }catch(e){
+        }catch(e: unknown){
             this.log("Error on mapping aets", e);
             return aets;
         }
@@ -1486,7 +1486,7 @@ export class j4care {
                console.log(`${key}:`,object[key]);
             });
             console.groupEnd();
-        }catch(e){
+        }catch(e: unknown){
             console.error(e);
         }
     }
@@ -1531,7 +1531,7 @@ export class j4care {
             }else{
                 return array.toString();
             }
-        }catch(e){
+        }catch(e: unknown){
             this.log("Error on join",e);
             return "";
         }
@@ -1883,7 +1883,7 @@ export class j4care {
                     observer.next(url);
                     observer.complete();
                 }
-            }catch(e){
+            }catch(e: unknown){
                 observer.error(e);
                 observer.complete();
             }
@@ -1900,7 +1900,7 @@ export class j4care {
                 return m[1];
             }
             return;
-        }catch(e){
+        }catch(e: unknown){
             j4care.log("Error on extratcing AET from path",e);
         }
     }
@@ -1908,7 +1908,7 @@ export class j4care {
     static isFilesArray(files:(File[]|any)):boolean{
         try{
             return (files instanceof Array) && files.length > 0 && (files[0] instanceof File);
-        }catch(e){
+        }catch(e: unknown){
             return false;
         }
     }

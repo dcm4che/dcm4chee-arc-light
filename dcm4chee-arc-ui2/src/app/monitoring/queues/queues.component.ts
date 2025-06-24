@@ -2,7 +2,6 @@ import {Component, OnInit, ViewContainerRef, OnDestroy} from '@angular/core';
 import {QueuesService} from './queues.service';
 import {AppService} from '../../app.service';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-// import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../helpers/window-ref.service";
@@ -21,12 +20,32 @@ import {PermissionService} from "../../helpers/permissions/permission.service";
 import {environment} from "../../../environments/environment";
 import {Device} from "../../models/device";
 import {SelectDropdown} from "../../interfaces";
+import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {CommonModule, NgClass} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {PermissionDirective} from '../../helpers/permissions/permission.directive';
+import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
 
 
 @Component({
     selector: 'app-queues',
     templateUrl: './queues.component.html',
-    standalone: false
+    imports: [
+        MonitoringTabsComponent,
+        FilterGeneratorComponent,
+        NgClass,
+        FormsModule,
+        MatProgressSpinner,
+        MatSelect,
+        MatOption,
+        PermissionDirective,
+        TableGeneratorComponent,
+        CommonModule
+    ],
+    standalone: true
 })
 export class QueuesComponent implements OnInit, OnDestroy{
     private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);

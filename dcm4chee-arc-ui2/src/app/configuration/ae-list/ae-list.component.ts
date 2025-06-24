@@ -15,15 +15,34 @@ import {KeycloakService} from '../../helpers/keycloak-service/keycloak.service';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 import { loadTranslations } from '@angular/localize';
+import {ConfigTabComponent} from '../config-tab.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {FormsModule} from '@angular/forms';
+import {PermissionDirective} from '../../helpers/permissions/permission.directive';
+import {RouterLink} from '@angular/router';
+import {ConnectionFormaterComponent} from '../../helpers/connection-formater/connection-formater.component';
+import {CommonModule} from '@angular/common';
+import {SearchPipe} from '../../pipes/search.pipe';
+import {Aet} from '../../models/aet';
 
 @Component({
     selector: 'app-ae-list',
     templateUrl: './ae-list.component.html',
-    standalone: false
+    imports: [
+        ConfigTabComponent,
+        FilterGeneratorComponent,
+        FormsModule,
+        PermissionDirective,
+        RouterLink,
+        ConnectionFormaterComponent,
+        CommonModule,
+        SearchPipe
+    ],
+    standalone: true
 })
 export class AeListComponent implements OnInit {
     _ = _;
-    aes;
+    aes: any[];
     advancedConfig;
     aets;
     aesfilter = '';
@@ -130,7 +149,7 @@ export class AeListComponent implements OnInit {
         this.cfpLoadingBar.start();
         let $this = this;
         this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}aes${j4care.param(this.filter)}`)
-            .subscribe((response) => {
+            .subscribe((response: Aet[]) => {
                 $this.aes = response;
                 $this.cfpLoadingBar.complete();
             }, (err) => {
@@ -154,7 +173,7 @@ export class AeListComponent implements OnInit {
         });
         this.searchAes();
     };
-    echoAe(ae) {
+    echoAe(ae: string) {
         let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         let select: any = [];
         _.forEach(this.aets, (m, i) => {
@@ -402,7 +421,7 @@ export class AeListComponent implements OnInit {
         console.log('newAet', newAet);
         console.log('setAetAsAcceptedCallingAet', setAetAsAcceptedCallingAet);
         let deviceAet = {};
-        this.aes.forEach(ae => {
+        this.aes.forEach((ae: any) => {
             if (setAetAsAcceptedCallingAet.indexOf(ae.dicomAETitle) > -1) {
                 deviceAet[ae.dicomDeviceName] = deviceAet[ae.dicomDeviceName] || [];
                 deviceAet[ae.dicomDeviceName].push(ae);

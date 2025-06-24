@@ -5,7 +5,14 @@
             <h2 i18n="@@hl7_applications">Hl7 Applications</h2>
             <div class="filter_line" *ngIf="advancedConfig">
                 <div class="filter_block">
-                    <filter-generator [filterIdTemplate]="'device-list'" [filterID]="'device-list'" [schema]="filterSchema" [model]="filter" (submit)="getHl7ApplicationsList(0)" [filterTreeHeight]="filterHeight"></filter-generator>
+                    <filter-generator 
+                            [filterIdTemplate]="'device-list'" 
+                            [filterID]="'device-list'" 
+                            [schema]="filterSchema"
+                            [model]="filter" 
+                            (submit)="getHl7ApplicationsList(0)" 
+                            [filterTreeHeight]="filterHeight"
+                    ></filter-generator>
                 </div>
             </div>
             <div class="filter_line more_function_block">
@@ -30,27 +37,48 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let device of hl7Applications | search:devicefilter | slice:moreHl7.start:moreHl7.limit; let i = index">
-                    <td class="buttons_td">
-                        <span class="numbers">{{i+1}}.</span>
-                        <a class="table_btn" i18n-title="@@edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </a>
-                    </td>
-                    <td><div *ngIf="device['dicomDeviceName']" >
-                        <a i18n-title="@@edit_device"  title="Edit device" href="" routerLink="/device/edit/{{device['dicomDeviceName']}}">
-                            {{device['dicomDeviceName']}}
-                        </a>
-                    </div></td>
-                    <td><div *ngIf="device['dicomDescription']" >{{device['dicomDescription']}}</div></td>
-                    <td><div *ngIf="device['hl7ApplicationName']" >{{device['hl7ApplicationName']}}</div></td>
-                    <td>
-                        <connection-formater [dicomNetworkConnection]="device['dicomNetworkConnection']"></connection-formater>
-                    </td>
-                </tr>
+                    @for (device of hl7Applications | search:devicefilter | slice:moreHl7.start:moreHl7.limit;track device['dicomDeviceName']; let i = $index){
+                        <tr>
+                            <td class="buttons_td">
+                                <span class="numbers">{{i+1}}.</span>
+                                <a class="table_btn" i18n-title="@@edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device['dicomDeviceName'])">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </a>
+                            </td>
+                            <td>
+                                @if (device['dicomDeviceName']){
+                                    <div >
+                                        <a i18n-title="@@edit_device"  title="Edit device" href="" routerLink="/device/edit/{{device['dicomDeviceName']}}">
+                                            {{device['dicomDeviceName']}}
+                                        </a>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (device['dicomDescription']){
+                                    <div >{{device['dicomDescription']}}</div>
+                                }
+                            </td>
+                            <td>
+                                @if (device['hl7ApplicationName']){
+                                    <div >{{device['hl7ApplicationName']}}</div>
+                                }
+                            </td>
+                            <td>
+                                <connection-formater [dicomNetworkConnection]="device['dicomNetworkConnection']"></connection-formater>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
-            <button class="load_more" *ngIf="hl7Applications && moreHl7.limit <= hl7Applications.length" (click)="loadMoreDevices()"><i *ngIf="moreHl7.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i><ng-container i18n="@@more">More</ng-container></button>
+            @if (hl7Applications && moreHl7.limit <= hl7Applications.length){
+                <button class="load_more" (click)="loadMoreDevices()">
+                    @if (moreHl7.loaderActive){
+                        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+                    }
+                    <ng-container i18n="@@more">More</ng-container>
+                </button>
+            }
 <!--            <div role="tabpanel"  class="device_modus" id="device_modus">
                 <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" placeholder="Search device"/>
                 <div *ngIf="advancedConfig" class="ng-hide">

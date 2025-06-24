@@ -7,7 +7,6 @@ import {DatePipe} from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import {j4care} from "./helpers/j4care.service";
 import {DcmWebApp} from "./models/dcm-web-app";
-import {Router} from "@angular/router";
 import {Error} from "tslint/lib/error";
 import {first, map, combineLatest, switchMap} from "rxjs/operators";
 import { loadTranslations } from '@angular/localize';
@@ -30,8 +29,7 @@ export class AppService implements OnInit, OnDestroy{
     keycloak;
     private _dcm4cheeArcConfig;
     constructor(
-        public $httpClient:HttpClient,
-        private router: Router
+        public $httpClient:HttpClient
     ) {
         this.subscription = this.globalSet$.subscribe(obj => {
             this._global = obj;
@@ -454,7 +452,7 @@ export class AppService implements OnInit, OnDestroy{
                         });
                         tempDcm4cheeArch["deviceNameUrlMap"] = deviceNameUrlMap;
 
-                    }catch(e){
+                    }catch(e: unknown){
 
                     }
                     this._dcm4cheeArcConfig = tempDcm4cheeArch;

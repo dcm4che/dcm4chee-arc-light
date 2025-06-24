@@ -18,14 +18,33 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {forkJoin} from "rxjs";
 import {map} from "rxjs/operators";
 import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
-import {Validators} from "@angular/forms";
+import {FormsModule, Validators} from '@angular/forms';
 import {environment} from "../../../environments/environment";
+import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {CommonModule, NgClass} from '@angular/common';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
+import {PermissionDirective} from '../../helpers/permissions/permission.directive';
+import {MatOption, MatSelect} from '@angular/material/select';
 
 @Component({
     selector: 'diff-monitor',
     templateUrl: './diff-monitor.component.html',
     styleUrls: ['./diff-monitor.component.scss'],
-    standalone: false
+    imports: [
+        MonitoringTabsComponent,
+        FilterGeneratorComponent,
+        NgClass,
+        FormsModule,
+        MatProgressSpinner,
+        TableGeneratorComponent,
+        MatSelect,
+        MatOption,
+        PermissionDirective,
+        CommonModule
+    ],
+    standalone: true
 })
 export class DiffMonitorComponent implements OnInit {
 

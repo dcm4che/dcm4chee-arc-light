@@ -1,33 +1,42 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
-// import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AppService} from '../../app.service';
 import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {StorageSystemsService} from './storage-systems.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
-import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {HttpErrorHandler} from '../../helpers/http-error-handler';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {environment} from "../../../environments/environment";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {SelectDropdown} from "../../interfaces";
+import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {CommonModule, NgClass, NgStyle} from '@angular/common';
 
 @Component({
     selector: 'app-storage-systems',
     templateUrl: './storage-systems.component.html',
     styles: [`
-        .td_buttons{
-            width:55px;
+        .td_buttons {
+            width: 55px;
         }
 
-        .td_buttons a{
+        .td_buttons a {
             padding: 2px;
         }
     `],
-    standalone: false
+    imports: [
+        MonitoringTabsComponent,
+        FilterGeneratorComponent,
+        NgClass,
+        NgStyle,
+        CommonModule
+    ],
+    standalone: true
 })
 export class StorageSystemsComponent implements OnInit {
     matches = [];
@@ -64,7 +73,10 @@ export class StorageSystemsComponent implements OnInit {
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if(
+            (KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) ||
+            (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)
+        ){
             this.init();
         }else{
             if (retries){
@@ -88,7 +100,6 @@ export class StorageSystemsComponent implements OnInit {
         }
     };
     confirm(confirmparameters){
-        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
             width: '500px'

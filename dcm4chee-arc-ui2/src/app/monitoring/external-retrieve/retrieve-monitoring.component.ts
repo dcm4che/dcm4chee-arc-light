@@ -3,10 +3,9 @@ import {AppService} from "../../app.service";
 import * as _ from 'lodash-es';
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
-// import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import {DatePipe} from "@angular/common";
+import {CommonModule, DatePipe, NgClass} from '@angular/common';
 import {j4care} from "../../helpers/j4care.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from '@ngx-loading-bar/core';
@@ -14,7 +13,7 @@ import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.co
 import {Globalvar} from "../../constants/globalvar";
 import {ActivatedRoute} from "@angular/router";
 import {PermissionService} from "../../helpers/permissions/permission.service";
-import {Validators} from "@angular/forms";
+import {FormsModule, Validators} from '@angular/forms';
 import {AppComponent} from "../../app.component";
 import {SelectDropdown} from "../../interfaces";
 import {RetrieveMonitoringService} from "./retrieve-monitoring.service";
@@ -23,11 +22,29 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {forkJoin} from "rxjs";
 import {map} from "rxjs/operators";
 import {environment} from "../../../environments/environment";
+import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {PermissionDirective} from '../../helpers/permissions/permission.directive';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
 
 @Component({
     selector: 'retrieve-monitoring',
     templateUrl: './retrieve-monitoring.component.html',
-    standalone: false
+    imports: [
+        MonitoringTabsComponent,
+        FilterGeneratorComponent,
+        NgClass,
+        FormsModule,
+        MatProgressSpinner,
+        PermissionDirective,
+        MatSelect,
+        MatOption,
+        TableGeneratorComponent,
+        CommonModule
+    ],
+    standalone: true
 })
 export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     before;
@@ -1511,7 +1528,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             } else {
                 return `${Math.round(rawSec)} s`;
             }
-        }catch(e){
+        }catch(e: unknown){
             return "-";
         }
     }

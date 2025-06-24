@@ -123,7 +123,6 @@ export class RangePickerComponent implements OnInit {
         }catch (e) {
             console.error(e);
         }
-        //this[mode] = (<Moment>e.value).format(format);
         this.showPicker = false;
         this.setRange();
     }

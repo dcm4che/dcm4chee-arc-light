@@ -111,7 +111,7 @@ export class AppRequestsService {
                         });
                         tempDcm4cheeArch["deviceNameUrlMap"] = deviceNameUrlMap;
 
-                    }catch(e){
+                    }catch(e: unknown){
 
                     }
                     this._dcm4cheeArcConfig = tempDcm4cheeArch;
@@ -145,7 +145,7 @@ export class AppRequestsService {
                             this.appService.deviceName = deviceName;
                             this.appService.archiveDeviceName = archiveDeviceName;
                             this.appService.setGlobal(global);
-                        }catch(e){
+                        }catch(e: unknown){
                             console.warn("Permission not found!",e);
                             this.appService.showError($localize `:@@permission_not_found:Permission not found!`);
                         }

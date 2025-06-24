@@ -283,7 +283,7 @@ export class AppComponent implements OnInit {
 
     }
 
-    refreshTime(worker) {
+    refreshTime(workerTemp: any) {
         let currentBrowserTime = new Date().getTime();
         this.appRequests.getServerTime()
             .subscribe(res => {
@@ -291,7 +291,7 @@ export class AppComponent implements OnInit {
                     let serverTimeObject = j4care.splitTimeAndTimezone(res.serverTimeWithTimezone);
                     this.timeZone = serverTimeObject.timeZone;
                     this.mainservice.timeZone = this.timeZone;
-                    worker.postMessage({
+                    workerTemp.postMessage({
                         serverTime: new Date(serverTimeObject.time).getTime() + ((new Date().getTime() - currentBrowserTime) / 2),
                         idle: document.hidden
                     });

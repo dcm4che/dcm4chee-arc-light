@@ -545,7 +545,7 @@ export class DynamicFormElementComponent implements OnDestroy{
                     }
                 }
             }
-        }catch(ev){
+        }catch(ev: unknown){
             console.error($localize `:@@dynamic-form-element.error_setting_changed_value:error setting changed value`,ev);
         }
         formelement.showPicker = false;

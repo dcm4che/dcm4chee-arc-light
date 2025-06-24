@@ -76,7 +76,7 @@ export class KeycloakService {
                                 this.mainservice.setSecured(true);
                                 this.mainservice.updateGlobal("notSecure",false);
                                 resolve(null);
-                            }).catch(err=>{
+                            }).catch((err: unknown)=>{
                                 this.mainservice.setSecured(false);
                                 this.mainservice.updateGlobal("notSecure",true);
                                 console.error("err on loadingUserProfile",err);
@@ -88,7 +88,7 @@ export class KeycloakService {
                             console.warn('User is not authenticated');
                         }
                     })
-                    .catch(err => {
+                    .catch((err: unknown) => {
                         console.error('Failed to initialize Keycloak', err);
                     });
       /*          KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
@@ -192,7 +192,7 @@ export class KeycloakService {
                                 .then(() => {
                                     resolve(<any>KeycloakService.keycloakAuth);
                                 })
-                                .catch(() => {
+                                .catch((e:unknown) => {
                                     reject($localize `:@@keycloak.failed_to_refresh_token:Failed to refresh token`);
                                 });
                         } else {

@@ -911,7 +911,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         Object.keys(this.selectedElements.postActionElements[level]).forEach(id=>{
                             this.selectedElements.postActionElements.toggle(level,{id:id,idParts:[]}, {});
                         });
-                    }catch(e){
+                    }catch(e: unknown){
 
                     }
                 });
@@ -1775,7 +1775,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     window.open(url);
                 }
             });
-        }catch(e){
+        }catch(e: unknown){
             j4care.log("Something went wrong while opening the Viewer",e);
             this.appService.showError($localize `:@@study_error_on_opening_viewer:Something went wrong while opening the Viewer open the inspect to see more details`);
         }
